@@ -37,7 +37,6 @@ nosetests.xml
 
 ## Eclipse: https://github.com/github/gitignore/blob/master/Global/Eclipse.gitignore
 ##
-*.pydevproject
 .metadata
 .gradle
 bin/
@@ -49,6 +48,7 @@ tmp/
 local.properties
 .settings/
 .loadpath
+__pycache__/
 
 # External tool builders
 .externalToolBuilders/

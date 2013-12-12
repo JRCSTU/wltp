@@ -37,6 +37,7 @@ setup(
     author_email = "ankostis@gmail.com",
     url = "https://webgate.ec.europa.eu/CITnet/confluence/display/VECTO",
     download_url = "https://webgate.ec.europa.eu/CITnet/confluence/display/VECTO",
+    license = "GNU Affero General Public License v3 or later (AGPLv3+)",
     keywords = ['wltc', 'cycles', 'emissions', 'simulation', 'vehicles', 'cars', 'nedc'],
     classifiers = [
         "Programming Language :: Python",
