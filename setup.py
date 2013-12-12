@@ -1,9 +1,37 @@
+#!/usr/bin/env python
+# -*- coding: ISO-8859-1 -*-
+#
+# Copyright 2013-2014 ankostis@gmail.com
+#
+# This file is part of wltcg.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+
 # wltcg's setup.py
 from distutils.core import setup
+
+## Version-trick to have version-info in a single place,
+## taken from: http://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
+##
+__version_info__ = ('x', 'x', 'x')
+exec(open('wltcg/_version.py').read())  # To read __version_info__
+
 setup(
     name = "wltcg",
     packages = ["wltcg"],
-    version = "0.0.0",
+    version = '.'.join(__version_info__),
     description = "WLTC gear-shift calculator",
     author = "ankostis",
     author_email = "ankostis@gmail.com",
@@ -23,7 +51,7 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-    long_description = """\
+    long_description = """
 WLTC gear-shift calculator
 --------------------------
 
