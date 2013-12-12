@@ -21,17 +21,30 @@
 
 # wltcg's setup.py
 from distutils.core import setup
+import os
+
+projname = 'wltcg'
+mydir = os.path.dirname(__file__)
+
 
 ## Version-trick to have version-info in a single place,
 ## taken from: http://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 ##
-__version_info__ = ('x', 'x', 'x')
-exec(open('wltcg/_version.py').read())  # To read __version_info__
+def readversioninfo(fname):
+    fglobals = {'__version_info__':('x', 'x', 'x')} # In case reading the version fails.
+    exec(open(os.path.join(mydir, projname, fname)).read(), fglobals)  # To read __version_info__
+    return fglobals['__version_info__']
+
+# Trick to use README file as long_description.
+#  It's nice, because now 1) we have a top level README file and
+#  2) it's easier to type in the README file than to put a raw string in below ...
+def readtxtfile(fname):
+    return open(os.path.join(mydir, fname)).read()
 
 setup(
-    name = "wltcg",
-    packages = ["wltcg"],
-    version = '.'.join(__version_info__),
+    name = projname,
+    packages = [projname],
+    version = '.'.join(readversioninfo('_version.py')),
     description = "WLTC gear-shift calculator",
     author = "ankostis",
     author_email = "ankostis@gmail.com",
@@ -52,12 +65,5 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-    long_description = """
-WLTC gear-shift calculator
---------------------------
-
-Implemented from the specs: https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
-
-This version requires Python 3 or later.
-"""
+    long_description = readtxtfile('README.txt')
 )
