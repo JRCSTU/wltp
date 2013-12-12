@@ -2,8 +2,9 @@ WLTC gear-shift calculator
 --------------------------
 
 Calculates the gear-shifts according to the power of a light-duty-vehicle(car) engine
-when running for the WLTC testing-cycle.  Implemented from the specs:
+when running for the WLTC testing-cycle.  Implemented from the UN's specs:
   https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
+See also doc/ folder.
 
 For Python 3 or later.
 
