@@ -18,6 +18,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
+"""A calculator of gear-shifts of light-duty-vehicles (cars) for the WLTC testing-cycle.
+
+WLTCG accepts as input the car-specifications and a selection of a WLTC-cycle classes
+and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
+and any warnings.
+
+By ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
+"""
 
 # wltcg's setup.py
 from distutils.core import setup
@@ -25,7 +33,7 @@ import os
 
 projname = 'wltcg'
 mydir = os.path.dirname(__file__)
-
+doclines = __doc__.split("\n")
 
 ## Version-trick to have version-info in a single place,
 ## taken from: http://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
@@ -39,13 +47,14 @@ def readversioninfo(fname):
 #  It's nice, because now 1) we have a top level README file and
 #  2) it's easier to type in the README file than to put a raw string in below ...
 def readtxtfile(fname):
-    return open(os.path.join(mydir, fname)).read()
+    with open(os.path.join(mydir, fname)) as fd:
+        return fd.read()
 
 setup(
     name = projname,
     packages = [projname],
     version = '.'.join(readversioninfo('_version.py')),
-    description = "WLTC gear-shift calculator",
+    description = doclines[0],
     author = "ankostis",
     author_email = "ankostis@gmail.com",
     url = "https://webgate.ec.europa.eu/CITnet/confluence/display/VECTO",
@@ -65,5 +74,5 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-    long_description = readtxtfile('README.txt')
+    long_description = __doc__,
 )
