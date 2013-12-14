@@ -24,7 +24,7 @@ WLTCG accepts as input the car-specifications and a selection of a WLTC-cycle cl
 and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
 and any warnings.
 
-By ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
+@author: ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
 """
 
 # wltcg's setup.py
@@ -33,7 +33,6 @@ import os
 
 projname = 'wltcg'
 mydir = os.path.dirname(__file__)
-doclines = __doc__.split("\n")
 
 ## Version-trick to have version-info in a single place,
 ## taken from: http://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
@@ -54,11 +53,10 @@ setup(
     name = projname,
     packages = [projname],
     version = '.'.join(readversioninfo('_version.py')),
-    description = doclines[0],
+    description = __doc__.strip().split("\n")[0],
     author = "ankostis",
     author_email = "ankostis@gmail.com",
     url = "https://webgate.ec.europa.eu/CITnet/confluence/display/VECTO",
-    download_url = "https://webgate.ec.europa.eu/CITnet/confluence/display/VECTO",
     license = "GNU Affero General Public License v3 or later (AGPLv3+)",
     keywords = ['wltc', 'cycles', 'emissions', 'simulation', 'vehicles', 'cars', 'nedc'],
     classifiers = [
@@ -75,4 +73,8 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
     long_description = __doc__,
+    install_requires=[
+                      'numpy',
+                      'pandas',
+                      ],
 )
