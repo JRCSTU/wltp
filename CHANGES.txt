@@ -1,0 +1,4 @@
+v0.0.1, Dec-2013 -- Initial alpha Release
+-----------------------------------------
+
+* Mostly setup.py work, README and help.

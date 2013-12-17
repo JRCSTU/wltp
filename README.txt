@@ -30,17 +30,72 @@ Typical usage would look like this::
 For Python 3.3 or later.
 
 
+Installation
+============
 
-Build
------
+The first step is to expand the .tgz archive in a temporary directory (not directly in Python's site-packages).
+It contains a distutils setup file "setup.py". OS-specific installation instructions follow.
 
-The WLTC-profiles for the various classes were generated from the tables of UN word-doc with the specs
-using the ``util/csvcolumns8to2`` script, requiring an intermediate manual step.
+GNU/Linux, BSDs, Unix, Mac OS X, etc.
+-------------------------------------
+
+# Open a shell.
+
+# Go to the directory created by expanding the archive::
+
+ ``cd <archive_directory_path>``
+
+# Install the package (you may need root permissions to complete this step)::
+
+	su
+	(enter admin password)
+	python setup.py install
+
+If the python executable isn't on your path, you'll have to specify the complete path, such as /usr/local/bin/python.
+
+To install for a specific Python version, use this version in the setup call, e.g.::
+
+	python3.1 setup.py install
+
+To install for different Python versions, repeat step 3 for every required version. The last installed
+version will be used in the `shebang line<http://en.wikipedia.org/wiki/Shebang_%28Unix%29>` of the ``rst2*.py`` wrapper scripts.
+
+
+Windows
+-------
+
+Just double-click ``install.py``. If this doesn't work, try the following:
+
+# Open a DOS Box (Command Shell, MS-DOS Prompt, or whatever they're calling it these days).
+
+# Go to the directory created by expanding the archive::
+
+	cd <archive_directory_path>
+
+# Install the package::
+
+	<path_to_python.exe>\python setup.py install
+
+To install for a specific python version, specify the Python executable for this version.
+
+To install for different Python versions, repeat step 3 for every required version.
+
+
+Optional steps:
+---------------
+
+The WLTC-profiles for the various classes in the /data/cycles folder were generated from the tables
+of the UN word-doc with the specs using the ``util/csvcolumns8to2`` script, but it still requires
+an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
+
+..	running the test suite
+	converting the documentation
+
 
 
 
 History
--------
+=======
 
 Implemented from the UN's specs (document also included in the docs):
   https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
@@ -50,7 +105,7 @@ By ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
 
 
 Thanks also to
---------------
+==============
 
 * Giorgos Fontaras for physics, policy and admin support.
 * Steven Heinz for his test-data.

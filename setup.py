@@ -28,7 +28,7 @@ and any warnings.
 """
 
 # wltcg's setup.py
-from distutils.core import setup
+from setuptools import setup
 import os
 
 projname = 'wltcg'
@@ -63,7 +63,9 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
-        "Environment :: Other Environment",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Manufacturing",
@@ -73,7 +75,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
     long_description = __doc__,
-    install_requires=[
+    install_requires = [
                       'numpy',
                       'pandas',
                       ],
