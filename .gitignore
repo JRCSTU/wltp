@@ -65,3 +65,6 @@ __pycache__/
 
 # TeXlipse plugin
 .texlipse/.settings
+
+# Word
+*.docx#

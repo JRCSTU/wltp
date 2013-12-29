@@ -25,3 +25,6 @@ __author__ = "ankostis@gmail.com"
 __copyright__ = "Copyright (C) 2013 ankostis"
 __license__ = "AGPLv3"
 __version__ = '.'.join(__version_info__)
+
+
+__all__ = ['Vehicle']
