@@ -38,7 +38,6 @@ if (__name__ != '__main__'):
     sys.exit("Must be invoked as script!  Name was ({}).".format(__name__))
 
 import os
-import numpy as np
 import pandas as pd
 
 if (len(sys.argv) == 1):
