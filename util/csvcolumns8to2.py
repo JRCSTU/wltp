@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: UTF-8 -*-
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
@@ -7,7 +7,7 @@
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -23,8 +23,10 @@
 This utility preprocess the WLTC-cycle speed-profile tables of the spec's word-document
 into a format suitable to be consumed by wltcg.
 An intermediate human-UI step is required involving a spreadsheet where the word-tables
-are copied to be  saved as CSV-files.
+are copied into a spreadsheet to be exported as CSV-files.
 
+Example::
+    cat multiColumn.txt | python csvcolumns8to2.py > out.csv
 
 Created on Dec 14, 2013
 
@@ -48,9 +50,11 @@ else:
     inpf = inp = os.path.abspath(sys.argv[1])
     out = "%s.df" % inp
 
-sys.stderr.write('Transforming 4-to-2 columns: inp(%s) --> out(%s)' % (inpf, out))
+sys.stderr.write('Transforming to 2-columns: inp(%s) --> out(%s)\n' % (inpf, out))
 
-df = pd.read_csv(inp, header=-1)
+df = pd.read_csv(inp, header=None)
+df = df.convert_objects(convert_numeric=True)
+
 
 ## Use numpy to split and join by 2-columns.
 #

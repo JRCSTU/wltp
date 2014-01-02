@@ -68,3 +68,6 @@ __pycache__/
 
 # Word
 *.docx#
+
+#Scratch
+~*.txt

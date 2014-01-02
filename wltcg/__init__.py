@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: UTF-8 -*-
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
@@ -7,7 +7,7 @@
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -17,21 +17,27 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
+'''
+wltcg module: WLTC gear-shift calculator
 
-'''wltcg module: WLTC gear-shift calculator
-
+Vars
+----
 ``default_load_curve``: The normalized full-load-power-curve to use when not explicetely defined by the model.
 
 ``model_schema``: Describes the vehicle and cycle data for running WLTC experiment.
-
-``model_validator``: A jsonschema.validator for the vehicle and cycle data specifying an WLTC experiment.
 '''
 
-from ._version import __version_info__
-import sys
-import operator
-from jsonschema import Draft4Validator
+
+from jsonschema import validators, Draft4Validator
 import jsonschema
+from jsonschema.compat import iteritems as _iteritems
+import operator
+import pkg_resources
+import sys
+from textwrap import dedent
+
+from ._version import __version_info__
+
 
 __author__ = "ankostis@gmail.com"
 __copyright__ = "Copyright (C) 2013 ankostis"
@@ -59,27 +65,37 @@ default_load_curve = [
     [118, 89.80], [119, 88.75], [120, 87.66]
 ]
 
+model_base = {
+    "mass": None,
+    "p_rated":None,
+    "n_rated":None,
+    "p_max":None,
+    "n_idle":None,
+    "n_min":None,
+    "gear_ratios":[],
+    "resistance_coeffs":[],
+    'full_load_curve': default_load_curve,
+}
 
 
-from textwrap import dedent
 model_schema = {
             '$schema': 'http://json-schema.org/draft-04/schema#',
             'title': 'Json-schema describing the vehicle attributes used to generate WLTC gear-shifts profile.',
             'type': 'object',
             'properties': {
                'mass': {
-                   '$ref': '#/definitions/positiveInteger',
                    'title': 'vehicle mass',
+                   '$ref': '#/definitions/positiveInteger',
                    'description': 'The test mass of the vehicle in kg.',
                 },
                'p_rated': {
-                   '$ref': '#/definitions/positiveInteger',
                    'title': 'maximum rated power',
+                   '$ref': '#/definitions/positiveInteger',
                    'description': 'The maximum rated engine power as declared by the manufacturer.',
                },
                'n_rated': {
-                   '$ref': '#/definitions/positiveInteger',
                    'title': 'rated engine speed',
+                   '$ref': '#/definitions/positiveInteger',
                    'description': dedent('''
                        The rated engine speed at which an engine develops its maximum power.
                        If the maximum power is developed over an engine speed range,
@@ -88,13 +104,13 @@ model_schema = {
                    '''),
                 },
                'n_idle': {
-                   '$ref': '#/definitions/positiveInteger',
                    'title': 'idling speed',
+                   '$ref': '#/definitions/positiveInteger',
                    'description': 'The idling speed as defined of Annex 1.',
                 },
                'n_min': {
-                   '$ref': '#/definitions/positiveInteger',
                    'title': 'minimum engine speed',
+                   '$ref': '#/definitions/positiveInteger',
                    'description': dedent('''
                     minimum engine speed for gears > 2 when the vehicle is in motion. The minimum value
                     is determined by the following equation:
@@ -103,17 +119,20 @@ model_schema = {
                    '''),
                 },
                'gear_ratios': {
-                   '$ref': '#/definitions/positiveIntegers',
                    'title': 'gear ratios',
+                   '$ref': '#/definitions/positiveIntegers',
+                   'maxItems': 24,
+                   'minItems': 3,
                    'description':
                    'An array with the gear-ratios obtained by dividing engine-revolutions (1/min) by vehicle-speed (km/h).',
                 },
                'resistance_coeffs': {
-                   '$ref': '#/definitions/positiveIntegers',
                    'title': 'driving resistance coefficients',
+                   '$ref': '#/definitions/positiveIntegers',
                    'description': 'The 3 driving resistance coefficients f0, f1, f2 as defined in Annex 4, in N, N/(km/h), and N/(km/h)² respectively.',
                 },
                'full_load_curve': {
+                   'title': 'full load power curve',
                    'type': 'array',
                    'default': default_load_curve,
                    'items': {
@@ -140,7 +159,6 @@ model_schema = {
                     },
                    'maxItems': 150,
                    'minItems': 7,
-                   'title': 'full load power curve',
                    'description': dedent('''
                         A 2-dimensional array holding the full load power curve
                         where column-1 is the normalized engine revolutions:
@@ -161,56 +179,74 @@ model_schema = {
                     'type': 'array',
                    'items': { '$ref': '#/definitions/positiveInteger' },
                 },
+                'mergeableArray': {
+                    'type': 'object',
+                    'required': ['$merge', '$list'],
+                    'additionalProperties': False,
+                    'properties': {
+                        '$merge': {
+                            'enum': ['merge', 'replace', 'append_tail', 'append_tail', 'overwrite_head', 'overwrite_tail'],
+                            'description': dedent('''
+                                merge       := appends any non-existent elements
+                                replace     := (default) all items replaced
+                            '''),
+                        },
+                        '$list': {
+                            'type': 'array',
+                        }
+                    },
+                },
+                'mergeableObject': {
+                    'type': 'object',
+                    'additionalProperties': True,
+                    'properties': {
+                        '$merge': {
+                            'type': 'boolean',
+                            'description': dedent('''
+                                true    := (default) merge properties
+                                false   := replace properties
+                            '''),
+                        },
+                    },
+                },
             }
         }
 
 
 
-_PY3 = sys.version_info[0] >= 3
-
-if _PY3:
-    _iteritems = operator.methodcaller("items")
-else:
-    _iteritems = operator.methodcaller("_iteritems")
-
-## A jsonschema validator that sets missing defaults
+## From http://python-jsonschema.readthedocs.org/en/latest/faq/
 #
-# Not from http://python-jsonschema.readthedocs.org/en/latest/faq/
-#
-class _ValidatorWithDefaults(Draft4Validator, object):
+def extend_with_default(validator_class):
+    '''A jsonschema validator that sets missing defaults.
 
-    def validate_properties(self, properties, instance, schema):
-        if not self.is_type(instance, "object"):
-            return
+    Not from http://python-jsonschema.readthedocs.org/en/latest/faq/
+    '''
+
+    properties_validator = validator_class.VALIDATORS["properties"]
+
+    def set_defaults(validator, properties, instance, schema):
+        for error in properties_validator(
+            validator, properties, instance, schema,
+        ):
+            yield error
 
         for prop, subschema in _iteritems(properties):
             if "default" in subschema:
                 instance.setdefault(prop, subschema["default"])
-            if prop in instance:
-                for error in self.descend(
-                    instance[prop],
-                    subschema,
-                    path=prop,
-                    schema_path=prop,
-                ):
-                    yield error
 
-model_validator = _ValidatorWithDefaults(model_schema)
+    return validators.extend(  # @UndefinedVariable
+        validator_class, {"properties" : set_defaults},
+    )
 
 
+_ValidatorWithDefaults = extend_with_default(Draft4Validator)
+_model_validator = _ValidatorWithDefaults(model_schema)
+def get_model_validator():
+    '''A jsonschema.validator for the vehicle and cycle data specifying a WLTC experiment.'''
+    return _model_validator
+    ## TODO: Is json-validator multithreaded?
 
-class Experiment(object):
-    '''Runs the vehicle and cycle data describing a WLTC experiment. '''
 
 
-    def __init__(self, model, skip_validation = False):
-        """
-        ``model`` is a tree (formed by dicts & lists) holding the experiment data.
-
-        ``skip_validation`` when true, does not validate the model.
-        """
-
-        if (not skip_validation):
-            model_validator.validate(model)
-
+__all__ = ['wltc_cycles', 'default_load_curve', 'model_schema', 'get_model_validator', 'Experiment']
 

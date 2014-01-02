@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: ISO-8859-1 -*-
+# -*- coding: UTF-8 -*-
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
@@ -7,7 +7,7 @@
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -18,14 +18,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-"""A calculator of gear-shifts of light-duty-vehicles (cars) for the WLTC testing-cycle.
+''''A calculator of gear-shifts of light-duty-vehicles (cars) for the WLTC testing-cycle.
 
 WLTCG accepts as input the car-specifications and a selection of a WLTC-cycle classes
 and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
 and any warnings.
 
 @author: ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
-"""
+'''
 
 # wltcg's setup.py
 from setuptools import setup
@@ -52,6 +52,7 @@ def readtxtfile(fname):
 setup(
     name = projname,
     packages = [projname],
+    package_data= {'projname': ['data/*.csv']},
     version = '.'.join(readversioninfo('_version.py')),
     description = __doc__.strip().split("\n")[0],
     author = "ankostis",
@@ -78,5 +79,7 @@ setup(
     install_requires = [
                       'numpy',
                       'pandas',
+                      'jsonschema',
+#                       'jsonpath-rw',
                       ],
 )
