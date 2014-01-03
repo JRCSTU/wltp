@@ -81,12 +81,15 @@ To install for a specific python version, specify the Python executable for this
 To install for different Python versions, repeat step 3 for every required version.
 
 
-Optional steps:
----------------
+Development:
+------------
 
-The WLTC-profiles for the various classes in the /data/cycles folder were generated from the tables
-of the UN word-doc with the specs using the ``util/csvcolumns8to2`` script, but it still requires
+The WLTC-profiles for the various classes in the ./util/data/cycles folder were generated from the tables
+of the UN word-doc with the specs using the ``./util/csvcolumns8to2`` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
+
+Then use the ``./util/buildwltcclass.py`` to contruct the respective python-vars into the
+wltcg/Model.py sources.
 
 ..	running the test suite
 	converting the documentation

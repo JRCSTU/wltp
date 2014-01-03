@@ -52,7 +52,7 @@ def readtxtfile(fname):
 setup(
     name = projname,
     packages = [projname],
-    package_data= {'projname': ['data/*.csv']},
+#     package_data= {'projname': ['data/*.csv']},
     version = '.'.join(readversioninfo('_version.py')),
     description = __doc__.strip().split("\n")[0],
     author = "ankostis",
