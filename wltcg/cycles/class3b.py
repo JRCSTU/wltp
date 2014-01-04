@@ -22,12 +22,19 @@
 Data below extracted from the specs and prepared with the followinf python scripts
 found inside the source-distribution:
 
-* ``./utilbuildwltcclass.py``
+* ``./util/printwltcclass.py``
 
-* ``./utilcsvcolumns8to2.py``
+* ``./util/csvcolumns8to2.py``
 '''
 class_data = {
-    'limits': ((0, 589), (590, 1022), (1023, 1477), (1478, 1800)),
+    'parts': ((0, 589), (590, 1022), (1023, 1477), (1478, 1800)),
+    'downscale': {
+        'accel_phase': (1533, 1723),
+        'deccel_phase': (1725, 1762),
+        'max_p_time': 1566,
+        'max_p_speed': 111.9, # Km/h
+        'max_p_accel': 0.50, # # m/s2
+    },
     'cycle': (
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 9,
         13, 16, 21, 26, 27, 28, 28, 28, 29, 30, 31, 34, 36, 39, 41, 42,

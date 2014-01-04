@@ -35,12 +35,18 @@ def default_model():
     :return :json_tree: with the wltc data and default values for the vehicle.
     '''
 
-    from wltcg.cycles import (class3_1, class3_2)
+    from wltcg.cycles import (class1, class2, class3a, class3b)
     wltc_data = {
-        'class1': {},
-        'class2': {},
-        'class3_1': class3_1.class_data,
-        'class3_2': class3_2.class_data,
+        'classes': {
+            'class1': class1.class_data,
+            'class2': class2.class_data,
+            'class3a': class3a.class_data,
+            'class3b': class3b.class_data,
+        },
+        'limits': {
+            'p_to_mass_': (22, 34), #  W/kg, <=, choose class1/2/3
+            'max_speed': 120, # Km/h, <, choose class3a/3b
+        }
     }
 
     default_load_curve = (
@@ -82,5 +88,5 @@ def default_model():
 
 if __name__ == '__main__':
     import json
-    print('Model: %s' % json.dumps(default_model(), indent=0))
+    print('Model: %s' % json.dumps(default_model(), indent=1))
 

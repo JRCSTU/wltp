@@ -17,38 +17,50 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-'''Build a python array from reading WLTC-data files and print it to be includ it as code.
+'''Build a python array from reading WLTC-data files and print it to be included as code.
 
 It is used for preparing the WLTC variables for the default Model-data.
+For example, to print (and validate) the cycle for WLTC-Class 3.2, execute::
 
-For example, to build (and validate) the cycle for WLTC-Class 3.2, execute::
+    python3 buildwltcclass.py class3.2 True
 
-    python buildwltcclass.py class3.2 True
+Or for printing all classes::
 
-Then copy the output of the program as a python-variable within the wltcg.Model.py.
+    python3 buildwltcclass.py
+
+Then copy the output of the program as a python-variable within the respective
+ wltcg.cycles.classX.py modules.
 '''
 
 wltc_data_files = {
-    'class1': [],
-    'class2': [],
-    'class3.1': [
-        'class3-1-Low-1',
-        'class3-2-Medium-1',
-        'class3-3-High-1',
-        'class3-4-ExtraHigh-1'
+    'class1': [
+        'class1-1-Low',
+        'class1-2-Medium',
     ],
-    'class3.2': [
-        'class3-1-Low-1',
-        'class3-2-Medium-2',
-        'class3-3-High-2',
-        'class3-4-ExtraHigh-1'
+    'class2': [
+        'class2-1-Low',
+        'class2-2-Medium',
+        'class2-3-High',
+        'class2-4-ExtraHigh'
+    ],
+    'class3a': [
+        'class3-1-Low',
+        'class3-2a-Medium',
+        'class3-3a-High',
+        'class3-4-ExtraHigh'
+    ],
+    'class3b': [
+        'class3-1-Low',
+        'class3-2b-Medium',
+        'class3-3b-High',
+        'class3-4-ExtraHigh'
     ]
 }
 
 
 def read_wltc_class(wltc_class, assert_files = False):
     '''
-    :argument: string: wltc_class: ( 'class1' | 'class2' | 'class3.2' )
+    :argument: string: wltc_class: ( 'class1' | 'class2' | 'class3a| 'class3b' )
     :return :generator: with the speed_column floats
     '''
 
@@ -125,24 +137,37 @@ def read_wltc_class(wltc_class, assert_files = False):
 
     return (speed_profile, parts)
 
-def printSpeedList(timelist):
-    print('(', end='\n    ')
-    i = 0
-    for v in timelist:
-        i += 1
-        print('%i, ' % v, end='\n    ' if (i % 16 == 0) else '')
-    print('\n)\n')
+
+def print_class_data(wltc_class, assert_files = False):
+    '''Prepares and pretty-prints python variables with the data for the spec'ed WLTC-class.'''
+
+    def print_speed_list(timelist):
+        print('(', end='\n    ')
+        i = 0
+        for v in timelist:
+            i += 1
+            print('%i, ' % v, end='\n    ' if (i % 16 == 0) else '')
+        print('\n)\n')
+
+    (speed_profile, parts) = read_wltc_class(wltc_class, assert_files)
+    speed_profile = list(speed_profile)
+    parts = tuple(map(tuple, parts))
+
+    print('\n\n>>> CLASS: %s\nvalues#  : %s\n' % (wltc_class, len(speed_profile)))
+    print("'parts': {}, \n'cycle': ".format(parts))
+    print_speed_list(speed_profile)
+
+
+
 
 if __name__ == '__main__':
     #print('values#: %s' % list(read_wltc_class('class3.2', assert_files=True)))
 
     import sys
 
-    (speed_profile, parts) = read_wltc_class(*sys.argv[1:])
-    speed_profile = list(speed_profile)
-    parts = tuple(map(tuple, parts))
-
-    print('values#  : %s\n\n' % len(speed_profile))
-    print("'limits': {}, \n'cycle': ".format(parts))
-    printSpeedList(speed_profile)
+    if (len(sys.argv) > 1):
+        print_class_data(*sys.argv[1:])
+    else:
+        for wltc_class in sorted(wltc_data_files):
+            print_class_data(wltc_class, True)
 

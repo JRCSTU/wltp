@@ -26,7 +26,9 @@ An intermediate human-UI step is required involving a spreadsheet where the word
 are copied into a spreadsheet to be exported as CSV-files.
 
 Example::
-    cat multiColumn.txt | python csvcolumns8to2.py > out.csv
+    cat multiColumn.txt | python3 csvcolumns8to2.py > out.csv
+or::
+    python3 csvcolumns8to2.py multiColumn.txt
 
 Created on Dec 14, 2013
 
@@ -42,15 +44,16 @@ if (__name__ != '__main__'):
 import os
 import pandas as pd
 
-if (len(sys.argv) == 1):
-    inp = sys.stdin
-    inpf = '<stdin>'
-    out = os.path.abspath("out.df")
-else:
+inp = sys.stdin
+inpf = '<stdin>'
+out = sys.stdout
+outf = '<stdout>'
+if (len(sys.argv) >= 2):
     inpf = inp = os.path.abspath(sys.argv[1])
-    out = "%s.df" % inp
+if (len(sys.argv) >= 3):
+    outf = out = os.path.abspath(sys.argv[2])
 
-sys.stderr.write('Transforming to 2-columns: inp(%s) --> out(%s)\n' % (inpf, out))
+sys.stderr.write('Transforming to 2-columns: inp(%s) --> out(%s)\n' % (inpf, outf))
 
 df = pd.read_csv(inp, header=None)
 df = df.convert_objects(convert_numeric=True)
