@@ -20,24 +20,36 @@
 
 '''The actual WLTC gear-shift calculator.
 
-Created on 1 Jan 2014
+An "execution" or a "run" of an experiment is depicted in the following diagram::
 
-@author: ankostis
+                   _______________
+     .-------.    |               |      .------------------.
+    / Model / ==> |   Experiment  | ==> / Model(augmented) /
+   '-------'      |---------------|    '------------------'
+                  |  .-----------.|
+                  | / WLTC-data / |
+                  |'-----------'  |
+                  |_______________|
+
+
+@author: ankostis@gmail.com
+@since: 1 Jan 2014
 '''
 
-from . import get_model_validator
+from .schemas import wltc_validator
+from .instances import (wltc_data) #, Model)
 
 class Experiment(object):
     '''Runs the vehicle and cycle data describing a WLTC experiment. '''
 
 
-    def __init__(self, model, skip_validation = False):
+    def __init__(self, model, validate_wltc = False):
         """
         ``model`` is a tree (formed by dicts & lists) holding the experiment data.
 
         ``skip_validation`` when true, does not validate the model.
         """
 
-        if (not skip_validation):
-            get_model_validator().validate(model)
+        if (validate_wltc):
+            wltc_validator().validate(wltc_data())
 

@@ -142,16 +142,15 @@ def print_class_data(wltc_class, assert_files = False):
     '''Prepares and pretty-prints python variables with the data for the spec'ed WLTC-class.'''
 
     def print_speed_list(timelist):
-        print('(', end='\n    ')
+        print('[', end='\n    ')
         i = 0
         for v in timelist:
             i += 1
             print('%i, ' % v, end='\n    ' if (i % 16 == 0) else '')
-        print('\n)\n')
+        print('\n]\n')
 
     (speed_profile, parts) = read_wltc_class(wltc_class, assert_files)
     speed_profile = list(speed_profile)
-    parts = tuple(map(tuple, parts))
 
     print('\n\n>>> CLASS: %s\nvalues#  : %s\n' % (wltc_class, len(speed_profile)))
     print("'parts': {}, \n'cycle': ".format(parts))

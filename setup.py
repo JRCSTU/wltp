@@ -53,6 +53,7 @@ setup(
     name = projname,
     packages = [projname],
 #     package_data= {'projname': ['data/*.csv']},
+    test_suite="wltc.test", #TODO: check setup.py testsuit indeed works.
     version = '.'.join(readversioninfo('_version.py')),
     description = __doc__.strip().split("\n")[0],
     author = "ankostis",
