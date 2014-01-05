@@ -31,6 +31,25 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
                   |'-----------'  |
                   |_______________|
 
+A usage example::
+
+    model = wltcg.Model(json.loads(\'''{
+        vehicle": {
+            "mass":1300,
+            "p_rated":110.625,
+            "n_rated":5450,
+            "n_idle":950,
+            "n_min":5,
+            "gear_ratios":[120.5, 75, 50, 43, 33, 28],
+            "resistance_coeffs":[100, 0.5, 0.04]
+        }
+    }\'''))
+
+    experiment = wltcg.Experiment(model)
+    experiment.run()
+    json.dumps(model['results'])
+
+
 
 @author: ankostis@gmail.com
 @since: 1 Jan 2014

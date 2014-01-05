@@ -28,14 +28,6 @@ Vars
 '''
 
 
-from jsonschema import validators, Draft4Validator
-import jsonschema
-from jsonschema.compat import iteritems as _iteritems
-import operator
-import pkg_resources
-import sys
-from textwrap import dedent
-
 from ._version import __version_info__
 
 
@@ -45,6 +37,8 @@ __license__ = "AGPLv3"
 __version__ = '.'.join(__version_info__)
 
 
+from .model import Model
+from .experiment import Experiment
 
 # ## From http://python-jsonschema.readthedocs.org/en/latest/faq/
 # #

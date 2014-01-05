@@ -17,8 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-'''wltcg.instances module: The hierarchical data for the WLTC calculator (defaults, WLTC-data)
-used by the Model and Experiments classes.
+'''wltcg module: The input/output data for the WLTC calculator (Experiment class).
 '''
 
 
@@ -106,6 +105,55 @@ def wltc_data():
     }
 
     return wltc_data
+
+
+
+def merge(a, b, path=[]):
+    ''''merges b into a'''
+
+    from collections.abc import Mapping
+
+    for key in b:
+        bv = b[key]
+        if key in a:
+            av = a[key]
+            if isinstance(av, Mapping) != isinstance(bv, Mapping):
+                raise ValueError("Dict-values conflict at '%s'! a(%s) != b(%s)" %
+                                ('/'.join(path + [str(key)]), type(av), type(bv)))
+            elif av == bv:
+                continue # same leaf value
+            elif isinstance(av, Mapping):
+                merge(av, bv, path + [str(key)])
+                continue
+        a[key] = bv
+    return a
+
+# # works
+# print(merge({1:{"a":"A"},2:{"b":"B"}}, {2:{"c":"C"},3:{"d":"D"}}))
+# # has conflict
+# merge({1:{"a":"A"},2:{"b":"B"}}, {1:{"a":"A"},2:{"b":"C"}})
+
+
+class Model(object):
+    '''Merges and validates a series of trees making up the modelfor a WLTC experiment.'''
+
+    def __init__(self, *models, skip_validation=False):
+        import functools
+
+        self.data = model_base()
+        functools.reduce(merge, [self.data] + list(models))
+        if not skip_validation:
+            self.validate()
+
+
+    def validate(self, iter_errors=False):
+        from wltcg.schemas import model_validator
+
+        if iter_errors:
+            return model_validator().iter_errors(self.data)
+        else:
+            model_validator().validate(self.data)
+
 
 
 if __name__ == '__main__':

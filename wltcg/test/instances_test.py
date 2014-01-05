@@ -26,8 +26,8 @@ import json
 import jsonschema
 import unittest
 
-import wltcg.instances as insts
 import wltcg.schemas as schemas
+import wltcg.instances as insts
 
 
 class Test(unittest.TestCase):
@@ -82,12 +82,6 @@ class Test(unittest.TestCase):
         validator = schemas.model_validator()
 
         validator.validate(model)
-
-    def testModel_goodVehicle(self):
-        json_txt = self.goodVehicle_jsonTxt % ''
-        inst = json.loads(json_txt)
-
-        model = insts.Model(inst)
 
 
 
