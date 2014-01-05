@@ -93,35 +93,50 @@ def model_schema():
                    'full_load_curve': {
                        'title': 'full load power curve',
                        'type': 'array',
-                       'items': {
-                           'type': 'array', 'additionalItems': False,
-                           'items': [
-                                {
-                                    'title': 'n_norm',
-                                    'description': 'A percent of n_rated.',
-                                    'type': 'integer',
-                                    'minimum': 0,
-                                    'maximum': 150,
+                       'items': [
+                            {
+                               'title': 'normalized engine revolutions',
+                               'description': dedent('''
+                                    The normalized engine revolutions, within [0%, 120%]::
+                                        n_norm = 100 * (n - n_idle) / (n_rated  - n_idle)
+                                    '''),
+                               'type': 'array', 'additionalItems': False,
+                               'maxItems': 360,
+                               'minItems': 7,
+                               'items': {
+                                   'type': 'number',
+                                   'minimum': 0,
+                                   'exclusiveMinimum': False,
+                                   'maximum': 120,
+                                   'exclusiveMaximum': False,
                                 },
-                                {
-                                    'title': 'p_norm',
-                                    'description': 'A percent of p_rated.',
-                                    'type': 'number',
-                                    'minimum': 0,
-                                    'exclusiveMinimum': True,
-                                    'maximum': 100,
-                                    'exclusiveMaximum': False,
+                            },
+                            {
+                               'title': 'normalized full-load power curve',
+                               'description': dedent('''
+                                    The normalised values of the full-power load against the p_rated,
+                                    within [0%, 100%]::
+                                        p_norm = 100 * p / p_rated
+                                '''),
+                               'type': 'array', 'additionalItems': False,
+                               'maxItems': 360,
+                               'minItems': 7,
+                               'items': {
+                                   'minimum': -10,
+                                   'exclusiveMinimum': False,
+                                   'maximum': 110,
+                                   'exclusiveMaximum': False,
                                 }
-                            ],
-                        },
-                       'maxItems': 150,
-                       'minItems': 7,
+                            },
+                        ],
                        'description': dedent('''
-                            A 2-dimensional array holding the full load power curve
-                            where column-1 is the normalized engine revolutions:
-                                n_norm = 100 * (n - n_idle) / (n_rated  - n_idle)
-                            and column-2 is the normalised power against the p_rated:
-                                p_norm = 100 * p / p_rated
+                            A 2-dimensional array holding the full load power curve in 2 rows
+                            Example::
+                                [
+                                    [ 0, 10, 20, 30, 40, 50, 60, 70. 80, 90 100, 110, 120 ],
+                                    [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
+                                ]
+
                        '''),
                     },
                 }  #veh-props
@@ -190,7 +205,7 @@ def wltc_schema():
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'title': 'WLTC data',
         'type': 'object', 'additionalproperties': False,
-        'required': ['cycles', 'limits'],
+        'required': ['cycles', 'parameters'],
         'properties': {
             'cycles': {
                 'type': 'object', 'additionalproperties': False,
@@ -202,12 +217,30 @@ def wltc_schema():
                     'class3b': {'$ref': '#/definitions/class'},
                 }
             },
-            'limits': {
+            'parameters': {
                 'type': 'object', 'additionalproperties': False,
-                'required': ['p_to_mass', 'class3_velocity'],
+                'required': ['p_to_mass_class_limits', 'class3_split_velocity', 'idle_velocity', 'power_safety_margin'],
                 'properties': {
-                    'p_to_mass': {'type': 'array'},
-                    'class3_velocity': {'type': 'integer'}
+                    'p_to_mass_class_limits': {
+                        'description': 'Power_to_unladen-mass ratio (W/kg) used to select class (Annex 1, p19).',
+                        'type': 'array',
+                        'default': [22, 34],
+                    },
+                    'class3_split_velocity': {
+                        'description': 'Velocity (Km/h) under which (<) version-B from class3 is selected (Annex 1, p19).',
+                        'type': 'integer',
+                        'default':120,
+                    },
+                    'idle_velocity': {
+                        'description': 'Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).',
+                        'type': 'number',
+                        'default': 1,
+                    },
+                    'power_safety_margin': {
+                        'description': 'Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72.',
+                        'type': 'number',
+                        'default': 0.9,
+                    },
                 }
             },
         },
