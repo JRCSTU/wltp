@@ -3,7 +3,7 @@
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
-# This file is part of wltcg.
+# This file is part of wltc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-'''wltcg.instances module: The hierarchical data for the WLTC calculator (defaults, WLTC-data)
+'''wltc.instances module: The hierarchical data for the WLTC calculator (defaults, WLTC-data)
 used by the Model and Experiments classes.
 '''
 
@@ -91,7 +91,7 @@ def wltc_data():
     :return :json_tree:
     '''
 
-    from wltcg.cycles import (class1, class2, class3a, class3b)
+    from wltc.cycles import (class1, class2, class3a, class3b)
     wltc_data = {
         'cycles': {
             'class1': class1.class_data,

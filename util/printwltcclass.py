@@ -3,7 +3,7 @@
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
-# This file is part of wltcg.
+# This file is part of wltc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ Or for printing all classes::
     python3 buildwltcclass.py
 
 Then copy the output of the program as a python-variable within the respective
- wltcg.cycles.classX.py modules.
+ wltc.cycles.classX.py modules.
 '''
 
 wltc_data_files = {

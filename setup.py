@@ -3,7 +3,7 @@
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
-# This file is part of wltcg.
+# This file is part of wltc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,11 +27,11 @@ and any warnings.
 @author: ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
 '''
 
-# wltcg's setup.py
+# wltc's setup.py
 from setuptools import setup
 import os
 
-projname = 'wltcg'
+projname = 'wltc'
 mydir = os.path.dirname(__file__)
 
 ## Version-trick to have version-info in a single place,

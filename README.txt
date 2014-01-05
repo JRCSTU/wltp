@@ -13,14 +13,14 @@ and any warnings.  To install it, do the usual::
 
 Typical usage would look like this::
 
-	import wltcg
+	import wltc
 
 	specs = {
 		vehicle : { },
 		options : { },
 	}
 
-	results = wltcg(specs)
+	results = wltc(specs)
 
 	print(results)
 
@@ -89,7 +89,7 @@ of the UN word-doc with the specs using the ``./util/csvcolumns8to2`` script, bu
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
 Then use the ``./util/buildwltcclass.py`` to contruct the respective python-vars into the
-wltcg/Model.py sources.
+wltc/Model.py sources.
 
 ..	running the test suite
 	converting the documentation

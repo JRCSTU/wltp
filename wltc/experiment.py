@@ -3,7 +3,7 @@
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
-# This file is part of wltcg.
+# This file is part of wltc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
 
 A usage example::
 
-    model = wltcg.Model(json.loads(\'''{
+    model = wltc.Model(json.loads(\'''{
         vehicle": {
             "mass":1300,
             "p_rated":110.625,
@@ -45,7 +45,7 @@ A usage example::
         }
     }\'''))
 
-    experiment = wltcg.Experiment(model)
+    experiment = wltc.Experiment(model)
     experiment.run()
     json.dumps(model['results'])
 

@@ -3,7 +3,7 @@
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
-# This file is part of wltcg.
+# This file is part of wltc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 """Preproc script that reads the tables from the UN-document as CSV, reshapes and stores them as 2-columns CSV.
 
 This utility preprocess the WLTC-cycle speed-profile tables of the spec's word-document
-into a format suitable to be consumed by wltcg.
+into a format suitable to be consumed by wltc.
 An intermediate human-UI step is required involving a spreadsheet where the word-tables
 are copied into a spreadsheet to be exported as CSV-files.
 

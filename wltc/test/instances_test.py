@@ -3,7 +3,7 @@
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
-# This file is part of wltcg.
+# This file is part of wltc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@ import json
 import jsonschema
 import unittest
 
-import wltcg.schemas as schemas
-import wltcg.instances as insts
+import wltc.schemas as schemas
+import wltc.instances as insts
 
 
 class Test(unittest.TestCase):

@@ -3,7 +3,7 @@
 #
 # Copyright 2013-2014 ankostis@gmail.com
 #
-# This file is part of wltcg.
+# This file is part of wltc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-'''wltcg module: WLTC class's model-ata for gear-shift calculator
+'''wltc module: WLTC class's model-ata for gear-shift calculator
 
 Data below extracted from the specs and prepared with the followinf python scripts
 found inside the source-distribution:
