@@ -24,7 +24,7 @@
 '''
 import jsonschema
 import unittest
-import wltc.schemas as schemas
+from .. import schemas
 
 
 class Test(unittest.TestCase):

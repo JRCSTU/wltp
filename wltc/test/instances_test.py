@@ -26,8 +26,8 @@ import json
 import jsonschema
 import unittest
 
-import wltc.schemas as schemas
-import wltc.instances as insts
+from .. import schemas
+from .. import instances as insts
 
 
 class Test(unittest.TestCase):
