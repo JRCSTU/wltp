@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
+from wltcg.schemas import model_validator
 '''wltcg module: Data for WLTC gear-shift calculator (defaults, WLTC-data)
 '''
 
@@ -49,12 +50,11 @@ def model_base():
         [113, 94.24], [114, 93.45], [115, 92.62], [116, 91.73], [117, 90.79], [118, 89.80], [119, 88.75], [120, 87.66]
     ]
 
-    model_base = {
+    instance = {
         'vehicle': {
             "mass": None,
             "p_rated":None,
             "n_rated":None,
-            "p_max":None,
             "n_idle":None,
             "n_min":None,
             "gear_ratios":[],
@@ -63,7 +63,7 @@ def model_base():
         },
     }
 
-    return model_base
+    return instance
 
 
 def default_vehicle():
@@ -71,6 +71,19 @@ def default_vehicle():
 
 def default_load_curve():
     return default_vehicle()['full_load_curve']
+
+
+def results_base():
+    instance = {
+        'gears': [],
+        'speed': [],
+        'target': [],
+        'wltc_class': None,
+        'downscale_factor': None,
+    }
+
+    return instance
+
 
 def wltc_data():
     '''The WLTC-data required to run an experiment (the class-cycles and their attributes)..
@@ -93,7 +106,45 @@ def wltc_data():
     }
 
     return wltc_data
-#
+
+
+
+def merge(a, b, path=[]):
+    ''''merges b into a'''
+
+    from collections.abc import Mapping
+
+    for key in b:
+        bv = b[key]
+        if key in a:
+            av = a[key]
+            if isinstance(av, Mapping) != isinstance(bv, Mapping):
+                raise ValueError("Dict-values conflict at '%s'! a(%s) != b(%s)" %
+                                ('/'.join(path + [str(key)]), type(av), type(bv)))
+            elif av == bv:
+                continue # same leaf value
+            elif isinstance(av, Mapping):
+                merge(av, bv, path + [str(key)])
+                continue
+        a[key] = bv
+    return a
+
+# # works
+# print(merge({1:{"a":"A"},2:{"b":"B"}}, {2:{"c":"C"},3:{"d":"D"}}))
+# # has conflict
+# merge({1:{"a":"A"},2:{"b":"B"}}, {1:{"a":"A"},2:{"b":"C"}})
+
+
+class Model(object):
+    '''Merges and validates a series of trees making up the modelfor a WLTC experiment.'''
+
+    def __init__(self, *models):
+        self._model = model_base()
+
+        import functools
+        functools.reduce(merge, [self._model] + list(models))
+
+        model_validator().validate(self._model)
 
 
 if __name__ == '__main__':

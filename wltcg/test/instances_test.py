@@ -34,14 +34,13 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.goodVehicle_jsonTxt = '''{"vehicle": {
-            "mass":5,
-            "p_rated":5,
-            "n_rated":5,
-            "p_max":5,
-            "n_idle":5,
+            "mass":1300,
+            "p_rated":110.625,
+            "n_rated":5450,
+            "n_idle":950,
             "n_min":5,
-            "gear_ratios":[5, 5, 6],
-            "resistance_coeffs":[100, 0, 0.04]
+            "gear_ratios":[120.5, 75, 50, 43, 33, 28],
+            "resistance_coeffs":[100, 0.5, 0.04]
             %s
         }}'''
 
@@ -59,7 +58,7 @@ class Test(unittest.TestCase):
         self.assertRaises(jsonschema.ValidationError, schemas.model_validator().validate, model)
 
 
-    def testModel_missingLoadCurve(self):
+    def testModelInstance_missingLoadCurve(self):
         json_txt = self.goodVehicle_jsonTxt % ('')
         model = json.loads(json_txt)
         validator = schemas.model_validator()
@@ -67,7 +66,7 @@ class Test(unittest.TestCase):
         self.assertRaisesRegex(jsonschema.ValidationError, "'full_load_curve' is a required property", validator.validate, model)
 
 
-    def testModel_simpleFullLoadCurve(self):
+    def testModelInstance_simplInstanceeFullLoadCurve(self):
         json_txt = self.goodVehicle_jsonTxt % \
             (', "full_load_curve":[[1, 2.3], [1, 2.3], [1, 2.3], [1, 2.3], [1, 2.3], [1, 2.3], [1, 2.3], [1, 2.3], [1, 2.3]]')
         model = json.loads(json_txt)
@@ -76,13 +75,19 @@ class Test(unittest.TestCase):
         self.assertNotEqual(model['vehicle']['full_load_curve'], insts.default_load_curve())
 
 
-    def testModel_defaultLoadCurve(self):
+    def testModelInstance_defaultLoadCurve(self):
         json_txt = self.goodVehicle_jsonTxt % \
             (', "full_load_curve":%s' % (json.dumps(insts.default_load_curve())))
         model = json.loads(json_txt)
         validator = schemas.model_validator()
 
         validator.validate(model)
+
+    def testModel_goodVehicle(self):
+        json_txt = self.goodVehicle_jsonTxt % ''
+        inst = json.loads(json_txt)
+
+        model = insts.Model(inst)
 
 
 

@@ -47,7 +47,7 @@ def model_schema():
                     },
                    'p_rated': {
                        'title': 'maximum rated power',
-                       '$ref': '#/definitions/positiveInteger',
+                       '$ref': '#/definitions/positiveNumber',
                        'description': 'The maximum rated engine power as declared by the manufacturer.',
                    },
                    'n_rated': {
@@ -77,7 +77,7 @@ def model_schema():
                     },
                    'gear_ratios': {
                        'title': 'gear ratios',
-                       '$ref': '#/definitions/positiveIntegers',
+                       '$ref': '#/definitions/positiveNumbers',
                        'maxItems': 24,
                        'minItems': 3,
                        'description':
@@ -85,7 +85,7 @@ def model_schema():
                     },
                    'resistance_coeffs': {
                        'title': 'driving resistance coefficients',
-                       'type': 'array', 'items': {'type': 'number'},
+                       'type': 'array', 'items': {'type': 'number', 'minimum': 0},
                        'minItems': 3,
                        'maxItems': 3,
                        'description': 'The 3 driving resistance coefficients f0, f1, f2 as defined in Annex 4, in N, N/(km/h), and N/(km/h)² respectively.',
@@ -134,9 +134,18 @@ def model_schema():
                 'minimum': 0,
                 'exclusiveMinimum': True,
             },
+            'positiveNumber': {
+                'type': 'number',
+                'minimum': 0,
+                'exclusiveMinimum': True,
+            },
             'positiveIntegers': {
                 'type': 'array',
                'items': { '$ref': '#/definitions/positiveInteger' },
+            },
+            'positiveNumbers': {
+                'type': 'array',
+               'items': { '$ref': '#/definitions/positiveNumber' },
             },
             'mergeableArray': {
                 'type': 'object', 'additionalProperties': False,
