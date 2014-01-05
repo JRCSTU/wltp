@@ -76,7 +76,7 @@ def default_load_curve():
 def results_base():
     instance = {
         'gears': [],
-        'speed': [],
+        'velocity': [],
         'target': [],
         'wltc_class': None,
         'downscale_factor': None,
@@ -101,7 +101,7 @@ def wltc_data():
         },
         'limits': {
             'p_to_mass': [22, 34], #  W/kg, <=, choose class1/2/3
-            'class3_speed': 120, # Km/h, <, choose class3a/3b
+            'class3_velocity': 120, # Km/h, <, choose class3a/3b
         }
     }
 

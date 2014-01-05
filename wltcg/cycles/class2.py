@@ -32,7 +32,7 @@ class_data = {
         'accel_phase': [1520, 1724],
         'deccel_phase': [1726, 1742],
         'max_p_time': 1574,
-        'max_p_speed': 109.9, # Km/h
+        'max_p_velocity': 109.9, # Km/h
         'max_p_accel': 0.36, # # m/s2
     },
     'cycle': [

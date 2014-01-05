@@ -38,10 +38,10 @@ def model_schema():
                 'title': 'vehicle model',
                 'type': 'object', 'additionalproperties': False,
                 'required': ['mass', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
-                'description': 'The vehicle attributes required for generating the WLTC speed-profile downscaling and gear-shifts.',
+                'description': 'The vehicle attributes required for generating the WLTC velocity-profile downscaling and gear-shifts.',
                 'properties': {
                    'mass': {
-                       'title': 'vehicle mass',
+                       'title': 'vehicle test mass',
                        '$ref': '#/definitions/positiveInteger',
                        'description': 'The test mass of the vehicle in kg.',
                     },
@@ -51,25 +51,25 @@ def model_schema():
                        'description': 'The maximum rated engine power as declared by the manufacturer.',
                    },
                    'n_rated': {
-                       'title': 'rated engine speed',
+                       'title': 'rated engine revolutions',
                        '$ref': '#/definitions/positiveInteger',
                        'description': dedent('''
-                           The rated engine speed at which an engine develops its maximum power.
-                           If the maximum power is developed over an engine speed range,
+                           The rated engine revolutions at which an engine develops its maximum power.
+                           If the maximum power is developed over an engine revolutions range,
                            it is determined by the mean of this range.
                            This is called 's' in the specs.
                        '''),
                     },
                    'n_idle': {
-                       'title': 'idling speed',
+                       'title': 'idling revolutions',
                        '$ref': '#/definitions/positiveInteger',
-                       'description': 'The idling speed as defined of Annex 1.',
+                       'description': 'The idling engine revolutions as defined of Annex 1.',
                     },
                    'n_min': {
-                       'title': 'minimum engine speed',
+                       'title': 'minimum engine revolutions',
                        '$ref': '#/definitions/positiveInteger',
                        'description': dedent('''
-                        minimum engine speed for gears > 2 when the vehicle is in motion. The minimum value
+                        minimum engine revolutions for gears > 2 when the vehicle is in motion. The minimum value
                         is determined by the following equation:
                             n_min = n_idle + 0.125 * (n_rated - n_idle)
                         Higher values may be used if requested by the manufacturer.
@@ -81,7 +81,7 @@ def model_schema():
                        'maxItems': 24,
                        'minItems': 3,
                        'description':
-                       'An array with the gear-ratios obtained by dividing engine-revolutions (1/min) by vehicle-speed (km/h).',
+                       'An array with the gear-ratios obtained by dividing engine-revolutions (1/min) by vehicle-velocity (km/h).',
                     },
                    'resistance_coeffs': {
                        'title': 'driving resistance coefficients',
@@ -190,7 +190,7 @@ def wltc_schema():
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'title': 'WLTC data',
         'type': 'object', 'additionalproperties': False,
-        'required': ['classes', 'limits'],
+        'required': ['cycles', 'limits'],
         'properties': {
             'cycles': {
                 'type': 'object', 'additionalproperties': False,
@@ -202,12 +202,12 @@ def wltc_schema():
                     'class3b': {'$ref': '#/definitions/class'},
                 }
             },
-            'limits': {#TODO: schema for wltc-limits
+            'limits': {
                 'type': 'object', 'additionalproperties': False,
-                'required': ['p_to_mass', 'class3_speed'],
+                'required': ['p_to_mass', 'class3_velocity'],
                 'properties': {
                     'p_to_mass': {'type': 'array'},
-                    'class3_speed': {'type': 'integer'}
+                    'class3_velocity': {'type': 'integer'}
                 }
             },
         },
@@ -226,12 +226,12 @@ def wltc_schema():
                     },
                     'downscale': {
                         'type': 'object', 'additionalproperties': False,
-                        'required': ['accel_phase', 'deccel_phase', 'max_p_time', 'max_p_speed', 'max_p_accel'],
+                        'required': ['accel_phase', 'deccel_phase', 'max_p_time', 'max_p_velocity', 'max_p_accel'],
                         'properties': {
                             'accel_phase': {'type': 'array', 'items': {'type': 'integer'}},
                             'deccel_phase': {'type': 'array', 'items': {'type': 'integer'}},
                             'max_p_time': {'type': 'integer'},
-                            'max_p_speed': {'type': 'number'}, # Km/h
+                            'max_p_velocity': {'type': 'number'}, # Km/h
                             'max_p_accel': {'type': 'number'}, # m/s2
                         }
                     },
