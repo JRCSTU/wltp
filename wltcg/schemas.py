@@ -192,7 +192,7 @@ def wltc_schema():
         'type': 'object', 'additionalproperties': False,
         'required': ['classes', 'limits'],
         'properties': {
-            'classes': {
+            'cycles': {
                 'type': 'object', 'additionalproperties': False,
                 'required': ['class1', 'class2', 'class3a', 'class3b'],
                 'properties': {
@@ -202,7 +202,13 @@ def wltc_schema():
                     'class3b': {'$ref': '#/definitions/class'},
                 }
             },
-            'limits': {
+            'limits': {#TODO: schema for wltc-limits
+                'type': 'object', 'additionalproperties': False,
+                'required': ['p_to_mass', 'class3_speed'],
+                'properties': {
+                    'p_to_mass': {'type': 'array'},
+                    'class3_speed': {'type': 'integer'}
+                }
             },
         },
         'definitions': {

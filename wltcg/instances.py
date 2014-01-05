@@ -93,15 +93,15 @@ def wltc_data():
 
     from wltcg.cycles import (class1, class2, class3a, class3b)
     wltc_data = {
-        'classes': {
+        'cycles': {
             'class1': class1.class_data,
             'class2': class2.class_data,
             'class3a': class3a.class_data,
             'class3b': class3b.class_data,
         },
         'limits': {
-            'p_to_mass_': [22, 34], #  W/kg, <=, choose class1/2/3
-            'max_speed': 120, # Km/h, <, choose class3a/3b
+            'p_to_mass': [22, 34], #  W/kg, <=, choose class1/2/3
+            'class3_speed': 120, # Km/h, <, choose class3a/3b
         }
     }
 
