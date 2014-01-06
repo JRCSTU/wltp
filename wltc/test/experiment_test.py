@@ -23,9 +23,10 @@ from wltc.instances import wltc_data
 @since 5 Jan 2014
 '''
 
-from ..model import Model
 from ..experiment import Experiment
+from ..model import Model
 from .goodvehicle import goodVehicle
+import numpy as np
 import unittest
 
 
@@ -36,10 +37,14 @@ class Test(unittest.TestCase):
         gears = model['results']['gears']
         target = model['results']['target']
         clutch = model['results']['clutch']
-        pylab.plot(gears * 20)
+
+        print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
+
+        pylab.plot(gears * 18)
         pylab.plot(target)
-        pylab.plot(clutch)
+        pylab.plot(clutch * 50)
         pylab.show()
+
 
 
     def testGoodVehicle(self):
@@ -54,6 +59,11 @@ class Test(unittest.TestCase):
         #print([wltc_data()['cycles']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
         self.plotResults(model.data)
 
+        np.set_printoptions(edgeitems=16)
+        #print(driveability_issues)
+        #print(v_max)
+        #results['target'] = []; print(results)
+
     def testUnderPowered(self):
         inst = goodVehicle
         inst['vehicle']['p_rated'] = 50
@@ -63,6 +73,9 @@ class Test(unittest.TestCase):
         self.assertRaisesRegex(Exception, 'Downscaling needed', experiment.run) #FIXME: remove when implemented
 
 
+#     def testPerf(self):
+#         for i in range(1000):
+#             self.testGoodVehicle()
 
 
 if __name__ == "__main__":

@@ -218,13 +218,6 @@ class Experiment(object):
 
 
 
-        np.set_printoptions(edgeitems=16)
-        #print(driveability_issues)
-        #print(v_max)
-        #results['target'] = []; print(results)
-
-
-
 
 #######################
 ## PURE CALCULATIONS ##
@@ -319,12 +312,13 @@ def calcEngineRevs_required(V, gear_ratios, n_idle, n_rated, n_min_gear2):
 
     ## FIXME: "incomprehensible" specs for Gear-2.
     #
-    clutched_on_gear2   = (N_GEARS[1, :] < n_min_gear2)
-    N_GEARS[1, clutched_on_gear2]       = n_idle
+#     clutched_on_gear2   = (N_GEARS[1, :] < n_min_gear2)
+#     N_GEARS[1, clutched_on_gear2]       = n_idle
 
     stopped_steps                       = (V == 0)
     N_GEARS [:, stopped_steps]          = n_idle
     GEARS   [:, stopped_steps]          = 0
+
     return (N_GEARS, GEARS)
 
 
@@ -345,9 +339,15 @@ def possibleGears_byEngineRevs(V, N_GEARS, ngears,
 
     n_min_drive         = n_idle + 0.125 * (n_rated - n_idle)
     GEARS_YES_MIN       = (N_GEARS >= n_min_drive)
-    GEARS_YES_MIN[0, :] = (N_GEARS[0, :] >= n_idle)
+    GEARS_YES_MIN[0, :] = (N_GEARS[0, :] >= n_idle) | (V == 0)
     ## FIXME: "incomprehensible" specs for Gear-2.
-    GEARS_YES_MIN[1, :] = (N_GEARS[1, :] >= n_min_gear2) | (N_GEARS[1, :] == n_idle) # Set when N_GEAR generated.
+    #
+    # All alternatives below produce the same with my class3b test-veh.
+    # At least 1 and 2 below should produce the same.
+#     GEARS_YES_MIN[1, :] = True
+    GEARS_YES_MIN[1, :] = (N_GEARS[1, :] >= n_min_gear2) | (N_GEARS[1, :] <= 0.9 * n_idle)  | (V == 0) # when < 9% n_idle, clutched.
+#     GEARS_YES_MIN[1, :] = (N_GEARS[1, :] >= n_min_gear2) | (N_GEARS[1, :] == n_idle) # Set when N_GEAR generated.
+#     GEARS_YES_MIN[1, :] = (N_GEARS[1, :] >= 0.9 * n_idle)
 
     reportDriveabilityProblems(GEARS_YES_MIN, 'low revolutions', driveability_issues)
     reportDriveabilityProblems(GEARS_YES_MAX, 'high revolutions', driveability_issues)
@@ -447,7 +447,11 @@ def calcCycleGears(V, P_REQ, mass, f0, f1, f2, gear_ratios,
     V[V <= v_stopped_threshold] = 0
 
     ## FIXME: "incomprehensible" specs for Gear-2.
-    n_min_gear2     = max(1.15 * n_idle, 0.03 * (n_rated - n_idle) + n_idle)
+    #
+    # Totaly(!) ignoring (9% n_idle) check from the spec!
+    n_min_gear2_f1              = 0.15 # +% over idle
+    n_min_gear2_f2              = 0.03 # +% * n_range over idle
+    n_min_gear2                 = max((1 + n_min_gear2_f1) * n_idle, n_min_gear2_f2 * (n_rated - n_idle) + n_idle)
 
 
     (N_GEARS, GEARS)            = calcEngineRevs_required(V, gear_ratios, n_idle, n_rated, n_min_gear2)
@@ -475,7 +479,7 @@ def calcCycleGears(V, P_REQ, mass, f0, f1, f2, gear_ratios,
 
     GEARS                       = applyDriveabilityRules(GEARS)
 
-    CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] == n_idle)
+    CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] < 0.9 * n_idle)
 
     return (GEARS, CLUTCH, driveability_issues)
 
