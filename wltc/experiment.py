@@ -187,7 +187,7 @@ class Experiment(object):
         #
         dsc_data            = class_data['downscale']
         phases              = dsc_data['phases']
-        max_p_values        = dsc_data['max_p_values']
+        max_p_values        = dsc_data['p_max_values']
         downsc_coeffs       = dsc_data['factor_coeffs']
         dsc_v_split         = dsc_data.get('v_max_split', None)
         downscale_factor    = calcDownscaleFactor(cycle, P_REQ,
@@ -263,16 +263,18 @@ def calcDownscaleFactor(cycle, P_REQ, max_p_values, downsc_coeffs, dsc_v_split, 
 
         downsc_coeffs       = downsc_coeffs[0] if (v_max <= dsc_v_split) else downsc_coeffs[1]
 
-    (r0, a1, b1) = downsc_coeffs
-
-
-    if (r_max < r0):
+    if (downsc_coeffs is None):
         downscale_factor    = 0
     else:
-        downscale_factor    = a1 * r_max + b1
-        downscale_factor    = round(downscale_factor, 1)
-        if (downscale_factor <= downscale_threshold):
-            downscale_factor = 0
+        (r0, a1, b1) = downsc_coeffs
+
+        if (r_max < r0):
+            downscale_factor    = 0
+        else:
+            downscale_factor    = a1 * r_max + b1
+            downscale_factor    = round(downscale_factor, 1)
+            if (downscale_factor <= downscale_threshold):
+                downscale_factor = 0
 
 
     return downscale_factor
@@ -297,7 +299,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle):
     @see: Annex 2-3.2, p 71
     '''
 
-    assert              V.ndim == 1, (V.shape, gear_ratios)
+    assert              V.ndim == 1 and len(V) > 100, (V.shape, gear_ratios, n_idle)
 
     nG                  = len(gear_ratios)
     nV                  = len(V)
@@ -306,8 +308,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle):
     assert              GEARS.shape == (nG, nV), (GEARS.shape, gear_ratios, nV)
 
     GEAR_RATIOS         = np.tile(gear_ratios, (nV, 1)).T
-    N_GEARS             = np.tile(V, (nG, 1))
-    N_GEARS             = N_GEARS * GEAR_RATIOS
+    N_GEARS             = np.tile(V, (nG, 1)) * GEAR_RATIOS
     assert              GEARS.shape  == GEAR_RATIOS.shape == N_GEARS.shape, _shapes(GEARS, GEAR_RATIOS, N_GEARS, V)
 
     stopped_steps                       = (V == 0)
@@ -417,6 +418,18 @@ def reportDriveabilityProblems(GEARS_YES, reason, driveability_issues):
         log.warning('%i %s issues: %s', failed_steps.size, reason, failed_steps)
 
 
+
+def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
+    assert                  G_BY_N.shape == G_BY_P.shape, _shapes(V, G_BY_N, G_BY_P)
+    assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
+
+    GEARS_YES               = G_BY_N & G_BY_P
+    GEARS_MX[~GEARS_YES]    = -1
+    GEARS                   = GEARS_MX.max(0)
+
+    return GEARS
+
+
 def calcCycleGears(V, P_REQ, gear_ratios,
                    n_idle, n_rated,
                    p_rated, load_curve,
@@ -467,7 +480,7 @@ def calcCycleGears(V, P_REQ, gear_ratios,
     ## Apply stopped-vehicle threshold (Annex 2-4(a), p72)
     V[V <= v_stopped_threshold] = 0
 
-    (N_GEARS, GEARS)            = calcEngineRevs_required(V, gear_ratios, n_idle)
+    (N_GEARS, GEARS_MX)            = calcEngineRevs_required(V, gear_ratios, n_idle)
 
     G_BY_N                      = possibleGears_byEngineRevs(V, N_GEARS,
                                                 len(gear_ratios),
@@ -478,12 +491,8 @@ def calcCycleGears(V, P_REQ, gear_ratios,
     G_BY_P                      = possibleGears_byPower(V, N_GEARS, P_REQ,
                                                 n_idle, n_rated, p_rated, load_curve, p_safety_margin,
                                                 driveability_issues)
-    assert                      G_BY_N.shape == G_BY_P.shape, _shapes(V, G_BY_N, G_BY_P)
-    assert                      G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
 
-    GEARS_YES                   = (G_BY_N & G_BY_P)
-    GEARS[~GEARS_YES]           = -1
-    GEARS                       = GEARS.max(0)
+    GEARS                       = selectGears(V, GEARS_MX, G_BY_N, G_BY_P)
     assert                      V.shape == GEARS.shape, _shapes(V, GEARS)
     assert                      'i' == GEARS.dtype.kind, GEARS.dtype
     assert                      all((GEARS >= -1) & (GEARS <= len(gear_ratios))), (min(GEARS), max(GEARS))
@@ -493,7 +502,10 @@ def calcCycleGears(V, P_REQ, gear_ratios,
 
     CLUTCH                      = (V == 0) | (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
 
-    V_REAL                      = N_GEARS[GEARS - 1, range(0, len(V))]
+    ## TODO: Calculate real-celocity.
+    #
+    N                         = N_GEARS[GEARS - 1, range(len(V))]
+    V_REAL = N
     V_REAL[CLUTCH | (V == 0)]   = 0
 
     return (V_REAL, GEARS, CLUTCH, driveability_issues)

@@ -302,25 +302,21 @@ def wltc_schema():
                     },
                     'downscale': {
                         'type': 'object', 'additionalProperties': False,
-                        'required': ['phases', 'max_p_values', 'factor_coeffs'],
+                        'required': ['phases', 'p_max_values', 'factor_coeffs'],
                         'properties': {
                             'phases': {
                                 'type': 'array', 'additionalItems': False,
                                 'items': {
-                                    'type': 'array', 'additionalItems': False,
-                                    'items': {
-                                        'type': 'integer'
-                                    },
-                                    'maxItems': 2, 'minItems': 2,
+                                    'type': 'integer'
                                 },
-                                'maxItems': 2, 'minItems': 2,
+                                'maxItems': 3, 'minItems': 3,
                             },
                             'deccel_phase': {
                                 'type': 'array', 'additionalItems': False,
                                 'items': {'type': 'integer'},
                                 'maxItems': 2, 'minItems': 2,
                             },
-                            'max_p_values': {
+                            'p_max_values': {
                                 'type': 'array', 'additionalItems': False,
                                 'items': { 'type': 'number'},
                                 'maxItems': 3, 'minItems': 3,
