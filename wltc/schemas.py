@@ -31,12 +31,12 @@ def model_schema():
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'title': 'Json-schema describing the input for a WLTC experiment.',
-        'type': 'object', 'additionalproperties': False,
+        'type': 'object', 'additionalProperties': False,
         'required': ['vehicle'],
         'properties': {
             'vehicle': {
                 'title': 'vehicle model',
-                'type': 'object', 'additionalproperties': False,
+                'type': 'object', 'additionalProperties': False,
                 'required': ['mass', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
                 'description': 'The vehicle attributes required for generating the WLTC velocity-profile downscaling and gear-shifts.',
                 'properties': {
@@ -141,6 +141,35 @@ def model_schema():
                     },
                 }  #veh-props
             }, # veh
+            'params': {
+                'type': 'object', 'additionalProperties': False,
+                'required': [
+                    'v_stopped_threshold',
+                    'f_safety_margin',
+                    'f_n_max',
+                    'f_n_min',
+                    'f1_n_min_gear2',
+                    'f2_n_min_gear2',
+                    'f_n_clutch_gear2',
+                ],
+                'properties': {
+                    'v_stopped_threshold': {
+                        'description': 'Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).',
+                        'type': 'number',
+                        'default': 1,
+                    },
+                    'f_safety_margin': {
+                        'description': 'Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72.',
+                        'type': 'number',
+                        'default': 0.9,
+                    },
+                    'f_n_max': {},
+                    'f_n_min': {},
+                    'f1_n_min_gear2': {},
+                    'f2_n_min_gear2': {},
+                    'f_n_clutch_gear2': {},
+                }
+            },
             'results': {}, #TODO: results model-schema
         },
         'definitions': {
@@ -163,7 +192,7 @@ def model_schema():
                'items': { '$ref': '#/definitions/positiveNumber' },
             },
             'mergeableArray': {
-                'type': 'object', 'additionalProperties': False,
+                'type': 'object', '': False,
                 'required': ['$merge', '$list'],
                 'properties': {
                     '$merge': {
@@ -204,11 +233,11 @@ def wltc_schema():
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'title': 'WLTC data',
-        'type': 'object', 'additionalproperties': False,
-        'required': ['cycles', 'parameters'],
+        'type': 'object', 'additionalProperties': False,
+        'required': ['cycles', 'classification'],
         'properties': {
             'cycles': {
-                'type': 'object', 'additionalproperties': False,
+                'type': 'object', 'additionalProperties': False,
                 'required': ['class1', 'class2', 'class3a', 'class3b'],
                 'properties': {
                     'class1': {'$ref': '#/definitions/class'},
@@ -217,9 +246,9 @@ def wltc_schema():
                     'class3b': {'$ref': '#/definitions/class'},
                 }
             },
-            'parameters': {
-                'type': 'object', 'additionalproperties': False,
-                'required': ['p_to_mass_class_limits', 'class3_split_velocity', 'v_stopped_threshold', 'power_safety_margin'],
+            'classification': {
+                'type': 'object', 'additionalProperties': False,
+                'required': ['p_to_mass_class_limits', 'class3_split_velocity'],
                 'properties': {
                     'p_to_mass_class_limits': {
                         'description': 'Power_to_unladen-mass ratio (W/kg) used to select class (Annex 1, p19).',
@@ -231,23 +260,13 @@ def wltc_schema():
                         'type': 'integer',
                         'default':120,
                     },
-                    'v_stopped_threshold': {
-                        'description': 'Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).',
-                        'type': 'number',
-                        'default': 1,
-                    },
-                    'power_safety_margin': {
-                        'description': 'Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72.',
-                        'type': 'number',
-                        'default': 0.9,
-                    },
                 }
             },
         },
         'definitions': {
             'class': {
                 'title': 'WLTC class data',
-                'type': 'object', 'additionalproperties': False,
+                'type': 'object', 'additionalProperties': False,
                 'required': ['parts', 'downscale', 'cycle'],
                 'properties': {
                     'parts': {
@@ -258,7 +277,7 @@ def wltc_schema():
                         }
                     },
                     'downscale': {
-                        'type': 'object', 'additionalproperties': False,
+                        'type': 'object', 'additionalProperties': False,
                         'required': ['phases', 'max_p_values', 'factor_coeffs'],
                         'properties': {
                             'phases': {

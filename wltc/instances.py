@@ -84,6 +84,15 @@ def model_base():
             "resistance_coeffs":[],
             'full_load_curve': default_load_curve,
         },
+        'params': {
+            'v_stopped_threshold':      1,          # Km/h, <=
+            'f_safety_margin':          0.9,
+            'f_n_max':                  1.2,
+            'f_n_min':                  0.125,
+            'f1_n_min_gear2':           1.15,
+            'f2_n_min_gear2':           0.03,
+            'f_n_clutch_gear2':         0.9,
+        }
     }
 
     return instance
@@ -124,11 +133,9 @@ def wltc_data():
             'class3a': class3.class_data_a(),
             'class3b': class3.class_data_b(),
         },
-        'parameters': {
+        'classification': {
             'p_to_mass_class_limits':   [22, 34], #  W/kg, <=, choose class1/2/3
             'class3_split_velocity':    120,       # Km/h, <, choose class3a/3b
-            'v_stopped_threshold':      1,                 # Km/h, <=
-            'power_safety_margin':      0.9,
         }
     }
 

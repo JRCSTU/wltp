@@ -171,8 +171,8 @@ class Experiment(object):
 
         ## Decide WLTC-class.
         #
-        class_limits            = self.wltc['parameters']['p_to_mass_class_limits']
-        class3_velocity_split   = self.wltc['parameters']['class3_split_velocity']
+        class_limits            = self.wltc['classification']['p_to_mass_class_limits']
+        class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
         wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
         results['wltc_class']   = wltc_class
         class_data              = self.wltc['cycles'][wltc_class]
@@ -203,14 +203,13 @@ class Experiment(object):
 
         ## Calc possible gears.
         #
-        v_stopped_threshold = self.wltc['parameters']['v_stopped_threshold'] # Km/h
-        p_safety_margin     = self.wltc['parameters']['power_safety_margin']
+        params          = data['params']
         load_curve          = vehicle['full_load_curve']
         (GEARS, CLUTCH, driveability_issues)    = calcCycleGears(V, P_REQ,
                                                            gear_ratios,
                                                            n_idle, n_rated,
                                                            p_rated, load_curve,
-                                                           v_stopped_threshold, p_safety_margin)
+                                                           params)
         assert               V.shape == GEARS.shape, _shapes(V, GEARS)
         results['gears']     = GEARS
         results['clutch']    = CLUTCH
@@ -420,7 +419,7 @@ def reportDriveabilityProblems(GEARS_YES, reason, driveability_issues):
 def calcCycleGears(V, P_REQ, gear_ratios,
                    n_idle, n_rated,
                    p_rated, load_curve,
-                   v_stopped_threshold, p_safety_margin):
+                   params):
     '''
 
     @note My interpratation for Gear2 ``n_min`` implementd in possibleGears_byEngineRevs()::
@@ -443,22 +442,30 @@ def calcCycleGears(V, P_REQ, gear_ratios,
     driveability_issues         = defaultdict(list)
 
 
-    ## Apply stopped-vehicle threshold (Annex 2-4(a), p72)
-    V[V <= v_stopped_threshold] = 0
 
-    ## TODO: Move n_min/max factors to model.
+    ## Read and calc model parameters.
     #
     n_range                     = (n_rated - n_idle)
-    n_max_factor                = 1.2
-    n_max                       = n_idle + n_max_factor * n_range
-    f_n_min                     = 0.125
-    n_min                       = n_idle + f_n_min      * n_range
-    f1_n_min_gear2              = 1.15  # * n_idle
-    f2_n_min_gear2              = 0.03  # * n_range + n_idle
+
+    f_n_max                     = params.get('f_n_max', 1.2)
+    n_max                       = n_idle + f_n_max * n_range
+
+    f_n_min                     = params.get('f_n_min', 0.125)
+    n_min                       = n_idle + f_n_min * n_range
+
+    f1_n_min_gear2              = params.get('f1_n_min_gear1', 1.15)
+    f2_n_min_gear2              = params.get('f2_n_min_gear2', 0.03)
     n_min_gear2                 = max(f1_n_min_gear2 * n_idle, f2_n_min_gear2 * n_range + n_idle)
-    f_n_clutch_gear2            = 0.9
+
+    f_n_clutch_gear2            = params.get('f_n_clutch_gear2', 0.9)
     n_clutch_gear2              = f_n_clutch_gear2 * n_idle
 
+    v_stopped_threshold         = params.get('v_stopped_threshold', 1) # Km/h
+    p_safety_margin             = params.get('f_safety_margin', 0.9)
+
+
+    ## Apply stopped-vehicle threshold (Annex 2-4(a), p72)
+    V[V <= v_stopped_threshold] = 0
 
     (N_GEARS, GEARS)            = calcEngineRevs_required(V, gear_ratios, n_idle)
 
