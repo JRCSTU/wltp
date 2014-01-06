@@ -32,9 +32,9 @@ def class_data_a():
         'downscale': {
             'phases': [[1533, 1723], [1725, 1762]],
             'max_p_values': [1566, 111.9, 0.50],    ## t, V(Km/h), Accel(m/s2)
-            'factor_coeffs': [[1.0, .65, -.65],     ## r0, a1, b1 x 2
-                              [1.3, .65, -.65]],
-            'v_max_split': 112,                     ## V (Km/h)
+            'factor_coeffs': [[1.3, .65, -.65],     ## r0, a1, b1 x 2
+                              [1.0, .65, -.65]],
+            'v_max_split': 112,                     ## V (Km/h), >
         },
         'cycle': [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 9,

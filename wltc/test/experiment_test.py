@@ -38,6 +38,14 @@ class Test(unittest.TestCase):
         experiment.run()
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
 
+    def testUnderPowered(self):
+        inst = goodVehicle
+        inst['vehicle']['p_rated'] = 50
+
+        model = Model(inst)
+        experiment = Experiment(model)
+        self.assertRaisesRegex(Exception, 'Downscaling needed', experiment.run) #FIXME: remove when implemented
+
 
 
 

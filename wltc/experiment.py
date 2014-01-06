@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-'''The actual WLTC gear-shift calculator which consumes 2 Docs, Model and WLTC-data, and updates the first .
+'''wltc.experiment module: The actual WLTC gear-shift calculator which consumes a Model and the WLTC-data,
+and updates the Model with the results (gears, downscaled velocity-profile) .
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
@@ -30,6 +31,9 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
                       | / WLTC-data / |
                       |'-----------'  |
                       |_______________|
+
+Usage:
+======
 
 A usage example::
 
@@ -50,7 +54,12 @@ A usage example::
     json.dumps(model['results'])
 
 
+
+Implementation:
+===============
+
 Note: ALL_CAPITALS variable denote vectors, usually over the velocity-profile (the cycle),
+for instance, GEARS is like that::
 
      t:||: 0  1  2  3
     ---+-------------
@@ -58,6 +67,24 @@ Note: ALL_CAPITALS variable denote vectors, usually over the velocity-profile (t
     g2:|   2, 2, 2, 2, ... 2, 2
     g3:|   3, 3, 3, 3, ... 3, 3
     g4 |   4, 4, 4, 4, ... 4, 4 ]]
+
+
+Vectors:
+--------
+
+V:        floats (#cycle_steps)
+    The wltc-class velocity profile.
+
+GEARS:    integers (#gears X #cycle_steps)
+    One row for each gear (starting with 1 to #gears).
+
+GEARS_YES:  boolean (#gears X #cycle_steps)
+    One row per gear having ``True`` wherever gear is possible for each step.
+
+N_GEARS:  floats (#gears X #cycle_steps)
+    One row per gear with the Engine-revolutions required to follow the V-profile (unfeasable revs included),
+    produced by multiplying ``V * gear-rations``.
+
 
 
 @author: ankostis@gmail.com
@@ -130,58 +157,64 @@ class Experiment(object):
 
         ## Extract vehicle attributes from model.
         #
-        mass                    = vehicle['mass']
-        p_rated                 = vehicle['p_rated']
-        n_rated                 = vehicle['n_rated']
-        n_idle                  = vehicle['n_idle']
-        gear_ratios             = vehicle['gear_ratios']
-        (f0, f1, f2)            = vehicle['resistance_coeffs']
+        mass                = vehicle['mass']
+        p_rated             = vehicle['p_rated']
+        n_rated             = vehicle['n_rated']
+        n_idle              = vehicle['n_idle']
+        gear_ratios         = vehicle['gear_ratios']
+        (f0, f1, f2)        = vehicle['resistance_coeffs']
 
         ## Calc foundamental vehicle attributes.
         #
         # TODO: Store them back into the model?
-        p_m_ratio               = (1000 * p_rated / mass)
-        v_max                   = n_rated / gear_ratios[-1] # FIXME: is v_max ok???
-        n_min_drive             = n_idle + 0.235 * (n_rated - n_idle)
+        v_max               = n_rated / gear_ratios[-1] # FIXME: is v_max ok???
+        n_min_drive         = n_idle + 0.235 * (n_rated - n_idle)
 
 
         ## Decide WLTC-class.
         #
         class_limits            = self.wltc['parameters']['p_to_mass_class_limits']
         class3_velocity_split   = self.wltc['parameters']['class3_split_velocity']
-        wltc_class              = decideClass(class_limits, class3_velocity_split, p_m_ratio, v_max)
+        wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
         results['wltc_class']   = wltc_class
         class_data              = self.wltc['cycles'][wltc_class]
         cycle                   = class_data['cycle']
 
 
-        ## Velocity profile.
-        V                       = np.array(cycle, dtype=self.dtype)
+        ## Velocity and power profile.
+        #
+        V                   = np.array(cycle, dtype=self.dtype)
+        P_REQ               = calcPower_required(V, mass, f0, f1, f2)
 
 
         ## Downscale velocity-profile.
         #
-        dsc_data                = class_data['downscale']
-        phases                  = dsc_data['phases']
-        max_p_values            = dsc_data['max_p_values']
-        downsc_coeffs           = dsc_data['factor_coeffs']
-        dsc_v_split             = dsc_data['v_max_split'] if 'v_max_split' in dsc_data else None
-        (V, downscale_factor)   = downscaleCycle(V, phases, max_p_values, downsc_coeffs, dsc_v_split, p_rated, v_max)
-        results['target']       = V
+        dsc_data            = class_data['downscale']
+        phases              = dsc_data['phases']
+        max_p_values        = dsc_data['max_p_values']
+        downsc_coeffs       = dsc_data['factor_coeffs']
+        dsc_v_split         = dsc_data['v_max_split'] if 'v_max_split' in dsc_data else None
+        downscale_factor    = calcDownscaleFactor(cycle, P_REQ,
+                                                      max_p_values, downsc_coeffs, dsc_v_split,
+                                                      p_rated, v_max)
         results['downscale_factor'] = downscale_factor
+        if (downscale_factor > 0):
+            V               = downscaleCycle(cycle, V, downscale_factor, phases)
+        results['target']   = V
 
 
         ## Calc possible gears.
         #
-        idle_velocity           = self.wltc['parameters']['idle_velocity'] # Km/h
-        safety_margin           = self.wltc['parameters']['power_safety_margin']
-        load_curve              = vehicle['full_load_curve']
-        (GEARS, driveability_issues)      = calcCycleGears(V, mass, f0, f1, f2, gear_ratios,
-                                                             n_idle, n_min_drive, n_rated,
-                                                             p_rated, load_curve,
-                                                             idle_velocity, safety_margin)
-        assert                              V.shape == GEARS.shape, _shapes(V, GEARS)
-        results['gears']                    = GEARS
+        idle_velocity       = self.wltc['parameters']['idle_velocity'] # Km/h
+        safety_margin       = self.wltc['parameters']['power_safety_margin']
+        load_curve          = vehicle['full_load_curve']
+        (GEARS, driveability_issues)      = calcCycleGears(V, P_REQ,
+                                                           mass, f0, f1, f2, gear_ratios,
+                                                           n_idle, n_min_drive, n_rated,
+                                                           p_rated, load_curve,
+                                                           idle_velocity, safety_margin)
+        assert               V.shape == GEARS.shape, _shapes(V, GEARS)
+        results['gears']     = GEARS
         results['driveability_issues']    = driveability_issues
 
 
@@ -199,30 +232,68 @@ class Experiment(object):
 #######################
 
 
-def decideClass(class_limits, class3_velocity_split, p_m_ratio, v_max):
+def decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max):
     '''
 
     @see: Annex 1, p 19
     '''
 
+    p_m_ratio           = (1000 * p_rated / mass)
     if (p_m_ratio > class_limits[-1]):
-        wltc_class = 'class3'
-        ab = 'b' if v_max >= class3_velocity_split else 'a'
-        wltc_class += ab
+        wltc_class      = 'class3'
+        ab              = 'b' if v_max >= class3_velocity_split else 'a'
+        wltc_class      += ab
     elif (p_m_ratio > class_limits[-2]):
-        wltc_class = 'class2'
+        wltc_class      = 'class2'
     else:
-        wltc_class = 'class1'
+        wltc_class      = 'class1'
     return wltc_class
 
 
 
-def downscaleCycle(cycle, phases, max_p_values, downsc_coeffs, dsc_v_split, p_max, v_max):
-    '''TODO: Implement Downscaling, probably per class'''
+def calcDownscaleFactor(cycle, P_REQ, max_p_values, downsc_coeffs, dsc_v_split, p_rated, v_max):
+    '''Check if downscaling required, and apply it.
+
+    @return: :float:
+    @see: Annex 1-7, p 68
+    '''
+    downscale_threshold     = 0.1 # Move downscale_threshold to model
+
+    ## Max required power
+    #
+    p_req_max               = P_REQ[max_p_values[0]]
+    r_max                   = (p_req_max / p_rated)
+
+    ## Cycle r0
+    #
+    if dsc_v_split is not None:
+        assert              len(downsc_coeffs) == 2, downsc_coeffs
+
+        downsc_coeffs       = downsc_coeffs[0] if (v_max <= dsc_v_split) else downsc_coeffs[1]
+
+    (r0, a1, b1) = downsc_coeffs
 
 
-    downscale_factor = 0
-    return (cycle, downscale_factor)
+    if (r_max < r0):
+        downscale_factor    = 0
+    else:
+        downscale_factor    = a1 * r_max + b1
+        downscale_factor    = round(downscale_factor, 1)
+        if (downscale_factor <= downscale_threshold):
+            downscale_factor = 0
+
+
+    return downscale_factor
+
+
+def downscaleCycle(cycle, V, downscale_factor, phases):
+    '''Check if downscaling required, and apply it.
+
+    @see: Annex 1-7, p 64-68
+    '''
+    #TODO: Implement downscale.
+
+    raise Exception('Downscaling needed, but NOT IMPLEMENTED YET!')
 
 
 
@@ -263,7 +334,7 @@ def calcEngineRevs_availableMinMax(gear_ratios, n_idle, n_min_drive, n_rated):
     n_min[0]        = n_idle
     n_min[1]        = max(1.15 * n_idle, 0.03 * (n_rated - n_idle) + n_idle)
 
-    n_max           = np.ones_like(gear_ratios) * (n_rated - n_idle) + n_idle
+    n_max           = np.ones_like(gear_ratios) * 1.2 * (n_rated - n_idle) + n_idle
 
     return (n_min, n_max)
 
@@ -273,15 +344,15 @@ def possibleGears_byEngineRevs(V, N_GEARS, f0, f1, f2, gear_ratios,
                                driveability_issues):
 
     (n_min, n_max)  = calcEngineRevs_availableMinMax(gear_ratios, n_idle, n_min_drive, n_rated)
-    N_MIN           = np.tile(n_min, (len(V), 1)).T
-    N_MAX           = np.tile(n_max, (len(V), 1)).T
-    assert          N_GEARS.shape == N_MIN.shape == N_MAX.shape, _shapes(N_GEARS, N_MIN, N_MAX)
 
-    GEARS_YES_MIN   = (N_MIN <= N_GEARS)
-    GEARS_YES_MAX   = (N_GEARS <= N_MAX)
+    GEARS_YES_MIN   = (n_min <= N_GEARS.T).T
+    reportDriveabilityProblems(GEARS_YES_MIN, 'low revolutions', driveability_issues)
+
+    GEARS_YES_MAX   = (N_GEARS.T <= n_max).T
+    reportDriveabilityProblems(GEARS_YES_MAX, 'high revolutions', driveability_issues)
+
     GEARS_YES       = (GEARS_YES_MIN & GEARS_YES_MAX)
-    reportDriveabilityProblems(GEARS_YES, 'low revolutions', driveability_issues)
-    reportDriveabilityProblems(GEARS_YES, 'high revolutions', driveability_issues)
+
 
     gear2_n_min_limit = n_idle # TODO: impl calc n_min for Gear-2.
 
@@ -321,7 +392,7 @@ def calcPower_available(N_GEARS, test_mass, f0, f1, f2, n_idle, n_rated, p_rated
 
     return P_AVAIL
 
-def possibleGears_byPower(V, N_GEARS, mass, f0, f1, f2, gear_ratios,
+def possibleGears_byPower(V, N_GEARS, P_REQ, mass, f0, f1, f2, gear_ratios,
                           n_idle, n_rated, p_rated, load_curve, safety_margin,
                           driveability_issues):
     '''
@@ -329,7 +400,6 @@ def possibleGears_byPower(V, N_GEARS, mass, f0, f1, f2, gear_ratios,
     @see: Annex 2-3.1 & 3.3, p 71 & 72
     '''
 
-    P_REQ       = calcPower_required(V, mass, f0, f1, f2)
     P_AVAIL     = calcPower_available(N_GEARS, mass, f0, f1, f2, n_idle, n_rated, p_rated, load_curve, safety_margin)
     assert      V.shape == P_REQ.shape and N_GEARS.shape == P_AVAIL.shape, \
                                 _shapes(V, P_REQ, N_GEARS, P_AVAIL)
@@ -360,7 +430,7 @@ def reportDriveabilityProblems(GEARS_YES, reason, driveability_issues):
         log.warning('%i %s issues: %s', failed_steps.size, reason, failed_steps)
 
 
-def calcCycleGears(V, mass, f0, f1, f2, gear_ratios,
+def calcCycleGears(V, P_REQ, mass, f0, f1, f2, gear_ratios,
                    n_idle, n_min_drive, n_rated,
                    p_rated, load_curve,
                    idle_velocity, safety_margin):
@@ -377,7 +447,7 @@ def calcCycleGears(V, mass, f0, f1, f2, gear_ratios,
                                         n_idle, n_min_drive, n_rated,
                                         driveability_issues)
 
-    G_BY_P              = possibleGears_byPower(V, N_GEARS,
+    G_BY_P              = possibleGears_byPower(V, N_GEARS, P_REQ,
                                         mass, f0, f1, f2, gear_ratios,
                                         n_idle, n_rated, p_rated, load_curve, safety_margin,
                                         driveability_issues)
