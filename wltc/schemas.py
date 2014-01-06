@@ -37,14 +37,19 @@ def model_schema():
             'vehicle': {
                 'title': 'vehicle model',
                 'type': 'object', 'additionalProperties': False,
-                'required': ['mass', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
+                'required': ['mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
                 'description': 'The vehicle attributes required for generating the WLTC velocity-profile downscaling and gear-shifts.',
                 'properties': {
                    'mass': {
                        'title': 'vehicle test mass',
-                       '$ref': '#/definitions/positiveInteger',
+                       '$ref': '#/definitions/positiveNumber',
                        'description': 'The test mass of the vehicle in kg.',
                     },
+                   'v_max': {
+                       'title': 'maximum vehicle velocity',
+                       '$ref': '#/definitions/positiveNumber',
+                       'description': 'The maximum velocity as declared by the manufacturer.',
+                   },
                    'p_rated': {
                        'title': 'maximum rated power',
                        '$ref': '#/definitions/positiveNumber',
@@ -52,7 +57,7 @@ def model_schema():
                    },
                    'n_rated': {
                        'title': 'rated engine revolutions',
-                       '$ref': '#/definitions/positiveInteger',
+                       '$ref': '#/definitions/positiveNumber',
                        'description': dedent('''
                            The rated engine revolutions at which an engine develops its maximum power.
                            If the maximum power is developed over an engine revolutions range,
@@ -62,12 +67,12 @@ def model_schema():
                     },
                    'n_idle': {
                        'title': 'idling revolutions',
-                       '$ref': '#/definitions/positiveInteger',
+                       '$ref': '#/definitions/positiveNumber',
                        'description': 'The idling engine revolutions as defined of Annex 1.',
                     },
                    'n_min': {
                        'title': 'minimum engine revolutions',
-                       '$ref': '#/definitions/positiveInteger',
+                       '$ref': '#/definitions/positiveNumber',
                        'description': dedent('''
                         minimum engine revolutions for gears > 2 when the vehicle is in motion. The minimum value
                         is determined by the following equation:
@@ -142,32 +147,51 @@ def model_schema():
                 }  #veh-props
             }, # veh
             'params': {
+                'title': 'experiment parameters',
                 'type': 'object', 'additionalProperties': False,
                 'required': [
                     'v_stopped_threshold',
                     'f_safety_margin',
                     'f_n_max',
                     'f_n_min',
-                    'f1_n_min_gear2',
-                    'f2_n_min_gear2',
+                    'f_n_min_gear2',
                     'f_n_clutch_gear2',
                 ],
                 'properties': {
                     'v_stopped_threshold': {
                         'description': 'Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).',
-                        'type': 'number',
+                        'type': [ 'number', 'null'],
                         'default': 1,
                     },
                     'f_safety_margin': {
                         'description': 'Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72.',
-                        'type': 'number',
+                        'type': [ 'number', 'null'],
                         'default': 0.9,
                     },
-                    'f_n_max': {},
-                    'f_n_min': {},
-                    'f1_n_min_gear2': {},
-                    'f2_n_min_gear2': {},
-                    'f_n_clutch_gear2': {},
+                    'f_n_max': {
+                        'description': 'For each gear, N :< n_max = n_idle + f_n_max * n_range',
+                        'type': [ 'number', 'null'],
+                        'default': 1.2,
+                    },
+                    'f_n_min': {
+                        'description': 'For each gear > 2, N :> n_min = n_idle + f_n_min * n_range',
+                        'type': [ 'number', 'null'],
+                        'default': 0.125,
+                    },
+                    'f_n_min_gear2': {
+                        'description': dedent('''
+                            A 2-value number-array(f1, f2) controlling when gear-2 is considered invalid::
+                                N :< n_min_gear2 = max(f1 * n_idle, f2 * n_range + n_idle),
+                            unless "clutched"...
+                        '''),
+                        'type': [ 'array', 'null'],
+                        'default': [1.15, 0.03],
+                    },
+                    'f_n_clutch_gear2': {
+                        'description': 'Gear-2 is clutched when N :< f_n_clutch_gear2 * n_idle.',
+                        'type': [ 'number', 'null'],
+                        'default': 0.9,
+                    },
                 }
             },
             'results': {}, #TODO: results model-schema

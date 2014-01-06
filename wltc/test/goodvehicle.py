@@ -25,6 +25,7 @@
 goodVehicle = {
     "vehicle": {
         "mass":     1500,
+        "v_max":    195,
         "p_rated":  100,
         "n_rated":  5450,
         "n_idle":   950,

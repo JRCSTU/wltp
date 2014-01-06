@@ -37,17 +37,18 @@ Usage:
 
 A usage example::
 
-    model = wltc.Model(json.loads(\'''{
-        vehicle": {
-            "mass":1300,
-            "p_rated":110.625,
-            "n_rated":5450,
-            "n_idle":950,
-            "n_min":500,
-            "gear_ratios":[120.5, 75, 50, 43, 33, 28],
-            "resistance_coeffs":[100, 0.5, 0.04]
+    model = wltc.Model({
+        "vehicle": {
+            "mass":     1500,
+            "v_max":    195,
+            "p_rated":  100,
+            "n_rated":  5450,
+            "n_idle":   950,
+            "n_min":    500,
+            "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
+            "resistance_coeffs":[100, 0.5, 0.04],
         }
-    }\'''))
+    }
 
     experiment = wltc.Experiment(model)
     experiment.run()
@@ -158,15 +159,12 @@ class Experiment(object):
         ## Extract vehicle attributes from model.
         #
         mass                = vehicle['mass']
+        v_max               = vehicle['v_max']
         p_rated             = vehicle['p_rated']
         n_rated             = vehicle['n_rated']
         n_idle              = vehicle['n_idle']
         gear_ratios         = vehicle['gear_ratios']
         (f0, f1, f2)        = vehicle['resistance_coeffs']
-
-        ## FIXME: Is v_max correct??.
-        # TODO: Store them back into the model?
-        v_max               = n_rated / gear_ratios[-1] # FIXME: is v_max ok???
 
 
         ## Decide WLTC-class.
@@ -203,14 +201,17 @@ class Experiment(object):
 
         ## Calc possible gears.
         #
-        params          = data['params']
+        params              = data['params']
         load_curve          = vehicle['full_load_curve']
-        (GEARS, CLUTCH, driveability_issues)    = calcCycleGears(V, P_REQ,
-                                                           gear_ratios,
-                                                           n_idle, n_rated,
-                                                           p_rated, load_curve,
-                                                           params)
+        (V_REAL, GEARS, CLUTCH, driveability_issues) = \
+                            calcCycleGears(V, P_REQ,
+                                           gear_ratios,
+                                           n_idle, n_rated,
+                                           p_rated, load_curve,
+                                                       params)
         assert               V.shape == GEARS.shape, _shapes(V, GEARS)
+
+        results['velocity']  = V_REAL
         results['gears']     = GEARS
         results['clutch']    = CLUTCH
         results['driveability_issues']    = driveability_issues
@@ -453,9 +454,8 @@ def calcCycleGears(V, P_REQ, gear_ratios,
     f_n_min                     = params.get('f_n_min', 0.125)
     n_min                       = n_idle + f_n_min * n_range
 
-    f1_n_min_gear2              = params.get('f1_n_min_gear1', 1.15)
-    f2_n_min_gear2              = params.get('f2_n_min_gear2', 0.03)
-    n_min_gear2                 = max(f1_n_min_gear2 * n_idle, f2_n_min_gear2 * n_range + n_idle)
+    f_n_min_gear2               = params.get('f1_n_min_gear1', [1.15, 0.03])
+    n_min_gear2                 = max(f_n_min_gear2[0] * n_idle, f_n_min_gear2[1] * n_range + n_idle)
 
     f_n_clutch_gear2            = params.get('f_n_clutch_gear2', 0.9)
     n_clutch_gear2              = f_n_clutch_gear2 * n_idle
@@ -491,9 +491,12 @@ def calcCycleGears(V, P_REQ, gear_ratios,
 
     GEARS                       = applyDriveabilityRules(GEARS)
 
-    CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
+    CLUTCH                      = (V == 0) | (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
 
-    return (GEARS, CLUTCH, driveability_issues)
+    V_REAL                      = N_GEARS[GEARS - 1, range(0, len(V))]
+    V_REAL[CLUTCH | (V == 0)]   = 0
+
+    return (V_REAL, GEARS, CLUTCH, driveability_issues)
 
 
 

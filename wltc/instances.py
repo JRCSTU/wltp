@@ -75,11 +75,12 @@ def model_base():
 
     instance = {
         'vehicle': {
-            "mass": None,
-            "p_rated":None,
-            "n_rated":None,
-            "n_idle":None,
-            "n_min":None,
+            "mass":     None,
+            "v_max":    None,
+            "p_rated":  None,
+            "n_rated":  None,
+            "n_idle":   None,
+            "n_min":    None,
             "gear_ratios":[],
             "resistance_coeffs":[],
             'full_load_curve': default_load_curve,
@@ -89,8 +90,7 @@ def model_base():
             'f_safety_margin':          0.9,
             'f_n_max':                  1.2,
             'f_n_min':                  0.125,
-            'f1_n_min_gear2':           1.15,
-            'f2_n_min_gear2':           0.03,
+            'f_n_min_gear2':            [1.15, 0.03],
             'f_n_clutch_gear2':         0.9,
         }
     }

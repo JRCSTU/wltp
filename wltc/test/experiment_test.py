@@ -35,6 +35,7 @@ class Test(unittest.TestCase):
         import pylab
         gears = model['results']['gears']
         target = model['results']['target']
+        realv = model['results']['velocity']
         clutch = model['results']['clutch']
 
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
@@ -42,6 +43,7 @@ class Test(unittest.TestCase):
         pylab.plot(gears * 18)
         pylab.plot(target)
         pylab.plot(clutch * 50)
+        pylab.plot(realv)
         pylab.show()
 
 

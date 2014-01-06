@@ -1,13 +1,14 @@
 v0.0.1, 6-Jan-2014 -- Alpha release
 -----------------------------------
 
+* Totaly unchecked.
 * Implemented without enforcing driveability rules.
-* Not sure whether implemented correctly the specs concerning ``n_min`` engine-revolutions for gear-2
-  (Annex 2-3.2, p71).
 * Detecting but not applying downscaling.
+* Does not output real_velocity yet - inly gears.
+* Interpreted and implemented the nonsensical specs concerning ``n_min`` engine-revolutions for gear-2
+  (Annex 2-3.2, p71).
 
-
-v0.0.0, Dec-2013 -- Inception stage
------------------------------------
+v0.0.0, 11-Dec-2013 -- Inception stage
+--------------------------------------
 
 * Mostly setup.py work, README and help.

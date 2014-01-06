@@ -2,29 +2,56 @@
 WLTC gear-shift calculator
 ==========================
 
-WLTCG calculates the gear-shifts of light-duty-vehicles (cars) for the WLTC testing-cycle.
+WLTCG calculates the gear-shifts/real_velocity profile for light-duty-vehicles (cars)
+according to the WLTC testing-cycle.
 
 It accepts as input the car-specifications and a selection of a WLTC-cycle classes
 and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
-and any warnings.  To install it, do the usual::
+and any warnings.  It certainly does not calculate any CO2 emissions or other metrics.
+
+To install it, assuming you have download the sources,
+do the usual::
 
 	python setup.py install
 
+Or get it directly from the PIP repository::
 
-Typical usage would look like this::
+	pip3 install wltc
 
-	import wltc
 
-	specs = {
-		vehicle : { },
-		options : { },
+Usage:
+======
+
+An "execution" or a "run" of an experiment is depicted in the following diagram::
+
+                       _______________
+     .-------.        |               |      .------------------.
+    / Model /-.   ==> |   Experiment  | ==> / Model(augmented) /
+   '-------'  /   ==> |---------------|    '------------------'
+     .-------'        |  .-----------.|
+                      | / WLTC-data / |
+                      |'-----------'  |
+                      |_______________|
+
+
+A typical usage would look like this::
+
+    model = wltc.Model({
+	    "vehicle": {
+	        "mass":     1500,
+	        "v_max":    195,
+	        "p_rated":  100,
+	        "n_rated":  5450,
+	        "n_idle":   950,
+	        "n_min":    500,
+	        "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
+	        "resistance_coeffs":[100, 0.5, 0.04],
+	    }
 	}
 
-	results = wltc(specs)
-
-	print(results)
-
-		{...}
+    experiment = wltc.Experiment(model)
+    experiment.run()
+    print(model['results'])
 
 
 For Python 3.3 or later.
@@ -91,8 +118,8 @@ an intermediate manual step involving a spreadsheet to copy the table into ands 
 Then use the ``./util/buildwltcclass.py`` to contruct the respective python-vars into the
 wltc/Model.py sources.
 
-..	running the test suite
-	converting the documentation
+TODO:
+	running the test suite
 
 
 
