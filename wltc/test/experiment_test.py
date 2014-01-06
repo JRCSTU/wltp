@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-from wltc.instances import wltc_data
 '''
 @author: ankostis@gmail.com
 @since 5 Jan 2014

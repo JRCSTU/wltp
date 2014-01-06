@@ -182,7 +182,7 @@ class Experiment(object):
         ## Velocity and power profile.
         #
         V                   = np.array(cycle, dtype=self.dtype)
-        P_REQ               = calcPower_required(V, mass, f0, f1, f2)
+        P_REQ               = calcPower_required(V, mass, f0, f1, f2) # Used alsoby downscale.
 
 
         ## Downscale velocity-profile.
@@ -191,7 +191,7 @@ class Experiment(object):
         phases              = dsc_data['phases']
         max_p_values        = dsc_data['max_p_values']
         downsc_coeffs       = dsc_data['factor_coeffs']
-        dsc_v_split         = dsc_data['v_max_split'] if 'v_max_split' in dsc_data else None
+        dsc_v_split         = dsc_data.get('v_max_split', None)
         downscale_factor    = calcDownscaleFactor(cycle, P_REQ,
                                                       max_p_values, downsc_coeffs, dsc_v_split,
                                                       p_rated, v_max)
@@ -207,7 +207,7 @@ class Experiment(object):
         p_safety_margin     = self.wltc['parameters']['power_safety_margin']
         load_curve          = vehicle['full_load_curve']
         (GEARS, CLUTCH, driveability_issues)    = calcCycleGears(V, P_REQ,
-                                                           mass, f0, f1, f2, gear_ratios,
+                                                           gear_ratios,
                                                            n_idle, n_rated,
                                                            p_rated, load_curve,
                                                            v_stopped_threshold, p_safety_margin)
@@ -289,7 +289,7 @@ def downscaleCycle(cycle, V, downscale_factor, phases):
 
 
 
-def calcEngineRevs_required(V, gear_ratios, n_idle, n_rated, n_min_gear2):
+def calcEngineRevs_required(V, gear_ratios, n_idle):
     '''Calculates the required engine-revolutions to achieve target-velocity for all gears.
 
     @return :array: N_GEARS:   a (#gears X #velocity) float-array, eg. [3, 150] --> gear(3), time(150)
@@ -310,11 +310,6 @@ def calcEngineRevs_required(V, gear_ratios, n_idle, n_rated, n_min_gear2):
     N_GEARS             = N_GEARS * GEAR_RATIOS
     assert              GEARS.shape  == GEAR_RATIOS.shape == N_GEARS.shape, _shapes(GEARS, GEAR_RATIOS, N_GEARS, V)
 
-    ## FIXME: "incomprehensible" specs for Gear-2.
-    #
-#     clutched_on_gear2   = (N_GEARS[1, :] < n_min_gear2)
-#     N_GEARS[1, clutched_on_gear2]       = n_idle
-
     stopped_steps                       = (V == 0)
     N_GEARS [:, stopped_steps]          = n_idle
     GEARS   [:, stopped_steps]          = 0
@@ -323,9 +318,9 @@ def calcEngineRevs_required(V, gear_ratios, n_idle, n_rated, n_min_gear2):
 
 
 def possibleGears_byEngineRevs(V, N_GEARS, ngears,
-                               n_idle, n_rated,
-                               driveability_issues,
-                               n_min_gear2):
+                               n_idle,
+                               n_min, n_clutch_gear2, n_min_gear2, n_max,
+                               driveability_issues):
     '''Calculates the engine-revolutions limits for all gears and returns where they are accepted.
 
     @return :list: min-revs for each gear (list[0] --> gear-1)
@@ -333,26 +328,20 @@ def possibleGears_byEngineRevs(V, N_GEARS, ngears,
     @see: Annex 2-3.2, p 71
     '''
 
-    n_max_factor        = 1.2 # TODO: Move v_max_factor to model
-    n_max               = n_max_factor * (n_rated - n_idle) + n_idle
-    GEARS_YES_MAX       = (N_GEARS <= n_max)
+    GEARS_YES_MAX           = (N_GEARS <= n_max)
 
-    n_min_drive         = n_idle + 0.125 * (n_rated - n_idle)
-    GEARS_YES_MIN       = (N_GEARS >= n_min_drive)
-    GEARS_YES_MIN[0, :] = (N_GEARS[0, :] >= n_idle) | (V == 0)
-    ## FIXME: "incomprehensible" specs for Gear-2.
+    ## Apply n_min for all gears but 1 & 2
     #
-    # All alternatives below produce the same with my class3b test-veh.
-    # At least 1 and 2 below should produce the same.
-#     GEARS_YES_MIN[1, :] = True
-    GEARS_YES_MIN[1, :] = (N_GEARS[1, :] >= n_min_gear2) | (N_GEARS[1, :] <= 0.9 * n_idle)  | (V == 0) # when < 9% n_idle, clutched.
-#     GEARS_YES_MIN[1, :] = (N_GEARS[1, :] >= n_min_gear2) | (N_GEARS[1, :] == n_idle) # Set when N_GEAR generated.
-#     GEARS_YES_MIN[1, :] = (N_GEARS[1, :] >= 0.9 * n_idle)
+    GEARS_YES_MIN           = (N_GEARS >= n_min)
+    GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V == 0) # V == 0 --> neutral
+    N_GEARS2                = N_GEARS[1, :]
+    ## NOTE: "interpratation" of specs for Gear-2.
+    GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | (N_GEARS2 <= n_clutch_gear2)  | (V == 0)
 
     reportDriveabilityProblems(GEARS_YES_MIN, 'low revolutions', driveability_issues)
     reportDriveabilityProblems(GEARS_YES_MAX, 'high revolutions', driveability_issues)
 
-    GEARS_YES       = (GEARS_YES_MIN & GEARS_YES_MAX)
+    GEARS_YES               = (GEARS_YES_MIN & GEARS_YES_MAX)
 
     return GEARS_YES
 
@@ -378,7 +367,7 @@ def calcPower_required(V, test_mass, f0, f1, f2):
 
 
 
-def calcPower_available(N_GEARS, test_mass, f0, f1, f2, n_idle, n_rated, p_rated, load_curve, p_safety_margin):
+def calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_margin):
     '''
 
     @see: Annex 2-3.2, p 72
@@ -390,7 +379,7 @@ def calcPower_available(N_GEARS, test_mass, f0, f1, f2, n_idle, n_rated, p_rated
 
     return P_AVAIL
 
-def possibleGears_byPower(V, N_GEARS, P_REQ, mass, f0, f1, f2, gear_ratios,
+def possibleGears_byPower(V, N_GEARS, P_REQ,
                           n_idle, n_rated, p_rated, load_curve, p_safety_margin,
                           driveability_issues):
     '''
@@ -398,7 +387,7 @@ def possibleGears_byPower(V, N_GEARS, P_REQ, mass, f0, f1, f2, gear_ratios,
     @see: Annex 2-3.1 & 3.3, p 71 & 72
     '''
 
-    P_AVAIL     = calcPower_available(N_GEARS, mass, f0, f1, f2, n_idle, n_rated, p_rated, load_curve, p_safety_margin)
+    P_AVAIL     = calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_margin)
     assert      V.shape == P_REQ.shape and N_GEARS.shape == P_AVAIL.shape, \
                                 _shapes(V, P_REQ, N_GEARS, P_AVAIL)
 
@@ -428,11 +417,22 @@ def reportDriveabilityProblems(GEARS_YES, reason, driveability_issues):
         log.warning('%i %s issues: %s', failed_steps.size, reason, failed_steps)
 
 
-def calcCycleGears(V, P_REQ, mass, f0, f1, f2, gear_ratios,
+def calcCycleGears(V, P_REQ, gear_ratios,
                    n_idle, n_rated,
                    p_rated, load_curve,
                    v_stopped_threshold, p_safety_margin):
     '''
+
+    @note My interpratation for Gear2 ``n_min`` implementd in possibleGears_byEngineRevs()::
+
+                          ___________                   ______________
+                             CLUTCH  |////INVALID//////|  GEAR-2-OK
+        EngineRevs(N): ----------------------+----------------------------
+        for Gear-2                   |       |         |
+                       -10% n_idle --+       |         +-- +15% n_idle
+                                          N_IDLE                 OR
+                                                       n_idle + (3% * n_range)
+
     @note: modifies V for velocities < v_stopped_threshold
     @return :array: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
     '''
@@ -446,24 +446,29 @@ def calcCycleGears(V, P_REQ, mass, f0, f1, f2, gear_ratios,
     ## Apply stopped-vehicle threshold (Annex 2-4(a), p72)
     V[V <= v_stopped_threshold] = 0
 
-    ## FIXME: "incomprehensible" specs for Gear-2.
+    ## TODO: Move n_min/max factors to model.
     #
-    # Totaly(!) ignoring (9% n_idle) check from the spec!
-    n_min_gear2_f1              = 0.15 # +% over idle
-    n_min_gear2_f2              = 0.03 # +% * n_range over idle
-    n_min_gear2                 = max((1 + n_min_gear2_f1) * n_idle, n_min_gear2_f2 * (n_rated - n_idle) + n_idle)
+    n_range                     = (n_rated - n_idle)
+    n_max_factor                = 1.2
+    n_max                       = n_idle + n_max_factor * n_range
+    f_n_min                     = 0.125
+    n_min                       = n_idle + f_n_min      * n_range
+    f1_n_min_gear2              = 1.15  # * n_idle
+    f2_n_min_gear2              = 0.03  # * n_range + n_idle
+    n_min_gear2                 = max(f1_n_min_gear2 * n_idle, f2_n_min_gear2 * n_range + n_idle)
+    f_n_clutch_gear2            = 0.9
+    n_clutch_gear2              = f_n_clutch_gear2 * n_idle
 
 
-    (N_GEARS, GEARS)            = calcEngineRevs_required(V, gear_ratios, n_idle, n_rated, n_min_gear2)
+    (N_GEARS, GEARS)            = calcEngineRevs_required(V, gear_ratios, n_idle)
 
     G_BY_N                      = possibleGears_byEngineRevs(V, N_GEARS,
                                                 len(gear_ratios),
-                                                n_idle, n_rated,
-                                                driveability_issues,
-                                                n_min_gear2)
+                                                n_idle,
+                                                n_min, n_clutch_gear2, n_min_gear2, n_max,
+                                                driveability_issues)
 
     G_BY_P                      = possibleGears_byPower(V, N_GEARS, P_REQ,
-                                                mass, f0, f1, f2, gear_ratios,
                                                 n_idle, n_rated, p_rated, load_curve, p_safety_margin,
                                                 driveability_issues)
     assert                      G_BY_N.shape == G_BY_P.shape, _shapes(V, G_BY_N, G_BY_P)
@@ -479,7 +484,7 @@ def calcCycleGears(V, P_REQ, mass, f0, f1, f2, gear_ratios,
 
     GEARS                       = applyDriveabilityRules(GEARS)
 
-    CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] < 0.9 * n_idle)
+    CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
 
     return (GEARS, CLUTCH, driveability_issues)
 
