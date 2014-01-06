@@ -22,8 +22,11 @@
 @since 5 Jan 2014
 '''
 
-from .. import Model
-from .. import Experiment
+from ..doc import Doc
+from ..experiment import Experiment
+from ..experiment import wltc_doc
+from ..instances import model_base
+from ..schemas import model_validator
 from .goodvehicle import goodVehicle
 import unittest
 
@@ -32,11 +35,14 @@ class Test(unittest.TestCase):
 
     def testGoodVehicle(self):
         inst = goodVehicle
+        model = Doc(model_validator(), model_base(), inst)
 
-        model = Model(inst)
-        experiment = Experiment(model)
+        wltcd = wltc_doc(skip_validation=False)
+        wltcd.validate()
+
+        experiment = Experiment(model, wltc=wltcd)
         experiment.run()
-        self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
+        self.assertTrue('results' in model.data, 'No "results" in Doc: %s'%model.data)
 
 
 

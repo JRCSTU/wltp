@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-'''wltc module: The input/output data for the WLTC calculator (Experiment class).
+'''wltc.doc module: A Class to merge & validate data for the WLTC calculator (Experiment class).
 '''
 
 
@@ -48,26 +48,22 @@ def merge(a, b, path=[]):
 # merge({1:{"a":"A"},2:{"b":"B"}}, {1:{"a":"A"},2:{"b":"C"}})
 
 
-class Model(object):
-    '''Merges and validates a series of trees making up the modelfor a WLTC experiment.'''
+class Doc(object):
+    '''Merges and validates a series of trees making up data for a WLTC experiment.'''
 
-    def __init__(self, *models, skip_validation=False):
+    def __init__(self, validator, *models, skip_validation=False):
         import functools
-        from .instances import model_base
-
-        self.data = model_base()
-        functools.reduce(merge, [self.data] + list(models))
+        self.validator = validator
+        self.data = functools.reduce(merge, list(models))
         if not skip_validation:
             self.validate()
 
 
     def validate(self, iter_errors=False):
-        from .schemas import model_validator
-
         if iter_errors:
-            return model_validator().iter_errors(self.data)
+            return self.validator.iter_errors(self.data)
         else:
-            model_validator().validate(self.data)
+            self.validator.validate(self.data)
 
 
 

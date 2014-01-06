@@ -19,10 +19,10 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 '''Build a python array from reading WLTC-data files and print it to be included as code.
 
-It is used for preparing the WLTC variables for the default Model-data.
-For example, to print (and validate) the cycle for WLTC-Class 3.2, execute::
+It is used for preparing the WLTC-data.  In particular, to prints (and validate)
+the cycle for WLTC-Class 3.2, execute::
 
-    python3 buildwltcclass.py class3.2 True
+    python3 buildwltcclass.py class3b True
 
 Or for printing all classes::
 

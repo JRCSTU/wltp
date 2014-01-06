@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-'''wltc.instances module: The hierarchical data for the WLTC calculator (defaults, WLTC-data)
-used by the Model and Experiments classes.
+'''wltc.instances module: The hierarchical data for the WLTC calculator (base-model, WLTC-data)
+used by the Doc and Experiments classes.
 '''
 
 
@@ -114,15 +114,18 @@ def wltc_data():
     :return :json_tree:
     '''
 
-    from wltc.cycles import (class1, class2, class3a, class3b)
+    from wltc.cycles import class1
+    from wltc.cycles import class2
+    from wltc.cycles import class3
+
     ## See schemas for explainations.
     ##
     wltc_data = {
         'cycles': {
-            'class1': class1.class_data,
-            'class2': class2.class_data,
-            'class3a': class3a.class_data,
-            'class3b': class3b.class_data,
+            'class1': class1.class_data(),
+            'class2': class2.class_data(),
+            'class3a': class3.class_data_a(),
+            'class3b': class3.class_data_b(),
         },
         'parameters': {
             'p_to_mass_class_limits': [22, 34], #  W/kg, <=, choose class1/2/3
@@ -133,6 +136,19 @@ def wltc_data():
     }
 
     return wltc_data
+
+##########
+## Docs ##
+##########
+
+def wltc_doc(skip_validation=True):
+    from .schemas import wltc_validator
+    from .doc import Doc
+
+    doc = Doc(wltc_validator(), wltc_data(), skip_validation)
+
+    return doc
+
 
 
 if __name__ == '__main__':

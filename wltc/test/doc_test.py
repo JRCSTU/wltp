@@ -22,8 +22,10 @@
 @since 5 Jan 2014
 '''
 
-from .. import Model
 from .. import instances as insts
+from ..doc import Doc
+from ..schemas import model_validator
+from ..instances import model_base
 from .goodvehicle import goodVehicle
 import unittest
 
@@ -33,7 +35,7 @@ class Test(unittest.TestCase):
     def testGoodVehicle(self):
         inst = goodVehicle
 
-        model = Model(inst)
+        model = Doc(model_validator(), model_base(), inst)
         self.assertEqual(model.data['vehicle']['full_load_curve'], insts.default_load_curve())
 
 
@@ -46,7 +48,7 @@ class Test(unittest.TestCase):
             }
         }
 
-        model = Model(inst, inst2)
+        model = Doc(model_validator(), model_base(), inst, inst2)
         self.assertEqual(model.data['vehicle']['n_rated'], nval)
 
     def testMultiErrors(self):
@@ -58,7 +60,7 @@ class Test(unittest.TestCase):
             }
         }
 
-        model = Model(inst, inst2, skip_validation=True)
+        model = Doc(model_validator(), model_base(), inst, inst2, skip_validation=True)
         errors = list(model.validate(True))
         self.assertIsNotNone(errors)
         self.assertEqual(len(errors), 2)
