@@ -35,8 +35,10 @@ class Test(unittest.TestCase):
         import pylab
         gears = model['results']['gears']
         target = model['results']['target']
+        clutch = model['results']['clutch']
         pylab.plot(gears * 20)
         pylab.plot(target)
+        pylab.plot(clutch)
         pylab.show()
 
 
