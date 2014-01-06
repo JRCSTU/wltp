@@ -18,14 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 '''
-wltc module: WLTC gear-shift calculator
-
-Vars
-----
-``default_load_curve``: The normalized full-load-power-curve to use when not explicetely defined by the model.
-
-``model_schema``: Describes the vehicle and cycle data for running WLTC experiment.
-'''
+wltc module: WLTC gear-shift calculator'''
 
 
 from ._version import __version_info__
@@ -37,8 +30,15 @@ __license__ = "AGPLv3"
 __version__ = '.'.join(__version_info__)
 
 
-from .model import Model
-from .experiment import Experiment
+# try:
+#     from .doc import Doc
+# except:
+#     print('Failed importing Doc!  Development stranded.')
+#
+# try:
+#     from .experiment import Experiment
+# except:
+#     print('Failed importing Experiment!  Development stranded.')
 
 # ## From http://python-jsonschema.readthedocs.org/en/latest/faq/
 # #

@@ -22,8 +22,8 @@
 @since 5 Jan 2014
 '''
 
-from .. import Model
-from .. import Experiment
+from ..model import Model
+from ..experiment import Experiment
 from .goodvehicle import goodVehicle
 import unittest
 

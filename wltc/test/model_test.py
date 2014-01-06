@@ -22,7 +22,7 @@
 @since 5 Jan 2014
 '''
 
-from .. import Model
+from ..model import Model
 from .. import instances as insts
 from .goodvehicle import goodVehicle
 import unittest

@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-'''The actual WLTC gear-shift calculator.
+'''The actual WLTC gear-shift calculator which consumes 2 Docs, Model and WLTC-data, and updates the first .
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
@@ -161,7 +161,12 @@ class Experiment(object):
 
         ## Downscale velocity-profile.
         #
-        (V, downscale_factor)   = downscaleCycle(V, class_data['downscale'], p_rated, v_max)
+        dsc_data                = class_data['downscale']
+        phases                  = dsc_data['phases']
+        max_p_values            = dsc_data['max_p_values']
+        downsc_coeffs           = dsc_data['factor_coeffs']
+        dsc_v_split             = dsc_data['v_max_split'] if 'v_max_split' in dsc_data else None
+        (V, downscale_factor)   = downscaleCycle(V, phases, max_p_values, downsc_coeffs, dsc_v_split, p_rated, v_max)
         results['target']       = V
         results['downscale_factor'] = downscale_factor
 
@@ -183,6 +188,7 @@ class Experiment(object):
 
         np.set_printoptions(edgeitems=16)
         print(driveability_issues)
+        print(v_max)
         #results['target'] = []; print(results)
 
 
@@ -211,8 +217,9 @@ def decideClass(class_limits, class3_velocity_split, p_m_ratio, v_max):
 
 
 
-def downscaleCycle(cycle, downscale_params, p_max, v_max):
+def downscaleCycle(cycle, phases, max_p_values, downsc_coeffs, dsc_v_split, p_max, v_max):
     '''TODO: Implement Downscaling, probably per class'''
+
 
     downscale_factor = 0
     return (cycle, downscale_factor)
@@ -226,7 +233,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle, idle_velocity):
     @see: Annex 2-3.2, p 71
     '''
 
-    assert          V.ndim == 1, _shapes(V, gear_ratios)
+    assert          V.ndim == 1, (V.shape, gear_ratios)
 
     GEARS           = np.tile(np.arange(1, len(gear_ratios) + 1, dtype='int32'), (len(V), 1)).T
     assert          GEARS.shape[0] == len(gear_ratios), (GEARS.shape, gear_ratios)
@@ -270,11 +277,13 @@ def possibleGears_byEngineRevs(V, N_GEARS, f0, f1, f2, gear_ratios,
     N_MAX           = np.tile(n_max, (len(V), 1)).T
     assert          N_GEARS.shape == N_MIN.shape == N_MAX.shape, _shapes(N_GEARS, N_MIN, N_MAX)
 
-    GEARS_YES       = (N_MIN <= N_GEARS) & ( N_GEARS <= N_MAX)
+    GEARS_YES_MIN   = (N_MIN <= N_GEARS)
+    GEARS_YES_MAX   = (N_GEARS <= N_MAX)
+    GEARS_YES       = (GEARS_YES_MIN & GEARS_YES_MAX)
+    reportDriveabilityProblems(GEARS_YES, 'low revolutions', driveability_issues)
+    reportDriveabilityProblems(GEARS_YES, 'high revolutions', driveability_issues)
 
     gear2_n_min_limit = n_idle # TODO: impl calc n_min for Gear-2.
-
-    reportDriveabilityProblems(GEARS_YES, 'revolutions', driveability_issues)
 
     return GEARS_YES
 
@@ -348,7 +357,7 @@ def reportDriveabilityProblems(GEARS_YES, reason, driveability_issues):
         failed_steps = failed_gears.nonzero()[0]
         for step in failed_steps:
             driveability_issues[step].append(reason)
-        log.warning('%i %s problems: %s', failed_steps.size, reason, failed_steps)
+        log.warning('%i %s issues: %s', failed_steps.size, reason, failed_steps)
 
 
 def calcCycleGears(V, mass, f0, f1, f2, gear_ratios,

@@ -22,12 +22,12 @@
 @author: ankostis@gmail.com
 @since 29 Dec 2013
 '''
+
+from .. import instances as insts
+from .. import schemas
 import json
 import jsonschema
 import unittest
-
-from .. import schemas
-from .. import instances as insts
 
 
 class Test(unittest.TestCase):

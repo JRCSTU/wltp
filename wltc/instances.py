@@ -21,6 +21,7 @@
 used by the Model and Experiments classes.
 '''
 
+from wltc.cycles import (class1, class2, class3)
 
 
 def model_base():
@@ -114,15 +115,14 @@ def wltc_data():
     :return :json_tree:
     '''
 
-    from wltc.cycles import (class1, class2, class3a, class3b)
     ## See schemas for explainations.
     ##
     wltc_data = {
         'cycles': {
-            'class1': class1.class_data,
-            'class2': class2.class_data,
-            'class3a': class3a.class_data,
-            'class3b': class3b.class_data,
+            'class1': class1.class_data(),
+            'class2': class2.class_data(),
+            'class3a': class3.class_data_a(),
+            'class3b': class3.class_data_b(),
         },
         'parameters': {
             'p_to_mass_class_limits': [22, 34], #  W/kg, <=, choose class1/2/3
