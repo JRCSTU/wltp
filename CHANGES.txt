@@ -1,4 +1,13 @@
-v0.0.1, Dec-2013 -- Initial alpha Release
------------------------------------------
+v0.0.1, 6-Jan-2014 -- Alpha release
+-----------------------------------
+
+* Implemented without enforcing driveability rules.
+* Does not enforce "insensible" specs concerning ``n_min`` engine-revolutions for gear-2
+  (Annex 2-3.2, p71).
+* Detecting but not applying downscaling.
+
+
+v0.0.0, Dec-2013 -- Inception stage
+-----------------------------------
 
 * Mostly setup.py work, README and help.

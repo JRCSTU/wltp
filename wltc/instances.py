@@ -125,10 +125,10 @@ def wltc_data():
             'class3b': class3.class_data_b(),
         },
         'parameters': {
-            'p_to_mass_class_limits': [22, 34], #  W/kg, <=, choose class1/2/3
-            'class3_split_velocity': 120,       # Km/h, <, choose class3a/3b
-            'idle_velocity': 1,                 # Km/h, <=
-            'power_safety_margin': 0.9,
+            'p_to_mass_class_limits':   [22, 34], #  W/kg, <=, choose class1/2/3
+            'class3_split_velocity':    120,       # Km/h, <, choose class3a/3b
+            'v_stopped_threshold':      1,                 # Km/h, <=
+            'power_safety_margin':      0.9,
         }
     }
 

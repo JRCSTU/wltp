@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
+from wltc.instances import wltc_data
 '''
 @author: ankostis@gmail.com
 @since 5 Jan 2014
@@ -30,6 +31,15 @@ import unittest
 
 class Test(unittest.TestCase):
 
+    def plotResults(self, model):
+        import pylab
+        gears = model['results']['gears']
+        target = model['results']['target']
+        pylab.plot(gears * 20)
+        pylab.plot(target)
+        pylab.show()
+
+
     def testGoodVehicle(self):
         inst = goodVehicle
 
@@ -37,6 +47,10 @@ class Test(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
+
+        #print('sdfdss')
+        #print([wltc_data()['cycles']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
+        self.plotResults(model.data)
 
     def testUnderPowered(self):
         inst = goodVehicle

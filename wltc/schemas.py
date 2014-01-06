@@ -219,7 +219,7 @@ def wltc_schema():
             },
             'parameters': {
                 'type': 'object', 'additionalproperties': False,
-                'required': ['p_to_mass_class_limits', 'class3_split_velocity', 'idle_velocity', 'power_safety_margin'],
+                'required': ['p_to_mass_class_limits', 'class3_split_velocity', 'v_stopped_threshold', 'power_safety_margin'],
                 'properties': {
                     'p_to_mass_class_limits': {
                         'description': 'Power_to_unladen-mass ratio (W/kg) used to select class (Annex 1, p19).',
@@ -231,7 +231,7 @@ def wltc_schema():
                         'type': 'integer',
                         'default':120,
                     },
-                    'idle_velocity': {
+                    'v_stopped_threshold': {
                         'description': 'Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).',
                         'type': 'number',
                         'default': 1,
