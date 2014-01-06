@@ -259,13 +259,35 @@ def wltc_schema():
                     },
                     'downscale': {
                         'type': 'object', 'additionalproperties': False,
-                        'required': ['accel_phase', 'deccel_phase', 'max_p_time', 'max_p_velocity', 'max_p_accel'],
+                        'required': ['phases', 'max_p_values', 'factor_coeffs'],
                         'properties': {
-                            'accel_phase': {'type': 'array', 'items': {'type': 'integer'}},
-                            'deccel_phase': {'type': 'array', 'items': {'type': 'integer'}},
-                            'max_p_time': {'type': 'integer'},
-                            'max_p_velocity': {'type': 'number'}, # Km/h
-                            'max_p_accel': {'type': 'number'}, # m/s2
+                            'phases': {
+                                'type': 'array', 'additionalItems': False,
+                                'items': {
+                                    'type': 'array', 'additionalItems': False,
+                                    'items': {
+                                        'type': 'integer'
+                                    },
+                                    'maxItems': 2, 'minItems': 2,
+                                },
+                                'maxItems': 2, 'minItems': 2,
+                            },
+                            'deccel_phase': {
+                                'type': 'array', 'additionalItems': False,
+                                'items': {'type': 'integer'},
+                                'maxItems': 2, 'minItems': 2,
+                            },
+                            'max_p_values': {
+                                'type': 'array', 'additionalItems': False,
+                                'items': { 'type': 'number'},
+                                'maxItems': 3, 'minItems': 3,
+                            },
+                            'factor_coeffs': {
+                                'type': 'array',
+                            },
+                            'v_max_split': {
+                                'type': 'number',
+                            },
                         }
                     },
                     'cycle': {
