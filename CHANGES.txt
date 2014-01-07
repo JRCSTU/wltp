@@ -1,10 +1,10 @@
 v0.0.1, 6-Jan-2014 -- Alpha release
 -----------------------------------
 
-* Totaly unchecked.
-* Implemented without enforcing driveability rules.
-* Detecting but not applying downscaling.
+* Unchecked for correctness.
+* Not implemented yet driveability rules.
 * Does not output real_velocity yet - inly gears.
+* Detecting and applying downscaling.
 * Interpreted and implemented the nonsensical specs concerning ``n_min`` engine-revolutions for gear-2
   (Annex 2-3.2, p71).
 

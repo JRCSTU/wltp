@@ -34,8 +34,8 @@ class Test(unittest.TestCase):
     def plotResults(self, model):
         import pylab
         gears = model['results']['gears']
-        target = model['results']['target']
-        realv = model['results']['velocity']
+        target = model['results']['v_target']
+        realv = model['results']['v_real']
         clutch = model['results']['clutch']
 
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
