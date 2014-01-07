@@ -56,7 +56,7 @@ class Test(unittest.TestCase):
         experiment.run()
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
 
-        #print('sdfdss')
+        print(model.data['results'])
         #print([wltc_data()['cycles']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
 #         self.plotResults(model.data)
 

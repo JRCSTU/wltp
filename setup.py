@@ -20,11 +20,55 @@
 
 ''''A calculator of gear-shifts of light-duty-vehicles (cars) for the WLTC testing-cycle.
 
-WLTCG accepts as input the car-specifications and a selection of a WLTC-cycle classes
+Overview:
+=========
+
+WLTCG accepts as input the car-specifications and the data for the WLTC-cycle classes
 and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
 and any warnings.
 
+An "execution" or a "run" of an experiment is depicted in the following diagram::
+
+                       _______________
+     .-------.        |               |      .------------------.
+    / Model /-.   ==> |   Experiment  | ==> / Model(augmented) /
+   '-------'  /   ==> |---------------|    '------------------'
+     .-------'        |  .-----------.|
+                      | / WLTC-data / |
+                      |'-----------'  |
+                      |_______________|
+
+Usage:
+======
+
+A usage example::
+
+    model = wltc.Model({
+        "vehicle": {
+            "mass":     1500,
+            "v_max":    195,
+            "p_rated":  100,
+            "n_rated":  5450,
+            "n_idle":   950,
+            "n_min":    500,
+            "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
+            "resistance_coeffs":[100, 0.5, 0.04],
+        }
+    }
+
+    experiment = wltc.Experiment(model)
+    experiment.run()
+    json.dumps(model['results'])
+
+
+For information on the model-data, check the schema::
+
+    print(wltc.instances.model_schema())
+
+
+
 @author: ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
+
 '''
 
 # wltc's setup.py
@@ -58,7 +102,7 @@ setup(
     description = __doc__.strip().split("\n")[0],
     author = "ankostis",
     author_email = "ankostis@gmail.com",
-    url = "https://webgate.ec.europa.eu/CITnet/confluence/display/VECTO",
+    url = "https://github.com/ankostis/wltc",
     license = "GNU Affero General Public License v3 or later (AGPLv3+)",
     keywords = ['wltc', 'cycles', 'emissions', 'simulation', 'vehicles', 'cars', 'nedc'],
     classifiers = [
@@ -79,8 +123,10 @@ setup(
     long_description = __doc__,
     install_requires = [
                       'numpy',
-                      'pandas',
                       'jsonschema',
-#                       'jsonpath-rw',
+#                       'jsonpointer',
+                      ],
+    test_requires = [
+                      'pandas',
                       ],
 )

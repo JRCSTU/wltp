@@ -18,8 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-'''wltc.experiment module: The actual WLTC gear-shift calculator which consumes a Model and the WLTC-data,
-and updates the Model with the results (gears, downscaled velocity-profile) .
+'''The main class for the WLTC gear-shift calculator which consumes a Model and the WLTC-data and updates the Model with the results (gears, downscaled velocity-profile) .
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
@@ -36,6 +35,8 @@ Usage:
 ======
 
 A usage example::
+
+    import wltc
 
     model = wltc.Model({
         "vehicle": {
@@ -54,6 +55,23 @@ A usage example::
     experiment.run()
     json.dumps(model['results'])
 
+
+
+    >> {
+        'wltc_class':   'class3b'
+        'v_class':      [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+        'f_downscale':  0,
+        'v_target':     [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+        'gears':        [0, 0, 0, ..., 0, 0, 0],
+        'clutch':       array([ True,  True,  True, ...,  True,  True,  True], dtype=bool),
+        'v_real':       [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+        'driveability': {...},
+    }
+
+
+For information on the model-data, check the schema::
+
+    print(wltc.instances.model_schema())
 
 
 Implementation:

@@ -12,18 +12,18 @@ and any warnings.  It certainly does not calculate any CO2 emissions or other me
 To install it, assuming you have download the sources,
 do the usual::
 
-	python setup.py install
+    python setup.py install
 
 Or get it directly from the PIP repository::
 
-	pip3 install wltc
+    pip3 install wltc
 
 
 For Python 3.3 or later.
 
 
-Usage:
-======
+Overview:
+=========
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
@@ -36,88 +36,78 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
                       |'-----------'  |
                       |_______________|
 
+Usage:
+======
 
-A typical usage would look like this::
+A usage example::
 
-	import wltc
+    import wltc
 
     model = wltc.Model({
-	    "vehicle": {
-	        "mass":     1500,
-	        "v_max":    195,
-	        "p_rated":  100,
-	        "n_rated":  5450,
-	        "n_idle":   950,
-	        "n_min":    500,
-	        "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
-	        "resistance_coeffs":[100, 0.5, 0.04],
-	    }
-	}
+        "vehicle": {
+            "mass":     1500,
+            "v_max":    195,
+            "p_rated":  100,
+            "n_rated":  5450,
+            "n_idle":   950,
+            "n_min":    500,
+            "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
+            "resistance_coeffs":[100, 0.5, 0.04],
+        }
+    }
 
     experiment = wltc.Experiment(model)
     experiment.run()
-    print(model['results'])
+    json.dumps(model['results'])
 
+    >> {
+        'wltc_class':   'class3b'
+        'v_class':      [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+        'f_downscale':  0,
+        'v_target':     [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+        'gears':        [0, 0, 0, ..., 0, 0, 0],
+        'clutch':       array([ True,  True,  True, ...,  True,  True,  True], dtype=bool),
+        'v_real':       [ 0.,  0.,  0., ...,  0.,  0.,  0.],
+        'driveability': {...},
+    }
 
 For information on the model-data, check the schema::
 
-	print(wltc.instances.model_schema())
+    print(wltc.instances.model_schema())
 
 
 
-Installation
-============
 
-The first step is to expand the .tgz archive in a temporary directory (not directly in Python's site-packages).
-It contains a distutils setup file "setup.py". OS-specific installation instructions follow.
+CHANGES
+=======
 
-GNU/Linux, BSDs, Unix, Mac OS X, etc.
--------------------------------------
+v0.0.2, 7-Jan-2014 -- Alpha release
+-----------------------------------
 
-# Open a shell.
+* Still unchecked for correctness of results.
+* Better README.txt and package-desc.
 
-# Go to the directory created by expanding the archive::
+v0.0.1, 6-Jan-2014 -- Alpha release
+-----------------------------------
 
- ``cd <archive_directory_path>``
+* Unchecked for correctness.
+* Not implemented yet driveability rules.
+* Does not output real_velocity yet - inly gears.
+* Detecting and applying downscaling.
+* Interpreted and implemented the nonsensical specs concerning ``n_min`` engine-revolutions for gear-2
+  (Annex 2-3.2, p71).
 
-# Install the package (you may need root permissions to complete this step)::
+v0.0.0, 11-Dec-2013 -- Inception stage
+--------------------------------------
 
-	su
-	(enter admin password)
-	python setup.py install
-
-If the python executable isn't on your path, you'll have to specify the complete path, such as /usr/local/bin/python.
-
-To install for a specific Python version, use this version in the setup call, e.g.::
-
-	python3.1 setup.py install
-
-To install for different Python versions, repeat step 3 for every required version. The last installed
-version will be used in the `shebang line<http://en.wikipedia.org/wiki/Shebang_%28Unix%29>` of the ``rst2*.py`` wrapper scripts.
+* Mostly setup.py work, README and help.
 
 
-Windows
--------
 
-Just double-click ``install.py``. If this doesn't work, try the following:
-
-# Open a DOS Box (Command Shell, MS-DOS Prompt, or whatever they're calling it these days).
-
-# Go to the directory created by expanding the archive::
-
-	cd <archive_directory_path>
-
-# Install the package::
-
-	<path_to_python.exe>\python setup.py install
-
-To install for a specific python version, specify the Python executable for this version.
-
-To install for different Python versions, repeat step 3 for every required version.
 
 
 Development:
-------------
+============
 
 The WLTC-profiles for the various classes in the ./util/data/cycles folder were generated from the tables
 of the UN word-doc with the specs using the ``./util/csvcolumns8to2`` script, but it still requires
@@ -127,7 +117,7 @@ Then use the ``./util/buildwltcclass.py`` to contruct the respective python-vars
 wltc/Model.py sources.
 
 TODO:
-	running the test suite
+    running the test suite
 
 
 
@@ -135,7 +125,7 @@ TODO:
 History
 =======
 
-Implemented from the UN's specs (document also included in the docs):
+Implemented from scratch based on the UN's specs (document also included in the ./docs dir):
   https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
 
 By ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
