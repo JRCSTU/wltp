@@ -58,7 +58,7 @@ class Test(unittest.TestCase):
 
         #print('sdfdss')
         #print([wltc_data()['cycles']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
-        self.plotResults(model.data)
+#         self.plotResults(model.data)
 
         np.set_printoptions(edgeitems=16)
         #print(driveability_issues)
@@ -71,7 +71,7 @@ class Test(unittest.TestCase):
 
         model = Model(inst)
         experiment = Experiment(model)
-        self.assertRaisesRegex(Exception, 'Downscaling needed', experiment.run) #FIXME: remove when implemented
+        experiment.run()
 
 
 #     def testPerf(self):

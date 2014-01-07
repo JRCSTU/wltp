@@ -107,12 +107,12 @@ def default_load_curve():
 
 def results_base():
     instance = {
-        'gears': [],
-        'velocity': [],
-        'target': [],
         'wltc_class': None,
+        'v_target': [],
+        'gears': [],
+        'v_real': [],
         'downscale_factor': None,
-        'driveability_issues': None,
+        'driveability': None,
     }
 
     return instance

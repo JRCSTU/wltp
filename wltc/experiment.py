@@ -174,29 +174,30 @@ class Experiment(object):
         wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
         results['wltc_class']   = wltc_class
         class_data              = self.wltc['cycles'][wltc_class]
-        cycle                   = class_data['cycle']
+        cycle                   = np.array(class_data['cycle'])
 
 
         ## Velocity and power profile.
         #
         V                   = np.array(cycle, dtype=self.dtype)
         P_REQ               = calcPower_required(V, mass, f0, f1, f2) # Used alsoby downscale.
+        results['v_class'] = V
 
 
         ## Downscale velocity-profile.
         #
         dsc_data            = class_data['downscale']
         phases              = dsc_data['phases']
-        max_p_values        = dsc_data['p_max_values']
+        p_max_values        = dsc_data['p_max_values']
         downsc_coeffs       = dsc_data['factor_coeffs']
         dsc_v_split         = dsc_data.get('v_max_split', None)
-        downscale_factor    = calcDownscaleFactor(cycle, P_REQ,
-                                                      max_p_values, downsc_coeffs, dsc_v_split,
+        f_downscale         = calcDownscaleFactor(cycle, P_REQ,
+                                                      p_max_values, downsc_coeffs, dsc_v_split,
                                                       p_rated, v_max)
-        results['downscale_factor'] = downscale_factor
-        if (downscale_factor > 0):
-            V               = downscaleCycle(cycle, V, downscale_factor, phases)
-        results['target']   = V
+        results['f_downscale'] = f_downscale
+        if (f_downscale > 0):
+            V               = downscaleCycle(V, f_downscale, phases)
+        results['v_target'] = V
 
 
         ## Calc possible gears.
@@ -211,10 +212,10 @@ class Experiment(object):
                                                        params)
         assert               V.shape == GEARS.shape, _shapes(V, GEARS)
 
-        results['velocity']  = V_REAL
-        results['gears']     = GEARS
-        results['clutch']    = CLUTCH
-        results['driveability_issues']    = driveability_issues
+        results['v_real']       = V_REAL
+        results['gears']        = GEARS
+        results['clutch']       = CLUTCH
+        results['driveability'] = driveability_issues
 
 
 
@@ -243,7 +244,7 @@ def decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max):
 
 
 
-def calcDownscaleFactor(cycle, P_REQ, max_p_values, downsc_coeffs, dsc_v_split, p_rated, v_max):
+def calcDownscaleFactor(cycle, P_REQ, p_max_values, downsc_coeffs, dsc_v_split, p_rated, v_max):
     '''Check if downscaling required, and apply it.
 
     @return: :float:
@@ -253,7 +254,7 @@ def calcDownscaleFactor(cycle, P_REQ, max_p_values, downsc_coeffs, dsc_v_split, 
 
     ## Max required power
     #
-    p_req_max               = P_REQ[max_p_values[0]]
+    p_req_max               = P_REQ[p_max_values[0]]
     r_max                   = (p_req_max / p_rated)
 
     ## Cycle r0
@@ -264,31 +265,56 @@ def calcDownscaleFactor(cycle, P_REQ, max_p_values, downsc_coeffs, dsc_v_split, 
         downsc_coeffs       = downsc_coeffs[0] if (v_max <= dsc_v_split) else downsc_coeffs[1]
 
     if (downsc_coeffs is None):
-        downscale_factor    = 0
+        f_downscale         = 0
     else:
         (r0, a1, b1) = downsc_coeffs
 
         if (r_max < r0):
-            downscale_factor    = 0
+            f_downscale     = 0
         else:
-            downscale_factor    = a1 * r_max + b1
-            downscale_factor    = round(downscale_factor, 1)
-            if (downscale_factor <= downscale_threshold):
-                downscale_factor = 0
+            f_downscale     = a1 * r_max + b1
+            f_downscale     = round(f_downscale, 1)
+            if (f_downscale <= downscale_threshold):
+                f_downscale = 0
 
 
-    return downscale_factor
+    return f_downscale
 
 
-def downscaleCycle(cycle, V, downscale_factor, phases):
-    '''Check if downscaling required, and apply it.
+def downscaleCycle(V, f_downscale, phases):
+    '''Downscale just by scaling the 2 phases demarked by the 3 time-points with different factors,
+    no recursion as implied by the specs.
 
     @see: Annex 1-7, p 64-68
     '''
-    #TODO: Implement downscale.
+    ERR = 1e-10
+    (t0, t1, t2)    = phases
 
-    raise Exception('Downscaling needed, but NOT IMPLEMENTED YET!')
+    ## Accelaration phase
+    #
+    ix_acc          = np.arange(t0, t1 + 1)
+    offset_acc      = V[t0]
+    acc_scaled      = (1 - f_downscale) * (V[ix_acc] - offset_acc) + offset_acc
+    assert          abs(acc_scaled[0] - V[t0]) < ERR, \
+                                    ('smooth-start: ', acc_scaled[0],  V[t0])
 
+    ## Deccelaration phase
+    #
+    ix_dec          = np.arange(t1 + 1, t2 + 1)
+    offset_dec      = V[t2]
+    f_corr          = (acc_scaled[-1] - offset_dec) / (V[t1] - offset_dec)
+    dec_scaled      = f_corr * (V[ix_dec] - offset_dec) + offset_dec
+    assert          abs(dec_scaled[-1] - V[t2]) < ERR, \
+                                    ('smooth-finish: ', dec_scaled[-1],  V[t2])
+
+    scaled          = np.hstack((acc_scaled, dec_scaled))
+    assert          abs(scaled[t1 - t0] - scaled[t1 - t0 + 1]) <= abs(V[t1] - V[t1 + 1]), \
+                                    ('smooth-tip: ', scaled[t1 - t0], scaled[t1 - t0 + 1], V[t1], V[t1 + 1])
+
+    V_DSC           = np.hstack((V[:t0], scaled, V[t2 + 1:]))
+    assert          V.shape == V_DSC.shape, _shapes(V, V_DSC)
+
+    return V_DSC
 
 
 def calcEngineRevs_required(V, gear_ratios, n_idle):

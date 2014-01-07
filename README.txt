@@ -19,6 +19,9 @@ Or get it directly from the PIP repository::
 	pip3 install wltc
 
 
+For Python 3.3 or later.
+
+
 Usage:
 ======
 
@@ -35,6 +38,8 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
 
 
 A typical usage would look like this::
+
+	import wltc
 
     model = wltc.Model({
 	    "vehicle": {
@@ -54,7 +59,10 @@ A typical usage would look like this::
     print(model['results'])
 
 
-For Python 3.3 or later.
+For information on the model-data, check the schema::
+
+	print(wltc.instances.model_schema())
+
 
 
 Installation
