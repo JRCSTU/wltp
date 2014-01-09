@@ -151,6 +151,7 @@ def model_schema():
                 'type': 'object', 'additionalProperties': False,
                 'required': [
                     'v_stopped_threshold',
+                    'f_inertial',
                     'f_safety_margin',
                     'f_n_max',
                     'f_n_min',
@@ -163,8 +164,13 @@ def model_schema():
                         'type': [ 'number', 'null'],
                         'default': 1,
                     },
+                    'f_inertial': {
+                        'description': 'Inertial factor used for calculating required-power (Annex 2-3.1, p71).',
+                        'type': [ 'number', 'null'],
+                        'default': 1.1,
+                    },
                     'f_safety_margin': {
-                        'description': 'Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72.',
+                        'description': 'Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).',
                         'type': [ 'number', 'null'],
                         'default': 0.9,
                     },

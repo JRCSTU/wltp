@@ -183,6 +183,7 @@ class Experiment(object):
         n_idle              = vehicle['n_idle']
         gear_ratios         = vehicle['gear_ratios']
         (f0, f1, f2)        = vehicle['resistance_coeffs']
+        params              = data['params']
 
 
         ## Decide WLTC-class.
@@ -195,11 +196,15 @@ class Experiment(object):
         cycle                   = np.array(class_data['cycle'])
 
 
-        ## Velocity and power profile.
+        ## Velocity-profile
         #
         V                   = np.array(cycle, dtype=self.dtype)
-        P_REQ               = calcPower_required(V, mass, f0, f1, f2) # Used alsoby downscale.
         results['v_class'] = V
+
+        ## Required-Power needed early-on by Downscaling.
+        #
+        f_inertial          = params.get('f_inertial', 1.1)
+        P_REQ               = calcPower_required(V, mass, f0, f1, f2, f_inertial)
 
 
         ## Downscale velocity-profile.
@@ -218,12 +223,11 @@ class Experiment(object):
         results['v_target'] = V
 
 
-        ## Calc possible gears.
+        ## Run cycle to find gears, clutch and real-velocirty.
         #
-        params              = data['params']
         load_curve          = vehicle['full_load_curve']
         (V_REAL, GEARS, CLUTCH, driveability_issues) = \
-                            calcCycleGears(V, P_REQ,
+                            runCycle(V, P_REQ,
                                            gear_ratios,
                                            n_idle, n_rated,
                                            p_rated, load_curve,
@@ -391,13 +395,11 @@ def possibleGears_byEngineRevs(V, N_GEARS, ngears,
     return GEARS_YES
 
 
-def calcPower_required(V, test_mass, f0, f1, f2):
+def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
     '''
 
     @see: Annex 2-3.1, p 71
     '''
-
-    kr = 1.1 # some inertial-factor blah, blah, blah
 
     VV      = V * V
     VVV     = VV * V
@@ -405,7 +407,7 @@ def calcPower_required(V, test_mass, f0, f1, f2):
     A       = np.append(A, 0) # Restore element lost by diff().
     assert  V.shape == VV.shape == VVV.shape == A.shape, _shapes(V, VV, VVV, A)
 
-    P_REQ   = (f0 * V + f1 * VV + f2 * VVV + kr * A * V * test_mass) / 3600.0
+    P_REQ   = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
     assert  V.shape == P_REQ.shape, _shapes(V, P_REQ)
 
     return P_REQ
@@ -474,7 +476,7 @@ def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
     return GEARS
 
 
-def calcCycleGears(V, P_REQ, gear_ratios,
+def runCycle(V, P_REQ, gear_ratios,
                    n_idle, n_rated,
                    p_rated, load_curve,
                    params):
@@ -511,7 +513,7 @@ def calcCycleGears(V, P_REQ, gear_ratios,
     f_n_min                     = params.get('f_n_min', 0.125)
     n_min                       = n_idle + f_n_min * n_range
 
-    f_n_min_gear2               = params.get('f1_n_min_gear1', [1.15, 0.03])
+    f_n_min_gear2               = params.get('f_n_min_gear2', [1.15, 0.03])
     n_min_gear2                 = max(f_n_min_gear2[0] * n_idle, f_n_min_gear2[1] * n_range + n_idle)
 
     f_n_clutch_gear2            = params.get('f_n_clutch_gear2', 0.9)

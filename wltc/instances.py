@@ -87,6 +87,7 @@ def model_base():
         },
         'params': {
             'v_stopped_threshold':      1,          # Km/h, <=
+            'f_inertial':               1.1,
             'f_safety_margin':          0.9,
             'f_n_max':                  1.2,
             'f_n_min':                  0.125,
