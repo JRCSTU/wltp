@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-'''wltc.cycles.class2 module: WLTC-class data for gear-shift calculator.
+'''wltc.classes.class2 module: WLTC-class data for gear-shift calculator.
 
 Data below extracted from the specs and prepared with the followinf python scripts
 found inside the source-distribution:

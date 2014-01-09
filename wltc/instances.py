@@ -127,7 +127,7 @@ def wltc_data():
     ## See schemas for explainations.
     ##
     wltc_data = {
-        'cycles': {
+        'classes': {
             'class1': class1.class_data(),
             'class2': class2.class_data(),
             'class3a': class3.class_data_a(),

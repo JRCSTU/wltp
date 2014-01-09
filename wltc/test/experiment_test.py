@@ -17,12 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
+from wltc.instances import wltc_data
 '''
 @author: ankostis@gmail.com
 @since 5 Jan 2014
 '''
 
 from ..experiment import Experiment
+from ..experiment import downscaleCycle
 from ..model import Model
 from .goodvehicle import goodVehicle
 import numpy as np
@@ -57,7 +59,7 @@ class Test(unittest.TestCase):
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
 
         print(model.data['results'])
-        #print([wltc_data()['cycles']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
+        #print([wltc_data()['classes']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
 #         self.plotResults(model.data)
 
         np.set_printoptions(edgeitems=16)
@@ -72,6 +74,16 @@ class Test(unittest.TestCase):
         model = Model(inst)
         experiment = Experiment(model)
         experiment.run()
+
+
+    def testDownscaling(self):
+        wclasses = wltc_data()['classes']
+        test_data = [(np.array(wclass['cycle']), wclass['downscale']['phases'], f_downscale)
+                    for wclass in wclasses.values()
+                    for f_downscale in np.linspace(0.1, 1, 10)]
+
+        for (V, phases, f_downscale) in test_data:
+            downscaleCycle(V, f_downscale, phases)
 
 
 #     def testPerf(self):

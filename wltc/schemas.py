@@ -258,9 +258,9 @@ def wltc_schema():
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'title': 'WLTC data',
         'type': 'object', 'additionalProperties': False,
-        'required': ['cycles', 'classification'],
+        'required': ['classes', 'classification'],
         'properties': {
-            'cycles': {
+            'classes': {
                 'type': 'object', 'additionalProperties': False,
                 'required': ['class1', 'class2', 'class3a', 'class3b'],
                 'properties': {

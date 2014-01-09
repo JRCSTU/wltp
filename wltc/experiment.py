@@ -191,7 +191,7 @@ class Experiment(object):
         class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
         wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
         results['wltc_class']   = wltc_class
-        class_data              = self.wltc['cycles'][wltc_class]
+        class_data              = self.wltc['classes'][wltc_class]
         cycle                   = np.array(class_data['cycle'])
 
 

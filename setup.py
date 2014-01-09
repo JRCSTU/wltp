@@ -104,7 +104,7 @@ setup(
     author_email = "ankostis@gmail.com",
     url = "https://github.com/ankostis/wltc",
     license = "GNU Affero General Public License v3 or later (AGPLv3+)",
-    keywords = ['wltc', 'cycles', 'emissions', 'simulation', 'vehicles', 'cars', 'nedc'],
+    keywords = ['wltc', 'cycles', 'emissions', 'simulation', 'vehicles', 'cars', 'nedc', 'driving', 'simulation'],
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",

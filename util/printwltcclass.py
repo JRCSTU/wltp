@@ -29,7 +29,7 @@ Or for printing all classes::
     python3 buildwltcclass.py
 
 Then copy the output of the program as a python-variable within the respective
- wltc.cycles.classX.py modules.
+ wltc.classes.classX.py modules.
 '''
 
 wltc_data_files = {
