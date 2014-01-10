@@ -247,6 +247,16 @@ class Experiment(object):
 #######################
 
 
+def reportDriveabilityProblems(GEARS_YES, reason, driveability_issues):
+    failed_gears = (~GEARS_YES).all(0)
+    if (failed_gears.any()):
+        failed_steps = failed_gears.nonzero()[0]
+        for step in failed_steps:
+            driveability_issues[step].append(reason)
+        log.warning('%i %s issues: %s', failed_steps.size, reason, failed_steps)
+
+
+
 def decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max):
     '''
 
@@ -453,16 +463,6 @@ def applyDriveabilityRules(GEARS):
 
     ## TODO: Implement driveability rules
     return GEARS
-
-
-def reportDriveabilityProblems(GEARS_YES, reason, driveability_issues):
-    failed_gears = (~GEARS_YES).all(0)
-    if (failed_gears.any()):
-        failed_steps = failed_gears.nonzero()[0]
-        for step in failed_steps:
-            driveability_issues[step].append(reason)
-        log.warning('%i %s issues: %s', failed_steps.size, reason, failed_steps)
-
 
 
 def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
