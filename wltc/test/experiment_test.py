@@ -42,10 +42,10 @@ class Test(unittest.TestCase):
 
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
-        pylab.plot(gears * 18)
         pylab.plot(target)
-        pylab.plot(clutch * 50)
-        pylab.plot(realv)
+        pylab.plot(gears * 18, '+')
+        pylab.plot(clutch * 20)
+#         pylab.plot(realv)
         pylab.show()
 
 
@@ -60,7 +60,7 @@ class Test(unittest.TestCase):
 
         print(model.data['results'])
         #print([wltc_data()['classes']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
-#         self.plotResults(model.data)
+        self.plotResults(model.data)
 
         np.set_printoptions(edgeitems=16)
         #print(driveability_issues)
