@@ -456,12 +456,45 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
 
 
 
-def applyDriveabilityRules(V, GEARS, CLUTCH):
+_escape_char = 32
+def dec_byte_repl(m):
+    return r'\x%x' % (_escape_char + int(m.group(1)))
+
+
+def regex2bytes(rawpattern):
+    '''
+    @param:  :rawpattern: regular-expression or substitution that escapes decimal-bytes written as: \y\d+
+                        with adding +128, eg::
+                            \y124|\y7 --> unicode(128+124=252)|unicode(128+7=135)
+    '''
+    import re
+
+    assert          isinstance(rawpattern, str), rawpattern
+
+
+    regex = re.compile(r'\y(\d+)')
+    return regex.sub(dec_byte_repl, rawpattern)
+
+
+def nparray2bytes(NUMS):
+    assert          all(NUMS >= 0)  and all(NUMS < (256 - _escape_char)), 'Outside byte-range: %s' % NUMS
+
+    return (NUMS + _escape_char).astype('uint8').tostring()
+
+
+def bytes2nparray(bytesarr):
+    assert          isinstance(bytesarr, bytes), bytesarr
+
+    return np.array(list(bytesarr)) - _escape_char
+
+
+
+
+def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
     '''
     @note: Modifies GEARS.
     @see: Annex 2-4, p 72
     '''
-    import re
 
     ## Check within byte-size (WLTC v_max is ~180)
     #
@@ -477,9 +510,21 @@ def applyDriveabilityRules(V, GEARS, CLUTCH):
     #
     for m in re.finditer(b'\x00+', v_str):
         t_accel                 = m.end()
+        print(t_accel)
         GEARS[t_accel - 1]      = 1
         CLUTCH[t_accel - 1]     = True
+    assert re.findall(b'\x00(\x02|\x03|\x04|\x05|\x06|\x04|\x04)', GEARS.astype('uint8').tostring()) is None, 'Jumped gears from standstill: %s' % [(m.group(), m.start()) for m in re.finditer(b'\x00\x02', g_str)]
 
+    ## Rule (b.1):
+    #    "Gears are not skipped during accelleration."
+    for g in range(0, ngears):
+        pass
+
+    ## Rule (b.2):
+    #    "Gears remain shifted for at least 3 sec."
+    #       and shifted no more
+    for g in range(0, ngears):
+        pass
 
     return GEARS
 
@@ -507,7 +552,7 @@ def runCycle(V, P_REQ, gear_ratios,
                              CLUTCH  |////INVALID//////|  GEAR-2-OK
         EngineRevs(N): 0---------------------+---------------------------->
         for Gear-2                   |       |         |
-                     n_clutch_gear --+       |         +-- n_min_gear
+                    n_clutch_gear2 --+       |         +-- n_min_gear2
                     (-10% * n_idle)       N_IDLE           (1.15% * n_idle)        OR
                                                         (n_idle + (3% * n_range))
 
@@ -565,7 +610,7 @@ def runCycle(V, P_REQ, gear_ratios,
 
     CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
 
-    GEARS                       = applyDriveabilityRules(V, GEARS, CLUTCH)
+    GEARS                       = applyDriveabilityRules(V, GEARS, CLUTCH, len(gear_ratios))
 
     ## TODO: Calculate real-celocity.
     #

@@ -23,11 +23,13 @@ from wltc.instances import wltc_data
 @since 5 Jan 2014
 '''
 
+import wltc.experiment as ex
 from ..experiment import Experiment
 from ..experiment import downscaleCycle
 from ..model import Model
 from .goodvehicle import goodVehicle
 import numpy as np
+import numpy.testing as npt
 import unittest
 
 
@@ -49,6 +51,31 @@ class Test(unittest.TestCase):
         pylab.show()
 
 
+
+    def testDownscaling(self):
+        wclasses = wltc_data()['classes']
+        test_data = [(np.array(wclass['cycle']), wclass['downscale']['phases'], f_downscale)
+                    for wclass in wclasses.values()
+                    for f_downscale in np.linspace(0.1, 1, 10)]
+
+        for (V, phases, f_downscale) in test_data:
+            downscaleCycle(V, f_downscale, phases)
+
+
+    def testNparray2Bytes(self):
+        arr = np.array([1,24,66, 0, 223])
+
+        self.assertEqual(ex.nparray2bytes(arr), b'!8b \xff')
+        self.assertRaisesRegex(AssertionError, 'Outside byte-range', ex.nparray2bytes, (arr + 1))
+        self.assertRaisesRegex(AssertionError, 'Outside byte-range', ex.nparray2bytes, (arr - 1))
+
+        npt.assert_array_equal(ex.bytes2nparray(ex.nparray2bytes(arr)), arr)
+
+
+    def testRegex2bytes(self):
+        regex = r'\y1\y24\y66\y0\y223'
+
+        self.assertEqual(ex.regex2bytes(regex), b'!8b \xff')
 
     def testGoodVehicle(self):
         inst = goodVehicle
@@ -74,16 +101,6 @@ class Test(unittest.TestCase):
         model = Model(inst)
         experiment = Experiment(model)
         experiment.run()
-
-
-    def testDownscaling(self):
-        wclasses = wltc_data()['classes']
-        test_data = [(np.array(wclass['cycle']), wclass['downscale']['phases'], f_downscale)
-                    for wclass in wclasses.values()
-                    for f_downscale in np.linspace(0.1, 1, 10)]
-
-        for (V, phases, f_downscale) in test_data:
-            downscaleCycle(V, f_downscale, phases)
 
 
 #     def testPerf(self):
