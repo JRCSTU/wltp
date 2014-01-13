@@ -214,7 +214,7 @@ class Experiment(object):
         p_max_values        = dsc_data['p_max_values']
         downsc_coeffs       = dsc_data['factor_coeffs']
         dsc_v_split         = dsc_data.get('v_max_split', None)
-        f_downscale         = calcDownscaleFactor(cycle, P_REQ,
+        f_downscale         = calcDownscaleFactor(P_REQ,
                                                       p_max_values, downsc_coeffs, dsc_v_split,
                                                       p_rated, v_max)
         results['f_downscale'] = f_downscale
@@ -276,7 +276,7 @@ def decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max):
 
 
 
-def calcDownscaleFactor(cycle, P_REQ, p_max_values, downsc_coeffs, dsc_v_split, p_rated, v_max):
+def calcDownscaleFactor(P_REQ, p_max_values, downsc_coeffs, dsc_v_split, p_rated, v_max):
     '''Check if downscaling required, and apply it.
 
     @return: :float:
@@ -455,13 +455,32 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
     return GEARS_YES
 
 
-def applyDriveabilityRules(GEARS):
-    '''
 
+def applyDriveabilityRules(V, GEARS, CLUTCH):
+    '''
+    @note: Modifies GEARS.
     @see: Annex 2-4, p 72
     '''
+    import re
 
-    ## TODO: Implement driveability rules
+    ## Check within byte-size (WLTC v_max is ~180)
+    #
+    assert                      all(V >= 0)  and all(V < 256)
+    assert                      all(GEARS >= 0)  and all(GEARS < 256)
+
+    v_str                       = V.astype('uint8').tostring()
+    g_str                       = GEARS.astype('uint8').tostring()
+
+    ## Rule (a):
+    #    "1sec before accelerating from standstill
+    #    set 1st-gear with disengaged-clutch."
+    #
+    for m in re.finditer(b'\x00+', v_str):
+        t_accel                 = m.end()
+        GEARS[t_accel - 1]      = 1
+        CLUTCH[t_accel - 1]     = True
+
+
     return GEARS
 
 
@@ -486,11 +505,11 @@ def runCycle(V, P_REQ, gear_ratios,
 
                           ___________                   ______________
                              CLUTCH  |////INVALID//////|  GEAR-2-OK
-        EngineRevs(N): ----------------------+----------------------------
+        EngineRevs(N): 0---------------------+---------------------------->
         for Gear-2                   |       |         |
-                       -10% n_idle --+       |         +-- +15% n_idle
-                                          N_IDLE                 OR
-                                                       n_idle + (3% * n_range)
+                     n_clutch_gear --+       |         +-- n_min_gear
+                    (-10% * n_idle)       N_IDLE           (1.15% * n_idle)        OR
+                                                        (n_idle + (3% * n_range))
 
     @note: modifies V for velocities < v_stopped_threshold
     @return :array: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
@@ -544,9 +563,9 @@ def runCycle(V, P_REQ, gear_ratios,
     assert                      all((GEARS >= -1) & (GEARS <= len(gear_ratios))), (min(GEARS), max(GEARS))
 
 
-    GEARS                       = applyDriveabilityRules(GEARS)
+    CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
 
-    CLUTCH                      = (V == 0) | (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
+    GEARS                       = applyDriveabilityRules(V, GEARS, CLUTCH)
 
     ## TODO: Calculate real-celocity.
     #
