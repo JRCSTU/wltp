@@ -45,8 +45,8 @@ class Test(unittest.TestCase):
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
         pylab.plot(target)
-        pylab.plot(gears * 18, '+')
         pylab.plot(clutch * 20)
+        pylab.plot(gears * 18, '+')
 #         pylab.plot(realv)
         pylab.show()
 
@@ -63,19 +63,23 @@ class Test(unittest.TestCase):
 
 
     def testNparray2Bytes(self):
-        arr = np.array([1,24,66, 0, 223])
+        arr = np.array([-1, 0, 9, 10, 36, 255-ex._escape_char])
 
-        self.assertEqual(ex.nparray2bytes(arr), b'!8b \xff')
-        self.assertRaisesRegex(AssertionError, 'Outside byte-range', ex.nparray2bytes, (arr + 1))
-        self.assertRaisesRegex(AssertionError, 'Outside byte-range', ex.nparray2bytes, (arr - 1))
+        self.assertEqual(ex.np2bytes(arr), b'\x7f\x80\x89\x8a\xa4\xff')
+        self.assertRaisesRegex(AssertionError, 'Outside byte-range', ex.np2bytes, (arr + 1))
+        self.assertRaisesRegex(AssertionError, 'Outside byte-range', ex.np2bytes, (arr - 1))
 
-        npt.assert_array_equal(ex.bytes2nparray(ex.nparray2bytes(arr)), arr)
+        npt.assert_array_equal(ex.bytes2np(ex.np2bytes(arr)), arr)
 
 
     def testRegex2bytes(self):
-        regex = r'\y1\y24\y66\y0\y223'
+        regex = b'\g1\g0\g24\g66\g127'
 
-        self.assertEqual(ex.regex2bytes(regex), b'!8b \xff')
+        self.assertEqual(ex.gears2regex(regex),  b'\x81\x80\x98\xc2\xff')
+
+        regex = b'\g1\g0|\g24\g66\g127'
+
+        self.assertEqual(ex.gears2regex(regex),  b'\x81\x80|\x98\xc2\xff')
 
     def testGoodVehicle(self):
         inst = goodVehicle
