@@ -73,13 +73,13 @@ class Test(unittest.TestCase):
 
 
     def testRegex2bytes(self):
-        regex = b'\g1\g0\g24\g66\g127'
+        regex = '\g1\g0\g24\g66\g127'
 
-        self.assertEqual(ex.gears2regex(regex),  b'\x81\x80\x98\xc2\xff')
+        self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80\x98\xc2\xff')
 
-        regex = b'\g1\g0|\g24\g66\g127'
+        regex = '\g1\g0|\g24\g66\g127'
 
-        self.assertEqual(ex.gears2regex(regex),  b'\x81\x80|\x98\xc2\xff')
+        self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80|\x98\xc2\xff')
 
     def testGoodVehicle(self):
         inst = goodVehicle

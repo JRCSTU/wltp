@@ -461,23 +461,23 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
 
 _escape_char = 128
 
-_regex_gears2regex = re.compile(br'\\g(\d+)')
+_regex_gears2regex = re.compile(r'\\g(\d+)')
 
 def dec_byte_repl(m):
-    return bytes((_escape_char + int(m.group(1)), ))
+    return chr(_escape_char + int(m.group(1)))
 
 
-def gears2regex(gearspattern):
+def gearsregex(gearspattern):
     '''
     @param:  :gearspattern: regular-expression or substitution that escapes decimal-bytes written as: \g\d+
                         with adding +128, eg::
                             \g124|\g7 --> unicode(128+124=252)|unicode(128+7=135)
     '''
 
-    assert          isinstance(gearspattern, bytes), 'Not bytes: %s' % gearspattern
+    assert          isinstance(gearspattern, str), 'Not str: %s' % gearspattern
 
-
-    return _regex_gears2regex.sub(dec_byte_repl, gearspattern)
+    regex           = _regex_gears2regex.sub(dec_byte_repl, gearspattern)
+    return          re.compile(bytes(regex, 'latin_1'))
 
 
 def np2bytes(NUMS):
@@ -492,6 +492,13 @@ def bytes2np(bytesarr):
     return          np.array(list(bytesarr)) - _escape_char
 
 
+def assert_regex_unmatched(regex, string, msg):
+    assert not regex.findall(string), \
+            '%s: %s' % (msg, [(m.start(), m.group()) for m in regex.finditer(string)])
+
+def assert_regexp_unmatched(regex, string, msg):
+    assert not re.findall(regex, string), \
+            '%s: %s' % (msg, [(m.start(), m.group()) for m in re.finditer(regex, string)])
 
 
 def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
@@ -500,33 +507,40 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
     @see: Annex 2-4, p 72
     '''
 
-    ## Check within byte-size (WLTC v_max is ~180)
-    #
-    assert                      all(V >= 0)  and all(V < 256)
-    assert                      all(GEARS >= 0)  and all(GEARS < 256)
-#
     ## Rule (a):
     #    "On every sec before accelerating from standstill: clutch & set to gear-1."
     #
+    # Also ensures gear-0 always followed by gear-1.
+    #
     V                           = V.copy(); V[V > (255 - _escape_char)] = (255 - _escape_char)
     bV                          = np2bytes(V)
-    for m in re.finditer(gears2regex(b'\g0+'), bV):
+    re_standstill               = gearsregex('\g0+')
+    for m in re_standstill.finditer(bV):
         t_accel                 = m.end()
         GEARS[t_accel - 1]      = 1
         CLUTCH[t_accel - 1]     = True
-    assert                      not re.findall(b'\x00\x02', GEARS.astype('uint8').tostring()), \
-                                'Jumped gears from standstill: %s' % [(m.group(), m.start()) for m in re.finditer(b'\x00\x02', GEARS.astype('uint8').tostring())]
 
-    bG                          = np2bytes(GEARS)
+    assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
+
 
     ## Rule (b.1):
     #    "Gears are not skipped during accelleration."
-    for g in range(0, ngears):
-        pass
+    #
+    # For a 6-gear vehicle, search'n replace gears:
+    #     1[3456]   --> 1222
+    #     2[456]    --> 2333
+    #     ...
+    #     4[6]      --> 5666
+    #
+    for g in range(1, ngears-1):
+        re_shiftup          = gearsregex('\g%i[\g%s]' % (g, '\g'.join([str(i) for i in range(g+2, ngears+1)])))
+        print(re_shiftup.pattern)
+        bG                  = np2bytes(GEARS)
+        assert_regex_unmatched(re_shiftup, bG, 'Skipped accell gears!')
 
     ## Rule (b.2):
     #    "Gears remain shifted for at least 3 sec."
-    #       and shifted no more
+    #
     for g in range(0, ngears):
         pass
 
