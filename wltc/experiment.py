@@ -378,7 +378,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle):
     return (N_GEARS, GEARS)
 
 
-def possibleGears_byEngineRevs(V, N_GEARS, ngears,
+def possibleGears_byEngineRevs(V, N_GEARS, P_REQ, ngears,
                                n_idle,
                                n_min, n_clutch_gear2, n_min_gear2, n_max,
                                driveability_issues):
@@ -396,8 +396,10 @@ def possibleGears_byEngineRevs(V, N_GEARS, ngears,
     GEARS_YES_MIN           = (N_GEARS >= n_min)
     GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V == 0) # V == 0 --> neutral
     N_GEARS2                = N_GEARS[1, :]
-    ## NOTE: "interpratation" of specs for Gear-2.
-    GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | (N_GEARS2 <= n_clutch_gear2)  | (V == 0)
+    ## NOTE: "interpratation" of specs for Gear-2
+    #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when P_REQ > 0".
+    GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | \
+                                        ((N_GEARS2 <= n_clutch_gear2) & (P_REQ <= 0)) | (V == 0)
 
     reportDriveabilityProblems(GEARS_YES_MIN, 'low revolutions', driveability_issues)
     reportDriveabilityProblems(GEARS_YES_MAX, 'high revolutions', driveability_issues)
@@ -523,28 +525,31 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
 
-    ## Rule (b.1):
-    #    "Gears are not skipped during accelleration."
     #
-    # For a 6-gear vehicle, search'n replace gears:
-    #     1[3456]   --> 1222
-    #     2[456]    --> 2333
-    #     ...
-    #     4[6]      --> 5666
-    #
-    for g in range(1, ngears-1):
-        re_shiftup          = gearsregex('\g%i[\g%s]' % (g, '\g'.join([str(i) for i in range(g+2, ngears+1)])))
-        print(re_shiftup.pattern)
-        bG                  = np2bytes(GEARS)
-        assert_regex_unmatched(re_shiftup, bG, 'Skipped accell gears!')
+    pg                      = 0; # previous gear
+    for (t, g) in enumerate(GEARS[2:-1], 2):
+        if (g != pg):
+#             if (pg != 0):
+#                 CLUTCH[2] = False # FIXME: is this NOVATIVE needed??
 
-    ## Rule (b.2):
-    #    "Gears remain shifted for at least 3 sec."
-    #
-    for g in range(0, ngears):
-        pass
+            ## Rule (b.2):
+            #    "Gears remain shifted for at least 3 sec."
+            if (GEARS[t-2] != pg or GEARS[t-3] != pg):
+                print('%i(%i): remain %i' % (t, g, pg))
+                GEARS[t]    = pg
 
-    return GEARS
+            ## Rule (b.1):
+            #    "Gears are not skipped during accelleration."
+            elif (g > (pg+1)):
+                print('%i(%i): sequent %i' % (t, g, pg+1))
+                pg = pg+1
+                GEARS[t]    = pg
+            ## Rule (d):
+            #    "No up-shift on peak speed."
+#             elif (GEARS[t+1] == pg):
+#                 GEARS[t]    = pg
+            else:
+                pg = g
 
 
 def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
@@ -553,7 +558,7 @@ def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
 
     GEARS_YES               = G_BY_N & G_BY_P
     GEARS_MX[~GEARS_YES]    = -1
-    GEARS                   = GEARS_MX.max(0)
+    GEARS                   = GEARS_MX.max(axis=0)
 
     return GEARS
 
@@ -608,9 +613,9 @@ def runCycle(V, P_REQ, gear_ratios,
     ## Apply stopped-vehicle threshold (Annex 2-4(a), p72)
     V[V <= v_stopped_threshold] = 0
 
-    (N_GEARS, GEARS_MX)            = calcEngineRevs_required(V, gear_ratios, n_idle)
+    (N_GEARS, GEARS_MX)         = calcEngineRevs_required(V, gear_ratios, n_idle)
 
-    G_BY_N                      = possibleGears_byEngineRevs(V, N_GEARS,
+    G_BY_N                      = possibleGears_byEngineRevs(V, N_GEARS, P_REQ,
                                                 len(gear_ratios),
                                                 n_idle,
                                                 n_min, n_clutch_gear2, n_min_gear2, n_max,
@@ -628,7 +633,7 @@ def runCycle(V, P_REQ, gear_ratios,
 
     CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
 
-    GEARS                       = applyDriveabilityRules(V, GEARS, CLUTCH, len(gear_ratios))
+    applyDriveabilityRules(V, GEARS, CLUTCH, len(gear_ratios))
 
     ## TODO: Calculate real-celocity.
     #
