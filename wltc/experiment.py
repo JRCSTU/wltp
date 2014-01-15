@@ -206,7 +206,7 @@ class Experiment(object):
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial          = params.get('f_inertial', 1.1)
-        P_REQ               = calcPower_required(V, mass, f0, f1, f2, f_inertial)
+        (A, P_REQ)          = calcPower_required(V, mass, f0, f1, f2, f_inertial)
 
 
         ## Downscale velocity-profile.
@@ -229,7 +229,7 @@ class Experiment(object):
         #
         load_curve          = vehicle['full_load_curve']
         (V_REAL, GEARS, CLUTCH, driveability_issues) = \
-                            runCycle(V, P_REQ,
+                            runCycle(V, A, P_REQ,
                                            gear_ratios,
                                            n_idle, n_rated,
                                            p_rated, load_curve,
@@ -378,7 +378,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle):
     return (N_GEARS, GEARS)
 
 
-def possibleGears_byEngineRevs(V, N_GEARS, P_REQ, ngears,
+def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
                                n_idle,
                                n_min, n_clutch_gear2, n_min_gear2, n_max,
                                driveability_issues):
@@ -394,12 +394,12 @@ def possibleGears_byEngineRevs(V, N_GEARS, P_REQ, ngears,
     ## Apply n_min for all gears but 1 & 2
     #
     GEARS_YES_MIN           = (N_GEARS >= n_min)
-    GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V == 0) # V == 0 --> neutral
+    GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V == 0) # V == 0 --> neutral # FIXME: del V==0
     N_GEARS2                = N_GEARS[1, :]
     ## NOTE: "interpratation" of specs for Gear-2
-    #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when P_REQ > 0".
+    #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Deccelerating.".
     GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | \
-                                        ((N_GEARS2 <= n_clutch_gear2) & (P_REQ <= 0)) | (V == 0)
+                                        ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V == 0) # FIXME: del V==0
 
     reportDriveabilityProblems(GEARS_YES_MIN, 'low revolutions', driveability_issues)
     reportDriveabilityProblems(GEARS_YES_MAX, 'high revolutions', driveability_issues)
@@ -424,7 +424,7 @@ def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
     P_REQ   = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
     assert  V.shape == P_REQ.shape, _shapes(V, P_REQ)
 
-    return P_REQ
+    return (A, P_REQ)
 
 
 
@@ -509,47 +509,51 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
     @see: Annex 2-4, p 72
     '''
 
-    ## Rule (a):
-    #    "On every sec before accelerating from standstill: clutch & set to gear-1."
-    #
-    # Also ensures gear-0 always followed by gear-1.
-    #
-    V                           = V.copy(); V[V > (255 - _escape_char)] = (255 - _escape_char)
-    bV                          = np2bytes(V)
-    re_standstill               = gearsregex('\g0+')
-    for m in re_standstill.finditer(bV):
-        t_accel                 = m.end()
-        GEARS[t_accel - 1]      = 1
-        CLUTCH[t_accel - 1]     = True
-
-    assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
-
-
     #
     pg                      = 0; # previous gear
     for (t, g) in enumerate(GEARS[2:-1], 2):
         if (g != pg):
-#             if (pg != 0):
-#                 CLUTCH[2] = False # FIXME: is this NOVATIVE needed??
+
+            ## Rule (a):
+            #    "On every sec before accelerating from standstill: clutch & set to gear-1."
+            #
+            # Also ensures gear-0 always followed by gear-1.
+            #
+            if(pg == 0):
+                pg              = 1
+                GEARS[t - 1]    = pg
+                CLUTCH[t - 1]   = True
+                GEARS[t]        = pg
+                log.info('Rule-a:     t%i(g%i): stand-clutched g%i', t, g, pg)
 
             ## Rule (b.2):
             #    "Gears remain shifted for at least 3 sec."
-            if (GEARS[t-2] != pg or GEARS[t-3] != pg):
-                print('%i(%i): remain %i' % (t, g, pg))
-                GEARS[t]    = pg
+            #
+            elif (GEARS[t-2] != pg or GEARS[t-3] != pg):
+                GEARS[t]        = pg
+                log.info('Rule-b.2:   t%i(g%i): hold g%i', t, g, pg)
 
             ## Rule (b.1):
             #    "Gears are not skipped during accelleration."
+            #
             elif (g > (pg+1)):
-                print('%i(%i): sequent %i' % (t, g, pg+1))
-                pg = pg+1
-                GEARS[t]    = pg
+                pg              = pg+1
+                GEARS[t]        = pg
+                log.info('Rule-b.1:   t%i(%i): unskip %i', t, g, pg)
+
             ## Rule (d):
             #    "No up-shift on peak speed."
-#             elif (GEARS[t+1] == pg):
-#                 GEARS[t]    = pg
+            #
+            elif (g > pg and GEARS[t+1] == pg and V[t-1] < V[t] and V[t] > V[t+1] ):
+                GEARS[t]        = pg
+                log.info('Rule-d:     t%i(%i): de-peak %i', t, g, pg)
+
             else:
-                pg = g
+                pg              = g
+
+
+    sGEARS                  = GEARS.astype('uint8').tostring()
+    assert_regexp_unmatched(b'\x00[^\x00\x01]', sGEARS, 'Jumped gears from standstill')
 
 
 def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
@@ -563,7 +567,7 @@ def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
     return GEARS
 
 
-def runCycle(V, P_REQ, gear_ratios,
+def runCycle(V, A, P_REQ, gear_ratios,
                    n_idle, n_rated,
                    p_rated, load_curve,
                    params):
@@ -615,7 +619,7 @@ def runCycle(V, P_REQ, gear_ratios,
 
     (N_GEARS, GEARS_MX)         = calcEngineRevs_required(V, gear_ratios, n_idle)
 
-    G_BY_N                      = possibleGears_byEngineRevs(V, N_GEARS, P_REQ,
+    G_BY_N                      = possibleGears_byEngineRevs(V, A, N_GEARS,
                                                 len(gear_ratios),
                                                 n_idle,
                                                 n_min, n_clutch_gear2, n_min_gear2, n_max,

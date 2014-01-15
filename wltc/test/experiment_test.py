@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 from wltc.instances import wltc_data
+import logging
 '''
 @author: ankostis@gmail.com
 @since 5 Jan 2014
@@ -35,8 +36,12 @@ import unittest
 
 class Test(unittest.TestCase):
 
+    def setUp(self):
+        logging.basicConfig(level=logging.DEBUG)
+
+
     def plotResults(self, model):
-        import pylab
+        from matplotlib import pyplot as pylab
         gears = model['results']['gears']
         target = model['results']['v_target']
         realv = model['results']['v_real']
@@ -44,8 +49,9 @@ class Test(unittest.TestCase):
 
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
+        clutch = clutch.nonzero()[0]
+        pylab.vlines(clutch,  0, 40)
         pylab.plot(target)
-        pylab.plot(clutch * 20)
         pylab.plot(gears * 18, '+')
 #         pylab.plot(realv)
         pylab.show()
