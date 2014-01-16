@@ -250,10 +250,9 @@ class Experiment(object):
 #######################
 
 
-def reportDriveabilityProblems(GEARS_YES, reason, driveability_issues):
-    failed_gears = (~GEARS_YES).all(0)
-    if (failed_gears.any()):
-        failed_steps = failed_gears.nonzero()[0]
+def reportDriveabilityProblems(GEARS_BAD, reason, driveability_issues):
+    if (GEARS_BAD.any()):
+        failed_steps = GEARS_BAD.nonzero()[0]
         for step in failed_steps:
             driveability_issues[step].append(reason)
         log.warning('%i %s issues: %s', failed_steps.size, reason, failed_steps)
@@ -402,12 +401,15 @@ def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
     GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | \
                                         ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V == 0) # FIXME: del V==0
 
-    reportDriveabilityProblems(GEARS_YES_MIN, 'low revolutions', driveability_issues)
-    reportDriveabilityProblems(GEARS_YES_MAX, 'high revolutions', driveability_issues)
+    GEARS_BAD = CLUTCH      = (~GEARS_YES_MIN).all(axis=0)
+    reportDriveabilityProblems(GEARS_BAD, 'low revolutions', driveability_issues)
+
+    GEARS_BAD               = (~GEARS_YES_MAX).all(axis=0)
+    reportDriveabilityProblems(GEARS_BAD, 'high revolutions', driveability_issues)
 
     GEARS_YES               = (GEARS_YES_MIN & GEARS_YES_MAX)
 
-    return GEARS_YES
+    return (GEARS_YES, CLUTCH)
 
 
 def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
@@ -455,7 +457,8 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
 
     GEARS_YES   = P_AVAIL >= P_REQ
 
-    reportDriveabilityProblems(GEARS_YES, 'power', driveability_issues)
+    GEARS_BAD = (~GEARS_YES).all(axis=0)
+    reportDriveabilityProblems(GEARS_BAD, 'power', driveability_issues)
 
     return GEARS_YES
 
@@ -533,41 +536,40 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
             if (g != pg):
 
                 ## Rule (b.2):
-                #    "Gears remain for at least 3 sec."
+                #    "Hold gears for at least 3sec."
                 #
                 if (any(pg != GEARS[t-3:t-1])):
-                    GEARS[t]        = pg
+                    GEARS[t]    = pg
                     log.info('Rule-b.2:   t%i(g%i): hold g%i', t, g, pg)
 
                 ## Rule (b.1):
-                #    "Gears not skipped during accelleration."
+                #    "Do not skip gears when accellerating."
                 #
                 elif ((pg+1) < g):
-                    pg              = pg+1
-                    GEARS[t]        = pg
+                    pg          = pg+1
+                    GEARS[t]    = pg
                     log.info('Rule-b.1:   t%i(%i): unskip %i', t, g, pg)
 
                 ## Rule (d):
-                #    "No up-shift after peak speed."
+                #    "Do not up-shift after peak speed."
                 #
                 elif (pg < g and pg == GEARS[t-2] and V[t-2] < V[t-1] > V[t] ):
-                    GEARS[t]        = pg
+                    GEARS[t]    = pg
                     log.info('Rule-d:     t%i(%i): de-upshift after peak %i', t, g, pg)
 
                 ## Rule (e):
                 #    "No less-than 6-secs in up-shift."
                 #
-                elif (pg > g and any(g == GEARS[t-6:t])):
-                    pg              = g
-                    GEARS[t-6:t]    = pg
+                # FIXME: Fix bad rule-e
+                elif (pg > g and any(g == GEARS[t-6:t]) ): # and all(g <= GEARS[t-6:t] <= pg) ):
+                    pg          = g
+                    GEARS[t-6:t] = pg
                     log.info('Rule-e:     t%i(%i): de-upshift when <6sec %i', t, g, pg)
 
                 else:
-                    pg              = g
+                    pg          = g
 
 
-    sGEARS                  = GEARS.astype('uint8').tostring()
-    assert_regexp_unmatched(b'\x00[^\x00\x01]', sGEARS, 'Jumped gears from standstill')
 
 
 def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
@@ -634,7 +636,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     (N_GEARS, GEARS_MX)         = calcEngineRevs_required(V, gear_ratios, n_idle)
 
-    G_BY_N                      = possibleGears_byEngineRevs(V, A, N_GEARS,
+    (G_BY_N, CLUTCH)            = possibleGears_byEngineRevs(V, A, N_GEARS,
                                                 len(gear_ratios),
                                                 n_idle,
                                                 n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
@@ -650,7 +652,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
     assert                      all((GEARS >= -1) & (GEARS <= len(gear_ratios))), (min(GEARS), max(GEARS))
 
 
-    CLUTCH                      = (GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)
+    CLUTCH[(GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)] = True
 
     applyDriveabilityRules(V, GEARS, CLUTCH, len(gear_ratios))
 
