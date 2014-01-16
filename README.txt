@@ -3,7 +3,7 @@ WLTC gear-shift calculator
 ==========================
 
 WLTCG calculates the gear-shifts/real_velocity profile for light-duty-vehicles (cars)
-according to the WLTC testing-cycle.
+according to UN's draft WLTC testing-cycle.
 
 It accepts as input the car-specifications and a selection of a WLTC-cycle classes
 and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
@@ -126,7 +126,8 @@ History
 =======
 
 Implemented from scratch based on the UN's specs (document also included in the ./docs dir):
-  https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
+* http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
+* https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
 
 By ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
 

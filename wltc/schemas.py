@@ -72,12 +72,12 @@ def model_schema():
                     },
                    'n_min': {
                        'title': 'minimum engine revolutions',
-                       '$ref': '#/definitions/positiveNumber',
+                       'type': ['integer', 'null'],
                        'description': dedent('''
                         minimum engine revolutions for gears > 2 when the vehicle is in motion. The minimum value
-                        is determined by the following equation:
-                            n_min = n_idle + 0.125 * (n_rated - n_idle)
-                        Higher values may be used if requested by the manufacturer.
+                        is determined by the following equation::
+                            n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
+                        Higher values may be used if requested by the manufacturer, by setting this one.
                        '''),
                     },
                    'gear_ratios': {
@@ -180,7 +180,7 @@ def model_schema():
                         'default': 1.2,
                     },
                     'f_n_min': {
-                        'description': 'For each gear > 2, N :> n_min = n_idle + f_n_min * n_range',
+                        'description': 'For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless ``n_min`` overriden by manufacturer)',
                         'type': [ 'number', 'null'],
                         'default': 0.125,
                     },

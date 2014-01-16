@@ -30,15 +30,15 @@ __license__ = "AGPLv3"
 __version__ = '.'.join(__version_info__)
 
 
-# try:
-#     from .doc import Doc
-# except:
-#     print('Failed importing Doc!  Development stranded.')
-#
-# try:
-#     from .experiment import Experiment
-# except:
-#     print('Failed importing Experiment!  Development stranded.')
+try:
+    from .model import Model
+except:
+    print('Failed importing Doc!  Development stranded.')
+
+try:
+    from .experiment import Experiment
+except:
+    print('Failed importing Experiment!  Development stranded.')
 
 # ## From http://python-jsonschema.readthedocs.org/en/latest/faq/
 # #

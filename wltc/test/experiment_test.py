@@ -24,7 +24,7 @@ import logging
 @since 5 Jan 2014
 '''
 
-import wltc.experiment as ex
+from .. import experiment as ex
 from ..experiment import Experiment
 from ..experiment import downscaleCycle
 from ..model import Model

@@ -29,7 +29,7 @@ goodVehicle = {
         "p_rated":  100,
         "n_rated":  5450,
         "n_idle":   950,
-        "n_min":    500,
+        #"n_min":   None,    # Can be overriden by manufacturer.
         "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
         "resistance_coeffs":[100, 0.5, 0.04],
     }

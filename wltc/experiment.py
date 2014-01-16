@@ -45,7 +45,7 @@ A usage example::
             "p_rated":  100,
             "n_rated":  5450,
             "n_idle":   950,
-            "n_min":    500,
+            "n_min":    None, # Can be overriden by manufacturer.
             "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
             "resistance_coeffs":[100, 0.5, 0.04],
         }
@@ -183,6 +183,7 @@ class Experiment(object):
         p_rated             = vehicle['p_rated']
         n_rated             = vehicle['n_rated']
         n_idle              = vehicle['n_idle']
+        n_min_drive         = vehicle['n_min']
         gear_ratios         = vehicle['gear_ratios']
         (f0, f1, f2)        = vehicle['resistance_coeffs']
         params              = data['params']
@@ -231,7 +232,7 @@ class Experiment(object):
         (V_REAL, GEARS, CLUTCH, driveability_issues) = \
                             runCycle(V, A, P_REQ,
                                            gear_ratios,
-                                           n_idle, n_rated,
+                                           n_idle, n_min_drive, n_rated,
                                            p_rated, load_curve,
                                                        params)
         assert               V.shape == GEARS.shape, _shapes(V, GEARS)
@@ -380,7 +381,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle):
 
 def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
                                n_idle,
-                               n_min, n_clutch_gear2, n_min_gear2, n_max,
+                               n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                driveability_issues):
     '''Calculates the engine-revolutions limits for all gears and returns where they are accepted.
 
@@ -391,9 +392,9 @@ def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
 
     GEARS_YES_MAX           = (N_GEARS <= n_max)
 
-    ## Apply n_min for all gears but 1 & 2
+    ## Apply n_min_drive for all gears but 1 & 2
     #
-    GEARS_YES_MIN           = (N_GEARS >= n_min)
+    GEARS_YES_MIN           = (N_GEARS >= n_min_drive)
     GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V == 0) # V == 0 --> neutral # FIXME: del V==0
     N_GEARS2                = N_GEARS[1, :]
     ## NOTE: "interpratation" of specs for Gear-2
@@ -524,8 +525,9 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
 
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
-    for loop in [0, 1]:
+    ## Apply driveability-rules twice, as by specs.
     #
+    for _ in [0, 1]:
         pg                      = 0; # previous gear: GEARS[t-1]
         for (t, g) in enumerate(GEARS[5:], 5):
             if (g != pg):
@@ -550,14 +552,15 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
                 #
                 elif (pg < g and pg == GEARS[t-2] and V[t-2] < V[t-1] > V[t] ):
                     GEARS[t]        = pg
-                    log.info('Rule-d:     t%i(%i): de-peak %i', t, g, pg)
+                    log.info('Rule-d:     t%i(%i): de-upshift after peak %i', t, g, pg)
 
                 ## Rule (e):
                 #    "No less-than 6-secs in up-shift."
                 #
-                elif (pg > g and all(pg == GEARS[t-5:t]) and GEARS[t - 6] == g):
-                    GEARS[t]        = pg
-                    log.info('Rule-e:     t%i(%i): de-upshift for less 6sec %i', t, g, pg)
+                elif (pg > g and any(g == GEARS[t-6:t])):
+                    pg              = g
+                    GEARS[t-6:t]    = pg
+                    log.info('Rule-e:     t%i(%i): de-upshift when <6sec %i', t, g, pg)
 
                 else:
                     pg              = g
@@ -579,7 +582,7 @@ def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
 
 
 def runCycle(V, A, P_REQ, gear_ratios,
-                   n_idle, n_rated,
+                   n_idle, n_min_drive, n_rated,
                    p_rated, load_curve,
                    params):
     '''
@@ -612,8 +615,9 @@ def runCycle(V, A, P_REQ, gear_ratios,
     f_n_max                     = params.get('f_n_max', 1.2)
     n_max                       = n_idle + f_n_max * n_range
 
-    f_n_min                     = params.get('f_n_min', 0.125)
-    n_min                       = n_idle + f_n_min * n_range
+    if n_min_drive is None:
+        f_n_min                 = params.get('f_n_min', 0.125)
+        n_min_drive             = n_idle + f_n_min * n_range
 
     f_n_min_gear2               = params.get('f_n_min_gear2', [1.15, 0.03])
     n_min_gear2                 = max(f_n_min_gear2[0] * n_idle, f_n_min_gear2[1] * n_range + n_idle)
@@ -633,7 +637,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
     G_BY_N                      = possibleGears_byEngineRevs(V, A, N_GEARS,
                                                 len(gear_ratios),
                                                 n_idle,
-                                                n_min, n_clutch_gear2, n_min_gear2, n_max,
+                                                n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                                 driveability_issues)
 
     G_BY_P                      = possibleGears_byPower(V, N_GEARS, P_REQ,
