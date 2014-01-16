@@ -509,44 +509,54 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
     @see: Annex 2-4, p 72
     '''
 
+    ## Rule (a):
+    #    "Clutch & set to 1st-gear before accelerating from standstill."
     #
-    pg                      = 0; # previous gear
-    for (t, g) in enumerate(GEARS[2:-1], 2):
+    # Also ensures gear-0 always followed by gear-1.
+    #
+    V                           = V.copy(); V[V > (255 - _escape_char)] = (255 - _escape_char)
+    bV                          = np2bytes(V)
+    re_standstill               = gearsregex('\g0+')
+    for m in re_standstill.finditer(bV):
+        t_accel                 = m.end()
+        GEARS[t_accel - 1]      = 1
+        CLUTCH[t_accel - 1]     = True
+
+    assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
+
+    #
+    pg                      = 0; # previous gear: GEARS[t-1]
+    for (t, g) in enumerate(GEARS[5:-5], 5):
         if (g != pg):
 
-            ## Rule (a):
-            #    "On every sec before accelerating from standstill: clutch & set to gear-1."
-            #
-            # Also ensures gear-0 always followed by gear-1.
-            #
-            if(pg == 0):
-                pg              = 1
-                GEARS[t - 1]    = pg
-                CLUTCH[t - 1]   = True
-                GEARS[t]        = pg
-                log.info('Rule-a:     t%i(g%i): stand-clutched g%i', t, g, pg)
-
             ## Rule (b.2):
-            #    "Gears remain shifted for at least 3 sec."
+            #    "Gears remain for at least 3 sec."
             #
-            elif (GEARS[t-2] != pg or GEARS[t-3] != pg):
+            if (any(pg != GEARS[t-3:t-1])):
                 GEARS[t]        = pg
                 log.info('Rule-b.2:   t%i(g%i): hold g%i', t, g, pg)
 
             ## Rule (b.1):
-            #    "Gears are not skipped during accelleration."
+            #    "Gears not skipped during accelleration."
             #
-            elif (g > (pg+1)):
+            elif ((pg+1) < g):
                 pg              = pg+1
                 GEARS[t]        = pg
                 log.info('Rule-b.1:   t%i(%i): unskip %i', t, g, pg)
 
             ## Rule (d):
-            #    "No up-shift on peak speed."
+            #    "No up-shift after peak speed."
             #
-            elif (g > pg and GEARS[t+1] == pg and V[t-1] < V[t] and V[t] > V[t+1] ):
+            elif (pg < g and pg == GEARS[t-2] and V[t-2] < V[t-1] > V[t] ):
                 GEARS[t]        = pg
                 log.info('Rule-d:     t%i(%i): de-peak %i', t, g, pg)
+
+#             ## Rule (e):
+#             #    "No less-than 5-secs in up-shift."
+#             #
+#             elif (pg > g and all(pg == GEARS[t-5, t]) and V[t-1] < V[t] and V[t] > V[t+1] ):
+#                 GEARS[t]        = pg
+#                 log.info('Rule-e:     t%i(%i): de-peak %i', t, g, pg)
 
             else:
                 pg              = g
