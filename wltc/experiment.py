@@ -507,7 +507,7 @@ def assert_regexp_unmatched(regex, string, msg):
             '%s: %s' % (msg, [(m.start(), m.group()) for m in re.finditer(regex, string)])
 
 
-def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
+def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     '''
     @note: Modifies GEARS.
     @see: Annex 2-4, p 72
@@ -518,17 +518,21 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
     #
     # Also ensures gear-0 always followed by gear-1.
     #
+    # NOTE: Not needed inside x2 loop.
     V                           = V.copy(); V[V > (255 - _escape_char)] = (255 - _escape_char)
     bV                          = np2bytes(V)
-    re_standstill               = gearsregex('\g0+')
-    for m in re_standstill.finditer(bV):
+    re_zeros                    = gearsregex('\g0+(?!$)')   # FIXME: Exclude zeros at the end.
+    for m in re_zeros.finditer(bV):
         t_accel                 = m.end()
         GEARS[t_accel - 1]      = 1
         CLUTCH[t_accel - 1]     = True
-
+        log.info('Rule(a):   t%i(g0): g1-clutched from standstill', t_accel-1)
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
+
     ## Apply driveability-rules twice, as by specs.
+    #
+    # rules b, d,e, f & g are applied in a V-visiting loop.
     #
     for _ in [0, 1]:
         pg                      = 0; # previous gear: GEARS[t-1]
@@ -540,7 +544,7 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
                 #
                 if (any(pg != GEARS[t-3:t-1])):
                     GEARS[t]    = pg
-                    log.info('Rule-b.2:   t%i(g%i): hold g%i', t, g, pg)
+                    log.info('Rule(b.2):   t%i(g%i): hold at least 3sec g%i', t, g, pg)
 
                 ## Rule (b.1):
                 #    "Do not skip gears when accellerating."
@@ -548,26 +552,49 @@ def applyDriveabilityRules(V, GEARS, CLUTCH, ngears):
                 elif ((pg+1) < g):
                     pg          = pg+1
                     GEARS[t]    = pg
-                    log.info('Rule-b.1:   t%i(%i): unskip %i', t, g, pg)
-
+                    log.info('Rule(b.1):   t%i(%i): unskip while accell %i', t, g, pg)
                 ## Rule (d):
-                #    "Do not up-shift after peak speed."
+                #    "Do not upshift after peak speed."
                 #
                 elif (pg < g and pg == GEARS[t-2] and V[t-2] < V[t-1] > V[t] ):
                     GEARS[t]    = pg
-                    log.info('Rule-d:     t%i(%i): de-upshift after peak %i', t, g, pg)
+                    log.info('Rule(d):     t%i(%i): de-upshift after peak %i', t, g, pg)
 
                 ## Rule (e):
-                #    "No less-than 6-secs in up-shift."
+                #    "No less-than 6-secs in upshift."
                 #
                 # FIXME: Fix bad rule-e
                 elif (pg > g and any(g == GEARS[t-6:t]) ): # and all(g <= GEARS[t-6:t] <= pg) ):
                     pg          = g
                     GEARS[t-6:t] = pg
-                    log.info('Rule-e:     t%i(%i): de-upshift when <6sec %i', t, g, pg)
+                    log.info('Rule(e):     t%i(%i): de-upshift when <=5sec %i', t, g, pg)
+
+                ## TODO: Rule (f):
+                #    "Skip 1-sec downshifts."
+
+                ## TODO: Rule (g):
+                #    "Skip upshift if >= 2sec downshift required during accelleration."
 
                 else:
                     pg          = g
+
+    ## Rule (c):
+    #    "Idle while deccelerating to standstill."
+    #
+    # Search for zeros in reversed-V profile and
+    # for as long the reversed-A profile is negative.
+    #
+    # NOTE: Not needed inside x2 loop.
+    # NOTE: The lst rule to run.
+    rA                              = A[::-1]
+    rGEARS                          = GEARS[::-1] # view
+    for m in re_zeros.finditer(bV[::-1]):
+        t_stop                      = m.end()
+        t                           = t_stop
+        while (rA[t] < 0):
+            rGEARS[t]               = 0
+            t += 1
+        log.info('Rule(c):     t%i-t%i: idle to standstill', t-1, t_stop)
 
 
 
@@ -654,7 +681,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     CLUTCH[(GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)] = True
 
-    applyDriveabilityRules(V, GEARS, CLUTCH, len(gear_ratios))
+    applyDriveabilityRules(V, A, GEARS, CLUTCH, len(gear_ratios))
 
     ## TODO: Calculate real-celocity.
     #
