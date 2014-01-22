@@ -359,6 +359,13 @@ def wltc_validator():
     return Draft4Validator(schema)
 
 
+def validate_full_load_curve(flc, f_n_max):
+    if (min(flc[0]) > 0):
+        raise ValueError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(flc[0]))
+    max_x_limit = f_n_max * 100
+    if (max(flc[0]) < max_x_limit):
+        raise ValueError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(flc[0])))
+
 
 if __name__ == '__main__':
     import json

@@ -62,12 +62,14 @@ class Model(object):
 
 
     def validate(self, iter_errors=False):
-        from .schemas import model_validator
+        from .schemas import model_validator, validate_full_load_curve
 
         if iter_errors:
             return model_validator().iter_errors(self.data)
         else:
             model_validator().validate(self.data)
+
+        validate_full_load_curve(self.data['vehicle']['full_load_curve'], self.data['params']['f_n_max'])
 
 
 

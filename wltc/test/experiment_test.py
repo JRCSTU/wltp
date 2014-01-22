@@ -87,7 +87,9 @@ class Test(unittest.TestCase):
 
         self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80|\x98\xc2\xff')
 
-    def testGoodVehicle(self):
+    def testGoodVehicle(self, skip_plot=False):
+        logging.getLogger().setLevel(logging.DEBUG)
+
         inst = goodVehicle
 
         model = Model(inst)
@@ -95,14 +97,15 @@ class Test(unittest.TestCase):
         experiment.run()
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
 
-        print(model.data['results'])
-        #print([wltc_data()['classes']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
-        self.plotResults(model.data)
+        if (not skip_plot):
+            print(model.data['results'])
+            #print([wltc_data()['classes']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
+            self.plotResults(model.data)
 
-        np.set_printoptions(edgeitems=16)
-        #print(driveability_issues)
-        #print(v_max)
-        #results['target'] = []; print(results)
+            np.set_printoptions(edgeitems=16)
+            #print(driveability_issues)
+            #print(v_max)
+            #results['target'] = []; print(results)
 
     def testUnderPowered(self):
         inst = goodVehicle
@@ -114,8 +117,9 @@ class Test(unittest.TestCase):
 
 
 #     def testPerf(self):
+#         logging.getLogger().setLevel(logging.WARNING)
 #         for i in range(1000):
-#             self.testGoodVehicle()
+#             self.testGoodVehicle(True)
 
 
 if __name__ == "__main__":

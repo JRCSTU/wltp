@@ -444,7 +444,7 @@ def calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_
     '''
 
     N_NORM          = (N_GEARS - n_idle) / (n_rated - n_idle)
-    P_WOT           = np.interp(N_NORM, load_curve[0], load_curve[1])
+    P_WOT           = np.interp(N_NORM, load_curve[0], load_curve[1], right=0)
     P_AVAIL         = P_WOT * p_rated * p_safety_margin
 
     return P_AVAIL
