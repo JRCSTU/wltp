@@ -52,7 +52,7 @@ class Test(unittest.TestCase):
         clutch = clutch.nonzero()[0]
         pylab.vlines(clutch,  0, 40)
         pylab.plot(target)
-        pylab.plot(gears * 18, '+')
+        pylab.plot(gears * 12, '+')
 #         pylab.plot(realv)
         pylab.show()
 

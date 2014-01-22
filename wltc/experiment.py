@@ -528,6 +528,21 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     @see: Annex 2-4, p 72
     '''
 
+    def rule_e(t):
+        (pg, g) = GEARS[t-1:t+1]
+        assert pg-1 == g, (pg, g)
+
+        for tt in range(t-2, t-6, -1):
+            if (GEARS[tt] == pg):
+                continue
+            elif (GEARS[tt] == g):
+                GEARS[tt:t] = g
+                log.info('Rule(e):     t(%i-->%i), g%i: Do not upshift to gear(%i) for less than 6sec.', tt, t-1, g, pg)
+                return
+            else:
+                return
+
+
     ## Rule (a):
     #    "Clutch & set to 1st-gear before accelerating from standstill."
     #
@@ -557,34 +572,33 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
         for (t, g) in enumerate(GEARS[5:], 5):
             if (g != pg):
 
-                ## Rule (b.2):
-                #    "Hold gears for at least 3sec."
-                #
-                if (any(pg != GEARS[t-3:t-1])):
-                    GEARS[t]    = pg
-                    log.info('Rule(b.2):   t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
-
                 ## Rule (b.1):
                 #    "Do not skip gears while accellerating."
                 #
-                elif ((pg+1) < g):
+                if ((pg+1) < g and A[t] > 0):
                     pg          = pg+1
                     GEARS[t]    = pg
                     log.info('Rule(b.1):   t%i, g%i: Do not skip gear(%i) while accellerating.', t, g, pg)
+
+                ## Rule (b.2):
+                #    "Hold gears for at least 3sec."
+                #
+                elif (any(pg != GEARS[t-3:t-1])):
+                    GEARS[t]    = pg
+                    log.info('Rule(b.2):   t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
+
                 ## Rule (d):
-                #    "Do not upshift after peak speed."
+                #    "Do not upshift after peak velocity."
                 #
                 elif (pg < g and pg == GEARS[t-2] and V[t-2] < V[t-1] > V[t] ):
                     GEARS[t]    = pg
                     log.info('Rule(d):     t%i, g%i: Do not upshift after peak, hold gear(%i).', t, g, pg)
 
                 ## Rule (e):
-                #    "No less-than 6-secs in upshift."
+                #    "Do not upshift for less-than 6-secs."
                 #
-                # FIXME: Fix bad rule-e
-                elif (pg > g and any(g == GEARS[t-6:t]) ): # and all(g <= GEARS[t-6:t] <= pg) ):
-                    GEARS[t-6:t] = g
-                    log.info('Rule(e):     t%i, g%i: Do not upshift to gear(%i) for less than 6sec.', t, g, pg)
+                elif (pg-1 == g):
+                    rule_e(t)
                     pg          = g
 
                 ## TODO: Rule (f):
@@ -617,7 +631,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
         while (rA[t] < 0):
             rGEARS[t]               = 0
             t += 1
-        log.info('Rule(c):     t%i-t%i: Set idle while deccelerating to standstill', t-1, t_stop)
+        log.info('Rule(c):     t(%i-->%i): Set idle while deccelerating to standstill', t-1, t_stop)
 
 
 
