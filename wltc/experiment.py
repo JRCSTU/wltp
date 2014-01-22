@@ -605,7 +605,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
                 ## Rule (b.2):
                 #    "Hold gears for at least 3sec."
                 #
-                elif ((pg != GEARS[t-3:t-1]).any()):# and (A[t-3:t] != 0).all()): # NOTE: Checking acceleration may leave gear shifted for less than 3sec on flats!
+                elif ((pg != GEARS[t-3:t-1]).any() and (A[t-3:t] != 0).all()): # NOTE: Checking acceleration may leave gear shifted for less than 3sec on flats!
                     GEARS[t]    = pg
                     log.info('Rule(b.2):   t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
 
