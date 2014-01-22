@@ -610,11 +610,11 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
                     log.info('Rule(b.2):   t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
 
                 ## Rule (d):
-                #    "Cancel upshifts after peak velocity."
+                #    "Cancel shifts after peak velocity."
                 #
-                elif (pg < g and pg == GEARS[t-2] and V[t-2] < V[t-1] > V[t] ):
+                elif (A[t-2] > 0 and  A[t-1] < 0 and GEARS[t-2] == pg):
                     GEARS[t]    = pg
-                    log.info('Rule(d):     t%i, g%i: Cancel upshift after peak, hold gear(%i).', t, g, pg)
+                    log.info('Rule(d):     t%i, g%i: Cancel shift after peak, hold gear(%i).', t, g, pg)
 
                 elif rule_e(t, pg, g):
                     pg = g
