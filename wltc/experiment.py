@@ -36,9 +36,9 @@ Usage:
 
 A usage example::
 
-    import wltc
+    >> import wltc
 
-    model = wltc.Model({
+    >> model = wltc.Model({
         "vehicle": {
             "mass":     1500,
             "v_max":    195,
@@ -51,9 +51,9 @@ A usage example::
         }
     }
 
-    experiment = wltc.Experiment(model)
-    experiment.run()
-    json.dumps(model['results'])
+    >> experiment = wltc.Experiment(model)
+    >> experiment.run()
+    >> print(model.data['results'])
 
 
 
@@ -104,6 +104,7 @@ N_GEARS:  floats (#gears X #cycle_steps)
     One row per gear with the Engine-revolutions required to follow the V-profile (unfeasable revs included),
     produced by multiplying ``V * gear-rations``.
 
+.. log:: logger for the experiment.
 
 
 @author: ankostis@gmail.com
@@ -133,6 +134,8 @@ def _dtypes(*arrays):
 
 class Experiment(object):
     '''Runs the vehicle and cycle data describing a WLTC experiment.
+
+    See :mod:`wltc.experiment` for documentation.
     '''
 
 
@@ -382,16 +385,21 @@ def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
                                n_idle,
                                n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                driveability_issues):
-    '''Calculates the engine-revolutions limits for all gears and returns where they are accepted.
+    '''Calculates the engine-revolutions limits for all gears and returns for which they are accepted.
 
-    @return :list: min-revs for each gear (list[0] --> gear-1)
-    @return :list: max-revs for each gear (list[0] --> gear-1)
+    @return GEARS_YES:list(booleans, nGears x CycleSteps): possibibilty for all the gears on each cycle-step
+                    (eg: [0, 10] == True --> gear(1) is possible for t=10)
     @see: Annex 2-3.2, p 71
     '''
 
     GEARS_YES_MAX           = (N_GEARS <= n_max)
 
-    ## Apply n_min_drive for all gears but 1 & 2
+    GEARS_BAD               = (~GEARS_YES_MAX).all(axis=0)
+    GEARS_YES_MAX[N_GEARS.shape[0] - 1, GEARS_BAD]  = True # Revert to max-gear.
+    reportDriveabilityProblems(GEARS_BAD, 'high revolutions', driveability_issues)
+
+
+    ## Apply n_min_drive for all gears but 1 & 2.
     #
     GEARS_YES_MIN           = (N_GEARS >= n_min_drive)
     GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V == 0) # V == 0 --> neutral # FIXME: del V==0
@@ -402,10 +410,8 @@ def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
                                         ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V == 0) # FIXME: del V==0
 
     GEARS_BAD = CLUTCH      = (~GEARS_YES_MIN).all(axis=0)
+    GEARS_YES_MIN[0, GEARS_BAD]                     = True # Revert to min-gear.
     reportDriveabilityProblems(GEARS_BAD, 'low revolutions', driveability_issues)
-
-    GEARS_BAD               = (~GEARS_YES_MAX).all(axis=0)
-    reportDriveabilityProblems(GEARS_BAD, 'high revolutions', driveability_issues)
 
     GEARS_YES               = (GEARS_YES_MIN & GEARS_YES_MAX)
 
@@ -463,6 +469,19 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
     return GEARS_YES
 
 
+def selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues):
+    assert                  G_BY_N.shape == G_BY_P.shape, _shapes(V, G_BY_N, G_BY_P)
+    assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
+
+    GEARS_YES               = G_BY_N & G_BY_P
+    reportDriveabilityProblems((~GEARS_YES).all(axis=0), 'power/revs', driveability_issues)
+    GEARS_MX[~GEARS_YES]    = -1 # FIXME: What to do if no Power/Revs gear found??
+    assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
+    GEARS                   = GEARS_MX.max(axis=0)
+
+    return GEARS
+
+
 
 
 _escape_char = 128
@@ -497,10 +516,6 @@ def bytes2np(bytesarr):
 
     return          np.array(list(bytesarr)) - _escape_char
 
-
-def assert_regex_unmatched(regex, string, msg):
-    assert not regex.findall(string), \
-            '%s: %s' % (msg, [(m.start(), m.group()) for m in regex.finditer(string)])
 
 def assert_regexp_unmatched(regex, string, msg):
     assert not re.findall(regex, string), \
@@ -568,9 +583,9 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
                 #
                 # FIXME: Fix bad rule-e
                 elif (pg > g and any(g == GEARS[t-6:t]) ): # and all(g <= GEARS[t-6:t] <= pg) ):
+                    GEARS[t-6:t] = g
+                    log.info('Rule(e):     t%i, g%i: Do not upshift to gear(%i) for less than 6sec.', t, g, pg)
                     pg          = g
-                    GEARS[t-6:t] = pg
-                    log.info('Rule(e):     t%i, g%i: Do not upshift for less than 6sec, hold gear(%i).', t, g, pg)
 
                 ## TODO: Rule (f):
                 #    "Skip 1-sec downshifts."
@@ -605,17 +620,6 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
         log.info('Rule(c):     t%i-t%i: Set idle while deccelerating to standstill', t-1, t_stop)
 
 
-
-
-def selectGears(V, GEARS_MX, G_BY_N, G_BY_P):
-    assert                  G_BY_N.shape == G_BY_P.shape, _shapes(V, G_BY_N, G_BY_P)
-    assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
-
-    GEARS_YES               = G_BY_N & G_BY_P
-    GEARS_MX[~GEARS_YES]    = -1
-    GEARS                   = GEARS_MX.max(axis=0)
-
-    return GEARS
 
 
 def runCycle(V, A, P_REQ, gear_ratios,
@@ -681,7 +685,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
                                                 n_idle, n_rated, p_rated, load_curve, p_safety_margin,
                                                 driveability_issues)
 
-    GEARS                       = selectGears(V, GEARS_MX, G_BY_N, G_BY_P)
+    GEARS                       = selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues)
     assert                      V.shape == GEARS.shape, _shapes(V, GEARS)
     assert                      'i' == GEARS.dtype.kind, GEARS.dtype
     assert                      all((GEARS >= -1) & (GEARS <= len(gear_ratios))), (min(GEARS), max(GEARS))
