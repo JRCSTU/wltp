@@ -19,6 +19,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 from wltc.instances import wltc_data
 import logging
+from numpy.testing.utils import assert_array_equal
 '''
 @author: ankostis@gmail.com
 @since 5 Jan 2014
@@ -32,6 +33,7 @@ from .goodvehicle import goodVehicle
 import numpy as np
 import numpy.testing as npt
 import unittest
+from matplotlib import pyplot as pylab
 
 
 class Test(unittest.TestCase):
@@ -41,7 +43,6 @@ class Test(unittest.TestCase):
 
 
     def plotResults(self, model):
-        from matplotlib import pyplot as pylab
         gears = model['results']['gears']
         target = model['results']['v_target']
         realv = model['results']['v_real']
@@ -54,7 +55,6 @@ class Test(unittest.TestCase):
         pylab.plot(target)
         pylab.plot(gears * 12, '+')
 #         pylab.plot(realv)
-        pylab.show()
 
 
 
@@ -97,6 +97,18 @@ class Test(unittest.TestCase):
         experiment.run()
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
 
+        ## Compare changed-results
+        #
+        import wltc.experiment  # @UnusedImport
+        wltc.experiment.T = False
+        model2 = Model(inst)
+        experiment = Experiment(model2)
+        experiment.run()
+        cmp = (model.data['results']['gears'] != model2.data['results']['gears'])
+        if (cmp.any()):
+            self.plotResults(model2.data)
+            print((model.data['results']['gears'] != model2.data['results']['gears']).nonzero())
+
         if (not skip_plot):
             print(model.data['results'])
             #print([wltc_data()['classes']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
@@ -106,6 +118,7 @@ class Test(unittest.TestCase):
             #print(driveability_issues)
             #print(v_max)
             #results['target'] = []; print(results)
+            pylab.show()
 
     def testUnderPowered(self):
         inst = goodVehicle

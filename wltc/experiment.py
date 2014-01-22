@@ -119,7 +119,9 @@ import re
 log = logging.getLogger(__name__)
 
 
-
+## Boolean for performing experiments and
+#     comparing results with test-cases.
+T=True
 
 def _shapes(*arrays):
     import operator
@@ -532,15 +534,32 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
         (pg, g) = GEARS[t-1:t+1]
         assert pg-1 == g, (pg, g)
 
-        for tt in range(t-2, t-6, -1):
-            if (GEARS[tt] == pg):
+        for pt in range(t-2, t-6, -1):
+            if (GEARS[pt] == pg):
                 continue
-            elif (GEARS[tt] == g):
-                GEARS[tt:t] = g
-                log.info('Rule(e):     t(%i-->%i), g%i: Do not upshift to gear(%i) for less than 6sec.', tt, t-1, g, pg)
+            elif (GEARS[pt] == g):
+                GEARS[pt:t] = g
+                log.info('Rule(e):     t(%i-->%i), g%i: Cancel %isec upshift to gear(%i).', pt, t-1, g, t-pt, pg)
                 return
             else:
                 return
+
+
+    def rule_g(t, pg, g):
+        if (pg == g and (A[t-1:t+1] > 0).all()):
+            ## Travel back in time.
+            #
+            pt = t-2
+            pg = g+1
+            while (GEARS[pt] == pg and A[pt] > 0):
+                pt -= 1
+
+            if (pt != t-2):
+                GEARS[pt:t-1] = g
+                log.info('Rule(g):     t(%i-->%i), g%i: Cancel %isec upshift to gear(%i) later downshifted during accelleration.', pt, t-2, t-1-pt, pg)
+                return True
+
+            return False
 
 
     ## Rule (a):
@@ -583,19 +602,19 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
                 ## Rule (b.2):
                 #    "Hold gears for at least 3sec."
                 #
-                elif (any(pg != GEARS[t-3:t-1])):
+                elif ((pg != GEARS[t-3:t-1]).any()):# and (A[t-3:t] != 0).all()): # NOTE: Checking acceleration may leave gear shifted for less than 3sec on flats!
                     GEARS[t]    = pg
                     log.info('Rule(b.2):   t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
 
                 ## Rule (d):
-                #    "Do not upshift after peak velocity."
+                #    "Cancel upshifts after peak velocity."
                 #
                 elif (pg < g and pg == GEARS[t-2] and V[t-2] < V[t-1] > V[t] ):
                     GEARS[t]    = pg
-                    log.info('Rule(d):     t%i, g%i: Do not upshift after peak, hold gear(%i).', t, g, pg)
+                    log.info('Rule(d):     t%i, g%i: Cancel upshift after peak, hold gear(%i).', t, g, pg)
 
                 ## Rule (e):
-                #    "Do not upshift for less-than 6-secs."
+                #    "Cancel upshifts lasting 5secs or less."
                 #
                 elif (pg-1 == g):
                     rule_e(t)
@@ -606,8 +625,10 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
                 #
 
                 ## TODO: Rule (g):
-                #    "Skip upshift if >= 2sec downshift required during accelleration."
+                #    "Cancel upshifts if downshifted later for at least 2sec during accelleration."
                 #
+                elif rule_g(t, pg, g):
+                    pass
 
                 else:
                     pg          = g
@@ -617,9 +638,8 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     #
     # Search for zeros in reversed-V profile and
     # for as long the reversed-A profile is negative.
+    # NOTE: Should be the last rule to run, outside xs loop.
     #
-    # NOTE: Not needed inside x2 loop.
-    # NOTE: The last rule to run.
     rA                              = A[::-1]
     rGEARS                          = GEARS[::-1] # view
     for m in re_zeros.finditer(bV[::-1]):
@@ -702,7 +722,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
     GEARS                       = selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues)
     assert                      V.shape == GEARS.shape, _shapes(V, GEARS)
     assert                      'i' == GEARS.dtype.kind, GEARS.dtype
-    assert                      all((GEARS >= -1) & (GEARS <= len(gear_ratios))), (min(GEARS), max(GEARS))
+    assert                      ((GEARS >= -1) & (GEARS <= len(gear_ratios))).all(), (min(GEARS), max(GEARS))
 
 
     CLUTCH[(GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)] = True
