@@ -129,6 +129,14 @@ class Test(unittest.TestCase):
         experiment.run()
 
 
+        inst['vehicle']['p_rated']      =  90
+        inst['vehicle']['gear_ratios']  = [120.5, 75, 50, 40, 37, 32]
+
+        model = Model(inst)
+        experiment = Experiment(model)
+        experiment.run()
+
+
 #     def testPerf(self):
 #         logging.getLogger().setLevel(logging.WARNING)
 #         for i in range(1000):

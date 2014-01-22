@@ -530,6 +530,37 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     @see: Annex 2-4, p 72
     '''
 
+    def rule_b1(t, pg, g):
+        """Rule (b1): Do not skip gears while accellerating."""
+
+        if ((pg+1) < g and A[t] > 0):
+            pg          = pg+1
+            GEARS[t]    = pg
+            log.info('Rule(b.1): t%i, g%i: Do not skip gear(%i) while accellerating.', t, g, pg)
+            return True
+        return False
+
+
+    def rule_b2(t, pg, g):
+        """Rule (b2): Hold gears for at least 3sec."""
+
+        # NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
+        if ((pg != GEARS[t-3:t-1]).any() and (A[t-3:t] != 0).all()):
+            GEARS[t]    = pg
+            log.info('Rule(b.2): t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
+            return True
+        return False
+
+
+    def rule_d(t, pg, g):
+        """Rule (d): Cancel shifts after peak velocity."""
+
+        if (A[t-2] > 0 and  A[t-1] < 0 and GEARS[t-2] == pg):
+            GEARS[t]    = pg
+            log.info('Rule(d):   t%i, g%i: Cancel shift after peak, hold gear(%i).', t, g, pg)
+            return True
+        return False
+
     def rule_e(t, pg, g):
         """Rule (e): Cancel upshifts lasting 5secs or less."""
 
@@ -542,13 +573,25 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
 
             if (GEARS[pt] == g):
                 GEARS[pt:t] = g # Overwrites the 1st element, already == g.
-                log.info('Rule(e):     t(%i-->%i), g%i: Cancel %isec upshift to gear(%i).', pt+1, t-1, g, t-pt-1, pg)
+                log.info('Rule(e):   t(%i-->%i), g%i: Cancel %isec upshift to gear(%i --> %i).', pt+1, t-1, g, t-pt-1, pg, g)
                 return True
         return False
 
 
+    def rule_f(t, pg, g):
+        """Rule(f): Cancel 1sec downshifts."""
+
+        if (pg == g-1 and GEARS[t-2] == g):
+            #TODO: Rule(f) implement further constraints.
+            GEARS[t-1] = g
+            log.info('Rule(g):     t%i, g%i: Cancel 1sec downshift to gear(%i --> %i).', t-1, pg, g)
+            return True
+
+        return False
+
+
     def rule_g(t, pg, g):
-        """Rule(G): Cancel upshifts if later downshifted for at least 2sec during accelleration."""
+        """Rule(g): Cancel upshifts if later downshifted for at least 2sec during accelleration."""
         if (pg == g and (A[t-1:t+1] > 0).all()):
             ## Travel back in time for as long accelerating and same gear.
             #
@@ -585,56 +628,38 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
 
-    ## Apply driveability-rules twice, as by specs.
-    #
-    # rules b, d,e, f & g are applied in a V-visiting loop.
+    rules = [
+        rule_b1,
+        rule_b2,
+        rule_d,
+        rule_e,
+        rule_f,
+        rule_g
+    ]
+    ## Apply driveability-rules x2, as by specs.
     #
     for _ in [0, 1]:
-        pg                      = 0; # previous gear: GEARS[t-1]
+        # Apply rules over all cycle-steps.
+        #
+        pg = 0;                 # previous gear: GEARS[t-1]
         for (t, g) in enumerate(GEARS[5:], 5):
-            if (g != pg):
+            if (g != pg):       ## All rules triggered by a gear-shift.
 
-                ## Rule (b.1):
-                #    "Do not skip gears while accellerating."
+                ## Apply the 1st rule to match.
                 #
-                if ((pg+1) < g and A[t] > 0):
-                    pg          = pg+1
-                    GEARS[t]    = pg
-                    log.info('Rule(b.1):   t%i, g%i: Do not skip gear(%i) while accellerating.', t, g, pg)
+                for rule in rules:
+                    if rule(t, pg, g):
+                        break
 
-                ## Rule (b.2):
-                #    "Hold gears for at least 3sec."
-                #
-                elif ((pg != GEARS[t-3:t-1]).any() and (A[t-3:t] != 0).all()): # NOTE: Checking acceleration may leave gear shifted for less than 3sec on flats!
-                    GEARS[t]    = pg
-                    log.info('Rule(b.2):   t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
+            pg = GEARS[t]
 
-                ## Rule (d):
-                #    "Cancel shifts after peak velocity."
-                #
-                elif (A[t-2] > 0 and  A[t-1] < 0 and GEARS[t-2] == pg):
-                    GEARS[t]    = pg
-                    log.info('Rule(d):     t%i, g%i: Cancel shift after peak, hold gear(%i).', t, g, pg)
-
-                elif rule_e(t, pg, g):
-                    pg = g
-
-                ## TODO: Rule (f):
-                #    "Skip 1-sec downshifts."
-                #
-
-                elif rule_g(t, pg, g):
-                    pass # pg = g uneccesasary
-
-                else:
-                    pg = g
 
     ## Rule (c):
     #    "Idle while deccelerating to standstill."
     #
-    # Search for zeros in reversed-V profile and
-    # for as long the reversed-A profile is negative.
-    # NOTE: Should be the last rule to run, outside xs loop.
+    # Search for zeros in _reversed_ V & GEAR profiles,
+    # for as long Accell is negative.
+    # NOTE: Should be the last rule to run, outside x2 loop.
     #
     rA                              = A[::-1]
     rGEARS                          = GEARS[::-1] # view
