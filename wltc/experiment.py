@@ -521,12 +521,15 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     # NOTE: Not needed inside x2 loop.
     V                           = V.copy(); V[V > (255 - _escape_char)] = (255 - _escape_char)
     bV                          = np2bytes(V)
-    re_zeros                    = gearsregex('\g0+(?!$)')   # FIXME: Exclude zeros at the end.
+    re_zeros                    = gearsregex('\g0+')
     for m in re_zeros.finditer(bV):
         t_accel                 = m.end()
+        # Exclude zeros at the end.
+        if (t_accel == len(bV)):
+            break
         GEARS[t_accel - 1]      = 1
         CLUTCH[t_accel - 1]     = True
-        log.info('Rule(a):   t%i(g0): g1-clutched from standstill', t_accel-1)
+        log.info('Rule(a):   t%i, g0: g1-clutched from standstill', t_accel-1)
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
 
@@ -544,21 +547,21 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
                 #
                 if (any(pg != GEARS[t-3:t-1])):
                     GEARS[t]    = pg
-                    log.info('Rule(b.2):   t%i(g%i): hold at least 3sec g%i', t, g, pg)
+                    log.info('Rule(b.2):   t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
 
                 ## Rule (b.1):
-                #    "Do not skip gears when accellerating."
+                #    "Do not skip gears while accellerating."
                 #
                 elif ((pg+1) < g):
                     pg          = pg+1
                     GEARS[t]    = pg
-                    log.info('Rule(b.1):   t%i(%i): unskip while accell %i', t, g, pg)
+                    log.info('Rule(b.1):   t%i, g%i: Do not skip gear(%i) while accellerating.', t, g, pg)
                 ## Rule (d):
                 #    "Do not upshift after peak speed."
                 #
                 elif (pg < g and pg == GEARS[t-2] and V[t-2] < V[t-1] > V[t] ):
                     GEARS[t]    = pg
-                    log.info('Rule(d):     t%i(%i): de-upshift after peak %i', t, g, pg)
+                    log.info('Rule(d):     t%i, g%i: Do not upshift after peak, hold gear(%i).', t, g, pg)
 
                 ## Rule (e):
                 #    "No less-than 6-secs in upshift."
@@ -567,13 +570,15 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
                 elif (pg > g and any(g == GEARS[t-6:t]) ): # and all(g <= GEARS[t-6:t] <= pg) ):
                     pg          = g
                     GEARS[t-6:t] = pg
-                    log.info('Rule(e):     t%i(%i): de-upshift when <=5sec %i', t, g, pg)
+                    log.info('Rule(e):     t%i, g%i: Do not upshift for less than 6sec, hold gear(%i).', t, g, pg)
 
                 ## TODO: Rule (f):
                 #    "Skip 1-sec downshifts."
+                #
 
                 ## TODO: Rule (g):
                 #    "Skip upshift if >= 2sec downshift required during accelleration."
+                #
 
                 else:
                     pg          = g
@@ -585,16 +590,19 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     # for as long the reversed-A profile is negative.
     #
     # NOTE: Not needed inside x2 loop.
-    # NOTE: The lst rule to run.
+    # NOTE: The last rule to run.
     rA                              = A[::-1]
     rGEARS                          = GEARS[::-1] # view
     for m in re_zeros.finditer(bV[::-1]):
         t_stop                      = m.end()
+        # Exclude zeros at the end.
+        if (t_stop == len(bV)):
+            break
         t                           = t_stop
         while (rA[t] < 0):
             rGEARS[t]               = 0
             t += 1
-        log.info('Rule(c):     t%i-t%i: idle to standstill', t-1, t_stop)
+        log.info('Rule(c):     t%i-t%i: Set idle while deccelerating to standstill', t-1, t_stop)
 
 
 
