@@ -530,24 +530,27 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     @see: Annex 2-4, p 72
     '''
 
-    def rule_e(t):
-        (pg, g) = GEARS[t-1:t+1]
-        assert pg-1 == g, (pg, g)
+    def rule_e(t, pg, g):
+        """Rule (e): Cancel upshifts lasting 5secs or less."""
 
-        for pt in range(t-2, t-6, -1):
-            if (GEARS[pt] == pg):
-                continue
-            elif (GEARS[pt] == g):
-                GEARS[pt:t] = g
-                log.info('Rule(e):     t(%i-->%i), g%i: Cancel %isec upshift to gear(%i).', pt, t-1, g, t-pt, pg)
-                return
-            else:
-                return
+        if (pg == g+1):
+            ## Travel back in time for 5secs.
+            #
+            pt = t-2
+            while (pt >= t-5 and GEARS[pt] == pg):
+                pt -= 1
+
+            if (GEARS[pt] == g):
+                GEARS[pt:t] = g # Overwrites the 1st element, already == g.
+                log.info('Rule(e):     t(%i-->%i), g%i: Cancel %isec upshift to gear(%i).', pt+1, t-1, g, t-pt-1, pg)
+                return True
+        return False
 
 
     def rule_g(t, pg, g):
+        """Rule(G): Cancel upshifts if later downshifted for at least 2sec during accelleration."""
         if (pg == g and (A[t-1:t+1] > 0).all()):
-            ## Travel back in time.
+            ## Travel back in time for as long accelerating and same gear.
             #
             pt = t-2
             pg = g+1
@@ -613,25 +616,18 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
                     GEARS[t]    = pg
                     log.info('Rule(d):     t%i, g%i: Cancel upshift after peak, hold gear(%i).', t, g, pg)
 
-                ## Rule (e):
-                #    "Cancel upshifts lasting 5secs or less."
-                #
-                elif (pg-1 == g):
-                    rule_e(t)
-                    pg          = g
+                elif rule_e(t, pg, g):
+                    pg = g
 
                 ## TODO: Rule (f):
                 #    "Skip 1-sec downshifts."
                 #
 
-                ## TODO: Rule (g):
-                #    "Cancel upshifts if downshifted later for at least 2sec during accelleration."
-                #
                 elif rule_g(t, pg, g):
-                    pass
+                    pass # pg = g uneccesasary
 
                 else:
-                    pg          = g
+                    pg = g
 
     ## Rule (c):
     #    "Idle while deccelerating to standstill."
