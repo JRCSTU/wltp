@@ -376,7 +376,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle):
     GEARS               = np.tile(np.arange(0, nG, dtype='int8')+ 1, (nV, 1)).T
     assert              GEARS.shape == (nG, nV), (GEARS.shape, gear_ratios, nV)
 
-    GEAR_RATIOS         = np.tile(gear_ratios, (nV, 1)).T
+    GEAR_RATIOS         = np.tile(gear_ratios, (nV, 1)).T     ## TODO: Prepend row for idle-gear in N_GEARS
     N_GEARS             = np.tile(V, (nG, 1)) * GEAR_RATIOS
     assert              GEARS.shape  == GEAR_RATIOS.shape == N_GEARS.shape, _shapes(GEARS, GEAR_RATIOS, N_GEARS, V)
 
@@ -387,9 +387,9 @@ def calcEngineRevs_required(V, gear_ratios, n_idle):
     return (N_GEARS, GEARS)
 
 
-def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
-                               n_idle,
-                               n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
+def possibleGears_byEngineRevs(V, A, N_GEARS,
+                               ngears, n_idle,
+                               n_min_drive, n_clutch_gear2, n_min_gear2, n_max, v_stopped_threshold,
                                driveability_issues):
     '''Calculates the engine-revolutions limits for all gears and returns for which they are accepted.
 
@@ -398,26 +398,35 @@ def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
     @see: Annex 2-3.2, p 71
     '''
 
-    GEARS_YES_MAX           = (N_GEARS <= n_max)
+    ## Identify impossible-gears by n_MAX.
+    #
+    GEARS_YES_MAX                           = (N_GEARS <= n_max)
+    GEARS_BAD                               = (~GEARS_YES_MAX).all(axis=0)
+    addDriveabilityProblems(GEARS_BAD, 'g%i: Revolutions too high!' % ngears, driveability_issues)
 
-    GEARS_BAD               = (~GEARS_YES_MAX).all(axis=0)
-    GEARS_YES_MAX[ngears - 1, GEARS_BAD]  = True # Revert to max-gear.
-    addDriveabilityProblems(GEARS_BAD, 'g%i: Too high revolutions!' % ngears, driveability_issues)
+    ## Replace impossibles with max-gear & revs.
+    #
+    GEARS_YES_MAX[ngears - 1, GEARS_BAD]    = True
+    N_GEARS[ngears - 1, GEARS_BAD]          = n_max
 
 
-    ## Apply n_min_drive for all gears but 1 & 2.
+    ## Identify impossible-gears by n_MIN.
+    #
+    ## TODO: Construct a matrix of n_min_drive for all gears, including exceptions for gears 1 & 2.
     #
     GEARS_YES_MIN           = (N_GEARS >= n_min_drive)
-    GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V == 0) # V == 0 --> neutral # FIXME: del V==0
+    GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V <= v_stopped_threshold) # V == 0 --> neutral # FIXME: move V==0 into own gear.
     N_GEARS2                = N_GEARS[1, :]
     ## NOTE: "interpratation" of specs for Gear-2
     #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Deccelerating.".
     GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | \
-                                        ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V == 0) # FIXME: del V==0
+                                        ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
 
+    ## Revert impossibles to min-gear, n_min & clutched.
+    #
     GEARS_BAD = CLUTCH      = (~GEARS_YES_MIN).all(axis=0)
     GEARS_YES_MIN[0, GEARS_BAD]                     = True # Revert to min-gear.
-    addDriveabilityProblems(GEARS_BAD, 'g1: Too low revolutions!', driveability_issues)
+    addDriveabilityProblems(GEARS_BAD, 'g1: Revolutions too low!', driveability_issues)
 
     GEARS_YES               = (GEARS_YES_MIN & GEARS_YES_MAX)
 
@@ -589,7 +598,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
         if (pg == g-1 and GEARS[t-2] == g):
             #TODO: Rule(f) implement further constraints.
             GEARS[t-1] = g
-            addDriveabilityMessage(t-1, 'g%i: Rule(g):   Cancel 1sec downshift, restore to g%i.' % (t-1, pg, g), driveability_issues)
+            addDriveabilityMessage(t-1, 'g%i: Rule(g):   Cancel 1sec downshift, restore to g%i.' % (pg, g), driveability_issues)
             return True
 
         return False
@@ -670,19 +679,17 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     # NOTE: Should be the last rule to run, outside x2 loop.
     #
     nV          = len(V)
-    rA          = A[::-1]
     for m in re_zeros.finditer(bV[::-1]):
         t_stop  = m.end()
         # Exclude zeros at the end.
         if (t_stop == nV):
             break
-        rt       = t_stop
-        while (rA[t] < 0):
-            t = nV - rt
+        t = nV - t_stop - 1
+        while (A[t] < 0):
             addDriveabilityMessage(t, 'g%i: Rule(c):   Set idle while deccelerating to standstill.'%GEARS[t], driveability_issues)
             GEARS[t]   = 0
             CLUTCH[t]  = False
-            rt += 1
+            t -= 1
 
 
 
@@ -741,9 +748,8 @@ def runCycle(V, A, P_REQ, gear_ratios,
     (N_GEARS, GEARS_MX)         = calcEngineRevs_required(V, gear_ratios, n_idle)
 
     (G_BY_N, CLUTCH)            = possibleGears_byEngineRevs(V, A, N_GEARS,
-                                                len(gear_ratios),
-                                                n_idle,
-                                                n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
+                                                len(gear_ratios), n_idle,
+                                                n_min_drive, n_clutch_gear2, n_min_gear2, n_max, v_stopped_threshold,
                                                 driveability_issues)
 
     G_BY_P                      = possibleGears_byPower(V, N_GEARS, P_REQ,
@@ -760,10 +766,10 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     applyDriveabilityRules(V, A, GEARS, CLUTCH, len(gear_ratios), driveability_issues)
 
-    ## TODO: Calculate real-celocity.
+    ## Calculate real-celocity.
     #
-    N                         = N_GEARS[GEARS - 1, range(len(V))]
-    V_REAL = N
+    # TODO: Simplify V_real calc by avoiding multiply all.
+    V_REAL                      = (N_GEARS.T / np.array(gear_ratios)).T[GEARS - 1, range(len(V))]
     V_REAL[CLUTCH | (V == 0)]   = 0
 
     return (V_REAL, GEARS, CLUTCH, driveability_issues)

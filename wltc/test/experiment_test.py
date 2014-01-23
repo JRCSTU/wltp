@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         pylab.vlines(clutch,  0, 40)
         pylab.plot(target)
         pylab.plot(gears * 12, '+')
-#         pylab.plot(realv)
+        pylab.plot(realv)
 
 
 
@@ -86,7 +86,7 @@ class Test(unittest.TestCase):
 
         self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80|\x98\xc2\xff')
 
-    def testGoodVehicle(self, skip_plot=False):
+    def testGoodVehicle(self, plot_results=False):
         logging.getLogger().setLevel(logging.DEBUG)
 
         inst = goodVehicle
@@ -114,7 +114,7 @@ class Test(unittest.TestCase):
             self.plotResults(model2.data)
             print((model.data['results']['gears'] != model2.data['results']['gears']).nonzero())
 
-        if (not skip_plot):
+        if (plot_results):
             print(model.data['results'])
             #print([wltc_data()['classes']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
             self.plotResults(model.data)
@@ -125,7 +125,7 @@ class Test(unittest.TestCase):
             #results['target'] = []; print(results)
             pylab.show()
 
-    def testUnderPowered(self):
+    def testUnderPowered(self, plot_results=False):
         inst = goodVehicle
         inst['vehicle']['p_rated'] = 50
 
@@ -135,15 +135,19 @@ class Test(unittest.TestCase):
         print('DRIVEABILITY: \n%s' % model.driveability_report())
 
 
-        ## Check this vehicle's 1427-1431 nice behavior.
-        inst['vehicle']['p_rated']      =  90
-        inst['vehicle']['gear_ratios']  = [120.5, 75, 50, 40, 37, 32]
+        inst['vehicle']['mass']         =  1000
+        inst['vehicle']['p_rated']      =  80
+        inst['vehicle']['v_max']        =  120
+        inst['vehicle']['gear_ratios']  = [120.5, 95, 72, 52]
 
         model = Model(inst)
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
 
+        if (plot_results):
+            self.plotResults(model.data)
+            pylab.show()
 
 #     def testPerf(self):
 #         logging.getLogger().setLevel(logging.WARNING)
@@ -152,5 +156,5 @@ class Test(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
+    import sys;#sys.argv = ['', 'Test.testName']
+    unittest.main(argv = sys.argv[1:])

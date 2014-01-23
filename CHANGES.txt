@@ -3,14 +3,11 @@ CHANGES
 
 v0.0.3.alpha, 22-Jan-2014 -- Alpha release
 -----------------------------------
-* Runs OK,
-* code tidy,
-* selects classes,
-* detects and applies downscale.
-* driveability rules implemented:
+* Driveability rules implemented:
 *- missing some conditions for rule-f.
 *- no test-cases.
-- no velocity_real.
+- No velocity_real.
+- No preparation calculations (eg. vehicle test-mass).
 - Still unchecked for correctness of results.
 
 
@@ -22,11 +19,15 @@ v0.0.1, 6-Jan-2014 -- Alpha release
 -----------------------------------
 
 * Unchecked for correctness.
-* Not implemented yet driveability rules.
-* Does not output real_velocity yet - inly gears.
-* Detecting and applying downscaling.
+* Runs OK.
+* Project with python-packages and test-cases.
+* Tidied code.
+* Selects appropriate classes.
+* Detects and applies downscale.
 * Interpreted and implemented the nonsensical specs concerning ``n_min`` engine-revolutions for gear-2
   (Annex 2-3.2, p71).
+- Not implemented yet driveability rules.
+- Does not output real_velocity yet - inly gears.
 
 v0.0.0, 11-Dec-2013 -- Inception stage
 --------------------------------------
