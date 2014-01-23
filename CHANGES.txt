@@ -1,11 +1,22 @@
 CHANGES
 =======
 
-v0.0.2, 7-Jan-2014 -- Alpha release
+v0.0.3.alpha, 22-Jan-2014 -- Alpha release
 -----------------------------------
+* Runs OK,
+* code tidy,
+* selects classes,
+* detects and applies downscale.
+* driveability rules implemented:
+*- missing some conditions for rule-f.
+*- no test-cases.
+- no velocity_real.
+- Still unchecked for correctness of results.
 
+
+v0.0.2_alpha, 7-Jan-2014 -- Alpha release
+-----------------------------------
 * Still unchecked for correctness of results.
-* Auto-generation of README.txt
 
 v0.0.1, 6-Jan-2014 -- Alpha release
 -----------------------------------

@@ -37,28 +37,31 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
                       |_______________|
 
 Usage:
-======
+------
 
 A usage example::
 
-    import wltc
+    >> import wltc
 
-    model = wltc.Model({
+    >> model = wltc.Model({
         "vehicle": {
             "mass":     1500,
             "v_max":    195,
             "p_rated":  100,
             "n_rated":  5450,
             "n_idle":   950,
-            "n_min":    500,
+            "n_min":    None, # Can be overriden by manufacturer.
             "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
             "resistance_coeffs":[100, 0.5, 0.04],
         }
     }
 
-    experiment = wltc.Experiment(model)
-    experiment.run()
-    json.dumps(model['results'])
+    >> experiment = wltc.Experiment(model)
+    >> experiment.run()
+    >> print(model.data['results'])
+    >> print(model.driveability_report())
+
+
 
     >> {
         'wltc_class':   'class3b'
@@ -71,10 +74,10 @@ A usage example::
         'driveability': {...},
     }
 
+
 For information on the model-data, check the schema::
 
     print(wltc.instances.model_schema())
-
 
 
 
