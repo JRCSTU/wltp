@@ -132,14 +132,17 @@ class Test(unittest.TestCase):
         model = Model(inst)
         experiment = Experiment(model)
         experiment.run()
+        print('DRIVEABILITY: \n%s' % model.driveability_report())
 
 
+        ## Check this vehicle's 1427-1431 nice behavior.
         inst['vehicle']['p_rated']      =  90
         inst['vehicle']['gear_ratios']  = [120.5, 75, 50, 40, 37, 32]
 
         model = Model(inst)
         experiment = Experiment(model)
         experiment.run()
+        print('DRIVEABILITY: \n%s' % model.driveability_report())
 
 
 #     def testPerf(self):

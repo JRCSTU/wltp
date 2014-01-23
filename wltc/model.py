@@ -74,8 +74,16 @@ class Model(object):
     def driveability_report(self):
         results = self.data.get('results')
         if (not results is None):
+            issues = []
             drv = results['driveability']
-            return '\n'.join(('{:>4}: {}'.format(k, drv[k]) for k in sorted(drv.keys())))
+            pt = -1
+            for t in sorted(drv.keys()):
+                if (pt+1 < t):
+                    issues += ['...']
+                issues += ['{:>4}: {}'.format(t, drv[t])]
+                pt = t
+
+            return '\n'.join(issues)
         return None
 
 
