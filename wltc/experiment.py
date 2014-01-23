@@ -256,12 +256,18 @@ class Experiment(object):
 
 
 def reportDriveabilityProblems(GEARS_BAD, reason, driveability_issues):
-    if (GEARS_BAD.any()):
-        failed_steps = GEARS_BAD.nonzero()[0]
-        for step in failed_steps:
-            driveability_issues[step].append(reason)
-        log.warning('%i %s issues: %s', failed_steps.size, reason, failed_steps)
+    failed_steps = GEARS_BAD.nonzero()[0]
+    if (failed_steps.size != 0):
+        log.warning('%i %s: %s', failed_steps.size, reason, failed_steps)
+        addDriveabilityMessage(failed_steps, reason, driveability_issues)
 
+
+def addDriveabilityMessage(time_steps, msg, driveability_issues):
+    try:
+        for step in time_steps:
+            driveability_issues[step].append(msg)
+    except TypeError:
+        driveability_issues[time_steps].append(msg)
 
 
 def decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max):
@@ -397,8 +403,8 @@ def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
     GEARS_YES_MAX           = (N_GEARS <= n_max)
 
     GEARS_BAD               = (~GEARS_YES_MAX).all(axis=0)
-    GEARS_YES_MAX[N_GEARS.shape[0] - 1, GEARS_BAD]  = True # Revert to max-gear.
-    reportDriveabilityProblems(GEARS_BAD, 'high revolutions', driveability_issues)
+    GEARS_YES_MAX[ngears - 1, GEARS_BAD]  = True # Revert to max-gear.
+    reportDriveabilityProblems(GEARS_BAD, 'g%i: high revolutions' % ngears, driveability_issues)
 
 
     ## Apply n_min_drive for all gears but 1 & 2.
@@ -413,7 +419,7 @@ def possibleGears_byEngineRevs(V, A, N_GEARS, ngears,
 
     GEARS_BAD = CLUTCH      = (~GEARS_YES_MIN).all(axis=0)
     GEARS_YES_MIN[0, GEARS_BAD]                     = True # Revert to min-gear.
-    reportDriveabilityProblems(GEARS_BAD, 'low revolutions', driveability_issues)
+    reportDriveabilityProblems(GEARS_BAD, 'g1: low revolutions', driveability_issues)
 
     GEARS_YES               = (GEARS_YES_MIN & GEARS_YES_MAX)
 
@@ -524,7 +530,7 @@ def assert_regexp_unmatched(regex, string, msg):
             '%s: %s' % (msg, [(m.start(), m.group()) for m in re.finditer(regex, string)])
 
 
-def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
+def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     '''
     @note: Modifies GEARS.
     @see: Annex 2-4, p 72
@@ -536,7 +542,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
         if ((pg+1) < g and A[t] > 0):
             pg          = pg+1
             GEARS[t]    = pg
-            log.info('Rule(b.1): t%i, g%i: Do not skip gear(%i) while accellerating.', t, g, pg)
+            addDriveabilityMessage(t, 'Rule(b.1): g%i: Do not skip g%i while accellerating.' % (g, pg), driveability_issues)
             return True
         return False
 
@@ -547,7 +553,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
         # NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
         if ((pg != GEARS[t-3:t-1]).any() and (A[t-3:t] != 0).all()):
             GEARS[t]    = pg
-            log.info('Rule(b.2): t%i, g%i: Hold gear(%i) at least 3sec.', t, g, pg)
+            addDriveabilityMessage(t, 'Rule(b.2): g%i: Hold g%i at least 3sec.' % (g, pg), driveability_issues)
             return True
         return False
 
@@ -557,7 +563,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
 
         if (A[t-2] > 0 and  A[t-1] < 0 and GEARS[t-2] == pg):
             GEARS[t]    = pg
-            log.info('Rule(d):   t%i, g%i: Cancel shift after peak, hold gear(%i).', t, g, pg)
+            addDriveabilityMessage(t, 'Rule(d):   g%i: Cancel shift after peak, restore to g%i.' % (g, pg), driveability_issues)
             return True
         return False
 
@@ -573,7 +579,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
 
             if (GEARS[pt] == g):
                 GEARS[pt:t] = g # Overwrites the 1st element, already == g.
-                log.info('Rule(e):   t(%i-->%i), g%i: Cancel %isec upshift to gear(%i --> %i).', pt+1, t-1, g, t-pt-1, pg, g)
+                addDriveabilityMessage(range(pt+1, t), 'Rule(e):   g%i: Cancel %isec upshift, restore to g%i.' % (pg, t-pt-1, g), driveability_issues)
                 return True
         return False
 
@@ -584,7 +590,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
         if (pg == g-1 and GEARS[t-2] == g):
             #TODO: Rule(f) implement further constraints.
             GEARS[t-1] = g
-            log.info('Rule(g):     t%i, g%i: Cancel 1sec downshift to gear(%i --> %i).', t-1, pg, g)
+            addDriveabilityMessage(t-1, 'Rule(g):   g%i: Cancel 1sec downshift, restore to g%i.' % (t-1, pg, g), driveability_issues)
             return True
 
         return False
@@ -602,7 +608,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
 
             if (pt != t-2):
                 GEARS[pt:t-1] = g
-                log.info('Rule(g):     t(%i-->%i), g%i: Cancel %isec upshift to gear(%i) later downshifted during accelleration.', pt, t-2, t-1-pt, pg)
+                addDriveabilityMessage(range(pt, t-1), 'Rule(g):   g%i: Cancel %isec accelerated upshift later downshifted, restore to g%i.' % (pg, t-1-pt, g), driveability_issues)
                 return True
 
             return False
@@ -611,6 +617,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     ## Rule (a):
     #    "Clutch & set to 1st-gear before accelerating from standstill."
     #
+    # Implemented with a regex.
     # Also ensures gear-0 always followed by gear-1.
     #
     # NOTE: Not needed inside x2 loop.
@@ -624,10 +631,12 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
             break
         GEARS[t_accel - 1]      = 1
         CLUTCH[t_accel - 1]     = True
-        log.info('Rule(a):   t%i, g0: g1-clutched from standstill', t_accel-1)
+        addDriveabilityMessage(t_accel-1, 'Rule(a):   g0: Set g1-clutched from standstill.', driveability_issues)
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
 
+    ## Apply V-visiting driveability-rules x2, as by specs.
+    #
     rules = [
         rule_b1,
         rule_b2,
@@ -636,8 +645,6 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
         rule_f,
         rule_g
     ]
-    ## Apply driveability-rules x2, as by specs.
-    #
     for _ in [0, 1]:
         # Apply rules over all cycle-steps.
         #
@@ -657,22 +664,25 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears):
     ## Rule (c):
     #    "Idle while deccelerating to standstill."
     #
+    # Implemented with a regex:
     # Search for zeros in _reversed_ V & GEAR profiles,
     # for as long Accell is negative.
     # NOTE: Should be the last rule to run, outside x2 loop.
     #
-    rA                              = A[::-1]
-    rGEARS                          = GEARS[::-1] # view
+    nV          = len(V)
+    rA          = A[::-1]
+    rGEARS      = GEARS[::-1] # view
     for m in re_zeros.finditer(bV[::-1]):
-        t_stop                      = m.end()
+        t_stop  = m.end()
         # Exclude zeros at the end.
-        if (t_stop == len(bV)):
+        if (t_stop == nV):
             break
-        t                           = t_stop
+        t       = t_stop
         while (rA[t] < 0):
-            rGEARS[t]               = 0
             t += 1
-        log.info('Rule(c):     t(%i-->%i): Set idle while deccelerating to standstill', t-1, t_stop)
+        rGEARS[t_stop:t+1]   = 0
+        CLUTCH[nV - (t+1):nV -t_stop] = False
+        addDriveabilityMessage(range(nV - (t+1), nV -t_stop), 'Rule(c):       Set idle while deccelerating to standstill.', driveability_issues)
 
 
 
@@ -748,7 +758,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     CLUTCH[(GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)] = True
 
-    applyDriveabilityRules(V, A, GEARS, CLUTCH, len(gear_ratios))
+    applyDriveabilityRules(V, A, GEARS, CLUTCH, len(gear_ratios), driveability_issues)
 
     ## TODO: Calculate real-celocity.
     #

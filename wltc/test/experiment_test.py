@@ -43,12 +43,11 @@ class Test(unittest.TestCase):
 
 
     def plotResults(self, model):
-        gears = model['results']['gears']
-        target = model['results']['v_target']
-        realv = model['results']['v_real']
-        clutch = model['results']['clutch']
-
-        print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
+        results = model['results']
+        gears = results['gears']
+        target = results['v_target']
+        realv = results['v_real']
+        clutch = results['clutch']
 
         clutch = clutch.nonzero()[0]
         pylab.vlines(clutch,  0, 40)
@@ -96,6 +95,12 @@ class Test(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
+
+        print('DRIVEABILITY: \n%s' % model.driveability_report())
+        results = model.data['results']
+        gears = results['gears']
+        print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
+
 
         ## Compare changed-results
         #

@@ -71,6 +71,13 @@ class Model(object):
 
         validate_full_load_curve(self.data['vehicle']['full_load_curve'], self.data['params']['f_n_max'])
 
+    def driveability_report(self):
+        results = self.data.get('results')
+        if (not results is None):
+            drv = results['driveability']
+            return '\n'.join(('{:>4}: {}'.format(k, drv[k]) for k in sorted(drv.keys())))
+        return None
+
 
 
 if __name__ == '__main__':
