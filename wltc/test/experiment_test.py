@@ -17,9 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-from wltc.instances import wltc_data
-import logging
-from numpy.testing.utils import assert_array_equal
 '''
 @author: ankostis@gmail.com
 @since 5 Jan 2014
@@ -28,18 +25,23 @@ from numpy.testing.utils import assert_array_equal
 from .. import experiment as ex
 from ..experiment import Experiment
 from ..experiment import downscaleCycle
+from ..instances import wltc_data
 from ..model import Model
 from .goodvehicle import goodVehicle
+from matplotlib import pyplot as pylab
+import logging
 import numpy as np
 import numpy.testing as npt
+import os
+import pickle
+import tempfile
 import unittest
-from matplotlib import pyplot as pylab
 
 
 class Test(unittest.TestCase):
-
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
+        self.run_comparison = True
 
 
     def plotResults(self, model):
@@ -86,6 +88,30 @@ class Test(unittest.TestCase):
 
         self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80|\x98\xc2\xff')
 
+
+    def compare_exp_results(self, results, fname, run_comparison):
+        tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
+        if (run_comparison):
+            try:
+                with open(tmpfname, 'rb') as tmpfile:
+                    data_prev = pickle.load(tmpfile)
+                    ## Compare changed-results
+                    #
+                    cmp = results['gears'] != data_prev['gears']
+                    if (cmp.any()):
+                        self.plotResults(data_prev)
+                        print('>> COMPARING(%s): '%fname, cmp.nonzero())
+                    else:
+                        print('>> COMPARING(%s): OK'%fname)
+            except FileNotFoundError as ex:
+                print('>> COMPARING(%s): No old-results found, 1st time to be stored in: '%fname, tmpfname)
+                run_comparison = False
+
+        if (not run_comparison):
+            with open(tmpfname, 'wb') as tmpfile:
+                pickle.dump(results, tmpfile)
+
+
     def testGoodVehicle(self, plot_results=False):
         logging.getLogger().setLevel(logging.DEBUG)
 
@@ -102,17 +128,8 @@ class Test(unittest.TestCase):
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
 
-        ## Compare changed-results
-        #
-        import wltc.experiment  # @UnusedImport
-        wltc.experiment.T = False
-        model2 = Model(inst)
-        experiment = Experiment(model2)
-        experiment.run()
-        cmp = (model.data['results']['gears'] != model2.data['results']['gears'])
-        if (cmp.any()):
-            self.plotResults(model2.data)
-            print((model.data['results']['gears'] != model2.data['results']['gears']).nonzero())
+        self.compare_exp_results(results, 'goodveh', self.run_comparison)
+
 
         if (plot_results):
             print(model.data['results'])
@@ -125,6 +142,7 @@ class Test(unittest.TestCase):
             #results['target'] = []; print(results)
             pylab.show()
 
+
     def testUnderPowered(self, plot_results=False):
         inst = goodVehicle
         inst['vehicle']['p_rated'] = 50
@@ -133,6 +151,7 @@ class Test(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
+        self.compare_exp_results(model.data['results'], 'unpower1', self.run_comparison)
 
 
         inst['vehicle']['mass']         =  1000
@@ -144,6 +163,7 @@ class Test(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
+        self.compare_exp_results(model.data['results'], 'unpower2', self.run_comparison)
 
         if (plot_results):
             self.plotResults(model.data)

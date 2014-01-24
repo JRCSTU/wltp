@@ -120,10 +120,6 @@ import re
 log = logging.getLogger(__name__)
 
 
-## Boolean for performing experiments and
-#     comparing results with test-cases.
-T=True
-
 def _shapes(*arrays):
     import operator
     op_shape = operator.attrgetter('shape')
