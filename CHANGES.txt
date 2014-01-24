@@ -9,6 +9,21 @@ v0.0.3.alpha, 22-Jan-2014 -- Alpha release
 - No velocity_real.
 - No preparation calculations (eg. vehicle test-mass).
 - Still unchecked for correctness of results.
+- Experiment tasks:
+-- FIXME: Apply rule(e) also for any initial/final gear (not just for i-1).
+-- FIXME: move V==0 into own gear.
+-- FIXME: move V==0 into own gear.
+-- FIXME: NOVATIVE rule: "Clutching gear-2 only when Deccelerating.".
+-- FIXME: What to do if no gear foudn for the combination of Power/Revs??
+-- NOTE: "interpratation" of specs for Gear-2
+-- NOTE: Rule(A) not needed inside x2 loop.
+-- NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
+-- NOTE: Rule(c) should be the last rule to run, outside x2 loop.
+-- NOTE: Rule(f): What if extra conditions unsatisfied? Allow shifting for 1 sec only??
+-- TODO: Construct a matrix of n_min_drive for all gears, including exceptions for gears 1 & 2.
+-- TODO: Prepend row for idle-gear in N_GEARS
+-- TODO: Rule(f) implement further constraints.
+-- TODO: Simplify V_real calc by avoiding multiply all.
 
 
 v0.0.2_alpha, 7-Jan-2014 -- Alpha release

@@ -22,10 +22,8 @@
 @since 5 Jan 2014
 '''
 
-from .. import experiment as ex
+
 from ..experiment import Experiment
-from ..experiment import downscaleCycle
-from ..instances import wltc_data
 from ..model import Model
 from .goodvehicle import goodVehicle
 from matplotlib import pyplot as pylab
@@ -37,11 +35,35 @@ import pickle
 import tempfile
 import unittest
 
-
-class Test(unittest.TestCase):
+class ExperimentWholeVehs(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
         self.run_comparison = True
+
+
+    def compare_exp_results(self, results, fname, run_comparison):
+        tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
+        if (run_comparison):
+            try:
+                with open(tmpfname, 'rb') as tmpfile:
+                    data_prev = pickle.load(tmpfile)
+                    ## Compare changed-results
+                    #
+                    npt.assert_equal(results['gears'],  data_prev['gears'])
+                    # Unreached code in case of assertion.
+                    # cmp = results['gears'] != data_prev['gears']
+                    # if (cmp.any()):
+                    #     self.plotResults(data_prev)
+                    #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
+                    # else:
+                    #     print('>> COMPARING(%s): OK'%fname)
+            except FileNotFoundError as ex:
+                print('>> COMPARING(%s): No old-results found, 1st time to be stored in: '%fname, tmpfname)
+                run_comparison = False
+
+        if (not run_comparison):
+            with open(tmpfname, 'wb') as tmpfile:
+                pickle.dump(results, tmpfile)
 
 
     def plotResults(self, model):
@@ -57,59 +79,6 @@ class Test(unittest.TestCase):
         pylab.plot(gears * 12, '+')
         pylab.plot(realv)
 
-
-
-    def testDownscaling(self):
-        wclasses = wltc_data()['classes']
-        test_data = [(np.array(wclass['cycle']), wclass['downscale']['phases'], f_downscale)
-                    for wclass in wclasses.values()
-                    for f_downscale in np.linspace(0.1, 1, 10)]
-
-        for (V, phases, f_downscale) in test_data:
-            downscaleCycle(V, f_downscale, phases)
-
-
-    def testNparray2Bytes(self):
-        arr = np.array([-1, 0, 9, 10, 36, 255-ex._escape_char])
-
-        self.assertEqual(ex.np2bytes(arr), b'\x7f\x80\x89\x8a\xa4\xff')
-        self.assertRaisesRegex(AssertionError, 'Outside byte-range', ex.np2bytes, (arr + 1))
-        self.assertRaisesRegex(AssertionError, 'Outside byte-range', ex.np2bytes, (arr - 1))
-
-        npt.assert_array_equal(ex.bytes2np(ex.np2bytes(arr)), arr)
-
-
-    def testRegex2bytes(self):
-        regex = '\g1\g0\g24\g66\g127'
-
-        self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80\x98\xc2\xff')
-
-        regex = '\g1\g0|\g24\g66\g127'
-
-        self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80|\x98\xc2\xff')
-
-
-    def compare_exp_results(self, results, fname, run_comparison):
-        tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
-        if (run_comparison):
-            try:
-                with open(tmpfname, 'rb') as tmpfile:
-                    data_prev = pickle.load(tmpfile)
-                    ## Compare changed-results
-                    #
-                    cmp = results['gears'] != data_prev['gears']
-                    if (cmp.any()):
-                        self.plotResults(data_prev)
-                        print('>> COMPARING(%s): '%fname, cmp.nonzero())
-                    else:
-                        print('>> COMPARING(%s): OK'%fname)
-            except FileNotFoundError as ex:
-                print('>> COMPARING(%s): No old-results found, 1st time to be stored in: '%fname, tmpfname)
-                run_comparison = False
-
-        if (not run_comparison):
-            with open(tmpfname, 'wb') as tmpfile:
-                pickle.dump(results, tmpfile)
 
 
     def testGoodVehicle(self, plot_results=False):
@@ -168,11 +137,6 @@ class Test(unittest.TestCase):
         if (plot_results):
             self.plotResults(model.data)
             pylab.show()
-
-#     def testPerf(self):
-#         logging.getLogger().setLevel(logging.WARNING)
-#         for i in range(1000):
-#             self.testGoodVehicle(True)
 
 
 if __name__ == "__main__":

@@ -486,7 +486,7 @@ def selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues):
 
     GEARS_YES               = G_BY_N & G_BY_P
     addDriveabilityProblems((~GEARS_YES).all(axis=0), 'Mismatch power/revs.', driveability_issues)
-    GEARS_MX[~GEARS_YES]    = - 1 # FIXME: What to do if no Power/Revs gear found??
+    GEARS_MX[~GEARS_YES]    = - 1 # FIXME: What to do if no gear foudn for the combination of Power/Revs??
     assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
     GEARS                   = GEARS_MX.max(axis=0)
 
@@ -571,9 +571,9 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
         return False
 
     def rule_e(t, pg, g):
-        """Rule (e): Cancel upshifts lasting 5secs or less."""
+        """Rule (e): Cancel shifts lasting 5secs or less."""
 
-        if (pg == g+1):
+        if (pg == g+1): # FIXME: Apply rule(e) also for any initial/final gear (not just for i-1).
             ## Travel back in time for 5secs.
             #
             pt = t-2
@@ -589,10 +589,11 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
 
 
     def rule_f(t, pg, g):
-        """Rule(f): Cancel 1sec downshifts."""
+        """Rule(f): Cancel 1sec downshifts (under certain circumstances)."""
 
         if (pg == g-1 and GEARS[t-2] == g):
-            #TODO: Rule(f) implement further constraints.
+            # TODO: Rule(f) implement further constraints.
+            # NOTE: Rule(f): What if extra conditions unsatisfied? Allow shifting for 1 sec only??
             GEARS[t-1] = g
             addDriveabilityMessage(t-1, 'g%i: Rule(g):   Cancel 1sec downshift, restore to g%i.' % (pg, g), driveability_issues)
             return True
@@ -602,6 +603,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
 
     def rule_g(t, pg, g):
         """Rule(g): Cancel upshifts if later downshifted for at least 2sec during accelleration."""
+
         if (pg == g and (A[t-1:t+1] > 0).all()):
             ## Travel back in time for as long accelerating and same gear.
             #
@@ -625,7 +627,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     # Implemented with a regex.
     # Also ensures gear-0 always followed by gear-1.
     #
-    # NOTE: Not needed inside x2 loop.
+    # NOTE: Rule(A) not needed inside x2 loop.
     V                           = V.copy(); V[V > (255 - _escape_char)] = (255 - _escape_char)
     bV                          = np2bytes(V)
     re_zeros                    = gearsregex('\g0+')
@@ -672,7 +674,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     # Implemented with a regex:
     # Search for zeros in _reversed_ V & GEAR profiles,
     # for as long Accell is negative.
-    # NOTE: Should be the last rule to run, outside x2 loop.
+    # NOTE: Rule(c) should be the last rule to run, outside x2 loop.
     #
     nV          = len(V)
     for m in re_zeros.finditer(bV[::-1]):
@@ -694,9 +696,11 @@ def runCycle(V, A, P_REQ, gear_ratios,
                    n_idle, n_min_drive, n_rated,
                    p_rated, load_curve,
                    params):
-    '''
+    '''Calculates gears, clutch and actual-velocity for the cycle (V).
+    Initial calculations happen on engine_revs for all gears, for all time-steps of the cycle (N_GEARS array).
+    Driveability-rules are applied afterwards on the selected gear-sequence, for all steps.
 
-    @note My interpratation for Gear2 ``n_min`` implementd in possibleGears_byEngineRevs()::
+    @note My interpratation for Gear2 ``n_min``::
 
                           ___________                   ______________
                              CLUTCH  |////INVALID//////|  GEAR-2-OK
@@ -707,6 +711,8 @@ def runCycle(V, A, P_REQ, gear_ratios,
                                                         (n_idle + (3% * n_range))
 
     @note: modifies V for velocities < v_stopped_threshold
+    @param: V: the cycle, the velocity profile
+    @param: A: acceleration of the cycle (diff over V)
     @return :array: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
     '''
 
