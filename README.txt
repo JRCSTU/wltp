@@ -132,7 +132,10 @@ Implemented from scratch based on the UN's specs (document also included in the 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
 * https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
 
-By ankostis@gmail.com, Dec-2013, JRC, (c) AGPLv3 or later
+But probably a better spec is this one:
+* https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
+
+By ankostis@gmail.com, Dec-2013, (c) AGPLv3 or later
 
 
 
