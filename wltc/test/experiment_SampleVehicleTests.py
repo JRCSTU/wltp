@@ -17,23 +17,29 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
-'''
+'''Run as Test-case to generate results for sample-vehicles.
+Run it as cmd-line to compare with Heinz's results.
+
 @author: ankostis@gmail.com
 @since 5 Jan 2014
 '''
 
 
-from ..experiment import Experiment
-from ..model import Model
-from .goodvehicle import goodVehicle
 from matplotlib import pyplot as pylab
+from wltc.experiment import Experiment
+from wltc.model import Model
+from wltc.test.goodvehicle import goodVehicle
+import glob
 import logging
 import numpy as np
 import numpy.testing as npt
 import os
+import pandas as pd
 import pickle
+import re
 import tempfile
 import unittest
+mydir = os.path.dirname(__file__)
 
 class ExperimentSampleVehs(unittest.TestCase):
     def setUp(self):
@@ -57,7 +63,7 @@ class ExperimentSampleVehs(unittest.TestCase):
                     #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
                     # else:
                     #     print('>> COMPARING(%s): OK'%fname)
-            except FileNotFoundError as ex:
+            except FileNotFoundError as ex:  # @UnusedVariable
                 print('>> COMPARING(%s): No old-results found, 1st time to be stored in: '%fname, tmpfname)
                 run_comparison = False
 
@@ -66,30 +72,14 @@ class ExperimentSampleVehs(unittest.TestCase):
                 pickle.dump(results, tmpfile)
 
 
-    def plotResults(self, model):
-        results = model['results']
-        gears = results['gears']
-        target = results['v_target']
-        realv = results['v_real']
-        clutch = results['clutch']
-
-        clutch = clutch.nonzero()[0]
-        pylab.vlines(clutch,  0, 40)
-        pylab.plot(target)
-        pylab.plot(gears * 12, '+')
-        pylab.plot(realv)
-
-
 
     def testSampleVehicles(self, plot_results=False, encoding="ISO-8859-1"):
-        import pandas as pd
 
         logging.getLogger().setLevel(logging.DEBUG)
 
         # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
         # 0                                                            5                                10                                                    15                        19
         csvfname = 'sample_vehicles.csv'
-        mydir = os.path.dirname(__file__)
         csvfname = os.path.join(mydir, csvfname)
         df = pd.read_csv(csvfname, encoding = encoding, index_col = 0)
 
@@ -116,11 +106,84 @@ class ExperimentSampleVehs(unittest.TestCase):
             # heinz:         't', 'km_h', 'stg', 'gear'
 
             (root, ext) = os.path.splitext(csvfname)
-            outfname = '%s-%i%s' % (root, veh_num, ext)
+            outfname = '{}-{:05}{}'.format(root, veh_num, ext)
             df = pd.DataFrame(results, columns=['v_target', 'v_real', 'gears', 'clutch'])
             df.to_csv(outfname, index_label='time')
 
 
+
+###################
+# COMPARE RESULTS #
+###################
+
+def plotResults(df_my, df_hz):
+    gears = df_my['gears']
+    target = df_my['v_target']
+    realv = df_my['v_real']
+    clutch = df_my['clutch']
+
+    clutch = clutch.nonzero()[0]
+    pylab.vlines(clutch,  0, 40)
+    pylab.plot(target)
+    pylab.plot(gears * 12, '+')
+    pylab.plot(realv)
+
+    realv_hz = df_hz['v']
+    gears_hz = df_hz['gear']
+
+    pylab.plot(realv_hz, '-')
+    pylab.plot(gears_hz * 12, '*')
+
+    pylab.show()
+
+
+def plot_diffs_with_heinz(heinz_dir, exp_num=None):
+
+    def read_sample_file(inpfname):
+        df = pd.read_csv(inpfname)
+
+        return df
+
+    def read_heinz_file(veh_num):
+        vehfpath = os.path.join(heinz_dir, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
+        print(vehfpath)
+        inpfname = glob.glob(vehfpath)[0]
+        df = pd.read_csv(inpfname, encoding='latin-1')
+
+        return df
+
+    def read_and_compare_files(myfname, veh_num):
+        df_my = read_sample_file(myfname)
+        df_hz = read_heinz_file(veh_num)
+
+        plotResults(df_my, df_hz)
+
+    if exp_num is None:
+        for inpfname in glob.glob(os.path.join(mydir, 'sample_vehicles-*.csv')):
+            m = re.match('.*sample_vehicles-(\d+).csv', inpfname)
+            assert m
+
+            veh_num = int(m.group(1))
+
+            read_and_compare_files(inpfname, veh_num)
+
+    else:
+        inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(exp_num))
+
+        read_and_compare_files(inpfname, veh_num)
+
+
+
 if __name__ == "__main__":
-    import sys;#sys.argv = ['', 'Test.testName']
-    unittest.main(argv = sys.argv[1:])
+    import sys
+
+    try:
+        heinz_dir = sys.argv[1]
+        if len(sys.argv) > 2:
+            exp_num = int(sys.argv[2])
+        else:
+            exp_num = None
+    except (ValueError, IndexError) as ex:
+        exit('Help: \n  <cmd> heinz_dir [vehicle_num]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
+
+    plot_diffs_with_heinz(heinz_dir, exp_num)
