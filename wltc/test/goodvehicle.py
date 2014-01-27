@@ -22,15 +22,17 @@
 @since 5 Jan 2014
 '''
 
-goodVehicle = {
-    "vehicle": {
-        "mass":     1500,
-        "v_max":    195,
-        "p_rated":  100,
-        "n_rated":  5450,
-        "n_idle":   950,
-        #"n_min":   None,    # Can be overriden by manufacturer.
-        "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
-        "resistance_coeffs":[100, 0.5, 0.04],
+def goodVehicle():
+    goodVehicle = {
+        "vehicle": {
+            "mass":     1500,
+            "v_max":    None,
+            "p_rated":  100,
+            "n_rated":  5450,
+            "n_idle":   950,
+            #"n_min":   None,    # Can be overriden by manufacturer.
+            "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
+            "resistance_coeffs":[100, 0.5, 0.04],
+        }
     }
-}
+    return goodVehicle

@@ -47,8 +47,14 @@ def model_schema():
                     },
                    'v_max': {
                        'title': 'maximum vehicle velocity',
-                       '$ref': '#/definitions/positiveNumber',
-                       'description': 'The maximum velocity as declared by the manufacturer.',
+                       'type': ['integer', 'null'],
+                       'minimum': 0,
+                       'exclusiveMinimum': True,
+                       'description': dedent('''
+                           The maximum velocity as declared by the manufacturer.
+                           If ommited, calculated as::
+                               v_max = (n_rated * f_n_max (=1.2)) / gear_ratio[last]
+                       '''),
                    },
                    'p_rated': {
                        'title': 'maximum rated power',

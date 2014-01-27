@@ -38,7 +38,7 @@ class ExperimentPerf(unittest.TestCase):
         nexp = 100
         start = time.time()
         for i in range(nexp):
-            inst = goodVehicle
+            inst = goodVehicle()
 
             model = Model(inst)
             experiment = Experiment(model)

@@ -31,14 +31,14 @@ import unittest
 class Test(unittest.TestCase):
 
     def testGoodVehicle(self):
-        inst = goodVehicle
+        inst = goodVehicle()
 
         model = Model(inst)
         self.assertEqual(model.data['vehicle']['full_load_curve'], insts.default_load_curve())
 
 
     def testOverlayOnInit(self):
-        inst = goodVehicle
+        inst = goodVehicle()
         nval = 6000
         inst2 = {
             "vehicle": {
@@ -50,7 +50,7 @@ class Test(unittest.TestCase):
         self.assertEqual(model.data['vehicle']['n_rated'], nval)
 
     def testMultiErrors(self):
-        inst = goodVehicle
+        inst = goodVehicle()
         inst2 = {
             "vehicle": {
                 "n_rated":-1,

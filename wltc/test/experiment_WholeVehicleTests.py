@@ -84,7 +84,7 @@ class ExperimentWholeVehs(unittest.TestCase):
     def testGoodVehicle(self, plot_results=False):
         logging.getLogger().setLevel(logging.DEBUG)
 
-        inst = goodVehicle
+        inst = goodVehicle()
 
         model = Model(inst)
         experiment = Experiment(model)
@@ -113,7 +113,7 @@ class ExperimentWholeVehs(unittest.TestCase):
 
 
     def testUnderPowered(self, plot_results=False):
-        inst = goodVehicle
+        inst = goodVehicle()
         inst['vehicle']['p_rated'] = 50
 
         model = Model(inst)

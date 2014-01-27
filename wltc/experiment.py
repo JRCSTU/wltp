@@ -181,7 +181,6 @@ class Experiment(object):
         ## Extract vehicle attributes from model.
         #
         mass                = vehicle['mass']
-        v_max               = vehicle['v_max']
         p_rated             = vehicle['p_rated']
         n_rated             = vehicle['n_rated']
         n_idle              = vehicle['n_idle']
@@ -189,6 +188,10 @@ class Experiment(object):
         gear_ratios         = vehicle['gear_ratios']
         (f0, f1, f2)        = vehicle['resistance_coeffs']
         params              = data['params']
+        f_n_max             = params.get('f_n_max', 1.2) #TODO: Move veh params as model attributes.
+        v_max               = vehicle['v_max']
+        if (v_max is None):
+            v_max = (n_rated * f_n_max) / gear_ratios[-1]
 
 
         ## Decide WLTC-class.
