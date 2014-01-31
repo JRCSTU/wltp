@@ -442,6 +442,7 @@ def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
     VVV     = VV * V
     A       = np.diff(V)
     A       = np.append(A, 0) # Restore element lost by diff().
+    A       = A / 3.6
     assert  V.shape == VV.shape == VVV.shape == A.shape, _shapes(V, VV, VVV, A)
 
     P_REQ   = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
@@ -729,7 +730,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     @note: modifies V for velocities < v_stopped_threshold
     @param: V: the cycle, the velocity profile
-    @param: A: acceleration of the cycle (diff over V)
+    @param: A: acceleration of the cycle (diff over V) in m/sec^2
     @return :array: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
     '''
 
