@@ -35,6 +35,8 @@ import pickle
 import tempfile
 import unittest
 
+log = logging.getLogger(__name__)
+
 class ExperimentWholeVehs(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)

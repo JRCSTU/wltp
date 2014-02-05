@@ -42,6 +42,7 @@ import unittest
 
 
 mydir = os.path.dirname(__file__)
+log = logging.getLogger(__name__)
 
 class ExperimentSampleVehs(unittest.TestCase):
     '''Compares a batch of vehicles with results obtained from "Official" implementation.'''
@@ -107,6 +108,12 @@ class ExperimentSampleVehs(unittest.TestCase):
             experiment.run()
 
             results = model.data['results']
+
+            f_downscale = results['f_downscale']
+            if (f_downscale > 0):
+                log.warn('>> DOWNSCALE %s', f_downscale)
+
+
             # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
             # heinz:         't', 'km_h', 'stg', 'gear'
 
@@ -129,7 +136,7 @@ def plotResults(df_my, df_hz, ax):
     ax.plot(df_my['v_class'])
     ax.plot(df_my['v_target'], '-.')
     ax.vlines(clutch,  0, 40)
-    ax.plot(df_my['gears'] * 12, '+')
+    ax.plot(df_my['gears'] * 12, 'o')
     ax.plot(df_my['v_real'])
 
     realv_hz = df_hz['v']
@@ -168,7 +175,7 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
         paths = glob.glob(os.path.join(mydir, 'sample_vehicles-*.csv'))
 
-        paths = paths[:16] # NOTE: Limit to facilitate drawing.
+        paths = paths[:9] # NOTE: Limit to facilitate drawing.
 
         ## Decide subplot-grid dimensions.
         #
