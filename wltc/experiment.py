@@ -192,6 +192,7 @@ class Experiment(object):
         v_max               = vehicle['v_max']
         if (v_max is None):
             v_max = (n_rated * f_n_max) / gear_ratios[-1]
+        v_stopped_threshold = params.get('v_stopped_threshold', 1) # Km/h
 
 
         ## Decide WLTC-class.
@@ -213,6 +214,10 @@ class Experiment(object):
         #
         f_inertial          = params.get('f_inertial', 1.1)
         (A, P_REQ)          = calcPower_required(V, mass, f0, f1, f2, f_inertial)
+
+        ## Apply stopped-vehicle threshold AFTER Accel calculated.
+        #    (Annex 2-3.2 & Annex 2-4(a), p72)
+        V[V <= v_stopped_threshold] = 0
 
 
         ## Downscale velocity-profile.
@@ -388,7 +393,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle):
 
 def possibleGears_byEngineRevs(V, A, N_GEARS,
                                ngears, n_idle,
-                               n_min_drive, n_clutch_gear2, n_min_gear2, n_max, v_stopped_threshold,
+                               n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                driveability_issues):
     '''Calculates the engine-revolutions limits for all gears and returns for which they are accepted.
 
@@ -414,13 +419,13 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
     ## TODO: Construct a matrix of n_min_drive for all gears, including exceptions for gears 1 & 2.
     #
     GEARS_YES_MIN           = (N_GEARS >= n_min_drive)
-    GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V <= v_stopped_threshold) # V == 0 --> neutral # FIXME: move V==0 into own gear.
+    GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V <= 0) # FIXME: move V==0 into own gear.
     N_GEARS2                = N_GEARS[1, :]
     ## NOTE: "interpratation" of specs for Gear-2
     #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Deccelerating.".
 #     GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | \
-#                                         ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
-    GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
+#                                         ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V <= 0) # FIXME: move V==0 into own gear.
+    GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | (V <= 0) # FIXME: move V==0 into own gear.
 
     ## Revert impossibles to min-gear, n_min & clutched.
     #
@@ -556,9 +561,9 @@ def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
         # Exclude zeros at the end.
         if (t_accel == len(bV)):
             break
-        GEARS[t_accel - 1]      = 1
-        CLUTCH[t_accel - 1]     = True
-        addDriveabilityMessage(t_accel-1, 'g0: Rule(a):   Set g1-clutched from standstill.', driveability_issues)
+        GEARS[t_accel - 2:t_accel]          = 1
+        CLUTCH[t_accel - 2:t_accel - 2]     = True
+        addDriveabilityMessage(t_accel-2, 'g0: Rule(a):   Set g1-clutched from standstill.', driveability_issues)
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
 
@@ -729,7 +734,6 @@ def runCycle(V, A, P_REQ, gear_ratios,
                     (-10% * n_idle)       N_IDLE           (1.15% * n_idle)        OR
                                                         (n_idle + (3% * n_range))
 
-    @note: modifies V for velocities < v_stopped_threshold
     @param: V: the cycle, the velocity profile
     @param: A: acceleration of the cycle (diff over V) in m/sec^2
     @return :array: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
@@ -759,18 +763,14 @@ def runCycle(V, A, P_REQ, gear_ratios,
     f_n_clutch_gear2            = params.get('f_n_clutch_gear2', 0.9)
     n_clutch_gear2              = f_n_clutch_gear2 * n_idle
 
-    v_stopped_threshold         = params.get('v_stopped_threshold', 1) # Km/h
     p_safety_margin             = params.get('f_safety_margin', 0.9)
 
-
-    ## Apply stopped-vehicle threshold (Annex 2-4(a), p72)
-    V[V <= v_stopped_threshold] = 0
 
     (N_GEARS, GEARS_MX)         = calcEngineRevs_required(V, gear_ratios, n_idle)
 
     (G_BY_N, CLUTCH)            = possibleGears_byEngineRevs(V, A, N_GEARS,
                                                 len(gear_ratios), n_idle,
-                                                n_min_drive, n_clutch_gear2, n_min_gear2, n_max, v_stopped_threshold,
+                                                n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                                 driveability_issues)
 
     G_BY_P                      = possibleGears_byPower(V, N_GEARS, P_REQ,

@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 class ExperimentWholeVehs(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
-        self.run_comparison = True # NOTE: Set it to False to write updated results (assuming they are ok).
+        self.run_comparison = True # NOTE: Set once to False to write updated results (assuming they are ok).
 
 
     def compare_exp_results(self, results, fname, run_comparison):
