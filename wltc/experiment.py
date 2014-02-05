@@ -418,8 +418,9 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
     N_GEARS2                = N_GEARS[1, :]
     ## NOTE: "interpratation" of specs for Gear-2
     #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Deccelerating.".
-    GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | \
-                                        ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
+#     GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | \
+#                                         ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
+    GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
 
     ## Revert impossibles to min-gear, n_min & clutched.
     #

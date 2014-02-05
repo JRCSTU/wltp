@@ -24,13 +24,13 @@ Run it as cmd-line to compare with Heinz's results.
 @since 5 Jan 2014
 '''
 
-
-from matplotlib import pyplot as pylab
+from matplotlib import pyplot as plt
 from wltc.experiment import Experiment
 from wltc.model import Model
 from wltc.test.goodvehicle import goodVehicle
 import glob
 import logging
+import math
 import numpy as np
 import numpy.testing as npt
 import os
@@ -39,12 +39,17 @@ import pickle
 import re
 import tempfile
 import unittest
+
+
 mydir = os.path.dirname(__file__)
 
 class ExperimentSampleVehs(unittest.TestCase):
+    '''Compares a batch of vehicles with results obtained from "Official" implementation.'''
+
+
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
-        self.run_comparison = True
+        self.run_comparison = True # NOTE: Set it to False to UPDTE file-results (assuming they are ok).
 
 
     def compare_exp_results(self, results, fname, run_comparison):
@@ -107,7 +112,7 @@ class ExperimentSampleVehs(unittest.TestCase):
 
             (root, ext) = os.path.splitext(csvfname)
             outfname = '{}-{:05}{}'.format(root, veh_num, ext)
-            df = pd.DataFrame(results, columns=['v_target', 'v_real', 'gears', 'clutch'])
+            df = pd.DataFrame(results, columns=['v_class', 'v_target', 'v_real', 'gears', 'clutch'])
             df.to_csv(outfname, index_label='time')
 
 
@@ -116,25 +121,22 @@ class ExperimentSampleVehs(unittest.TestCase):
 # COMPARE RESULTS #
 ###################
 
-def plotResults(df_my, df_hz):
-    gears = df_my['gears']
-    target = df_my['v_target']
-    realv = df_my['v_real']
-    clutch = df_my['clutch']
+def plotResults(df_my, df_hz, ax):
+    ax.grid(True)
 
+    clutch = df_my['clutch']
     clutch = clutch.nonzero()[0]
-    pylab.vlines(clutch,  0, 40)
-    pylab.plot(target)
-    pylab.plot(gears * 12, '+')
-    pylab.plot(realv)
+    ax.plot(df_my['v_class'])
+    ax.plot(df_my['v_target'], '-.')
+    ax.vlines(clutch,  0, 40)
+    ax.plot(df_my['gears'] * 12, '+')
+    ax.plot(df_my['v_real'])
 
     realv_hz = df_hz['v']
     gears_hz = df_hz['gear']
 
-    pylab.plot(realv_hz, '-')
-    pylab.plot(gears_hz * 12, '*')
-
-    pylab.show()
+    ax.plot(realv_hz, ':')
+    ax.plot(gears_hz * 12, '*')
 
 
 def plot_diffs_with_heinz(heinz_dir, exp_num=None):
@@ -146,33 +148,50 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
     def read_heinz_file(veh_num):
         vehfpath = os.path.join(heinz_dir, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
-        print(vehfpath)
         inpfname = glob.glob(vehfpath)[0]
         df = pd.read_csv(inpfname, encoding='latin-1')
 
         return df
 
-    def read_and_compare_files(myfname, veh_num):
+    def read_and_compare_files(myfname, veh_num, ax):
+        ax.set_title(os.path.basename(myfname), fontdict={'fontsize': 8} )
+
         df_my = read_sample_file(myfname)
         df_hz = read_heinz_file(veh_num)
 
-        plotResults(df_my, df_hz)
+        plotResults(df_my, df_hz, ax)
+
+
+    fig = plt.figure()
 
     if exp_num is None:
-        for inpfname in glob.glob(os.path.join(mydir, 'sample_vehicles-*.csv')):
+
+        paths = glob.glob(os.path.join(mydir, 'sample_vehicles-*.csv'))
+
+        paths = paths[:16] # NOTE: Limit to facilitate drawing.
+
+        ## Decide subplot-grid dimensions.
+        #
+        npaths = len(paths)
+        w = math.ceil(math.sqrt(npaths))
+        h = w-1 if ((w-1) * w >= npaths) else w
+
+        for (n, inpfname) in enumerate(paths):
             m = re.match('.*sample_vehicles-(\d+).csv', inpfname)
             assert m
 
             veh_num = int(m.group(1))
-
-            read_and_compare_files(inpfname, veh_num)
+            ax = fig.add_subplot(w, h, n+1)
+            read_and_compare_files(inpfname, veh_num, ax)
 
     else:
         inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(exp_num))
 
-        read_and_compare_files(inpfname, veh_num)
+        ax = fig.axes()
+        read_and_compare_files(inpfname, veh_num, ax)
 
-
+    fig.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     import sys

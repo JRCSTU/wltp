@@ -26,7 +26,7 @@
 from ..experiment import Experiment
 from ..model import Model
 from .goodvehicle import goodVehicle
-from matplotlib import pyplot as pylab
+from matplotlib import pyplot as plt
 import logging
 import numpy as np
 import numpy.testing as npt
@@ -38,7 +38,7 @@ import unittest
 class ExperimentWholeVehs(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
-        self.run_comparison = True
+        self.run_comparison = True # NOTE: Set it to False to write updated results (assuming they are ok).
 
 
     def compare_exp_results(self, results, fname, run_comparison):
@@ -74,10 +74,10 @@ class ExperimentWholeVehs(unittest.TestCase):
         clutch = results['clutch']
 
         clutch = clutch.nonzero()[0]
-        pylab.vlines(clutch,  0, 40)
-        pylab.plot(target)
-        pylab.plot(gears * 12, '+')
-        pylab.plot(realv)
+        plt.vlines(clutch,  0, 40)
+        plt.plot(target)
+        plt.plot(gears * 12, '+')
+        plt.plot(realv)
 
 
 
@@ -109,7 +109,7 @@ class ExperimentWholeVehs(unittest.TestCase):
             #print(driveability_issues)
             #print(v_max)
             #results['target'] = []; print(results)
-            pylab.show()
+            plt.show()
 
 
     def testUnderPowered(self, plot_results=False):
@@ -136,7 +136,7 @@ class ExperimentWholeVehs(unittest.TestCase):
 
         if (plot_results):
             self.plotResults(model.data)
-            pylab.show()
+            plt.show()
 
 
 if __name__ == "__main__":
