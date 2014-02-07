@@ -147,7 +147,7 @@ class Experiment(object):
 
         from .instances import wltc_data
 
-        self.dtype = np.float32
+        self.dtype = np.float64
         self.model = model
         self.wltc = wltc_data()
 

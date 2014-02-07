@@ -20,7 +20,7 @@
 '''Build a python array from reading WLTC-data files and print it to be included as code.
 
 It is used for preparing the WLTC variables for the default Model-data.
-For example, to print (and validate) the cycle for WLTC-Class 3.2, execute::
+For example, to print (and optionally validate) the cycle for WLTC-Class 3.2, execute::
 
     python3 buildwltcclass.py class3.2 True
 
@@ -28,7 +28,7 @@ Or for printing all classes::
 
     python3 buildwltcclass.py
 
-Then copy the output of the program as a python-variable within the respective
+Then copy-paste the output of the program as a python-variable within the respective
  wltc.classes.classX.py modules.
 '''
 
@@ -146,7 +146,7 @@ def print_class_data(wltc_class, assert_files = False):
         i = 0
         for v in timelist:
             i += 1
-            print('%i, ' % v, end='\n    ' if (i % 16 == 0) else '')
+            print('%.1f, ' % v, end='\n    ' if (i % 16 == 0) else '')
         print('\n]\n')
 
     (speed_profile, parts) = read_wltc_class(wltc_class, assert_files)
