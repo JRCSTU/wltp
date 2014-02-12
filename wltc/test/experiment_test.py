@@ -32,16 +32,50 @@ from matplotlib import pyplot as pylab
 import logging
 import numpy as np
 import numpy.testing as npt
+import json
+import json as pickle
 import os
-import pickle
+# import pickle
 import tempfile
 import unittest
+
+class NumpyAwareJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray) and obj.ndim == 1:
+                return obj.tolist()
+        elif isinstance(obj, np.generic):
+            return obj.item()
+        return json.JSONEncoder.default(self, obj)
 
 
 class Test(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
-        self.run_comparison = True
+        self.run_comparison = False
+
+
+    def compare_exp_results(self, results, fname, run_comparison):
+        tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
+        if (run_comparison):
+            try:
+                with open(tmpfname, 'r') as tmpfile:
+                    data_prev = pickle.load(tmpfile)
+                    ## Compare changed-results
+                    #
+                    cmp = results['gears'] != data_prev['gears']
+                    if (cmp.any()):
+                        self.plotResults(data_prev)
+                        print('>> COMPARE(%s): '%fname, cmp.nonzero())
+                    else:
+                        print('>> COMPARE(%s): OK'%fname)
+            except FileNotFoundError as ex:
+                print('>> COMPARE(%s): No old-results found, 1st time to be stored in: '%fname, tmpfname)
+                run_comparison = False
+
+        if (not run_comparison):
+            print('>> COMPARE(%s): Storing...'%fname)
+            with open(tmpfname, 'w') as tmpfile:
+                pickle.dump(results, tmpfile, cls=NumpyAwareJSONEncoder)
 
 
     def plotResults(self, model):
@@ -88,28 +122,6 @@ class Test(unittest.TestCase):
 
         self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80|\x98\xc2\xff')
 
-
-    def compare_exp_results(self, results, fname, run_comparison):
-        tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
-        if (run_comparison):
-            try:
-                with open(tmpfname, 'rb') as tmpfile:
-                    data_prev = pickle.load(tmpfile)
-                    ## Compare changed-results
-                    #
-                    cmp = results['gears'] != data_prev['gears']
-                    if (cmp.any()):
-                        self.plotResults(data_prev)
-                        print('>> COMPARING(%s): '%fname, cmp.nonzero())
-                    else:
-                        print('>> COMPARING(%s): OK'%fname)
-            except FileNotFoundError as ex:
-                print('>> COMPARING(%s): No old-results found, 1st time to be stored in: '%fname, tmpfname)
-                run_comparison = False
-
-        if (not run_comparison):
-            with open(tmpfname, 'wb') as tmpfile:
-                pickle.dump(results, tmpfile)
 
 
     def testGoodVehicle(self, plot_results=False):

@@ -253,7 +253,7 @@ class Experiment(object):
 
 
 def addDriveabilityMessage(time_steps, msg, driveability_issues):
-    driveability_issues[time_steps].append(msg)
+    driveability_issues[time_steps] = msg
 
 
 def addDriveabilityProblems(GEARS_BAD, reason, driveability_issues):
@@ -712,8 +712,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     ## A multimap to collect problems.
     #
-    from collections import defaultdict
-    driveability_issues         = defaultdict(list)
+    driveability_issues         = np.empty([len(V)], dtype='object')
 
 
 
