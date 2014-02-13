@@ -43,37 +43,37 @@ class ExperimentWholeVehs(unittest.TestCase):
         self.run_comparison = True # NOTE: Set once to False to UPDATE sample-results (assuming they are ok).
 
 
-    def compare_exp_results(self, results, fname, run_comparison):
+    def compare_exp_results(self, tabular, fname, run_comparison):
         tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
         if (run_comparison):
             try:
                 with open(tmpfname, 'rb') as tmpfile:
                     data_prev = pickle.load(tmpfile)
-                    ## Compare changed-results
+                    ## Compare changed-tabular
                     #
-                    npt.assert_equal(results['gears'],  data_prev['gears'])
+                    npt.assert_equal(tabular['gears'],  data_prev['gears'])
                     # Unreached code in case of assertion.
-                    # cmp = results['gears'] != data_prev['gears']
+                    # cmp = tabular['gears'] != data_prev['gears']
                     # if (cmp.any()):
                     #     self.plotResults(data_prev)
                     #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
                     # else:
                     #     print('>> COMPARING(%s): OK'%fname)
             except FileNotFoundError as ex:
-                print('>> COMPARING(%s): No old-results found, 1st time to be stored in: '%fname, tmpfname)
+                print('>> COMPARING(%s): No old-tabular found, 1st time to be stored in: '%fname, tmpfname)
                 run_comparison = False
 
         if (not run_comparison):
             with open(tmpfname, 'wb') as tmpfile:
-                pickle.dump(results, tmpfile)
+                pickle.dump(tabular, tmpfile)
 
 
     def plotResults(self, model):
-        results = model['results']
-        gears = results['gears']
-        target = results['v_target']
-        realv = results['v_real']
-        clutch = results['clutch']
+        tabular = model['tabular']['tabular']
+        gears = tabular['gears']
+        target = tabular['v_target']
+        realv = tabular['v_real']
+        clutch = tabular['clutch']
 
         clutch = clutch.nonzero()[0]
         plt.vlines(clutch,  0, 40)
@@ -94,12 +94,12 @@ class ExperimentWholeVehs(unittest.TestCase):
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
 
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        results = model.data['results']
-        gears = results['gears']
+        tabular = model.data['results']['tabular']
+        gears = tabular['gears']
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
 
-        self.compare_exp_results(results, 'goodveh', self.run_comparison)
+        self.compare_exp_results(tabular, 'goodveh', self.run_comparison)
 
 
         if (plot_results):
@@ -122,7 +122,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        self.compare_exp_results(model.data['results'], 'unpower1', self.run_comparison)
+        self.compare_exp_results(model.data['results']['tabular'], 'unpower1', self.run_comparison)
 
 
         inst['vehicle']['mass']         =  1000
@@ -134,7 +134,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        self.compare_exp_results(model.data['results'], 'unpower2', self.run_comparison)
+        self.compare_exp_results(model.data['results']['tabular'], 'unpower2', self.run_comparison)
 
         if (plot_results):
             self.plotResults(model.data)

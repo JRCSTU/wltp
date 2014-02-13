@@ -55,29 +55,29 @@ class ExperimentSampleVehs(unittest.TestCase):
         self.run_comparison = True # NOTE: Set it to False to UPDATE sample-results (assuming they are ok).
 
 
-    def compare_exp_results(self, results, fname, run_comparison):
+    def compare_exp_results(self, tabular, fname, run_comparison):
         tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
         if (run_comparison):
             try:
                 with open(tmpfname, 'rb') as tmpfile:
                     data_prev = pickle.load(tmpfile)
-                    ## Compare changed-results
+                    ## Compare changed-tabular
                     #
-                    npt.assert_equal(results['gears'],  data_prev['gears'])
+                    npt.assert_equal(tabular['gears'],  data_prev['gears'])
                     # Unreached code in case of assertion.
-                    # cmp = results['gears'] != data_prev['gears']
+                    # cmp = tabular['gears'] != data_prev['gears']
                     # if (cmp.any()):
                     #     self.plotResults(data_prev)
                     #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
                     # else:
                     #     print('>> COMPARING(%s): OK'%fname)
             except FileNotFoundError as ex:  # @UnusedVariable
-                print('>> COMPARING(%s): No old-results found, 1st time to be stored in: '%fname, tmpfname)
+                print('>> COMPARING(%s): No old-tabular found, 1st time to be stored in: '%fname, tmpfname)
                 run_comparison = False
 
         if (not run_comparison):
             with open(tmpfname, 'wb') as tmpfile:
-                pickle.dump(results, tmpfile)
+                pickle.dump(tabular, tmpfile)
 
 
 
@@ -123,7 +123,7 @@ def run_the_experiments(plot_results=False, encoding="ISO-8859-1"):
 
         (root, ext) = os.path.splitext(csvfname)
         outfname = '{}-{:05}{}'.format(root, veh_num, ext)
-        df = pd.DataFrame(results, columns=['v_class', 'v_target', 'v_real', 'gears', 'clutch', 'p_required', 'rpm', 'driveability'])
+        df = pd.DataFrame(results['tabular'])
         df.to_csv(outfname, index_label='time')
 
 
@@ -132,29 +132,42 @@ def run_the_experiments(plot_results=False, encoding="ISO-8859-1"):
 # COMPARE RESULTS #
 ###################
 
-def plotResults(df_my, df_hz,  g_diff, ax):
+def plotResults(my_df, hz_df,  g_diff, ax):
     ax.grid(True)
-    ax.set_xticks(np.arange(0.0, 1800.0, 50.0))
 
-    clutch = df_my['clutch']
+    tlen = len(my_df.index)
+    #ax.set_xticks(np.arange(0.0, tlen, 50.0)) NO! looses auto when zooming.
+
+
+    clutch = my_df['clutch']
     clutch = clutch.nonzero()[0]
-    ax.plot(df_my['v_class'] / df_my['v_class'].max())
-    ax.plot(df_my['v_target'] / df_my['v_target'].max(), '-.')
-    ax.vlines(clutch,  0, 1)
-    my_gears = df_my['gears']
+    driveability = my_df['driveability'].apply(lambda s: isinstance(s, str))
+    driveability = driveability.nonzero()[0]
+    ax.vlines(clutch,  0, 0.2)
+    ax.vlines(driveability,  0.2, 0.4, 'c')
+
+    v_max = my_df['v_class'].max()
+    ax.hlines(1 / v_max,  0, tlen, color="0.75")
+
+    ax.plot(my_df['v_class'] / v_max)
+    ax.plot(my_df['v_target'] / v_max, '-.')
+    my_gears = my_df['gears']
     ax.plot(my_gears / my_gears.max(), 'o')
-    ax.plot(df_my['v_real'] / df_my['v_real'].max())
-#     ax.plot(df_my['rpm'] / df_my['rpm'].max())
-#     p_req = df_my['p_required'] / df_my['p_required'].max()
+    ax.plot(my_df['v_real'] / v_max)
+#     ax.plot(my_df['rpm'] / my_df['rpm'].max())
+#     p_req = my_df['p_required'] / my_df['p_required'].max()
 #     p_req[p_req < 0] = 0
 #     ax.plot(p_req)
 
-    hz_v_real = df_hz['v']
-    hz_v_target = df_hz['v_downscale']
-    hz_gears = df_hz['gear']
+    hz_v_real = hz_df['v']
+    hz_v_target = hz_df['v_downscale']
+    hz_gears = hz_df['gear']
+    hz_driveability = ~hz_df['gear_modification'].apply(np.isreal)
+    hz_driveability = hz_driveability.nonzero()[0]
+    ax.vlines(hz_driveability,  0.4, 0.6, 'm')
 
-    ax.plot(hz_v_target / hz_v_target.max(), '--')
-    ax.plot(hz_v_real / hz_v_real.max(), ':')
+    ax.plot(hz_v_target / v_max, '--')
+    ax.plot(hz_v_real / v_max, ':')
     ax.plot(hz_gears / hz_gears.max(), '*')
 
     ax.text(0.7, 0, 'Diff: %.4f%%' % (100.0 * g_diff), transform=ax.transAxes, bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})

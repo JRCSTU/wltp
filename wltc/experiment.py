@@ -176,7 +176,9 @@ class Experiment(object):
         vehicle     = data['vehicle']
 
         ## Prepare results
-        self.results = results = data['results'] = {}
+        self.results        = results = data['results'] = {}
+        tabular             = {}
+        results['tabular']  = tabular
 
         ## Extract vehicle attributes from model.
         #
@@ -208,7 +210,7 @@ class Experiment(object):
         ## Velocity-profile
         #
         V                   = np.array(cycle, dtype=self.dtype)
-        results['v_class'] = V
+        tabular['v_class'] = V
 
         ## Required-Power needed early-on by Downscaling.
         #
@@ -233,13 +235,13 @@ class Experiment(object):
         results['f_downscale'] = f_downscale
         if (f_downscale > 0):
             V               = downscaleCycle(V, f_downscale, phases)
-        results['v_target'] = V
+        tabular['v_target'] = V
 
 
         ## Run cycle to find gears, clutch and real-velocirty.
         #
         load_curve          = vehicle['full_load_curve']
-        (V_REAL, GEARS, CLUTCH, RPM, driveability_issues) = \
+        (V_REAL, GEARS, CLUTCH, RPM, P_AVAIL, driveability_issues) = \
                             runCycle(V, A, P_REQ,
                                            gear_ratios,
                                            n_idle, n_min_drive, n_rated,
@@ -247,18 +249,21 @@ class Experiment(object):
                                                        params)
         assert               V.shape == GEARS.shape, _shapes(V, GEARS)
 
-        results['v_real']       = V_REAL
-        results['gears']        = GEARS
-        results['clutch']       = CLUTCH
-        results['p_required']   = P_REQ
-        results['rpm']          = RPM
-        results['driveability'] = driveability_issues
+        tabular['v_real']       = V_REAL
+        tabular['gears']        = GEARS
+        tabular['clutch']       = CLUTCH
+        #tabular['p_available']  = P_AVAIL
+        tabular['p_required']   = P_REQ
+        tabular['rpm']          = RPM
+        tabular['driveability'] = driveability_issues
 
 
 
 
 #######################
 ## PURE CALCULATIONS ##
+##  Separate for     ##
+##     testability!  ##
 #######################
 
 
@@ -399,6 +404,17 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
                                driveability_issues):
     '''Calculates the engine-revolutions limits for all gears and returns for which they are accepted.
 
+    @note My interpratation for Gear2 ``n_min`` limit::
+
+                          _____________                ______________
+                          ///INVALID///|   CLUTCHED   |  GEAR-2-OK
+        EngineRevs(N): 0-----------------------+---------------------------->
+        for Gear-2                     |       |      +--> n_clutch_gear2   := n_idle + MAX(
+                                       |       |                                      0.15% * n_idle,
+                                       |       |                                      3%    * n_range)
+                                       |       +---------> n_idle
+                                       +-----------------> n_min_gear2      := 90% * n_idle
+
     @return GEARS_YES:list(booleans, nGears x CycleSteps): possibibilty for all the gears on each cycle-step
                     (eg: [0, 10] == True --> gear(1) is possible for t=10)
     @see: Annex 2-3.2, p 71
@@ -465,7 +481,7 @@ def calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_
     '''
 
     N_NORM          = (N_GEARS - n_idle) / (n_rated - n_idle)
-    P_WOT           = np.interp(100 * N_NORM, load_curve[0], load_curve[1], left=0, right=0)
+    P_WOT           = np.interp(100 * N_NORM, load_curve[0], load_curve[1])
 #     from scipy.interpolate import interp1d
 #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
 #     P_WOT           = intrerp_f(N_NORM)
@@ -490,7 +506,7 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
     GEARS_BAD = (~GEARS_YES).all(axis=0)
     addDriveabilityProblems(GEARS_BAD, 'Insufficient power!', driveability_issues)
 
-    return GEARS_YES
+    return (GEARS_YES, P_AVAIL)
 
 
 def selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues):
@@ -499,7 +515,7 @@ def selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues):
 
     GEARS_YES               = G_BY_N & G_BY_P
     addDriveabilityProblems((~GEARS_YES).all(axis=0), 'Mismatch power/revs.', driveability_issues)
-    GEARS_MX[~GEARS_YES]    = - 1 # FIXME: What to do if no gear foudn for the combination of Power/Revs??
+    GEARS_MX[~GEARS_YES]    = -1 # FIXME: What to do if no gear foudn for the combination of Power/Revs??
     assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
     GEARS                   = GEARS_MX.max(axis=0)
 
@@ -564,9 +580,9 @@ def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
         # Exclude zeros at the end.
         if (t_accel == len(bV)):
             break
-        GEARS[t_accel - 2:t_accel]          = 1
-        CLUTCH[t_accel - 2:t_accel - 2]     = True
-        addDriveabilityMessage(t_accel-2, 'g0: Rule(a):   Set g1-clutched from standstill.', driveability_issues)
+        GEARS[t_accel - 1:t_accel]          = 1
+        CLUTCH[t_accel - 1:t_accel - 2]     = True
+        addDriveabilityMessage(t_accel-1, 'g0: Rule(a):   Set g1-clutched from standstill.', driveability_issues)
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
 
@@ -584,11 +600,21 @@ def rule_b1(t, pg, g, V, A, GEARS, driveability_issues):
 def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule (b2): Hold gears for at least 3sec."""
 
-    # NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
-    if ((pg != GEARS[t-3:t-1]).any() and (A[t-3:t] != 0).all()):
-        GEARS[t]    = pg
-        addDriveabilityMessage(t, 'g%i: Rule(b.2): Hold g%i at least 3sec.' % (g, pg), driveability_issues)
-        return True
+    ## NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
+    if ((pg != GEARS[t-3:t-1]).any()):
+        if ((A[t-3:t] > 0).all()):
+            GEARS[t]        = pg
+            addDriveabilityMessage(t, 'g%i: Rule(b.2): Hold g%i at least 3sec while accellerating.' % (g, pg), driveability_issues)
+            return True
+        elif ((A[t-3:t] < 0).all()):
+#             ## NOTE: On decelleration, skip gear.
+#             pt = t-1
+#             while (pt >= t-4 and GEARS[pt] == pg):
+#                 GEARS[pt]  = g
+#                 pt -= 1
+#             addDriveabilityMessage(t, 'g%i: Rule(b.2): Skip g%i <3sec while deccellerating.' % (g, pg), driveability_issues)
+#             return True
+            return False
     return False
 
 
@@ -727,17 +753,6 @@ def runCycle(V, A, P_REQ, gear_ratios,
     Initial calculations happen on engine_revs for all gears, for all time-steps of the cycle (N_GEARS array).
     Driveability-rules are applied afterwards on the selected gear-sequence, for all steps.
 
-    @note My interpratation for Gear2 ``n_min`` limit::
-
-                          _____________                ______________
-                          ///INVALID///|   CLUTCHED   |  GEAR-2-OK
-        EngineRevs(N): 0-----------------------+---------------------------->
-        for Gear-2                     |       |      +--> n_clutch_gear2   := n_idle + MAX(
-                                       |       |                                      0.15% * n_idle,
-                                       |       |                                      3%    * n_range)
-                                       |       +---------> n_idle
-                                       +-----------------> n_min_gear2      := 90% * n_idle
-
     @param: V: the cycle, the velocity profile
     @param: A: acceleration of the cycle (diff over V) in m/sec^2
     @return :array: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
@@ -777,7 +792,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
                                                 n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                                 driveability_issues)
 
-    G_BY_P                      = possibleGears_byPower(V, N_GEARS, P_REQ,
+    G_BY_P, P_AVAIL             = possibleGears_byPower(V, N_GEARS, P_REQ,
                                                 n_idle, n_rated, p_rated, load_curve, p_safety_margin,
                                                 driveability_issues)
 
@@ -798,7 +813,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
     V_REAL                      = (N_GEARS.T / np.array(gear_ratios)).T[GEARS - 1, range(len(V))]
     V_REAL[CLUTCH | (V == 0)]   = 0
 
-    return (V_REAL, GEARS, CLUTCH, RPM, driveability_issues)
+    return (V_REAL, GEARS, CLUTCH, RPM, P_AVAIL, driveability_issues)
 
 
 

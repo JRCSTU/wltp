@@ -83,7 +83,7 @@ def model_base():
             "n_min":    None,
             "gear_ratios":[],
             "resistance_coeffs":[],
-            'full_load_curve': default_load_curve_petrol, # FIXME: Decide load_curtve by engine-type!
+            'full_load_curve': default_load_curve_diesel, # FIXME: Decide load_curtve by engine-type!
         },
         'params': {
             'v_stopped_threshold':      1,          # Km/h, <=
