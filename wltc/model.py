@@ -77,7 +77,7 @@ class Model(object):
             issues = []
             drv = results['driveability']
             pt = -1
-            for t in sorted(drv.keys()):
+            for t in drv.nonzero()[0]:
                 if (pt+1 < t):
                     issues += ['...']
                 issues += ['{:>4}: {}'.format(t, drv[t])]

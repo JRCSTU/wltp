@@ -191,7 +191,7 @@ class Experiment(object):
         f_n_max             = params.get('f_n_max', 1.2) #TODO: Move veh params as model attributes.
         v_max               = vehicle['v_max']
         if (v_max is None):
-            v_max = (n_rated * f_n_max) / gear_ratios[-1]
+            v_max = n_rated / gear_ratios[-1]
         v_stopped_threshold = params.get('v_stopped_threshold', 1) # Km/h
 
 
@@ -239,7 +239,7 @@ class Experiment(object):
         ## Run cycle to find gears, clutch and real-velocirty.
         #
         load_curve          = vehicle['full_load_curve']
-        (V_REAL, GEARS, CLUTCH, driveability_issues) = \
+        (V_REAL, GEARS, CLUTCH, RPM, driveability_issues) = \
                             runCycle(V, A, P_REQ,
                                            gear_ratios,
                                            n_idle, n_min_drive, n_rated,
@@ -250,6 +250,8 @@ class Experiment(object):
         results['v_real']       = V_REAL
         results['gears']        = GEARS
         results['clutch']       = CLUTCH
+        results['p_required']   = P_REQ
+        results['rpm']          = RPM
         results['driveability'] = driveability_issues
 
 
@@ -260,14 +262,14 @@ class Experiment(object):
 #######################
 
 
-def addDriveabilityMessage(time_steps, msg, driveability_issues):
-    driveability_issues[time_steps].append(msg)
+def addDriveabilityMessage(time_step, msg, driveability_issues):
+    driveability_issues[time_step] = msg
 
 
 def addDriveabilityProblems(GEARS_BAD, reason, driveability_issues):
     failed_steps = GEARS_BAD.nonzero()[0]
     if (failed_steps.size != 0):
-        log.warning('%i %s: %s', failed_steps.size, reason, failed_steps)
+        log.info('%i %s: %s', failed_steps.size, reason, failed_steps)
         for step in failed_steps:
             addDriveabilityMessage(step, reason, driveability_issues)
 
@@ -423,13 +425,11 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
     N_GEARS2                = N_GEARS[1, :]
     ## NOTE: "interpratation" of specs for Gear-2
     #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Deccelerating.".
-#     GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | \
-#                                         ((N_GEARS2 <= n_clutch_gear2) & (A <= 0)) | (V <= 0) # FIXME: move V==0 into own gear.
     GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | (V <= 0) # FIXME: move V==0 into own gear.
 
     ## Revert impossibles to min-gear, n_min & clutched.
     #
-    GEARS_BAD = CLUTCH      = (~GEARS_YES_MIN).all(axis=0)
+    GEARS_BAD = CLUTCH      = (~GEARS_YES_MIN).all(axis=0) ## TODO: Clutch on gear2 (f=will be fixed when add also CLUTCH_GEARS)
     GEARS_YES_MIN[0, GEARS_BAD]                     = True # Revert to min-gear.
     addDriveabilityProblems(GEARS_BAD, 'g1: Revolutions too low!', driveability_issues)
 
@@ -465,7 +465,10 @@ def calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_
     '''
 
     N_NORM          = (N_GEARS - n_idle) / (n_rated - n_idle)
-    P_WOT           = np.interp(N_NORM, load_curve[0], load_curve[1], right=0)
+    P_WOT           = np.interp(100 * N_NORM, load_curve[0], load_curve[1], left=0, right=0)
+#     from scipy.interpolate import interp1d
+#     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
+#     P_WOT           = intrerp_f(N_NORM)
     P_AVAIL         = P_WOT * p_rated * p_safety_margin
 
     return P_AVAIL
@@ -724,15 +727,16 @@ def runCycle(V, A, P_REQ, gear_ratios,
     Initial calculations happen on engine_revs for all gears, for all time-steps of the cycle (N_GEARS array).
     Driveability-rules are applied afterwards on the selected gear-sequence, for all steps.
 
-    @note My interpratation for Gear2 ``n_min``::
+    @note My interpratation for Gear2 ``n_min`` limit::
 
-                          ___________                   ______________
-                             CLUTCH  |////INVALID//////|  GEAR-2-OK
-        EngineRevs(N): 0---------------------+---------------------------->
-        for Gear-2                   |       |         |
-                    n_clutch_gear2 --+       |         +-- n_min_gear2
-                    (-10% * n_idle)       N_IDLE           (1.15% * n_idle)        OR
-                                                        (n_idle + (3% * n_range))
+                          _____________                ______________
+                          ///INVALID///|   CLUTCHED   |  GEAR-2-OK
+        EngineRevs(N): 0-----------------------+---------------------------->
+        for Gear-2                     |       |      +--> n_clutch_gear2   := n_idle + MAX(
+                                       |       |                                      0.15% * n_idle,
+                                       |       |                                      3%    * n_range)
+                                       |       +---------> n_idle
+                                       +-----------------> n_min_gear2      := 90% * n_idle
 
     @param: V: the cycle, the velocity profile
     @param: A: acceleration of the cycle (diff over V) in m/sec^2
@@ -741,8 +745,8 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     ## A multimap to collect problems.
     #
-    from collections import defaultdict
-    driveability_issues         = defaultdict(list)
+    driveability_issues         = np.empty_like(V, dtype='object')
+    driveability_issues[:]      = ''
 
 
 
@@ -757,11 +761,11 @@ def runCycle(V, A, P_REQ, gear_ratios,
         f_n_min                 = params.get('f_n_min', 0.125)
         n_min_drive             = n_idle + f_n_min * n_range
 
-    f_n_min_gear2               = params.get('f_n_min_gear2', [1.15, 0.03])
-    n_min_gear2                 = max(f_n_min_gear2[0] * n_idle, f_n_min_gear2[1] * n_range + n_idle)
+    f_n_min_gear2               = params.get('f_n_min_gear2', 0.9)
+    n_min_gear2                 = f_n_min_gear2 * n_idle
 
-    f_n_clutch_gear2            = params.get('f_n_clutch_gear2', 0.9)
-    n_clutch_gear2              = f_n_clutch_gear2 * n_idle
+    f_n_clutch_gear2            = params.get('f_n_clutch_gear2', [1.15, 0.03])
+    n_clutch_gear2              = max(f_n_clutch_gear2[0] * n_idle, f_n_clutch_gear2[1] * n_range + n_idle)
 
     p_safety_margin             = params.get('f_safety_margin', 0.9)
 
@@ -790,10 +794,11 @@ def runCycle(V, A, P_REQ, gear_ratios,
     ## Calculate real-celocity.
     #
     # TODO: Simplify V_real calc by avoiding multiply all.
+    RPM                         = N_GEARS[GEARS - 1, range(len(V))]
     V_REAL                      = (N_GEARS.T / np.array(gear_ratios)).T[GEARS - 1, range(len(V))]
     V_REAL[CLUTCH | (V == 0)]   = 0
 
-    return (V_REAL, GEARS, CLUTCH, driveability_issues)
+    return (V_REAL, GEARS, CLUTCH, RPM, driveability_issues)
 
 
 

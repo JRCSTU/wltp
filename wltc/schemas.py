@@ -191,18 +191,18 @@ def model_schema():
                         'default': 0.125,
                     },
                     'f_n_min_gear2': {
+                        'description': 'Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.',
+                        'type': [ 'number', 'null'],
+                        'default': 0.9,
+                    },
+                    'f_n_clutch_gear2': {
                         'description': dedent('''
-                            A 2-value number-array(f1, f2) controlling when gear-2 is considered invalid::
-                                N :< n_min_gear2 = max(f1 * n_idle, f2 * n_range + n_idle),
+                            A 2-value number-array(f1, f2) controlling when to clutch gear-2::
+                                N < n_clutch_gear2 := max(f1 * n_idle, f2 * n_range + n_idle),
                             unless "clutched"...
                         '''),
                         'type': [ 'array', 'null'],
                         'default': [1.15, 0.03],
-                    },
-                    'f_n_clutch_gear2': {
-                        'description': 'Gear-2 is clutched when N :< f_n_clutch_gear2 * n_idle.',
-                        'type': [ 'number', 'null'],
-                        'default': 0.9,
                     },
                 }
             },
