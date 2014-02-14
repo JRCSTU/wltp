@@ -212,6 +212,14 @@ class Experiment(object):
         V                   = np.array(cycle, dtype=self.dtype)
         tabular['v_class'] = V
 
+        ## NOTE: Improved Acceleration calc on central-values with gradient.
+        #    The pure_load 2nd-part of the P_REQ from start-to-stop is 0, as it should.
+        #
+        #A       = np.gradient(V) ## TODO: Enable gradient acceleration-calculation.
+        A       = np.diff(V)
+        A       = np.append(A, 0) # Restore element lost by diff().
+        A       = A / 3.6
+
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial          = params.get('f_inertial', 1.1)
@@ -454,7 +462,7 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
     return (GEARS_YES, CLUTCH)
 
 
-def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
+def calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial):
     '''
 
     @see: Annex 2-3.1, p 71
@@ -462,9 +470,6 @@ def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
 
     VV      = V * V
     VVV     = VV * V
-    A       = np.diff(V)
-    A       = np.append(A, 0) # Restore element lost by diff().
-    A       = A / 3.6
     assert  V.shape == VV.shape == VVV.shape == A.shape, _shapes(V, VV, VVV, A)
 
     P_REQ   = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0

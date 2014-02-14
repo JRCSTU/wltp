@@ -171,7 +171,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
     ax.plot(hz_v_real / v_max, ':')
     ax.plot(hz_gears / hz_gears.max(), '*')
 
-    ax.text(0.7, 0, 'Diff: %.4f%%' % (100.0 * g_diff), transform=ax.transAxes, bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
+    ax.text(0.7, 0, 'Diffs: %.4f' % g_diff, transform=ax.transAxes, bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
 
 
 def plot_diffs_with_heinz(heinz_dir, exp_num=None):
@@ -201,9 +201,11 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
         my_gears = df_my['gears']
         gears_hz = df_hz['gear']
-        gd = np.count_nonzero(my_gears != gears_hz) / float(len(my_gears))
+        accel = np.gradient(df_my['v_class'])
+        diff_gears = (my_gears != gears_hz) & (accel >= 0)  # Ignore rrors i9n decceleration phases.
+        ngear_diffs = np.count_nonzero(diff_gears)
 
-        return (df_my, df_hz, gd)
+        return (df_my, df_hz, ngear_diffs)
 
 
 
@@ -215,8 +217,10 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         paths = glob.glob(os.path.join(mydir, 'sample_vehicles-*.csv'))
         npaths          = len(paths)
 
-        #paths_to_plot = paths[:1] # NOTE: Limit to facilitate drawing.
-        paths_to_plot = paths[7:9] # NOTE: Limit to facilitate drawing.
+        ## NOTE: Limit subplots to facilitate research.
+        #
+        #paths_to_plot = paths[:1]
+        paths_to_plot = paths[0:1] + paths[7:9]
 
         ## Decide subplot-grid dimensions.
         #
@@ -234,17 +238,22 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
 
             veh_num = int(m.group(1))
-            (df_my, df_hz, gd)  = read_and_compare_experiment(inpfname, veh_num)
-            g_diff[n]           = gd
+            (df_my, df_hz, ngear_diffs)  = read_and_compare_experiment(inpfname, veh_num)
+            g_diff[n]           = ngear_diffs
 
 
             if (inpfname in paths_to_plot):
                 nplotted += 1
                 ax = fig.add_subplot(w, h, nplotted)
-                plotResults(os.path.basename(inpfname), df_my, df_hz, gd, ax)
+                plotResults(os.path.basename(inpfname), df_my, df_hz, ngear_diffs, ax)
 
-        fig.suptitle('DIFFs: min(%.4f%%), MEAN(%.4f%%), max(%.4f%%).' % (100 * g_diff.min(), 100 * g_diff.mean(), 100 * g_diff.max()))
-        log.info('DIFFs: min(%.4f%%), MEAN(%.4f%%), max(%.4f%%).', 100 * g_diff.min(), 100 * g_diff.mean(), 100 * g_diff.max())
+        fig.suptitle('DIFFs: count(%i), min(%.4f), MEAN(%.4f), max(%.4f).' % (g_diff.sum(), g_diff.min(), g_diff.mean(), g_diff.max()))
+        log.info('DIFFs: count(%i), min(%.4f), MEAN(%.4f), max(%.4f).', g_diff.sum(), g_diff.min(), g_diff.mean(), g_diff.max())
+
+        ## RESULTS:
+        #    0.0.5-alpha:                 min(0.6108%), MEAN(3.6276%), max(12.1599%)
+        #    0.0.5-alpha:    count(1960), min(11.0000), MEAN(65.3333), max(219.0000)
+        #
 
     else:
         inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(exp_num))
