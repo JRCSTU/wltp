@@ -607,7 +607,7 @@ def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
             addDriveabilityMessage(t, 'g%i: Rule(b.2): Hold g%i at least 3sec while accellerating.' % (g, pg), driveability_issues)
             return True
         elif ((A[t-3:t] < 0).all()):
-#             ## NOTE: On decelleration, skip gear.
+#             ## NOTE: On deceleration, skip gear.
 #             pt = t-1
 #             while (pt >= t-4 and GEARS[pt] == pg):
 #                 GEARS[pt]  = g
@@ -683,7 +683,7 @@ def rule_f(t, pg, g, V, A, GEARS, driveability_issues):
 
 
 def rule_g(t, pg, g, V, A, GEARS, driveability_issues):
-    """Rule(g): Cancel upshifts if later downshifted for at least 2sec during accelleration."""
+    """Rule(g): Cancel upshifts if later downshifted for at least 2sec during acceleration."""
 
     if (pg == g and (A[t-1:t+1] > 0).all()):
         ## Travel back in time for as long accelerating and same gear.
