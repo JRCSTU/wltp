@@ -132,7 +132,8 @@ def run_the_experiments(plot_results=False, encoding="ISO-8859-1"):
 # COMPARE RESULTS #
 ###################
 
-def plotResults(my_df, hz_df,  g_diff, ax):
+def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
+    ax.set_title(veh_fname, fontdict={'fontsize': 8} )
     ax.grid(True)
 
     tlen = len(my_df.index)
@@ -194,36 +195,37 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
         return df
 
-    def read_and_compare_experiment(myfname, veh_num, ax):
-        ax.set_title(os.path.basename(myfname), fontdict={'fontsize': 8} )
-
+    def read_and_compare_experiment(myfname, veh_num):
         df_my = read_sample_file(myfname)
         df_hz = read_heinz_file(veh_num)
 
         my_gears = df_my['gears']
         gears_hz = df_hz['gear']
-        g_diff = np.count_nonzero(my_gears != gears_hz) / float(len(my_gears))
+        gd = np.count_nonzero(my_gears != gears_hz) / float(len(my_gears))
 
-        plotResults(df_my, df_hz, g_diff, ax)
+        return (df_my, df_hz, gd)
 
-        return g_diff
+
+
 
     fig = plt.figure()
 
     if exp_num is None:
 
         paths = glob.glob(os.path.join(mydir, 'sample_vehicles-*.csv'))
+        npaths          = len(paths)
 
-        #paths = paths[:1] # NOTE: Limit to facilitate drawing.
-        paths = paths[7:9] # NOTE: Limit to facilitate drawing.
+        #paths_to_plot = paths[:1] # NOTE: Limit to facilitate drawing.
+        paths_to_plot = paths[7:9] # NOTE: Limit to facilitate drawing.
 
         ## Decide subplot-grid dimensions.
         #
-        npaths = len(paths)
-        w = math.ceil(math.sqrt(npaths))
-        h = w-1 if ((w-1) * w >= npaths) else w
+        npaths_to_plot  = len(paths_to_plot)
+        w = math.ceil(math.sqrt(npaths_to_plot))
+        h = w-1 if ((w-1) * w >= npaths_to_plot) else w
 
-        g_diff = 0
+        g_diff = np.zeros(npaths)
+        nplotted = 0
         for (n, inpfname) in enumerate(paths):
             log.info(">> Reading: %s", inpfname)
 
@@ -232,18 +234,27 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
 
             veh_num = int(m.group(1))
-            ax = fig.add_subplot(w, h, n+1)
-            gd = read_and_compare_experiment(inpfname, veh_num, ax)
-            g_diff += abs(gd)
+            (df_my, df_hz, gd)  = read_and_compare_experiment(inpfname, veh_num)
+            g_diff[n]           = gd
+
+
+            if (inpfname in paths_to_plot):
+                nplotted += 1
+                ax = fig.add_subplot(w, h, nplotted)
+                plotResults(os.path.basename(inpfname), df_my, df_hz, gd, ax)
+
+        fig.suptitle('DIFFs: min(%.4f%%), MEAN(%.4f%%), max(%.4f%%).' % (100 * g_diff.min(), 100 * g_diff.mean(), 100 * g_diff.max()))
+        log.info('DIFFs: min(%.4f%%), MEAN(%.4f%%), max(%.4f%%).', 100 * g_diff.min(), 100 * g_diff.mean(), 100 * g_diff.max())
 
     else:
         inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(exp_num))
 
-        ax = fig.axes()
-        g_diff = read_and_compare_experiment(inpfname, veh_num, ax)
+        (df_my, df_hz, gd)  = read_and_compare_experiment(inpfname, veh_num)
 
-    fig.suptitle('MEAN-DIFFs: %.4f%%' % (100.0 * g_diff / npaths))
-    log.info('MEAN-DIFF: %.4f%%', g_diff)
+        ax = fig.axes()
+        plotResults(os.path.basename(inpfname), df_my, df_hz, gd, ax)
+        log.info('DIFF: %.4f%%.', gd)
+
 
     fig.tight_layout()
     plt.show()
@@ -263,5 +274,5 @@ if __name__ == "__main__":
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-    run_the_experiments()
+#     run_the_experiments()
     plot_diffs_with_heinz(heinz_dir, exp_num)

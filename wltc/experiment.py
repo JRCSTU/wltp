@@ -481,7 +481,7 @@ def calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_
     '''
 
     N_NORM          = (N_GEARS - n_idle) / (n_rated - n_idle)
-    P_WOT           = np.interp(N_NORM, load_curve[0], load_curve[1])#, left=0, right=0) # FIXME: What if outside of load_curve??
+    P_WOT           = np.interp(N_NORM, load_curve[0], load_curve[1]) # When outside of load_curve, accept max-min gear.
 #     from scipy.interpolate import interp1d
 #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
 #     P_WOT           = intrerp_f(N_NORM)
@@ -514,7 +514,7 @@ def selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues):
 
     GEARS_YES               = G_BY_N & G_BY_P
     addDriveabilityProblems((~GEARS_YES).all(axis=0), 'Mismatch power/revs.', driveability_issues)
-    GEARS_MX[~GEARS_YES]    = -1 # FIXME: What to do if no gear foudn for the combination of Power/Revs??
+    GEARS_MX[~GEARS_YES]    = -1                ## NOTE: Invalid gears will be smoothed-away in extra_rule(1).
     assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
     GEARS                   = GEARS_MX.max(axis=0)
 
@@ -732,11 +732,16 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
         for (t, g) in enumerate(GEARS[5:], 5):
             if (g != pg):       ## All rules triggered by a gear-shift.
 
-                ## Apply the 1st rule to match.
+                ## NOTE: Extra_rule(1): Smooth-away INVALID-GEARS.
                 #
-                for rule in rules:
-                    if rule(t, pg, g, V, A, GEARS, driveability_issues):
-                        break
+                if (g < 0):
+                    GEARS[t] = pg
+                else:
+                    ## Apply the 1st rule to match.
+                    #
+                    for rule in rules:
+                        if rule(t, pg, g, V, A, GEARS, driveability_issues):
+                            break
 
             pg = GEARS[t]
 
