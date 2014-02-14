@@ -69,7 +69,7 @@ class Test(unittest.TestCase):
 
     def testModelInstance_simplInstanceeFullLoadCurve(self):
         json_txt = self.goodVehicle_jsonTxt % \
-            (', "full_load_curve":[[ 1,  1,  1,  1,  1,  1,  1,  1,  1],   [ 2.3,  2.3,  2.3,  2.3,  2.3,  2.3,  2.3,  2.3,  2.3]]')
+            (', "full_load_curve":[[ 1,  1,  1,  1,  1,  1,  1,  1,  1],   [ 0.23,  0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23]]')
         model = json.loads(json_txt)
 
         schemas.model_validator().validate(model)

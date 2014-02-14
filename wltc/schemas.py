@@ -108,17 +108,17 @@ def model_schema():
                             {
                                'title': 'normalized engine revolutions',
                                'description': dedent('''
-                                    The normalized engine revolutions, within [0%, 120%]::
-                                        n_norm = 100 * (n - n_idle) / (n_rated  - n_idle)
+                                    The normalized engine revolutions, within [0.0, 0.15]::
+                                        n_norm = (n - n_idle) / (n_rated  - n_idle)
                                     '''),
                                'type': 'array', 'additionalItems': False,
                                'maxItems': 360,
                                'minItems': 7,
                                'items': {
                                    'type': 'number',
-                                   'minimum': 0,
+                                   'minimum': 0.0,
                                    'exclusiveMinimum': False,
-                                   'maximum': 120,
+                                   'maximum': 1.5,
                                    'exclusiveMaximum': False,
                                 },
                             },
@@ -126,16 +126,17 @@ def model_schema():
                                'title': 'normalized full-load power curve',
                                'description': dedent('''
                                     The normalised values of the full-power load against the p_rated,
-                                    within [0%, 100%]::
-                                        p_norm = 100 * p / p_rated
+                                    within [0, 1]::
+                                        p_norm = p / p_rated
                                 '''),
                                'type': 'array', 'additionalItems': False,
                                'maxItems': 360,
                                'minItems': 7,
                                'items': {
-                                   'minimum': -10,
+                                   'type': 'number',
+                                   'minimum': 0.0,
                                    'exclusiveMinimum': False,
-                                   'maximum': 110,
+                                   'maximum': 1.0,
                                    'exclusiveMaximum': False,
                                 }
                             },
@@ -368,7 +369,7 @@ def wltc_validator():
 def validate_full_load_curve(flc, f_n_max):
     if (min(flc[0]) > 0):
         raise ValueError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(flc[0]))
-    max_x_limit = f_n_max * 100
+    max_x_limit = f_n_max
     if (max(flc[0]) < max_x_limit):
         raise ValueError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(flc[0])))
 

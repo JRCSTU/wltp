@@ -481,7 +481,7 @@ def calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_
     '''
 
     N_NORM          = (N_GEARS - n_idle) / (n_rated - n_idle)
-    P_WOT           = np.interp(100 * N_NORM, load_curve[0], load_curve[1])
+    P_WOT           = np.interp(N_NORM, load_curve[0], load_curve[1])#, left=0, right=0) # FIXME: What if outside of load_curve??
 #     from scipy.interpolate import interp1d
 #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
 #     P_WOT           = intrerp_f(N_NORM)
@@ -507,7 +507,6 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
     addDriveabilityProblems(GEARS_BAD, 'Insufficient power!', driveability_issues)
 
     return (GEARS_YES, P_AVAIL)
-
 
 def selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues):
     assert                  G_BY_N.shape == G_BY_P.shape, _shapes(V, G_BY_N, G_BY_P)

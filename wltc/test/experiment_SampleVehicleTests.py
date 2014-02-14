@@ -243,6 +243,7 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         g_diff = read_and_compare_experiment(inpfname, veh_num, ax)
 
     fig.suptitle('MEAN-DIFFs: %.4f%%' % (100.0 * g_diff / npaths))
+    log.info('MEAN-DIFF: %.4f%%', g_diff)
 
     fig.tight_layout()
     plt.show()
