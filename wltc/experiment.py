@@ -223,7 +223,7 @@ class Experiment(object):
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial          = params.get('f_inertial', 1.1)
-        (A, P_REQ)          = calcPower_required(V, mass, f0, f1, f2, f_inertial)
+        (A, P_REQ)          = calcPower_required(V, A, mass, f0, f1, f2, f_inertial)
 
         ## Apply stopped-vehicle threshold AFTER Accel calculated.
         #    (Annex 2-3.2 & Annex 2-4(a), p72)
