@@ -361,7 +361,7 @@ def downscaleCycle(V, f_downscale, phases):
     assert          abs(acc_scaled[0] - V[t0]) < ERR, \
                                     ('smooth-start: ', acc_scaled[0],  V[t0])
 
-    ## Deccelaration phase
+    ## Decelaration phase
     #
     ix_dec          = np.arange(t1 + 1, t2 + 1)
     offset_dec      = V[t2]
@@ -449,7 +449,7 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
     GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V <= 0) # FIXME: move V==0 into own gear.
     N_GEARS2                = N_GEARS[1, :]
     ## NOTE: "interpratation" of specs for Gear-2
-    #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Deccelerating.".
+    #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Decelerating.".
     GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | (V <= 0) # FIXME: move V==0 into own gear.
 
     ## Revert impossibles to min-gear, n_min & clutched.
@@ -615,14 +615,14 @@ def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
             while (pt >= t-3 and GEARS[pt] == pg):
                 pt -= 1
             GEARS[pt+1:t] = g
-            addDriveabilityMessage(t, 'g%i: Rule(b.2): Skip g%i %isec < 3sec while deccellerating.' % (g, pg, t-pt+1), driveability_issues)
+            addDriveabilityMessage(t, 'g%i: Rule(b.2): Skip g%i %isec < 3sec while decellerating.' % (g, pg, t-pt+1), driveability_issues)
 
         return True
     return False
 
 
 def rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros):
-    """Rule (c): Idle while deccelerating to standstill.
+    """Rule (c): Idle while decelerating to standstill.
 
      Implemented with a regex, outside rules-loop:
      Search for zeros in _reversed_ V & GEAR profiles,
@@ -638,7 +638,7 @@ def rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros):
             break
         t = nV - t_stop - 1
         while (A[t] < 0):
-            addDriveabilityMessage(t, 'g%i: Rule(c):   Set idle while deccelerating to standstill.'%GEARS[t], driveability_issues)
+            addDriveabilityMessage(t, 'g%i: Rule(c):   Set idle while decelerating to standstill.'%GEARS[t], driveability_issues)
             GEARS[t]   = 0
             CLUTCH[t]  = False
             t -= 1

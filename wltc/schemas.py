@@ -324,7 +324,7 @@ def wltc_schema():
                                 },
                                 'maxItems': 3, 'minItems': 3,
                             },
-                            'deccel_phase': {
+                            'decel_phase': {
                                 'type': 'array', 'additionalItems': False,
                                 'items': {'type': 'integer'},
                                 'maxItems': 2, 'minItems': 2,

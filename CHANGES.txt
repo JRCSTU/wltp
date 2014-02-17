@@ -13,7 +13,7 @@ v0.0.3.alpha, 22-Jan-2014 -- Alpha release
 -- FIXME: Apply rule(e) also for any initial/final gear (not just for i-1).
 -- FIXME: move V==0 into own gear.
 -- FIXME: move V==0 into own gear.
--- FIXME: NOVATIVE rule: "Clutching gear-2 only when Deccelerating.".
+-- FIXME: NOVATIVE rule: "Clutching gear-2 only when Decelerating.".
 -- FIXME: What to do if no gear foudn for the combination of Power/Revs??
 -- NOTE: "interpratation" of specs for Gear-2
 -- NOTE: Rule(A) not needed inside x2 loop.
