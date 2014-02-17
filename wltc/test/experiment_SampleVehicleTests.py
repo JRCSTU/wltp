@@ -330,9 +330,38 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #    Rule(f) applied also for i-2, i-3, ... signular-downshifts:
         #       ±DIFFs: count(5568), min(135), MEAN(185.60±57.59), max(335).
         #       +DIFFs: count(1500), min(10), MEAN(50.00±46.26), max(176).
-        #    Preciese input values:
+        #    Precise input values:
         #       ±DIFFs: count(5569), min(135), MEAN(185.63±57.57), max(335).
         #       +DIFFs: count(1501), min(10), MEAN(50.03±46.25), max(176).
+        #       ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
+        #    Rule(e): Cancel +1 upshift for ANY previous-gear LOWER than the upshifted one:
+        #       ±DIFFs: count(5547), min(135), MEAN(184.90±56.22), max(327).
+        #       +DIFFs: count(1490), min(10), MEAN(49.67±45.68), max(173).
+        #       ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
+        #    Rule(e): Cancel ANY upshift for ANY previous-gear LOWER than the upshifted one:
+        #       ±DIFFs: count(5533), min(135), MEAN(184.43±54.80), max(319).
+        #       +DIFFs: count(1477), min(10), MEAN(49.23±44.40), max(161).
+        #       ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
+        #    Rule(g): Enable mistakenly impossible rule:
+        #       ±DIFFs: count(5151), min(133), MEAN(171.70±41.96), max(288).
+        #       +DIFFs: count(1116), min(8), MEAN(37.20±31.94), max(113).
+        #       ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
+        #    Rule(g): Apply only on Acell(not Flats):
+        #       ±DIFFs: count(5149), min(133), MEAN(171.63±41.77), max(286).
+        #       +DIFFs: count(1112), min(8), MEAN(37.07±31.73), max(112).
+        #       ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
+        #    Rule(b2): Apply it also for flats (not only Accels):
+        #       ±DIFFs: count(5142), min(133), MEAN(171.40±41.15), max(279).
+        #       +DIFFs: count(1109), min(8), MEAN(36.97±31.50), max(111).
+        #       ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
+        #    Rule(b2): Check if Accell on NEXT- time-step (A[t]).
+        #           ±DIFFs: count(5275), min(133), MEAN(175.83±47.54), max(304).
+        #           +DIFFs: count(1219), min(8), MEAN(40.63±36.33), max(128).
+        #           ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
+        #    Rule(b2): Check if Accell/FLAT on NEXT- time-step (A[t]).
+        #           ±DIFFs: count(5306), min(135), MEAN(176.87±47.05), max(303).
+        #           +DIFFs: count(1205), min(8), MEAN(40.17±35.84), max(127).
+        #           ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
     else:
         inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(experiment_num))
 

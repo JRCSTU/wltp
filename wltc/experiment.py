@@ -607,7 +607,7 @@ def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
     ## FIXME: Which second we check for "accelerating" here?
     ## NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
     if ((pg != GEARS[t-3:t-1]).any()):
-        if (A[t-1] > 0):
+        if (A[t-1] >= 0):
             GEARS[t]        = pg
             addDriveabilityMessage(t, 'g%i: Rule(b.2): Hold g%i at least 3sec while accellerating.' % (g, pg), driveability_issues)
         else:
@@ -657,17 +657,17 @@ def rule_d(t, pg, g, V, A, GEARS, driveability_issues):
 def rule_e(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule (e): Cancel shifts lasting 5secs or less."""
 
-    if (pg == g+1): # FIXME: Apply rule(e) also for any initial/final gear (not just for i-1).
+    if (pg > g): # FIXME: Apply rule(e) also for any initial/final gear (not just for i-1).
         ## Travel back in time for 5secs.
         #
         pt = t-2
         while (pt >= t-5 and GEARS[pt] == pg):
             pt -= 1
 
-        if (GEARS[pt] == g):
-            GEARS[pt:t] = g # Overwrites the 1st element, already == g.
+        if (GEARS[pt] < pg):
+            GEARS[pt+1:t] = g
             for tt in range(pt+1, t):
-                addDriveabilityMessage(tt, 'g%i: Rule(e):   Cancel lone %isec upshift, restore to g%i.' % (pg, t-pt-1, g), driveability_issues)
+                addDriveabilityMessage(tt, 'g%i: Rule(e):   Cancel <5sec %isec upshift, restore to g%i.' % (pg, t-pt-1, g), driveability_issues)
             return True
     return False
 
@@ -678,7 +678,7 @@ def rule_f(t, pg, g, V, A, GEARS, driveability_issues):
     if (pg < g and GEARS[t-2] == g):
         # NOTE: Nowhere to apply it since rule(b2) would have eliminated 1-sec shifts.  Moved before rule(b)!
         # NOTE: Applying rule(f) also for i-2, i-3, ... signular-downshifts.
-        # TODO: Rule(f) implement further constraints.
+        # FIXME: Rule(f) implement further constraints.
         # NOTE: Rule(f): What if extra conditions unsatisfied? Allow shifting for 1 sec only??
         GEARS[t-1] = g
         addDriveabilityMessage(t-1, 'g%i: Rule(g):   Cancel 1sec downshift, restore to g%i.' % (pg, g), driveability_issues)
@@ -690,17 +690,15 @@ def rule_f(t, pg, g, V, A, GEARS, driveability_issues):
 def rule_g(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule(g): Cancel upshifts if later downshifted for at least 2sec during acceleration."""
 
-    if (pg == g and (A[t-1:t+1] > 0).all()):
+    if (pg == g+1 and (GEARS[t:t+2] == g).all() and (A[t-1:t+2] >= 0).all()):
         ## Travel back in time for as long accelerating and same gear.
         #
         pt = t-2
-        pg = g+1
-        while (GEARS[pt] == pg and A[pt] > 0):
+        while (GEARS[pt] == pg and A[pt] >= 0):
             pt -= 1
 
-        if (pt != t-2):
-            GEARS[pt:t-1] = g
-            for tt in range(pt, t-1):
+            GEARS[pt+1:t] = g
+            for tt in range(pt+1, t):
                 addDriveabilityMessage(tt, 'g%i: Rule(g):   Cancel %isec accelerated upshift later downshifted, restore to g%i.' % (pg, t-1-pt, g), driveability_issues)
             return True
 
