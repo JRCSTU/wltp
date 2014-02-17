@@ -739,13 +739,13 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
                 ## NOTE: Extra_rule(1): Smooth-away INVALID-GEARS.
                 #
                 if (g < 0):
-                    GEARS[t] = pg
-                else:
-                    ## Apply the 1st rule to match.
-                    #
-                    for rule in rules:
-                        if rule(t, pg, g, V, A, GEARS, driveability_issues):
-                            break
+                    GEARS[t] = g = pg
+
+                ## Apply the 1st rule to match.
+                #
+                for rule in rules:
+                    if rule(t, pg, g, V, A, GEARS, driveability_issues):
+                        break
 
             pg = GEARS[t]
 
