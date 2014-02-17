@@ -142,10 +142,14 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
 
     clutch = my_df['clutch']
     clutch = clutch.nonzero()[0]
-    driveability = my_df['driveability'].apply(lambda s: isinstance(s, str))
-    driveability = driveability.nonzero()[0]
     ax.vlines(clutch,  0, 0.2)
-    ax.vlines(driveability,  0.2, 0.4, 'c')
+
+    ## Add pickers on driveability lines showing the specific msg.
+    #
+    driveability = my_df['driveability']
+    driveability_true = driveability.apply(lambda s: isinstance(s, str))
+    lines = ax.vlines(driveability_true.nonzero()[0],  0.2, 0.4, 'c', picker=5)
+    lines.set_urls(driveability[driveability_true])
 
     v_max = my_df['v_class'].max()
     ax.hlines(1 / v_max,  0, tlen, color="0.75")
@@ -163,9 +167,14 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
     hz_v_real = hz_df['v']
     hz_v_target = hz_df['v_downscale']
     hz_gears = hz_df['gear']
-    hz_driveability = ~hz_df['gear_modification'].apply(np.isreal)
-    hz_driveability = hz_driveability.nonzero()[0]
-    ax.vlines(hz_driveability,  0.4, 0.6, 'm')
+
+    ## Add pickers on driveability lines showing the specific msg.
+    #
+    hz_driveability = hz_df['gear_modification']
+    hz_driveability_true = ~hz_driveability.apply(np.isreal)
+    lines = ax.vlines(hz_driveability_true.nonzero()[0],  0.4, 0.6, 'm', picker=5)
+    lines.set_urls(hz_driveability[hz_driveability_true])
+
 
     ax.plot(hz_v_target / v_max, '--')
     ax.plot(hz_v_real / v_max, ':')
@@ -201,7 +210,7 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
         my_gears = df_my['gears']
         gears_hz = df_hz['gear']
-        accel = np.gradient(df_my['v_class'])
+        accel = np.diff(df_my['v_class'])
         diff_gears = (my_gears != gears_hz) & (accel >= 0)  # Ignore rrors i9n decceleration phases.
         ngear_diffs = np.count_nonzero(diff_gears)
 
@@ -209,8 +218,14 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
 
 
+    def fig_onpick(event):
+        pickline = event.artist
+        urls = pickline.get_urls()
+        print(urls.iloc[event.ind])
 
     fig = plt.figure()
+    fig.canvas.mpl_connect('pick_event', fig_onpick)
+
 
     if exp_num is None:
 
@@ -219,8 +234,8 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
         ## NOTE: Limit subplots to facilitate research.
         #
-        #paths_to_plot = paths[:1]
-        paths_to_plot = paths[0:1] + paths[7:9]
+#         paths_to_plot = paths[0:9]
+        paths_to_plot = paths[4:6] + paths[7:9]
 
         ## Decide subplot-grid dimensions.
         #
@@ -283,5 +298,5 @@ if __name__ == "__main__":
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-#     run_the_experiments()
+#    run_the_experiments()
     plot_diffs_with_heinz(heinz_dir, exp_num)
