@@ -673,7 +673,9 @@ def rule_e(t, pg, g, V, A, GEARS, driveability_issues):
 def rule_f(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule(f): Cancel 1sec downshifts (under certain circumstances)."""
 
-    if (pg == g-1 and GEARS[t-2] == g):
+    if (pg < g and GEARS[t-2] == g):
+        # NOTE: Nowhere to apply it since rule(b2) would have eliminated 1-sec shifts.  Moved before rule(b)!
+        # NOTE: Applying rule(f) also for i-2, i-3, ... signular-downshifts.
         # TODO: Rule(f) implement further constraints.
         # NOTE: Rule(f): What if extra conditions unsatisfied? Allow shifting for 1 sec only??
         GEARS[t-1] = g
@@ -718,11 +720,11 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros)
 
     rules = [
+        rule_f,
         rule_b1,
         rule_b2,
         rule_d,
         rule_e,
-        rule_f,
         rule_g
     ]
     ## Apply the V-visiting driveability-rules x 2, as by specs.

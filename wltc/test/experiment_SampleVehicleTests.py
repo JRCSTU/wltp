@@ -183,9 +183,21 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
     ax.text(0.7, 0, 'Diffs: %.4f' % g_diff, transform=ax.transAxes, bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
 
 
-def plot_diffs_with_heinz(heinz_dir, exp_num=None):
+def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
     if (heinz_dir is None):
         heinz_dir = mydir
+
+    def run_experiments_if_outdated(outfiles):
+        ## Run experiment only if algorithm has changed
+        #
+        mydate = os.path.getmtime(outfiles[0])
+        checkfiles = ['../instances.py', '../experiment.py', 'sample_vehicles.csv']
+        checkdates = [os.path.getmtime(os.path.join(mydir, f)) for f in checkfiles]
+        modifs = [fdate > mydate for fdate in checkdates]
+        if (any(modifs)):
+            run_the_experiments()
+
+
 
     def read_sample_file(inpfname):
         df = pd.read_csv(inpfname)
@@ -194,7 +206,10 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
     def read_heinz_file(veh_num):
         vehfpath = os.path.join(heinz_dir, 'heinz_Petrol_veh{:05}.csv'.format(veh_num))
-        inpfname = glob.glob(vehfpath)[0]
+        try:
+            inpfname = glob.glob(vehfpath)[0]
+        except IndexError:
+            raise FileNotFoundError(vehfpath)
         df = pd.read_csv(inpfname, encoding='latin-1', header=0, index_col=3)
         assert df['vehicle_no'][0] == veh_num
 
@@ -237,16 +252,18 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
     fig.canvas.mpl_connect('pick_event', fig_onpick)
 
 
-    if exp_num is None:
+    if experiment_num is None:
 
         paths = glob.glob(os.path.join(mydir, 'sample_vehicles-*.csv'))
         npaths          = len(paths)
+
+        run_experiments_if_outdated(paths)
 
         ## NOTE: Limit subplots to facilitate research.
         #
         paths_to_plot = paths
 #         paths_to_plot = paths[0:9]
-        paths_to_plot = paths[5:6] + paths[7:9] + paths[13:16]
+        paths_to_plot = paths[5:6] + paths[7:9] + paths[14:16] + paths[23:24]
 
         ## Decide subplot-grid dimensions.
         #
@@ -257,8 +274,6 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         g_diff = np.zeros((2, npaths))
         nplotted = 0
         for (n, inpfname) in enumerate(paths):
-            log.info(">> Reading: %s", inpfname)
-
             m = re.match('.*sample_vehicles-(\d+).csv', inpfname)
             assert m
 
@@ -267,6 +282,8 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
             (df_my, df_hz, ndiff_gears, ndiff_gears_accel)  = read_and_compare_experiment(inpfname, veh_num)
             g_diff[0, n]           = ndiff_gears
             g_diff[1, n]           = ndiff_gears_accel
+
+            log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel)
 
 
             if (inpfname in paths_to_plot):
@@ -290,10 +307,17 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         #    Heinz-db Pwot:
         #       ±DIFFs: count(5758), min(135), MEAN(191.93±67.34), max(363).
         #       +DIFFs: count(1681), min(10), MEAN(56.03±54.33), max(192).
-
-
+        #    Rule(f) before rule(b):
+        #       ±DIFFs: count(5583), min(135), MEAN(186.10±57.99), max(335).
+        #       +DIFFs: count(1515), min(10), MEAN(50.50±46.65), max(176).
+        #    Rule(f) applied also for i-2, i-3, ... signular-downshifts:
+        #       ±DIFFs: count(5568), min(135), MEAN(185.60±57.59), max(335).
+        #       +DIFFs: count(1500), min(10), MEAN(50.00±46.26), max(176).
+        #    Preciese input values:
+        #       ±DIFFs: count(5569), min(135), MEAN(185.63±57.57), max(335).
+        #       +DIFFs: count(1501), min(10), MEAN(50.03±46.25), max(176).
     else:
-        inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(exp_num))
+        inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(experiment_num))
 
         (df_my, df_hz, gd)  = read_and_compare_experiment(inpfname, veh_num)
 
@@ -309,25 +333,15 @@ if __name__ == "__main__":
     import sys
 
     heinz_dir = None
-    exp_num = None
+    experiment_num = None
     try:
         if len(sys.argv) > 1:
             heinz_dir = sys.argv[1]
 
             if len(sys.argv) > 2:
-                exp_num = int(sys.argv[2])
+                experiment_num = int(sys.argv[2])
 
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-    ## Run experiment only if algorithm has changed
-    #
-    mydate = os.path.getmtime(__file__)
-    checkfiles = ['../instances.py', '../experiment.py']
-    checkdates = [os.path.getmtime(os.path.join(mydir, f)) for f in checkfiles]
-    modifs = [fdate > mydate for fdate in checkdates]
-    if (any(modifs)):
-        run_the_experiments()
-
-
-    plot_diffs_with_heinz(heinz_dir, exp_num)
+    plot_diffs_with_heinz(heinz_dir, experiment_num)
