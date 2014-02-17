@@ -190,7 +190,6 @@ class Experiment(object):
         gear_ratios         = vehicle['gear_ratios']
         (f0, f1, f2)        = vehicle['resistance_coeffs']
         params              = data['params']
-        f_n_max             = params.get('f_n_max', 1.2) #TODO: Move veh params as model attributes.
         v_max               = vehicle['v_max']
         if (v_max is None):
             v_max = n_rated / gear_ratios[-1]
@@ -223,7 +222,7 @@ class Experiment(object):
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial          = params.get('f_inertial', 1.1)
-        (A, P_REQ)          = calcPower_required(V, A, mass, f0, f1, f2, f_inertial)
+        P_REQ               = calcPower_required(V, A, mass, f0, f1, f2, f_inertial)
 
         ## Apply stopped-vehicle threshold AFTER Accel calculated.
         #    (Annex 2-3.2 & Annex 2-4(a), p72)
@@ -475,7 +474,7 @@ def calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial):
     P_REQ   = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
     assert  V.shape == P_REQ.shape, _shapes(V, P_REQ)
 
-    return (A, P_REQ)
+    return P_REQ
 
 
 

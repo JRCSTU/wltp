@@ -210,7 +210,7 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
         my_gears = df_my['gears']
         gears_hz = df_hz['gear']
-        accel = np.diff(df_my['v_class'])
+        accel = np.gradient(df_my['v_class'])
         diff_gears = (my_gears != gears_hz) & (accel >= 0)  # Ignore errors in decceleration phases.
         ngear_diffs = np.count_nonzero(diff_gears)
 
@@ -236,7 +236,7 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         #
         paths_to_plot = paths
 #         paths_to_plot = paths[0:9]
-        paths_to_plot = paths[4:6] + paths[7:9] + paths[13:16]
+        paths_to_plot = paths[5:6] + paths[7:9] + paths[13:16]
 
         ## Decide subplot-grid dimensions.
         #
@@ -274,6 +274,7 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         #    b2 on t-1 accel count(6355), min(149.0000), MEAN(211.8333), max(388.0000).
         #    skip-decel:     count(5995), min(137.0000), MEAN(199.8333), max(401.0000).
         #                    02189=332, 02371=401m 0891=381, 00409=301
+        #    work!           count(1894), min(11.0000), MEAN(63.1333), max(220.0000)
 
     else:
         inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(exp_num))
@@ -303,5 +304,14 @@ if __name__ == "__main__":
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-    run_the_experiments()
+    ## Run experiment only if algorithm has changed
+    #
+    mydate = os.path.getmtime(__file__)
+    checkfiles = ['../instances.py', '../experiment.py']
+    checkdates = [os.path.getmtime(os.path.join(mydir, f)) for f in checkfiles]
+    modifs = [fdate > mydate for fdate in checkdates]
+    if (any(modifs)):
+        run_the_experiments()
+
+
     plot_diffs_with_heinz(heinz_dir, exp_num)
