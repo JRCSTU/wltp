@@ -211,7 +211,7 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         my_gears = df_my['gears']
         gears_hz = df_hz['gear']
         accel = np.diff(df_my['v_class'])
-        diff_gears = (my_gears != gears_hz) & (accel >= 0)  # Ignore rrors i9n decceleration phases.
+        diff_gears = (my_gears != gears_hz) & (accel >= 0)  # Ignore errors in decceleration phases.
         ngear_diffs = np.count_nonzero(diff_gears)
 
         return (df_my, df_hz, ngear_diffs)
@@ -234,8 +234,9 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
         ## NOTE: Limit subplots to facilitate research.
         #
+        paths_to_plot = paths
 #         paths_to_plot = paths[0:9]
-        paths_to_plot = paths[4:6] + paths[7:9]
+        paths_to_plot = paths[4:6] + paths[7:9] + paths[13:16]
 
         ## Decide subplot-grid dimensions.
         #
@@ -268,7 +269,11 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         ## RESULTS:
         #    0.0.5-alpha:                 min(0.6108%), MEAN(3.6276%), max(12.1599%)
         #    0.0.5-alpha:    count(1960), min(11.0000), MEAN(65.3333), max(219.0000)
-        #
+
+        #    home            count(6486), min(151.0000), MEAN(216.2000), max(396.0000).
+        #    b2 on t-1 accel count(6355), min(149.0000), MEAN(211.8333), max(388.0000).
+        #    skip-decel:     count(5995), min(137.0000), MEAN(199.8333), max(401.0000).
+        #                    02189=332, 02371=401m 0891=381, 00409=301
 
     else:
         inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(exp_num))
@@ -298,5 +303,5 @@ if __name__ == "__main__":
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-#    run_the_experiments()
+    run_the_experiments()
     plot_diffs_with_heinz(heinz_dir, exp_num)

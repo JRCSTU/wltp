@@ -604,21 +604,20 @@ def rule_b1(t, pg, g, V, A, GEARS, driveability_issues):
 def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule (b2): Hold gears for at least 3sec."""
 
+    ## FIXME: Which second we check for "accelerating" here?
     ## NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
     if ((pg != GEARS[t-3:t-1]).any()):
-        if ((A[t-3:t] > 0).all()):
+        if (A[t-1] > 0):
             GEARS[t]        = pg
             addDriveabilityMessage(t, 'g%i: Rule(b.2): Hold g%i at least 3sec while accellerating.' % (g, pg), driveability_issues)
-            return True
-        elif ((A[t-3:t] < 0).all()):
-#             ## NOTE: On deceleration, skip gear.
-#             pt = t-1
-#             while (pt >= t-4 and GEARS[pt] == pg):
-#                 GEARS[pt]  = g
-#                 pt -= 1
-#             addDriveabilityMessage(t, 'g%i: Rule(b.2): Skip g%i <3sec while deccellerating.' % (g, pg), driveability_issues)
-#             return True
-            return False
+        else:
+            pt = t - 2
+            while (pt >= t-3 and GEARS[pt] == pg):
+                pt -= 1
+            GEARS[pt+1:t] = g
+            addDriveabilityMessage(t, 'g%i: Rule(b.2): Skip g%i %isec < 3sec while deccellerating.' % (g, pg, t-pt+1), driveability_issues)
+
+        return True
     return False
 
 
