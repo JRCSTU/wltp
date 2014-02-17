@@ -210,20 +210,30 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
         my_gears = df_my['gears']
         gears_hz = df_hz['gear']
+        diff_gears = (my_gears != gears_hz)
+        ndiff_gears = np.count_nonzero(diff_gears)
+
+        ## Count Acceleration-only errors.
         accel = np.gradient(df_my['v_class'])
-        diff_gears = (my_gears != gears_hz) & (accel >= 0)  # Ignore errors in decceleration phases.
-        ngear_diffs = np.count_nonzero(diff_gears)
+        diff_gears_accel = diff_gears[accel >= 0]
+        ndiff_gears_accel = np.count_nonzero(diff_gears_accel)
 
-        return (df_my, df_hz, ngear_diffs)
+        return (df_my, df_hz, ndiff_gears, ndiff_gears_accel)
 
 
+
+    fig = plt.figure()
+    text_infos = fig.text(0.5, 0.5, '', transform=fig.transFigure, bbox={'facecolor':'grey', 'alpha':0.3, 'pad':10}, horizontalalignment='center', verticalalignment='center')
 
     def fig_onpick(event):
         pickline = event.artist
         urls = pickline.get_urls()
-        print(urls.iloc[event.ind])
+        rule = urls.iloc[event.ind]
+        print(rule)
+        text_infos.set_text('Rule: %s' % rule)
 
-    fig = plt.figure()
+        fig.canvas.draw()
+
     fig.canvas.mpl_connect('pick_event', fig_onpick)
 
 
@@ -244,7 +254,7 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
         w = math.ceil(math.sqrt(npaths_to_plot))
         h = w-1 if ((w-1) * w >= npaths_to_plot) else w
 
-        g_diff = np.zeros(npaths)
+        g_diff = np.zeros((2, npaths))
         nplotted = 0
         for (n, inpfname) in enumerate(paths):
             log.info(">> Reading: %s", inpfname)
@@ -254,27 +264,33 @@ def plot_diffs_with_heinz(heinz_dir, exp_num=None):
 
 
             veh_num = int(m.group(1))
-            (df_my, df_hz, ngear_diffs)  = read_and_compare_experiment(inpfname, veh_num)
-            g_diff[n]           = ngear_diffs
+            (df_my, df_hz, ndiff_gears, ndiff_gears_accel)  = read_and_compare_experiment(inpfname, veh_num)
+            g_diff[0, n]           = ndiff_gears
+            g_diff[1, n]           = ndiff_gears_accel
 
 
             if (inpfname in paths_to_plot):
                 nplotted += 1
                 ax = fig.add_subplot(w, h, nplotted)
-                plotResults(os.path.basename(inpfname), df_my, df_hz, ngear_diffs, ax)
+                plotResults(os.path.basename(inpfname), df_my, df_hz, ndiff_gears, ax)
 
-        fig.suptitle('DIFFs: count(%i), min(%.4f), MEAN(%.4f), max(%.4f).' % (g_diff.sum(), g_diff.min(), g_diff.mean(), g_diff.max()))
-        log.info('DIFFs: count(%i), min(%.4f), MEAN(%.4f), max(%.4f).', g_diff.sum(), g_diff.min(), g_diff.mean(), g_diff.max())
+        fig.suptitle('±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).' % (g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max()))
+        log.info('#       ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max())
+        log.info('#       +DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[1].sum(), g_diff[1].min(), g_diff[1].mean(), g_diff[1].std(), g_diff[1].max())
 
         ## RESULTS:
         #    0.0.5-alpha:                 min(0.6108%), MEAN(3.6276%), max(12.1599%)
         #    0.0.5-alpha:    count(1960), min(11.0000), MEAN(65.3333), max(219.0000)
+        #    ±Accel erros    count(6486), min(151.0000), MEAN(216.2000), max(396.0000).
+        #
+        #    (b2)skip-decel: count(5995), min(137.0000), MEAN(199.8333±78.0727), max(401.0000).
+        #                    vehs: 02189=332, 02371=401m 0891=381, 00409=301
+        #    Accel only errs count(1894), min(11.0000), MEAN(63.1333±63.211), max(220.0000)
+        #
+        #    Heinz-db Pwot:
+        #       ±DIFFs: count(5758), min(135), MEAN(191.93±67.34), max(363).
+        #       +DIFFs: count(1681), min(10), MEAN(56.03±54.33), max(192).
 
-        #    home            count(6486), min(151.0000), MEAN(216.2000), max(396.0000).
-        #    b2 on t-1 accel count(6355), min(149.0000), MEAN(211.8333), max(388.0000).
-        #    skip-decel:     count(5995), min(137.0000), MEAN(199.8333), max(401.0000).
-        #                    02189=332, 02371=401m 0891=381, 00409=301
-        #    work!           count(1894), min(11.0000), MEAN(63.1333), max(220.0000)
 
     else:
         inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(exp_num))

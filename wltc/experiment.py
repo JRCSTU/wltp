@@ -517,7 +517,6 @@ def selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues):
     assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
 
     GEARS_YES               = G_BY_N & G_BY_P
-    addDriveabilityProblems((~GEARS_YES).all(axis=0), 'Mismatch power/revs.', driveability_issues)
     GEARS_MX[~GEARS_YES]    = -1                ## NOTE: Invalid gears will be smoothed-away in extra_rule(1).
     assert                  G_BY_N.dtype == G_BY_P.dtype == 'bool', _dtypes(G_BY_N, G_BY_P)
     GEARS                   = GEARS_MX.max(axis=0)
