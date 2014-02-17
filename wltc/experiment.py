@@ -248,7 +248,7 @@ class Experiment(object):
         ## Run cycle to find gears, clutch and real-velocirty.
         #
         load_curve          = vehicle['full_load_curve']
-        (V_REAL, GEARS, CLUTCH, RPM, P_AVAIL, driveability_issues) = \
+        (V_REAL, GEARS_ORIG, GEARS, CLUTCH, RPM, N_NORM, P_AVAIL, driveability_issues) = \
                             runCycle(V, A, P_REQ,
                                            gear_ratios,
                                            n_idle, n_min_drive, n_rated,
@@ -257,11 +257,13 @@ class Experiment(object):
         assert               V.shape == GEARS.shape, _shapes(V, GEARS)
 
         tabular['v_real']       = V_REAL
+        tabular['gears_orig']   = GEARS_ORIG
         tabular['gears']        = GEARS
         tabular['clutch']       = CLUTCH
-        #tabular['p_available']  = P_AVAIL
+        tabular['p_available']  = P_AVAIL
         tabular['p_required']   = P_REQ
         tabular['rpm']          = RPM
+        tabular['rpm_norm']     = N_NORM
         tabular['driveability'] = driveability_issues
 
 
@@ -484,14 +486,14 @@ def calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_
     @see: Annex 2-3.2, p 72
     '''
 
-    N_NORM          = (N_GEARS - n_idle) / (n_rated - n_idle)
-    P_WOT           = np.interp(N_NORM, load_curve[0], load_curve[1]) # When outside of load_curve, accept max-min gear.
+    N_NORMS         = (N_GEARS - n_idle) / (n_rated - n_idle)
+    P_WOTS          = np.interp(N_NORMS, load_curve[0], load_curve[1]) # When outside of load_curve, accept max-min gear.
 #     from scipy.interpolate import interp1d
 #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
-#     P_WOT           = intrerp_f(N_NORM)
-    P_AVAIL         = P_WOT * p_rated * p_safety_margin
+#     P_WOT           = intrerp_f(N_NORMS)
+    P_AVAILS        = P_WOTS * p_rated * p_safety_margin
 
-    return P_AVAIL
+    return (P_AVAILS, N_NORMS)
 
 def possibleGears_byPower(V, N_GEARS, P_REQ,
                           n_idle, n_rated, p_rated, load_curve, p_safety_margin,
@@ -501,7 +503,7 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
     @see: Annex 2-3.1 & 3.3, p 71 & 72
     '''
 
-    P_AVAIL     = calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_margin)
+    (P_AVAIL, N_NORMS)      = calcPower_available(N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_margin)
     assert      V.shape == P_REQ.shape and N_GEARS.shape == P_AVAIL.shape, \
                                 _shapes(V, P_REQ, N_GEARS, P_AVAIL)
 
@@ -510,7 +512,7 @@ def possibleGears_byPower(V, N_GEARS, P_REQ,
     GEARS_BAD = (~GEARS_YES).all(axis=0)
     addDriveabilityProblems(GEARS_BAD, 'Insufficient power!', driveability_issues)
 
-    return (GEARS_YES, P_AVAIL)
+    return (GEARS_YES, P_AVAIL, N_NORMS)
 
 def selectGears(V, GEARS_MX, G_BY_N, G_BY_P, driveability_issues):
     assert                  G_BY_N.shape == G_BY_P.shape, _shapes(V, G_BY_N, G_BY_P)
@@ -800,7 +802,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
                                                 n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                                 driveability_issues)
 
-    G_BY_P, P_AVAIL             = possibleGears_byPower(V, N_GEARS, P_REQ,
+    (G_BY_P, P_AVAILS, N_NORMS) = possibleGears_byPower(V, N_GEARS, P_REQ,
                                                 n_idle, n_rated, p_rated, load_curve, p_safety_margin,
                                                 driveability_issues)
 
@@ -808,20 +810,23 @@ def runCycle(V, A, P_REQ, gear_ratios,
     assert                      V.shape == GEARS.shape, _shapes(V, GEARS)
     assert                      'i' == GEARS.dtype.kind, GEARS.dtype
     assert                      ((GEARS >= -1) & (GEARS <= len(gear_ratios))).all(), (min(GEARS), max(GEARS))
-
+    GEARS_ORIG                  = GEARS.copy()
 
     CLUTCH[(GEARS == 2) & (N_GEARS[1, :] < n_clutch_gear2)] = True
 
     applyDriveabilityRules(V, A, GEARS, CLUTCH, len(gear_ratios), driveability_issues)
 
+    P_AVAIL                     = P_AVAILS[GEARS - 1, range(len(V))]
+    N_NORM                      = N_NORMS[GEARS - 1, range(len(V))]
+    RPM                         = N_GEARS[GEARS - 1, range(len(V))]
+
     ## Calculate real-celocity.
     #
     # TODO: Simplify V_real calc by avoiding multiply all.
-    RPM                         = N_GEARS[GEARS - 1, range(len(V))]
     V_REAL                      = (N_GEARS.T / np.array(gear_ratios)).T[GEARS - 1, range(len(V))]
     V_REAL[CLUTCH | (V == 0)]   = 0
 
-    return (V_REAL, GEARS, CLUTCH, RPM, P_AVAIL, driveability_issues)
+    return (V_REAL, GEARS_ORIG, GEARS, CLUTCH, RPM, N_NORM, P_AVAIL, driveability_issues)
 
 
 

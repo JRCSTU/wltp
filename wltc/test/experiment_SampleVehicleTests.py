@@ -133,6 +133,14 @@ def run_the_experiments(plot_results=False, encoding="ISO-8859-1"):
 ###################
 
 def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
+    plot_g_originals = False
+    if (plot_g_originals):
+        my_gear_col = 'gears_orig'
+        hz_gear_col = 'g_max'
+    else:
+        my_gear_col = 'gears'
+        hz_gear_col = 'gear'
+
     ax.set_title(veh_fname, fontdict={'fontsize': 8} )
     ax.grid(True)
 
@@ -156,7 +164,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
 
     ax.plot(my_df['v_class'] / v_max)
     ax.plot(my_df['v_target'] / v_max, '-.')
-    my_gears = my_df['gears']
+    my_gears = my_df[my_gear_col]
     ax.plot(my_gears / my_gears.max(), 'o')
     ax.plot(my_df['v_real'] / v_max)
 #     ax.plot(my_df['rpm'] / my_df['rpm'].max())
@@ -166,7 +174,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
 
     hz_v_real = hz_df['v']
     hz_v_target = hz_df['v_downscale']
-    hz_gears = hz_df['gear']
+    hz_gears = hz_df[hz_gear_col]
 
     ## Add pickers on driveability lines showing the specific msg.
     #
@@ -190,10 +198,10 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
     def run_experiments_if_outdated(outfiles):
         ## Run experiment only if algorithm has changed
         #
-        mydate = os.path.getmtime(outfiles[0])
+        resfiles_date = min([os.path.getmtime(file) for file in outfiles])
         checkfiles = ['../instances.py', '../experiment.py', 'sample_vehicles.csv']
         checkdates = [os.path.getmtime(os.path.join(mydir, f)) for f in checkfiles]
-        modifs = [fdate > mydate for fdate in checkdates]
+        modifs = [fdate > resfiles_date for fdate in checkdates]
         if (any(modifs)):
             run_the_experiments()
 
@@ -223,17 +231,23 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         df_my = read_sample_file(myfname)
         df_hz = read_heinz_file(veh_num)
 
+        ## Count base-calc errors (before dirveability).
+        ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
+
+        ## Count all errors.
+        #
         my_gears = df_my['gears']
         gears_hz = df_hz['gear']
         diff_gears = (my_gears != gears_hz)
         ndiff_gears = np.count_nonzero(diff_gears)
 
         ## Count Acceleration-only errors.
+        #
         accel = np.gradient(df_my['v_class'])
         diff_gears_accel = diff_gears[accel >= 0]
         ndiff_gears_accel = np.count_nonzero(diff_gears_accel)
 
-        return (df_my, df_hz, ndiff_gears, ndiff_gears_accel)
+        return (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
 
 
 
@@ -271,7 +285,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         w = math.ceil(math.sqrt(npaths_to_plot))
         h = w-1 if ((w-1) * w >= npaths_to_plot) else w
 
-        g_diff = np.zeros((2, npaths))
+        g_diff = np.zeros((3, npaths))
         nplotted = 0
         for (n, inpfname) in enumerate(paths):
             m = re.match('.*sample_vehicles-(\d+).csv', inpfname)
@@ -279,11 +293,13 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
 
 
             veh_num = int(m.group(1))
-            (df_my, df_hz, ndiff_gears, ndiff_gears_accel)  = read_and_compare_experiment(inpfname, veh_num)
-            g_diff[0, n]           = ndiff_gears
-            g_diff[1, n]           = ndiff_gears_accel
+            (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig) \
+                                    = read_and_compare_experiment(inpfname, veh_num)
+            g_diff[0, n]            = ndiff_gears
+            g_diff[1, n]            = ndiff_gears_accel
+            g_diff[2, n]            = ndiff_gears_orig
 
-            log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel)
+            log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i), ±ORIGs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
 
 
             if (inpfname in paths_to_plot):
@@ -294,6 +310,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         fig.suptitle('±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).' % (g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max()))
         log.info('#       ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max())
         log.info('#       +DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[1].sum(), g_diff[1].min(), g_diff[1].mean(), g_diff[1].std(), g_diff[1].max())
+        log.info('#       ±ORIGs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[2].sum(), g_diff[2].min(), g_diff[2].mean(), g_diff[2].std(), g_diff[2].max())
 
         ## RESULTS:
         #    0.0.5-alpha:                 min(0.6108%), MEAN(3.6276%), max(12.1599%)
@@ -319,11 +336,11 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
     else:
         inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(experiment_num))
 
-        (df_my, df_hz, gd)  = read_and_compare_experiment(inpfname, veh_num)
+        (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)  = read_and_compare_experiment(inpfname, veh_num)
 
         ax = fig.axes()
-        plotResults(os.path.basename(inpfname), df_my, df_hz, gd, ax)
-        log.info('DIFF: %.4f%%.', gd)
+        plotResults(os.path.basename(inpfname), df_my, df_hz, ndiff_gears, ax)
+        log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i), ±ORIGs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
 
 
     fig.tight_layout()

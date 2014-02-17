@@ -37,8 +37,8 @@ def model_base():
     n_norm = np.arange(0.0, 1.21, 0.01)
     ## PETROL:
     default_load_curve_petrol = [
+#        np.polyval([-1.0411, 1.3853, -0.5647, 1.1107, 0.0967], n_norm).tolist()
         n_norm.tolist(),
-#         np.polyval([-1.0411, 1.3853, -0.5647, 1.1107, 0.0967], n_norm).tolist()
         ## Form Heinz-db
         [
         0.1       ,  0.11100069,  0.12200138,  0.13300206,  0.14400275,
@@ -71,8 +71,8 @@ def model_base():
 
     ## DIESEL:
     default_load_curve_diesel = [
+#        np.polyval([-0.909, 1.9298, -2.2212, 2.088, 0.095], n_norm).tolist()
         n_norm.tolist(),
-#         np.polyval([-0.909, 1.9298, -2.2212, 2.088, 0.095], n_norm).tolist()
         ## Form Heinz-db
         [
          0.1       ,  0.11632768,  0.13265536,  0.14898304,  0.16531072,
