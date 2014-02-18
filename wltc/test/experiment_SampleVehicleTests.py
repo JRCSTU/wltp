@@ -28,6 +28,7 @@ from matplotlib import pyplot as plt
 from wltc.experiment import Experiment
 from wltc.model import Model
 from wltc.test.goodvehicle import goodVehicle
+from wltc.experiment import applyDriveabilityRules
 import glob
 import logging
 import math
@@ -58,7 +59,7 @@ class ExperimentSampleVehs(unittest.TestCase):
         run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding="ISO-8859-1")
 
 
-def run_the_experiments(plot_results=False, compare_results=False, encoding="ISO-8859-1"):
+def run_the_experiments(transplant_original_gears=True, plot_results=False, compare_results=False, encoding="ISO-8859-1"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
     csvfname = 'sample_vehicles.csv'
@@ -82,6 +83,22 @@ def run_the_experiments(plot_results=False, compare_results=False, encoding="ISO
         model = Model(inst)
         experiment = Experiment(model)
         experiment.run()
+
+        if (transplant_original_gears):
+            log.warning(">>> Transplating gears fro Heinz's!")
+            cycle_run = model.data['cycle_run']
+            hz_df = read_heinz_file(veh_num)
+            GEARS = np.array(hz_df['g_max'])
+            cycle_run['gears_orig'] = GEARS.copy()
+
+            V = np.array(cycle_run['v_class'])
+            A = np.append(np.diff(V), 0)
+            CLUTCH = np.array(cycle_run['clutch'])
+            driveability_issues = np.empty_like(V, dtype=object)
+            driveability_issues[:] = ''
+            applyDriveabilityRules(V, A, GEARS, CLUTCH, len(veh['gear_ratios']), driveability_issues)
+
+            cycle_run['gears'] = GEARS
 
         params = model.data['params']
 
@@ -107,6 +124,29 @@ def read_sample_file(inpfname):
     return df
 
 
+def read_heinz_file(veh_num, heinz_dir=None):
+    if (heinz_dir is None):
+        heinz_dir = os.path.join(mydir, samples_folder)
+
+    vehfpath = os.path.join(heinz_dir, 'heinz_Petrol_veh{:05}.csv'.format(veh_num))
+    try:
+        inpfname = glob.glob(vehfpath)[0]
+    except IndexError:
+        raise FileNotFoundError(vehfpath)
+    df = pd.read_csv(inpfname, encoding='latin-1', header=0, index_col=3)
+    assert df['vehicle_no'][0] == veh_num
+
+#     vehfpath = os.path.join(samples_folder, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
+#     inpfname = glob.glob(vehfpath)[0]
+#     df = pd.read_csv(inpfname, encoding='latin-1')
+
+    return df
+
+
+###################
+# COMPARE RESULTS #
+###################
+
 def compare_exp_results(tabular, outfname, run_comparison):
     if (run_comparison):
         try:
@@ -125,11 +165,6 @@ def compare_exp_results(tabular, outfname, run_comparison):
             print('>> COMPARING(%s): No old-tabular found, 1st time to run' % outfname)
             run_comparison = False
 
-
-
-###################
-# COMPARE RESULTS #
-###################
 
 def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
     plot_g_originals = False
@@ -191,9 +226,6 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
 
 
 def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
-    if (heinz_dir is None):
-        heinz_dir = mydir
-
     def is_experiments_outdated(outfiles):
         if not outfiles:
             return True
@@ -206,24 +238,9 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
 
 
 
-    def read_heinz_file(veh_num):
-        vehfpath = os.path.join(heinz_dir, samples_folder, 'heinz_Petrol_veh{:05}.csv'.format(veh_num))
-        try:
-            inpfname = glob.glob(vehfpath)[0]
-        except IndexError:
-            raise FileNotFoundError(vehfpath)
-        df = pd.read_csv(inpfname, encoding='latin-1', header=0, index_col=3)
-        assert df['vehicle_no'][0] == veh_num
-
-#         vehfpath = os.path.join(heinz_dir, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
-#         inpfname = glob.glob(vehfpath)[0]
-#         df = pd.read_csv(inpfname, encoding='latin-1')
-
-        return df
-
-    def read_and_compare_experiment(myfname, veh_num):
+    def read_and_compare_experiment(samples_folder, myfname, veh_num):
         df_my = read_sample_file(myfname)
-        df_hz = read_heinz_file(veh_num)
+        df_hz = read_heinz_file(veh_num, samples_folder)
 
         ## Count base-calc errors (before dirveability).
         ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
@@ -290,7 +307,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
 
             veh_num = int(m.group(1))
             (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig) \
-                                    = read_and_compare_experiment(inpfname, veh_num)
+                                    = read_and_compare_experiment(heinz_dir, inpfname, veh_num)
             g_diff[0, n]            = ndiff_gears
             g_diff[1, n]            = ndiff_gears_accel
             g_diff[2, n]            = ndiff_gears_orig
