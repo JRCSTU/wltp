@@ -737,7 +737,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     ]
     ## Apply the V-visiting driveability-rules x 2, as by specs.
     #
-    for _ in [0, 3]:
+    for _ in [0, 1]:
         # Apply rules over all cycle-steps.
         #
         pg = 0;                 # previous gear: GEARS[t-1]
@@ -752,8 +752,10 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
                 ## Apply the 1st rule to match.
                 #
                 for rule in rules:
-                    if rule(t, pg, g, V, A, GEARS, driveability_issues):
-                        break
+                    rule(t, pg, g, V, A, GEARS, driveability_issues)
+                    pg = GEARS[t-1]
+                    g = GEARS[t]
+
 
             pg = GEARS[t]
 

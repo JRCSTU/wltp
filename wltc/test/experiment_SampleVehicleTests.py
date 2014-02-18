@@ -421,6 +421,19 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #       ±DIFFs: count(1828), min(29), MEAN(60.93±37.66), max(157).
         #       +DIFFs: count(587), min(1), MEAN(19.57±24.41), max(81).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    NO RULE(d):             !!!(BUT increase in ^^)!!!
+        #           ±DIFFs: count(1799), min(29), MEAN(59.97±36.93), max(156).
+        #           +DIFFs: count(592), min(1), MEAN(19.73±24.54), max(81).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #     Overlapping application of rules:
+        #       ±DIFFs: count(1826), min(29), MEAN(60.87±36.32), max(150).
+        #       +DIFFs: count(576), min(1), MEAN(19.20±23.23), max(77).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    NO RULE(d):             !!!(BUT increase in ^^)!!!
+        #           ±DIFFs: count(1800), min(29), MEAN(60.00±35.87), max(150).
+        #           +DIFFs: count(582), min(1), MEAN(19.40±23.66), max(77).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+
 
 
 
