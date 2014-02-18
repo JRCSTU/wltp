@@ -697,13 +697,14 @@ def rule_f(t, pg, g, V, A, GEARS, driveability_issues):
 def rule_g(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule(g): Cancel upshifts if later downshifted for at least 2sec during acceleration."""
 
-    if (pg == g+1 and (GEARS[t:t+2] == g).all() and (A[t-1:t+2] >= 0).all()):
+    if (pg > g and (GEARS[t:t+2] == g).all() and (A[t-1:t] > 0).all()):
         ## Travel back in time for as long accelerating and same gear.
         #
         pt = t-2
-        while (GEARS[pt] == pg and A[pt] >= 0):
+        while (GEARS[pt] == pg and A[pt] > 0):
             pt -= 1
 
+        if (A[pt] >= 0):
             GEARS[pt+1:t] = g
             for tt in range(pt+1, t):
                 addDriveabilityMessage(tt, '(g: %i-->%i)' % (pg, g), driveability_issues)
@@ -757,7 +758,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
             pg = GEARS[t]
 
 
-    rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros)
+#     rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros)
 
 
 def runCycle(V, A, P_REQ, gear_ratios,

@@ -206,6 +206,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
 
     ## Plot gear diffs.
     #
+    ax2 = ax.twinx()
     my_gears = my_df[my_gear_col]
 
     hz_v_real = hz_df['v']
@@ -213,10 +214,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
     hz_gears = hz_df[hz_gear_col]
 
 
-    my_gears = my_gears / my_gears.max()
-    hz_gears = hz_gears / hz_gears.max()
     orig_gears = my_df['gears_orig']
-    orig_gears = orig_gears / orig_gears.max()
     if plot_diffs_gears_only:
         diff_gears = my_gears != hz_gears
         difft = diff_gears.nonzero()[0]
@@ -227,12 +225,12 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
         difft = list(difft)
         my_gears = my_gears[difft]
         hz_gears = hz_gears[difft]
-        ax.plot(difft, orig_gears[difft].tolist(), 'v', color='green')
-        ax.plot(difft, my_gears.tolist(), 'o', color='red')
-        ax.plot(difft, hz_gears.tolist(), '*', color='blue')
+        ax2.plot(difft, orig_gears[difft].tolist(), 'v', color='green')
+        ax2.plot(difft, my_gears.tolist(), 'o', color='red')
+        ax2.plot(difft, hz_gears.tolist(), '*', color='blue')
     else:
-        ax.plot(my_gears.tolist(), 'o', color='red')
-        ax.plot(hz_gears.tolist(), '*', color='blue')
+        ax2.plot(my_gears.tolist(), 'o', color='red')
+        ax2.plot(hz_gears.tolist(), '*', color='blue')
 
 
 
@@ -406,6 +404,22 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         # TRANSPLANTED:
         #       ±DIFFs: count(4771), min(122), MEAN(159.03±42.49), max(274).
         #       +DIFFs: count(752), min(3), MEAN(25.07±31.71), max(106).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(g) more greedy:
+        #           ±DIFFs: count(4826), min(122), MEAN(160.87±41.65), max(268).
+        #           +DIFFs: count(791), min(3), MEAN(26.37±30.30), max(101).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Apply Rule(g) on any beginning-gear (not on lower):
+        #       ±DIFFs: count(4738), min(122), MEAN(157.93±37.54), max(255).
+        #       +DIFFs: count(704), min(3), MEAN(23.47±26.32), max(88).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(g) on Accell but beggining on Accell OR flat:
+        #       ±DIFFs: count(4676), min(122), MEAN(155.87±35.53), max(249).
+        #       +DIFFs: count(642), min(3), MEAN(21.40±24.08), max(82).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    NO Rule(c)!
+        #       ±DIFFs: count(1828), min(29), MEAN(60.93±37.66), max(157).
+        #       +DIFFs: count(587), min(1), MEAN(19.57±24.41), max(81).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
 
 
