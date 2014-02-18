@@ -69,7 +69,7 @@ class ExperimentWholeVehs(unittest.TestCase):
 
 
     def plotResults(self, model):
-        tabular = model['tabular']['tabular']
+        tabular = model['cycle']['cycle']
         gears = tabular['gears']
         target = tabular['v_target']
         realv = tabular['v_real']
@@ -94,7 +94,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
 
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        tabular = model.data['results']['tabular']
+        tabular = model.data['results']['cycle']
         gears = tabular['gears']
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
@@ -122,7 +122,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        self.compare_exp_results(model.data['results']['tabular'], 'unpower1', self.run_comparison)
+        self.compare_exp_results(model.data['results']['cycle'], 'unpower1', self.run_comparison)
 
 
         inst['vehicle']['mass']         =  1000
@@ -134,7 +134,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        self.compare_exp_results(model.data['results']['tabular'], 'unpower2', self.run_comparison)
+        self.compare_exp_results(model.data['results']['cycle'], 'unpower2', self.run_comparison)
 
         if (plot_results):
             self.plotResults(model.data)

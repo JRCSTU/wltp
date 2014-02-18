@@ -95,7 +95,7 @@ def run_the_experiments(plot_results=False, compare_results=False, encoding="ISO
 
         (root, ext) = os.path.splitext(csvfname)
         outfname = '{}-{:05}{}'.format(root, veh_num, ext)
-        df = pd.DataFrame(results['tabular'])
+        df = pd.DataFrame(results['cycle'])
 
         compare_exp_results(df, outfname, compare_results)
         df.to_csv(outfname, index_label='time')

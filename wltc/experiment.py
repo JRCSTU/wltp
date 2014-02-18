@@ -178,7 +178,7 @@ class Experiment(object):
         ## Prepare results
         self.results        = results = data['results'] = {}
         tabular             = {}
-        results['tabular']  = tabular
+        results['cycle']  = tabular
 
         ## Extract vehicle attributes from model.
         #

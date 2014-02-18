@@ -75,7 +75,7 @@ class Model(object):
         results = self.data.get('results')
         if (not results is None):
             issues = []
-            drv = results['tabular']['driveability']
+            drv = results['cycle']['driveability']
             pt = -1
             for t in drv.nonzero()[0]:
                 if (pt+1 < t):
