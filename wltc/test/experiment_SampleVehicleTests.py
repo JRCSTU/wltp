@@ -35,13 +35,12 @@ import numpy as np
 import numpy.testing as npt
 import os
 import pandas as pd
-import pickle
 import re
-import tempfile
 import unittest
 
 
 mydir = os.path.dirname(__file__)
+samples_folder = 'samples'
 loglevel = level=logging.DEBUG
 logging.basicConfig(level=loglevel)
 logging.getLogger().setLevel(loglevel)
@@ -52,45 +51,18 @@ class ExperimentSampleVehs(unittest.TestCase):
 
 
     def setUp(self):
-        self.run_comparison = True # NOTE: Set it to False to UPDATE sample-results (assuming they are ok).
-
-
-    def compare_exp_results(self, tabular, fname, run_comparison):
-        tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
-        if (run_comparison):
-            try:
-                with open(tmpfname, 'rb') as tmpfile:
-                    data_prev = pickle.load(tmpfile)
-                    ## Compare changed-tabular
-                    #
-                    npt.assert_equal(tabular['gears'],  data_prev['gears'])
-                    # Unreached code in case of assertion.
-                    # cmp = tabular['gears'] != data_prev['gears']
-                    # if (cmp.any()):
-                    #     self.plotResults(data_prev)
-                    #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
-                    # else:
-                    #     print('>> COMPARING(%s): OK'%fname)
-            except FileNotFoundError as ex:  # @UnusedVariable
-                print('>> COMPARING(%s): No old-tabular found, 1st time to be stored in: '%fname, tmpfname)
-                run_comparison = False
-
-        if (not run_comparison):
-            with open(tmpfname, 'wb') as tmpfile:
-                pickle.dump(tabular, tmpfile)
-
+        self.run_comparison = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
 
 
     def testSampleVehicles(self, plot_results=False, encoding="ISO-8859-1"):
+        run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding="ISO-8859-1")
 
-        run_the_experiments(plot_results=False, encoding="ISO-8859-1")
 
-
-def run_the_experiments(plot_results=False, encoding="ISO-8859-1"):
+def run_the_experiments(plot_results=False, compare_results=False, encoding="ISO-8859-1"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
     csvfname = 'sample_vehicles.csv'
-    csvfname = os.path.join(mydir, csvfname)
+    csvfname = os.path.join(mydir, samples_folder, csvfname)
     df = pd.read_csv(csvfname, encoding = encoding, index_col = 0)
 
     for (ix, row) in df.iterrows():
@@ -124,7 +96,34 @@ def run_the_experiments(plot_results=False, encoding="ISO-8859-1"):
         (root, ext) = os.path.splitext(csvfname)
         outfname = '{}-{:05}{}'.format(root, veh_num, ext)
         df = pd.DataFrame(results['tabular'])
+
+        compare_exp_results(df, outfname, compare_results)
         df.to_csv(outfname, index_label='time')
+
+
+def read_sample_file(inpfname):
+    df = pd.read_csv(inpfname)
+
+    return df
+
+
+def compare_exp_results(tabular, outfname, run_comparison):
+    if (run_comparison):
+        try:
+            data_prev = read_sample_file(outfname)
+            ## Compare changed-tabular
+            #
+            npt.assert_array_equal(tabular['gears'],  data_prev['gears'])
+            # Unreached code in case of assertion.
+            # cmp = tabular['gears'] != data_prev['gears']
+            # if (cmp.any()):
+            #     self.plotResults(data_prev)
+            #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
+            # else:
+            #     print('>> COMPARING(%s): OK'%fname)
+        except OSError as ex:  # @UnusedVariable
+            print('>> COMPARING(%s): No old-tabular found, 1st time to run' % outfname)
+            run_comparison = False
 
 
 
@@ -195,25 +194,20 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
     if (heinz_dir is None):
         heinz_dir = mydir
 
-    def run_experiments_if_outdated(outfiles):
-        ## Run experiment only if algorithm has changed
-        #
+    def is_experiments_outdated(outfiles):
+        if not outfiles:
+            return True
+
         resfiles_date = min([os.path.getmtime(file) for file in outfiles])
-        checkfiles = ['../instances.py', '../experiment.py', 'sample_vehicles.csv']
+        checkfiles = ['../instances.py', '../experiment.py', 'samples/sample_vehicles.csv']
         checkdates = [os.path.getmtime(os.path.join(mydir, f)) for f in checkfiles]
         modifs = [fdate > resfiles_date for fdate in checkdates]
-        if (any(modifs)):
-            run_the_experiments()
+        return any(modifs)
 
 
-
-    def read_sample_file(inpfname):
-        df = pd.read_csv(inpfname)
-
-        return df
 
     def read_heinz_file(veh_num):
-        vehfpath = os.path.join(heinz_dir, 'heinz_Petrol_veh{:05}.csv'.format(veh_num))
+        vehfpath = os.path.join(heinz_dir, samples_folder, 'heinz_Petrol_veh{:05}.csv'.format(veh_num))
         try:
             inpfname = glob.glob(vehfpath)[0]
         except IndexError:
@@ -267,11 +261,13 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
 
 
     if experiment_num is None:
+        paths = glob.glob(os.path.join(mydir, samples_folder, 'sample_vehicles-*.csv'))
 
-        paths = glob.glob(os.path.join(mydir, 'sample_vehicles-*.csv'))
+        if is_experiments_outdated(paths):
+            run_the_experiments()
+            paths = glob.glob(os.path.join(mydir, samples_folder, 'sample_vehicles-*.csv'))
+
         npaths          = len(paths)
-
-        run_experiments_if_outdated(paths)
 
         ## NOTE: Limit subplots to facilitate research.
         #
@@ -363,7 +359,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #           +DIFFs: count(1205), min(8), MEAN(40.17±35.84), max(127).
         #           ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
     else:
-        inpfname = os.path.join(mydir, 'sample_vehicles-{:05}.csv'.format(experiment_num))
+        inpfname = os.path.join(mydir, samples_folder, 'sample_vehicles-{:05}.csv'.format(experiment_num))
 
         (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)  = read_and_compare_experiment(inpfname, veh_num)
 
