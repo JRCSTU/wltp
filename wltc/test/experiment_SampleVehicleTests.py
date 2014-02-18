@@ -83,9 +83,9 @@ def run_the_experiments(plot_results=False, compare_results=False, encoding="ISO
         experiment = Experiment(model)
         experiment.run()
 
-        results = model.data['results']
+        params = model.data['params']
 
-        f_downscale = results['f_downscale']
+        f_downscale = params['f_downscale']
         if (f_downscale > 0):
             log.warning('>> DOWNSCALE %s', f_downscale)
 
@@ -95,7 +95,7 @@ def run_the_experiments(plot_results=False, compare_results=False, encoding="ISO
 
         (root, ext) = os.path.splitext(csvfname)
         outfname = '{}-{:05}{}'.format(root, veh_num, ext)
-        df = pd.DataFrame(results['cycle'])
+        df = pd.DataFrame(model.data['cycle_run'])
 
         compare_exp_results(df, outfname, compare_results)
         df.to_csv(outfname, index_label='time')

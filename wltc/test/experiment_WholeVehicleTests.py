@@ -69,11 +69,11 @@ class ExperimentWholeVehs(unittest.TestCase):
 
 
     def plotResults(self, model):
-        tabular = model['cycle']['cycle']
-        gears = tabular['gears']
-        target = tabular['v_target']
-        realv = tabular['v_real']
-        clutch = tabular['clutch']
+        cycle = model['cycle_run']
+        gears = cycle['gears']
+        target = cycle['v_target']
+        realv = cycle['v_real']
+        clutch = cycle['clutch']
 
         clutch = clutch.nonzero()[0]
         plt.vlines(clutch,  0, 40)
@@ -91,20 +91,20 @@ class ExperimentWholeVehs(unittest.TestCase):
         model = Model(inst)
         experiment = Experiment(model)
         experiment.run()
-        self.assertTrue('results' in model.data, 'No "results" in Model: %s'%model.data)
+        self.assertTrue('cycle_run' in model.data, 'No result "cycle" in Model: %s'%model.data)
 
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        tabular = model.data['results']['cycle']
-        gears = tabular['gears']
+        cycle = model.data['cycle_run']
+        gears = cycle['gears']
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
 
-        self.compare_exp_results(tabular, 'goodveh', self.run_comparison)
+        self.compare_exp_results(cycle, 'goodveh', self.run_comparison)
 
 
         if (plot_results):
-            print(model.data['results'])
-            #print([wltc_data()['classes']['class3b']['cycle'][k] for k in model.data['results']['driveability_issues'].keys()])
+            print(model.data['cycle_run'])
+            #print([wltc_data()['classes']['class3b']['cycle_run'][k] for k in model.data['cycle_run']['driveability_issues'].keys()])
             self.plotResults(model.data)
 
             np.set_printoptions(edgeitems=16)
@@ -122,7 +122,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        self.compare_exp_results(model.data['results']['cycle'], 'unpower1', self.run_comparison)
+        self.compare_exp_results(model.data['cycle_run'], 'unpower1', self.run_comparison)
 
 
         inst['vehicle']['mass']         =  1000
@@ -134,7 +134,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(model)
         experiment.run()
         print('DRIVEABILITY: \n%s' % model.driveability_report())
-        self.compare_exp_results(model.data['results']['cycle'], 'unpower2', self.run_comparison)
+        self.compare_exp_results(model.data['cycle_run'], 'unpower2', self.run_comparison)
 
         if (plot_results):
             self.plotResults(model.data)

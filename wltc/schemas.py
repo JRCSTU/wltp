@@ -205,9 +205,17 @@ def model_schema():
                         'type': [ 'array', 'null'],
                         'default': [1.15, 0.03],
                     },
+                    'wltc_class': {
+                        'description': 'The name of the WLTC-class (found within WLTC-data/classes) as selected by the experiment.',
+                        'type': 'string',
+                    },
+                    'f_downscale': {
+                        'description': 'The downscaling-factor as calculated by the experiment (Annex 1-7.3, p68).',
+                        'type': 'number',
+                    },
                 }
             },
-            'results': {}, #TODO: results model-schema
+            'cycle_run': {}, #TODO: results(cycle) model-schema.
         },
         'definitions': {
             'positiveInteger': {

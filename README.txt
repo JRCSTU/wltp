@@ -57,8 +57,11 @@ A usage example::
     }
 
     >> experiment = wltc.Experiment(model)
+
     >> experiment.run()
-    >> print(model.data['results'])
+
+    >> print(model.data['params'])
+    >> print(model.data['cycle_run'])
     >> print(model.driveability_report())
 
 

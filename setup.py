@@ -43,7 +43,9 @@ Usage:
 
 A usage example::
 
-    model = wltc.Model({
+    >> import wltc
+
+    >> model = wltc.Model({
         "vehicle": {
             "mass":     1500,
             "v_max":    195,
@@ -56,9 +58,13 @@ A usage example::
         }
     }
 
-    experiment = wltc.Experiment(model)
-    experiment.run()
-    json.dumps(model['results'])
+    >> experiment = wltc.Experiment(model)
+
+    >> experiment.run()
+
+    >> print(model.data['params'])
+    >> print(model.data['cycle_run'])
+    >> print(model.driveability_report())
 
 
 For information on the model-data, check the schema::

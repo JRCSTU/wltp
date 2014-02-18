@@ -52,8 +52,11 @@ A usage example::
     }
 
     >> experiment = wltc.Experiment(model)
+
     >> experiment.run()
-    >> print(model.data['results'])
+
+    >> print(model.data['params'])
+    >> print(model.data['cycle_run'])
     >> print(model.driveability_report())
 
 
@@ -176,9 +179,9 @@ class Experiment(object):
         vehicle     = data['vehicle']
 
         ## Prepare results
-        self.results        = results = data['results'] = {}
+        #
         tabular             = {}
-        results['cycle']  = tabular
+        data['cycle_run']       = tabular
 
         ## Extract vehicle attributes from model.
         #
@@ -201,7 +204,7 @@ class Experiment(object):
         class_limits            = self.wltc['classification']['p_to_mass_class_limits']
         class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
         wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
-        results['wltc_class']   = wltc_class
+        params['wltc_class']   = wltc_class
         class_data              = self.wltc['classes'][wltc_class]
         cycle                   = np.array(class_data['cycle'])
 
@@ -239,7 +242,7 @@ class Experiment(object):
         f_downscale         = calcDownscaleFactor(P_REQ,
                                                       p_max_values, downsc_coeffs, dsc_v_split,
                                                       p_rated, v_max)
-        results['f_downscale'] = f_downscale
+        params['f_downscale'] = f_downscale
         if (f_downscale > 0):
             V               = downscaleCycle(V, f_downscale, phases)
         tabular['v_target'] = V

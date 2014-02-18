@@ -72,10 +72,10 @@ class Model(object):
         validate_full_load_curve(self.data['vehicle']['full_load_curve'], self.data['params']['f_n_max'])
 
     def driveability_report(self):
-        results = self.data.get('results')
-        if (not results is None):
+        cycle = self.data.get('cycle')
+        if (not cycle is None):
             issues = []
-            drv = results['cycle']['driveability']
+            drv = cycle['driveability']
             pt = -1
             for t in drv.nonzero()[0]:
                 if (pt+1 < t):
