@@ -166,7 +166,7 @@ def compare_exp_results(tabular, outfname, run_comparison):
             run_comparison = False
 
 
-def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
+def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True):
     plot_g_originals = False
     if (plot_g_originals):
         my_gear_col = 'gears_orig'
@@ -198,17 +198,45 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
 
     ax.plot(my_df['v_class'] / v_max)
     ax.plot(my_df['v_target'] / v_max, '-.')
-    my_gears = my_df[my_gear_col]
-    ax.plot(my_gears / my_gears.max(), 'o')
-    ax.plot(my_df['v_real'] / v_max)
+
 #     ax.plot(my_df['rpm'] / my_df['rpm'].max())
 #     p_req = my_df['p_required'] / my_df['p_required'].max()
 #     p_req[p_req < 0] = 0
 #     ax.plot(p_req)
 
+    ## Plot gear diffs.
+    #
+    my_gears = my_df[my_gear_col]
+
     hz_v_real = hz_df['v']
     hz_v_target = hz_df['v_downscale']
     hz_gears = hz_df[hz_gear_col]
+
+
+    my_gears = my_gears / my_gears.max()
+    hz_gears = hz_gears / hz_gears.max()
+    orig_gears = my_df['gears_orig']
+    orig_gears = orig_gears / orig_gears.max()
+    if plot_diffs_gears_only:
+        diff_gears = my_gears != hz_gears
+        difft = diff_gears.nonzero()[0]
+        difft = set().union(difft,
+                    difft+1, difft+2, difft+3, difft+4, difft+5, difft+6,
+                    difft-1, difft-2, difft-3, difft-4, difft-5, difft-6,
+        )
+        difft = list(difft)
+        my_gears = my_gears[difft]
+        hz_gears = hz_gears[difft]
+        ax.plot(difft, orig_gears[difft].tolist(), '+', color='green')
+        ax.plot(difft, my_gears.tolist(), 'o', color='red')
+        ax.plot(difft, hz_gears.tolist(), '*', color='blue')
+    else:
+        ax.plot(my_gears.tolist(), 'o', color='red')
+        ax.plot(hz_gears.tolist(), '*', color='blue')
+
+
+
+    ax.plot(my_df['v_real'] / v_max)
 
     ## Add pickers on driveability lines showing the specific msg.
     #
@@ -220,7 +248,6 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax):
 
     ax.plot(hz_v_target / v_max, '--')
     ax.plot(hz_v_real / v_max, ':')
-    ax.plot(hz_gears / hz_gears.max(), '*')
 
     ax.text(0.7, 0, 'Diffs: %.4f' % g_diff, transform=ax.transAxes, bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
 
