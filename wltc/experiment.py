@@ -280,7 +280,8 @@ class Experiment(object):
 
 
 def addDriveabilityMessage(time_step, msg, driveability_issues):
-    driveability_issues[time_step] = msg
+    old = driveability_issues[time_step]
+    driveability_issues[time_step] = old + msg
 
 
 def addDriveabilityProblems(GEARS_BAD, reason, driveability_issues):
@@ -589,36 +590,39 @@ def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
             break
         GEARS[t_accel - 1:t_accel]          = 1
         CLUTCH[t_accel - 1:t_accel - 2]     = True
-        addDriveabilityMessage(t_accel-1, 'g0: Rule(a):   Set g1-clutched from standstill.', driveability_issues)
+        addDriveabilityMessage(t_accel-1, '(a: X-->0)', driveability_issues)
     assert_regexp_unmatched(b'\x00[^\x00\x01]', GEARS.astype('uint8').tostring(), 'Jumped gears from standstill')
 
 
 def rule_b1(t, pg, g, V, A, GEARS, driveability_issues):
-    """Rule (b1): Do not skip gears while accellerating."""
+    """Rule (b1): Do not skip gears while accelerating."""
 
     if ((pg+1) < g and A[t] > 0):
         pg          = pg+1
         GEARS[t]    = pg
-        addDriveabilityMessage(t, 'g%i: Rule(b.1): Do not skip g%i while accellerating.' % (g, pg), driveability_issues)
+        addDriveabilityMessage(t, '(b1: %i-->%i)' % (g, pg), driveability_issues)
         return True
     return False
 
 
 def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
-    """Rule (b2): Hold gears for at least 3sec."""
+    """Rule (b2): Hold gears for at least 3sec when accelerating.
+       Rule (b3): Skip gears <3sec when decelerating.
+    """
 
     ## FIXME: Which second we check for "accelerating" here?
     ## NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
     if ((pg != GEARS[t-3:t-1]).any()):
         if (A[t-1] >= 0):
             GEARS[t]        = pg
-            addDriveabilityMessage(t, 'g%i: Rule(b.2): Hold g%i at least 3sec while accellerating.' % (g, pg), driveability_issues)
+            addDriveabilityMessage(t, '(b2: %i-->%i)' % (g, pg), driveability_issues)
         else:
             pt = t - 2
             while (pt >= t-3 and GEARS[pt] == pg):
                 pt -= 1
             GEARS[pt+1:t] = g
-            addDriveabilityMessage(t, 'g%i: Rule(b.2): Skip g%i %isec < 3sec while decellerating.' % (g, pg, t-pt+1), driveability_issues)
+            for tt in range(pt+1, t):
+                addDriveabilityMessage(tt, '(b3: %i-->%i)' % (pg, g), driveability_issues)
 
         return True
     return False
@@ -629,7 +633,7 @@ def rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros):
 
      Implemented with a regex, outside rules-loop:
      Search for zeros in _reversed_ V & GEAR profiles,
-     for as long Accell is negative.
+     for as long Accel is negative.
      NOTE: Rule(c) is the last rule to run, outside x2 loop.
     """
 
@@ -641,7 +645,7 @@ def rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros):
             break
         t = nV - t_stop - 1
         while (A[t] < 0):
-            addDriveabilityMessage(t, 'g%i: Rule(c):   Set idle while decelerating to standstill.'%GEARS[t], driveability_issues)
+            addDriveabilityMessage(t, '(c: %i-->0)'% GEARS[t], driveability_issues)
             GEARS[t]   = 0
             CLUTCH[t]  = False
             t -= 1
@@ -652,7 +656,7 @@ def rule_d(t, pg, g, V, A, GEARS, driveability_issues):
 
     if (A[t-2] > 0 and  A[t-1] < 0 and GEARS[t-2] == pg):
         GEARS[t]    = pg
-        addDriveabilityMessage(t, 'g%i: Rule(d):   Cancel shift after peak, restore to g%i.' % (g, pg), driveability_issues)
+        addDriveabilityMessage(t, '(d: %i-->%i)' % (g, pg), driveability_issues)
         return True
     return False
 
@@ -670,7 +674,7 @@ def rule_e(t, pg, g, V, A, GEARS, driveability_issues):
         if (GEARS[pt] < pg):
             GEARS[pt+1:t] = g
             for tt in range(pt+1, t):
-                addDriveabilityMessage(tt, 'g%i: Rule(e):   Cancel <5sec %isec upshift, restore to g%i.' % (pg, t-pt-1, g), driveability_issues)
+                addDriveabilityMessage(tt, '(e: %i-->%i)' % (pg, g), driveability_issues)
             return True
     return False
 
@@ -684,7 +688,7 @@ def rule_f(t, pg, g, V, A, GEARS, driveability_issues):
         # FIXME: Rule(f) implement further constraints.
         # NOTE: Rule(f): What if extra conditions unsatisfied? Allow shifting for 1 sec only??
         GEARS[t-1] = g
-        addDriveabilityMessage(t-1, 'g%i: Rule(g):   Cancel 1sec downshift, restore to g%i.' % (pg, g), driveability_issues)
+        addDriveabilityMessage(t-1, '(f: %i-->%i)' % (pg, g), driveability_issues)
         return True
 
     return False
@@ -702,7 +706,7 @@ def rule_g(t, pg, g, V, A, GEARS, driveability_issues):
 
             GEARS[pt+1:t] = g
             for tt in range(pt+1, t):
-                addDriveabilityMessage(tt, 'g%i: Rule(g):   Cancel %isec accelerated upshift later downshifted, restore to g%i.' % (pg, t-1-pt, g), driveability_issues)
+                addDriveabilityMessage(tt, '(g: %i-->%i)' % (pg, g), driveability_issues)
             return True
 
         return False
@@ -732,11 +736,11 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     ]
     ## Apply the V-visiting driveability-rules x 2, as by specs.
     #
-    for _ in [0, 1]:
+    for _ in [0, 3]:
         # Apply rules over all cycle-steps.
         #
         pg = 0;                 # previous gear: GEARS[t-1]
-        for (t, g) in enumerate(GEARS[5:], 5):
+        for (t, g) in enumerate(GEARS[5:], 5):  # Start from 5th element to accomodate rule(e)'s backtracking.
             if (g != pg):       ## All rules triggered by a gear-shift.
 
                 ## NOTE: Extra_rule(1): Smooth-away INVALID-GEARS.

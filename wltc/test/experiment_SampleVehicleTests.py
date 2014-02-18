@@ -227,7 +227,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
         difft = list(difft)
         my_gears = my_gears[difft]
         hz_gears = hz_gears[difft]
-        ax.plot(difft, orig_gears[difft].tolist(), '+', color='green')
+        ax.plot(difft, orig_gears[difft].tolist(), 'v', color='green')
         ax.plot(difft, my_gears.tolist(), 'o', color='red')
         ax.plot(difft, hz_gears.tolist(), '*', color='blue')
     else:
@@ -402,6 +402,14 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #           ±DIFFs: count(5306), min(135), MEAN(176.87±47.05), max(303).
         #           +DIFFs: count(1205), min(8), MEAN(40.17±35.84), max(127).
         #           ±ORIGs: count(539), min(7), MEAN(17.97±8.83), max(35).
+        #
+        # TRANSPLANTED:
+        #       ±DIFFs: count(4771), min(122), MEAN(159.03±42.49), max(274).
+        #       +DIFFs: count(752), min(3), MEAN(25.07±31.71), max(106).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+
+
+
     else:
         inpfname = os.path.join(mydir, samples_folder, 'sample_vehicles-{:05}.csv'.format(experiment_num))
 
