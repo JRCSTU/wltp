@@ -26,7 +26,6 @@ Run it as cmd-line to compare with Heinz's results.
 
 from matplotlib import pyplot as plt
 from wltc.experiment import Experiment
-from wltc.model import Model
 from wltc.test.goodvehicle import goodVehicle
 from wltc.experiment import applyDriveabilityRules
 import glob
@@ -69,8 +68,8 @@ def run_the_experiments(transplant_original_gears=True, plot_results=False, comp
     for (ix, row) in df.iterrows():
         veh_num = ix
 
-        inst = goodVehicle()
-        veh = inst['vehicle']
+        model = goodVehicle()
+        veh = model['vehicle']
 
         veh['mass'] = row['test_mass']
         veh['resistance_coeffs'] = list(row['f0':'f2'])
@@ -80,13 +79,12 @@ def run_the_experiments(transplant_original_gears=True, plot_results=False, comp
         ngears = int(row['no_of_gears'])
         veh['gear_ratios'] = list(row[6:6+ngears]) #'ndv_1'
 
-        model = Model(inst)
         experiment = Experiment(model)
-        experiment.run()
+        model = experiment.run()
 
         if (transplant_original_gears):
             log.warning(">>> Transplating gears fro Heinz's!")
-            cycle_run = model.data['cycle_run']
+            cycle_run = model['cycle_run']
             hz_df = read_heinz_file(veh_num)
             GEARS = np.array(hz_df['g_max'])
             cycle_run['gears_orig'] = GEARS.copy()
@@ -100,7 +98,7 @@ def run_the_experiments(transplant_original_gears=True, plot_results=False, comp
 
             cycle_run['gears'] = GEARS
 
-        params = model.data['params']
+        params = model['params']
 
         f_downscale = params['f_downscale']
         if (f_downscale > 0):
@@ -112,7 +110,7 @@ def run_the_experiments(transplant_original_gears=True, plot_results=False, comp
 
         (root, ext) = os.path.splitext(csvfname)
         outfname = '{}-{:05}{}'.format(root, veh_num, ext)
-        df = pd.DataFrame(model.data['cycle_run'])
+        df = pd.DataFrame(model['cycle_run'])
 
         compare_exp_results(df, outfname, compare_results)
         df.to_csv(outfname, index_label='time')

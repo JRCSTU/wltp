@@ -24,7 +24,6 @@
 
 
 from ..experiment import Experiment
-from ..model import Model
 from .goodvehicle import goodVehicle
 from matplotlib import pyplot as plt
 import logging
@@ -59,7 +58,7 @@ class ExperimentWholeVehs(unittest.TestCase):
                     #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
                     # else:
                     #     print('>> COMPARING(%s): OK'%fname)
-            except FileNotFoundError as ex:
+            except FileNotFoundError as ex:  # @UnusedVariable
                 print('>> COMPARING(%s): No old-tabular found, 1st time to be stored in: '%fname, tmpfname)
                 run_comparison = False
 
@@ -86,15 +85,14 @@ class ExperimentWholeVehs(unittest.TestCase):
     def testGoodVehicle(self, plot_results=False):
         logging.getLogger().setLevel(logging.DEBUG)
 
-        inst = goodVehicle()
+        model = goodVehicle()
 
-        model = Model(inst)
         experiment = Experiment(model)
-        experiment.run()
-        self.assertTrue('cycle_run' in model.data, 'No result "cycle" in Model: %s'%model.data)
+        model = experiment.run()
+        self.assertTrue('cycle_run' in model, 'No result "cycle" in Model: %s'%model)
 
-        print('DRIVEABILITY: \n%s' % model.driveability_report())
-        cycle = model.data['cycle_run']
+        print('DRIVEABILITY: \n%s' % experiment.driveability_report())
+        cycle = model['cycle_run']
         gears = cycle['gears']
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
@@ -103,9 +101,9 @@ class ExperimentWholeVehs(unittest.TestCase):
 
 
         if (plot_results):
-            print(model.data['cycle_run'])
-            #print([wltc_data()['classes']['class3b']['cycle_run'][k] for k in model.data['cycle_run']['driveability_issues'].keys()])
-            self.plotResults(model.data)
+            print(model['cycle_run'])
+            #print([wltc_data()['classes']['class3b']['cycle_run'][k] for k in model['cycle_run']['driveability_issues'].keys()])
+            self.plotResults(model)
 
             np.set_printoptions(edgeitems=16)
             #print(driveability_issues)
@@ -115,29 +113,27 @@ class ExperimentWholeVehs(unittest.TestCase):
 
 
     def testUnderPowered(self, plot_results=False):
-        inst = goodVehicle()
-        inst['vehicle']['p_rated'] = 50
+        model = goodVehicle()
+        model['vehicle']['p_rated'] = 50
 
-        model = Model(inst)
         experiment = Experiment(model)
-        experiment.run()
-        print('DRIVEABILITY: \n%s' % model.driveability_report())
-        self.compare_exp_results(model.data['cycle_run'], 'unpower1', self.run_comparison)
+        model = experiment.run()
+        print('DRIVEABILITY: \n%s' % experiment.driveability_report())
+        self.compare_exp_results(model['cycle_run'], 'unpower1', self.run_comparison)
 
 
-        inst['vehicle']['mass']         =  1000
-        inst['vehicle']['p_rated']      =  80
-        inst['vehicle']['v_max']        =  120
-        inst['vehicle']['gear_ratios']  = [120.5, 95, 72, 52]
+        model['vehicle']['mass']         =  1000
+        model['vehicle']['p_rated']      =  80
+        model['vehicle']['v_max']        =  120
+        model['vehicle']['gear_ratios']  = [120.5, 95, 72, 52]
 
-        model = Model(inst)
         experiment = Experiment(model)
-        experiment.run()
-        print('DRIVEABILITY: \n%s' % model.driveability_report())
-        self.compare_exp_results(model.data['cycle_run'], 'unpower2', self.run_comparison)
+        model = experiment.run()
+        print('DRIVEABILITY: \n%s' % experiment.driveability_report())
+        self.compare_exp_results(model['cycle_run'], 'unpower2', self.run_comparison)
 
         if (plot_results):
-            self.plotResults(model.data)
+            self.plotResults(model)
             plt.show()
 
 

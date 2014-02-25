@@ -38,7 +38,7 @@ A usage example::
 
     >> import wltc
 
-    >> model = wltc.Model({
+    >> model = {
         "vehicle": {
             "mass":     1500,
             "v_max":    195,
@@ -53,11 +53,11 @@ A usage example::
 
     >> experiment = wltc.Experiment(model)
 
-    >> experiment.run()
+    >> model = experiment.run()
 
-    >> print(model.data['params'])
-    >> print(model.data['cycle_run'])
-    >> print(model.driveability_report())
+    >> print(model['params'])
+    >> print(model['cycle_run'])
+    >> print(Experiment.driveability_report())
 
 
 
@@ -141,17 +141,17 @@ class Experiment(object):
     '''
 
 
-    def __init__(self, model, validate_wltc = False):
+    def __init__(self, *models, skip_model_validation=False, validate_wltc = False):
         """
         ``model`` is a tree (formed by dicts & lists) holding the experiment data.
 
-        ``skip_validation`` when true, does not validate the model.
+        ``skip_model_validation`` when true, does not validate the model.
         """
 
         from .instances import wltc_data
 
         self.dtype = np.float64
-        self.model = model
+        self.set_models(*models, skip_validation=skip_model_validation)
         self.wltc = wltc_data()
 
         if (validate_wltc):
@@ -175,13 +175,13 @@ class Experiment(object):
         @see: Annex 2, p 70
         '''
 
-        data        = self.model.data
-        vehicle     = data['vehicle']
+        model       = self.model
+        vehicle     = model['vehicle']
 
         ## Prepare results
         #
         tabular             = {}
-        data['cycle_run']       = tabular
+        model['cycle_run']  = tabular
 
         ## Extract vehicle attributes from model.
         #
@@ -192,7 +192,7 @@ class Experiment(object):
         n_min_drive         = vehicle['n_min']
         gear_ratios         = vehicle['gear_ratios']
         (f0, f1, f2)        = vehicle['resistance_coeffs']
-        params              = data['params']
+        params              = model['params']
         v_max               = vehicle['v_max']
         if (v_max is None):
             v_max = n_rated / gear_ratios[-1]
@@ -204,7 +204,7 @@ class Experiment(object):
         class_limits            = self.wltc['classification']['p_to_mass_class_limits']
         class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
         wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
-        params['wltc_class']   = wltc_class
+        params['wltc_class']    = wltc_class
         class_data              = self.wltc['classes'][wltc_class]
         cycle                   = np.array(class_data['cycle'])
 
@@ -268,6 +268,51 @@ class Experiment(object):
         tabular['rpm']          = RPM
         tabular['rpm_norm']     = N_NORM
         tabular['driveability'] = driveability_issues
+
+
+        return model
+
+
+#######################
+##       MODEL       ##
+#######################
+
+
+    def set_models(self, *models, skip_validation=False):
+        import functools
+        from .instances import model_base, merge
+
+        self.model = model_base()
+        functools.reduce(merge, [self.model] + list(models))
+        if not skip_validation:
+            self.validate()
+
+
+    def validate(self, iter_errors=False):
+        from .schemas import model_validator, validate_full_load_curve
+
+        if iter_errors:
+            return model_validator().iter_errors(self.model)
+        else:
+            model_validator().validate(self.model)
+
+        validate_full_load_curve(self.model['vehicle']['full_load_curve'], self.model['params']['f_n_max'])
+
+    def driveability_report(self):
+        cycle = self.model.get('cycle_run')
+        if (not cycle is None):
+            issues = []
+            drv = cycle['driveability']
+            pt = -1
+            for t in drv.nonzero()[0]:
+                if (pt+1 < t):
+                    issues += ['...']
+                issues += ['{:>4}: {}'.format(t, drv[t])]
+                pt = t
+
+            return '\n'.join(issues)
+        return None
+
 
 
 

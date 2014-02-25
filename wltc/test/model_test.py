@@ -22,7 +22,7 @@
 @since 5 Jan 2014
 '''
 
-from ..model import Model
+from ..experiment import Experiment
 from .. import instances as insts
 from .goodvehicle import goodVehicle
 import unittest
@@ -31,35 +31,37 @@ import unittest
 class Test(unittest.TestCase):
 
     def testGoodVehicle(self):
-        inst = goodVehicle()
+        model = goodVehicle()
 
-        model = Model(inst)
-        self.assertEqual(model.data['vehicle']['full_load_curve'], insts.default_load_curve())
+        exp = Experiment(model)
+        model = exp.model
+        self.assertEqual(model['vehicle']['full_load_curve'], insts.default_load_curve())
 
 
     def testOverlayOnInit(self):
-        inst = goodVehicle()
+        model = goodVehicle()
         nval = 6000
-        inst2 = {
+        model2 = {
             "vehicle": {
                 "n_rated":nval,
             }
         }
 
-        model = Model(inst, inst2)
-        self.assertEqual(model.data['vehicle']['n_rated'], nval)
+        exp = Experiment(model, model2)
+        model = exp.model
+        self.assertEqual(model['vehicle']['n_rated'], nval)
 
     def testMultiErrors(self):
-        inst = goodVehicle()
-        inst2 = {
+        model = goodVehicle()
+        model2 = {
             "vehicle": {
                 "n_rated":-1,
                 "n_idle":-2,
             }
         }
 
-        model = Model(inst, inst2, skip_validation=True)
-        errors = list(model.validate(True))
+        exp = Experiment(model, model2, skip_model_validation=True)
+        errors = list(exp.validate(True))
         self.assertIsNotNone(errors)
         self.assertEqual(len(errors), 2)
 

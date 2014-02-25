@@ -45,26 +45,26 @@ A usage example::
 
     >> import wltc
 
-    >> model = wltc.Model({
+    >> model = {
         "vehicle": {
             "mass":     1500,
             "v_max":    195,
             "p_rated":  100,
             "n_rated":  5450,
             "n_idle":   950,
-            "n_min":    500,
+            "n_min":    None, # Can be overriden by manufacturer.
             "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
             "resistance_coeffs":[100, 0.5, 0.04],
         }
     }
 
-    >> experiment = wltc.Experiment(model)
+    >> model = experiment = wltc.Experiment(model)
 
     >> experiment.run()
 
-    >> print(model.data['params'])
-    >> print(model.data['cycle_run'])
-    >> print(model.driveability_report())
+    >> print(model['params'])
+    >> print(model['cycle_run'])
+    >> print(Experiment.driveability_report())
 
 
 For information on the model-data, check the schema::

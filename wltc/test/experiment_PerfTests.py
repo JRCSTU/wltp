@@ -23,7 +23,6 @@
 '''
 
 from ..experiment import Experiment
-from ..model import Model
 from .goodvehicle import goodVehicle
 import logging
 import unittest
@@ -37,10 +36,9 @@ class ExperimentPerf(unittest.TestCase):
 
         nexp = 100
         start = time.time()
-        for i in range(nexp):
-            inst = goodVehicle()
+        for _ in range(nexp):
+            model = goodVehicle()
 
-            model = Model(inst)
             experiment = Experiment(model)
 
             experiment.run()
