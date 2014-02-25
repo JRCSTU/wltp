@@ -58,9 +58,9 @@ A usage example::
         }
     }
 
-    >> model = experiment = wltc.Experiment(model)
+    >> experiment = wltc.Experiment(model)
 
-    >> experiment.run()
+    >> model = experiment.run()
 
     >> print(model['params'])
     >> print(model['cycle_run'])
