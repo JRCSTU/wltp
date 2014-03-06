@@ -1,7 +1,47 @@
 CHANGES
 =======
 
-v0.0.3.alpha, 22-Jan-2014 -- Alpha release
+v0.0.7, XXX-2014 -- Alpha release
+-----------------------------------
+* Possible to uild as standalone `.exe` using `cx_freeze`.
+
+
+v0.0.6-alpha, 5-Feb-2014 -- Alpha release
+-----------------------------------
+* Make it build as standalone `.exe` using `cx_freeze`.
+* Possible to transplant base-gears and then apply on them driveability-rules.
+* Embed Model --> Experiment to simplify client-code.
+* Changes in the data-schema for facilitating conditional runs.
+* More reverse-engineered comparisons with heinz's data.
+
+
+v0.0.5-alpha, 18-Feb-2014 -- Alpha release
+-----------------------------------
+* Many driveability-improvements found by trial-n-error comparing with Heinz's.
+* Changes in the data-schema for facilitating storing of tabular-data.
+* Use Euro6 polynomial full_load_curve from Fontaras.
+* Smooth-away INALID-GEARS.
+* Make the plottings of comparisons of sample-vehicle with Heinz'results interactively report driveability-rules.
+* Also report GEARS_ORIG, RPM_NORM, P_AVAIL, RPM, GEARS_ORIG, RPM_NORM results.
+
+
+v0.0.4.alpha, 18-Jan-2014 -- Alpha release
+-----------------------------------
+* Starting to compare with Heinz's data - FOUND DISCREPANCIES IMPLTYING ERROR IN BASE CALCS.
+* Test-enhancements and code for comparing with older runs to track algo behavior.
+* Calc 'V_real'.
+* Also report RPMS, P_REQ, DIRVEABILITY results.
+* Make v_max optionally calculated from max_gear /  gear_ratios.
+* BUGFIX: in P_AVAIL 100% percents were mixed [0, 1] ratios!
+* BUGFIX: make `goodVehicle` a function to avoid mutation side-effects.
+* BUGFIX: add forgotten division on p_required Accel/3.6.
+* BUGFIX: velocity-profile mistakenly rounded to integers!
+* BUGFIX: v_max calculation based on n_rated (not 1.2 * n_rated).
+* FIXME: get default_load_curve floats from Heinz-db.
+* FIXME: what to to with INVALID-GEARS?
+
+
+v0.0.3_alpha, 22-Jan-2014 -- Alpha release
 -----------------------------------
 * Driveability rules implemented:
 *- missing some conditions for rule-f.

@@ -212,7 +212,7 @@ class Experiment(object):
         ## Velocity-profile
         #
         V                   = np.array(cycle, dtype=self.dtype)
-        tabular['v_class'] = V
+        tabular['v_class']  = V
 
         ## NOTE: Improved Acceleration calc on central-values with gradient.
         #    The pure_load 2nd-part of the P_REQ from start-to-stop is 0, as it should.

@@ -78,7 +78,8 @@ For information on the model-data, check the schema::
 '''
 
 # wltc's setup.py
-from setuptools import setup
+#from setuptools import setup
+from cx_Freeze import setup, Executable
 import os
 
 projname = 'wltc'
@@ -125,14 +126,24 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
-        ],
+    ],
     long_description = __doc__,
     install_requires = [
-                      'numpy',
-                      'jsonschema',
-#                       'jsonpointer',
-                      ],
+        'numpy',
+        'jsonschema',
+#         'jsonpointer',
+    ],
     test_requires = [
-                      'pandas',
-                      ],
+        'pandas',
+    ],
+    options = {
+        'build_exe': {
+            'include_msvcr': True,
+            'compressed': True,
+            'include_in_shared_zip': True,
+        }, 'bdist_msi': {
+            'add_to_path': False,
+        },
+    },
+    executables = [Executable("wltc/experiment.py")]
 )
