@@ -286,7 +286,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
 
 
     fig = plt.figure()
-    text_infos = fig.text(0.5, 0.5, '', transform=fig.transFigure, bbox={'facecolor':'grey', 'alpha':0.3, 'pad':10}, horizontalalignment='center', verticalalignment='center')
+    text_infos = fig.text(0.5, 0.5, '', transform=fig.transFigure, bbox={'facecolor':'grey', 'alpha':0.4, 'pad':10}, horizontalalignment='center', verticalalignment='center', color='blue')
 
     def fig_onpick(event):
         pickline = event.artist
@@ -431,8 +431,18 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #           ±DIFFs: count(1800), min(29), MEAN(60.00±35.87), max(150).
         #           +DIFFs: count(582), min(1), MEAN(19.40±23.66), max(77).
         #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-
-
+        #    AFTER CHECK WITH HEINZ b reorder b1, b2 order:
+        #       ±DIFFs: count(1739), min(29), MEAN(57.97±30.61), max(132).
+        #       +DIFFs: count(539), min(1), MEAN(17.97±21.02), max(72).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    RENABLED Rule(c2): skip final 1st-gear.
+        #       ±DIFFs: count(861), min(2), MEAN(28.70±30.43), max(105).
+        #       +DIFFs: count(539), min(1), MEAN(17.97±21.02), max(72).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(c2) in the x2-loop:
+        #       ±DIFFs: count(831), min(1), MEAN(27.70±30.43), max(104).
+        #       +DIFFs: count(539), min(1), MEAN(17.97±21.02), max(72).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
 
 
     else:

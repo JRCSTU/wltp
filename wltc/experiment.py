@@ -642,7 +642,7 @@ def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
 def rule_b1(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule (b1): Do not skip gears while accelerating."""
 
-    if ((pg+1) < g and A[t] > 0):
+    if ((pg+1) < g and A[t-1] > 0):
         pg          = pg+1
         GEARS[t]    = pg
         addDriveabilityMessage(t, '(b1: %i-->%i)' % (g, pg), driveability_issues)
@@ -651,14 +651,15 @@ def rule_b1(t, pg, g, V, A, GEARS, driveability_issues):
 
 
 def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
-    """Rule (b2): Hold gears for at least 3sec when accelerating.
-       Rule (b3): Skip gears <3sec when decelerating.
+    """Rule (b2): Hold gears for at least 3sec when accelerating/decelerating.
+       Rule (c1): Skip gears <3sec when decelerating.
     """
 
     ## FIXME: Which second we check for "accelerating" here?
-    ## NOTE: rule(b2): Applying it only on non-flats may leave gear for less than 3sec!
     if ((pg != GEARS[t-3:t-1]).any()):
-        if (A[t-1] >= 0):
+        if (A[t-2] == 0):
+            return False
+        elif (A[t-2] > 0):
             GEARS[t]        = pg
             addDriveabilityMessage(t, '(b2: %i-->%i)' % (g, pg), driveability_issues)
         else:
@@ -667,19 +668,19 @@ def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
                 pt -= 1
             GEARS[pt+1:t] = g
             for tt in range(pt+1, t):
-                addDriveabilityMessage(tt, '(b3: %i-->%i)' % (pg, g), driveability_issues)
+                addDriveabilityMessage(tt, '(c: %i-->%i)' % (pg, g), driveability_issues)
 
         return True
     return False
 
 
-def rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros):
-    """Rule (c): Idle while decelerating to standstill.
+def rule_c2(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros):
+    """Rule (c2): Skip 1st-gears while decelerating to standstill.
 
      Implemented with a regex, outside rules-loop:
      Search for zeros in _reversed_ V & GEAR profiles,
      for as long Accel is negative.
-     NOTE: Rule(c) is the last rule to run, outside x2 loop.
+     NOTE: Rule(c2) is the last rule to run, outside x2 loop.
     """
 
     nV          = len(bV)
@@ -689,7 +690,7 @@ def rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros):
         if (t_stop == nV):
             break
         t = nV - t_stop - 1
-        while (A[t] < 0):
+        while (A[t] < 0 and GEARS[t] == 1):
             addDriveabilityMessage(t, '(c: %i-->0)'% GEARS[t], driveability_issues)
             GEARS[t]   = 0
             CLUTCH[t]  = False
@@ -774,8 +775,8 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
 
     rules = [
         rule_f,
-        rule_b1,
         rule_b2,
+        rule_b1,
         rule_d,
         rule_e,
         rule_g
@@ -797,7 +798,8 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
                 ## Apply the 1st rule to match.
                 #
                 for rule in rules:
-                    rule(t, pg, g, V, A, GEARS, driveability_issues)
+                    if (rule(t, pg, g, V, A, GEARS, driveability_issues)):
+                        pass
                     pg = GEARS[t-1]
                     g = GEARS[t]
 
@@ -805,7 +807,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
             pg = GEARS[t]
 
 
-#     rule_c(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros)
+        rule_c2(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros)
 
 
 def runCycle(V, A, P_REQ, gear_ratios,
