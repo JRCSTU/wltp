@@ -176,6 +176,8 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
     ax.set_title(veh_fname, fontdict={'fontsize': 8} )
     ax.grid(True)
 
+    ax2 = ax.twinx()
+
     tlen = len(my_df.index)
     #ax.set_xticks(np.arange(0.0, tlen, 50.0)) NO! looses auto when zooming.
 
@@ -188,7 +190,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
     #
     driveability = my_df['driveability']
     driveability_true = driveability.apply(lambda s: isinstance(s, str))
-    lines = ax.vlines(driveability_true.nonzero()[0],  0.2, 0.4, 'c', picker=5)
+    lines = ax2.vlines(driveability_true.nonzero()[0],  2, 4, 'c', picker=5)
     lines.set_urls(driveability[driveability_true])
 
     v_max = my_df['v_class'].max()
@@ -204,9 +206,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
 
     ## Plot gear diffs.
     #
-    ax2 = ax.twinx()
     my_gears = my_df[my_gear_col]
-
     hz_v_real = hz_df['v']
     hz_v_target = hz_df['v_downscale']
     hz_gears = hz_df[hz_gear_col]
@@ -238,7 +238,7 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
     #
     hz_driveability = hz_df['gear_modification']
     hz_driveability_true = ~hz_driveability.apply(np.isreal)
-    lines = ax.vlines(hz_driveability_true.nonzero()[0],  0.4, 0.6, 'm', picker=5)
+    lines = ax2.vlines(hz_driveability_true.nonzero()[0],  0, 2, 'm', picker=5)
     lines.set_urls(hz_driveability[hz_driveability_true])
 
 
