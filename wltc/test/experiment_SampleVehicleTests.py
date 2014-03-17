@@ -443,6 +443,11 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #       ±DIFFs: count(831), min(1), MEAN(27.70±30.43), max(104).
         #       +DIFFs: count(539), min(1), MEAN(17.97±21.02), max(72).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(a) after other rules:
+        #       ±DIFFs: count(792), min(0), MEAN(26.40±30.53), max(103).
+        #       +DIFFs: count(500), min(0), MEAN(16.67±21.15), max(71).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+
 
 
     else:
