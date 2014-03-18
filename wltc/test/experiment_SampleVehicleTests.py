@@ -83,7 +83,7 @@ def run_the_experiments(transplant_original_gears=True, plot_results=False, comp
         model = experiment.run()
 
         if (transplant_original_gears):
-            log.warning(">>> Transplating gears fro Heinz's!")
+            log.warning(">>> Transplanting gears from Heinz's!")
             cycle_run = model['cycle_run']
             hz_df = read_heinz_file(veh_num)
             GEARS = np.array(hz_df['g_max'])
@@ -419,7 +419,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #       ±DIFFs: count(1828), min(29), MEAN(60.93±37.66), max(157).
         #       +DIFFs: count(587), min(1), MEAN(19.57±24.41), max(81).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-        #    NO RULE(d):             !!!(BUT increase in ^^)!!!
+        #    NO RULE(d):             !!!(BUT err++ in ACCEL-phases)!!!
         #           ±DIFFs: count(1799), min(29), MEAN(59.97±36.93), max(156).
         #           +DIFFs: count(592), min(1), MEAN(19.73±24.54), max(81).
         #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
@@ -447,7 +447,18 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #       ±DIFFs: count(792), min(0), MEAN(26.40±30.53), max(103).
         #       +DIFFs: count(500), min(0), MEAN(16.67±21.15), max(71).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-
+        #    Rule(g) slightly more greedy: accept any A in starting-T:
+        #       ±DIFFs: count(481), min(0), MEAN(16.03±20.84), max(77).
+        #       +DIFFs: count(234), min(0), MEAN(7.80±12.90), max(47).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(b2): check A>0 also for t-1 (not only t-2): But MAX++ & STDEV++
+        #           ±DIFFs: count(479), min(0), MEAN(15.97±20.97), max(82).
+        #           +DIFFs: count(231), min(0), MEAN(7.70±12.77), max(47).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(c1): check A<0 also for t-1 (not only t-2): But MAX++ & STDEV++
+        #           ±DIFFs: count(474), min(0), MEAN(15.80±21.21), max(83).
+        #           +DIFFs: count(230), min(0), MEAN(7.67±12.97), max(47).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
 
 
     else:
