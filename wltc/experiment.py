@@ -169,7 +169,7 @@ class Experiment(object):
 
 
 
-    def run(self):
+    def run(self, overridde_cycle=False):
         '''Invokes the main-calculations and extracts/update Model values!
 
         @see: Annex 2, p 70
@@ -198,14 +198,17 @@ class Experiment(object):
             v_max = n_rated / gear_ratios[-1]
 
 
-        ## Decide WLTC-class.
-        #
-        class_limits            = self.wltc['classification']['p_to_mass_class_limits']
-        class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
-        wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
-        params['wltc_class']    = wltc_class
-        class_data              = self.wltc['classes'][wltc_class]
-        cycle                   = np.array(class_data['cycle'])
+        if (overridde_cycle):
+            cycle                   = np.asarray(overridde_cycle)
+        else:
+            ## Decide WLTC-class.
+            #
+            class_limits            = self.wltc['classification']['p_to_mass_class_limits']
+            class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
+            wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
+            params['wltc_class']    = wltc_class
+            class_data              = self.wltc['classes'][wltc_class]
+            cycle                   = np.asarray(class_data['cycle'], dtype=self.dtype)
 
 
         ## Velocity-profile
@@ -217,8 +220,7 @@ class Experiment(object):
         #    The pure_load 2nd-part of the P_REQ from start-to-stop is 0, as it should.
         #
         #A       = np.gradient(V) ## TODO: Enable gradient acceleration-calculation.
-        A       = np.diff(V)
-        A       = np.append(A, 0) # Restore element lost by diff().
+        A       = np.diff(V); A = np.append(A, 0) # Restore element lost by diff().
         A       = A / 3.6
 
         ## Required-Power needed early-on by Downscaling.
@@ -226,20 +228,24 @@ class Experiment(object):
         f_inertial          = params.get('f_inertial', 1.1)
         P_REQ               = calcPower_required(V, A, mass, f0, f1, f2, f_inertial)
 
-        ## Downscale velocity-profile.
-        #
-        dsc_data            = class_data['downscale']
-        phases              = dsc_data['phases']
-        p_max_values        = dsc_data['p_max_values']
-        downsc_coeffs       = dsc_data['factor_coeffs']
-        dsc_v_split         = dsc_data.get('v_max_split', None)
-        f_downscale         = calcDownscaleFactor(P_REQ,
-                                                      p_max_values, downsc_coeffs, dsc_v_split,
-                                                      p_rated, v_max)
-        params['f_downscale'] = f_downscale
-        if (f_downscale > 0):
-            V               = downscaleCycle(V, f_downscale, phases)
-        tabular['v_target'] = V
+        if (not overridde_cycle):
+            ## Downscale velocity-profile.
+            #
+            f_downscale_threshold = params.get('f_downscale_threshold', 0.01)
+            dsc_data            = class_data['downscale']
+            phases              = dsc_data['phases']
+            p_max_values        = dsc_data['p_max_values']
+            downsc_coeffs       = dsc_data['factor_coeffs']
+            dsc_v_split         = dsc_data.get('v_max_split', None)
+            f_downscale         = calcDownscaleFactor(P_REQ,
+                                                          p_max_values, downsc_coeffs, dsc_v_split,
+                                                          p_rated, v_max,
+                                                          f_downscale_threshold
+            )
+            params['f_downscale'] = f_downscale
+            if (f_downscale > 0):
+                V               = downscaleCycle(V, f_downscale, phases)
+            tabular['v_target'] = V
 
 
         ## Run cycle to find gears, clutch and real-velocirty.
@@ -350,13 +356,12 @@ def decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max):
 
 
 
-def calcDownscaleFactor(P_REQ, p_max_values, downsc_coeffs, dsc_v_split, p_rated, v_max):
+def calcDownscaleFactor(P_REQ, p_max_values, downsc_coeffs, dsc_v_split, p_rated, v_max, f_downscale_threshold):
     '''Check if downscaling required, and apply it.
 
     @return: :float:
     @see: Annex 1-7, p 68
     '''
-    downscale_threshold     = 0.1 # Move downscale_threshold to model
 
     ## Max required power
     #
@@ -380,7 +385,7 @@ def calcDownscaleFactor(P_REQ, p_max_values, downsc_coeffs, dsc_v_split, p_rated
         else:
             f_downscale     = a1 * r_max + b1
             f_downscale     = round(f_downscale, 1)
-            if (f_downscale <= downscale_threshold):
+            if (f_downscale <= f_downscale_threshold):
                 f_downscale = 0
 
 
@@ -401,8 +406,7 @@ def downscaleCycle(V, f_downscale, phases):
     ix_acc          = np.arange(t0, t1 + 1)
     offset_acc      = V[t0]
     acc_scaled      = (1 - f_downscale) * (V[ix_acc] - offset_acc) + offset_acc
-    assert          abs(acc_scaled[0] - V[t0]) < ERR, \
-                                    ('smooth-start: ', acc_scaled[0],  V[t0])
+    assert          acc_scaled[0] == V[t0], ('smooth-start: ', acc_scaled[0],  V[t0])
 
     ## Decelaration phase
     #
@@ -410,11 +414,10 @@ def downscaleCycle(V, f_downscale, phases):
     offset_dec      = V[t2]
     f_corr          = (acc_scaled[-1] - offset_dec) / (V[t1] - offset_dec)
     dec_scaled      = f_corr * (V[ix_dec] - offset_dec) + offset_dec
-    assert          abs(dec_scaled[-1] - V[t2]) < ERR, \
-                                    ('smooth-finish: ', dec_scaled[-1],  V[t2])
+    assert          dec_scaled[-1] == V[t2], ('smooth-finish: ', dec_scaled[-1],  V[t2])
 
     scaled          = np.hstack((acc_scaled, dec_scaled))
-    assert          abs(scaled[t1 - t0] - scaled[t1 - t0 + 1]) <= abs(V[t1] - V[t1 + 1]), \
+    assert          (1 - f_downscale) * abs(scaled[t1 - t0] - scaled[t1 - t0 + 1]) <= abs(V[t1] - V[t1 + 1]), \
                                     ('smooth-tip: ', scaled[t1 - t0], scaled[t1 - t0 + 1], V[t1], V[t1 + 1])
 
     V_DSC           = np.hstack((V[:t0], scaled, V[t2 + 1:]))
@@ -620,7 +623,7 @@ def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
      Implemented with a regex, outside rules-loop:
      Also ensures gear-0 always followed by gear-1.
 
-     NOTE: Rule(A) not inside x2 loop.
+     NOTE: Rule(A) not inside x2 loop, and last to run.
     """
 
     for m in re_zeros.finditer(bV):
@@ -769,13 +772,13 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     re_zeros                    = gearsregex('\g0+')
 
     rules = [
-        rule_f,
-        rule_b2,
-        rule_c1,
-        rule_b1,
-        rule_d,
-        rule_e,
-        rule_g
+            rule_f,
+            rule_b2,
+            rule_c1,
+            rule_b1,
+            rule_d,
+            rule_e,
+            rule_g
     ]
     ## Apply the V-visiting driveability-rules x 2, as by specs.
     #
@@ -878,7 +881,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
     ## Calculate real-celocity.
     #
     # TODO: Simplify V_real calc by avoiding multiply all.
-    V_REAL                      = (N_GEARS.T / np.array(gear_ratios)).T[GEARS - 1, range(len(V))]
+    V_REAL                      = (N_GEARS.T / np.asarray(gear_ratios)).T[GEARS - 1, range(len(V))]
 
     return (V_REAL, GEARS_ORIG, GEARS, CLUTCH, RPM, N_NORM, P_AVAIL, driveability_issues)
 

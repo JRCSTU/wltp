@@ -31,7 +31,7 @@ def class_data():
     data = {
         'parts': [[0, 589], [590, 1022]],
         'downscale': {
-            'phases': [650, 847, 907],              ## Note: Start end end +1 from specs.
+            'phases': [651, 848, 906],              ## Note: Start end end +1 from specs.
             'p_max_values': [764, 61.4, 0.22],      ## t, V(Km/h), Accel(m/s2)
             'factor_coeffs': [1, 0.54, -0.54],      ## r0, a1, b1
         },
