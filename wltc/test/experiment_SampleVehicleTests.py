@@ -459,6 +459,11 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #           ±DIFFs: count(474), min(0), MEAN(15.80±21.21), max(83).
         #           +DIFFs: count(230), min(0), MEAN(7.67±12.97), max(47).
         #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    NO RULE(d):             !!!(BUT increase in ^^)!!!
+        #       ±DIFFs: count(450), min(0), MEAN(15.00±20.59), max(76).
+        #       +DIFFs: count(242), min(0), MEAN(8.07±13.59), max(47).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+
 
 
     else:

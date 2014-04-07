@@ -617,6 +617,9 @@ def assert_regexp_unmatched(regex, string, msg):
 # Driveability rules #
 #=====================
 
+def rule_checkSingletons(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
+    re_singletons = gearsregex('(\g0)')
+
 def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
     """Rule (a): Clutch & set to 1st-gear before accelerating from standstill.
 
@@ -649,8 +652,7 @@ def rule_b1(t, pg, g, V, A, GEARS, driveability_issues):
 
 
 def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
-    """Rule (b2): Hold gears for at least 3sec when accelerating/decelerating.
-       Rule (c1): Skip gears <3sec when decelerating.
+    """Rule (b2): Hold gears for at least 3sec when accelerating.
     """
 
     ## FIXME: Which second we check for "accelerating" here?
@@ -662,7 +664,10 @@ def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
 
 
 def rule_c1(t, pg, g, V, A, GEARS, driveability_issues):
-    """Rule (c1): Skip gears <3sec when decelerating."""
+    """Rule (c1): Skip gears <3sec when decelerating.
+
+    NOTE it is invoked with time reversed!
+    """
 
     if ((pg != GEARS[t-3:t-1]).any() and (A[t-2:t-1] < 0).all()):
         pt = t - 2
