@@ -664,12 +664,10 @@ def rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
 
 
 def rule_c1(t, pg, g, V, A, GEARS, driveability_issues):
-    """Rule (c1): Skip gears <3sec when decelerating.
+    """Rule (c1): Skip gears <3sec when decelerating. """
 
-    NOTE it is invoked with time reversed!
-    """
-
-    if ((pg != GEARS[t-3:t-1]).any() and (A[t-2:t-1] < 0).all()):
+    assert g == GEARS[t]
+    if ((pg != GEARS[t-3:t-1]).any() and (A[t-2:t] < 0).all()):
         pt = t - 2
         while (pt >= t-3 and GEARS[pt] == pg):
             pt -= 1
@@ -761,7 +759,7 @@ def rule_g(t, pg, g, V, A, GEARS, driveability_issues):
             addDriveabilityMessage(tt, '(g: %i-->%i)' % (pg, g), driveability_issues)
         return True
 
-        return False
+    return False
 
 
 def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):

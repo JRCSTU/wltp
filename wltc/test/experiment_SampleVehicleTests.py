@@ -313,6 +313,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #
         paths_to_plot = paths
 #         paths_to_plot = paths[0:9]
+#         paths_to_plot = paths[5:6] + paths[7:9] + paths[14:16] + paths[23:24]
         paths_to_plot = paths[5:6] + paths[7:9] + paths[14:16] + paths[23:24]
 
         ## Decide subplot-grid dimensions.
@@ -460,9 +461,18 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #           +DIFFs: count(230), min(0), MEAN(7.67±12.97), max(47).
         #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
         #    NO RULE(d):             !!!(BUT increase in ^^)!!!
-        #       ±DIFFs: count(450), min(0), MEAN(15.00±20.59), max(76).
-        #       +DIFFs: count(242), min(0), MEAN(8.07±13.59), max(47).
+        #           ±DIFFs: count(450), min(0), MEAN(15.00±20.59), max(76).
+        #           +DIFFs: count(242), min(0), MEAN(8.07±13.59), max(47).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(c2): check A<0 also for t (not only t-1):
+        #       ±DIFFs: count(476), min(0), MEAN(15.87±21.07), max(78).
+        #       +DIFFs: count(233), min(0), MEAN(7.77±13.10), max(47).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    NO RULE(d):             !!!(BUT increase in ^^)!!!
+        #           ±DIFFs: count(445), min(0), MEAN(14.83±20.82), max(77).
+        #           +DIFFs: count(241), min(0), MEAN(8.03±13.82), max(48).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+
 
 
 
