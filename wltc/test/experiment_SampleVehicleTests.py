@@ -493,15 +493,38 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #       ±DIFFs: count(226), min(0), MEAN(7.53±11.74), max(52).
         #       +DIFFs: count(101), min(0), MEAN(3.37±5.41), max(24).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-        #    Rule(c1) in isolation AFTER rest rules:
+        #    Rule(c1) in isolation AFTER rest rules:([step_rule_g, step_rule_f][step_rule_e, step_rule_b1, step_rule_b2][step_rule_c1])
         #       ±DIFFs: count(214), min(0), MEAN(7.13±10.57), max(46).
         #       +DIFFs: count(97), min(0), MEAN(3.23±4.96), max(21).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
         #    Rule(e) above rule b1&b2:
-        #       ±DIFFs: count(211), min(0), MEAN(7.03±11.47), max(46).
-        #       +DIFFs: count(93), min(0), MEAN(3.10±5.88), max(24).
+        #           ±DIFFs: count(211), min(0), MEAN(7.03±11.47), max(46).
+        #           +DIFFs: count(93), min(0), MEAN(3.10±5.88), max(24).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    group rule(e & c1 (OR reversed)) ABOVE rules b1&b2:
+        #           ±DIFFs: count(240), min(0), MEAN(8.00±12.87), max(53).
+        #           +DIFFs: count(92), min(0), MEAN(3.07±5.83), max(24).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    group rule(e & c1 ) BELOW rules b1&b2:
+        #           ±DIFFs: count(230), min(0), MEAN(7.67±11.78), max(46).
+        #           +DIFFs: count(106), min(0), MEAN(3.53±5.57), max(21).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    group rule(e & c1 REVERSED) BELOW rules b1&b2:
+        #           ±DIFFs: count(236), min(0), MEAN(7.87±12.46), max(52).
+        #           +DIFFs: count(109), min(0), MEAN(3.63±5.90), max(24).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(f) also applied when G(t-1) GT_or_eq G(t+1):
+        #       ±DIFFs: count(187), min(0), MEAN(6.23±9.27), max(37).
+        #       +DIFFs: count(72), min(0), MEAN(2.40±3.76), max(13).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-
+        #    Ungroup rules(G, F):
+        #           ±DIFFs: count(189), min(0), MEAN(6.30±9.42), max(37).
+        #           +DIFFs: count(74), min(0), MEAN(2.47±3.88), max(13).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Ungroup rules(F, G):
+        #           ±DIFFs: count(190), min(0), MEAN(6.33±9.48), max(37).
+        #           +DIFFs: count(75), min(0), MEAN(2.50±3.96), max(13).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
 
 
 
