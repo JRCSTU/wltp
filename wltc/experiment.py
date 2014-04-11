@@ -654,19 +654,26 @@ def step_rule_b1(t, pg, g, V, A, GEARS, driveability_issues):
 def step_rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule (b2): Hold gears for at least 3sec when accelerating."""
 
-    ## FIXME: Which second we check for "accelerating" here?
-    if ((pg != GEARS[t-3:t-1]).any() and (A[t-2:t-1] > 0).all()):
-#         assert g > pg, 'Rule e & g missed downshift(%i: %i-->%i) in acceleration!'%(t, pg, g)
-        GEARS[t]        = pg
-        addDriveabilityMessage(t, '(b2: %i-->%i)' % (g, pg), driveability_issues)
-        return True
+    if ((pg != GEARS[t-3:t-1]).any()):  # A[t-1] > 0):  NOTE: Not checking Accel on the final step of rule(b2)!
+        #assert g > pg, 'Rule e & g missed downshift(%i: %i-->%i) in acceleration!'%(t, pg, g)
+        if (g < pg):
+            addDriveabilityMessage(t, 'Rule e or g missed downshift(%i: %i-->%i) in acceleration?'%(t, pg, g), driveability_issues)
+        hold = False
+        if (pg == GEARS[t-2] and (A[t-3:t-1] > 0).all()):
+            hold = True; n = 2
+        elif  (A[t-2] > 0):
+            hold = True; n = 1
+        if (hold):
+            GEARS[t]        = pg
+            addDriveabilityMessage(t, '(b2(%i): %i-->%i)' % (n, g, pg), driveability_issues)
+
+            return True
     return False
 
 
 def step_rule_c1(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule (c1): Skip gears <3sec when decelerating. """
 
-    assert g == GEARS[t]
     if ((pg != GEARS[t-3:t-1]).any() and (A[t-2:t] < 0).all()):
         pt = t - 2
         while (pt >= t-3 and GEARS[pt] == pg):
@@ -721,14 +728,14 @@ def step_rule_d(t, pg, g, V, A, GEARS, driveability_issues):
 def step_rule_e(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule (e): Cancel shifts lasting 5secs or less."""
 
-    if (pg > g): # NOTE: Apply rule(e) also for any LOWER initial/final gears (not just for i-1).
+    if (pg > g):
         ## Travel back in time for 5secs.
         #
         pt = t-2
         while (pt >= t-5 and GEARS[pt] == pg):
             pt -= 1
 
-        if (GEARS[pt] < pg):
+        if (GEARS[pt] == g): #< pg): # XOTE: Apply rule(e) also for any LOWER initial/final gears (not just for i-1).
             GEARS[pt+1:t] = g
             for tt in range(pt+1, t):
                 addDriveabilityMessage(tt, '(e: %i-->%i)' % (pg, g), driveability_issues)
@@ -739,12 +746,12 @@ def step_rule_e(t, pg, g, V, A, GEARS, driveability_issues):
 def step_rule_f(t, pg, g, V, A, GEARS, driveability_issues):
     """Rule(f): Cancel 1sec downshifts (under certain circumstances)."""
 
-    if (pg < g and GEARS[t-2] >= g):
+    if (pg < g and GEARS[t-2] > pg):
         # NOTE: Nowhere to apply it since rule(b2) would have eliminated 1-sec shifts.  Moved before rule(b)!
         # NOTE: Applying rule(f) also for i-2, i-3, ... signular-downshifts.
         # FIXME: Rule(f) implement further constraints.
         # NOTE: Rule(f): What if extra conditions unsatisfied? Allow shifting for 1 sec only??
-        GEARS[t-1] = g
+        GEARS[t-1] = min(g, GEARS[t-2])
         addDriveabilityMessage(t-1, '(f: %i-->%i)' % (pg, g), driveability_issues)
         return True
 
@@ -775,12 +782,13 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     @see: Annex 2-4, p 72
     '''
 
-    def apply_step_rules(rules, isFirstToApply):
+    def apply_step_rules(rules, isStopOnFirstApplied):
         for t in t_range:
             if (GEARS[t-1] != GEARS[t]):       ## All rules triggered by a gear-shift.
                 for rule in rules:
-                    if (rule(t, GEARS[t-1], GEARS[t], V, A, GEARS, driveability_issues) and isFirstToApply):
-                        break
+                        if (rule(t, GEARS[t-1], GEARS[t], V, A, GEARS, driveability_issues) and \
+                        					(isStopOnFirstApplied or GEARS[t-1] == GEARS[t])):
+                            break
 
     ## V --> byte-array to search by regex.
     #
@@ -798,8 +806,8 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     #
     t_range = range(5, len(GEARS))      # Start from 5th element to accomodate rule(e)'s backtracking.
     for _ in [0, 1]:
-        apply_step_rules([step_rule_g, step_rule_f], False)                 # NOTE: Rule's order and first-to-apply flag unimportant.
-        apply_step_rules([step_rule_e, step_rule_b1, step_rule_b2], False)  # NOTE: Rule's order unimportant.
+        apply_step_rules([step_rule_e, step_rule_f], True)                    # NOTE: Rule-order and first-to-apply flag unimportant.
+        apply_step_rules([step_rule_g, step_rule_b1, step_rule_b2], False)    # NOTE: Rule-order for b1 &b2 unimportant.
         apply_step_rules([step_rule_c1], False)
 
         rule_c2(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros)

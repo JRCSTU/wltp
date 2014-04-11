@@ -222,8 +222,8 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
         difft = list(difft)
         my_gears = my_gears[difft]
         hz_gears = hz_gears[difft]
-        ax2.plot(difft, orig_gears[difft].tolist(), 'v', color='green')
         ax2.plot(difft, my_gears.tolist(), 'o', color='red')
+        ax2.plot(difft, orig_gears[difft].tolist(), 'v', color='green')
         ax2.plot(difft, hz_gears.tolist(), '*', color='blue')
     else:
         ax2.plot(my_gears.tolist(), 'o', color='red')
@@ -310,10 +310,10 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
 
         ## NOTE: Limit subplots to facilitate research.
         #
-        paths_to_plot = paths
+#         paths_to_plot = paths
 #         paths_to_plot = paths[0:9]
 #         paths_to_plot = paths[5:6] + paths[7:9] + paths[14:16] + paths[23:24]
-        paths_to_plot = paths[5:6] + paths[7:9] + paths[14:16] + paths[23:24]
+        paths_to_plot = paths[5:8] + paths[17:18] + paths[22:24]
 
         ## Decide subplot-grid dimensions.
         #
@@ -513,20 +513,46 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #           ±DIFFs: count(236), min(0), MEAN(7.87±12.46), max(52).
         #           +DIFFs: count(109), min(0), MEAN(3.63±5.90), max(24).
         #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-        #    Rule(f) also applied when G(t-1) GT_or_eq G(t+1):
+        #    Rule(f) also applied when G(t-1) GT_or_eq G(t+1) (the same also with apply-if-diff BUG fixed):
         #       ±DIFFs: count(187), min(0), MEAN(6.23±9.27), max(37).
         #       +DIFFs: count(72), min(0), MEAN(2.40±3.76), max(13).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-        #    Ungroup rules(G, F):
+        #        Ungroup rules(G, F):
         #           ±DIFFs: count(189), min(0), MEAN(6.30±9.42), max(37).
         #           +DIFFs: count(74), min(0), MEAN(2.47±3.88), max(13).
         #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-        #    Ungroup rules(F, G):
+        #        Ungroup rules(F, G):
         #           ±DIFFs: count(190), min(0), MEAN(6.33±9.48), max(37).
         #           +DIFFs: count(75), min(0), MEAN(2.50±3.96), max(13).
         #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-
-
+        #        Rule(b2): check A>0 also till t (not t-1) (the same also with apply-if-diff BUG fixed):
+        #           ±DIFFs: count(209), min(0), MEAN(6.97±11.04), max(46).
+        #           +DIFFs: count(70), min(0), MEAN(2.33±3.65), max(12).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #        Rul(b2): Check A>0 for t-1 only (not only t-2 & t-1):
+        #           ±DIFFs: count(202), min(0), MEAN(6.73±10.51), max(41).
+        #           +DIFFs: count(64), min(0), MEAN(2.13±3.38), max(11).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #        Rule(f) applied on any singletton downshift:
+        #           ±DIFFs: count(204), min(0), MEAN(6.80±9.23), max(32).
+        #           +DIFFs: count(88), min(0), MEAN(2.93±3.78), max(12).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #        Rule(b2) Correct:
+        #           ±DIFFs: count(209), min(0), MEAN(6.97±11.04), max(46).
+        #           +DIFFs: count(70), min(0), MEAN(2.33±3.65), max(12).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(b2) Correct NOT checking Accel on the final step of rule(b2)!:
+        #       ±DIFFs: count(187), min(0), MEAN(6.23±9.27), max(37).
+        #       +DIFFs: count(72), min(0), MEAN(2.40±3.76), max(13).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #        Switch g with e, make e applied only for equal.
+        #           ±DIFFs: count(284), min(0), MEAN(9.47±14.55), max(54).
+        #           +DIFFs: count(127), min(0), MEAN(4.23±6.77), max(26).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #            Rule(f) applied on any singletton downshift:
+        #               ±DIFFs: count(292), min(0), MEAN(9.73±14.50), max(49).
+        #               +DIFFs: count(131), min(0), MEAN(4.37±6.60), max(25).
+        #               ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
 
 
     else:
