@@ -782,49 +782,30 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
     bV                          = np2bytes(V)
     re_zeros                    = gearsregex('\g0+')
 
-    rules = [
-            rule_f,
-            rule_b2,
-            rule_c1,
-            rule_b1,
-            #rule_d,
-            rule_e,
-#             rule_g
-    ]
-    ## Apply the V-visiting driveability-rules x 2, as by specs.
+    ## NOTE: Extra_rule(1): Smooth-away INVALID-GEARS.
     #
+    for t in range(2, len(GEARS)):      # Start from 2nd element to accomodate rule(e)'s backtracking.
+        if (GEARS[t] < 0):
+            GEARS[t] = GEARS[t-1]
+
+    ## Loop X 2 driveability-rules.
+    #
+    t_range = range(5, len(GEARS))      # Start from 5th element to accomodate rule(e)'s backtracking.
     for _ in [0, 1]:
-        # Apply rule (f) in isolation.
-        #
-        pg = 0;                 # previous gear: GEARS[t-1]
-        for (t, g) in enumerate(GEARS[5:], 5):  # Start from 5th element to accomodate rule(e)'s backtracking.
-            if (g != pg):       ## All rules triggered by a gear-shift.
-                rule_f(t, GEARS[t-1], GEARS[t], V, A, GEARS, driveability_issues)
-            pg = GEARS[t]
+        for t in t_range:
+            if (GEARS[t-1] != GEARS[t]):       ## All rules triggered by a gear-shift.
+                for rule in [rule_g, rule_f]:
+                    if (rule(t, GEARS[t-1], GEARS[t], V, A, GEARS, driveability_issues)):
+                        break
 
-        # Apply rule(g) in isolation.
-        #
-        pg = 0;                 # previous gear: GEARS[t-1]
-        for (t, g) in enumerate(GEARS[5:], 5):  # Start from 5th element to accomodate rule(e)'s backtracking.
-            if (g != pg):       ## All rules triggered by a gear-shift.
-                rule_g(t, GEARS[t-1], GEARS[t], V, A, GEARS, driveability_issues)
-            pg = GEARS[t]
-
-        # Apply rest rules.
-        #
-        pg = 0;                 # previous gear: GEARS[t-1]
-        for (t, g) in enumerate(GEARS[5:], 5):  # Start from 5th element to accomodate rule(e)'s backtracking.
-            if (g != pg):       ## All rules triggered by a gear-shift.
-
-                ## NOTE: Extra_rule(1): Smooth-away INVALID-GEARS.
-                #
-                if (g < 0):
-                    GEARS[t] = g = pg
-
-                for rule in rules:
+        for t in t_range:
+            if (GEARS[t-1] != GEARS[t]):
+                for rule in [rule_e, rule_b1, rule_b2]:
                     rule(t, GEARS[t-1], GEARS[t], V, A, GEARS, driveability_issues)
-            pg = GEARS[t]
 
+        for t in t_range:
+            if (GEARS[t-1] != GEARS[t]):
+                rule_c1(t, GEARS[t-1], GEARS[t], V, A, GEARS, driveability_issues)
 
         rule_c2(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros)
 

@@ -173,7 +173,6 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
         my_gear_col = 'gears'
         hz_gear_col = 'gear'
 
-    ax.set_title(veh_fname, fontdict={'fontsize': 8} )
     ax.grid(True)
 
     ax2 = ax.twinx()
@@ -342,7 +341,9 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
             if (inpfname in paths_to_plot):
                 nplotted += 1
                 ax = fig.add_subplot(w, h, nplotted)
-                plotResults(os.path.basename(inpfname), df_my, df_hz, ndiff_gears, ax)
+                veh_name = os.path.basename(inpfname)
+                ax.set_title('%i: %s'%(n, veh_name), fontdict={'fontsize': 8} )
+                plotResults(veh_name, df_my, df_hz, ndiff_gears, ax)
 
         fig.suptitle('±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).' % (g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max()))
         log.info('#       ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max())
@@ -491,6 +492,14 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #    First run rules(e) in isolation, g in main-loop:
         #       ±DIFFs: count(226), min(0), MEAN(7.53±11.74), max(52).
         #       +DIFFs: count(101), min(0), MEAN(3.37±5.41), max(24).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(c1) in isolation AFTER rest rules:
+        #       ±DIFFs: count(214), min(0), MEAN(7.13±10.57), max(46).
+        #       +DIFFs: count(97), min(0), MEAN(3.23±4.96), max(21).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(e) above rule b1&b2:
+        #       ±DIFFs: count(211), min(0), MEAN(7.03±11.47), max(46).
+        #       +DIFFs: count(93), min(0), MEAN(3.10±5.88), max(24).
         #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
 
 
