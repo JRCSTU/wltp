@@ -472,6 +472,27 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #           ±DIFFs: count(445), min(0), MEAN(14.83±20.82), max(77).
         #           +DIFFs: count(241), min(0), MEAN(8.03±13.82), max(48).
         #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    First run rules(e & g) in isolation:
+        #       ±DIFFs: count(546), min(0), MEAN(18.20±24.69), max(91).
+        #       +DIFFs: count(258), min(0), MEAN(8.60±14.79), max(55).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    NO RULE(d):             !!!(BUT increase in ^^)!!!
+        #       ±DIFFs: count(500), min(0), MEAN(16.67±23.40), max(87).
+        #       +DIFFs: count(254), min(0), MEAN(8.47±14.61), max(55).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    First run rules(f) in isolation: !!!
+        #       ±DIFFs: count(348), min(0), MEAN(11.60±15.83), max(61).
+        #       +DIFFs: count(101), min(0), MEAN(3.37±5.82), max(25).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    Rule(c1): Skip even further on decel.
+        #       ±DIFFs: count(256), min(0), MEAN(8.53±13.40), max(48).
+        #       +DIFFs: count(101), min(0), MEAN(3.37±5.82), max(25).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    First run rules(e) in isolation, g in main-loop:
+        #       ±DIFFs: count(226), min(0), MEAN(7.53±11.74), max(52).
+        #       +DIFFs: count(101), min(0), MEAN(3.37±5.41), max(24).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+
 
 
 
