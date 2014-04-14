@@ -58,7 +58,7 @@ class ExperimentSampleVehs(unittest.TestCase):
         run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding="ISO-8859-1")
 
 
-def run_the_experiments(transplant_original_gears=True, plot_results=False, compare_results=False, encoding="ISO-8859-1"):
+def run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="ISO-8859-1"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
     csvfname = 'sample_vehicles.csv'
@@ -164,9 +164,8 @@ def compare_exp_results(tabular, outfname, run_comparison):
             run_comparison = False
 
 
-def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True):
-    plot_g_originals = False
-    if (plot_g_originals):
+def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True, plot_original_gears = False):
+    if (plot_original_gears):
         my_gear_col = 'gears_orig'
         hz_gear_col = 'g_max'
     else:
@@ -247,9 +246,9 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
     ax.text(0.7, 0, 'Diffs: %.4f' % g_diff, transform=ax.transAxes, bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
 
 
-def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
+def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_gears=False, force_rerun_experiments=False):
     def is_experiments_outdated(outfiles):
-        if not outfiles:
+        if not outfiles or force_rerun_experiments:
             return True
 
         resfiles_date = min([os.path.getmtime(file) for file in outfiles])
@@ -303,7 +302,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         paths = glob.glob(os.path.join(mydir, samples_folder, 'sample_vehicles-*.csv'))
 
         if is_experiments_outdated(paths):
-            run_the_experiments()
+            run_the_experiments(transplant_original_gears = transplant_original_gears)
             paths = glob.glob(os.path.join(mydir, samples_folder, 'sample_vehicles-*.csv'))
 
         npaths          = len(paths)
@@ -343,9 +342,10 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
                 ax = fig.add_subplot(w, h, nplotted)
                 veh_name = os.path.basename(inpfname)
                 ax.set_title('%i: %s'%(n, veh_name), fontdict={'fontsize': 8} )
-                plotResults(veh_name, df_my, df_hz, ndiff_gears, ax)
+                plotResults(veh_name, df_my, df_hz, ndiff_gears, ax, plot_original_gears = not transplant_original_gears)
 
-        fig.suptitle('±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).' % (g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max()))
+        orig = 'Driveability' if transplant_original_gears else 'Pre-Driveability'
+        fig.suptitle('%s: ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).' % (orig, g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max()))
         log.info('#       ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max())
         log.info('#       +DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[1].sum(), g_diff[1].min(), g_diff[1].mean(), g_diff[1].std(), g_diff[1].max())
         log.info('#       ±ORIGs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[2].sum(), g_diff[2].min(), g_diff[2].mean(), g_diff[2].std(), g_diff[2].max())
@@ -553,6 +553,14 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
         #               ±DIFFs: count(292), min(0), MEAN(9.73±14.50), max(49).
         #               +DIFFs: count(131), min(0), MEAN(4.37±6.60), max(25).
         #               ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    NO TRANSPLANT:
+        #       ±DIFFs: count(772), min(7), MEAN(25.73±14.24), max(65).
+        #       +DIFFs: count(499), min(2), MEAN(16.63±10.30), max(45).
+        #       ±ORIGs: count(779), min(15), MEAN(25.97±8.83), max(43).
+        #    Do not allow G2 when V==0:
+        #       ±DIFFs: count(670), min(4), MEAN(22.33±13.88), max(61).
+        #       +DIFFs: count(499), min(2), MEAN(16.63±10.30), max(45).
+        #       ±ORIGs: count(719), min(13), MEAN(23.97±8.83), max(41).
 
 
     else:
@@ -571,8 +579,10 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None):
 if __name__ == "__main__":
     import sys
 
-    heinz_dir = None
-    experiment_num = None
+    heinz_dir               = None
+    experiment_num          = None
+    compare_original_gears  = False
+    force_rerun_experiments = False  # Set to True to recalc experiments or 'compare_original_gears' has changed.
     try:
         if len(sys.argv) > 1:
             heinz_dir = sys.argv[1]
@@ -580,7 +590,9 @@ if __name__ == "__main__":
             if len(sys.argv) > 2:
                 experiment_num = int(sys.argv[2])
 
+                if len(sys.argv) > 3:
+                    compare_original_gears = bool(sys.argv[3])
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-    plot_diffs_with_heinz(heinz_dir, experiment_num)
+    plot_diffs_with_heinz(heinz_dir, experiment_num=experiment_num, transplant_original_gears = compare_original_gears, force_rerun_experiments = force_rerun_experiments)

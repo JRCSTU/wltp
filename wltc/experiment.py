@@ -398,7 +398,6 @@ def downscaleCycle(V, f_downscale, phases):
 
     @see: Annex 1-7, p 64-68
     '''
-    ERR = 1e-10
     (t0, t1, t2)    = phases
 
     ## Accelaration phase
@@ -494,10 +493,11 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
     #
     GEARS_YES_MIN           = (N_GEARS >= n_min_drive)
     GEARS_YES_MIN[0, :]     = (N_GEARS[0, :] >= n_idle) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
-    N_GEARS2                = N_GEARS[1, :]
+
     ## NOTE: "interpratation" of specs for Gear-2
     #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Decelerating.".
-    GEARS_YES_MIN[1, :]     = (N_GEARS2 >= n_min_gear2) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
+    N_GEARS2                = N_GEARS[1, :]
+    GEARS_YES_MIN[1, :]     = ((N_GEARS2 >= n_min_gear2) & (A <= 0)) | ((N_GEARS2 >= n_min_gear2) & (A > 0))
 
     ## Revert impossibles to min-gear, n_min & clutched.
     #
