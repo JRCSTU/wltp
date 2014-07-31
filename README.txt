@@ -1,43 +1,80 @@
-==========================
-WLTC gear-shift calculator
-==========================
+#################################################################################
+WLTP: WLTC gear-shift calculator
+#################################################################################
+:Copyright:   2013-2014 European Commission (JRC)
+:License:     EUPL
 
-WLTCG calculates the gear-shifts/real_velocity profile for light-duty-vehicles (cars)
-according to UN's draft WLTC testing-cycle.
+
+A calculator of the gear-shifts profile for light-duty-vehicles (cars)
+according to UN's draft on the Worldwide harmonized Light vehicles Test Procedures.
+
+
+Overview:
+=========
 
 It accepts as input the car-specifications and a selection of a WLTC-cycle classes
 and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
 and any warnings.  It certainly does not calculate any CO2 emissions or other metrics.
+
+An "execution" or a "run" of an experiment is depicted in the following diagram::
+
+
+         .-------------------.    ______________        .-------------------.
+        /        Model      /    | Experiment   |       / Model(augmented)  /
+       /-------------------/     |--------------|      /-------------------/
+      / +--vehicle        /  ==> |  .----------.| ==> / +...              /
+     /  +--params        /       | / WLTC-data/ |    /  +--cycle_run     /
+    /                   /        |'----------'  |   /                   /
+    '------------------'         |______________|  '-------------------'
+
+
+
+Install:
+========
+
+Requires Python-3.
 
 To install it, assuming you have download the sources,
 do the usual::
 
     python setup.py install
 
-Or get it directly from the PIP repository::
+Or get it directly from the PyPI repository::
 
     pip3 install wltc
 
 
-For Python 3.3 or later.
+Tested on::
+
+     Python 3.3.5 (v3.3.5:62cf4e77f785, Mar  9 2014, 10:35:05) (AMD64)] on win32,
+
+.. Seealso::
+
+    WinPython <http://winpython.sourceforge.net/>
 
 
-Overview:
-=========
 
-An "execution" or a "run" of an experiment is depicted in the following diagram::
 
-                       _______________
-     .-------.        |               |      .------------------.
-    / Model /-.   ==> |   Experiment  | ==> / Model(augmented) /
-   '-------'  /   ==> |---------------|    '------------------'
-     .-------'        |  .-----------.|
-                      | / WLTC-data / |
-                      |'-----------'  |
-                      |_______________|
+Cmd-line usage:
+===============
 
-Usage:
-------
+To get help::
+
+    $ python wltc --help          ## to get generic help for cmd-line syntax
+
+    $ python wltc -M /vehicle     ## to get help for specific model-paths
+
+
+and then, as an example::
+
+    python wltc -v \
+        -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
+        -m /vehicle/n_idle:=850 \
+        -O cycle.csv model_path=/cycle_run
+
+
+Python Usage:
+=============
 
 A usage example::
 
@@ -83,48 +120,10 @@ For information on the model-data, check the schema::
     print(wltc.instances.model_schema())
 
 
-
-CHANGES
-=======
-
-v0.0.2, 7-Jan-2014 -- Alpha release
------------------------------------
-
-* Still unchecked for correctness of results.
-* Better README.txt and package-desc.
-
-v0.0.1, 6-Jan-2014 -- Alpha release
------------------------------------
-
-* Unchecked for correctness.
-* Not implemented yet driveability rules.
-* Does not output real_velocity yet - inly gears.
-* Detecting and applying downscaling.
-* Interpreted and implemented the nonsensical specs concerning ``n_min`` engine-revolutions for gear-2
-  (Annex 2-3.2, p71).
-
-v0.0.0, 11-Dec-2013 -- Inception stage
---------------------------------------
-
-* Mostly setup.py work, README and help.
-
-
-
-
-
 Development:
 ============
 
-The WLTC-profiles for the various classes in the ./util/data/cycles folder were generated from the tables
-of the UN word-doc with the specs using the ``./util/csvcolumns8to2`` script, but it still requires
-an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
-
-Then use the ``./util/buildwltcclass.py`` to contruct the respective python-vars into the
-wltc/Model.py sources.
-
-TODO:
-    running the test suite
-
+See :doc:`INSTALL.txt`
 
 
 
@@ -138,12 +137,12 @@ Implemented from scratch based on the UN's specs (document also included in the 
 But probably a better spec is this one:
 * https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
 
-By ankostis@gmail.com, Dec-2013, (c) AGPLv3 or later
+.. Seealso:: :doc:`INSTALL.txt`
 
 
+Contributors
+============
 
-Thanks also to
-==============
-
+* Kostis Anagnostopoulos, author.
+* Steven Heinz for his test-data and the cooperation on the tricky parts of the specification.
 * Giorgos Fontaras for physics, policy and admin support.
-* Steven Heinz for his test-data.

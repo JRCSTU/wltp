@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2013-2014  European Union;
+# Copyright 2013-2014 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
@@ -16,8 +16,6 @@ Converts to CSVs and consolidate input & results tables from Heinz' ms-access db
 .. Note: Requires excel-files to be present that were produced from ``A gearshift_table_check_result_final``
 ms-access query.
 
-
-:author: ankostis@gmail.com
 :created: 28 Jul 2014
 '''
 
@@ -110,7 +108,7 @@ if __name__ == '__main__':
 
 
     _mydir = path.dirname(__file__)
-    os.chdir(path.join(_mydir, '../wltc/test/wltp_db'))
+    os.chdir(path.join(_mydir, '../wltp/test/wltp_db'))
     # (inp_vehs_2_fname, ext) = path.splitext(inp_vehs_fname)
     #inp_vehs_2_fname = '%s-2%s'%(inp_vehs_2_fname, ext)
 

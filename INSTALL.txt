@@ -1,19 +1,19 @@
-==========================
-WLTC gear-shift calculator
-==========================
+INSTALL
+#######
 
 
-To install it, assuming you have download the sources,
+Quick-start:
+============
+
+For Python 3.3 or later.  To install it, assuming you have downloaded the sources,
 do the usual::
 
 	python setup.py install
 
 Or get it directly from the PIP repository::
 
-	pip3 install wltc
+	pip3 install wltp
 
-
-For Python 3.3 or later.
 
 More detailed installtion instructions from the ``tar.gz`` archive follow.
 
@@ -72,15 +72,18 @@ To install for different Python versions, repeat step 3 for every required versi
 Development:
 ------------
 
-The WLTC-profiles for the various classes in the ./util/data/cycles folder were generated from the tables
+The WLTC-profiles for the various classes in the ``./util/data/cycles`` folder were generated from the tables
 of the UN word-doc with the specs using the ``./util/csvcolumns8to2`` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
 Then use the ``./util/buildwltcclass.py`` to contruct the respective python-vars into the
-wltc/Model.py sources.
+``wltc/Model.py`` sources.
 
-TODO:
-	running the test suite
+
+Test files generated and processed fromStven Hein'z db can be process
+with scripts in ``/util`` folder.
+
+.. TODO: running the test suite
 
 
 

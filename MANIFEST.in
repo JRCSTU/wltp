@@ -1,3 +1,4 @@
-include COPYING.txt
+include LICENSE.txt
+include INSTALL.txt
+include CHANGES.txt
 recursive-include docs *.docx
-
