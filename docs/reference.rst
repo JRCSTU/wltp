@@ -10,13 +10,17 @@ The following module comprise the core of the simulator:
     wltp.cycles.class2
     wltp.cycles.class3
 
-The following scripts maybe used to preprocess various wltc data:
+Among the varioues tests, those involved with data and divergence from existing tool are:
 
-.. autosummary::
+* :mod:`wltp.test.experiment_WholeVehicleTests`
+* :mod:`wltp.test.wltp_db_tests`
+* :mod:`wltp.test.experiment_SampleVehicleTests`
 
-    preprocheinz.py
-    printwltcclass.py
-    csvcolumns8to2.py
+The following scripts in the sources maybe used to preprocess various wltc data:
+
+* :mod:`util/preprocheinz.py`
+* :mod:`util/printwltcclass.py`
+* :mod:`util/csvcolumns8to2.py`
 
 
 Module: :mod:`wltp.experiment`
