@@ -2,20 +2,23 @@
 wltp: A *wltc* gear-shifts calculator
 #####################################
 :Home:          https://github.com/ankostis/wltp
-:Documentation: http://wltp.readthedocs.org/
+:Documentation: https://wltp.readthedocs.org/
 :Copyright:     2013-2014 European Commission (JRC)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
 
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
-according to UN's draft on the
+according to UNECE's draft of the
 `Worldwide harmonized Light vehicles Test Procedures <https://en.wikipedia.org/wiki/Worldwide_harmonized_Light_vehicles_Test_Procedures>`_.
 
+.. important:: This simulator is still in *alpha* stage.
+    Known limitations are described in the :doc:`CHANGES`.
 
-Overview:
-=========
 
-It accepts as input the vehicle-specifications and parameters for modifying the execution
+Introduction
+============
+
+The calculator accepts as input the vehicle-specifications and parameters for modifying the execution
 of the WLTC-cycle and spits-out the it gear-shifts of the vehicle, the attained speed-profile,
 and any warnings.  It certainly does not calculate any CO2 emissions or other metrics.
 
@@ -31,14 +34,11 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
     /                   /        |'----------'  |   /                   /
     '------------------'         |______________|  '-------------------'
 
-.. important:: This simulator is still in *alpha* stage.
-    The difference of the results from the specs are described in the :doc:`CHANGES.rst`.
 
-
-Install:
-========
+Install
+-------
 Requires Python 3.3+.
-Install it directly from the PyPI repository with the usual::
+Install it directly from the `PyPI <https://pypi.python.org/pypi>`_ repository with the usual::
 
     $ pip3 install wltc
 
@@ -51,28 +51,8 @@ Or assuming you have download the sources::
 
 
 
-Cmd-line usage:
-===============
-:TODO: Not implemented in this vesion
-
-To get help::
-
-    $ python wltc --help          ## to get generic help for cmd-line syntax
-    $ python wltc -M /vehicle     ## to get help for specific model-paths
-
-
-and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
-for which you want to override the ``n_idle`` only, run the following::
-
-    $ python wltc -v \
-        -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
-        -m /vehicle/n_idle:=850 \
-        -O cycle.csv model_path=/cycle_run
-
-.. Seealso:: `WinPython <http://winpython.sourceforge.net/>`_
-
-Python Usage:
-=============
+Python usage
+------------
 A usage example::
 
     >> import wltc
@@ -122,25 +102,46 @@ found at ``/wltp/test``.
 
 
 
-Contribute:
-===========
+Cmd-line usage
+--------------
+.. Note:: Not implemented in this vesion
+
+To get help::
+
+    $ python wltc --help          ## to get generic help for cmd-line syntax
+    $ python wltc -M /vehicle     ## to get help for specific model-paths
+
+
+and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
+for which you want to override the ``n_idle`` only, run the following::
+
+    $ python wltc -v \
+        -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
+        -m /vehicle/n_idle:=850 \
+        -O cycle.csv model_path=/cycle_run
+
+
+
+
+Contribute
+==========
 :Issue Tracker: https://github.com/ankostis/wltp/issues
 :Source Code: https://github.com/ankostis/wltp
 
-.. Seealso:: :doc:`INSTALL.rst`
+.. Seealso:: :doc:`INSTALL`
 
 
 
-Contributors:
-=============
+Contributors
+------------
 * Steven Heinz for his test-data and the cooperation on the tricky parts of the specification.
 * Giorgos Fontaras for physics, policy and admin support.
 * Kostis Anagnostopoulos, author.
 
 
 
-History:
-========
+History
+-------
 Implemented from scratch based on the UN's specs (document also included in the `docs` dir):
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
@@ -148,6 +149,6 @@ Implemented from scratch based on the UN's specs (document also included in the 
 * But probably a better spec is this one:
   https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
 
-.. Seealso:: :doc:`CHANGES.rst`
+.. Seealso:: :doc:`CHANGES`
 
 

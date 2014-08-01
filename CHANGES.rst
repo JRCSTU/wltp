@@ -1,5 +1,22 @@
-v0.0.7-alpha, 31-Jul-2014 - 1st Alpha *public* release
-------------------------------------------------------
+#########
+Changelog
+#########
+
+TODOs
+=====
+* Add cmd-line front-end.
+* No automatic calculation of resistance-coefficients.
+* Driveability-rules not ordered as defined in the latest task-force meeting.
+* The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
+  along with other recent updates.
+* Results are not yet compared with the new wltp_db sample-vehicles.
+
+.. todolist::
+
+
+
+v0.0.7-alpha, 31-Jul-2014 - 1st *public*
+========================================
 * Rename project to 'wltp'.
 * Switch license from AGPL --> EUPL (the same license assumed *retrospectively* for older version)
 * Add wltp_db files.
@@ -10,18 +27,11 @@ v0.0.7-alpha, 31-Jul-2014 - 1st Alpha *public* release
     * Prepare Sphinx documentation for http://readthedocs.org.
     * Update setup.py
     * Update project-coordinates (authors, etc)
-* TODOs:
-    * -Add cmd-line front-end.
-    * -No automatic calculation of resistance-coefficients.
-    * -Driveability-rules not ordered as defined in the latest task-force meeting.
-    * -The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
-      along with other recent updates.
-    * -Results are not yet compared with the new wltp_db sample-vehicles.
 
 
 
-v0.0.6-alpha, 5-Feb-2014 -- Alpha release
------------------------------------------
+v0.0.6-alpha, 5-Feb-2014
+========================
 * Make it build as standalone `.exe` using `cx_freeze`.
 * Possible to transplant base-gears and then apply on them driveability-rules.
 * Embed Model --> Experiment to simplify client-code.
@@ -29,8 +39,8 @@ v0.0.6-alpha, 5-Feb-2014 -- Alpha release
 * More reverse-engineered comparisons with heinz's data.
 
 
-v0.0.5-alpha, 18-Feb-2014 -- Alpha release
-------------------------------------------
+v0.0.5-alpha, 18-Feb-2014
+=========================
 * Many driveability-improvements found by trial-n-error comparing with Heinz's.
 * Changes in the data-schema for facilitating storing of tabular-data.
 * Use Euro6 polynomial full_load_curve from Fontaras.
@@ -39,8 +49,8 @@ v0.0.5-alpha, 18-Feb-2014 -- Alpha release
 * Also report GEARS_ORIG, RPM_NORM, P_AVAIL, RPM, GEARS_ORIG, RPM_NORM results.
 
 
-v0.0.4.alpha, 18-Jan-2014 -- Alpha release
-------------------------------------------
+v0.0.4.alpha, 18-Jan-2014
+=========================
 * Starting to compare with Heinz's data - FOUND DISCREPANCIES IMPLTYING ERROR IN BASE CALCS.
 * Test-enhancements and code for comparing with older runs to track algo behavior.
 * Calc 'V_real'.
@@ -55,8 +65,8 @@ v0.0.4.alpha, 18-Jan-2014 -- Alpha release
 * FIXME: what to to with INVALID-GEARS?
 
 
-v0.0.3_alpha, 22-Jan-2014 -- Alpha release
-------------------------------------------
+v0.0.3_alpha, 22-Jan-2014
+=========================
 * -Driveability rules not-implemented:
     * missing some conditions for rule-f.
     * no test-cases.
@@ -80,13 +90,13 @@ v0.0.3_alpha, 22-Jan-2014 -- Alpha release
     * TODO: Simplify V_real calc by avoiding multiply all.
 
 
-v0.0.2_alpha, 7-Jan-2014 -- Alpha release
------------------------------------------
+v0.0.2_alpha, 7-Jan-2014
+========================
 * -Still unchecked for correctness of results.
 
 
-v0.0.1, 6-Jan-2014 -- Alpha release
------------------------------------
+v0.0.1, 6-Jan-2014 == Alpha release
+===================================
 * -Unchecked for correctness.
 * Runs OK.
 * Project with python-packages and test-cases.
@@ -99,6 +109,7 @@ v0.0.1, 6-Jan-2014 -- Alpha release
 * -Does not output real_velocity yet - inly gears.
 
 
-v0.0.0, 11-Dec-2013 -- Inception stage
---------------------------------------
+v0.0.0, 11-Dec-2013 == Inception stage
+======================================
 * Mostly setup.py work, README and help.
+

@@ -57,10 +57,8 @@ def heinz_db_result_table_to_csv(heinz_results_glob, inp_vehs_df, cols_to_move, 
                     ## Check if overwriting other value.
                     #
                     dval = inp_vehs_df.ix[veh, col]
-                    if dval != 0 and heinz_out_df[col].dtype == inp_vehs_df[col].dtype and cval != dval:
+                    if not np.isnan(dval) and heinz_out_df[col].dtype == inp_vehs_df[col].dtype and cval != dval:
                         print("WARN: move-col(%s): %s != inp-vehs(%s)!" %(col, cval, dval))
-                else:
-                    inp_vehs_df[col] = np.zeros(inp_vehs_df.shape[0], heinz_out_df[col].dtype) # Add column
                 inp_vehs_df.ix[veh, col] = cval
 
 
@@ -72,10 +70,8 @@ def heinz_db_result_table_to_csv(heinz_results_glob, inp_vehs_df, cols_to_move, 
                     ## Check if overwriting other value.
                     #
                     dval = inp_vehs_df.ix[veh, ncol]
-                    if dval != 0 and heinz_out_df[col].dtype == inp_vehs_df[ncol].dtype and cval != dval:
+                    if not np.isnan(dval) and heinz_out_df[col].dtype == inp_vehs_df[ncol].dtype and cval != dval:
                         print("Warn: rename-col(%s->%s): %s != inp-vehs(%s)!" %(col, ncol, cval, dval))
-                else:
-                    inp_vehs_df[ncol] = np.zeros(inp_vehs_df.shape[0], heinz_out_df[col].dtype) # Add column
                 inp_vehs_df.ix[veh, ncol] = cval
 
             heinz_out_df = heinz_out_df.drop(steady_cols + cols_to_drop, axis=1)
@@ -92,7 +88,7 @@ def heinz_db_result_table_to_csv(heinz_results_glob, inp_vehs_df, cols_to_move, 
 
 
 
-if __name__ == '__main__':
+def post_proc_heinz_results():
     inp_vehs_fname          = "JRC_vehicle_info_query.xlsx"
     inp_vehs_2_fname        = 'wltp_db_vehicles.csv'
     heinz_results_wildcard  = '*-*.xls'
@@ -105,10 +101,6 @@ if __name__ == '__main__':
     cols_to_drop            = [ 'cycle_part', 'f0', 'f1', 'f2', ]
 
 
-
-
-    _mydir = path.dirname(__file__)
-    os.chdir(path.join(_mydir, '../wltp/test/wltp_db'))
     # (inp_vehs_2_fname, ext) = path.splitext(inp_vehs_fname)
     #inp_vehs_2_fname = '%s-2%s'%(inp_vehs_2_fname, ext)
 
@@ -120,3 +112,45 @@ if __name__ == '__main__':
 
     dfin.to_csv(inp_vehs_2_fname, encoding='UTF-8')
     print("Stored modified inp-vehs(%s)" %inp_vehs_2_fname)
+
+
+def reindex_db_vehicles():
+    heinz_classes_excel = 'gearshift_description_development_DB_mod2.xlsx'
+    inp_vehs_fname = 'wltp_db_vehicles.csv'
+
+    dfin1 = pd.read_excel(heinz_classes_excel, 0, index_col=None, skiprows=4, parse_cols='C:Z')
+    dfin2 = pd.read_excel(heinz_classes_excel, 1, index_col=None, skiprows=4, parse_cols='C:Z')
+    dfin3 = pd.read_excel(heinz_classes_excel, 2, index_col=None, skiprows=4, parse_cols='C:Z')
+
+    dfout = pd.concat((dfin1, dfin2, dfin3, ), ignore_index=True)
+    dfout = dfout.sort('vehicle_no').reset_index(drop=True)
+    dfout.index.name = 'veh_id2'
+
+    dfout.to_csv(inp_vehs_fname, encoding='UTF-8')
+
+
+# def reindex_heinz_vehiclesOOO():
+#     inp_vehs_fname_1 = 'wltp_db_vehicles.csv'
+#     inp_vehs_fname_2 = 'gearshift_description_development_DB_mod2.xlsx'
+#
+#     dfin1 = pd.read_csv(inp_vehs_fname_1, encoding='UTF-8', index_col=0)
+#     dfin2a = pd.read_excel(inp_vehs_fname_2, 0, index_col=None, skiprows=4, parse_cols='C:Z')
+#     dfin2b = pd.read_excel(inp_vehs_fname_2, 1, index_col=None, skiprows=4, parse_cols='C:Z')
+#     dfin2c = pd.read_excel(inp_vehs_fname_2, 2, index_col=None, skiprows=4, parse_cols='C:Z')
+#
+#     dfin2 = p((dfin2a, dfin2b, dfin2c, ))
+#     dfin2 = dfin2.un
+#
+#     dfin1 = dfin1.join(dfin2.ix[:, 'f0':'f2'], lsuffix='_OLD')
+#     dfin1 = dfin1.drop(['f0_OLD', 'f1_OLD', 'f2_OLD'], axis=1)
+#
+#     dfin1.to_csv(inp_vehs_fname_1, encoding='UTF-8')
+
+
+
+if __name__ == '__main__':
+    _mydir = path.dirname(__file__)
+    os.chdir(path.join(_mydir, '../wltp/test/wltp_db'))
+
+    #post_proc_heinz_results() #TODO: have top re-proc heinz-files.
+    reindex_db_vehicles()

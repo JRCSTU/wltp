@@ -4,70 +4,9 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''The main class consuming a vehicle-model and the wltp-data and updates the model with the results (gears, downscaled velocity-profile).
+'''The core that accepts a vehicle-model and wltc-classes, runs the simulation and updates the model with results (downscaled velocity & gears-profile).
 
-An "execution" or a "run" of an experiment is depicted in the following diagram::
-
-                       _______________
-     .-------.        |               |      .------------------.
-    / Model /-.   ==> |   Experiment  | ==> / Model(augmented) /
-   '-------'  /   ==> |---------------|    '------------------'
-     .-------'        |  .-----------.|
-                      | / WLTC-data / |
-                      |'-----------'  |
-                      |_______________|
-
-Usage:
-======
-
-A usage example::
-
-    >> import wltp
-
-    >> model = {
-        "vehicle": {
-            "mass":     1500,
-            "v_max":    195,
-            "p_rated":  100,
-            "n_rated":  5450,
-            "n_idle":   950,
-            "n_min":    None, # Can be overriden by manufacturer.
-            "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
-            "resistance_coeffs":[100, 0.5, 0.04],
-        }
-    }
-
-    >> experiment = wltp.Experiment(model)
-
-    >> model = experiment.run()
-
-    >> print(model['params'])
-    >> print(model['cycle_run'])
-    >> print(Experiment.driveability_report())
-
-
-
-    >> {
-        'wltc_class':   'class3b'
-        'v_class':      [ 0.,  0.,  0., ...,  0.,  0.,  0.],
-        'f_downscale':  0,
-        'v_target':     [ 0.,  0.,  0., ...,  0.,  0.,  0.],
-        'gears':        [0, 0, 0, ..., 0, 0, 0],
-        'clutch':       array([ True,  True,  True, ...,  True,  True,  True], dtype=bool),
-        'v_real':       [ 0.,  0.,  0., ...,  0.,  0.,  0.],
-        'driveability': {...},
-    }
-
-
-For information on the model-data, check the schema::
-
-    print(wltp.model.model_schema())
-
-
-Implementation:
-===============
-
-Note: ALL_CAPITALS variable denote vectors, usually over the velocity-profile (the cycle),
+Note: ALL_CAPITALS variable denote *vectors*, usually over the velocity-profile (the cycle),
 for instance, GEARS is like that::
 
      t:||: 0  1  2  3
@@ -78,8 +17,8 @@ for instance, GEARS is like that::
     g4 |   4, 4, 4, 4, ... 4, 4 ]]
 
 
-Vectors:
---------
+Vectors
+-------
 
 V:        floats (#cycle_steps)
     The wltp-class velocity profile.
@@ -94,10 +33,10 @@ N_GEARS:  floats (#gears X #cycle_steps)
     One row per gear with the Engine-revolutions required to follow the V-profile (unfeasable revs included),
     produced by multiplying ``V * gear-rations``.
 
-.. log:: logger for the experiment.
-
+.. Seealso:: :mod:`model` for in/out schemas
 
 :since: 1 Jan 2014
+
 '''
 
 import numpy as np
@@ -344,7 +283,8 @@ def decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max):
 def calcDownscaleFactor(P_REQ, p_max_values, downsc_coeffs, dsc_v_split, p_rated, v_max, f_downscale_threshold):
     '''Check if downscaling required, and apply it.
 
-    @return: :float:
+    :return: (float) the factor
+
     @see: Annex 1-7, p 68
     '''
 
@@ -413,8 +353,9 @@ def downscaleCycle(V, f_downscale, phases):
 def calcEngineRevs_required(V, gear_ratios, n_idle, v_stopped_threshold):
     '''Calculates the required engine-revolutions to achieve target-velocity for all gears.
 
-    @return :array: N_GEARS:   a (#gears X #velocity) float-array, eg. [3, 150] --> gear(3), time(150)
-    @return :array: GEARS:     a (#gears X #velocity) int-array, eg. [3, 150] --> gear(3), time(150)
+    :return: array: N_GEARS:   a (#gears X #velocity) float-array, eg. [3, 150] --> gear(3), time(150)
+    :rtype: array: GEARS:     a (#gears X #velocity) int-array, eg. [3, 150] --> gear(3), time(150)
+
     @see: Annex 2-3.2, p 71
     '''
 
@@ -442,11 +383,12 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
                                n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                v_stopped_threshold,
                                driveability_issues):
-    '''Calculates the engine-revolutions limits for all gears and returns for which they are accepted.
+    '''
+    Calculates the engine-revolutions limits for all gears and returns for which they are accepted.
 
-    @note My interpratation for Gear2 ``n_min`` limit::
+    My interpratation for Gear2 ``n_min`` limit::
 
-                          _____________                ______________
+                              _____________                ______________
                           ///INVALID///|   CLUTCHED   |  GEAR-2-OK
         EngineRevs(N): 0-----------------------+---------------------------->
         for Gear-2                     |       |      +--> n_clutch_gear2   := n_idle + MAX(
@@ -455,8 +397,11 @@ def possibleGears_byEngineRevs(V, A, N_GEARS,
                                        |       +---------> n_idle
                                        +-----------------> n_min_gear2      := 90% * n_idle
 
-    @return GEARS_YES:list(booleans, nGears x CycleSteps): possibibilty for all the gears on each cycle-step
-                    (eg: [0, 10] == True --> gear(1) is possible for t=10)
+
+    :return: GEARS_YES: possibibilty for all the gears on each cycle-step
+            (eg: [0, 10] == True --> gear(1) is possible for t=10)
+    :rtype: list(booleans, nGears x CycleSteps)
+
     @see: Annex 2-3.2, p 71
     '''
 
@@ -570,8 +515,9 @@ def dec_byte_repl(m):
 
 def gearsregex(gearspattern):
     '''
-    @param:  :gearspattern: regular-expression or substitution that escapes decimal-bytes written as: \g\d+
+    :param gearspattern: regular-expression or substitution that escapes decimal-bytes written as: ``\g\d+``
                         with adding +128, eg::
+
                             \g124|\g7 --> unicode(128+124=252)|unicode(128+7=135)
     '''
 
@@ -773,7 +719,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
             if (GEARS[t-1] != GEARS[t]):       ## All rules triggered by a gear-shift.
                 for rule in rules:
                         if (rule(t, GEARS[t-1], GEARS[t], V, A, GEARS, driveability_issues) and \
-                        					(isStopOnFirstApplied or GEARS[t-1] == GEARS[t])):
+                                            (isStopOnFirstApplied or GEARS[t-1] == GEARS[t])):
                             break
 
     ## V --> byte-array to search by regex.
@@ -809,9 +755,11 @@ def runCycle(V, A, P_REQ, gear_ratios,
     Initial calculations happen on engine_revs for all gears, for all time-steps of the cycle (N_GEARS array).
     Driveability-rules are applied afterwards on the selected gear-sequence, for all steps.
 
-    @param: V: the cycle, the velocity profile
-    @param: A: acceleration of the cycle (diff over V) in m/sec^2
-    @return :array: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
+    :param V: the cycle, the velocity profile
+    :param A: acceleration of the cycle (diff over V) in m/sec^2
+    :return: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
+
+    :rtype: array
     '''
 
     ## A multimap to collect problems.

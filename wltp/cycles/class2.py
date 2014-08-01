@@ -4,7 +4,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''wltp.classes.class2 module: WLTC-class data for gear-shift calculator.
+'''WLTC class data for the highest-powered vehicles
 
 Data below extracted from the specs and prepared with the followinf python scripts
 found inside the source-distribution:

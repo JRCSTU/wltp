@@ -1,10 +1,12 @@
-#######
-INSTALL
-#######
+:orphan:
+
+#################################
+Installation & Build instructions
+#################################
 
 
-Quick-start:
-============
+Quick-start
+===========
 
 Requires Python 3.3+.
 Install it directly from the PyPI repository with the usual::
