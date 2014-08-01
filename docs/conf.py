@@ -15,6 +15,7 @@
 
 import sys
 import os
+import unittest
 
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
@@ -297,27 +298,6 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 #    can import sources.
 #     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
 #
-class Mock(object):
-
-    __all__ = []
-
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def __call__(self, *args, **kwargs):
-        return Mock()
-
-    @classmethod
-    def __getattr__(cls, name):
-        if name in ('__file__', '__path__'):
-            return '/dev/null'
-        elif name[0] == name[0].upper():
-            mockType = type(name, (), {})
-            mockType.__module__ = __name__
-            return mockType
-        else:
-            return Mock()
-
+from unittest import mock
 MOCK_MODULES = ['semantic_version', 'numpy']
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = Mock()
+sys.modules.update((mod_name, mock.MagicMock()) for mod_name in MOCK_MODULES)
