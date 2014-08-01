@@ -130,7 +130,7 @@ for which you want to override the ``n_idle`` only, run the following::
 Getting Involved
 ================
 
-Read :doc:`INSTALL`, and use the typical gitHub's development tools:
+Read :doc:`INSTALL`, and use the typical gitHub's development tools to provide feedback:
 
 :Issue Tracker: https://github.com/ankostis/wltp/issues
 :Source Code:   https://github.com/ankostis/wltp

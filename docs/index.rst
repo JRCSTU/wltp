@@ -17,4 +17,6 @@
 .. include:: ../README.rst
     :start-after: @glossary
 
+
 * :ref:`genindex`
+
