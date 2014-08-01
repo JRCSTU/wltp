@@ -1,8 +1,11 @@
 #####################################
 wltp: A *wltc* gear-shifts calculator
 #####################################
-:Copyright:   2013-2014 European Commission (JRC)
-:License:     `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
+:Home:          https://github.com/ankostis/wltp
+:Documentation: http://wltp.readthedocs.org/
+:Copyright:     2013-2014 European Commission (JRC)
+:License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
+
 
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to UN's draft on the
