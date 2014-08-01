@@ -1,4 +1,4 @@
 include LICENSE.txt
-include INSTALL.txt
-include CHANGES.txt
+include INSTALL.rst
+include CHANGES.rst
 recursive-include docs *.docx

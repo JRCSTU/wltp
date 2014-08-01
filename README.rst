@@ -1,20 +1,21 @@
-#################################################################################
-WLTP: WLTC gear-shift calculator
-#################################################################################
+#####################################
+wltp: A *wltc* gear-shifts calculator
+#####################################
 :Copyright:   2013-2014 European Commission (JRC)
-:License:     EUPL
-
+:License:     `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
-according to UN's draft on the Worldwide harmonized Light vehicles Test Procedures.
+according to UN's draft on the
+`Worldwide harmonized Light vehicles Test Procedures <https://en.wikipedia.org/wiki/Worldwide_harmonized_Light_vehicles_Test_Procedures>`_.
 
 
 Overview:
 =========
 
-It accepts as input the car-specifications and a selection of a WLTC-cycle classes
-and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
+It accepts as input the vehicle-specifications and parameters for modifying the execution
+of the WLTC-cycle and spits-out the it gear-shifts of the vehicle, the attained speed-profile,
 and any warnings.  It certainly does not calculate any CO2 emissions or other metrics.
+
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
@@ -27,55 +28,48 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
     /                   /        |'----------'  |   /                   /
     '------------------'         |______________|  '-------------------'
 
+.. important:: This simulator is still in *alpha* stage.
+    The difference of the results from the specs are described in the :doc:`CHANGES.rst`.
 
 
 Install:
 ========
+Requires Python 3.3+.
+Install it directly from the PyPI repository with the usual::
 
-Requires Python-3.
+    $ pip3 install wltc
 
-To install it, assuming you have download the sources,
-do the usual::
+Or assuming you have download the sources::
 
-    python setup.py install
-
-Or get it directly from the PyPI repository::
-
-    pip3 install wltc
+    $ python setup.py install
 
 
-Tested on::
-
-     Python 3.3.5 (v3.3.5:62cf4e77f785, Mar  9 2014, 10:35:05) (AMD64)] on win32,
-
-.. Seealso::
-
-    WinPython <http://winpython.sourceforge.net/>
-
+.. Seealso:: `WinPython <http://winpython.sourceforge.net/>`_
 
 
 
 Cmd-line usage:
 ===============
+:TODO: Not implemented in this vesion
 
 To get help::
 
     $ python wltc --help          ## to get generic help for cmd-line syntax
-
     $ python wltc -M /vehicle     ## to get help for specific model-paths
 
 
-and then, as an example::
+and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
+for which you want to override the ``n_idle`` only, run the following::
 
-    python wltc -v \
+    $ python wltc -v \
         -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
         -m /vehicle/n_idle:=850 \
         -O cycle.csv model_path=/cycle_run
 
+.. Seealso:: `WinPython <http://winpython.sourceforge.net/>`_
 
 Python Usage:
 =============
-
 A usage example::
 
     >> import wltc
@@ -117,32 +111,40 @@ A usage example::
 
 For information on the model-data, check the schema::
 
-    print(wltc.instances.model_schema())
+    >> print(wltc.model.model_schema())
 
 
-Development:
-============
-
-See :doc:`INSTALL.txt`
+For more examples, download the sources and check the test-cases
+found at ``/wltp/test``.
 
 
 
-History
-=======
+Contribute:
+===========
+:Issue Tracker: https://github.com/ankostis/wltp/issues
+:Source Code: https://github.com/ankostis/wltp
 
-Implemented from scratch based on the UN's specs (document also included in the ./docs dir):
-* http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
-* https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
-
-But probably a better spec is this one:
-* https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
-
-.. Seealso:: :doc:`INSTALL.txt`
+.. Seealso:: :doc:`INSTALL.rst`
 
 
-Contributors
-============
 
-* Kostis Anagnostopoulos, author.
+Contributors:
+=============
 * Steven Heinz for his test-data and the cooperation on the tricky parts of the specification.
 * Giorgos Fontaras for physics, policy and admin support.
+* Kostis Anagnostopoulos, author.
+
+
+
+History:
+========
+Implemented from scratch based on the UN's specs (document also included in the `docs` dir):
+
+* http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
+* https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
+* But probably a better spec is this one:
+  https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
+
+.. Seealso:: :doc:`CHANGES.rst`
+
+

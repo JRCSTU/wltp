@@ -4,25 +4,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-''''wltp: A WLTC gear-shift calculator
-
-A calculator of the gear-shifts profile for light-duty-vehicles (cars)
-according to UN's draft on the Worldwide harmonized Light vehicles Test Procedures.
-
-It accepts as input the car-specifications and a selection of a WLTC-cycle classes
-and spits-out the attained speed-profile by the vehicle, along with it gear-shifts used
-and any warnings.  It certainly does not calculate any CO2 emissions or other metrics.
-
-An "execution" or a "run" of an experiment is depicted in the following diagram::
-
-
-         .-------------------.    ______________        .-------------------.
-        /        Model      /    | Experiment   |       / Model(augmented)  /
-       /-------------------/     |--------------|      /-------------------/
-      / +--vehicle        /  ==> |  .----------.| ==> / +...              /
-     /  +--params        /       | / WLTC-data/ |    /  +--cycle_run     /
-    /                   /        |'----------'  |   /                   /
-    '------------------'         |______________|  '-------------------'
+''''Setuptools script for *wltp*, the WLTC gear-shift calculator.
 
 Install:
 ========
@@ -34,10 +16,12 @@ do the usual::
 
 Or get it directly from the PIP repository::
 
-    pip3 install fuefit
+    pip3 install wltp
 '''
+## Got ideas for project-setup from many places, among others:
+#    http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
+#    http://python-packaging-user-guide.readthedocs.org/en/latest/current.html
 
-# wltp's setup.py
 from setuptools import setup
 #from cx_Freeze import Executable
 #from cx_Freeze import setup
@@ -49,40 +33,42 @@ mydir = os.path.dirname(__file__)
 ## Version-trick to have version-info in a single place,
 ## taken from: http://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
 ##
-def read_project_version(fname):
-    fglobals = {'__version_info__':('x', 'x', 'x')} # In case reading the version fails.
-    exec(open(os.path.join(mydir, projname, fname)).read(), fglobals)  # To read __version_info__
+def read_project_version():
+    fglobals = {}
+    exec(open(os.path.join(mydir, projname, '_version.py')).read(), fglobals)  # To read __version_info__
     return fglobals['__version__']
+proj_ver = read_project_version()
 
-# Trick to use README file as long_description.
-#  It's nice, because now 1) we have a top level README file and
-#  2) it's easier to type in the README file than to put a raw string in below ...
 def read_text_lines(fname):
     with open(os.path.join(mydir, fname)) as fd:
-        return fd.read()
-readme_lines = read_text_lines('README.txt')
+        return fd.readlines()
+
+readme_lines = read_text_lines('README.rst')
+
+long_desc = readme_lines + ['\n\n\n'] + read_text_lines('CHANGES.rst')
+long_desc = '\n'.join(long_desc)
 
 setup(
     name = projname,
     packages = ['wltp', 'wltp.cycles', 'wltp.test', ],
 #     package_data= {'projname': ['data/*.csv']},
 #     scripts = ['wltp.py'],
-    version=read_project_version('_version.py'),
+    version=proj_ver,
     test_suite="wltp.test", #TODO: check setup.py testsuite indeed works.
     description=readme_lines[1],
-    long_description='\n'.join(readme_lines),
-    author="ankostis @ European Commission (JRC)",
+    long_description=long_desc,
+    author="Kostis Anagnostopoulos @ European Commission (JRC)",
     author_email="ankostis@gmail.com",
     url = "https://github.com/ankostis/wltp",
     license = "European Union Public Licence 1.1 or later (EUPL 1.1+)",
     keywords = [
-        "LDVs", "UN", "UNECE", "cars", "fuel-consumption",
+        "LDVs", "UN", "UNECE", "cars", "fuel-consumption", "simulation", "simulator",
         "gears", "gearshifs", "rpm", "vehicles", "wltc", "wltp"
     ],
     classifiers = [
-        "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Development Status :: 3 - Alpha",
+        'Natural Language :: English',
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX",
