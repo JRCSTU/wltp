@@ -298,6 +298,7 @@ intersphinx_mapping = {'http://docs.python.org/': None}
 #    can import sources.
 #     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
 #
-from unittest import mock
-MOCK_MODULES = ['semantic_version', 'numpy']
-sys.modules.update((mod_name, mock.MagicMock()) for mod_name in MOCK_MODULES)
+from unittest.mock import MagicMock as Mock
+
+MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)

@@ -9,18 +9,20 @@ wltp: A *wltc* gear-shifts calculator
 
 
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
-according to UNECE's draft of the
-`Worldwide harmonized Light vehicles Test Procedures <https://en.wikipedia.org/wiki/Worldwide_harmonized_Light_vehicles_Test_Procedures>`_.
+according to :term:`UNECE` draft of the :term:`WLTP`.
 
 .. important:: This simulator is still in *alpha* stage.
     Known limitations are described in the :doc:`CHANGES`.
 
 
+
+.. @intro
+
 Introduction
 ============
 
 The calculator accepts as input the vehicle-specifications and parameters for modifying the execution
-of the WLTC-cycle and spits-out the it gear-shifts of the vehicle, the attained speed-profile,
+of the :term:`WLTC` cycle and spits-out the it gear-shifts of the vehicle, the attained speed-profile,
 and any warnings.  It certainly does not calculate any CO2 emissions or other metrics.
 
 
@@ -123,9 +125,11 @@ for which you want to override the ``n_idle`` only, run the following::
 
 
 
+.. @contribute
 
-Contribute
-==========
+Getting Involved
+================
+
 Read :doc:`INSTALL`, and use the typical gitHub's development tools:
 
 :Issue Tracker: https://github.com/ankostis/wltp/issues
@@ -135,17 +139,13 @@ Read :doc:`INSTALL`, and use the typical gitHub's development tools:
     `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
 
-Contributors
-------------
-* Steven Heinz for his test-data and the cooperation on the tricky parts of the specification.
-* Giorgos Fontaras for physics, policy and admin support.
-* Kostis Anagnostopoulos, author.
 
-
-
-History
--------
-Implemented from scratch based on the UN's specs (document also included in the `docs` dir):
+Specs & Algorithm
+-----------------
+This program was implemented from scratch based on
+this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
+(included in the ``docs/`` dir).  The latest version of this :term:`GTR`, along
+with other related documents ones can found at UNECE's site:
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
 * https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
@@ -155,3 +155,30 @@ Implemented from scratch based on the UN's specs (document also included in the 
 .. Seealso:: :doc:`CHANGES`
 
 
+Contributors
+------------
+* Steven Heinz for his test-data and the cooperation on the tricky parts of the specification.
+* Giorgos Fontaras for physics, policy and admin support.
+* Kostis Anagnostopoulos, author.
+
+
+.. @glossary
+
+Glossary
+========
+.. glossary::
+
+    GTR
+        Global Technical Regulation
+
+    UNECE
+        The United Nations Economic Commission for Europe, which has assumed the steering role
+        on the :term:`WLTP`.
+
+    WLTC
+        The family of the 3 pre-defined driving-cycles for the respective *power* classes of vehicles.
+        Classes 1,2 & 3 are split in 2, 3 and 4 *parts* respectively.
+
+    WLTP
+        Worldwide harmonised Light duty vehicles Test Procedure, a GRPE informal working group,
+        see also https://en.wikipedia.org/wiki/Worldwide_harmonized_Light_vehicles_Test_Procedures

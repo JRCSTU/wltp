@@ -10,5 +10,11 @@
     :numbered:
 
     intro
+    contribute
     reference
     CHANGES
+
+.. include:: ../README.rst
+    :start-after: @glossary
+
+* :ref:`genindex`

@@ -1,2 +1,3 @@
 .. include:: ../README.rst
-    :start-line: 17
+    :start-after: @intro
+    :end-before: Getting Involved

@@ -1,6 +1,6 @@
-Implementation
-==============
-The following module comprise the core of the simulator:
+Implementation Reference
+========================
+The core of the simulator is composed from the following modules:
 
 .. autosummary::
 
@@ -12,9 +12,11 @@ The following module comprise the core of the simulator:
 
 Among the various tests, those involved with data and divergence from existing tool are:
 
-* :mod:`wltp.test.experiment_WholeVehicleTests`
-* :mod:`wltp.test.wltp_db_tests`
-* :mod:`wltp.test.experiment_SampleVehicleTests`
+.. autosummary::
+
+    wltp.test.experiment_WholeVehicleTests
+    wltp.test.wltp_db_tests
+    experiment_SampleVehicleTests
 
 The following scripts in the sources maybe used to preprocess various wltc data:
 
