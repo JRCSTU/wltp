@@ -5,6 +5,7 @@ Changelog
 TODOs
 =====
 * Add cmd-line front-end.
+* Add IPython front-end.
 * No automatic calculation of resistance-coefficients.
 * Driveability-rules not ordered as defined in the latest task-force meeting.
 * The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
@@ -15,8 +16,8 @@ TODOs
 
 
 
-v0.0.7-alpha, 31-Jul-2014 - 1st *public*
-========================================
+v0.0.7-alpha, 31-Jul-2014: 1st *public*
+=======================================
 * Rename project to 'wltp'.
 * Switch license from AGPL --> EUPL (the same license assumed *retrospectively* for older version)
 * Add wltp_db files.
@@ -95,8 +96,8 @@ v0.0.2_alpha, 7-Jan-2014
 * -Still unchecked for correctness of results.
 
 
-v0.0.1, 6-Jan-2014 == Alpha release
-===================================
+v0.0.1, 6-Jan-2014: Alpha release
+=================================
 * -Unchecked for correctness.
 * Runs OK.
 * Project with python-packages and test-cases.
@@ -109,7 +110,7 @@ v0.0.1, 6-Jan-2014 == Alpha release
 * -Does not output real_velocity yet - inly gears.
 
 
-v0.0.0, 11-Dec-2013 == Inception stage
-======================================
+v0.0.0, 11-Dec-2013: Inception stage
+====================================
 * Mostly setup.py work, README and help.
 
