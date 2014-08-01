@@ -82,8 +82,8 @@ setup(
     ],
     install_requires = [
         'semantic_version',
+        'jsonschema>=1.4',
         'numpy',
-        'jsonschema',
 #         'jsonpointer',
 #         'pandas',
 #         'pint',

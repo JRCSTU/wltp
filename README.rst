@@ -126,11 +126,13 @@ for which you want to override the ``n_idle`` only, run the following::
 
 Contribute
 ==========
+Read :doc:`INSTALL`, and use the typical gitHub's development tools:
+
 :Issue Tracker: https://github.com/ankostis/wltp/issues
-:Source Code: https://github.com/ankostis/wltp
+:Source Code:   https://github.com/ankostis/wltp
 
-.. Seealso:: :doc:`INSTALL`
-
+.. Tip:: Skim through the small and excellent IPython developers document:
+    `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
 
 Contributors
@@ -147,7 +149,7 @@ Implemented from scratch based on the UN's specs (document also included in the 
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
 * https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
-* But probably a better spec is this one:
+* Probably a more comprehensible but older spec is this one:
   https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
 
 .. Seealso:: :doc:`CHANGES`
