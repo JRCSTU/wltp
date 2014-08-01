@@ -10,7 +10,7 @@ The following module comprise the core of the simulator:
     wltp.cycles.class2
     wltp.cycles.class3
 
-Among the varioues tests, those involved with data and divergence from existing tool are:
+Among the various tests, those involved with data and divergence from existing tool are:
 
 * :mod:`wltp.test.experiment_WholeVehicleTests`
 * :mod:`wltp.test.wltp_db_tests`

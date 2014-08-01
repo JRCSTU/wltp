@@ -293,7 +293,8 @@ texinfo_documents = [
 intersphinx_mapping = {'http://docs.python.org/': None}
 
 
-## Mock C-libraries (numpy/pandas, etc) so that `autodoc` can import them.
+## Mock C-libraries (numpy/pandas, etc) so that `autodoc` sphinx-extension
+#    can import sources.
 #     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
 #
 class Mock(object):
@@ -317,6 +318,6 @@ class Mock(object):
         else:
             return Mock()
 
-MOCK_MODULES = ['numpy']
+MOCK_MODULES = ['semantic_version', 'numpy']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = Mock()
