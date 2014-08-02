@@ -35,7 +35,7 @@ mydir = os.path.dirname(__file__)
 ##
 def read_project_version():
     fglobals = {}
-    exec(open(os.path.join(mydir, projname, '_version.py')).read(), fglobals)  # To read __version_info__
+    exec(open(os.path.join(mydir, projname, '_version.py')).read(), fglobals)  # To read __version__
     return fglobals['__version__']
 proj_ver = read_project_version()
 
@@ -81,9 +81,10 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires = [
-        'semantic_version',
         'jsonschema>=1.4',
         'numpy',
+        'matplotlib',
+        'pandas','openpyxl'
 #         'jsonpointer',
 #         'pandas',
 #         'pint',

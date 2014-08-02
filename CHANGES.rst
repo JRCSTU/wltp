@@ -14,6 +14,8 @@ TODOs
 
 .. todolist::
 
+v0.0.8-alpha, XX-Aug-2014
+=======================================
 
 
 v0.0.7-alpha, 31-Jul-2014: 1st *public*

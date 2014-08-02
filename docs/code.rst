@@ -1,7 +1,8 @@
-Implementation Reference
-========================
+Code reference
+==============
 The core of the simulator is composed from the following modules:
 
+.. currentmodule:: wltp
 .. autosummary::
 
     wltp.experiment
@@ -12,11 +13,13 @@ The core of the simulator is composed from the following modules:
 
 Among the various tests, those involved with data and divergence from existing tool are:
 
+.. currentmodule:: wltp.test
 .. autosummary::
 
-    wltp.test.experiment_WholeVehicleTests
-    wltp.test.wltp_db_tests
-    experiment_SampleVehicleTests
+    experiment_WholeVehicleTests
+
+..    wltp.test.wltp_db_tests
+..    wltp.test.experiment_SampleVehicleTests
 
 The following scripts in the sources maybe used to preprocess various wltc data:
 
@@ -25,17 +28,19 @@ The following scripts in the sources maybe used to preprocess various wltc data:
 * :mod:`util/csvcolumns8to2.py`
 
 
+
 Module: :mod:`wltp.experiment`
 ------------------------------
 .. automodule:: wltp.experiment
     :members:
-
 
 Module: :mod:`wltp.model`
 -------------------------
 .. automodule:: wltp.model
     :members:
 
-
-
+Package: :mod:`wltp.cycles`
+---------------------------------
+.. automodule:: wltp.test.experiment_WholeVehicleTests
+    :members:
 

@@ -15,14 +15,13 @@
 
 import sys
 import os
-import unittest
 
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
 
 def read_project_version():
     fglobals = {}
-    exec(open(os.path.join(mydir, '..', projname, '_version.py')).read(), fglobals)  # To read __version_info__
+    exec(open(os.path.join(mydir, '..', projname, '_version.py')).read(), fglobals)  # To read __version__
     return fglobals['__version__']
 proj_ver = read_project_version()
 
@@ -40,9 +39,14 @@ sys.path.insert(0, os.path.abspath('../'))
 #    can import sources.
 #     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
 #
-from unittest.mock import MagicMock as Mock
+from unittest.mock import MagicMock
 
-MOCK_MODULES = ['semantic_version', 'numpy']
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return Mock()
+
+MOCK_MODULES = ['numpy', 'numpy.testing', 'pandas', 'matplotlib']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
@@ -91,7 +95,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'wltp'
-copyright = '2013-2014, European Commission (JRC), EUPL 1.1+'
+copyright = '2013-2014, European Commission (JRC), EUPL 1.1+'  # @ReservedAssignment
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

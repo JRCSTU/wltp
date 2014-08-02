@@ -11,7 +11,7 @@
 
     intro
     contribute
-    reference
+    code
     CHANGES
     indices
 
