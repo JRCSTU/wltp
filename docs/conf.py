@@ -46,6 +46,16 @@ MOCK_MODULES = ['semantic_version', 'numpy']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
+## Autodoc always includes constructors.
+#    From http://stackoverflow.com/a/5599712/548792
+#
+def skip(app, what, name, obj, skip, options):
+    if name == "__init__":
+        return False
+    return skip
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)
 
 
 # -- General configuration ------------------------------------------------
