@@ -16,7 +16,7 @@ according to :term:`UNECE` draft of the :term:`WLTP`.
 
 
 
-.. @intro
+.. @begin-intro
 
 Introduction
 ============
@@ -125,12 +125,13 @@ for which you want to override the ``n_idle`` only, run the following::
 
 
 
-.. @contribute
+.. @begin-contribute
 
 Getting Involved
 ================
 
-Read :doc:`INSTALL`, and use the typical gitHub's development tools to provide feedback:
+Read :doc:`INSTALL`, and use the typical gitHub's development tools to provide feedback
+and download the sources:
 
 :Issue Tracker: https://github.com/ankostis/wltp/issues
 :Source Code:   https://github.com/ankostis/wltp
@@ -162,7 +163,7 @@ Contributors
 * Kostis Anagnostopoulos, author.
 
 
-.. @glossary
+.. @begin-glossary
 
 Glossary
 ========

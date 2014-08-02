@@ -1,3 +1,3 @@
 .. include:: ../README.rst
-    :start-after: @intro
+    :start-after: @begin-intro
     :end-before: Getting Involved

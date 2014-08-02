@@ -13,10 +13,7 @@
     contribute
     reference
     CHANGES
+    indices
 
 .. include:: ../README.rst
-    :start-after: @glossary
-
-
-* :ref:`genindex`
-
+    :start-after: @begin-glossary

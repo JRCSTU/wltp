@@ -35,6 +35,19 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 sys.path.insert(0, os.path.abspath('../'))
 #sys.path.insert(0, os.path.abspath('../util')) # Does not workfor scripts :-(
 
+
+## Mock C-libraries (numpy/pandas, etc) so that `autodoc` sphinx-extension
+#    can import sources.
+#     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
+#
+from unittest.mock import MagicMock as Mock
+
+MOCK_MODULES = ['semantic_version', 'numpy']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+
+
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -293,12 +306,3 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
 
-
-## Mock C-libraries (numpy/pandas, etc) so that `autodoc` sphinx-extension
-#    can import sources.
-#     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
-#
-from unittest.mock import MagicMock as Mock
-
-MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)

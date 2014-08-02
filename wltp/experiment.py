@@ -6,7 +6,9 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 '''The core that accepts a vehicle-model and wltc-classes, runs the simulation and updates the model with results (downscaled velocity & gears-profile).
 
-Note: ALL_CAPITALS variable denote *vectors*, usually over the velocity-profile (the cycle),
+.. Attention:: The documentation of this core module has several issues and needs work.
+
+ALL_CAPITALS variable denote *vectors*, usually over the velocity-profile (the cycle),
 for instance, GEARS is like that::
 
      t:||: 0  1  2  3

@@ -1,3 +1,3 @@
 .. include:: ../README.rst
-    :start-after: @contribute
+    :start-after: @begin-contribute
     :end-before: Glossary

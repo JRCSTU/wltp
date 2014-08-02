@@ -5,6 +5,9 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 '''The hierarchical data and their schema for the WLTC calculator (defaults, WLTC-data) used by the Model and Experiments classes.
+
+.. Attention:: The documentation of this core module has several issues and needs work.
+
 '''
 
 import numpy as np
@@ -188,10 +191,7 @@ def merge(a, b, path=[]):
 
 
 def model_schema():
-    '''The json-schema for input/output of the WLTC experiment.
-
-    :return :dict:
-    '''
+    ''':return: The json-schema(dict) for input/output of the WLTC experiment. '''
 
     from textwrap import dedent
 
