@@ -12,7 +12,8 @@ wltc module: WLTC gear-shift calculator
 from ._version import __version__
 
 
-copyright       = "Copyright (C) 2013-2014 European Commission (JRC)"
-__license__         = "EUPL 1.1+"
+__copyright     = "Copyright (C) 2013-2014 European Commission (JRC)"
+__license__     = "EUPL 1.1+"
 
 __all__ = ['Experiment', 'model']
+import scipy
