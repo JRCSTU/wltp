@@ -6,7 +6,7 @@ TODOs
 =====
 * Add cmd-line front-end.
 * Add IPython front-end.
-* No automatic calculation of resistance-coefficients.
+* No automatic calculation of masses and road-load coefficients from H & L vehicles.
 * Driveability-rules not ordered as defined in the latest task-force meeting.
 * The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
   along with other recent updates.

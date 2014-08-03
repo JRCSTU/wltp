@@ -11,8 +11,16 @@ wltp: A *wltc* gear-shifts calculator
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to :term:`UNECE` draft of the :term:`WLTP`.
 
-.. important:: This simulator is still in *alpha* stage.
-    Known limitations are described in the :doc:`CHANGES`.
+.. figure:: _static/wltc_class3b.png
+    :scale: 50%
+    :alt: WLTP Cycle for Class 3 Vehicles, referenced from
+    :align: center
+
+    **Figure 1:** *WLTP cycle for class-3b Vehicles*
+
+.. important:: This simulator is still in *alpha* stage.  Its results are not
+    considered "correct", and no approval procedure should rely on them.
+    Some of the known limitations are described in :doc:`CHANGES`.
 
 
 
@@ -169,17 +177,37 @@ Glossary
 ========
 .. glossary::
 
-    GTR
-        Global Technical Regulation
+    WLTP
+        The `Worldwide harmonised Light duty vehicles Test Procedure <https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179>`_,
+        a :term:`GRPE` informal working group
 
     UNECE
         The United Nations Economic Commission for Europe, which has assumed the steering role
         on the :term:`WLTP`.
 
-    WLTC
-        The family of the 3 pre-defined driving-cycles for the respective *power* classes of vehicles.
-        Classes 1,2 & 3 are split in 2, 3 and 4 *parts* respectively.
+    GRPE
+        UNECE Working party on Pollution and Energy – Transport Programme
 
-    WLTP
-        Worldwide harmonised Light duty vehicles Test Procedure, a GRPE informal working group,
-        see also https://en.wikipedia.org/wiki/Worldwide_harmonized_Light_vehicles_Test_Procedures
+    GTR
+        Global Technical Regulation
+
+    WLTC
+        The family of the 3 pre-defined *driving-cycles* to use for each vehicle depending on its
+        :term:`PMR`. Classes 1,2 & 3 are split in 2, 3 and 4 *parts* respectively.
+
+    PMR
+        The :math:`\frac{\text{rated_power}}{\text{unladen mass}}` of the vehicle
+
+    Unladen mass
+        *UM* or *Curb weight*, the weight of the vehicle in running order minus
+        the mass of the driver.
+
+    Test mass
+        *TM*, the representative weight of the vehicle used as input for the calculations of the simulation,
+        derived by interpolating between high and low values for the |CO2|-family of the vehicle.
+
+    Downscaling
+        Reduction of the top-velocity of the original drive trace to be followed, to ensure that the vehicle
+        is not driven in an unduly high proportion of "full throttle".
+
+.. |CO2| replace:: CO\ :sub:`2`
