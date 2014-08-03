@@ -62,8 +62,8 @@ setup(
     url = "https://github.com/ankostis/wltp",
     license = "European Union Public Licence 1.1 or later (EUPL 1.1+)",
     keywords = [
-        "LDVs", "UN", "UNECE", "cars", "fuel-consumption", "simulation", "simulator",
-        "gears", "gearshifs", "rpm", "vehicles", "wltc", "wltp"
+         "automotive", "vehicle", "vehicles", "car", "cars", "fuel", "consumption", "gears", "gearshifs",
+        "simulation", "simulator", "driving", "engine", "wltc", "UNECE", "standard",
     ],
     classifiers = [
         "Programming Language :: Python :: 3",
