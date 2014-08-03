@@ -1,16 +1,19 @@
+..    include:: <isonum.txt>
+
 #########
 Changelog
 #########
 
 TODOs
 =====
+* (!) Driveability-rules not ordered as defined in the latest task-force meeting.
+* (!) The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
+  along with other recent updates.
+* (!) Does not discriminate between :term:`Unladen mass` and :term:`Test mass`.
+* Results are not yet compared with the new wltp_db sample-vehicles.
 * Add cmd-line front-end.
 * Add IPython front-end.
 * No automatic calculation of masses and road-load coefficients from H & L vehicles.
-* Driveability-rules not ordered as defined in the latest task-force meeting.
-* The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
-  along with other recent updates.
-* Results are not yet compared with the new wltp_db sample-vehicles.
 
 .. todolist::
 

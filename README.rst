@@ -12,8 +12,6 @@ A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to :term:`UNECE` draft of the :term:`WLTP`.
 
 .. figure:: _static/wltc_class3b.png
-    :scale: 50%
-    :alt: WLTP Cycle for Class 3 Vehicles, referenced from
     :align: center
 
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
@@ -161,6 +159,18 @@ with other related documents ones can found at UNECE's site:
 * Probably a more comprehensible but older spec is this one:
   https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
 
+Cycles
+^^^^^^
+
+.. figure:: _static/wltc_class1.png
+    :align: center
+.. figure:: _static/wltc_class2.png
+    :align: center
+.. figure:: _static/wltc_class3a.png
+    :align: center
+.. figure:: _static/wltc_class3b.png
+    :align: center
+
 .. Seealso:: :doc:`CHANGES`
 
 
@@ -193,7 +203,7 @@ Glossary
 
     WLTC
         The family of the 3 pre-defined *driving-cycles* to use for each vehicle depending on its
-        :term:`PMR`. Classes 1,2 & 3 are split in 2, 3 and 4 *parts* respectively.
+        :term:`PMR`. Classes 1,2 & 3 are split in 2, 4 and 4 *parts* respectively.
 
     PMR
         The :math:`\frac{\text{rated_power}}{\text{unladen mass}}` of the vehicle
