@@ -164,7 +164,7 @@ with other related documents ones can found at UNECE's site:
 Cycles
 ^^^^^^
 
-.. figure:: _static/wltc_class1.png
+.. figure:: docs/wltc_class1.png
     :align: center
 .. figure:: _static/wltc_class2.png
     :align: center
