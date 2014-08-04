@@ -4,6 +4,7 @@ wltp: A *wltc* gear-shifts calculator
 :Home:          https://github.com/ankostis/wltp
 :Documentation: https://wltp.readthedocs.org/
 :PyPI:          https://pypi.python.org/pypi/wltp
+:travisCI:      https://travis-ci.org/ankostis/wltp
 :Copyright:     2013-2014 European Commission (JRC)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
@@ -11,7 +12,7 @@ wltp: A *wltc* gear-shifts calculator
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to :term:`UNECE` draft of the :term:`WLTP`.
 
-.. figure:: _static/wltc_class3b.png
+.. figure:: wltc_class3b.png
     :align: center
 
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
@@ -141,8 +142,10 @@ to download the sources:
 
     git  https://github.com/ankostis/wltp.git  wltp
 
-To provide feedback, use the
-:Issue Tracker: https://github.com/ankostis/wltp/issues
+To provide feedback, use `github's Issue=tracker <https://github.com/ankostis/wltp/issues>`_.
+
+To check the status of the integration-server for the latest commit, visit
+`TravisCI <https://travis-ci.org/ankostis/wltp>`_.
 
 .. Tip:: Skim through the small and excellent IPython developers document:
     `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
@@ -164,13 +167,13 @@ with other related documents ones can found at UNECE's site:
 Cycles
 ^^^^^^
 
-.. figure:: docs/wltc_class1.png
+.. figure:: wltc_class1.png
     :align: center
-.. figure:: _static/wltc_class2.png
+.. figure:: wltc_class2.png
     :align: center
-.. figure:: _static/wltc_class3a.png
+.. figure:: wltc_class3a.png
     :align: center
-.. figure:: _static/wltc_class3b.png
+.. figure:: wltc_class3b.png
     :align: center
 
 .. Seealso:: :doc:`CHANGES`
