@@ -95,6 +95,7 @@ def heinz_db_result_table_to_csv(heinz_results_glob, inp_vehs_df, cols_to_move, 
 
 
 def post_proc_heinz_results():
+    inp_vehs_xcls            = 'vehicle_info.xlsx'
     inp_vehs_fname          = 'wltp_db_vehicles.csv'
     inp_vehs_2_fname        = 'wltp_db_vehicles2.csv'
     heinz_results_wildcard  = '*-*.xls'
@@ -108,7 +109,6 @@ def post_proc_heinz_results():
     ## Copy renamed same-valued columns from heinz-output's --> input-matrix.
     cols_to_rename          = [
         ('v_max',  'v_max_2'),
-        ('Description',  'comments'),
         ('f0', 'f0_real'), ('f1', 'f1_real'), ('f2', 'f2_real' )
     ]
     ## Columns to remove from heinz-output's.
@@ -120,7 +120,8 @@ def post_proc_heinz_results():
 
     heinz_results_glob = glob.glob(heinz_results_wildcard)
 
-    dfin = pd.read_csv(inp_vehs_fname, index_col=0, encoding='UTF-8')
+    dfin = pd.read_excel(inp_vehs_xcls, 0, index_col=0)
+    #dfin = pd.read_csv(inp_vehs_fname, index_col=0, encoding='UTF-8')
 
     dfin = heinz_db_result_table_to_csv(heinz_results_glob, dfin, cols_to_move, cols_to_rename, cols_to_drop, index_col)
 

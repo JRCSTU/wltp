@@ -52,7 +52,8 @@ Install it directly from the `PyPI <https://pypi.python.org/pypi>`_ repository w
 
     $ pip3 install wltp
 
-Or you can download sources (assuming you have a working installation of `git <http://git-scm.com/>`_)::
+Or you can build it from the sources
+(assuming you have a working installation of `git <http://git-scm.com/>`_)::
 
     $ git clone https://github.com/ankostis/wltp.git wltp
     $ cd wltp
@@ -199,6 +200,15 @@ for which you want to override the ``n_idle`` only, run the following::
         -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
         -m /vehicle/n_idle:=850 \
         -O cycle.csv model_path=/cycle_run
+
+
+
+
+
+IPython usage
+-------------
+.. Note:: Not implemented in yet.
+
 
 
 
