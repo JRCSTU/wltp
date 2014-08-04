@@ -1,28 +1,36 @@
 ..    include:: <isonum.txt>
 
-#########
-Changelog
-#########
+#######
+Changes
+#######
+.. contents::
 
-TODOs
-=====
+Known deficiencies
+==================
 * (!) Driveability-rules not ordered as defined in the latest task-force meeting.
 * (!) The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
   along with other recent updates.
 * (!) Does not discriminate between :term:`Unladen mass` and :term:`Test mass`.
 * Results are not yet compared with the new wltp_db sample-vehicles.
+
+TODOs
+=====
 * Add cmd-line front-end.
 * Add IPython front-end.
 * No automatic calculation of masses and road-load coefficients from H & L vehicles.
 
 .. todolist::
 
+Changelog
+=========
+
+
 v0.0.8-alpha, XX-Aug-2014
-=======================================
+---------------------------------------
 
 
 v0.0.7-alpha, 31-Jul-2014: 1st *public*
-=======================================
+---------------------------------------
 * Rename project to 'wltp'.
 * Switch license from AGPL --> EUPL (the same license assumed *retrospectively* for older version)
 * Add wltp_db files.
@@ -37,7 +45,7 @@ v0.0.7-alpha, 31-Jul-2014: 1st *public*
 
 
 v0.0.6-alpha, 5-Feb-2014
-========================
+------------------------
 * Make it build as standalone `.exe` using `cx_freeze`.
 * Possible to transplant base-gears and then apply on them driveability-rules.
 * Embed Model --> Experiment to simplify client-code.
@@ -46,7 +54,7 @@ v0.0.6-alpha, 5-Feb-2014
 
 
 v0.0.5-alpha, 18-Feb-2014
-=========================
+-------------------------
 * Many driveability-improvements found by trial-n-error comparing with Heinz's.
 * Changes in the data-schema for facilitating storing of tabular-data.
 * Use Euro6 polynomial full_load_curve from Fontaras.
@@ -56,7 +64,7 @@ v0.0.5-alpha, 18-Feb-2014
 
 
 v0.0.4.alpha, 18-Jan-2014
-=========================
+-------------------------
 * Starting to compare with Heinz's data - FOUND DISCREPANCIES IMPLTYING ERROR IN BASE CALCS.
 * Test-enhancements and code for comparing with older runs to track algo behavior.
 * Calc 'V_real'.
@@ -72,7 +80,7 @@ v0.0.4.alpha, 18-Jan-2014
 
 
 v0.0.3_alpha, 22-Jan-2014
-=========================
+-------------------------
 * -Driveability rules not-implemented:
     * missing some conditions for rule-f.
     * no test-cases.
@@ -81,8 +89,8 @@ v0.0.3_alpha, 22-Jan-2014
     * Still unchecked for correctness of results.
 * -Pending Experiment tasks:
     * FIXME: Apply rule(e) also for any initial/final gear (not just for i-1).
-    * FIXME: move V==0 into own gear.
-    * FIXME: move V==0 into own gear.
+    * FIXME: move V--0 into own gear.
+    * FIXME: move V--0 into own gear.
     * FIXME: NOVATIVE rule: "Clutching gear-2 only when Decelerating.".
     * FIXME: What to do if no gear foudn for the combination of Power/Revs??
     * NOTE: "interpratation" of specs for Gear-2
@@ -97,12 +105,12 @@ v0.0.3_alpha, 22-Jan-2014
 
 
 v0.0.2_alpha, 7-Jan-2014
-========================
+------------------------
 * -Still unchecked for correctness of results.
 
 
 v0.0.1, 6-Jan-2014: Alpha release
-=================================
+---------------------------------
 * -Unchecked for correctness.
 * Runs OK.
 * Project with python-packages and test-cases.
@@ -116,6 +124,6 @@ v0.0.1, 6-Jan-2014: Alpha release
 
 
 v0.0.0, 11-Dec-2013: Inception stage
-====================================
+------------------------------------
 * Mostly setup.py work, README and help.
 
