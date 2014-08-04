@@ -213,7 +213,7 @@ Glossary
         :term:`PMR`. Classes 1,2 & 3 are split in 2, 4 and 4 *parts* respectively.
 
     PMR
-        The :math:`\frac{\text{rated_power}}{\text{unladen mass}}` of the vehicle
+        The ``rated_power / unladen_mass`` of the vehicle
 
     Unladen mass
         *UM* or *Curb weight*, the weight of the vehicle in running order minus

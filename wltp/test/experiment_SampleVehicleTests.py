@@ -4,8 +4,10 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''Run as Test-case to generate results for sample-vehicles.
-Run it as cmd-line to compare with Heinz's results.
+'''Compares the results of synthetic vehicles from JRC against Heinz's tool.
+
+* Run as Test-case to generate results for sample-vehicles.
+* Run it as cmd-line to compare with Heinz's results.
 
 :created: 5 Jan 2014
 '''

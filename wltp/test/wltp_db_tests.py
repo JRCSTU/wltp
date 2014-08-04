@@ -4,9 +4,10 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''Run as Test-case to generate results for sample-vehicles.
+'''Compares the results of a batch of wltp_db vehicles against Heinz's tool.
 
-Run it as cmd-line to compare with Heinz's results.
+* Run as Test-case to generate results for sample-vehicles.
+* Run it as cmd-line to compare with Heinz's results.
 
 :created: 28 July 2014
 '''
