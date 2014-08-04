@@ -16,7 +16,7 @@ according to :term:`UNECE` draft of the :term:`WLTP`.
 
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
 
-.. important:: This simulator is still in *alpha* stage.  Its results are not
+.. important:: This project is still in *alpha* stage.  Its results are not
     considered "correct", and no approval procedure should rely on them.
     Some of the known limitations are described in :doc:`CHANGES`.
 
@@ -136,11 +136,13 @@ for which you want to override the ``n_idle`` only, run the following::
 Getting Involved
 ================
 
-Read :doc:`INSTALL`, and use the typical gitHub's development tools to provide feedback
-and download the sources:
+Read :doc:`INSTALL`, and use the typical gitHub's development tools. For instances,
+to download the sources:
 
+    git  https://github.com/ankostis/wltp.git  wltp
+
+To provide feedback, use the
 :Issue Tracker: https://github.com/ankostis/wltp/issues
-:Source Code:   https://github.com/ankostis/wltp
 
 .. Tip:: Skim through the small and excellent IPython developers document:
     `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
@@ -174,11 +176,16 @@ Cycles
 .. Seealso:: :doc:`CHANGES`
 
 
-Contributors
-------------
-* Steven Heinz for his test-data and the cooperation on the tricky parts of the specification.
-* Giorgos Fontaras for physics, policy and admin support.
-* Kostis Anagnostopoulos, author.
+Development team
+----------------
+
+* Author:
+    * Kostis Anagnostopoulos
+* Contributing Authors:
+    * Heinz Steven (test-data, validation, and review)
+    * Georgios Fontaras (simulation, physics & engineering support)
+    * Alessandro Marotta (policy support)
+
 
 
 .. @begin-glossary

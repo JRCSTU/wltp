@@ -61,10 +61,10 @@ def make_class_fig(class_name, class_data):
 
     ## Add part-labels.
     #
-    v_pos = 130 # trial'n error
+    v_pos = 129.5 # trial'n error
     if class_name == 'class1': # Acceleration scale changes!!
         v_pos /= 2
-    bbox={'facecolor':'red', 'alpha':0.5, 'pad':4}
+    bbox={'facecolor':'red', 'alpha':0.5, 'pad':4, 'linewidth':0}
     txts = [ 'Low', 'Medium', 'High', 'Extra-high']
     txts_pos = [0] + part_limits #[0.40, 0.67, 0.85]
 
