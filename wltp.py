@@ -11,14 +11,14 @@ Example
 
 To get help::
 
-    $ python wltc --help          ## to get generic help for cmd-line syntax
-    $ python wltc -M /vehicle     ## to get help for specific model-paths
+    $ python wltp --help          ## to get generic help for cmd-line syntax
+    $ python wltp -M /vehicle     ## to get help for specific model-paths
 
 
 and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
 for which you want to override the ``n_idle`` only, run the following::
 
-    $ python wltc -v \
+    $ python wltp -v \
         -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
         -m /vehicle/n_idle:=850 \
         -O cycle.csv model_path=/cycle_run

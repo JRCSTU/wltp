@@ -16,4 +16,3 @@ __copyright     = "Copyright (C) 2013-2014 European Commission (JRC)"
 __license__     = "EUPL 1.1+"
 
 __all__ = ['Experiment', 'model']
-import scipy

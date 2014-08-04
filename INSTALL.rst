@@ -9,7 +9,7 @@ Quick-start
 Requires Python 3.3+.
 Install it directly from the PyPI repository with the usual::
 
-    $ pip3 install wltc
+    $ pip3 install wltp
 
 Or assuming you have download the sources::
 
@@ -83,7 +83,7 @@ of the UN word-doc with the specs using the ``./util/csvcolumns8to2`` script, bu
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
 Then use the :mod:`./util/buildwltcclass.py` to contruct the respective python-vars into the
-:mod:`wltc/model.py` sources.
+:mod:`wltp/model.py` sources.
 
 
 Test files generated and processed fromStven Heinz's db can be process

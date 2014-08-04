@@ -50,24 +50,32 @@ Install
 Requires Python 3.3+.
 Install it directly from the `PyPI <https://pypi.python.org/pypi>`_ repository with the usual::
 
-    $ pip3 install wltc
+    $ pip3 install wltp
 
-Or assuming you have download the sources::
+Or you can download sources (assuming you have a working installation of `git <http://git-scm.com/>`_)::
 
-    $ python setup.py install
+    $ git clone https://github.com/ankostis/wltp.git wltp
+    $ cd wltp
+    $ python3 setup.py install .
 
 
-.. Seealso:: `WinPython <http://winpython.sourceforge.net/>`_
+.. Seealso:: `WinPython <http://winpython.sourceforge.net/>`_ and
+    `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ python distributions
+    for *Windows* and *OS X*, respectively.
 
 
 
 Python usage
 ------------
-A usage example::
+A usage example:
 
-    >> import wltc
+.. code-block:: python
 
-    >> model = {
+    >> from wltp import model
+    >> from wltp.experiment import Experiment
+    >> import json                  ## Just for pretty-printing model
+
+    >> mdl = {
         "vehicle": {
             "mass":     1500,
             "v_max":    195,
@@ -80,31 +88,85 @@ A usage example::
         }
     }
 
-    >> experiment = wltc.Experiment(model)
+    >> processor = Experiment(mdl)
 
-    >> model = experiment.run()
+    >> mdl = processor.run()
 
-    >> print(model['params'])
-    >> print(model['cycle_run'])
-    >> print(Experiment.driveability_report())
-
-
-
-    >> {
-        'wltc_class':   'class3b'
-        'v_class':      [ 0.,  0.,  0., ...,  0.,  0.,  0.],
-        'f_downscale':  0,
-        'v_target':     [ 0.,  0.,  0., ...,  0.,  0.,  0.],
-        'gears':        [0, 0, 0, ..., 0, 0, 0],
-        'clutch':       array([ True,  True,  True, ...,  True,  True,  True], dtype=bool),
-        'v_real':       [ 0.,  0.,  0., ...,  0.,  0.,  0.],
-        'driveability': {...},
+    >> print(json.dumps(mdl['params'], indent=2))
+    {
+      "f_n_min_gear2": 0.9,
+      "v_stopped_threshold": 1,
+      "wltc_class": "class3b",
+      "f_n_min": 0.125,
+      "f_n_max": 1.2,
+      "f_downscale": 0,
+      "f_inertial": 1.1,
+      "f_n_clutch_gear2": [
+        1.15,
+        0.03
+      ],
+      "f_safety_margin": 0.9
     }
 
 
-For information on the model-data, check the schema::
+It is better to access the time-based cycle-results as a :class:`pandas.DataFrame`:
 
-    >> print(wltc.model.model_schema())
+.. code-block:: python
+
+    >> import pandas as pd
+    >> df = pd.DataFrame(mdl['cycle_run'], )
+    >> print(df.head())
+      clutch driveability  gears  gears_orig  p_available  p_required  rpm  \
+    0  False                   0           0            9           0  950
+    1  False                   0           0            9           0  950
+    2  False                   0           0            9           0  950
+    3  False                   0           0            9           0  950
+    4  False                   0           0            9           0  950
+
+       rpm_norm  v_class   v_real  v_target
+    0         0        0  29.6875         0
+    1         0        0  29.6875         0
+    2         0        0  29.6875         0
+    3         0        0  29.6875         0
+    4         0        0  29.6875         0
+
+    >> print(processor.driveability_report())
+    ...
+      12: (a: X-->0)
+      13: g1: Revolutions too low!
+      14: g1: Revolutions too low!
+    ...
+      30: (b2(2): 5-->4)
+    ...
+      38: (c1: 4-->3)
+      39: (c1: 4-->3)
+      40: Rule e or g missed downshift(40: 4-->3) in acceleration?
+    ...
+      42: Rule e or g missed downshift(42: 3-->2) in acceleration?
+    ...
+
+
+For information on the model-data, check the schema:
+
+.. code-block:: python
+
+    >> print(json.dumps(model.model_schema(), indent=2))
+    {
+      "properties": {
+        "params": {
+          "properties": {
+            "f_n_min_gear2": {
+              "description": "Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.",
+              "type": [
+                "number",
+                "null"
+              ],
+              "default": 0.9
+            },
+            "v_stopped_threshold": {
+              "description": "Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).",
+              "type": [
+    ...
 
 
 For more examples, download the sources and check the test-cases
@@ -114,18 +176,18 @@ found at ``/wltp/test``.
 
 Cmd-line usage
 --------------
-.. Note:: Not implemented in this vesion
+.. Note:: Not implemented in yet.
 
 To get help::
 
-    $ python wltc --help          ## to get generic help for cmd-line syntax
-    $ python wltc -M /vehicle     ## to get help for specific model-paths
+    $ python wltp --help          ## to get generic help for cmd-line syntax
+    $ python wltp -M /vehicle     ## to get help for specific model-paths
 
 
 and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
 for which you want to override the ``n_idle`` only, run the following::
 
-    $ python wltc -v \
+    $ python wltp -v \
         -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
         -m /vehicle/n_idle:=850 \
         -O cycle.csv model_path=/cycle_run
