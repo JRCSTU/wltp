@@ -67,15 +67,15 @@ Or you can download sources (assuming you have a working installation of `git <h
 
 Python usage
 ------------
-A usage example:
+Here is a quick-start example:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >> from wltp import model
-    >> from wltp.experiment import Experiment
-    >> import json                  ## Just for pretty-printing model
+    >>> from wltp import model
+    >>> from wltp.experiment import Experiment
+    >>> import json                  ## Just for pretty-printing model
 
-    >> mdl = {
+    >>> mdl = {
         "vehicle": {
             "mass":     1500,
             "v_max":    195,
@@ -88,11 +88,9 @@ A usage example:
         }
     }
 
-    >> processor = Experiment(mdl)
-
-    >> mdl = processor.run()
-
-    >> print(json.dumps(mdl['params'], indent=2))
+    >>> processor = Experiment(mdl)
+    >>> mdl = processor.run()
+    >>> print(json.dumps(mdl['params'], indent=2))
     {
       "f_n_min_gear2": 0.9,
       "v_stopped_threshold": 1,
@@ -109,14 +107,21 @@ A usage example:
     }
 
 
-It is better to access the time-based cycle-results as a :class:`pandas.DataFrame`:
+To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >> import pandas as pd
-    >> df = pd.DataFrame(mdl['cycle_run'], )
-    >> print(df.head())
+    >>> import pandas as pd
+    >>> df = pd.DataFrame(mdl['cycle_run'])
+    >>> df.columns
+    Index(['clutch', 'driveability', 'gears', 'gears_orig', 'p_available', 'p_required', 'rpm', 'rpm_norm', 'v_class', 'v_real', 'v_target'], dtype='object')
+    >>> df.index.name = 't'
+    >>> print('Mean engine_speed: ', df.rpm.mean())
+    Mean engine_speed:  1917.0407829
+
+    >>> print(df.head())
       clutch driveability  gears  gears_orig  p_available  p_required  rpm  \
+    t
     0  False                   0           0            9           0  950
     1  False                   0           0            9           0  950
     2  False                   0           0            9           0  950
@@ -124,13 +129,16 @@ It is better to access the time-based cycle-results as a :class:`pandas.DataFram
     4  False                   0           0            9           0  950
 
        rpm_norm  v_class   v_real  v_target
+    t
     0         0        0  29.6875         0
     1         0        0  29.6875         0
     2         0        0  29.6875         0
     3         0        0  29.6875         0
     4         0        0  29.6875         0
 
-    >> print(processor.driveability_report())
+    [5 rows x 11 columns]
+
+    >>> print(processor.driveability_report())
     ...
       12: (a: X-->0)
       13: g1: Revolutions too low!
@@ -148,9 +156,9 @@ It is better to access the time-based cycle-results as a :class:`pandas.DataFram
 
 For information on the model-data, check the schema:
 
-.. code-block:: python
+.. code-block:: pycon
 
-    >> print(json.dumps(model.model_schema(), indent=2))
+    >>> print(json.dumps(model.model_schema(), indent=2))
     {
       "properties": {
         "params": {
@@ -219,7 +227,7 @@ Specs & Algorithm
 This program was implemented from scratch based on
 this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
 (included in the ``docs/`` dir).  The latest version of this :term:`GTR`, along
-with other related documents ones can found at UNECE's site:
+with other related documents can be found at UNECE's site:
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
 * https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
