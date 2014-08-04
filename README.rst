@@ -17,6 +17,11 @@ according to :term:`UNECE` draft of the :term:`WLTP`.
 
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
 
+.. Duplicate figure so that it is visible alson in github landing-page
+.. figure:: docs/wltc_class3b.png
+    :align: center
+
+
 .. important:: This project is still in *alpha* stage.  Its results are not
     considered "correct", and no approval procedure should rely on them.
     Some of the known limitations are described in :doc:`CHANGES`.
