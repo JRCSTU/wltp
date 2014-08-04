@@ -25,8 +25,9 @@ Changelog
 =========
 
 
-v0.0.8-alpha, XX-Aug-2014
+v0.0.8-alpha, 04-Aug-2014
 ---------------------------------------
+* Documentation fixes.
 
 
 v0.0.7-alpha, 31-Jul-2014: 1st *public*
