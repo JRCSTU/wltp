@@ -78,19 +78,16 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires = [
-        'setuptools',
         'jsonschema>=1.4',
-        'sphinx',
-        'sphinx_rtd_theme',
         'numpy',
-        'matplotlib',
-        'pandas','openpyxl',
 #         'jsonpointer',
 #         'pandas',
 #         'pint',
     ],
     setup_requires = [
+        'setuptools',
         'sphinx',
+        'sphinx_rtd_theme',
     ],
     tests_require = [
         'matplotlib',
