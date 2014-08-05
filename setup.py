@@ -54,7 +54,7 @@ setup(
 #     package_data= {'projname': ['data/*.csv']},
 #     scripts = ['wltp.py'],
     version=proj_ver,
-    test_suite="wltp.test", #TODO: check setup.py testsuite indeed works.
+    test_suite='nose.collector',
     description=readme_lines[1],
     long_description=long_desc,
     author="Kostis Anagnostopoulos @ European Commission (JRC)",
@@ -85,11 +85,11 @@ setup(
 #         'pint',
     ],
     setup_requires = [
-        'setuptools',
         'sphinx',
         'sphinx_rtd_theme',
     ],
     tests_require = [
+        'nose',
         'matplotlib',
         'pandas','openpyxl',
     ],
