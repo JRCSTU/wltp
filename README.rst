@@ -12,19 +12,15 @@ wltp: A *wltc* gear-shifts calculator
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to :term:`UNECE` draft of the :term:`WLTP`.
 
-.. figure:: wltc_class3b.png
+.. figure:: docs/wltc_class3b.png
     :align: center
 
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
 
-.. Duplicate figure so that it is visible alson in github landing-page
-.. figure:: docs/wltc_class3b.png
-    :align: center
-
 
 .. important:: This project is still in *alpha* stage.  Its results are not
     considered "correct", and no approval procedure should rely on them.
-    Some of the known limitations are described in :doc:`CHANGES`.
+    Some of the known deficiencies are described in :doc:`CHANGES`.
 
 
 
@@ -252,13 +248,13 @@ with other related documents can be found at UNECE's site:
 Cycles
 ^^^^^^
 
-.. figure:: wltc_class1.png
+.. figure:: docs/wltc_class1.png
     :align: center
-.. figure:: wltc_class2.png
+.. figure:: docs/wltc_class2.png
     :align: center
-.. figure:: wltc_class3a.png
+.. figure:: docs/wltc_class3a.png
     :align: center
-.. figure:: wltc_class3b.png
+.. figure:: docs/wltc_class3b.png
     :align: center
 
 .. Seealso:: :doc:`CHANGES`

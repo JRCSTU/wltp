@@ -69,9 +69,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Development Status :: 3 - Alpha",
         'Natural Language :: English',
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Manufacturing",
@@ -83,11 +80,16 @@ setup(
     install_requires = [
         'jsonschema>=1.4',
         'numpy',
-        'matplotlib',
-        'pandas','openpyxl'
 #         'jsonpointer',
 #         'pandas',
 #         'pint',
+    ],
+    setup_requires = [
+        'sphinx',
+    ],
+    tests_requires = [
+        'matplotlib',
+        'pandas','openpyxl',
     ],
     options = {
         'build_exe': {
