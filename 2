@@ -68,14 +68,11 @@ Or you can build it from the latest sources
 
 That way you get the complete source-tree of the project::
 
-    +--wltp/            ## (package) The python-code of the calculator
-    |   +--cycles/      ## (package) The python-code for the WLTC data
-    |   +--test/        ## (package) Test-cases and the wltp_db
-    |   +--model        ## (module) Describes the data for the calculation
-    |   +--experiment   ## (module) The calculator
-    +--docs/            ## Documentation folder
-    +--util/            ## Scripts for preprocessing WLTC data and the wltp_db
-    +--wltp.py          ## (script) The cmd-line entry-point script for the calculator
+    +--wltp             ## (package) The python-code of the calculator
+    |   +--cycles       ## (package) The python-code for the WLTC data
+    |   +--test         ## (package) Test-cases and the wltp_db
+    +--docs             ## Documentation folder
+    +--util             ## Scripts for preprocessing of WLTC data and wltp_db
     +--README.rst
     +--CHANGES.rst
     +--LICENSE.txt
@@ -239,9 +236,9 @@ To provide feedback, use `github's Issue-tracker <https://github.com/ankostis/wl
 Development
 -----------
 .. Tip::
-    The commands below are given for a *POSIX* environment (*Linux* & *OS X*).  
-    They are simple enough and easy to translate into their *Windows* counterparts, 
-    but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get 
+    The commands below are given for a *POSIX* environmenti (*Linux* & *OS X*).  
+    They are simple enough so it is easy to translate them into their *Windows* counterparts, 
+    but it would be more worthwile to install `cygwin <https://www.cygwin.com/>`_ to get 
     the same environment on *Windows*.
 
 To get involved with development, first you need to download the latest sources::
@@ -249,7 +246,7 @@ To get involved with development, first you need to download the latest sources:
     $ git clone https://github.com/ankostis/wltp.git wltp
     $ cd wltp
 
-It is preferable that you work from within a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.  Assuming that you have installed ``virtualenv`` you can then type the following::
+It is preferable that you work from within a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.  Assuming that you have installed ``virtualenv`` you can type the following::
 
     $ virtualenv -p <PATH_TO_PYTHON_3> ../wltp.venv
     $ .  ../wltp.venv/bin/activate
@@ -266,11 +263,11 @@ If there are no problems, commit them with a usefull message.
 Split the functionality you want to implement in small well-defined commits, 
 and provide test-cases.
 If you made a rather important modification, update also the :doc:`CHANGES` file and/or 
-other documents.  To see the rendered results of the documents, issue the following command
-and check the result html file at ``build/sphinx/html/index.html``::
+other documents.  To see the rendered results of the documents, issue the following command::
 
     $ python setup.py build_sphinx
 
+And the result html file will be generated at ``build/sphinx/html/index.html``. 
 
 When you are finished, push the changes upstream to github and make a *merge_request*.
 You can check whether your merge-request passed the tests by checking the status of the 

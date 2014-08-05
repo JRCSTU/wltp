@@ -80,9 +80,6 @@ setup(
     install_requires = [
         'jsonschema>=1.4',
         'numpy',
-#         'jsonpointer',
-#         'pandas',
-#         'pint',
     ],
     setup_requires = [
         'sphinx',
