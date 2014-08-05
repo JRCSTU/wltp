@@ -3,12 +3,12 @@ python:
   - "3.3"
   - "3.4"
 before_install: 
-    -"sudo apt-get install python3-setuptools"
+    - "sudo apt-get install python3-setuptools"
 install: "pip install ."
 # command to run tests
 script:
     - nosetests
-    - "cd docs && make html"
+#    - "cd docs && make html"
 
 branches:
   only:
