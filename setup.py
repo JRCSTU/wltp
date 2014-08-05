@@ -80,6 +80,7 @@ setup(
     install_requires = [
         'jsonschema>=1.4',
         'numpy',
+        'sphinx',
 #         'jsonpointer',
 #         'pandas',
 #         'pint',
@@ -87,7 +88,7 @@ setup(
     setup_requires = [
         'sphinx',
     ],
-    tests_requires = [
+    tests_require = [
         'matplotlib',
         'pandas','openpyxl',
     ],
