@@ -5,7 +5,7 @@ wltp: A *wltc* gear-shifts calculator
 :Documentation: https://wltp.readthedocs.org/
 :PyPI:          https://pypi.python.org/pypi/wltp
 :travisCI:      https://travis-ci.org/ankostis/wltp
-:Copyright:     2013-2014 European Commission (`JRC, IET <http://iet.jrc.ec.europa.eu/>`_)
+:Copyright:     2013-2014 European Commission (`JRC-IET <http://iet.jrc.ec.europa.eu/>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
 
