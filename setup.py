@@ -78,9 +78,13 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires = [
+        'setuptools',
         'jsonschema>=1.4',
-        'numpy',
         'sphinx',
+        'sphinx_rtd_theme',
+        'numpy',
+        'matplotlib',
+        'pandas','openpyxl',
 #         'jsonpointer',
 #         'pandas',
 #         'pint',
@@ -92,6 +96,7 @@ setup(
         'matplotlib',
         'pandas','openpyxl',
     ],
+    zip_safe=True,
     options = {
         'build_exe': {
             "excludes": [
