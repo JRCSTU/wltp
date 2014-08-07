@@ -19,12 +19,13 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.goodVehicle_jsonTxt = '''{"vehicle": {
-            "mass":1300,
-            "v_max":195,
-            "p_rated":110.625,
-            "n_rated":5450,
-            "n_idle":950,
-            "n_min":500,
+            "unladen_mass":1230,
+            "test_mass":   1300,
+            "v_max":   195,
+            "p_rated": 110.625,
+            "n_rated": 5450,
+            "n_idle":  950,
+            "n_min":   500,
             "gear_ratios":[120.5, 75, 50, 43, 33, 28],
             "resistance_coeffs":[100, 0.5, 0.04]
             %s

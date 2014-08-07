@@ -61,7 +61,8 @@ def main(argv=None):
     ---------
     Assuming a 'vehicle.json' file like this:
         {
-            "mass":     1500,
+            "unladen_mass":1230,
+            "test_mass":   1300,
             "v_max":    195,
             "p_rated":  100,
             "n_rated":  5450,

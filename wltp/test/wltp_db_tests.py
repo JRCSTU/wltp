@@ -12,7 +12,6 @@
 :created: 28 July 2014
 '''
 
-from matplotlib import pyplot as plt
 from wltp.experiment import Experiment
 from wltp.test.goodvehicle import goodVehicle
 from wltp.experiment import applyDriveabilityRules
@@ -38,6 +37,9 @@ def init_logging(loglevel = logging.DEBUG):
     return log
 log = init_logging()
 
+
+driver_weight = 70
+"For calculating unladen_mass."
 
 class WltpDbTests(unittest.TestCase):
     '''Compares a batch of vehicles with results obtained from "official" implementation.'''
@@ -65,7 +67,8 @@ def run_the_experiments(transplant_original_gears=False, plot_results=False, com
         model = goodVehicle()
         veh = model['vehicle']
 
-        veh['mass'] = row['test_mass']
+        veh['test_mass'] = row['test_mass']
+        veh['unladen_mass'] = row['test_mass'] - driver_weight
         veh['resistance_coeffs'] = list(row['f0_real':'f2_real'])
         veh['p_rated'] = row['rated_power']
         veh['n_rated'] = row['rated_speed']
@@ -242,6 +245,8 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
 
 
 def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_gears=False, force_rerun_experiments=False):
+    from matplotlib import pyplot as plt
+
     def is_experiments_outdated(outfiles):
         if not outfiles or force_rerun_experiments:
             return True

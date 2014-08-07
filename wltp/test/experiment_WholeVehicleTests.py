@@ -23,6 +23,9 @@ import unittest
 
 log = logging.getLogger(__name__)
 
+driver_weight = 70
+"For calculating unladen_mass."
+
 class ExperimentWholeVehs(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
@@ -109,10 +112,12 @@ class ExperimentWholeVehs(unittest.TestCase):
         self.compare_exp_results(model['cycle_run'], 'unpower1', self.run_comparison)
 
 
-        model['vehicle']['mass']         =  1000
-        model['vehicle']['p_rated']      =  80
-        model['vehicle']['v_max']        =  120
-        model['vehicle']['gear_ratios']  = [120.5, 95, 72, 52]
+        veh = model['vehicle']
+        veh['test_mass']    =  1000
+        veh['unladen_mass'] =  veh['test_mass'] - driver_weight
+        veh['p_rated']      =  80
+        veh['v_max']        =  120
+        veh['gear_ratios']  = [120.5, 95, 72, 52]
 
         experiment = Experiment(model)
         model = experiment.run()

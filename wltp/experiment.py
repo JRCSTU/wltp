@@ -111,7 +111,8 @@ class Experiment(object):
 
         ## Extract vehicle attributes from model.
         #
-        mass                = vehicle['mass']
+        unladen_mass        = vehicle['unladen_mass']
+        test_mass           = vehicle['test_mass']
         p_rated             = vehicle['p_rated']
         n_rated             = vehicle['n_rated']
         n_idle              = vehicle['n_idle']
@@ -131,7 +132,7 @@ class Experiment(object):
             #
             class_limits            = self.wltc['classification']['p_to_mass_class_limits']
             class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
-            wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
+            wltc_class              = decideClass(class_limits, class3_velocity_split, unladen_mass, p_rated, v_max)
             params['wltc_class']    = wltc_class
             class_data              = self.wltc['classes'][wltc_class]
             cycle                   = np.asarray(class_data['cycle'], dtype=self.dtype)
@@ -152,7 +153,7 @@ class Experiment(object):
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial          = params.get('f_inertial', 1.1)
-        P_REQ               = calcPower_required(V, A, mass, f0, f1, f2, f_inertial)
+        P_REQ               = calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial)
 
         if (not overridde_cycle):
             ## Downscale velocity-profile.
@@ -263,13 +264,13 @@ def addDriveabilityProblems(GEARS_BAD, reason, driveability_issues):
             addDriveabilityMessage(step, reason, driveability_issues)
 
 
-def decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max):
+def decideClass(class_limits, class3_velocity_split, unladen_mass, p_rated, v_max):
     '''
 
     @see: Annex 1, p 19
     '''
 
-    p_m_ratio           = (1000 * p_rated / mass)
+    p_m_ratio           = (1000 * p_rated / unladen_mass)
     if (p_m_ratio > class_limits[-1]):
         wltc_class      = 'class3'
         ab              = 'b' if v_max >= class3_velocity_split else 'a'

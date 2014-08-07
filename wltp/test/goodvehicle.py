@@ -11,7 +11,8 @@
 def goodVehicle():
     goodVehicle = {
         "vehicle": {
-            "mass":     1500,
+            "unladen_mass": 1430,
+            "test_mass":    1500,
             "v_max":    None,
             "p_rated":  100,
             "n_rated":  5450,

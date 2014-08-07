@@ -34,6 +34,9 @@ logging.basicConfig(level=loglevel)
 logging.getLogger().setLevel(loglevel)
 log = logging.getLogger(__name__)
 
+driver_weight = 70
+"For calculating unladen_mass."
+
 class ExperimentSampleVehs(unittest.TestCase):
     '''Compares a batch of vehicles with results obtained from "Official" implementation.'''
 
@@ -59,7 +62,8 @@ def run_the_experiments(transplant_original_gears=False, plot_results=False, com
         model = goodVehicle()
         veh = model['vehicle']
 
-        veh['mass'] = row['test_mass']
+        veh['test_mass'] = row['test_mass']
+        veh['unladen_mass'] =  veh['test_mass'] - driver_weight
         veh['resistance_coeffs'] = list(row['f0':'f2'])
         veh['p_rated'] = row['rated_power']
         veh['n_rated'] = row['rated_speed']

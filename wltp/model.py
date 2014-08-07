@@ -94,7 +94,8 @@ def model_base():
 
     instance = {
         'vehicle': {
-            "mass":     None,
+            "unladen_mass": None,
+            "test_mass":    None,
             "v_max":    None,
             "p_rated":  None,
             "n_rated":  None,
@@ -204,13 +205,18 @@ def model_schema():
             'vehicle': {
                 'title': 'vehicle model',
                 'type': 'object', 'additionalProperties': False,
-                'required': ['mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
+                'required': ['unladen_mass', 'test_mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
                 'description': 'The vehicle attributes required for generating the WLTC velocity-profile downscaling and gear-shifts.',
                 'properties': {
-                   'mass': {
+                   'unladen_mass': {
+                       'title': 'vehicle unladen mass',
+                       '$ref': '#/definitions/positiveNumber',
+                       'description': 'The mass of the vehicle without the driver, used to diced class (kg).',
+                    },
+                   'test_mass': {
                        'title': 'vehicle test mass',
                        '$ref': '#/definitions/positiveNumber',
-                       'description': 'The test mass of the vehicle in kg.',
+                       'description': 'The test mass of the vehicle used in all calculations (kg).',
                     },
                    'v_max': {
                        'title': 'maximum vehicle velocity',
