@@ -54,10 +54,10 @@ Requires Python 3.3+.
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ python distributions
     for *Windows* and *OS X*, respectively.
 
-You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository 
-with the usual command::
+You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
+with the usual command (note the ``--pre`` option, since it is still in *Alpha* version)::
 
-    $ pip3 install wltp
+    $ pip3 install wltp --pre
 
 Or you can build it from the latest sources
 (assuming you have a working installation of `git <http://git-scm.com/>`_)::
@@ -239,9 +239,9 @@ To provide feedback, use `github's Issue-tracker <https://github.com/ankostis/wl
 Development
 -----------
 .. Tip::
-    The commands below are given for a *POSIX* environment (*Linux* & *OS X*).  
-    They are simple enough and easy to translate into their *Windows* counterparts, 
-    but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get 
+    The commands below are given for a *POSIX* environment (*Linux* & *OS X*).
+    They are simple enough and easy to translate into their *Windows* counterparts,
+    but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get
     the same environment on *Windows*.
 
 To get involved with development, first you need to download the latest sources::
@@ -258,14 +258,14 @@ It is preferable that you work from within a `virtual-environment <http://docs.p
 
 Check that the sources are in good shape by running the test-cases and check for errors::
 
-   $ python setup.py test 
+   $ python setup.py test
 
 
 You can now modify the sources and rerun the tests to ensure that you didn't break anything.
 If there are no problems, commit them with a usefull message.
-Split the functionality you want to implement in small well-defined commits, 
+Split the functionality you want to implement in small well-defined commits,
 and provide test-cases.
-If you made a rather important modification, update also the :doc:`CHANGES` file and/or 
+If you made a rather important modification, update also the :doc:`CHANGES` file and/or
 other documents.  To see the rendered results of the documents, issue the following command
 and check the result html file at ``build/sphinx/html/index.html``::
 
@@ -273,8 +273,8 @@ and check the result html file at ``build/sphinx/html/index.html``::
 
 
 When you are finished, push the changes upstream to github and make a *merge_request*.
-You can check whether your merge-request passed the tests by checking the status of the 
-`TravisCI <https://travis-ci.org/ankostis/wltp>`_  integration-server. 
+You can check whether your merge-request passed the tests by checking the status of the
+`TravisCI <https://travis-ci.org/ankostis/wltp>`_  integration-server.
 
 .. Tip:: Skim through the small and excellent IPython developers document:
     `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
@@ -293,6 +293,18 @@ with other related documents can be found at UNECE's site:
 * https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
 * Probably a more comprehensible but older spec is this one:
   https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
+
+The WLTC-profiles for the various classes in the ``./util/data/cycles`` folder were generated from the tables
+of the specs above using the ``./util/csvcolumns8to2`` script, but it still requires
+an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
+
+Then use the :mod:`./util/buildwltcclass.py` to contruct the respective python-vars into the
+:mod:`wltp/model.py` sources.
+
+
+Data-files generated from Steven Heinz's ms-access ``vehicle info`` db-table can be processed
+with the  ``/util/preprocheinz.py`` script.
+
 
 Cycles
 ^^^^^^

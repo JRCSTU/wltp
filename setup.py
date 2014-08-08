@@ -25,10 +25,13 @@ Or get it directly from the PIP repository::
 from setuptools import setup
 #from cx_Freeze import Executable
 #from cx_Freeze import setup
-import os
+import os, sys
 
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
+
+if sys.version_info[0] < 3:
+    exit("Sorry, only Python 3 is supported!")
 
 ## Version-trick to have version-info in a single place,
 ## taken from: http://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
@@ -80,6 +83,7 @@ setup(
     install_requires = [
         'jsonschema>=1.4',
         'numpy',
+        'pandas','openpyxl',
     ],
     setup_requires = [
         'sphinx',
@@ -88,7 +92,6 @@ setup(
     tests_require = [
         'nose',
         'matplotlib',
-        'pandas','openpyxl',
     ],
     zip_safe=True,
     options = {
