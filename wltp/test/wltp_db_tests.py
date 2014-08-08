@@ -12,20 +12,22 @@
 :created: 28 July 2014
 '''
 
-from wltp.experiment import Experiment
-from wltp.test.goodvehicle import goodVehicle
-from wltp.experiment import applyDriveabilityRules
 import glob
 import logging
 import math
-import numpy as np
-import numpy.testing as npt
 import os
-import pandas as pd
 import re
 import unittest
 
+import numpy as np
+import numpy.testing as npt
+import pandas as pd
+from wltp.experiment import Experiment
+from wltp.experiment import applyDriveabilityRules
+from wltp.test.goodvehicle import goodVehicle
 
+
+# from unittest.case import skip
 mydir = os.path.dirname(__file__)
 samples_folder = 'wltp_db'
 
@@ -50,6 +52,7 @@ class WltpDbTests(unittest.TestCase):
         os.chdir(mydir)
 
 
+#     @skip
     def testSampleVehicles(self, plot_results=False, encoding="UTF-8"):
         run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding=encoding)
 

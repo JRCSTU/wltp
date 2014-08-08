@@ -9,10 +9,13 @@
 :created: 29 Dec 2013
 '''
 
-from .. import model
 import json
 import jsonschema
 import unittest
+
+from wltp.test.goodvehicle import goodVehicle
+
+from .. import model
 
 
 class Test(unittest.TestCase):
@@ -31,6 +34,43 @@ class Test(unittest.TestCase):
             %s
         }}'''
 
+    def checkModel_valid(self, mdl):
+        def consume_errs(errs):
+            for e in errs:
+                self.assertIsNone(e, e)
+
+        try:
+            model.validate_model(mdl, iter_errors=False)
+            consume_errs(model.validate_model(mdl, iter_errors=True))
+            model.validate_model(mdl, additional_properties=False)
+            model.validate_model(mdl, additional_properties=True)
+            consume_errs(model.validate_model(mdl, iter_errors=True, additional_properties=True))
+            consume_errs(model.validate_model(mdl, iter_errors=True, additional_properties=False))
+            model.validate_model(mdl, iter_errors=False, additional_properties=True)
+            model.validate_model(mdl, iter_errors=False, additional_properties=False)
+        except:
+            print('Model failed: ', mdl)
+            raise
+
+    def checkModel_invalid(self, mdl, ex=None):
+        if not ex:
+            ex = jsonschema.ValidationError
+        try:
+            self.assertRaises(ex, model.validate_model, mdl, iter_errors=False)
+            errs = list(model.validate_model(mdl, iter_errors=True))
+            self.assertGreater(len(errs), 0, errs)
+            self.assertRaises(ex, model.validate_model, mdl, additional_properties=False)
+            self.assertRaises(ex, model.validate_model, mdl, additional_properties=True)
+            errs = list(model.validate_model(mdl, iter_errors=True, additional_properties=True))
+            self.assertGreater(len(errs), 0, errs)
+            errs = list(model.validate_model(mdl, iter_errors=True, additional_properties=False))
+            self.assertGreater(len(errs), 0, errs)
+            self.assertRaises(ex, model.validate_model, mdl, iter_errors=False, additional_properties=True)
+            self.assertRaises(ex, model.validate_model, mdl, iter_errors=False, additional_properties=False)
+        except:
+            print('Model failed: ', mdl)
+            raise
+
 
     def testWltcData(self):
         mdl = model.wltc_data()
@@ -39,10 +79,18 @@ class Test(unittest.TestCase):
         validator.validate(mdl)
 
 
-    def testModelBase(self):
+    def testModelBase_plainInvalid(self):
         mdl = model.model_base()
 
-        self.assertRaises(jsonschema.ValidationError, model.model_validator().validate, mdl)
+        self.checkModel_invalid(mdl)
+
+    def testModelBase_fullValid(self):
+        bmdl = model.model_base()
+        json_txt = self.goodVehicle_jsonTxt % ('')
+        mdl = json.loads(json_txt)
+        bmdl['vehicle'].update(goodVehicle()['vehicle'])
+
+        self.checkModel_valid(bmdl)
 
 
     def testModelInstance_missingLoadCurve(self):
@@ -70,6 +118,48 @@ class Test(unittest.TestCase):
 
         validator.validate(mdl)
 
+
+    def testForcedCycle_valid(self):
+        import numpy as np
+        import pandas as pd
+        cycles = [
+            None,
+            [1,2,3],
+            np.array([5,6,7]),
+            pd.Series([5,6,7]),
+            pd.DataFrame({'v':[10,11,12]}),
+            pd.DataFrame({'veloc':[10,11,12]}),
+            pd.DataFrame({'v':[10,11,12], 'foo':[1,2,3]}),
+            pd.DataFrame({'v':[100,200,300], 'altitude':[0,1,0]}),
+            pd.DataFrame({'v':[101,201,301], 'altitude':[0,1,0], 'foo':[1,2,3], 'bar':[0,0,0], }),
+        ]
+
+        for c in cycles:
+            mdl = model.model_base()
+            mdl['vehicle'].update(goodVehicle()['vehicle'])
+
+            mdl['params']['forced_cycle'] = c
+            self.checkModel_valid(mdl)
+
+    def testForcedCycle_invalid(self):
+        import numpy as np
+        import pandas as pd
+        cycles = [
+            [[1,2,3],[4,5,6]],
+            np.array([[1,2,3],[4,5,6]]),
+            pd.DataFrame({'speed':[10,11,12], 'foo':[1,2,3]}),
+
+            pd.DataFrame({'velocity':[100,200,300], 'alt':[0,1,0]}),
+
+#             pd.Series([5,6,'a']),
+        ]
+
+        for c in cycles:
+            mdl = model.model_base()
+            mdl['vehicle'].update(goodVehicle()['vehicle'])
+
+            mdl['params']['forced_cycle'] = c
+            self.checkModel_invalid(mdl, ex=ValueError)
 
 
 if __name__ == "__main__":

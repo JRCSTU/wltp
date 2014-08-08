@@ -10,9 +10,19 @@
 
 '''
 
+import jsonschema
+import logging
+from numpy import ndarray
+from pandas.core.generic import NDFrame
+from textwrap import dedent
+
+import itertools as it
 import numpy as np
+import pandas as pd
 from wltp.cycles import (class1, class2, class3)
 
+
+log = logging.getLogger(__name__)
 
 def model_base():
     '''The base model for running a WLTC experiment.
@@ -191,7 +201,7 @@ def merge(a, b, path=[]):
 
 
 
-def model_schema():
+def model_schema(additional_properties=False):
     ''':return: The json-schema(dict) for input/output of the WLTC experiment. '''
 
     from textwrap import dedent
@@ -199,12 +209,12 @@ def model_schema():
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'title': 'Json-schema describing the input for a WLTC experiment.',
-        'type': 'object', 'additionalProperties': False,
+        'type': 'object', 'additionalProperties': additional_properties,
         'required': ['vehicle'],
         'properties': {
             'vehicle': {
                 'title': 'vehicle model',
-                'type': 'object', 'additionalProperties': False,
+                'type': 'object', 'additionalProperties': additional_properties,
                 'required': ['unladen_mass', 'test_mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
                 'description': 'The vehicle attributes required for generating the WLTC velocity-profile downscaling and gear-shifts.',
                 'properties': {
@@ -328,7 +338,7 @@ def model_schema():
             }, # veh
             'params': {
                 'title': 'experiment parameters',
-                'type': 'object', 'additionalProperties': False,
+                'type': 'object', 'additionalProperties': additional_properties,
                 'required': [
                     'v_stopped_threshold',
                     'f_inertial',
@@ -385,6 +395,17 @@ def model_schema():
                     'f_downscale': {
                         'description': 'The downscaling-factor as calculated by the experiment (Annex 1-7.3, p68).',
                         'type': 'number',
+                    },
+                    'forced_cycle': {
+                        'title': 'Forced cycle profile',
+                        'description': dedent("""An alternative cycle to run, instead of the WLTC ones.
+                        When this param exists, no class-selection/downscaling happens.
+                        It can be a sequence, Series or DataFrame and it can either have a single column (velocity-profile)
+                        or multiple columns with ``t``, ``time`` or unamed index and 2 columns:
+                             1. ``velocity`` or ``speed``, and
+                             2. (optional) ``slope``, ``alt`` or ``altitude``` ."""),
+                        'type': [ 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
+                        'default': None,
                     },
                 }
             },
@@ -536,23 +557,65 @@ def wltc_schema():
     return schema
 
 
-def model_validator():
-    from jsonschema import Draft4Validator
-    schema = model_schema()
-    return Draft4Validator(schema)
-
 def wltc_validator():
     from jsonschema import Draft4Validator
     schema = wltc_schema()
     return Draft4Validator(schema)
 
 
-def validate_full_load_curve(flc, f_n_max):
+def model_validator(additional_properties=False):
+    from jsonschema import Draft4Validator
+    schema = model_schema(additional_properties)
+    validator = Draft4Validator(schema)
+    validator._types.update({"ndarray": np.ndarray, "DataFrame" : pd.DataFrame, 'Series':pd.Series})
+
+    return validator
+
+def validate_model(mdl, iter_errors=False, additional_properties=False):
+    validator = model_validator(additional_properties=additional_properties)
+    validators = [
+        validator.iter_errors(mdl),
+        yield_load_curve_errors(mdl['vehicle']['full_load_curve'], mdl['params']['f_n_max']),
+        yield_forced_cycle_errors(mdl['params'].get('forced_cycle'))
+    ]
+    errors = it.chain(*validators)
+
+    if iter_errors:
+        return errors
+    else:
+        for error in errors:
+            try:
+                raise error
+            except jsonschema.ValidationError as ex:
+                ## Attempt to workround BUG: https://github.com/Julian/jsonschema/issues/164
+                #
+                if isinstance(ex.instance, NDFrame) or isinstance(ex.instance, ndarray):
+                    ex.instance = '%s: %s' % (type(ex.instance), str(ex.instance))
+                    ex.instance = str(ex.instance)
+                raise
+
+
+
+def yield_load_curve_errors(flc, f_n_max):
     if (min(flc[0]) > 0):
-        raise ValueError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(flc[0]))
+        yield ValueError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(flc[0]))
     max_x_limit = f_n_max
     if (max(flc[0]) < max_x_limit):
-        raise ValueError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(flc[0])))
+        yield ValueError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(flc[0])))
+
+def yield_forced_cycle_errors(forced_cycle):
+    if not forced_cycle is None:
+        if not isinstance(forced_cycle, pd.DataFrame):
+            forced_cycle = pd.DataFrame(forced_cycle)
+        cols = forced_cycle.columns
+
+        if len(cols) == 1:
+            if cols[0] != 'v':
+                log.warn("Assuming the single-column(%s) to be the velocity_profile(v).", cols[0])
+                cols = 'v'
+                forced_cycle.columns = [cols]
+        elif 'v' not in forced_cycle.columns:
+            yield ValueError('In `forced_cycle`, no column(`v`) found in (%s)!' % cols)
 
 
 if __name__ == '__main__':

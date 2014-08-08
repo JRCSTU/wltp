@@ -216,14 +216,12 @@ class Experiment(object):
 
 
     def validate(self, iter_errors=False):
-        from .model import model_validator, validate_full_load_curve
+        ## TODO: Move-out  model-validation from experiment
 
-        if iter_errors:
-            return model_validator().iter_errors(self.model)
-        else:
-            model_validator().validate(self.model)
+        from .model import validate_model
 
-        validate_full_load_curve(self.model['vehicle']['full_load_curve'], self.model['params']['f_n_max'])
+        return validate_model(self.model, iter_errors==iter_errors)
+
 
     def driveability_report(self):
         cycle = self.model.get('cycle_run')
