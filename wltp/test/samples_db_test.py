@@ -12,23 +12,25 @@
 :created: 5 Jan 2014
 '''
 
-from matplotlib import pyplot as plt
-from wltp.experiment import Experiment
-from wltp.test.goodvehicle import goodVehicle
-from wltp.experiment import applyDriveabilityRules
 import glob
 import logging
 import math
-import numpy as np
-import numpy.testing as npt
+from matplotlib import pyplot as plt
+from os import path as path
 import os
-import pandas as pd
 import re
 import unittest
 
+import numpy as np
+import numpy.testing as npt
+import pandas as pd
+from wltp.experiment import Experiment
+from wltp.experiment import applyDriveabilityRules
+from wltp.test.goodvehicle import goodVehicle
+
 
 mydir = os.path.dirname(__file__)
-samples_folder = 'samples'
+samples_folder = 'samples_db'
 loglevel = level=logging.DEBUG
 logging.basicConfig(level=loglevel)
 logging.getLogger().setLevel(loglevel)
@@ -244,7 +246,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
             return True
 
         resfiles_date = min([os.path.getmtime(file) for file in outfiles])
-        checkfiles = ['../model.py', '../experiment.py', 'samples/sample_vehicles.csv']
+        checkfiles = ['../model.py', '../experiment.py', path.join(samples_folder, 'sample_vehicles.csv')]
         checkdates = [os.path.getmtime(os.path.join(mydir, fheinz_fname)) for fheinz_fname in checkfiles]
         modifs = [fdate > resfiles_date for fdate in checkdates]
         return any(modifs)

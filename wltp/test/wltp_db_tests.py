@@ -15,6 +15,7 @@
 import glob
 import logging
 import math
+from os import path as path
 import os
 import re
 import unittest
@@ -255,7 +256,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
             return True
 
         resfiles_date = min([os.path.getmtime(file) for file in outfiles])
-        checkfiles = ['../model.py', '../experiment.py', 'samples/sample_vehicles.csv']
+        checkfiles = ['../model.py', '../experiment.py', path.join(samples_folder, '/wltp_db_vehicles.csv')]
         checkdates = [os.path.getmtime(os.path.join(mydir, heinz_fname)) for heinz_fname in checkfiles]
         modifs = [fdate > resfiles_date for fdate in checkdates]
         return any(modifs)
