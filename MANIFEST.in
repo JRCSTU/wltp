@@ -1,4 +1,11 @@
 include LICENSE.txt
-include INSTALL.rst
 include CHANGES.rst
 recursive-include docs *.docx
+
+recursive-include wltp/test/samples heinz*.csv
+recursive-include wltp/test/samples sample_vehicles.csv
+
+
+recursive-include wltp/test/wltp_db heinz*.csv
+recursive-include wltp/test/wltp_db wltp_db_vehicles.csv
+recursive-include wltp/test/wltp_db wot_samples.csv

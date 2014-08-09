@@ -10,7 +10,6 @@ Known deficiencies
 * (!) Driveability-rules not ordered as defined in the latest task-force meeting.
 * (!) The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
   along with other recent updates.
-* (!) Does not discriminate between :term:`Unladen mass` and :term:`Test mass`.
 * Clutching-points and therefore engine-speed are very preliminary.
 * Results are not yet compared with the new wltp_db sample-vehicles.
 
@@ -24,6 +23,13 @@ TODOs
 
 Changelog
 =========
+
+
+v0.0.9-beta, XX-Aug-2014
+---------------------------------------
+* Discriminate between :term:`Unladen mass` and :term:`Test mass`.
+* Possible to force a different cycle than WLTC, possibly with Altitude-profile.
+* Include sample-vehicles along with the distribution.
 
 
 v0.0.8-alpha, 04-Aug-2014

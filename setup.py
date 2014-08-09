@@ -93,6 +93,7 @@ setup(
         'nose',
         'matplotlib',
     ],
+    include_package_data = True,
     zip_safe=True,
     options = {
         'build_exe': {
