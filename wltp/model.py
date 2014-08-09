@@ -611,7 +611,7 @@ def yield_forced_cycle_errors(forced_cycle):
 
         if len(cols) == 1:
             if cols[0] != 'v':
-                log.warn("Assuming the single-column(%s) to be the velocity_profile(v).", cols[0])
+                log.warning("Assuming the single-column(%s) to be the velocity_profile(v).", cols[0])
                 cols = 'v'
                 forced_cycle.columns = [cols]
         elif 'v' not in forced_cycle.columns:

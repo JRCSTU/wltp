@@ -152,7 +152,7 @@ def compare_exp_results(tabular, outfname, run_comparison):
             data_prev = read_sample_file(outfname)
             ## Compare changed-tabular
             #
-            npt.assert_array_equal(tabular['gears'],  data_prev['gears'])
+            npt.assert_array_equal(tabular['gears'],  data_prev['gears'], outfname)
             # Unreached code in case of assertion.
             # cmp = tabular['gears'] != data_prev['gears']
             # if (cmp.any()):
