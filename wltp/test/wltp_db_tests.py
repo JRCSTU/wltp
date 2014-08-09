@@ -54,7 +54,7 @@ class WltpDbTests(unittest.TestCase):
         os.chdir(mydir)
 
 
-    @skip
+    #@skip
     def testSampleVehicles(self, plot_results=False, encoding="UTF-8"):
         run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding=encoding)
 
@@ -107,7 +107,7 @@ def run_the_experiments(transplant_original_gears=False, plot_results=False, com
         veh['n_rated'] = row['rated_speed']
         veh['n_idle'] = int(row['idling_speed'])
         ngears = int(row['no_of_gears'])
-        veh['gear_ratios'] = list(row[6:6+ngears]) #'ndv_1'
+        veh['gear_ratios'] = list(row['ndv_1':'ndv_%s'%ngears]) #'ndv_1'
 
         experiment = Experiment(model)
         model = experiment.run()
