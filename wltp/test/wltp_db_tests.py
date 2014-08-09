@@ -15,10 +15,10 @@
 import glob
 import logging
 import math
-from os import path as path
 import os
 import re
 import unittest
+from unittest.case import skip
 
 import numpy as np
 import numpy.testing as npt
@@ -28,9 +28,13 @@ from wltp.experiment import applyDriveabilityRules
 from wltp.test.goodvehicle import goodVehicle
 
 
-# from unittest.case import skip
 mydir = os.path.dirname(__file__)
-samples_folder = 'wltp_db'
+samples_dir = 'wltp_db'
+gened_fname_regex = r'.*wltp_db_vehicles-(\d+).csv'
+heinz_fname_regex = r'.*heinz-(\d+).csv'
+driver_weight = 70
+"For calculating unladen_mass."
+
 
 def init_logging(loglevel = logging.DEBUG):
     logging.basicConfig(level=loglevel)
@@ -41,9 +45,6 @@ def init_logging(loglevel = logging.DEBUG):
 log = init_logging()
 
 
-driver_weight = 70
-"For calculating unladen_mass."
-
 class WltpDbTests(unittest.TestCase):
     '''Compares a batch of vehicles with results obtained from "official" implementation.'''
 
@@ -53,16 +54,44 @@ class WltpDbTests(unittest.TestCase):
         os.chdir(mydir)
 
 
-#     @skip
+    @skip
     def testSampleVehicles(self, plot_results=False, encoding="UTF-8"):
         run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding=encoding)
+
+
+    def testAvgRPMs(self):
+        h_n = []
+        g_n = []
+        all_gened = glob.glob(os.path.join(mydir, samples_dir, 'wltp_db_vehicles-*.csv'))
+        for g_fname in all_gened:
+            m = re.match(gened_fname_regex, g_fname)
+            veh_num = int(m.groups()[0])
+            df_g = read_sample_file(g_fname)
+            df_h = read_heinz_file(veh_num)
+
+            g_n.append(df_g['rpm'].mean())
+            h_n.append(df_h['n'].mean())
+
+        g_n = np.array(g_n)
+        h_n = np.array(h_n)
+
+        df = pd.DataFrame()
+        df['avg'] = [g_n.mean(), h_n.mean()]
+        df['std'] = [g_n.std(), h_n.std()]
+        df['min'] = [g_n.min(), h_n.min()]
+        df['max'] = [g_n.max(), h_n.max()]
+        df.index = ['python', 'Heinz']
+
+        print(df)
+
+
 
 
 def run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="UTF-8"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
     csvfname = 'wltp_db_vehicles.csv'
-    csvfname = os.path.join(mydir, samples_folder, csvfname)
+    csvfname = os.path.join(mydir, samples_dir, csvfname)
     df = pd.read_csv(csvfname, encoding = encoding, index_col = 0)
 
     for (ix, row) in df.iterrows():
@@ -125,18 +154,18 @@ def read_sample_file(inpfname):
 
 def read_heinz_file(veh_num, heinz_dir=None):
     if (heinz_dir is None):
-        heinz_dir = os.path.join(mydir, samples_folder)
+        heinz_dir = os.path.join(mydir, samples_dir)
 
-    vehfpath = os.path.join(heinz_dir, 'Heinz-{}-*.csv'.format(veh_num))
+    vehfpath = os.path.join(heinz_dir, 'heinz-{:04}.csv'.format(veh_num))
     try:
         inpfname = glob.glob(vehfpath)[0]
     except IndexError:
         raise FileNotFoundError("Skipped veh_id(%s), no file found: %s" % (veh_num, vehfpath))
 
     df = pd.read_csv(inpfname, encoding='UTF-8', header=0, index_col=21)
-    assert df['vehicle_no'][0] == veh_num
 
-#     vehfpath = os.path.join(samples_folder, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
+
+#     vehfpath = os.path.join(samples_dir, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
 #     inpfname = glob.glob(vehfpath)[0]
 #     df = pd.read_csv(inpfname, encoding='latin-1')
 
@@ -256,16 +285,16 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
             return True
 
         resfiles_date = min([os.path.getmtime(file) for file in outfiles])
-        checkfiles = ['../model.py', '../experiment.py', path.join(samples_folder, '/wltp_db_vehicles.csv')]
+        checkfiles = ['../model.py', '../experiment.py', os.path.join(samples_dir, '/wltp_db_vehicles.csv')]
         checkdates = [os.path.getmtime(os.path.join(mydir, heinz_fname)) for heinz_fname in checkfiles]
         modifs = [fdate > resfiles_date for fdate in checkdates]
         return any(modifs)
 
 
 
-    def read_and_compare_experiment(samples_folder, myfname, veh_num):
+    def read_and_compare_experiment(samples_dir, myfname, veh_num):
         df_my = read_sample_file(myfname)
-        df_hz = read_heinz_file(veh_num, samples_folder)
+        df_hz = read_heinz_file(veh_num, samples_dir)
 
         ## Count base-calc errors (before dirveability).
         ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
@@ -303,11 +332,11 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
 
 
     if experiment_num is None:
-        paths = glob.glob(os.path.join(mydir, samples_folder, 'sample_vehicles-*-*.csv'))
+        paths = glob.glob(os.path.join(mydir, samples_dir, 'sample_vehicles-*-*.csv'))
 
         if is_experiments_outdated(paths):
             run_the_experiments(transplant_original_gears = transplant_original_gears)
-            paths = glob.glob(os.path.join(mydir, samples_folder, 'sample_vehicles-*.csv'))
+            paths = glob.glob(os.path.join(mydir, samples_dir, 'sample_vehicles-*.csv'))
 
         npaths          = len(paths)
 
@@ -379,7 +408,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
 
 
     else:
-        inpfname = os.path.join(mydir, samples_folder, 'sample_vehicles-{:05}.csv'.format(experiment_num))
+        inpfname = os.path.join(mydir, samples_dir, 'sample_vehicles-{:05}.csv'.format(experiment_num))
 
         (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)  = read_and_compare_experiment(inpfname, veh_num)
 
