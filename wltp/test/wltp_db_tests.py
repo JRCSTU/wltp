@@ -30,11 +30,13 @@ from wltp.test.goodvehicle import goodVehicle
 
 mydir = os.path.dirname(__file__)
 samples_dir = 'wltp_db'
+veh_data_fname = 'wltp_db_vehicles.csv'
 gened_fname_regex = r'.*wltp_db_vehicles-(\d+).csv'
 heinz_fname_regex = r'.*heinz-(\d+).csv'
+gened_fname_glob = 'wltp_db_vehicles-*.csv'
 driver_weight = 70
 "For calculating unladen_mass."
-
+encoding = 'UTF-8'
 
 def init_logging(loglevel = logging.DEBUG):
     logging.basicConfig(level=loglevel)
@@ -43,6 +45,12 @@ def init_logging(loglevel = logging.DEBUG):
 
     return log
 log = init_logging()
+
+def read_vehicle_data():
+    csvfname = os.path.join(mydir, samples_dir, veh_data_fname)
+    df = pd.read_csv(csvfname, encoding = encoding, index_col = 0)
+
+    return df
 
 
 class WltpDbTests(unittest.TestCase):
@@ -55,14 +63,26 @@ class WltpDbTests(unittest.TestCase):
 
 
     #@skip
-    def testSampleVehicles(self, plot_results=False, encoding="UTF-8"):
+    def test0_SampleVehicles(self, plot_results=False, encoding="UTF-8"):
         run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding=encoding)
 
 
-    def testAvgRPMs(self):
+    def test1_AvgRPMs(self):
+        """Check mean-engine-speed diff with Heinz within some percent.
+
+        Results::
+
+                               mean         std          min          max
+            python      1850.409146  486.179546  1131.391061  3866.090816
+            Heinz       1906.547381  593.516336  1185.905053  4897.154914
+            diff_prcnt    -0.030338   -0.220776    -0.048183    -0.266694
+        """
+
+        pcrnt_limit = 5
+
         h_n = []
         g_n = []
-        all_gened = glob.glob(os.path.join(mydir, samples_dir, 'wltp_db_vehicles-*.csv'))
+        all_gened = glob.glob(os.path.join(mydir, samples_dir, gened_fname_glob))
         for g_fname in all_gened:
             m = re.match(gened_fname_regex, g_fname)
             veh_num = int(m.groups()[0])
@@ -76,13 +96,70 @@ class WltpDbTests(unittest.TestCase):
         h_n = np.array(h_n)
 
         df = pd.DataFrame()
-        df['avg'] = [g_n.mean(), h_n.mean()]
+        df['mean'] = [g_n.mean(), h_n.mean()]
         df['std'] = [g_n.std(), h_n.std()]
         df['min'] = [g_n.min(), h_n.min()]
         df['max'] = [g_n.max(), h_n.max()]
-        df.index = ['python', 'Heinz']
+        df.index = ['python', 'heinz']
+
+        dff = (df.loc['heinz', :] - df.loc['python', :]) / df.min(axis=0)
+        df.loc['diff_prcnt', :] = dff
 
         print(df)
+
+        diff_prcnt = df.loc['diff_prcnt', 'mean']
+        self.assertLess(abs(diff_prcnt), pcrnt_limit/100)
+
+
+    def test1_PMRatio(self):
+        """Check mean-engine-speed diff with Heinz within some percent for all PMRs.
+
+        Results::
+
+                                gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
+            pmr
+            (9.973, 24.823]        1575.371377     1568.360963   -0.004470     32
+            (24.823, 39.496]       1701.744096     1696.482640   -0.003101     34
+            (39.496, 54.17]        1760.916967     1808.725108    0.027150    123
+            (54.17, 68.843]        2043.543854     2169.755335    0.061761     95
+            (68.843, 83.517]       1970.191532     2043.741660    0.037331     59
+            (83.517, 98.191]       1878.388423     1890.040533    0.006203      4
+            (98.191, 112.864]      1803.614816     1792.693611   -0.006092     31
+            (112.864, 127.538]     2565.405125     2568.011660    0.001016      2
+            (127.538, 142.211]     1648.681502     1597.571904   -0.031992      1
+            (142.211, 156.885]             NaN             NaN         NaN      0
+            (156.885, 171.558]             NaN             NaN         NaN      0
+            (171.558, 186.232]     1409.252197     1385.176569   -0.017381      1
+        """
+
+        pcrnt_limit = 6.5
+
+        vehdata = read_vehicle_data()
+        vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
+        np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
+
+        all_gened = glob.glob(os.path.join(mydir, samples_dir, gened_fname_glob))
+        for g_fname in all_gened:
+            m = re.match(gened_fname_regex, g_fname)
+            veh_num = int(m.groups()[0])
+            df_g = read_sample_file(g_fname)
+            df_h = read_heinz_file(veh_num)
+
+            vehdata.loc[veh_num, 'gened_mean_rpm'] = df_g['rpm'].mean()
+            vehdata.loc[veh_num, 'heinz_mean_rpm'] = df_h['n'].mean()
+
+        df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
+        dfg = df.groupby(pd.cut(vehdata.pmr, 12))
+        pmr_hist = dfg.mean()
+
+        dif = (pmr_hist['heinz_mean_rpm'] - pmr_hist['gened_mean_rpm']) / pmr_hist.min(axis=1)
+        pmr_hist['diff_prcnt']= dif
+        pmr_hist['count']= dfg.count().iloc[:, -1]
+
+        print (pmr_hist)
+
+        diff_prcnt = pmr_hist['diff_prcnt']
+        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit/100)
 
 
 
@@ -90,9 +167,7 @@ class WltpDbTests(unittest.TestCase):
 def run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="UTF-8"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
-    csvfname = 'wltp_db_vehicles.csv'
-    csvfname = os.path.join(mydir, samples_dir, csvfname)
-    df = pd.read_csv(csvfname, encoding = encoding, index_col = 0)
+    df = read_vehicle_data()
 
     for (ix, row) in df.iterrows():
         veh_num = ix
@@ -138,8 +213,8 @@ def run_the_experiments(transplant_original_gears=False, plot_results=False, com
         # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
         # heinz:         't', 'km_h', 'stg', 'gear'
 
-        (root, ext) = os.path.splitext(csvfname)
-        outfname = '{}-{:05}{}'.format(root, veh_num, ext)
+        (root, ext) = os.path.splitext(veh_data_fname)
+        outfname = os.path.join(mydir, samples_dir, '{}-{:05}{}'.format(root, veh_num, ext))
         df = pd.DataFrame(model['cycle_run'])
 
         compare_exp_results(df, outfname, compare_results)

@@ -30,11 +30,14 @@ from wltp.test.goodvehicle import goodVehicle
 
 
 mydir = os.path.dirname(__file__)
+veh_data_fname = 'sample_vehicles.csv'
 samples_dir = 'samples_db'
 gened_fname_regex = r'.*sample_vehicles-(\d+).csv'
 heinz_fname_regex = r'.*heinz-(\d+).csv'
+gened_fname_glob = 'sample_vehicles-*.csv'
 driver_weight = 70
 "For calculating unladen_mass."
+encoding="ISO-8859-1"
 
 
 def init_logging(loglevel = logging.DEBUG):
@@ -48,6 +51,13 @@ log = init_logging()
 def make_heinz_fname(veh_num):
     return 'heinz_Petrol_veh{:05}.csv'.format(veh_num)
 
+def read_vehicle_data():
+    csvfname = os.path.join(mydir, samples_dir, veh_data_fname)
+    df = pd.read_csv(csvfname, encoding = encoding, index_col = 0)
+
+    return df
+
+
 class ExperimentSampleVehs(unittest.TestCase):
     '''Compares a batch of vehicles with results obtained from "Official" implementation.'''
 
@@ -57,13 +67,26 @@ class ExperimentSampleVehs(unittest.TestCase):
 
 
     #@skip
-    def testSampleVehicles(self, plot_results=False, encoding="ISO-8859-1"):
+    def test0_SampleVehicles(self, plot_results=False, encoding="ISO-8859-1"):
         run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding="ISO-8859-1")
 
-    def testAvgRPMs(self):
+    #@skip
+    def test1_AvgRPMs(self):
+        """Check mean-engine-speed diff with Heinz within some percent.
+
+        Results::
+
+                               mean         std          min          max
+            python      1876.555626  146.755857  1652.457262  2220.657166
+            heinz       1892.048584  148.248303  1660.710716  2223.772904
+            diff_prcnt     0.008256    0.010170     0.004995     0.001403
+        """
+
+        pcrnt_limit = 3
+
         h_n = []
         g_n = []
-        all_gened = glob.glob(os.path.join(mydir, samples_dir, 'sample_vehicles-*.csv'))
+        all_gened = glob.glob(os.path.join(mydir, samples_dir, gened_fname_glob))
         for g_fname in all_gened:
             m = re.match(gened_fname_regex, g_fname)
             veh_num = int(m.groups()[0])
@@ -77,22 +100,77 @@ class ExperimentSampleVehs(unittest.TestCase):
         h_n = np.array(h_n)
 
         df = pd.DataFrame()
-        df['avg'] = [g_n.mean(), h_n.mean()]
+        df['mean'] = [g_n.mean(), h_n.mean()]
         df['std'] = [g_n.std(), h_n.std()]
         df['min'] = [g_n.min(), h_n.min()]
         df['max'] = [g_n.max(), h_n.max()]
-        df.index = ['python', 'Heinz']
+        df.index = ['python', 'heinz']
+
+        dff = (df.loc['heinz', :] - df.loc['python', :]) / df.min(axis=0)
+        df.loc['diff_prcnt', :] = dff
 
         print(df)
+
+        diff_prcnt = df.loc['diff_prcnt', 'mean']
+        self.assertLess(abs(diff_prcnt), pcrnt_limit/100)
+
+
+    def test1_PMRatio(self):
+        """Check mean-engine-speed diff with Heinz within some percent for all PMRs.
+
+        Results::
+
+                                gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
+            pmr
+            (40.759, 49.936]       1814.752308     1822.011660    0.004000      4
+            (49.936, 59.00401]     1861.137208     1879.822876    0.010040      4
+            (59.00401, 68.072]     2015.693195     2031.240237    0.007713      3
+            (68.072, 77.14]        1848.735584     1859.116047    0.005615      5
+            (77.14, 86.208]                NaN             NaN         NaN      0
+            (86.208, 95.276]       1786.879366     1807.764020    0.011688      5
+            (95.276, 104.344]      1956.288657     1980.523043    0.012388      3
+            (104.344, 113.412]     1929.718933     1947.787155    0.009363      3
+            (113.412, 122.48]      2033.321183     2051.602998    0.008991      1
+            (122.48, 131.548]      1781.487338     1781.591893    0.000059      1
+            (131.548, 140.616]             NaN             NaN         NaN      0
+            (140.616, 149.684]     1895.125082     1907.872848    0.006727      1
+
+        """
+
+        pcrnt_limit = 3
+
+        vehdata = read_vehicle_data()
+        vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
+
+        all_gened = glob.glob(os.path.join(mydir, samples_dir, gened_fname_glob))
+        for g_fname in all_gened:
+            m = re.match(gened_fname_regex, g_fname)
+            veh_num = int(m.groups()[0])
+            df_g = read_sample_file(g_fname)
+            df_h = read_heinz_file(veh_num)
+
+            vehdata.loc[veh_num, 'gened_mean_rpm'] = df_g['rpm'].mean()
+            vehdata.loc[veh_num, 'heinz_mean_rpm'] = df_h['n'].mean()
+
+        df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
+        dfg = df.groupby(pd.cut(vehdata.pmr, 12))
+        pmr_hist = dfg.mean()
+
+        dif = (pmr_hist['heinz_mean_rpm'] - pmr_hist['gened_mean_rpm']) / pmr_hist.min(axis=1)
+        pmr_hist['diff_prcnt']= dif
+        pmr_hist['count']= dfg.count().iloc[:, -1]
+
+        print (pmr_hist)
+
+        diff_prcnt = pmr_hist['diff_prcnt']
+        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit/100)
 
 
 
 def run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="ISO-8859-1"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
-    csvfname = 'sample_vehicles.csv'
-    csvfname = os.path.join(mydir, samples_dir, csvfname)
-    df = pd.read_csv(csvfname, encoding = encoding, index_col = 0)
+    df = read_vehicle_data()
 
     for (ix, row) in df.iterrows():
         veh_num = ix
@@ -138,8 +216,8 @@ def run_the_experiments(transplant_original_gears=False, plot_results=False, com
         # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
         # heinz:         't', 'km_h', 'stg', 'gear'
 
-        (root, ext) = os.path.splitext(csvfname)
-        outfname = '{}-{:05}{}'.format(root, veh_num, ext)
+        (root, ext) = os.path.splitext(veh_data_fname)
+        outfname = os.path.join(mydir, samples_dir, '{}-{:05}{}'.format(root, veh_num, ext))
         df = pd.DataFrame(model['cycle_run'])
 
         compare_exp_results(df, outfname, compare_results)
