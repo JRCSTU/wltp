@@ -8,10 +8,13 @@
 :created: 5 Jan 2014
 '''
 
-from ..experiment import Experiment
-from wltp import model
-from .goodvehicle import goodVehicle
 import unittest
+
+import numpy as np
+from wltp import model
+
+from ..experiment import Experiment
+from .goodvehicle import goodVehicle
 
 
 class Test(unittest.TestCase):
@@ -21,7 +24,7 @@ class Test(unittest.TestCase):
 
         exp = Experiment(mdl)
         mdl = exp.model
-        self.assertEqual(mdl['vehicle']['full_load_curve'], model.default_load_curve())
+        np.testing.assert_array_equal(mdl['vehicle']['full_load_curve'], model.default_load_curve())
 
 
     def testOverlayOnInit(self):
@@ -47,7 +50,7 @@ class Test(unittest.TestCase):
         }
 
         exp = Experiment(mdl, mdl2, skip_model_validation=True)
-        errors = list(exp.validate(True))
+        errors = list(exp.validate(iter_errors=True))
         self.assertIsNotNone(errors)
         self.assertEqual(len(errors), 2)
 

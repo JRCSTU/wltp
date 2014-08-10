@@ -108,7 +108,7 @@ Here is a quick-start example:
 
     >>> processor = Experiment(mdl)
     >>> mdl = processor.run()
-    >>> print(json.dumps(mdl['params'], indent=2))
+    >>> print(model.json_dumps(mdl['params'], indent=2))
     {
       "f_n_min_gear2": 0.9,
       "v_stopped_threshold": 1,
@@ -176,7 +176,7 @@ For information on the model-data, check the schema:
 
 .. code-block:: pycon
 
-    >>> print(json.dumps(model.model_schema(), indent=2))
+    >>> print(model.json_dumps(model.model_schema(), indent=2))
     {
       "properties": {
         "params": {

@@ -30,7 +30,7 @@ v0.0.9-beta, XX-Aug-2014
 * Discriminate between :term:`Unladen mass` and :term:`Test mass`.
 * Possible to force a different cycle than WLTC, possibly with Altitude-profile.
 * Include sample-vehicles along with the distribution.
-
+* Possible to overide cycle, along with Slope, using model(/params/forced_cycle).
 
 v0.0.8-alpha, 04-Aug-2014
 ---------------------------------------

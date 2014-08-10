@@ -54,6 +54,7 @@ import numpy as np
 import logging
 import re
 
+from . import model
 
 log = logging.getLogger(__name__)
 
@@ -78,9 +79,8 @@ class Experiment(object):
 
     def __init__(self, *models, skip_model_validation=False, validate_wltc = False):
         """
-        ``model`` is a tree (formed by dicts & lists) holding the experiment data.
-
-        ``skip_model_validation`` when true, does not validate the model.
+        :param models: trees (formed by dicts & lists) holding the experiment data.
+        :param skip_model_validation: when true, does not validate the models.
         """
 
         from wltp.model import wltc_data
@@ -104,7 +104,7 @@ class Experiment(object):
 
 
 
-    def run(self, overridde_cycle=False):
+    def run(self):
         '''Invokes the main-calculations and extracts/update Model values!
 
         @see: Annex 2, p 70
@@ -134,8 +134,12 @@ class Experiment(object):
             v_max = n_rated / gear_ratios[-1]
 
 
-        if (overridde_cycle):
-            cycle                   = np.asarray(overridde_cycle)
+        forced_cycle     = params.get('forced_cycle')
+        is_cycle_forced = forced_cycle is not None
+        if (is_cycle_forced):
+            log.info("Found forced_cycle %s", forced_cycle.columns)
+            V               = forced_cycle['v'].values
+            SLOPE           = forced_cycle['slope'].values if 'slope' in forced_cycle else None
         else:
             ## Decide WLTC-class.
             #
@@ -144,12 +148,9 @@ class Experiment(object):
             wltc_class              = decideClass(class_limits, class3_velocity_split, unladen_mass, p_rated, v_max)
             params['wltc_class']    = wltc_class
             class_data              = self.wltc['classes'][wltc_class]
-            cycle                   = np.asarray(class_data['cycle'], dtype=self.dtype)
+            V                       = np.asarray(class_data['cycle'], dtype=self.dtype)
+            SLOPE                   = None
 
-
-        ## Velocity-profile
-        #
-        V                   = np.array(cycle, dtype=self.dtype)
         tabular['v_class']  = V
 
         ## NOTE: Improved Acceleration calc on central-values with gradient.
@@ -162,9 +163,9 @@ class Experiment(object):
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial          = params.get('f_inertial', 1.1)
-        P_REQ               = calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial)
+        P_REQ               = calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial)
 
-        if (not overridde_cycle):
+        if (not is_cycle_forced):
             ## Downscale velocity-profile.
             #
             f_downscale_threshold = params.get('f_downscale_threshold', 0.01)
@@ -227,9 +228,7 @@ class Experiment(object):
     def validate(self, iter_errors=False):
         ## TODO: Move-out  model-validation from experiment
 
-        from .model import validate_model
-
-        return validate_model(self.model, iter_errors==iter_errors)
+        return model.validate_model(self.model, iter_errors=iter_errors)
 
 
     def driveability_report(self):
@@ -369,7 +368,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle, v_stopped_threshold):
     @see: Annex 2-3.2, p 71
     '''
 
-    assert              V.ndim == 1 and len(V) > 100, (V.shape, gear_ratios, n_idle)
+    assert              V.ndim == 1, (V.shape, gear_ratios, n_idle)
 
     nG                  = len(gear_ratios)
     nV                  = len(V)
@@ -450,17 +449,30 @@ def possibleGears_byEngineRevs(V, A, _N_GEARS,
     return (_GEARS_YES, CLUTCH)
 
 
-def calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial):
+def calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial):
     '''
 
     @see: Annex 2-3.1, p 71
     '''
 
+    gee = 9.81
+
     VV      = V * V
     VVV     = VV * V
     assert  V.shape == VV.shape == VVV.shape == A.shape, _shapes(V, VV, VVV, A)
 
-    P_REQ   = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
+    if SLOPE is None:
+        P_REQ   = (
+            f0 * V + f1 * VV + f2 * VVV +
+            f_inertial * A * V * test_mass
+        ) / 3600.0
+    else:
+        assert  V.shape == SLOPE.shape, _shapes(V, SLOPE)
+        P_REQ   = (
+            f0 * V * np.cos(SLOPE) + f1 * VV + f2 * VVV +
+            f_inertial * A * V * test_mass +
+            test_mass * np.sin(SLOPE) * gee * V
+        ) / 3600.0
     assert  V.shape == P_REQ.shape, _shapes(V, P_REQ)
 
     return P_REQ
@@ -474,7 +486,7 @@ def calcPower_available(_N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety
     '''
 
     _N_NORMS         = (_N_GEARS - n_idle) / (n_rated - n_idle)
-    _P_WOTS          = np.interp(_N_NORMS, load_curve[0], load_curve[1]) # When outside of load_curve, accept max-min gear.
+    _P_WOTS          = np.interp(_N_NORMS, load_curve['n_norm'], load_curve['p_norm']) # When outside of load_curve, accept max-min gear.
 #     from scipy.interpolate import interp1d
 #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
 #     P_WOT           = intrerp_f(_N_NORMS)

@@ -10,6 +10,7 @@
 
 '''
 
+import json
 import jsonschema
 import logging
 from numpy import ndarray
@@ -18,11 +19,33 @@ from textwrap import dedent
 
 import itertools as it
 import numpy as np
+import operator as ops
 import pandas as pd
 from wltp.cycles import (class1, class2, class3)
 
 
 log = logging.getLogger(__name__)
+
+def make_json_defaulter(pd_method):
+    def defaulter(o):
+        if (isinstance(o, np.ndarray)):
+            s = o.tolist()
+        elif (isinstance(o, NDFrame)):
+            if pd_method is None:
+                s = json.loads(pd.DataFrame.to_json(o))
+            else:
+                method = ops.methodcaller(pd_method)
+                s = '%s:%s'%(type(o).__name__, method(o))
+        else:
+            s =repr(o)
+        return s
+
+    return defaulter
+
+def json_dumps(obj, pd_method=None, **kwargs):
+    return json.dumps(obj, default=make_json_defaulter(pd_method), **kwargs)
+def json_dump(obj, fp, pd_method=None, **kwargs):
+    json.dump(obj, fp, default=make_json_defaulter(pd_method), **kwargs)
 
 def model_base():
     '''The base model for running a WLTC experiment.
@@ -30,16 +53,11 @@ def model_base():
     It contains some default values for the experiment (ie the default 'full-load-curve' for the vehicles).
     But note that it this model is not valid - you need to iverride its attributes.
 
-    :return :json_tree: with the default values for the experiment.
+    :return: a tree with the default values for the experiment.
     '''
 
-    n_norm = np.arange(0.0, 1.21, 0.01)
-    ## PETROL:
-    default_load_curve_petrol = [
-#        np.polyval([-1.0411, 1.3853, -0.5647, 1.1107, 0.0967], n_norm).tolist()
-        n_norm.tolist(),
-        ## Form Heinz-db
-        [
+    ## Form Heinz-db
+    petrol = [
         0.1       ,  0.11100069,  0.12200138,  0.13300206,  0.14400275,
         0.15500344,  0.16600413,  0.17700482,  0.1880055 ,  0.19900619,
         0.21000688,  0.22100757,  0.23200826,  0.24300895,  0.25400963,
@@ -65,16 +83,10 @@ def model_base():
         0.95566307,  0.94509677,  0.93453046,  0.92396415,  0.91339784,
         0.90283154,  0.89226523,  0.88169892,  0.87113261,  0.86056631,
         0.85
-        ]
     ]
-
-    ## DIESEL:
-    default_load_curve_diesel = [
-#        np.polyval([-0.909, 1.9298, -2.2212, 2.088, 0.095], n_norm).tolist()
-        n_norm.tolist(),
-        ## Form Heinz-db
-        [
-         0.1       ,  0.11632768,  0.13265536,  0.14898304,  0.16531072,
+    ## Form Heinz-db
+    diesel = [
+        0.1       ,  0.11632768,  0.13265536,  0.14898304,  0.16531072,
         0.1816384 ,  0.19796609,  0.21429377,  0.23062145,  0.24694913,
         0.26327681,  0.27956221,  0.29584762,  0.31213302,  0.32841843,
         0.34470383,  0.36098924,  0.37727464,  0.39356004,  0.40984545,
@@ -99,8 +111,12 @@ def model_base():
         0.88711062,  0.88339956,  0.8796885 ,  0.87597743,  0.87226637,
         0.86855531,  0.86484425,  0.86113319,  0.85742212,  0.85371106,
         0.85
-        ]
     ]
+
+    n_norm = np.arange(0.0, 1.21, 0.01)
+#        petrol = np.polyval([-1.0411, 1.3853, -0.5647, 1.1107, 0.0967], n_norm).tolist()
+#        diesel = np.polyval([-0.909, 1.9298, -2.2212, 2.088, 0.095], n_norm).tolist()
+    default_load_curve = np.vstack((n_norm, petrol)).T
 
     instance = {
         'vehicle': {
@@ -113,7 +129,7 @@ def model_base():
             "n_min":    None,
             "gear_ratios":[],
             "resistance_coeffs":[],
-            'full_load_curve': default_load_curve_petrol, # FIXME: Decide load_curtve by engine-type!
+            'full_load_curve': default_load_curve, # FIXME: Decide load_curtve by engine-type!
         },
         'params': {
             'v_stopped_threshold':      1,          # Km/h, <=
@@ -152,7 +168,7 @@ def results_base():
 def wltc_data():
     '''The WLTC-data required to run an experiment (the class-cycles and their attributes)..
 
-    :return :json_tree:
+    :return: a tree
     '''
 
     ## See schemas for explainations.
@@ -185,7 +201,7 @@ def merge(a, b, path=[]):
             if isinstance(av, Mapping) != isinstance(bv, Mapping):
                 raise ValueError("Dict-values conflict at '%s'! a(%s) != b(%s)" %
                                 ('/'.join(path + [str(key)]), type(av), type(bv)))
-            elif av == bv:
+            elif av is bv:
                 continue # same leaf value
             elif isinstance(av, Mapping):
                 merge(av, bv, path + [str(key)])
@@ -286,53 +302,23 @@ def model_schema(additional_properties=False):
                     },
                    'full_load_curve': {
                        'title': 'full load power curve',
-                       'type': 'array',
-                       'items': [
-                            {
-                               'title': 'normalized engine revolutions',
-                               'description': dedent('''
-                                    The normalized engine revolutions, within [0.0, 0.15]::
-                                        n_norm = (n - n_idle) / (n_rated  - n_idle)
-                                    '''),
-                               'type': 'array', 'additionalItems': False,
-                               'maxItems': 360,
-                               'minItems': 7,
-                               'items': {
-                                   'type': 'number',
-                                   'minimum': 0.0,
-                                   'exclusiveMinimum': False,
-                                   'maximum': 1.5,
-                                   'exclusiveMaximum': False,
-                                },
-                            },
-                            {
-                               'title': 'normalized full-load power curve',
-                               'description': dedent('''
-                                    The normalised values of the full-power load against the p_rated,
-                                    within [0, 1]::
-                                        p_norm = p / p_rated
-                                '''),
-                               'type': 'array', 'additionalItems': False,
-                               'maxItems': 360,
-                               'minItems': 7,
-                               'items': {
-                                   'type': 'number',
-                                   'minimum': 0.0,
-                                   'exclusiveMinimum': False,
-                                   'maximum': 1.0,
-                                   'exclusiveMaximum': False,
-                                }
-                            },
-                        ],
-                       'description': dedent('''
-                            A 2-dimensional array holding the full load power curve in 2 rows
+                       'description': dedent("""
+                            An array holding the full load power curve in (at least) 2 columns
                             Example::
-                                [
+
+                                np.array([
                                     [ 0, 10, 20, 30, 40, 50, 60, 70. 80, 90 100, 110, 120 ],
                                     [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
-                                ]
+                                ]).T
 
-                       '''),
+                            * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 0.15]::
+
+                                        n_norm = (n - n_idle) / (n_rated  - n_idle)
+
+                            * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
+                              within [0, 1]: :math:`p_norm = p / p_rated`
+                       """),
+                       'type': [ 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
                     },
                 }  #veh-props
             }, # veh
@@ -402,8 +388,8 @@ def model_schema(additional_properties=False):
                         When this param exists, no class-selection/downscaling happens.
                         It can be a sequence, Series or DataFrame and it can either have a single column (velocity-profile)
                         or multiple columns with ``t``, ``time`` or unamed index and 2 columns:
-                             1. ``velocity`` or ``speed``, and
-                             2. (optional) ``slope``, ``alt`` or ``altitude``` ."""),
+                             1. ``v`` in km/h
+                             2. (optional) ``slope`` in radians."""),
                         'type': [ 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
                         'default': None,
                     },
@@ -571,12 +557,12 @@ def model_validator(additional_properties=False):
 
     return validator
 
-def validate_model(mdl, iter_errors=False, additional_properties=False):
+def validate_model(mdl, additional_properties=False, iter_errors=False):
     validator = model_validator(additional_properties=additional_properties)
     validators = [
         validator.iter_errors(mdl),
-        yield_load_curve_errors(mdl['vehicle']['full_load_curve'], mdl['params']['f_n_max']),
-        yield_forced_cycle_errors(mdl['params'].get('forced_cycle'))
+        yield_load_curve_errors(mdl['vehicle'], mdl['params']['f_n_max']),
+        yield_forced_cycle_errors(mdl['params'])
     ]
     errors = it.chain(*validators)
 
@@ -596,26 +582,57 @@ def validate_model(mdl, iter_errors=False, additional_properties=False):
 
 
 
-def yield_load_curve_errors(flc, f_n_max):
-    if (min(flc[0]) > 0):
-        yield ValueError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(flc[0]))
-    max_x_limit = f_n_max
-    if (max(flc[0]) < max_x_limit):
-        yield ValueError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(flc[0])))
+def yield_load_curve_errors(vehicle, f_n_max):
+    wot = vehicle['full_load_curve']
+    if not isinstance(wot, pd.DataFrame):
+        wot = pd.DataFrame(wot)
 
-def yield_forced_cycle_errors(forced_cycle):
+    try:
+        cols = wot.columns
+        if wot.shape[1] == 1:
+            if cols[0] != 'p_norm':
+                log.warning("Assuming the single-column(%s) to be the `p_norm` and the index the `1n_norm`.", cols[0])
+                cols = 'p_norm'
+                wot.columns = cols
+            wot['n_norm'] = wot.index
+            wot = wot[['n_norm', 'p_norm']]
+        elif wot.shape[1] == 2:
+            if not all(isinstance(i, str) for i in cols):
+                wot.columns = ['n_norm', 'p_norm']
+
+        n_norm = wot['n_norm']
+        if (min(n_norm) > 0.1):
+            yield ValueError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(n_norm))
+        max_x_limit = f_n_max
+        if (max(n_norm) < max_x_limit):
+            yield ValueError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(n_norm)))
+
+        p_norm = wot['p_norm']
+        if (min(p_norm) < 0):
+            yield ValueError('The full_load_curve must not contain negative power(%f)!' % min(p_norm))
+        if (max(p_norm) > 1):
+            yield ValueError('The full_load_curve must not exceed 1, found %f!' % max(p_norm))
+
+        vehicle['full_load_curve'] = wot
+    except KeyError as ex:
+        raise jsonschema.exceptions.ValidationError('Invalid Full-load-curve, due to: %s' % ex) from ex
+
+def yield_forced_cycle_errors(params):
+    forced_cycle = params.get('forced_cycle')
     if not forced_cycle is None:
         if not isinstance(forced_cycle, pd.DataFrame):
             forced_cycle = pd.DataFrame(forced_cycle)
         cols = forced_cycle.columns
 
-        if len(cols) == 1:
+        if forced_cycle.shape[1] == 1:
             if cols[0] != 'v':
                 log.warning("Assuming the single-column(%s) to be the velocity_profile(v).", cols[0])
                 cols = 'v'
                 forced_cycle.columns = [cols]
         elif 'v' not in forced_cycle.columns:
             yield ValueError('In `forced_cycle`, no column(`v`) found in (%s)!' % cols)
+
+        params['forced_cycle'] = forced_cycle
 
 
 if __name__ == '__main__':

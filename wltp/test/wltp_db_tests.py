@@ -58,7 +58,10 @@ def read_wots():
 
 def select_wot(wots, isDiesel):
     wots_labels = [ 'average Euro 6 Petrol', 'average Euro 6 Diesel']
-    return wots[['n_norm', wots_labels[isDiesel]]]
+    wots = wots[['n_norm', wots_labels[isDiesel]]]
+    wots.columns = ['n_norm', 'p_norm']
+
+    return wots
 
 class WltpDbTests(unittest.TestCase):
     '''Compares a batch of vehicles with results obtained from "official" implementation.'''
