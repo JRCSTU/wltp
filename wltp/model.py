@@ -116,7 +116,10 @@ def model_base():
     n_norm = np.arange(0.0, 1.21, 0.01)
 #        petrol = np.polyval([-1.0411, 1.3853, -0.5647, 1.1107, 0.0967], n_norm).tolist()
 #        diesel = np.polyval([-0.909, 1.9298, -2.2212, 2.088, 0.095], n_norm).tolist()
-    default_load_curve = np.vstack((n_norm, petrol)).T
+    default_load_curve = {
+        'n_norm': n_norm,
+        'p_norm': petrol
+    }
 
     instance = {
         'vehicle': {
@@ -318,7 +321,7 @@ def model_schema(additional_properties=False):
                             * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
                               within [0, 1]: :math:`p_norm = p / p_rated`
                        """),
-                       'type': [ 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
+                       'type': [ 'object', 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
                     },
                 }  #veh-props
             }, # veh
@@ -386,11 +389,25 @@ def model_schema(additional_properties=False):
                         'title': 'Forced cycle profile',
                         'description': dedent("""An alternative cycle to run, instead of the WLTC ones.
                         When this param exists, no class-selection/downscaling happens.
-                        It can be a sequence, Series or DataFrame and it can either have a single column (velocity-profile)
-                        or multiple columns with ``t``, ``time`` or unamed index and 2 columns:
-                             1. ``v`` in km/h
-                             2. (optional) ``slope`` in radians."""),
-                        'type': [ 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
+                        It can be a sequence, a map, a Series or DataFrame and it can either contain a single column
+                        (velocity-profile) or multiple columns with ``t``, ``time`` or unamed index and 2 columns:
+                             1. ``v``: in km/h
+                             2. ``slope``: (optional) in radians.
+
+                        Example::
+
+                            mdl = {
+                                "vehicle": {
+                                    ...
+                                }, 'params': {
+                                    'forced_cycle': {
+                                        'v': [0,2,5,10,20,30,40,50,30,20,10,5,1,0],
+                                        'slope': [0, 0, 0.1, 0.1, 0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1,0,0,0],
+                                    },
+                                }
+                            }
+                        """),
+                        'type': [ 'object', 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
                         'default': None,
                     },
                 }

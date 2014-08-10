@@ -40,6 +40,29 @@ class TestForcedCycle(unittest.TestCase):
         experiment = Experiment(model)
         model = experiment.run()
 
+    def test_two_ramps_with_map(self):
+        mdl = {
+            "vehicle": {
+                "unladen_mass": 1430,
+                "test_mass":    1500,
+                "v_max":    None,
+                "p_rated":  100,
+                "n_rated":  5450,
+                "n_idle":   950,
+                "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
+                "resistance_coeffs":[100, 0.5, 0.04],
+            }, 'params': {
+                'forced_cycle': {
+                    'v': [0,2,5,10,20,30,40,50,30,20,10,5,1,0],
+                    'slope': [0, 0, 0.1, 0.1, 0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1,0,0,0],
+                },
+            }
+        }
+        experiment = Experiment(mdl)
+        mdl = experiment.run()
+
+        print(mdl)
+
     def test_two_ramps_with_slope(self):
         model = goodVehicle()
 
