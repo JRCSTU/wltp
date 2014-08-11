@@ -91,11 +91,11 @@ Here is a quick-start example:
 
     >>> from wltp import model
     >>> from wltp.experiment import Experiment
-    >>> import json                  ## Just for pretty-printing model
 
     >>> mdl = {
         "vehicle": {
-            "mass":     1500,
+            "unladen_mass": 1430,
+            "test_mass":    1500,
             "v_max":    195,
             "p_rated":  100,
             "n_rated":  5450,
@@ -105,9 +105,8 @@ Here is a quick-start example:
             "resistance_coeffs":[100, 0.5, 0.04],
         }
     }
-
-    >>> processor = Experiment(mdl)
-    >>> mdl = processor.run()
+    >>> processor = Experiment(mdl)	        ## Validates model
+    >>> mdl = processor.run()               ## Runs the experiment
     >>> print(model.json_dumps(mdl['params'], indent=2))
     {
       "f_n_min_gear2": 0.9,
@@ -171,6 +170,11 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
       42: Rule e or g missed downshift(42: 3-->2) in acceleration?
     ...
 
+You can export the cycle-run results in a CSV-file with the following pandas command::
+
+.. code-block:: pycon
+
+    >>> df.to_csv('cycle_run.csv')
 
 For information on the model-data, check the schema:
 
