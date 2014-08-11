@@ -11,6 +11,7 @@
 import unittest
 
 import numpy as np
+import pandas as pd
 from wltp import model
 
 from ..experiment import Experiment
@@ -24,7 +25,7 @@ class Test(unittest.TestCase):
 
         exp = Experiment(mdl)
         mdl = exp.model
-        np.testing.assert_array_equal(mdl['vehicle']['full_load_curve'], model.default_load_curve())
+        self.assertTrue(pd.DataFrame(mdl['vehicle']['full_load_curve']).equals(pd.DataFrame(model.default_load_curve())))
 
 
     def testOverlayOnInit(self):
