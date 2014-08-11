@@ -16,6 +16,7 @@ import logging
 from numpy import ndarray
 from pandas.core.generic import NDFrame
 from textwrap import dedent
+from jsonschema import ValidationError
 
 import itertools as it
 import numpy as np
@@ -603,13 +604,15 @@ def yield_load_curve_errors(vehicle, f_n_max):
     wot = vehicle['full_load_curve']
     if not isinstance(wot, pd.DataFrame):
         wot = pd.DataFrame(wot)
+    if wot.shape[0] < wot.shape[1]:
+        wot = wot.T
 
     try:
         cols = wot.columns
         if wot.shape[1] == 1:
             if cols[0] != 'p_norm':
                 log.warning("Assuming the single-column(%s) to be the `p_norm` and the index the `1n_norm`.", cols[0])
-                cols = 'p_norm'
+                cols = ['p_norm']
                 wot.columns = cols
             wot['n_norm'] = wot.index
             wot = wot[['n_norm', 'p_norm']]
@@ -619,26 +622,28 @@ def yield_load_curve_errors(vehicle, f_n_max):
 
         n_norm = wot['n_norm']
         if (min(n_norm) > 0.1):
-            yield ValueError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(n_norm))
+            yield ValidationError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(n_norm))
         max_x_limit = f_n_max
         if (max(n_norm) < max_x_limit):
-            yield ValueError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(n_norm)))
+            yield ValidationError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(n_norm)))
 
         p_norm = wot['p_norm']
         if (min(p_norm) < 0):
-            yield ValueError('The full_load_curve must not contain negative power(%f)!' % min(p_norm))
+            yield ValidationError('The full_load_curve must not contain negative power(%f)!' % min(p_norm))
         if (max(p_norm) > 1):
-            yield ValueError('The full_load_curve must not exceed 1, found %f!' % max(p_norm))
+            yield ValidationError('The full_load_curve must not exceed 1, found %f!' % max(p_norm))
 
         vehicle['full_load_curve'] = wot
     except KeyError as ex:
-        raise jsonschema.exceptions.ValidationError('Invalid Full-load-curve, due to: %s' % ex) from ex
+        yield ValidationError('Invalid Full-load-curve, due to: %s' % ex, cause= ex)
 
 def yield_forced_cycle_errors(params):
     forced_cycle = params.get('forced_cycle')
     if not forced_cycle is None:
         if not isinstance(forced_cycle, pd.DataFrame):
             forced_cycle = pd.DataFrame(forced_cycle)
+        if forced_cycle.shape[0] < forced_cycle.shape[1]:
+            forced_cycle = forced_cycle.T
         cols = forced_cycle.columns
 
         if forced_cycle.shape[1] == 1:
@@ -647,7 +652,7 @@ def yield_forced_cycle_errors(params):
                 cols = 'v'
                 forced_cycle.columns = [cols]
         elif 'v' not in forced_cycle.columns:
-            yield ValueError('In `forced_cycle`, no column(`v`) found in (%s)!' % cols)
+            yield ValidationError('In `forced_cycle`, no column(`v`) found in (%s)!' % cols)
 
         params['forced_cycle'] = forced_cycle
 

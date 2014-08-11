@@ -4,6 +4,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+from jsonschema.exceptions import ValidationError
 '''Testing of the pure-tree data (just dictionary & lists), without the Model/Experiment classes.
 
 :created: 29 Dec 2013
@@ -13,12 +14,11 @@ import json
 import jsonschema
 import unittest
 
-from wltp.test.goodvehicle import goodVehicle
-
 from .. import model
+from .goodvehicle import goodVehicle
 
 
-class Test(unittest.TestCase):
+class InstancesTest(unittest.TestCase):
 
     def setUp(self):
         self.goodVehicle_jsonTxt = '''{"vehicle": {
@@ -119,6 +119,58 @@ class Test(unittest.TestCase):
         validator.validate(mdl)
 
 
+    def testFullLoadCurve_valid(self):
+        import numpy as np
+        import pandas as pd
+
+        flc = np.array([[0.01,0.5,1,1.2], [0.11,0.77,1,0.88]])
+        cases = [
+            flc.tolist(),
+            flc.T.tolist(),
+            flc,
+            flc.T,
+            {'n_norm':flc[0], 'p_norm':flc[1]},
+            {'n_norm':flc[0], 'p_norm':flc[1], 'foo':[1,2,3,4], 'bar':[0,0,0,4]},
+            {'foo':[1,2,3,4], 'bar':[0,0,0,0], 'n_norm':flc[0], 'p_norm':flc[1]},
+            {'foo':[1,2,3,4], 'n_norm':flc[0], 'bar':[0,0,0,0], 'p_norm':flc[1]},
+            pd.Series(flc[1], index=flc[0]),
+            pd.DataFrame({'n_norm':flc[0], 'p_norm':flc[1]}),
+            pd.DataFrame({'n_norm':flc[0], 'p_norm':flc[1], 'foo':[1,2,3, 4], 'bar':[0,0,0,0]}),
+            pd.DataFrame({'foo':[1,2,3,4], 'bar':[0,0,0,0], 'n_norm':flc[0], 'p_norm':flc[1]}),
+            pd.DataFrame({'foo':[1,2,3,4], 'n_norm':flc[0], 'bar':[0,0,0,0], 'p_norm':flc[1]}),
+        ]
+
+        for c in cases:
+            mdl = goodVehicle()
+            mdl = model.merge(model.model_base(), mdl)
+            mdl['vehicle']['full_load_curve'] = c
+            self.checkModel_valid(mdl)
+
+
+    def testFullLoadCurve_invalid(self):
+        import numpy as np
+        import pandas as pd
+        cases = [
+            None,
+            [],
+            {},
+            [[1,2,3],[4,5,6]],
+            np.array([[1,2,3],[4,5,6]]),
+            pd.DataFrame({'speed':[10,11,12], 'foo':[1,2,3]}),
+
+            pd.DataFrame({'velocity':[100,200,300], 'alt':[0,1,0]}),
+
+#             pd.Series([5,6,'a']),
+        ]
+
+        for c in cases:
+            mdl = model.model_base()
+            mdl = model.merge(model.model_base(), mdl)
+            del mdl['vehicle']['full_load_curve']
+            mdl['vehicle']['full_load_curve'] = c
+            self.checkModel_invalid(mdl, ex=ValidationError)
+
+
     def testForcedCycle_valid(self):
         import numpy as np
         import pandas as pd
@@ -131,7 +183,7 @@ class Test(unittest.TestCase):
             pd.DataFrame({'veloc':[10,11,12]}),
             pd.DataFrame({'v':[10,11,12], 'foo':[1,2,3]}),
             pd.DataFrame({'v':[100,200,300], 'altitude':[0,1,0]}),
-            pd.DataFrame({'v':[101,201,301], 'altitude':[0,1,0], 'foo':[1,2,3], 'bar':[0,0,0], }),
+            pd.DataFrame({'v':[101,201,301,401,402], 'altitude':[0,1,0,1,1], 'foo':[1,2,3,4,5], 'bar':[0,0,0,0,0], }),
         ]
 
         for c in cycles:
@@ -159,7 +211,7 @@ class Test(unittest.TestCase):
             mdl['vehicle'].update(goodVehicle()['vehicle'])
 
             mdl['params']['forced_cycle'] = c
-            self.checkModel_invalid(mdl, ex=ValueError)
+            self.checkModel_invalid(mdl, ex=ValidationError)
 
 
 if __name__ == "__main__":
