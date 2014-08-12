@@ -39,15 +39,16 @@ sys.path.insert(0, os.path.abspath('../'))
 #    can import sources.
 #     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
 #
-from unittest.mock import MagicMock
+if on_rtd:
+    from unittest.mock import MagicMock
 
-class Mock(MagicMock):
-    @classmethod
-    def __getattr__(cls, name):
-            return Mock()
+    class Mock(MagicMock):
+        @classmethod
+        def __getattr__(cls, name):
+                return Mock()
 
-MOCK_MODULES = ['jsonschema', 'numpy', 'numpy.testing', 'pandas', 'pandas.core', 'pandas.core.generic', 'scipy', 'matplotlib']
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+    MOCK_MODULES = ['jsonschema', 'numpy', 'numpy.testing', 'pandas', 'pandas.core', 'pandas.core.generic', 'scipy', 'matplotlib']
+    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
 ## Autodoc always includes constructors.
@@ -80,6 +81,9 @@ extensions = [
     'sphinx.ext.extlinks',
     'sphinx.ext.todo',
 ]
+
+## Work even without it of README.
+doctest_test_doctest_blocks = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

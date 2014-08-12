@@ -85,58 +85,70 @@ That way you get the complete source-tree of the project::
 
 Python usage
 ------------
-Here is a quick-start example:
+Here is a quick-start example to create and validate a *model* with the input-data
+for runing a single experiment:
 
-.. code-block:: pycon
+.. doctest::
+    :options: +ELLIPSIS, +NORMALIZE_WHITESPACE
 
     >>> from wltp import model
     >>> from wltp.experiment import Experiment
 
     >>> mdl = {
-        "vehicle": {
-            "unladen_mass": 1430,
-            "test_mass":    1500,
-            "v_max":    195,
-            "p_rated":  100,
-            "n_rated":  5450,
-            "n_idle":   950,
-            "n_min":    None, # Can be overriden by manufacturer.
-            "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
-            "resistance_coeffs":[100, 0.5, 0.04],
-        }
-    }
-    >>> processor = Experiment(mdl)	        ## Validates model
-    >>> mdl = processor.run()               ## Runs the experiment
-    >>> print(model.json_dumps(mdl['params'], indent=2))
+    ...   "vehicle": {
+    ...     "unladen_mass": 1430,
+    ...     "test_mass":    1500,
+    ...     "v_max":    195,
+    ...     "p_rated":  100,
+    ...     "n_rated":  5450,
+    ...     "n_idle":   950,
+    ...     "n_min":    None, # Can be overriden by manufacturer.
+    ...     "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
+    ...     "resistance_coeffs":[100, 0.5, 0.04],
+    ...   }
+    ... }
+    >>> processor = Experiment(mdl)         ## Validates model
+
+If model validated without any errors, you can then run the experiment:
+
+.. doctest::
+    :options: +ELLIPSIS, +NORMALIZE_WHITESPACE
+
+    >>> mdl = processor.run()               ## Runs experiment and augments model with results.
+    >>> model.json_dumps(mdl)               ## Would print the complete augmented model (long!).            # doctest: +SKIP
+    ...
+    >>> model.json_dumps(mdl['params'])     ## The ``params`` augmented with the WLTC-class & downscaling.  # doctest: +SKIP
     {
-      "f_n_min_gear2": 0.9,
-      "v_stopped_threshold": 1,
-      "wltc_class": "class3b",
-      "f_n_min": 0.125,
-      "f_n_max": 1.2,
-      "f_downscale": 0,
-      "f_inertial": 1.1,
       "f_n_clutch_gear2": [
         1.15,
         0.03
       ],
-      "f_safety_margin": 0.9
+      "wltc_class": "class3b",
+      "v_stopped_threshold": 1,
+      "f_n_min_gear2": 0.9,
+      "f_safety_margin": 0.9,
+      "f_n_max": 1.2,
+      "f_n_min": 0.125,
+      "fertial": 1.1,
+      "f_downscale": 0
     }
 
 
 To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
 
-.. code-block:: pycon
+.. doctest::
+    :options: +ELLIPSIS, +NORMALIZE_WHITESPACE
 
     >>> import pandas as pd
     >>> df = pd.DataFrame(mdl['cycle_run'])
     >>> df.columns
-    Index(['clutch', 'driveability', 'gears', 'gears_orig', 'p_available', 'p_required', 'rpm', 'rpm_norm', 'v_class', 'v_real', 'v_target'], dtype='object')
+    Index(['clutch', 'driveability', 'gears', 'gears_orig', 'p_available', 'p_required',
+    'rpm', 'rpm_norm', 'v_class', 'v_real', 'v_target'], dtype='object')
     >>> df.index.name = 't'
     >>> print('Mean engine_speed: ', df.rpm.mean())
     Mean engine_speed:  1917.0407829
 
-    >>> print(df.head())
+    >>> print(df.head())                                                            # doctest: +SKIP
       clutch driveability  gears  gears_orig  p_available  p_required  rpm  \
     t
     0  False                   0           0            9           0  950
@@ -144,18 +156,8 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     2  False                   0           0            9           0  950
     3  False                   0           0            9           0  950
     4  False                   0           0            9           0  950
-
-       rpm_norm  v_class   v_real  v_target
-    t
-    0         0        0  29.6875         0
-    1         0        0  29.6875         0
-    2         0        0  29.6875         0
-    3         0        0  29.6875         0
-    4         0        0  29.6875         0
-
-    [5 rows x 11 columns]
-
-    >>> print(processor.driveability_report())
+    ...
+    >>> print(processor.driveability_report())                                      # doctest: +SKIP
     ...
       12: (a: X-->0)
       13: g1: Revolutions too low!
@@ -170,17 +172,18 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
       42: Rule e or g missed downshift(42: 3-->2) in acceleration?
     ...
 
-You can export the cycle-run results in a CSV-file with the following pandas command::
+You can export the cycle-run results in a CSV-file with the following pandas command:
 
-.. code-block:: pycon
+.. doctest::
 
     >>> df.to_csv('cycle_run.csv')
 
 For information on the model-data, check the schema:
 
-.. code-block:: pycon
+.. doctest::
+    :options: +SKIP
 
-    >>> print(model.json_dumps(model.model_schema(), indent=2))
+    >>> print(model.json_dumps(model.model_schema(), indent=2))                         # doctest: +SKIP
     {
       "properties": {
         "params": {
