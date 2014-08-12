@@ -4,7 +4,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''Compares the results of synthetic vehicles from JRC against Heinz's tool.
+'''Compares the results of synthetic vehicles from JRC against pre-phase-1b Heinz's tool.
 
 * Run as Test-case to generate results for sample-vehicles.
 * Run it as cmd-line to compare with Heinz's results.
@@ -68,7 +68,7 @@ class ExperimentSampleVehs(unittest.TestCase):
 
     #@skip
     def test0_SampleVehicles(self, plot_results=False, encoding="ISO-8859-1"):
-        run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding="ISO-8859-1")
+        _run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding="ISO-8859-1")
 
     #@skip
     def test1_AvgRPMs(self):
@@ -154,20 +154,20 @@ class ExperimentSampleVehs(unittest.TestCase):
 
         df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
         dfg = df.groupby(pd.cut(vehdata.pmr, 12))
-        pmr_hist = dfg.mean()
+        df = dfg.mean()
 
-        dif = (pmr_hist['heinz_mean_rpm'] - pmr_hist['gened_mean_rpm']) / pmr_hist.min(axis=1)
-        pmr_hist['diff_prcnt']= dif
-        pmr_hist['count']= dfg.count().iloc[:, -1]
+        dif = (df['heinz_mean_rpm'] - df['gened_mean_rpm']) / df.min(axis=1)
+        df['diff_prcnt']= dif
+        df['count']= dfg.count().iloc[:, -1]
 
-        print (pmr_hist)
+        print (df)
 
-        diff_prcnt = pmr_hist['diff_prcnt']
+        diff_prcnt = df['diff_prcnt']
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit/100)
 
 
 
-def run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="ISO-8859-1"):
+def _run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="ISO-8859-1"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
     df = read_vehicle_data()
@@ -220,7 +220,7 @@ def run_the_experiments(transplant_original_gears=False, plot_results=False, com
         outfname = os.path.join(mydir, samples_dir, '{}-{:05}{}'.format(root, veh_num, ext))
         df = pd.DataFrame(model['cycle_run'])
 
-        compare_exp_results(df, outfname, compare_results)
+        _compare_exp_results(df, outfname, compare_results)
         df.to_csv(outfname, index_label='time')
 
 
@@ -253,7 +253,7 @@ def read_heinz_file(veh_num, heinz_dir=None):
 # COMPARE RESULTS #
 ###################
 
-def compare_exp_results(tabular, outfname, run_comparison):
+def _compare_exp_results(tabular, outfname, run_comparison):
     if (run_comparison):
         try:
             data_prev = read_sample_file(outfname)
@@ -263,7 +263,7 @@ def compare_exp_results(tabular, outfname, run_comparison):
             # Unreached code in case of assertion.
             # cmp = tabular['gears'] != data_prev['gears']
             # if (cmp.any()):
-            #     self.plotResults(data_prev)
+            #     self._plotResults(data_prev)
             #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
             # else:
             #     print('>> COMPARING(%s): OK'%fname)
@@ -272,7 +272,7 @@ def compare_exp_results(tabular, outfname, run_comparison):
             run_comparison = False
 
 
-def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True, plot_original_gears = False):
+def _plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True, plot_original_gears = False):
     if (plot_original_gears):
         my_gear_col = 'gears_orig'
         hz_gear_col = 'g_max'
@@ -410,7 +410,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
         paths = glob.glob(os.path.join(mydir, samples_dir, 'sample_vehicles-*.csv'))
 
         if is_experiments_outdated(paths):
-            run_the_experiments(transplant_original_gears = transplant_original_gears)
+            _run_the_experiments(transplant_original_gears = transplant_original_gears)
             paths = glob.glob(os.path.join(mydir, samples_dir, 'sample_vehicles-*.csv'))
 
         npaths          = len(paths)
@@ -450,7 +450,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
                 ax = fig.add_subplot(w, h, nplotted)
                 veh_name = os.path.basename(inpfname)
                 ax.set_title('%i: %s'%(n, veh_name), fontdict={'fontsize': 8} )
-                plotResults(veh_name, df_my, df_hz, ndiff_gears, ax, plot_original_gears = not transplant_original_gears)
+                _plotResults(veh_name, df_my, df_hz, ndiff_gears, ax, plot_original_gears = not transplant_original_gears)
 
         orig = 'Driveability' if transplant_original_gears else 'Pre-Driveability'
         fig.suptitle('%s: ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).' % (orig, g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max()))
@@ -676,7 +676,7 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
         (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)  = read_and_compare_experiment(inpfname, veh_num)
 
         ax = fig.axes()
-        plotResults(os.path.basename(inpfname), df_my, df_hz, ndiff_gears, ax)
+        _plotResults(os.path.basename(inpfname), df_my, df_hz, ndiff_gears, ax)
         log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i), ±ORIGs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
 
 

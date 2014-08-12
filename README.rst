@@ -21,6 +21,7 @@ according to :term:`UNECE` draft of the :term:`WLTP`.
 .. important:: This project is still in *alpha* stage.  Its results are not
     considered "correct", and no approval procedure should rely on them.
     Some of the known deficiencies are described in :doc:`CHANGES`.
+    Comparison of result with those from Heinz-db are imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case.
 
 
 

@@ -4,7 +4,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''Compares the results of a batch of wltp_db vehicles against Heinz's tool.
+'''Compares the results of a batch of wltp_db vehicles against phase-1b-alpha Heinz's tool.
 
 * Run as Test-case to generate results for sample-vehicles.
 * Run it as cmd-line to compare with Heinz's results.
@@ -74,27 +74,25 @@ class WltpDbTests(unittest.TestCase):
 
     #@skip
     def test0_SampleVehicles(self, plot_results=False, encoding="UTF-8"):
-        run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding=encoding)
+        _run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding=encoding)
 
 
     def test1_AvgRPMs(self):
         """Check mean-engine-speed diff with Heinz within some percent.
 
-        Results::
+        ### Results history ###
 
-                               mean         std          min          max
-            python      1850.409146  486.179546  1131.391061  3866.090816
-            Heinz       1906.547381  593.516336  1185.905053  4897.154914
-            diff_prcnt    -0.030338   -0.220776    -0.048183    -0.266694
+        Phase-1b-beta(Aug-2014)::
 
-                               mean         std          min          max
-            python      1830.452727  478.949123  1135.458463  3786.186126
-            heinz       1906.547381  593.516336  1185.905053  4897.154914
-            diff_prcnt     0.041571    0.239205     0.044428     0.293427
+                                   mean         std          min          max
+                python      1811.615966  470.894272  1135.458463  3786.186126
+                heinz       1816.727183  471.460180  1185.905053  3922.913381
+                diff_prcnt     0.002821    0.001202     0.044428     0.036112
+
 
         """
 
-        pcrnt_limit = 5
+        pcrnt_limit = 0.3
 
         h_n = []
         g_n = []
@@ -102,8 +100,13 @@ class WltpDbTests(unittest.TestCase):
         for g_fname in all_gened:
             m = re.match(gened_fname_regex, g_fname)
             veh_num = int(m.groups()[0])
+
             df_g = read_sample_file(g_fname)
             df_h = read_heinz_file(veh_num)
+
+            if df_g.shape[0] != df_h.shape[0]:
+                log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.shape, df_h.shape)
+                continue
 
             g_n.append(df_g['rpm'].mean())
             h_n.append(df_h['n'].mean())
@@ -130,32 +133,17 @@ class WltpDbTests(unittest.TestCase):
     def test1_PMRatio(self):
         """Check mean-engine-speed diff with Heinz within some percent for all PMRs.
 
-        Results::
+        ### Results history ###
 
-            Default WOTS:
-                                gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
-            pmr
-            (9.973, 24.823]        1575.371377     1568.360963   -0.004470     32
-            (24.823, 39.496]       1701.744096     1696.482640   -0.003101     34
-            (39.496, 54.17]        1760.916967     1808.725108    0.027150    123
-            (54.17, 68.843]        2043.543854     2169.755335    0.061761     95
-            (68.843, 83.517]       1970.191532     2043.741660    0.037331     59
-            (83.517, 98.191]       1878.388423     1890.040533    0.006203      4
-            (98.191, 112.864]      1803.614816     1792.693611   -0.006092     31
-            (112.864, 127.538]     2565.405125     2568.011660    0.001016      2
-            (127.538, 142.211]     1648.681502     1597.571904   -0.031992      1
-            (142.211, 156.885]             NaN             NaN         NaN      0
-            (156.885, 171.558]             NaN             NaN         NaN      0
-            (171.558, 186.232]     1409.252197     1385.176569   -0.017381      1
 
-            EURO-6 WOTS:
-                                gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
+        Phase-1b-beta(Aug-2014)::
+
             pmr
             (9.973, 24.823]        1566.018469     1568.360963    0.001496     32
             (24.823, 39.496]       1688.225473     1696.482640    0.004891     34
-            (39.496, 54.17]        1740.243414     1808.725108    0.039352    123
-            (54.17, 68.843]        2017.751049     2169.755335    0.075334     95
-            (68.843, 83.517]       1946.943166     2043.741660    0.049718     59
+            (39.496, 54.17]        1722.252888     1719.405130   -0.001656    111
+            (54.17, 68.843]        1992.560570     2002.873896    0.005176     80
+            (68.843, 83.517]       1941.919752     1956.485862    0.007501     54
             (83.517, 98.191]       1842.030477     1890.040533    0.026064      4
             (98.191, 112.864]      1794.673461     1792.693611   -0.001104     31
             (112.864, 127.538]     2543.867182     2568.011660    0.009491      2
@@ -163,9 +151,10 @@ class WltpDbTests(unittest.TestCase):
             (142.211, 156.885]             NaN             NaN         NaN      0
             (156.885, 171.558]             NaN             NaN         NaN      0
             (171.558, 186.232]     1396.061758     1385.176569   -0.007858      1
+
         """
 
-        pcrnt_limit = 8
+        pcrnt_limit = 3
 
         vehdata = read_vehicle_data()
         vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
@@ -175,8 +164,13 @@ class WltpDbTests(unittest.TestCase):
         for g_fname in all_gened:
             m = re.match(gened_fname_regex, g_fname)
             veh_num = int(m.groups()[0])
+
             df_g = read_sample_file(g_fname)
             df_h = read_heinz_file(veh_num)
+
+            if df_g.shape[0] != df_h.shape[0]:
+                log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.shape, df_h.shape)
+                continue
 
             vehdata.loc[veh_num, 'gened_mean_rpm'] = df_g['rpm'].mean()
             vehdata.loc[veh_num, 'heinz_mean_rpm'] = df_h['n'].mean()
@@ -195,9 +189,37 @@ class WltpDbTests(unittest.TestCase):
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit/100)
 
 
+    def test_GearDiffs(self):
+        """Check diff-gears with Heinz within some percent.
+
+        ### Results history ###
+
+        Phase-1b-beta(Aug-2014)::
+
+                         count    MEAN         STD  min   max
+            gears        58002  165.72  259.895861    6  1153
+            accell       40726  116.36  160.494210    4   720
+            senza rules  50043  142.98  257.883311   11  1127
+
+        """
+
+        pcrnt_limit = 10
+
+        (g_diff, diff_results) = _compare_gears_with_heinz()
+
+        df = pd.DataFrame([
+            [ g_diff[0].sum(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].min(), g_diff[0].max() ],
+            [ g_diff[1].sum(), g_diff[1].mean(), g_diff[1].std(), g_diff[1].min(), g_diff[1].max() ],
+            [ g_diff[2].sum(), g_diff[2].mean(), g_diff[2].std(), g_diff[2].min(), g_diff[2].max() ]
+        ], columns=['count', 'MEAN', 'STD', 'min', 'max'], index=['gears', 'accell','senza rules'])
+
+        print(df)
+
+        diff_prcnt = df['MEAN'] / 1800 # class3-duration
+        np.testing.assert_array_less(abs(diff_prcnt), pcrnt_limit/100)
 
 
-def run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="UTF-8"):
+def _run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="UTF-8"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
     df = read_vehicle_data()
@@ -252,8 +274,9 @@ def run_the_experiments(transplant_original_gears=False, plot_results=False, com
         outfname = '{}-{:05}{}'.format(root, veh_num, ext)
         df = pd.DataFrame(model['cycle_run'])
 
-        compare_exp_results(df, outfname, compare_results)
+        _compare_exp_results(df, outfname, compare_results)
         df.to_csv(outfname, index_label='time')
+
 
 
 def read_sample_file(inpfname):
@@ -262,11 +285,8 @@ def read_sample_file(inpfname):
     return df
 
 
-def read_heinz_file(veh_num, heinz_dir=None):
-    if (heinz_dir is None):
-        heinz_dir = os.path.join(mydir, samples_dir)
-
-    vehfpath = os.path.join(heinz_dir, 'heinz-{:04}.csv'.format(veh_num))
+def read_heinz_file(veh_num):
+    vehfpath = 'heinz-{:04}.csv'.format(veh_num)
     try:
         inpfname = glob.glob(vehfpath)[0]
     except IndexError:
@@ -286,7 +306,7 @@ def read_heinz_file(veh_num, heinz_dir=None):
 # COMPARE RESULTS #
 ###################
 
-def compare_exp_results(tabular, outfname, run_comparison):
+def _compare_exp_results(tabular, outfname, run_comparison):
     if (run_comparison):
         try:
             data_prev = read_sample_file(outfname)
@@ -296,7 +316,7 @@ def compare_exp_results(tabular, outfname, run_comparison):
             # Unreached code in case of assertion.
             # cmp = tabular['gears'] != data_prev['gears']
             # if (cmp.any()):
-            #     self.plotResults(data_prev)
+            #     self._plotResults(data_prev)
             #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
             # else:
             #     print('>> COMPARING(%s): OK'%fname)
@@ -305,7 +325,113 @@ def compare_exp_results(tabular, outfname, run_comparison):
             run_comparison = False
 
 
-def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True, plot_original_gears = False):
+
+def _compare_gears_with_heinz(experiment_num=None, transplant_original_gears=False, force_rerun_experiments=False):
+    def is_experiments_outdated(outfiles):
+        if not outfiles or force_rerun_experiments:
+            return True
+
+        resfiles_date = min([os.path.getmtime(file) for file in outfiles])
+        checkfiles = ['../../model.py', '../../experiment.py', 'wltp_db_vehicles.csv']
+        checkdates = [os.path.getmtime(heinz_fname) for heinz_fname in checkfiles]
+        modifs = [fdate > resfiles_date for fdate in checkdates]
+        return any(modifs)
+
+
+
+    def read_and_compare_experiment(myfname, veh_num):
+        df_my = read_sample_file(myfname)
+        df_hz = read_heinz_file(veh_num)
+
+        if df_my.shape[0] != df_hz.shape[0]:
+            log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', myfname, df_my.shape, df_hz.shape)
+
+            return None
+
+        ## Count base-calc errors (before dirveability).
+        ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
+
+        ## Count all errors.
+        #
+        my_gears = df_my['gears']
+        gears_hz = df_hz['gear']
+        diff_gears = (my_gears != gears_hz)
+        ndiff_gears = np.count_nonzero(diff_gears)
+
+        ## Count Acceleration-only errors.
+        #
+        accel = np.gradient(df_my['v_class'])
+        diff_gears_accel = diff_gears[accel >= 0]
+        ndiff_gears_accel = np.count_nonzero(diff_gears_accel)
+
+        return (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
+
+
+    if experiment_num is None:
+        paths = glob.glob(gened_fname_glob)
+
+        if is_experiments_outdated(paths):
+            _run_the_experiments(transplant_original_gears = transplant_original_gears)
+            paths = glob.glob(gened_fname_glob)
+
+
+        g_diff = []
+        diff_results = []
+        for (n, inpfname) in enumerate(paths):
+            m = re.match(gened_fname_regex, inpfname)
+            assert m, inpfname
+
+
+            veh_num = int(m.group(1))
+            file_res                = read_and_compare_experiment(inpfname, veh_num)
+            if file_res is None:
+                continue
+            (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig) = file_res
+            diff_results.append((inpfname, ) + file_res)
+
+            g_diff.append((inpfname, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig))
+
+            log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i), ±ORIGs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
+
+        a = np.array(g_diff)
+        g_diff = pd.DataFrame(a[:, 1:])
+        g_diff.index = a[:, 0]
+        g_diff = g_diff.convert_objects(convert_numeric=True)
+
+        return g_diff, diff_results
+        ## RESULTS:
+        #    Rule(b2) Correct NOT checking Accel on the final step of rule(b2)!:
+        #       ±DIFFs: count(187), min(0), MEAN(6.23±9.27), max(37).
+        #       +DIFFs: count(72), min(0), MEAN(2.40±3.76), max(13).
+        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #        Switch g with e, make e applied only for equal.
+        #           ±DIFFs: count(284), min(0), MEAN(9.47±14.55), max(54).
+        #           +DIFFs: count(127), min(0), MEAN(4.23±6.77), max(26).
+        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #            Rule(heinz_fname) applied on any singletton downshift:
+        #               ±DIFFs: count(292), min(0), MEAN(9.73±14.50), max(49).
+        #               +DIFFs: count(131), min(0), MEAN(4.37±6.60), max(25).
+        #               ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
+        #    NO TRANSPLANT:
+        #       ±DIFFs: count(772), min(7), MEAN(25.73±14.24), max(65).
+        #       +DIFFs: count(499), min(2), MEAN(16.63±10.30), max(45).
+        #       ±ORIGs: count(779), min(15), MEAN(25.97±8.83), max(43).
+        #    Do not allow G2 when V==0:
+        #       ±DIFFs: count(670), min(4), MEAN(22.33±13.88), max(61).
+        #       +DIFFs: count(499), min(2), MEAN(16.63±10.30), max(45).
+        #       ±ORIGs: count(719), min(13), MEAN(23.97±8.83), max(41).
+
+
+    else:
+        inpfname = 'sample_vehicles-{:05}.csv'.format(experiment_num)
+
+        (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)  = read_and_compare_experiment(inpfname, veh_num)
+
+        log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i), ±ORIGs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
+
+
+
+def _plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True, plot_original_gears = False):
     if (plot_original_gears):
         my_gear_col = 'gears_orig'
         hz_gear_col = 'g_max'
@@ -387,47 +513,9 @@ def plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True
     ax.text(0.7, 0, 'Diffs: %.4f' % g_diff, transform=ax.transAxes, bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
 
 
-def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_gears=False, force_rerun_experiments=False):
+
+def plot_diffs_with_heinz(diff_results, g_diff, transplant_original_gears=False):
     from matplotlib import pyplot as plt
-
-    def is_experiments_outdated(outfiles):
-        if not outfiles or force_rerun_experiments:
-            return True
-
-        resfiles_date = min([os.path.getmtime(file) for file in outfiles])
-        checkfiles = ['../../model.py', '../../experiment.py', 'wltp_db_vehicles.csv']
-        checkdates = [os.path.getmtime(heinz_fname) for heinz_fname in checkfiles]
-        modifs = [fdate > resfiles_date for fdate in checkdates]
-        return any(modifs)
-
-
-
-    def read_and_compare_experiment(samples_dir, myfname, veh_num):
-        df_my = read_sample_file(myfname)
-        df_hz = read_heinz_file(veh_num, samples_dir)
-
-        ## Count base-calc errors (before dirveability).
-        ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
-
-        ## Count all errors.
-        #
-        my_gears = df_my['gears']
-        gears_hz = df_hz['gear']
-        diff_gears = (my_gears != gears_hz)
-        ndiff_gears = np.count_nonzero(diff_gears)
-
-        ## Count Acceleration-only errors.
-        #
-        accel = np.gradient(df_my['v_class'])
-        diff_gears_accel = diff_gears[accel >= 0]
-        ndiff_gears_accel = np.count_nonzero(diff_gears_accel)
-
-        return (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
-
-
-
-    fig = plt.figure()
-    text_infos = fig.text(0.5, 0.5, '', transform=fig.transFigure, bbox={'facecolor':'grey', 'alpha':0.4, 'pad':10}, horizontalalignment='center', verticalalignment='center', color='blue')
 
     def fig_onpick(event):
         pickline = event.artist
@@ -438,97 +526,41 @@ def plot_diffs_with_heinz(heinz_dir, experiment_num=None, transplant_original_ge
 
         fig.canvas.draw()
 
+    fig = plt.figure()
+    text_infos = fig.text(0.5, 0.5, '', transform=fig.transFigure, bbox={'facecolor':'grey', 'alpha':0.4, 'pad':10}, horizontalalignment='center', verticalalignment='center', color='blue')
     fig.canvas.mpl_connect('pick_event', fig_onpick)
-
-
-    if experiment_num is None:
-        paths = glob.glob(os.path.join(mydir, samples_dir, 'sample_vehicles-*-*.csv'))
-
-        if is_experiments_outdated(paths):
-            run_the_experiments(transplant_original_gears = transplant_original_gears)
-            paths = glob.glob(os.path.join(mydir, samples_dir, 'sample_vehicles-*.csv'))
-
-        npaths          = len(paths)
+    orig = 'Driveability' if transplant_original_gears else 'Pre-Driveability'
+    fig.suptitle('%s: ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).' % (orig, g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max()))
 
         ## NOTE: Limit subplots to facilitate research.
         #
-#         paths_to_plot = paths
-#         paths_to_plot = paths[0:9]
-#         paths_to_plot = paths[5:6] + paths[7:9] + paths[14:16] + paths[23:24]
-        paths_to_plot = paths[5:8] + paths[17:18] + paths[22:24]
+#         i_to_plot = paths
+#         i_to_plot = paths[0:9]
+#         i_to_plot = paths[5:6] + paths[7:9] + paths[14:16] + paths[23:24]
+    i_to_plot = range[5:8] + range[17:18] + range[22:24]
 
-        ## Decide subplot-grid dimensions.
-        #
-        npaths_to_plot  = len(paths_to_plot)
-        w = math.ceil(math.sqrt(npaths_to_plot))
-        h = w-1 if ((w-1) * w >= npaths_to_plot) else w
+    ## Decide subplot-grid dimensions.
+    #
+    npaths_to_plot  = len(i_to_plot)
+    w = math.ceil(math.sqrt(npaths_to_plot))
+    h = w-1 if ((w-1) * w >= npaths_to_plot) else w
 
-        g_diff = np.zeros((3, npaths))
-        nplotted = 0
-        for (n, inpfname) in enumerate(paths):
-            m = re.match('.*sample_vehicles-\w*-(\d+).csv', inpfname)
-            assert m, inpfname
+    nplotted = 0
 
-
-            veh_num = int(m.group(1))
-            file_res                = read_and_compare_experiment(heinz_dir, inpfname, veh_num)
-            (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig) = file_res
-
-            g_diff[0, n]            = ndiff_gears
-            g_diff[1, n]            = ndiff_gears_accel
-            g_diff[2, n]            = ndiff_gears_orig
-
-            log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i), ±ORIGs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
-
-
-            if (inpfname in paths_to_plot):
-                nplotted += 1
-                ax = fig.add_subplot(w, h, nplotted)
-                veh_name = os.path.basename(inpfname)
-                ax.set_title('%i: %s'%(n, veh_name), fontdict={'fontsize': 8} )
-                plotResults(veh_name, df_my, df_hz, ndiff_gears, ax, plot_original_gears = not transplant_original_gears)
-
-        orig = 'Driveability' if transplant_original_gears else 'Pre-Driveability'
-        fig.suptitle('%s: ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).' % (orig, g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max()))
-        log.info('#       ±DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[0].sum(), g_diff[0].min(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].max())
-        log.info('#       +DIFFs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[1].sum(), g_diff[1].min(), g_diff[1].mean(), g_diff[1].std(), g_diff[1].max())
-        log.info('#       ±ORIGs: count(%i), min(%i), MEAN(%.2f±%.2f), max(%i).', g_diff[2].sum(), g_diff[2].min(), g_diff[2].mean(), g_diff[2].std(), g_diff[2].max())
-
-        ## RESULTS:
-        #    Rule(b2) Correct NOT checking Accel on the final step of rule(b2)!:
-        #       ±DIFFs: count(187), min(0), MEAN(6.23±9.27), max(37).
-        #       +DIFFs: count(72), min(0), MEAN(2.40±3.76), max(13).
-        #       ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-        #        Switch g with e, make e applied only for equal.
-        #           ±DIFFs: count(284), min(0), MEAN(9.47±14.55), max(54).
-        #           +DIFFs: count(127), min(0), MEAN(4.23±6.77), max(26).
-        #           ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-        #            Rule(heinz_fname) applied on any singletton downshift:
-        #               ±DIFFs: count(292), min(0), MEAN(9.73±14.50), max(49).
-        #               +DIFFs: count(131), min(0), MEAN(4.37±6.60), max(25).
-        #               ±ORIGs: count(0), min(0), MEAN(0.00±0.00), max(0).
-        #    NO TRANSPLANT:
-        #       ±DIFFs: count(772), min(7), MEAN(25.73±14.24), max(65).
-        #       +DIFFs: count(499), min(2), MEAN(16.63±10.30), max(45).
-        #       ±ORIGs: count(779), min(15), MEAN(25.97±8.83), max(43).
-        #    Do not allow G2 when V==0:
-        #       ±DIFFs: count(670), min(4), MEAN(22.33±13.88), max(61).
-        #       +DIFFs: count(499), min(2), MEAN(16.63±10.30), max(45).
-        #       ±ORIGs: count(719), min(13), MEAN(23.97±8.83), max(41).
-
-
-    else:
-        inpfname = 'sample_vehicles-{:05}.csv'.format(experiment_num)
-
-        (df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)  = read_and_compare_experiment(inpfname, veh_num)
-
-        ax = fig.axes()
-        plotResults(os.path.basename(inpfname), df_my, df_hz, ndiff_gears, ax)
-        log.info(">> %i: %s: ±DIFFs(%i), +DIFFs(%i), ±ORIGs(%i)", n, inpfname, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
-
+    for (i, diff) in enumerate(diff_results):
+        (inpfname, df_my, df_hz, ndiff_gears, ndiff_gears_accel, ndiff_gears_orig) = diff
+        if (i in i_to_plot):
+            nplotted += 1
+            ax = fig.add_subplot(w, h, nplotted)
+            veh_name = os.path.basename(inpfname)
+            ax.set_title('%i: %s'%(i, veh_name), fontdict={'fontsize': 8} )
+            _plotResults(veh_name, df_my, df_hz, ndiff_gears, ax, plot_original_gears = not transplant_original_gears)
 
     fig.tight_layout()
     plt.show()
+
+
+
 
 if __name__ == "__main__":
     import sys
@@ -537,6 +569,7 @@ if __name__ == "__main__":
     experiment_num          = None
     compare_original_gears  = False
     force_rerun_experiments = False  # Set to True to recalc experiments or 'compare_original_gears' has changed.
+    os.chdir(os.path.join(mydir, samples_dir))
     try:
         if len(sys.argv) > 1:
             heinz_dir = sys.argv[1]
@@ -549,4 +582,5 @@ if __name__ == "__main__":
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-    plot_diffs_with_heinz(heinz_dir, experiment_num=experiment_num, transplant_original_gears = compare_original_gears, force_rerun_experiments = force_rerun_experiments)
+    (diff_results, g_diff) = _compare_gears_with_heinz(transplant_original_gears = compare_original_gears, force_rerun_experiments = force_rerun_experiments)
+    plot_diffs_with_heinz(diff_results, g_diff, transplant_original_gears = compare_original_gears)

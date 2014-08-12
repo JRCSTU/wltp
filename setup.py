@@ -80,6 +80,7 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    scripts = ['wltp.py'],
     install_requires = [
         'jsonschema>=1.4',
         'numpy',

@@ -32,7 +32,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         self.run_comparison = True # NOTE: Set once to False to UPDATE sample-results (assuming they are ok).
 
 
-    def compare_exp_results(self, tabular, fname, run_comparison):
+    def _compare_exp_results(self, tabular, fname, run_comparison):
         tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
         if (run_comparison):
             try:
@@ -44,7 +44,7 @@ class ExperimentWholeVehs(unittest.TestCase):
                     # Unreached code in case of assertion.
                     # cmp = tabular['gears'] != data_prev['gears']
                     # if (cmp.any()):
-                    #     self.plotResults(data_prev)
+                    #     self._plotResults(data_prev)
                     #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
                     # else:
                     #     print('>> COMPARING(%s): OK'%fname)
@@ -57,7 +57,7 @@ class ExperimentWholeVehs(unittest.TestCase):
                 pickle.dump(tabular, tmpfile)
 
 
-    def plotResults(self, model):
+    def _plotResults(self, model):
         cycle = model['cycle_run']
         gears = cycle['gears']
         target = cycle['v_target']
@@ -87,13 +87,13 @@ class ExperimentWholeVehs(unittest.TestCase):
         print('G1: %s, G2: %s' % (np.count_nonzero(gears == 1), np.count_nonzero(gears == 2)))
 
 
-        self.compare_exp_results(cycle, 'goodveh', self.run_comparison)
+        self._compare_exp_results(cycle, 'goodveh', self.run_comparison)
 
 
         if (plot_results):
             print(model['cycle_run'])
             #print([wltc_data()['classes']['class3b']['cycle_run'][k] for k in model['cycle_run']['driveability_issues'].keys()])
-            self.plotResults(model)
+            self._plotResults(model)
 
             np.set_printoptions(edgeitems=16)
             #print(driveability_issues)
@@ -109,7 +109,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(model)
         model = experiment.run()
         print('DRIVEABILITY: \n%s' % experiment.driveability_report())
-        self.compare_exp_results(model['cycle_run'], 'unpower1', self.run_comparison)
+        self._compare_exp_results(model['cycle_run'], 'unpower1', self.run_comparison)
 
 
         veh = model['vehicle']
@@ -122,10 +122,10 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(model)
         model = experiment.run()
         print('DRIVEABILITY: \n%s' % experiment.driveability_report())
-        self.compare_exp_results(model['cycle_run'], 'unpower2', self.run_comparison)
+        self._compare_exp_results(model['cycle_run'], 'unpower2', self.run_comparison)
 
         if (plot_results):
-            self.plotResults(model)
+            self._plotResults(model)
             plt.show()
 
 

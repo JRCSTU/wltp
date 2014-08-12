@@ -8,6 +8,7 @@
 :created: 10-Aug 2014
 '''
 
+from jsonschema import ValidationError
 import logging
 import unittest
 
@@ -28,7 +29,7 @@ class TestForcedCycle(unittest.TestCase):
         model['params'] = params = {}
         params['forced_cycle'] = V
 
-        self.assertRaises(ValueError, Experiment, model)
+        self.assertRaises(ValidationError, Experiment, model)
 
 
     def test_two_ramps(self):
