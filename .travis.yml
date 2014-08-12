@@ -1,14 +1,14 @@
 language: python
 python:
   - "3.4"
-before_install: 
+before_install:
     - "sudo apt-get install python3-setuptools"
 install: "pip install ."
 # command to run tests
 script:
     - "python setup.py test"
     - "python setup.py build_sphinx"
-    - "cd docs && make doctest"
+    - "python setup.py build_sphinx -b doctest"
 
 branches:
   only:
