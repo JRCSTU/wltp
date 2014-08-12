@@ -117,20 +117,20 @@ If model validated without any errors, you can then run the experiment:
     >>> mdl = processor.run()               ## Runs experiment and augments model with results.
     >>> model.json_dumps(mdl)               ## Would print the complete augmented model (long!).            # doctest: +SKIP
     ...
-    >>> model.json_dumps(mdl['params'])     ## The ``params`` augmented with the WLTC-class & downscaling.  # doctest: +SKIP
+    >>> print(model.json_dumps(mdl['params'], indent=2))     ## The ``params`` augmented with the WLTC-class & downscaling.  # doctest: +SKIP
     {
+      "wltc_class": "class3b",
+      "f_downscale": 0,
+      "f_inertial": 1.1,
+      "f_n_min_gear2": 0.9,
+      "f_n_max": 1.2,
       "f_n_clutch_gear2": [
         1.15,
         0.03
       ],
-      "wltc_class": "class3b",
       "v_stopped_threshold": 1,
-      "f_n_min_gear2": 0.9,
-      "f_safety_margin": 0.9,
-      "f_n_max": 1.2,
       "f_n_min": 0.125,
-      "fertial": 1.1,
-      "f_downscale": 0
+      "f_safety_margin": 0.9
     }
 
 
