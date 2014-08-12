@@ -3,6 +3,7 @@ python:
   - "3.4"
 before_install:
     - "sudo apt-get install python3-setuptools"
+    - "sudo apt-get install python3-pandas python3-sphinx python3-jsonschema python3-matplotlib"
 install: "pip install ."
 # command to run tests
 script:
