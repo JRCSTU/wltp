@@ -147,8 +147,11 @@ class Experiment(object):
             #
             class_limits            = self.wltc['classification']['p_to_mass_class_limits']
             class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
-            wltc_class              = decideClass(class_limits, class3_velocity_split, unladen_mass, p_rated, v_max)
-            params['wltc_class']    = wltc_class
+            wltc_class = params.get('wltc_class')
+            if wltc_class is None:
+                wltc_class              = decideClass(class_limits, class3_velocity_split, unladen_mass, p_rated, v_max)
+                params['wltc_class']    = wltc_class
+
             class_data              = self.wltc['classes'][wltc_class]
             V                       = np.asarray(class_data['cycle'], dtype=self.dtype)
             SLOPE                   = None
