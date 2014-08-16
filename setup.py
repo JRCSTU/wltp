@@ -84,7 +84,7 @@ setup(
     install_requires = [
         'jsonschema>=1.4',
         'numpy',
-        'pandas','openpyxl',
+        'pandas', 'openpyxl', 'xlrd',
     ],
     setup_requires = [
         'sphinx',

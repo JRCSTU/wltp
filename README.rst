@@ -86,8 +86,8 @@ That way you get the complete source-tree of the project::
 
 Python usage
 ------------
-Here is a quick-start example to create and validate a *model* with the input-data
-for runing a single experiment:
+Here is a quick-start python :abbr:`REPL (Read–Eval–Print Loop)` examples to create and validate a *model*
+with the input-data for runing a single experiment:
 
 .. doctest::
     :options: +ELLIPSIS, +NORMALIZE_WHITESPACE
@@ -212,16 +212,27 @@ Cmd-line usage
 --------------
 .. Note:: Not implemented in yet.
 
-To get help::
+The examples presented so far required to execute multiple commands interactively inside
+the Python interpreter (REPL).
+The comand-line usage below still requires the Python environment to be installed, but provides for
+executing an experiment directly from the OS's shell (i.e. ``cmd.exe`` in windows or ``bash`` in POSIX),
+and in a *single* command.
 
-    $ python wltp --help          ## to get generic help for cmd-line syntax
-    $ python wltp -M /vehicle     ## to get help for specific model-paths
+The entry-point script is called ``wltp.py``, and it must have been placed in your ``PATH``
+during installation.  This script can construct a *model* by reading input-data
+from multiple files and/or overriding specific single-value items. Conversely,
+it can output multiple parts of the resulting-model into files.
+
+To get help for this script, use the following commands::
+
+    $ wltp.py --help          ## to get generic help for cmd-line syntax
+    $ wltp.py -M /vehicle     ## to get help for specific model-paths
 
 
 and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
 for which you want to override the ``n_idle`` only, run the following::
 
-    $ python wltp -v \
+    $ wltp.py -v \
         -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
         -m /vehicle/n_idle:=850 \
         -O cycle.csv model_path=/cycle_run
@@ -379,5 +390,6 @@ Glossary
     Downscaling
         Reduction of the top-velocity of the original drive trace to be followed, to ensure that the vehicle
         is not driven in an unduly high proportion of "full throttle".
+
 
 .. |CO2| replace:: CO\ :sub:`2`
