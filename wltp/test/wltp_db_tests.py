@@ -253,8 +253,8 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
         if (transplant_original_gears):
             log.warning(">>> Transplanting gears from Heinz's!")
             cycle_run = model['cycle_run']
-            hz_df = read_heinz_file(veh_num)
-            GEARS = np.array(hz_df['g_max'])
+            df_h = read_heinz_file(veh_num)
+            GEARS = np.array(df_h['g_max'])
             cycle_run['gears_orig'] = GEARS.copy()
 
             V = np.array(cycle_run['v_class'])
@@ -443,7 +443,7 @@ def _compare_gears_with_heinz(experiment_num=None, transplant_original_gears=Fal
 
 
 
-def _plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=True, plot_original_gears = False):
+def _plotResults(veh_fname, df_g, df_h,  g_diff, ax, plot_diffs_gears_only=True, plot_original_gears = False):
     if (plot_original_gears):
         my_gear_col = 'gears_orig'
         hz_gear_col = 'g_max'
@@ -455,41 +455,41 @@ def _plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=Tru
 
     ax2 = ax.twinx()
 
-    tlen = len(my_df.index)
+    tlen = len(df_g.index)
     #ax.set_xticks(np.arange(0.0, tlen, 50.0)) NO! looses auto when zooming.
 
 
-    clutch = my_df['clutch']
+    clutch = df_g['clutch']
     clutch = clutch.nonzero()[0]
     ax.vlines(clutch,  0, 0.2)
 
     ## Add pickers on driveability lines showing the specific msg.
     #
-    driveability = my_df['driveability']
+    driveability = df_g['driveability']
     driveability_true = driveability.apply(lambda s: isinstance(s, str))
     lines = ax2.vlines(driveability_true.nonzero()[0],  2, 4, 'c', picker=5)
     lines.set_urls(driveability[driveability_true])
 
-    v_max = my_df['v_class'].max()
+    v_max = df_g['v_class'].max()
     ax.hlines(1 / v_max,  0, tlen, color="0.75")
 
-    ax.plot(my_df['v_class'] / v_max)
-    ax.plot(my_df['v_target'] / v_max, '-.')
+    ax.plot(df_g['v_class'] / v_max)
+    ax.plot(df_g['v_target'] / v_max, '-.')
 
-#     ax.plot(my_df['rpm'] / my_df['rpm'].max())
-#     p_req = my_df['p_required'] / my_df['p_required'].max()
+#     ax.plot(df_g['rpm'] / df_g['rpm'].max())
+#     p_req = df_g['p_required'] / df_g['p_required'].max()
 #     p_req[p_req < 0] = 0
 #     ax.plot(p_req)
 
     ## Plot gear diffs.
     #
-    my_gears = my_df[my_gear_col]
-    hz_v_real = hz_df['v']
-    hz_v_target = hz_df['v_downscale']
-    hz_gears = hz_df[hz_gear_col]
+    my_gears = df_g[my_gear_col]
+    hz_v_real = df_h['v']
+    hz_v_target = df_h['v_downscale']
+    hz_gears = df_h[hz_gear_col]
 
 
-    orig_gears = my_df['gears_orig']
+    orig_gears = df_g['gears_orig']
     if plot_diffs_gears_only:
         diff_gears = my_gears != hz_gears
         difft = diff_gears.nonzero()[0]
@@ -509,11 +509,11 @@ def _plotResults(veh_fname, my_df, hz_df,  g_diff, ax, plot_diffs_gears_only=Tru
 
 
 
-    ax.plot(my_df['v_real'] / v_max)
+    ax.plot(df_g['v_real'] / v_max)
 
     ## Add pickers on driveability lines showing the specific msg.
     #
-    hz_driveability = hz_df['gear_modification']
+    hz_driveability = df_h['gear_modification']
     hz_driveability_true = ~hz_driveability.apply(np.isreal)
     lines = ax2.vlines(hz_driveability_true.nonzero()[0],  0, 2, 'm', picker=5)
     lines.set_urls(hz_driveability[hz_driveability_true])

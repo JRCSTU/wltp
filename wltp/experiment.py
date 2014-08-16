@@ -138,8 +138,10 @@ class Experiment(object):
         is_cycle_forced = forced_cycle is not None
         if (is_cycle_forced):
             log.info("Found forced_cycle %s", forced_cycle.columns)
-            V               = forced_cycle['v'].values
-            SLOPE           = forced_cycle['slope'].values if 'slope' in forced_cycle else None
+            V               = np.asarray(forced_cycle['v'])
+            SLOPE           = forced_cycle.get('slope')
+            if not SLOPE is None:
+                SLOPE = np.asarray(SLOPE)
         else:
             ## Decide WLTC-class.
             #
@@ -185,7 +187,7 @@ class Experiment(object):
             tabular['v_target'] = V
 
 
-        ## Run cycle to find gears, clutch and real-velocirty.
+        ## Run cycle to find gears, clutch and real-velociry.
         #
         load_curve          = vehicle['full_load_curve']
         (V_REAL, GEARS_ORIG, GEARS, CLUTCH, RPM, N_NORM, P_AVAIL, driveability_issues) = \
@@ -730,9 +732,9 @@ def step_rule_g(t, pg, g, V, A, GEARS, driveability_issues):
     return False
 
 
-def applyDriveabilityRules(V, A, GEARS, CLUTCH, ngears, driveability_issues):
+def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
     '''
-    @note: Modifies GEARS.
+    @note: Modifies GEARS & CLUTCH.
     @see: Annex 2-4, p 72
     '''
 
@@ -815,7 +817,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
     (_N_GEARS, _GEARS, \
             _GEAR_RATIOS)       = calcEngineRevs_required(V, gear_ratios, n_idle, v_stopped_threshold)
 
-    (_G_BY_N, CLUTCH)            = possibleGears_byEngineRevs(V, A, _N_GEARS,
+    (_G_BY_N, CLUTCH)           = possibleGears_byEngineRevs(V, A, _N_GEARS,
                                                 len(gear_ratios), n_idle,
                                                 n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
                                                 v_stopped_threshold,
@@ -833,7 +835,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     CLUTCH[(GEARS == 2) & (_N_GEARS[1, :] < n_clutch_gear2)] = True
 
-    applyDriveabilityRules(V, A, GEARS, CLUTCH, len(gear_ratios), driveability_issues)
+    applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues)
 
     P_AVAIL                     = _P_AVAILS[GEARS - 1, range(len(V))]
     N_NORM                      = _N_NORMS[GEARS - 1, range(len(V))]
