@@ -80,19 +80,18 @@ class WltpDbTests(unittest.TestCase):
     def test1_AvgRPMs(self):
         """Check mean-engine-speed diff with Heinz within some percent.
 
-        ### Results history ###
+        ### Comparison history ###
 
-        Phase-1b-beta(Aug-2014)::
+        Class3b, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
 
                                    mean         std          min          max
-                python      1811.615966  470.894272  1135.458463  3786.186126
-                heinz       1816.727183  471.460180  1185.905053  3922.913381
-                diff_prcnt     0.002821    0.001202     0.044428     0.036112
-
+                python      1766.707825  410.762478  1135.458463  3217.428423
+                heinz       1759.851498  397.343498  1185.905053  3171.826208
+                diff_prcnt    -0.003896   -0.033772     0.044428    -0.014377
 
         """
 
-        pcrnt_limit = 0.3
+        pcrnt_limit = 0.4
 
         h_n = []
         g_n = []
@@ -106,6 +105,9 @@ class WltpDbTests(unittest.TestCase):
 
             if df_g.shape[0] != df_h.shape[0]:
                 log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.shape, df_h.shape)
+                continue
+            if abs(df_g.v_class.sum() - df_h.v_orig.sum()) > 1:
+                log.warning('Cycle-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.v_class.sum(), df_h.v_orig.sum())
                 continue
 
             g_n.append(df_g['rpm'].mean())
@@ -133,20 +135,21 @@ class WltpDbTests(unittest.TestCase):
     def test1_PMRatio(self):
         """Check mean-engine-speed diff with Heinz within some percent for all PMRs.
 
-        ### Results history ###
+        ### Comparison history ###
 
 
-        Phase-1b-beta(Aug-2014)::
+        Class3b, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
 
+                                gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
             pmr
             (9.973, 24.823]        1566.018469     1568.360963    0.001496     32
-            (24.823, 39.496]       1688.225473     1696.482640    0.004891     34
-            (39.496, 54.17]        1722.252888     1719.405130   -0.001656    111
-            (54.17, 68.843]        1992.560570     2002.873896    0.005176     80
-            (68.843, 83.517]       1941.919752     1956.485862    0.007501     54
-            (83.517, 98.191]       1842.030477     1890.040533    0.026064      4
+            (24.823, 39.496]       1701.176128     1702.739797    0.000919     32
+            (39.496, 54.17]        1731.541637     1724.959671   -0.003816    106
+            (54.17, 68.843]        1894.477475     1877.786294   -0.008889     61
+            (68.843, 83.517]       1828.518522     1818.720627   -0.005387     40
+            (83.517, 98.191]       1824.060716     1830.482140    0.003520      3
             (98.191, 112.864]      1794.673461     1792.693611   -0.001104     31
-            (112.864, 127.538]     2543.867182     2568.011660    0.009491      2
+            (112.864, 127.538]     3217.428423     3171.826208   -0.014377      1
             (127.538, 142.211]     1627.952896     1597.571904   -0.019017      1
             (142.211, 156.885]             NaN             NaN         NaN      0
             (156.885, 171.558]             NaN             NaN         NaN      0
@@ -171,6 +174,10 @@ class WltpDbTests(unittest.TestCase):
             if df_g.shape[0] != df_h.shape[0]:
                 log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.shape, df_h.shape)
                 continue
+            if abs(df_g.v_class.sum() - df_h.v_orig.sum()) > 1:
+                log.warning('Cycle-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.v_class.sum(), df_h.v_orig.sum())
+                continue
+
 
             vehdata.loc[veh_num, 'gened_mean_rpm'] = df_g['rpm'].mean()
             vehdata.loc[veh_num, 'heinz_mean_rpm'] = df_h['n'].mean()
@@ -189,21 +196,20 @@ class WltpDbTests(unittest.TestCase):
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit/100)
 
 
-    def test_GearDiffs(self):
+    def test1_GearDiffs(self):
         """Check diff-gears with Heinz within some percent.
 
-        ### Results history ###
+        ### Comparison history ###
 
-        Phase-1b-beta(Aug-2014)::
+        Class3b, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
 
-                         count    MEAN         STD  min   max
-            gears        58002  165.72  259.895861    6  1153
-            accell       40726  116.36  160.494210    4   720
-            senza rules  50043  142.98  257.883311   11  1127
-
+                         count       MEAN        STD  min  max
+            gears        23387  75.931818  56.921729    6  279
+            accell       19146  62.162338  48.831155    4  238
+            senza rules  16133  52.379870  35.858415   11  170
         """
 
-        pcrnt_limit = 10
+        pcrnt_limit = 5
 
         (g_diff, diff_results) = _compare_gears_with_heinz()
 
@@ -280,7 +286,8 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
 
 
 def read_sample_file(inpfname):
-    df = pd.read_csv(inpfname)
+    df = pd.read_csv(inpfname, header=0, index_col=0)
+    assert df.index.name == 'time', df.index.name
 
     return df
 
@@ -292,7 +299,8 @@ def read_heinz_file(veh_num):
     except IndexError:
         raise FileNotFoundError("Skipped veh_id(%s), no file found: %s" % (veh_num, vehfpath))
 
-    df = pd.read_csv(inpfname, encoding='UTF-8', header=0, index_col=21)
+    df = pd.read_csv(inpfname, encoding='UTF-8', header=0, index_col=0)
+    assert df.index.name == 't', df.index.name
 
 
 #     vehfpath = os.path.join(samples_dir, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
@@ -345,6 +353,10 @@ def _compare_gears_with_heinz(experiment_num=None, transplant_original_gears=Fal
 
         if df_my.shape[0] != df_hz.shape[0]:
             log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', myfname, df_my.shape, df_hz.shape)
+
+            return None
+        if abs(df_my.v_class.sum() - df_hz.v_orig.sum()) > 1:
+            log.warning('Cycle-mismatched(%s): gened(%s) !+ heinz(%s)!', myfname, df_my.v_class.sum(), df_hz.v_orig.sum())
 
             return None
 
