@@ -51,6 +51,7 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
 '''
 
 import numpy as np
+import pandas as pd
 import logging
 import re
 
@@ -115,7 +116,7 @@ class Experiment(object):
 
         ## Prepare results
         #
-        tabular             = {}
+        tabular             = pd.DataFrame()
         model['cycle_run']  = tabular
 
         ## Extract vehicle attributes from model.
@@ -134,9 +135,10 @@ class Experiment(object):
             v_max = n_rated / gear_ratios[-1]
 
 
-        forced_cycle     = params.get('forced_cycle')
-        is_cycle_forced = forced_cycle is not None
-        if (is_cycle_forced):
+        forced_cycle        = params.get('forced_cycle')
+        is_cycle_forced     = forced_cycle is not None
+
+        if (is_cycle_forced and 'v' in forced_cycle):
             log.info("Found forced_cycle %s", forced_cycle.columns)
             V               = np.asarray(forced_cycle['v'])
             SLOPE           = forced_cycle.get('slope')
@@ -170,7 +172,7 @@ class Experiment(object):
         f_inertial          = params.get('f_inertial', 1.1)
         P_REQ               = calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial)
 
-        if (not is_cycle_forced):
+        if (not is_cycle_forced or not 'v' in forced_cycle):
             ## Downscale velocity-profile.
             #
             f_downscale_threshold = params.get('f_downscale_threshold', 0.01)
@@ -190,21 +192,36 @@ class Experiment(object):
             tabular['v_target'] = V
 
 
-        ## Run cycle to find gears, clutch and real-velociry.
+        ## Run cycle to find internal matrices for all gears
+        #    and (optionally) gearshifts.
         #
-        load_curve          = vehicle['full_load_curve']
-        (V_REAL, GEARS_ORIG, GEARS, CLUTCH, RPM, N_NORM, P_AVAIL, driveability_issues) = \
-                            runCycle(V, A, P_REQ,
-                                           gear_ratios,
-                                           n_idle, n_min_drive, n_rated,
-                                           p_rated, load_curve,
-                                                       params)
-        assert               V.shape == GEARS.shape, _shapes(V, GEARS)
-
-        tabular['v_real']       = V_REAL
-        tabular['gears_orig']   = GEARS_ORIG
-        tabular['gears']        = GEARS
+        load_curve                  = vehicle['full_load_curve']
+        (GEARS_ORIG, CLUTCH,
+            _GEAR_RATIOS, _N_GEARS,
+            _P_AVAILS, _N_NORMS,
+            driveability_issues)    = run_cycle(V, A, P_REQ, gear_ratios,
+                                               n_idle, n_min_drive, n_rated,
+                                               p_rated, load_curve, params)
         tabular['clutch']       = CLUTCH
+        if (is_cycle_forced and 'gears_orig' in forced_cycle):
+            GEARS_ORIG = np.asarray(forced_cycle['gears_orig'])
+        tabular['gears_orig']   = GEARS_ORIG
+
+        ## Apply Driveability-rules.
+        #
+        GEARS                       = GEARS_ORIG.copy()
+        applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues)
+
+        ## Calculate Real quantities.
+        #
+        P_AVAIL                     = _P_AVAILS[GEARS - 1, range(len(V))]
+        N_NORM                      = _N_NORMS[GEARS - 1, range(len(V))]
+        RPM                         = _N_GEARS[GEARS - 1, range(len(V))]
+        V_REAL                      = RPM / _GEAR_RATIOS[GEARS - 1, range(len(V))]
+
+
+        tabular['gears']        = GEARS
+        tabular['v_real']       = V_REAL
         tabular['p_available']  = P_AVAIL
         tabular['p_required']   = P_REQ
         tabular['rpm']          = RPM
@@ -394,7 +411,7 @@ def calcEngineRevs_required(V, gear_ratios, n_idle, v_stopped_threshold):
 
 def possibleGears_byEngineRevs(V, A, _N_GEARS,
                                ngears, n_idle,
-                               n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
+                               n_min_drive, n_min_gear2, n_max,
                                v_stopped_threshold,
                                driveability_issues):
     '''
@@ -774,7 +791,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
     rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros)
 
 
-def runCycle(V, A, P_REQ, gear_ratios,
+def run_cycle(V, A, P_REQ, gear_ratios,
                    n_idle, n_min_drive, n_rated,
                    p_rated, load_curve,
                    params):
@@ -822,7 +839,7 @@ def runCycle(V, A, P_REQ, gear_ratios,
 
     (_G_BY_N, CLUTCH)           = possibleGears_byEngineRevs(V, A, _N_GEARS,
                                                 len(gear_ratios), n_idle,
-                                                n_min_drive, n_clutch_gear2, n_min_gear2, n_max,
+                                                n_min_drive, n_min_gear2, n_max,
                                                 v_stopped_threshold,
                                                 driveability_issues)
 
@@ -830,25 +847,21 @@ def runCycle(V, A, P_REQ, gear_ratios,
                                                 n_idle, n_rated, p_rated, load_curve, p_safety_margin,
                                                 driveability_issues)
 
-    GEARS                       = selectGears(_GEARS, _G_BY_N, _G_BY_P, driveability_issues)
-    assert                      V.shape == GEARS.shape, _shapes(V, GEARS)
-    assert                      'i' == GEARS.dtype.kind, GEARS.dtype
-    assert                      ((GEARS >= -1) & (GEARS <= len(gear_ratios))).all(), (min(GEARS), max(GEARS))
-    GEARS_ORIG                  = GEARS.copy()
+    assert _GEAR_RATIOS.shape == _N_GEARS.shape == _P_AVAILS.shape == _N_NORMS.shape, \
+                                _shapes(_GEAR_RATIOS, _N_GEARS, _P_AVAILS, _N_NORMS)
 
+
+    GEARS                       = selectGears(_GEARS, _G_BY_N, _G_BY_P, driveability_issues)
     CLUTCH[(GEARS == 2) & (_N_GEARS[1, :] < n_clutch_gear2)] = True
 
-    applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues)
+    assert V.shape == GEARS.shape, _shapes(V, GEARS)
+    assert GEARS.shape == CLUTCH.shape == driveability_issues.shape, \
+                                _shapes(GEARS, CLUTCH.shape, driveability_issues)
+    assert 'i' == GEARS.dtype.kind, GEARS.dtype
+    assert ((GEARS >= -1) & (GEARS <= len(gear_ratios))).all(), (min(GEARS), max(GEARS))
 
-    P_AVAIL                     = _P_AVAILS[GEARS - 1, range(len(V))]
-    N_NORM                      = _N_NORMS[GEARS - 1, range(len(V))]
-    RPM                         = _N_GEARS[GEARS - 1, range(len(V))]
 
-    ## Calculate real-celocity.
-    #
-    V_REAL                      = RPM / _GEAR_RATIOS[GEARS - 1, range(len(V))]
-
-    return (V_REAL, GEARS_ORIG, GEARS, CLUTCH, RPM, N_NORM, P_AVAIL, driveability_issues)
+    return GEARS, CLUTCH, _GEAR_RATIOS, _N_GEARS, _P_AVAILS, _N_NORMS, driveability_issues
 
 
 

@@ -9,14 +9,14 @@
 .. Attention:: The documentation of this core module has several issues and needs work.
 
 '''
-
 import json
+from jsonschema import ValidationError
 import jsonschema
 import logging
 from numpy import ndarray
+from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from textwrap import dedent
-from jsonschema import ValidationError
 
 import itertools as it
 import numpy as np
@@ -580,9 +580,9 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
     validators = [
         validator.iter_errors(mdl),
         yield_load_curve_errors(mdl['vehicle'], mdl['params']['f_n_max']),
-        yield_forced_cycle_errors(mdl['params'])
+        yield_forced_cycle_errors(mdl['params'], additional_properties)
     ]
-    errors = it.chain(*validators)
+    errors = it.chain(*[v for v in validators if not v is None])
 
     if iter_errors:
         return errors
@@ -602,12 +602,12 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
 
 def yield_load_curve_errors(vehicle, f_n_max):
     wot = vehicle['full_load_curve']
-    if not isinstance(wot, pd.DataFrame):
-        wot = pd.DataFrame(wot)
-    if wot.shape[0] < wot.shape[1]:
-        wot = wot.T
-
     try:
+        if not isinstance(wot, pd.DataFrame):
+            wot = pd.DataFrame(wot)
+        if wot.shape[0] < wot.shape[1]:
+            wot = wot.T
+
         cols = wot.columns
         if wot.shape[1] == 1:
             if cols[0] != 'p_norm':
@@ -634,27 +634,33 @@ def yield_load_curve_errors(vehicle, f_n_max):
             yield ValidationError('The full_load_curve must not exceed 1, found %f!' % max(p_norm))
 
         vehicle['full_load_curve'] = wot
-    except KeyError as ex:
+    except (KeyError, PandasError) as ex:
         yield ValidationError('Invalid Full-load-curve, due to: %s' % ex, cause= ex)
 
-def yield_forced_cycle_errors(params):
+def yield_forced_cycle_errors(params, additional_properties):
     forced_cycle = params.get('forced_cycle')
     if not forced_cycle is None:
-        if not isinstance(forced_cycle, pd.DataFrame):
-            forced_cycle = pd.DataFrame(forced_cycle)
-        if forced_cycle.shape[0] < forced_cycle.shape[1]:
-            forced_cycle = forced_cycle.T
-        cols = forced_cycle.columns
+        try:
+            if not isinstance(forced_cycle, pd.DataFrame):
+                forced_cycle = pd.DataFrame(forced_cycle)
+                if forced_cycle.shape[0] == forced_cycle.shape[1]:
+                    yield ValidationError('The full_load_curve is a square matrix(%s), cannot decide orientation!' % (forced_cycle.shape, ))
+            if forced_cycle.shape[0] < forced_cycle.shape[1]:
+                forced_cycle = forced_cycle.T
+            cols = forced_cycle.columns
 
-        if forced_cycle.shape[1] == 1:
-            if cols[0] != 'v':
-                log.warning("Assuming the single-column(%s) to be the velocity_profile(v).", cols[0])
-                cols = 'v'
-                forced_cycle.columns = [cols]
-        elif 'v' not in forced_cycle.columns:
-            yield ValidationError('In `forced_cycle`, no column(`v`) found in (%s)!' % cols)
+            # if not additional_properties and not set(cols) <= set(['v','slide']):
+            #     yield ValidationError('Unexpected columns!')
 
-        params['forced_cycle'] = forced_cycle
+            if forced_cycle.shape[1] == 1:
+                if cols[0] == 1:
+                    log.warning("Assuming the unamed single-column to be the velocity_profile(v).", cols[0])
+                    forced_cycle.columns = ['v']
+
+            params['forced_cycle'] = forced_cycle
+        except PandasError as ex:
+            yield ValidationError('Invalid forced_cycle, due to: %s' % ex, cause= ex)
+
 
 
 if __name__ == '__main__':

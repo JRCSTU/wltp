@@ -18,6 +18,9 @@ TODOs
 * Add cmd-line front-end.
 * Add IPython front-end.
 * No automatic calculation of masses and road-load coefficients from H & L vehicles.
+* wltp_db: Improve test-metrics with group-by classes/phases.
+* wltp_db: Add diagrams auto-generated from test-metrics into generated site (Getting Involved section).
+* wltp_db: Speed-up tests by caching files to read and compare.
 
 .. todolist::
 

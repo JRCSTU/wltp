@@ -34,6 +34,7 @@ veh_data_fname = 'wltp_db_vehicles.csv'
 gened_fname_regex = r'.*wltp_db_vehicles-(\d+).csv'
 heinz_fname_regex = r'.*heinz-(\d+).csv'
 gened_fname_glob = 'wltp_db_vehicles-*.csv'
+trans_fname_glob = 'trans-wltp_db_vehicles-*.csv'
 driver_weight = 70
 "For calculating unladen_mass."
 encoding = 'UTF-8'
@@ -63,22 +64,51 @@ def select_wot(wots, isDiesel):
 
     return wots
 
+def vehicles_applicator(gened_fname_glob, gened_df_apply, heinz_df_apply):
+    res_g = pd.Series()
+    res_h = pd.Series()
+    all_gened = glob.glob(gened_fname_glob)
+    for g_fname in all_gened:
+        m = re.match(gened_fname_regex, g_fname)
+        veh_num = int(m.groups()[0])
+
+        df_g = read_sample_file(g_fname)
+        df_h = read_heinz_file(veh_num)
+
+        if df_g.shape[0] != df_h.shape[0]:
+            log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.shape, df_h.shape)
+            continue
+        if abs(df_g.v_class.sum() - df_h.v_orig.sum()) > 1:
+            log.warning('Cycle-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.v_class.sum(), df_h.v_orig.sum())
+            continue
+
+        res_g.loc[veh_num] = gened_df_apply(df_g)
+        res_h.loc[veh_num] = heinz_df_apply(df_h)
+
+    return (res_g, res_h)
+
+
+
 class WltpDbTests(unittest.TestCase):
     '''Compares a batch of vehicles with results obtained from "official" implementation.'''
 
-
     def setUp(self):
-        self.run_comparison = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
+        self.run_comparison = False # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
         os.chdir(os.path.join(mydir, samples_dir))
 
 
-    @skip
-    def test0_SampleVehicles(self, plot_results=False, encoding="UTF-8"):
-        _run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding=encoding)
+    #@skip
+    def test0_runExperiment(self, plot_results=False, encoding="UTF-8"):
+        _run_the_experiments(transplant_original_gears=False, compare_results=self.run_comparison, encoding=encoding)
+
+    #@skip
+    def test0_runExperimentTransplant(self, plot_results=False, encoding="UTF-8"):
+        _run_the_experiments(transplant_original_gears=True, compare_results=self.run_comparison, encoding=encoding)
+
 
 
     def test1_Downscale(self):
-        """Check mean-engine-speed diff with Heinz within some percent.
+        """Check mean-downscaled-velocity diff with Heinz within some percent.
 
         ### Comparison history ###
 
@@ -92,28 +122,7 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 0.5
 
-        h_n = []
-        g_n = []
-        all_gened = glob.glob(gened_fname_glob)
-        for g_fname in all_gened:
-            m = re.match(gened_fname_regex, g_fname)
-            veh_num = int(m.groups()[0])
-
-            df_g = read_sample_file(g_fname)
-            df_h = read_heinz_file(veh_num)
-
-            if df_g.shape[0] != df_h.shape[0]:
-                log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.shape, df_h.shape)
-                continue
-            if abs(df_g.v_class.sum() - df_h.v_orig.sum()) > 1:
-                log.warning('Cycle-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.v_class.sum(), df_h.v_orig.sum())
-                continue
-
-            g_n.append(df_g['v_target'].mean())
-            h_n.append(df_h['v'].mean())
-
-        g_n = np.array(g_n)
-        h_n = np.array(h_n)
+        (g_n, h_n) = vehicles_applicator(gened_fname_glob, lambda df_g: df_g['v_target'].mean(), lambda df_h: df_h['v'].mean())
 
         df = pd.DataFrame()
         df['mean'] = [g_n.mean(), h_n.mean()]
@@ -132,7 +141,7 @@ class WltpDbTests(unittest.TestCase):
 
 
     def test2_AvgRPMs(self):
-        """Check mean-engine-speed diff with Heinz within some percent.
+        """Check mean-rpm diff with Heinz stays within some percent.
 
         ### Comparison history ###
 
@@ -153,28 +162,40 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 1.3
 
-        h_n = []
-        g_n = []
-        all_gened = glob.glob(gened_fname_glob)
-        for g_fname in all_gened:
-            m = re.match(gened_fname_regex, g_fname)
-            veh_num = int(m.groups()[0])
+        (g_n, h_n) = vehicles_applicator(gened_fname_glob, lambda df_g: df_g['rpm'].mean(), lambda df_h: df_h['n'].mean())
 
-            df_g = read_sample_file(g_fname)
-            df_h = read_heinz_file(veh_num)
+        df = pd.DataFrame()
+        df['mean'] = [g_n.mean(), h_n.mean()]
+        df['std'] = [g_n.std(), h_n.std()]
+        df['min'] = [g_n.min(), h_n.min()]
+        df['max'] = [g_n.max(), h_n.max()]
+        df.index = ['python', 'heinz']
 
-            if df_g.shape[0] != df_h.shape[0]:
-                log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.shape, df_h.shape)
-                continue
-            if abs(df_g.v_class.sum() - df_h.v_orig.sum()) > 1:
-                log.warning('Cycle-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.v_class.sum(), df_h.v_orig.sum())
-                continue
+        dff = 100 * (df.loc['heinz', :] - df.loc['python', :]) / df.min(axis=0)
+        df.loc['diff_prcnt', :] = dff
 
-            g_n.append(df_g['rpm'].mean())
-            h_n.append(df_h['n'].mean())
+        print(df)
 
-        g_n = np.array(g_n)
-        h_n = np.array(h_n)
+        diff_prcnt = df.loc['diff_prcnt', 'mean']
+        self.assertLess(abs(diff_prcnt), pcrnt_limit)
+
+
+    def test3_AvgRPMs_transplanted(self):
+        """Check driveability-only mean-rpm diff with Heinz stays within some percent.
+
+        ### Comparison history ###
+
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
+                                   mean         std          min          max
+                python      1880.045112  572.842493  1150.940393  4647.136063
+                heinz       1899.366431  593.126296  1185.905053  4897.154914
+                diff_prcnt     1.027705    3.540904     3.037921     5.380063
+        """
+
+        pcrnt_limit = 1.1
+
+        (g_n, h_n) = vehicles_applicator(trans_fname_glob, lambda df_g: df_g['rpm'].mean(), lambda df_h: df_h['n'].mean())
 
         df = pd.DataFrame()
         df['mean'] = [g_n.mean(), h_n.mean()]
@@ -193,7 +214,7 @@ class WltpDbTests(unittest.TestCase):
 
 
     def test2_PMRatio(self):
-        """Check mean-engine-speed diff with Heinz within some percent for all PMRs.
+        """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
 
         ### Comparison history ###
 
@@ -240,24 +261,74 @@ class WltpDbTests(unittest.TestCase):
         vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
         np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
 
-        all_gened = glob.glob(gened_fname_glob)
-        for g_fname in all_gened:
-            m = re.match(gened_fname_regex, g_fname)
-            veh_num = int(m.groups()[0])
+        (g_n, h_n) = vehicles_applicator(gened_fname_glob, lambda df_g: df_g['rpm'].mean(), lambda df_h:  df_h['n'].mean())
 
-            df_g = read_sample_file(g_fname)
-            df_h = read_heinz_file(veh_num)
+        vehdata['gened_mean_rpm'] = g_n
+        vehdata['heinz_mean_rpm'] = h_n
 
-            if df_g.shape[0] != df_h.shape[0]:
-                log.warning('Class-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.shape, df_h.shape)
-                continue
-            if abs(df_g.v_class.sum() - df_h.v_orig.sum()) > 1:
-                log.warning('Cycle-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.v_class.sum(), df_h.v_orig.sum())
-                continue
+        df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
+        dfg = df.groupby(pd.cut(vehdata.pmr, 12))
+        pmr_hist = dfg.mean()
+
+        dif = (pmr_hist['heinz_mean_rpm'] - pmr_hist['gened_mean_rpm']) / pmr_hist.min(axis=1)
+        pmr_hist['diff_prcnt']= 100 * dif
+        pmr_hist['count']= dfg.count().iloc[:, -1]
+
+        print (pmr_hist)
+
+        diff_prcnt = pmr_hist['diff_prcnt']
+        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
 
-            vehdata.loc[veh_num, 'gened_mean_rpm'] = df_g['rpm'].mean()
-            vehdata.loc[veh_num, 'heinz_mean_rpm'] = df_h['n'].mean()
+    def test3_PMRatio_trasnaplanted(self):
+        """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
+
+        ### Comparison history ###
+
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
+                                gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
+            pmr
+            (9.973, 24.823]        1566.018469     1568.360963    0.149583     32
+            (24.823, 39.496]       1694.829888     1696.482640    0.097517     34
+            (39.496, 54.17]        1806.916712     1789.409819   -0.978361    120
+            (54.17, 68.843]        2219.059646     2165.214662   -2.486820     94
+            (68.843, 83.517]       2078.194023     2043.741660   -1.685749     59
+            (83.517, 98.191]       1898.241000     1890.040533   -0.433878      4
+            (98.191, 112.864]      1794.673461     1792.693611   -0.110440     31
+            (112.864, 127.538]     2606.773081     2568.011660   -1.509394      2
+            (127.538, 142.211]     1627.952896     1597.571904   -1.901698      1
+            (142.211, 156.885]             NaN             NaN         NaN      0
+            (156.885, 171.558]             NaN             NaN         NaN      0
+            (171.558, 186.232]     1396.061758     1385.176569   -0.785834      1
+
+                                gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
+            pmr
+            (9.973, 24.823]        1557.225037     1568.360963    0.715113     32
+            (24.823, 39.496]       1686.859826     1696.482640    0.570457     34
+            (39.496, 54.17]        1771.670097     1789.409819    1.001299    120
+            (54.17, 68.843]        2133.400050     2165.214662    1.491263     94
+            (68.843, 83.517]       2020.903728     2043.741660    1.130085     59
+            (83.517, 98.191]       1886.836446     1890.040533    0.169813      4
+            (98.191, 112.864]      1788.434592     1792.693611    0.238142     31
+            (112.864, 127.538]     2580.884314     2568.011660   -0.501269      2
+            (127.538, 142.211]     1581.625191     1597.571904    1.008249      1
+            (142.211, 156.885]             NaN             NaN         NaN      0
+            (156.885, 171.558]             NaN             NaN         NaN      0
+            (171.558, 186.232]     1367.068837     1385.176569    1.324566      1
+
+        """
+
+        pcrnt_limit = 1.5
+
+        vehdata = read_vehicle_data()
+        vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
+        np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
+
+        (g_n, h_n) = vehicles_applicator(trans_fname_glob, lambda df_g: df_g['rpm'].mean(), lambda df_h:  df_h['n'].mean())
+
+        vehdata['gened_mean_rpm'] = g_n
+        vehdata['heinz_mean_rpm'] = h_n
 
         df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
         dfg = df.groupby(pd.cut(vehdata.pmr, 12))
@@ -274,7 +345,7 @@ class WltpDbTests(unittest.TestCase):
 
 
     def test2_GearDiffs(self):
-        """Check diff-gears with Heinz within some percent.
+        """Check diff-gears with Heinz stays within some percent.
 
         ### Comparison history ###
 
@@ -295,7 +366,37 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 6
 
-        (g_diff, diff_results) = _compare_gears_with_heinz()
+        (g_diff, diff_results) = _compare_gears_with_heinz(gened_fname_glob)
+
+        df = pd.DataFrame([
+            [ g_diff[0].sum(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].min(), g_diff[0].max() ],
+            [ g_diff[1].sum(), g_diff[1].mean(), g_diff[1].std(), g_diff[1].min(), g_diff[1].max() ],
+            [ g_diff[2].sum(), g_diff[2].mean(), g_diff[2].std(), g_diff[2].min(), g_diff[2].max() ]
+        ], columns=['count', 'MEAN', 'STD', 'min', 'max'], index=['gears', 'accell','senza rules'])
+
+        df['diff_prcnt'] = 100 * df['MEAN'] / 1800 # class3-duration
+
+        print(df)
+
+        np.testing.assert_array_less(abs(df['diff_prcnt']), pcrnt_limit)
+
+
+    def test3_GearDiffs_transplanted(self):
+        """Check driveability-only diff-gears with Heinz stays within some percent.
+
+        ### Comparison history ###
+
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
+                         count       MEAN        STD  min  max  diff_prcnt
+            gears         5884  15.566138  16.554295    0  123    0.864785
+            accell        2130   5.634921   8.136700    0   78    0.313051
+            senza rules      0   0.000000   0.000000    0    0    0.000000
+        """
+
+        pcrnt_limit = 0.9 # mean
+#         log.warning('VEHICLE_FAILED(%s): %s', veh_num, str(ex))
+        (g_diff, diff_results) = _compare_gears_with_heinz(trans_fname_glob)
 
         df = pd.DataFrame([
             [ g_diff[0].sum(), g_diff[0].mean(), g_diff[0].std(), g_diff[0].min(), g_diff[0].max() ],
@@ -335,28 +436,21 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
         ## Override always class-3.
         model['params'] = {'wltc_class': 'class3b'}
 
+        if (transplant_original_gears):
+            log.warning(">>> Transplanting gears from Heinz's!")
+            df_h = read_heinz_file(veh_num)
+
+            forced_cycle = df_h['g_max']
+            forced_cycle.name = 'gears_orig'
+
+            model['params']['forced_cycle'] = forced_cycle
+
         try:
             experiment = Experiment(model)
             model = experiment.run()
         except Exception as ex:
             log.warning('VEHICLE_FAILED(%s): %s', veh_num, str(ex))
         else:
-            if (transplant_original_gears):
-                log.warning(">>> Transplanting gears from Heinz's!")
-                cycle_run = model['cycle_run']
-                df_h = read_heinz_file(veh_num)
-                GEARS = np.array(df_h['g_max'])
-                cycle_run['gears_orig'] = GEARS.copy()
-
-                V = np.array(cycle_run['v_class'])
-                A = np.append(np.diff(V), 0)
-                CLUTCH = np.array(cycle_run['clutch'])
-                driveability_issues = np.empty_like(V, dtype=object)
-                driveability_issues[:] = ''
-                applyDriveabilityRules(V, A, GEARS, CLUTCH, len(veh['gear_ratios']), driveability_issues)
-
-                cycle_run['gears'] = GEARS
-
             params = model['params']
 
             f_downscale = params['f_downscale']
@@ -368,7 +462,8 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
             # heinz:         't', 'km_h', 'stg', 'gear'
 
             (root, ext) = os.path.splitext(veh_data_fname)
-            outfname = '{}-{:05}{}'.format(root, veh_num, ext)
+            transplant = 'trans-' if transplant_original_gears else ''
+            outfname = '{}{}-{:05}{}'.format(transplant, root, veh_num, ext)
             df = pd.DataFrame(model['cycle_run'])
 
             _compare_exp_results(df, outfname, compare_results)
@@ -425,17 +520,7 @@ def _compare_exp_results(tabular, outfname, run_comparison):
 
 
 
-def _compare_gears_with_heinz(experiment_num=None, transplant_original_gears=False, force_rerun_experiments=False):
-    def is_experiments_outdated(outfiles):
-        if not outfiles or force_rerun_experiments:
-            return True
-
-        resfiles_date = min([os.path.getmtime(file) for file in outfiles])
-        checkfiles = ['../../model.py', '../../experiment.py', 'wltp_db_vehicles.csv']
-        checkdates = [os.path.getmtime(heinz_fname) for heinz_fname in checkfiles]
-        modifs = [fdate > resfiles_date for fdate in checkdates]
-        return any(modifs)
-
+def _compare_gears_with_heinz(gened_fname_glob, experiment_num=None, transplant_original_gears=False, force_rerun_experiments=False):
 
 
     def read_and_compare_experiment(myfname, veh_num):
@@ -472,11 +557,6 @@ def _compare_gears_with_heinz(experiment_num=None, transplant_original_gears=Fal
 
     if experiment_num is None:
         paths = glob.glob(gened_fname_glob)
-
-        if is_experiments_outdated(paths):
-            _run_the_experiments(transplant_original_gears = transplant_original_gears)
-            paths = glob.glob(gened_fname_glob)
-
 
         g_diff = []
         diff_results = []
@@ -663,6 +743,16 @@ def plot_diffs_with_heinz(diff_results, g_diff, transplant_original_gears=False)
     plt.show()
 
 
+def _is_experiments_outdated(outfiles):
+    if not outfiles or force_rerun_experiments:
+        return True
+
+    resfiles_date = min([os.path.getmtime(file) for file in outfiles])
+    checkfiles = ['../../model.py', '../../experiment.py', 'wltp_db_vehicles.csv']
+    checkdates = [os.path.getmtime(heinz_fname) for heinz_fname in checkfiles]
+    modifs = [fdate > resfiles_date for fdate in checkdates]
+    return any(modifs)
+
 
 
 if __name__ == "__main__":
@@ -685,5 +775,11 @@ if __name__ == "__main__":
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-    (diff_results, g_diff) = _compare_gears_with_heinz(transplant_original_gears = compare_original_gears, force_rerun_experiments = force_rerun_experiments)
+    paths = glob.glob(gened_fname_glob)
+
+    if _is_experiments_outdated(paths):
+        _run_the_experiments(transplant_original_gears = False)
+        paths = glob.glob(gened_fname_glob)
+
+    (diff_results, g_diff) = _compare_gears_with_heinz(gened_fname_glob, transplant_original_gears = compare_original_gears, force_rerun_experiments = force_rerun_experiments)
     plot_diffs_with_heinz(diff_results, g_diff, transplant_original_gears = compare_original_gears)

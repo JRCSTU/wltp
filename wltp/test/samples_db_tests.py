@@ -67,8 +67,9 @@ class ExperimentSampleVehs(unittest.TestCase):
 
 
     #@skip
-    def test0_SampleVehicles(self, plot_results=False, encoding="ISO-8859-1"):
+    def test0_runExperiments(self, plot_results=False, encoding="ISO-8859-1"):
         _run_the_experiments(plot_results=False, compare_results=self.run_comparison, encoding="ISO-8859-1")
+
 
     #@skip
     def test1_AvgRPMs(self):
@@ -195,24 +196,17 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
         ngears = int(row['no_of_gears'])
         veh['gear_ratios'] = list(row[6:6+ngears]) #'ndv_1'
 
-        experiment = Experiment(model)
-        model = experiment.run()
-
         if (transplant_original_gears):
             log.warning(">>> Transplanting gears from Heinz's!")
-            cycle_run = model['cycle_run']
             df_h = read_heinz_file(veh_num)
-            GEARS = np.array(df_h['g_max'])
-            cycle_run['gears_orig'] = GEARS.copy()
 
-            V = np.array(cycle_run['v_class'])
-            A = np.append(np.diff(V), 0)
-            CLUTCH = np.array(cycle_run['clutch'])
-            driveability_issues = np.empty_like(V, dtype=object)
-            driveability_issues[:] = ''
-            applyDriveabilityRules(V, A, GEARS, CLUTCH, len(veh['gear_ratios']), driveability_issues)
+            forced_cycle = df_h['g_max']
+            forced_cycle.columns = ['gears_orig']
 
-            cycle_run['gears'] = GEARS
+            model['forced_cycle'] = forced_cycle
+
+        experiment = Experiment(model)
+        model = experiment.run()
 
         params = model['params']
 

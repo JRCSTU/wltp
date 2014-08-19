@@ -143,8 +143,7 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     >>> import pandas as pd
     >>> df = pd.DataFrame(mdl['cycle_run'])
     >>> df.columns
-    Index(['clutch', 'driveability', 'gears', 'gears_orig', 'p_available', 'p_required',
-    'rpm', 'rpm_norm', 'v_class', 'v_real', 'v_target'], dtype='object')
+    Index(['v_class', 'v_target', 'clutch', 'gears_orig', 'gears', 'v_real', 'p_available', 'p_required', 'rpm', 'rpm_norm', 'driveability'], dtype='object')
     >>> df.index.name = 't'
     >>> print('Mean engine_speed: ', df.rpm.mean())
     Mean engine_speed:  1917.0407829

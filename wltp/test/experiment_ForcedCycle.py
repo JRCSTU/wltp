@@ -25,9 +25,8 @@ class TestForcedCycle(unittest.TestCase):
     def test_badCycle(self):
         model = goodVehicle()
 
-        V = pd.DataFrame({'foo': [1,2,3], 'b': [4,5,6]})
         model['params'] = params = {}
-        params['forced_cycle'] = V
+        params['forced_cycle'] = [[1,2],[3,4]]
 
         self.assertRaises(ValidationError, Experiment, model)
 
