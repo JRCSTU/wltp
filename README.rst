@@ -299,12 +299,14 @@ You can check whether your merge-request passed the tests by checking the status
 
 
 
-Metrics
--------
-In order to maintain the algorithm stable, a series of test-case metrics
-have been setup to check the sanity of the results and to compare them
-with the Heinz-db tool.  Code for generating diagrams from those
-metrics can be found in the ``docs/pyplot/`` folder.
+Tests & Metrics
+---------------
+In order to maintain the algorithm stable, a lot of effort has been put
+to setup a series of test-case and metrics to check the sanity of the results
+and to compare them with the Heinz-db tool or other datasets.
+These tests can be found in the ``wltp/test`` folders.
+Code for generating diagrams for the metrics below are located
+in the ``docs/pyplot/`` folder.
 
 .. plot:: pyplots/avg_p__pmr.py
    :include-source:

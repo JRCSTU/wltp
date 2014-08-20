@@ -90,6 +90,8 @@ setup(
     setup_requires = [
         'sphinx',
         'sphinx_rtd_theme',
+        'pandas',
+        'matplotlib',
     ],
     tests_require = [
         'nose',
