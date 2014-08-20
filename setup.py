@@ -69,7 +69,8 @@ setup(
         "simulation", "simulator", "driving", "engine", "wltc", "UNECE", "standard",
     ],
     classifiers = [
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: 3.4",
         "Development Status :: 3 - Alpha",
         'Natural Language :: English',
         "Intended Audience :: Developers",
@@ -83,15 +84,15 @@ setup(
     scripts = ['wltp.py'],
     install_requires = [
         'jsonschema>=2.4',
-        'numpy',
-        'pandas', #'openpyxl', 'xlrd',
-        'matplotlib',
+#         'numpy',
+#         'pandas', #'openpyxl', 'xlrd',
+#         'matplotlib',
     ],
     setup_requires = [
         'sphinx',
         'sphinx_rtd_theme',
-        'pandas',
-        'matplotlib',
+#         'pandas',
+#         'matplotlib',
     ],
     tests_require = [
         'nose',
