@@ -84,15 +84,15 @@ setup(
     scripts = ['wltp.py'],
     install_requires = [
         'jsonschema>=2.4',
-#         'numpy',
-#         'pandas', #'openpyxl', 'xlrd',
-#         'matplotlib',
+        'numpy',
+        'pandas', #'openpyxl', 'xlrd',
+        'matplotlib',
     ],
     setup_requires = [
         'sphinx',
         'sphinx_rtd_theme',
-#         'pandas',
-#         'matplotlib',
+        'pandas',
+        'matplotlib',
     ],
     tests_require = [
         'nose',
