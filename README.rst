@@ -7,7 +7,7 @@ wltp: A *wltc* gear-shifts calculator
 :PyPI:          https://pypi.python.org/pypi/wltp
 :Copyright:     2013-2014 European Commission (`JRC-IET <http://iet.jrc.ec.europa.eu/>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
-:Status:        |build-status| |docs-status|
+:Status:        |build-status| |docs-status| |pypi-status|
 
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to :term:`UNECE` draft of the :term:`WLTP`.
@@ -415,3 +415,7 @@ Glossary
     :alt: Documentation status
     :scale: 100%
     :target: https://readthedocs.org/builds/wltp/
+
+.. |pypi-status| image::  https://pypip.in/v/wltp/badge.png
+    :target: https://pypi.python.org/pypi/wltp/
+    :alt: Latest Version in PyPI
