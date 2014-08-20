@@ -1,6 +1,6 @@
-#####################################
-wltp: A *wltc* gear-shifts calculator
-#####################################
+###############################################
+wltp-|version|: A *wltc* gear-shifts calculator
+###############################################
 :Home:          https://github.com/ankostis/wltp
 :Documentation: https://wltp.readthedocs.org/
 :TravisCI:      https://travis-ci.org/ankostis/wltp

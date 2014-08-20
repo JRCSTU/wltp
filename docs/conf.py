@@ -49,10 +49,10 @@ if on_rtd:
 
     MOCK_MODULES = [
         'jsonschema',
-        #'numpy', 'numpy.testing',
-        #'pandas', 'pandas.core', 'pandas.core.generic', 'pandas.core.common',
-        #'scipy',
-        #'matplotlib'
+        'numpy', 'numpy.testing',
+        'pandas', 'pandas.core', 'pandas.core.generic', 'pandas.core.common',
+        'scipy',
+        'matplotlib'
     ]
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
@@ -91,7 +91,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.extlinks',
     'sphinx.ext.todo',
-    'matplotlib.sphinxext.plot_directive',
+    #'matplotlib.sphinxext.plot_directive',
 ]
 
 ## Work even without it of README.
@@ -178,7 +178,9 @@ if not on_rtd:
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    'sticky_navigation':True,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
