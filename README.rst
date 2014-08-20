@@ -3,11 +3,11 @@ wltp: A *wltc* gear-shifts calculator
 #####################################
 :Home:          https://github.com/ankostis/wltp
 :Documentation: https://wltp.readthedocs.org/
-:PyPI:          https://pypi.python.org/pypi/wltp
 :TravisCI:      https://travis-ci.org/ankostis/wltp
+:PyPI:          https://pypi.python.org/pypi/wltp
 :Copyright:     2013-2014 European Commission (`JRC-IET <http://iet.jrc.ec.europa.eu/>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
-
+:Status:        |build-status| |docs-status|
 
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to :term:`UNECE` draft of the :term:`WLTP`.
@@ -299,6 +299,18 @@ You can check whether your merge-request passed the tests by checking the status
 
 
 
+Metrics
+-------
+In order to maintain the algorithm stable, a series of test-case metrics
+have been setup to check the sanity of the results and to compare them
+with the Heinz-db tool.  Code for generating diagrams from those
+metrics can be found in the ``docs/pyplot/`` folder.
+
+.. plot:: pyplots/avg_p__pmr.py
+   :include-source:
+
+
+
 
 Specs & Algorithm
 -----------------
@@ -337,6 +349,7 @@ Cycles
     :align: center
 
 .. Seealso:: :doc:`CHANGES`
+
 
 
 Development team
@@ -392,3 +405,13 @@ Glossary
 
 
 .. |CO2| replace:: CO\ :sub:`2`
+
+.. |build-status| image:: https://travis-ci.org/ankostis/wltp.svg?branch=master
+    :alt: Integration-build status
+    :scale: 100%
+    :target: https://travis-ci.org/ankostis/wltp/builds
+
+.. |docs-status| image:: https://readthedocs.org/projects/wltp/badge/
+    :alt: Documentation status
+    :scale: 100%
+    :target: https://readthedocs.org/builds/wltp/

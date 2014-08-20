@@ -47,9 +47,20 @@ if on_rtd:
         def __getattr__(cls, name):
                 return Mock()
 
-    MOCK_MODULES = ['jsonschema', 'numpy', 'numpy.testing', 'pandas', 'pandas.core', 'pandas.core.generic', 'scipy', 'matplotlib']
+    MOCK_MODULES = [
+        'jsonschema',
+        #'numpy', 'numpy.testing',
+        #'pandas', 'pandas.core', 'pandas.core.generic', 'pandas.core.common',
+        #'scipy',
+        #'matplotlib'
+    ]
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
+## Trick from https://github.com/rjw57/dtcwt/blob/0.9.0/docs/conf.py
+# On read the docs we need to use a different CDN URL for MathJax which loads
+# over HTTPS.
+if on_rtd:
+    mathjax_path = 'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
 ## Autodoc always includes constructors.
 #    From http://stackoverflow.com/a/5599712/548792
@@ -80,6 +91,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.extlinks',
     'sphinx.ext.todo',
+    'matplotlib.sphinxext.plot_directive',
 ]
 
 ## Work even without it of README.
@@ -247,12 +259,16 @@ htmlhelp_basename = 'wltpdoc'
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').
 #'papersize': 'letterpaper',
+'papersize': 'a4paper',
 
 # The font size ('10pt', '11pt' or '12pt').
 #'pointsize': '10pt',
 
 # Additional stuff for the LaTeX preamble.
 #'preamble': '',
+'preamble': u'''
+    \\usepackage{amsmath}
+''',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

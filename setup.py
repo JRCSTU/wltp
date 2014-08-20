@@ -84,7 +84,8 @@ setup(
     install_requires = [
         'jsonschema>=2.4',
         'numpy',
-        'pandas', 'openpyxl', 'xlrd',
+        'pandas', #'openpyxl', 'xlrd',
+        'matplotlib',
     ],
     setup_requires = [
         'sphinx',
@@ -92,7 +93,6 @@ setup(
     ],
     tests_require = [
         'nose',
-        'matplotlib',
     ],
     include_package_data = True,
     zip_safe=True,
