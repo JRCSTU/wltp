@@ -1,5 +1,5 @@
 ###############################################
-wltp-|version|: A *wltc* gear-shifts calculator
+wltp: A *wltc* gear-shifts calculator
 ###############################################
 :Home:          https://github.com/ankostis/wltp
 :Documentation: https://wltp.readthedocs.org/
@@ -7,7 +7,7 @@ wltp-|version|: A *wltc* gear-shifts calculator
 :PyPI:          https://pypi.python.org/pypi/wltp
 :Copyright:     2013-2014 European Commission (`JRC-IET <http://iet.jrc.ec.europa.eu/>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
-:Status:        |build-status| |cover-status| |docs-status| |pypi-status| |dev-status| |downloads_count|
+:Status:        sources-version: |version| |build-status| |cover-status| |docs-status| |pypi-status| |dev-status| |downloads_count|
 
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to :term:`UNECE` draft of the :term:`WLTP`.

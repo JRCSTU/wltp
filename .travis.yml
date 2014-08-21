@@ -3,7 +3,9 @@ python:
   - "3.4"
 before_install:
     - "sudo apt-get install python3-setuptools"
+    - "pip install coveralls"
 install: "pip install ."
+
 # command to run tests
 script:
     - "python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80"
