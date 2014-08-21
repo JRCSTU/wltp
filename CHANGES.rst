@@ -31,9 +31,10 @@ Changelog
 v0.0.9-beta, XX-Aug-2014
 ---------------------------------------
 * Discriminate between :term:`Unladen mass` and :term:`Test mass`.
-* Possible to force a different cycle than WLTC, possibly with Altitude-profile.
+* Possible to overide WLTP-Class, Target-V & Slope, Gears and other "results".
 * Include sample-vehicles along with the distribution.
-* Possible to overide cycle, along with Slope, using model(/params/forced_cycle).
+* build: Use TravisCI as integration server, Coveralls.io as test-coverage service-providers.
+* build: Not more possible to distribute it as .EXE; need proper python envronment.
 
 v0.0.8-alpha, 04-Aug-2014
 ---------------------------------------

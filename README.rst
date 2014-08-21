@@ -1,6 +1,6 @@
-###############################################
+#####################################
 wltp: A *wltc* gear-shifts calculator
-###############################################
+#####################################
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads_count|
 
 :Version:       |version|
@@ -25,7 +25,7 @@ driving-cycles, according to the specifications of the :term:`UNECE` draft.
 
 
 
-.. @begin-intro
+.. _begin-intro:
 
 Introduction
 ============
@@ -247,7 +247,7 @@ IPython usage
 
 
 
-.. @begin-contribute
+.. _begin-contribute:
 
 Getting Involved
 ================
@@ -366,7 +366,7 @@ Development team
 
 
 
-.. @begin-glossary
+.. _begin-glossary:
 
 Glossary
 ========
