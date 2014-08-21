@@ -7,7 +7,7 @@ wltp-|version|: A *wltc* gear-shifts calculator
 :PyPI:          https://pypi.python.org/pypi/wltp
 :Copyright:     2013-2014 European Commission (`JRC-IET <http://iet.jrc.ec.europa.eu/>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
-:Status:        |build-status| |docs-status| |python-ver| |pypi-status| |dev-status| |downloads_count|
+:Status:        |build-status| |cover-status| |docs-status| |pypi-status| |dev-status| |downloads_count|
 
 A calculator of the gear-shifts profile for light-duty-vehicles (cars)
 according to :term:`UNECE` draft of the :term:`WLTP`.
@@ -412,6 +412,9 @@ Glossary
     :alt: Integration-build status
     :scale: 100%
     :target: https://travis-ci.org/ankostis/wltp/builds
+
+.. |cover-status| image:: https://coveralls.io/repos/ankostis/wltp/badge.png?branch=master
+        :target: https://coveralls.io/r/ankostis/wltp?branch=master
 
 .. |docs-status| image:: https://readthedocs.org/projects/wltp/badge/
     :alt: Documentation status

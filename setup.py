@@ -93,9 +93,11 @@ setup(
         'sphinx_rtd_theme',
         'pandas',
         'matplotlib',
+        'coveralls',
     ],
     tests_require = [
         'nose',
+        'coverage',
     ],
     include_package_data = True,
     zip_safe=True,

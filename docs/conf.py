@@ -52,7 +52,7 @@ if on_rtd:
         'numpy', 'numpy.testing',
         'pandas', 'pandas.core', 'pandas.core.generic', 'pandas.core.common',
         'scipy',
-        'matplotlib'
+        'matplotlib', 'matplotlib.sphinxext.plot_directive',
     ]
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
@@ -91,7 +91,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.extlinks',
     'sphinx.ext.todo',
-    #'matplotlib.sphinxext.plot_directive',
+    'matplotlib.sphinxext.plot_directive',
 ]
 
 ## Work even without it of README.

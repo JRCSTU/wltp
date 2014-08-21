@@ -6,9 +6,11 @@ before_install:
 install: "pip install ."
 # command to run tests
 script:
-    - "python setup.py test"
+    - "python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80"
     - "python setup.py build_sphinx"
     - "python setup.py build_sphinx -b doctest"
+after_success:
+    coveralls
 
 branches:
   only:
