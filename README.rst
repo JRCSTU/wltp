@@ -1,7 +1,7 @@
 #####################################
 wltp: A *wltc* gear-shifts calculator
 #####################################
-|dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads_count|
+|dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
 :Version:       |version|
 :Home:          https://github.com/ankostis/wltp
@@ -51,12 +51,12 @@ Install
 -------
 Requires Python 3.3+.
 
-.. Tip:: `WinPython <http://winpython.sourceforge.net/>`_ and
+.. Tip:: Try the `WinPython <http://winpython.sourceforge.net/>`_ and
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ python distributions
     for *Windows* and *OS X*, respectively.
 
 You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
-with the usual command (note the ``--pre`` option, since it is still in *Alpha* version):
+with the usual command (note the :option:`--pre`, since the package is still in *alpha* version):
 
 .. code-block:: console
 
@@ -103,7 +103,7 @@ That way you get the complete source-tree of the project, ready for development
 
 Python usage
 ------------
-Here is a quick-start python :abbr:`REPL (Read–Eval–Print Loop)` examples to create and validate a *model*
+Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)` examples to create and validate a *model*
 with the input-data for runing a single experiment:
 
 .. doctest::
@@ -135,7 +135,7 @@ If model validated without any errors, you can then run the experiment:
     >>> mdl = processor.run()               ## Runs experiment and augments model with results.
     >>> model.json_dumps(mdl)               ## Would print the complete augmented model (long!).            # doctest: +SKIP
     ...
-    >>> print(model.json_dumps(mdl['params'], indent=2))     ## The ``params`` augmented with the WLTC-class & downscaling.  # doctest: +SKIP
+    >>> print(model.json_dumps(mdl['params'], indent=2))     ## The `params` augmented with the WLTC-class & downscaling.  # doctest: +SKIP
     {
       "wltc_class": "class3b",
       "f_downscale": 0,
@@ -233,7 +233,7 @@ For information on the model-data, check the schema:
 
 
 For more examples, download the sources and check the test-cases
-found at ``/wltp/test``.
+found under the :file:`/wltp/test/` folder.
 
 
 
@@ -247,7 +247,7 @@ The comand-line usage below still requires the Python environment to be installe
 executing an experiment directly from the OS's shell (i.e. :program:`cmd` in windows or :program:`bash` in POSIX),
 and in a *single* command.
 
-The entry-point script is called ``wltp.py``, and it must have been placed in your ``PATH``
+The entry-point script is called :program:`wltp.py`, and it must have been placed in your :envvar:`PATH`
 during installation.  This script can construct a *model* by reading input-data
 from multiple files and/or overriding specific single-value items. Conversely,
 it can output multiple parts of the resulting-model into files.
@@ -285,7 +285,10 @@ IPython usage
 
 Getting Involved
 ================
-To provide feedback, use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
+This project is hosted in **github**.
+
+To provide feedback about bugs and errors or questions and requests for enhancements,
+use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
 
 .. Tip::
     The console-commands listed in the following sections are for a *POSIX* environments
@@ -322,17 +325,19 @@ in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenv
     $ virtualenv --system-site-packages ../wltp.venv    ## If both python-2 & 3 installed, use:  -p <PATH_TO_PYTHON_3>
     $ .  ../wltp.venv/bin/activate                      ## To deactivate virtual-environment type: deactivate
 
-.. Tip:: Within the sources it is included a ``.project`` file for the comprehensive
+.. Tip:: Within the sources it is included a :file:`.project` file for the comprehensive
     `LiClipse <https://brainwy.github.io/liclipse/>`_ IDE.
 
     If you also choose to use the same IDE, you have to add
     under :menuselection:`Windows --> Preferences --> PyDev --> Interpreters --> Python Interpreter`
     a new python-intepreter named ``wltp.venv`` since this is the name already specified in the :file:`.project` file.
-    You can change this choice in :guilabel:`Right-click on Project` + :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`
-    but you should not commit this change.
+    
+    You can change this choice by :guilabel:`Right-clicking` on the Project and navigating
+    to :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`,
+    but you have to remember not commit this change.
 
 
-Then you can install all project's dependencies using the ``setup.py`` script:
+Then you can install all project's dependencies using the :file:`setup.py` script:
 
 .. code-block:: console
 
@@ -372,13 +377,13 @@ The typical development procedure is like this:
         $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
 
 
-    .. Note:: You can enter just: ``python setup.py nosetests`` and the above cmd-line will run automatically,
-        due to the contents of the ``setup.cfg`` file.
+    .. Note:: You can enter just: :samp:`python setup.py nosetests` and the above cmd-line will run automatically,
+        due to the contents of the :file:`setup.cfg` file.
 
 
 4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
    other documents (i.e. README.rst).  To see the rendered results of the documents,
-   issue the following commands and read the result html-file at ``build/sphinx/html/index.html``:
+   issue the following commands and read the result html at :file:`build/sphinx/html/index.html`:
 
     .. code-block:: console
 
@@ -405,9 +410,9 @@ Tests & Metrics
 In order to maintain the algorithm stable, a lot of effort has been put
 to setup a series of test-case and metrics to check the sanity of the results
 and to compare them with the Heinz-db tool or other datasets.
-These tests can be found in the ``wltp/test`` folders.
+These tests can be found in the :file:`wltp/test/` folders.
 Code for generating diagrams for the metrics below are located
-in the ``docs/pyplot/`` folder.
+in the :file:`docs/pyplot/` folder.
 
 .. plot:: pyplots/avg_p__pmr.py
    :include-source:
@@ -419,7 +424,7 @@ Specs & Algorithm
 -----------------
 This program was implemented from scratch based on
 this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
-(included in the ``docs/`` dir).  The latest version of this :term:`GTR`, along
+(included in the :file:`docs/` folder).  The latest version of this :term:`GTR`, along
 with other related documents can be found at UNECE's site:
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
@@ -427,16 +432,16 @@ with other related documents can be found at UNECE's site:
 * Probably a more comprehensible but older spec is this one:
   https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
 
-The WLTC-profiles for the various classes in the ``./util/data/cycles`` folder were generated from the tables
-of the specs above using the ``./util/csvcolumns8to2`` script, but it still requires
+The WLTC-profiles for the various classes in the :file:`util/data/cycles/` folder were generated from the tables
+of the specs above using the :file:`util/csvcolumns8to2.py` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
-Then use the :mod:`./util/buildwltcclass.py` to contruct the respective python-vars into the
+Then use the :file:`util/buildwltcclass.py` to contruct the respective python-vars into the
 :mod:`wltp/model.py` sources.
 
 
 Data-files generated from Steven Heinz's ms-access ``vehicle info`` db-table can be processed
-with the  ``/util/preprocheinz.py`` script.
+with the  :file:`/util/preprocheinz.py` script.
 
 
 Cycles
@@ -489,10 +494,7 @@ Glossary
 
     WLTC
         The family of the 3 pre-defined *driving-cycles* to use for each vehicle depending on its
-        :term:`PMR`. Classes 1,2 & 3 are split in 2, 4 and 4 *parts* respectively.
-
-    PMR
-        The ``rated_power / unladen_mass`` of the vehicle
+        :abbr:`PMR (Power to Mass Ratio)`. Classes 1,2 & 3 are split in 2, 4 and 4 *parts* respectively.
 
     Unladen mass
         *UM* or *Curb weight*, the weight of the vehicle in running order minus
@@ -536,6 +538,10 @@ Glossary
     :target: https://pypi.python.org/pypi/wltp/
     :alt: Development Status
 
-.. |downloads_count| image:: https://pypip.in/download/wltp/badge.svg?period=week
+.. |downloads-count| image:: https://pypip.in/download/wltp/badge.svg?period=week
     :target: https://pypi.python.org/pypi/wltp/
     :alt: Downloads
+
+.. |github-issues| image:: http://img.shields.io/github/issues/ankostis/wltp.svg
+    :target: https://github.com/ankostis/wltp/issues
+    :alt: Issues count
