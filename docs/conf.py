@@ -32,7 +32,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../'))
-#sys.path.insert(0, os.path.abspath('../util')) # Does not workfor scripts :-(
+#sys.path.insert(0, os.path.abspath('../devtools')) # Does not work for scripts :-(
 
 
 ## Mock C-libraries (numpy/pandas, etc) so that `autodoc` sphinx-extension

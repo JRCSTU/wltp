@@ -56,7 +56,8 @@ Requires Python 3.3+.
     for *Windows* and *OS X*, respectively.
 
 You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
-with the usual command (note the :option:`--pre`, since the package is still in *alpha* version):
+with the :cmd:`pip` command for python-3
+(note the :option:`--pre`, since the package is still in *alpha* version):
 
 .. code-block:: console
 
@@ -80,7 +81,7 @@ Or you can build it from the latest sources
 
     $ git clone "https://github.com/ankostis/wltp.git" wltp
     $ cd wltp
-    $ python3 setup.py install .
+    $ python3 setup.py develop
 
 
 That way you get the complete source-tree of the project, ready for development
@@ -92,7 +93,7 @@ That way you get the complete source-tree of the project, ready for development
     |   +--model        ## (module) Describes the data for the calculation
     |   +--experiment   ## (module) The calculator
     +--docs/            ## Documentation folder
-    +--util/            ## Scripts for preprocessing WLTC data and the wltp_db
+    +--devtools/        ## Scripts for preprocessing WLTC data and the wltp_db
     +--wltp.py          ## (script) The cmd-line entry-point script for the calculator
     +--README.rst
     +--CHANGES.rst
@@ -331,7 +332,7 @@ in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenv
     If you also choose to use the same IDE, you have to add
     under :menuselection:`Windows --> Preferences --> PyDev --> Interpreters --> Python Interpreter`
     a new python-intepreter named ``wltp.venv`` since this is the name already specified in the :file:`.project` file.
-    
+
     You can change this choice by :guilabel:`Right-clicking` on the Project and navigating
     to :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`,
     but you have to remember not commit this change.
@@ -348,9 +349,12 @@ Then you can install all project's dependencies using the :file:`setup.py` scrip
       setup.py install    will install the package
 
     Global options:
+      --verbose (-v)      run verbosely (default)
+      --quiet (-q)        run quietly (turns verbosity off)
+      --dry-run (-n)      don't actually do anything
     ...
 
-    $ python setup.py build                             ## Also installs dependencies into project's folder.
+    $ python setup.py build                             ## Installs also dependencies into project's folder.
     $ python setup.py develop                           ## Updates path of the virtual-env with scripts.
 
 
@@ -424,7 +428,7 @@ Specs & Algorithm
 -----------------
 This program was implemented from scratch based on
 this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
-(included in the :file:`docs/` folder).  The latest version of this :term:`GTR`, along
+(included in the :file:`docs/` folder).  The latest version of this :abbr:`GTR (Global Technical Regulation)`, along
 with other related documents can be found at UNECE's site:
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
@@ -432,16 +436,16 @@ with other related documents can be found at UNECE's site:
 * Probably a more comprehensible but older spec is this one:
   https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
 
-The WLTC-profiles for the various classes in the :file:`util/data/cycles/` folder were generated from the tables
-of the specs above using the :file:`util/csvcolumns8to2.py` script, but it still requires
+The WLTC-profiles for the various classes in the :file:`devtools/data/cycles/` folder were generated from the tables
+of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
-Then use the :file:`util/buildwltcclass.py` to contruct the respective python-vars into the
+Then use the :file:`devtools/buildwltcclass.py` to contruct the respective python-vars into the
 :mod:`wltp/model.py` sources.
 
 
 Data-files generated from Steven Heinz's ms-access ``vehicle info`` db-table can be processed
-with the  :file:`/util/preprocheinz.py` script.
+with the  :file:`devtools/preprocheinz.py` script.
 
 
 Cycles
@@ -487,10 +491,7 @@ Glossary
         on the :term:`WLTP`.
 
     GRPE
-        UNECE Working party on Pollution and Energy – Transport Programme
-
-    GTR
-        Global Technical Regulation
+        UNECE Working party on Pollution and Energy - Transport Programme
 
     WLTC
         The family of the 3 pre-defined *driving-cycles* to use for each vehicle depending on its

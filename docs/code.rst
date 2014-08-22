@@ -19,9 +19,9 @@ with existing tool are the following:
 
 The following scripts in the sources maybe used to preprocess various wltc data:
 
-* :mod:`util/preprocheinz.py`
-* :mod:`util/printwltcclass.py`
-* :mod:`util/csvcolumns8to2.py`
+* :file:`devtools/preprocheinz.py`
+* :file:`devtools/printwltcclass.py`
+* :file:`devtools/csvcolumns8to2.py`
 
 
 

@@ -6,12 +6,11 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 '''WLTC class data for the highest-power class of vehicles.
 
-Data below extracted from the specs and prepared with the followinf python scripts
+Data below extracted from the GTR specs and prepared with the following python scripts
 found inside the source-distribution:
 
-* ``./util/printwltcclass.py``
-
-* ``./util/csvcolumns8to2.py``
+* :file:`devtools/printwltcclass.py`
+* :file:`devtools/csvcolumns8to2.py`
 '''
 def class_data_a():
     data = {
