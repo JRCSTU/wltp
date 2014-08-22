@@ -3,7 +3,7 @@ Indices
 #######
 
 .. include:: ../README.rst
-    :start-after: _begin-glossary
+    :start-after: _begin_glossary
 
 :ref:`Index <genindex>`
 =======================

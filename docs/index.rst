@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 .. include:: ../README.rst
-    :end-before: _begin-intro
+    :end-before: _begin_intro
 
 .. toctree::
     :numbered:
@@ -16,4 +16,4 @@
     indices
 
 .. include:: ../README.rst
-    :start-after: _begin-glossary
+    :start-after: _begin_glossary

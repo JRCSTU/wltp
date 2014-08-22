@@ -84,6 +84,7 @@ setup(
     scripts = ['wltp.py'],
     install_requires = [
         'jsonschema>=2.4',
+        'jsonpointer',
         'numpy',
         'pandas', #'openpyxl', 'xlrd',
         'matplotlib',

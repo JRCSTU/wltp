@@ -92,6 +92,9 @@ def vehicles_applicator(gened_fname_glob, gened_df_apply, heinz_df_apply):
 class WltpDbTests(unittest.TestCase):
     '''Compares a batch of vehicles with results obtained from "official" implementation.'''
 
+#      @classmethod
+#     def setUpClass(cls):
+
     def setUp(self):
         self.run_comparison = False # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
         os.chdir(os.path.join(mydir, samples_dir))

@@ -25,7 +25,7 @@ driving-cycles, according to the specifications of the :term:`UNECE` draft.
 
 
 
-.. _begin-intro:
+.. _begin_intro:
 
 Introduction
 ============
@@ -56,18 +56,35 @@ Requires Python 3.3+.
     for *Windows* and *OS X*, respectively.
 
 You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
-with the usual command (note the ``--pre`` option, since it is still in *Alpha* version)::
+with the usual command (note the ``--pre`` option, since it is still in *Alpha* version):
+
+.. code-block:: console
 
     $ pip3 install wltp --pre
+    $ wltp.py --help
+    usage: wltp.py -I ARG [ARG ...] [-c COLUMN_SPEC [COLUMN_SPEC ...]]
+              [-r [COLUMN_SPEC [COLUMN_SPEC ...]]]
+              [-m MODEL_PATH=VALUE [MODEL_PATH=VALUE ...]]
+              [--strict [TRUE | FALSE]] [-M [MODEL_PATH [MODEL_PATH ...]]]
+              [-O ARG [ARG ...]] [-d] [-v] [--version] [--help]
+
+    Calculates the *gear-shifts* of Light-duty vehicles running the :term:`WLTP`
+    driving-cycles, according to the specifications of the :term:`UNECE` draft.
+    ...
+
 
 Or you can build it from the latest sources
-(assuming you have a working installation of `git <http://git-scm.com/>`_)::
+(assuming you have a working installation of `git <http://git-scm.com/>`_):
 
-    $ git clone https://github.com/ankostis/wltp.git wltp
+.. code-block:: console
+
+    $ git clone "https://github.com/ankostis/wltp.git" wltp
     $ cd wltp
     $ python3 setup.py install .
 
-That way you get the complete source-tree of the project::
+
+That way you get the complete source-tree of the project, ready for development
+(see :doc:`contribute`)::
 
     +--wltp/            ## (package) The python-code of the calculator
     |   +--cycles/      ## (package) The python-code for the WLTC data
@@ -222,14 +239,18 @@ during installation.  This script can construct a *model* by reading input-data
 from multiple files and/or overriding specific single-value items. Conversely,
 it can output multiple parts of the resulting-model into files.
 
-To get help for this script, use the following commands::
+To get help for this script, use the following commands:
+
+.. code-block:: console
 
     $ wltp.py --help          ## to get generic help for cmd-line syntax
     $ wltp.py -M /vehicle     ## to get help for specific model-paths
 
 
 and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
-for which you want to override the ``n_idle`` only, run the following::
+for which you want to override the ``n_idle`` only, run the following:
+
+.. code-block:: console
 
     $ wltp.py -v \
         -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
@@ -247,57 +268,114 @@ IPython usage
 
 
 
-.. _begin-contribute:
+.. _begin_contribute:
 
 Getting Involved
 ================
 To provide feedback, use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
 
-
-Development
------------
 .. Tip::
-    The commands below are given for a *POSIX* environment (*Linux* & *OS X*).
-    They are simple enough and easy to translate into their *Windows* counterparts,
+    The console-commands listed in the following sections are for a *POSIX* environments
+    (*Linux* & *OS X*). They are simple enough and easy to translate into their *Windows* counterparts,
     but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get
-    the same environment on *Windows*.
+    the same environment on *Windows* machines.
 
-To get involved with development, first you need to download the latest sources::
+    In the cygwin's installation wizard, make sure that the following packages are also included::
 
-    $ git clone https://github.com/ankostis/wltp.git wltp
-    $ cd wltp
-
-It is preferable that you work from within a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_.  Assuming that you have installed ``virtualenv`` you can then type the following::
-
-    $ virtualenv -p <PATH_TO_PYTHON_3> ../wltp.venv
-    $ .  ../wltp.venv/bin/activate
-    $ python setup.py develop .
+        * git
+        * make
+        * openssh
+        * curl
+        * wget
 
 
-Check that the sources are in good shape by running the test-cases and check for errors::
 
-   $ python setup.py test
+Sources & Dependent libraries
+-----------------------------
+To get involved with development, first you need to download the latest sources:
 
+.. code-block:: console
 
-You can now modify the sources and rerun the tests to ensure that you didn't break anything.
-If there are no problems, commit them with a usefull message.
-Split the functionality you want to implement in small well-defined commits,
-and provide test-cases.
-If you made a rather important modification, update also the :doc:`CHANGES` file and/or
-other documents.  To see the rendered results of the documents, issue the following command
-and check the result html file at ``build/sphinx/html/index.html``::
-
-    $ python setup.py build_sphinx
+    $ git clone https://github.com/ankostis/wltp.git wltp.git
+    $ cd wltp.git
 
 
-When you are finished, push the changes upstream to github and make a *merge_request*.
-You can check whether your merge-request passed the tests by checking the status of the
-`TravisCI <https://travis-ci.org/ankostis/wltp>`_  integration-server.
+Then you can install all project's dependencies using the ``setup.py`` script:
 
-.. Tip:: Skim through the small and excellent IPython developers document:
-    `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
+.. code-block:: console
+
+    $ python3 setup.py --help                           ## Get help for this script.
+    Common commands: (see '--help-commands' for more)
+
+      setup.py build      will build the package underneath 'build/'
+      setup.py install    will install the package
+
+    Global options:
+    ...
+
+    $ python3 setup.py develop                          ## Install dependencies into project's folder.
 
 
+The dependencies installed with the last command, above, will only be available when running
+build-commands through the ``setup.py`` script or the ``pip`` command.  If you need to install
+the project's dependencies for all python sessions and IDEs such as `LiClipse <https://brainwy.github.io/liclipse/>`_,
+it is preferable that you install them
+in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_:
+
+.. code-block:: console
+
+    $ pip3 install virtualenv                           ## Ensure `virtualenv` is installed.
+    $ virtualenv --system-site-packages ../wltp.venv    ## If both python-2 & 3 installed, use:  -p <PATH_TO_PYTHON_3>
+    $ .  ../wltp.venv/bin/activate                      ## To deactivate virtual-environment type: deactivate
+    $ python setup.py install                           ## Install dependencies into the virtual-environment.
+
+
+You should now run the test-cases (see :ref:`begin_test_cases`, below) to check that the sources are in good shape:
+
+.. code-block:: console
+
+   $ python setup.py test                               ## or: python setup.py nosetests
+
+
+
+Development procedure
+---------------------
+The typical development procedure is like this:
+
+1. Modify the sources in small, isolated and well-defined changes, i.e.
+   adding a single feature, or fixing a specific bug.
+2. Add test-cases "proving" your code.
+3. Rerun all test-cases to ensure that you didn't break anything,
+   and check their *coverage* remain above 80%:
+
+.. code-block:: console
+
+    $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
+
+
+4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
+   other documents (i.e. README.rst).  To see the rendered results of the documents,
+   issue the following commands and read the result html-file at ``build/sphinx/html/index.html``:
+
+.. code-block:: console
+
+    $ python setup.py build_sphinx                  # Builds html docs
+    $ python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
+
+
+5. If there are no problems, commit your changes with a descriptive message.
+
+6. Repeat this cycle for other bugs/enhancements.
+7. When you are finished, push the changes upstream to *github* and make a *merge_request*.
+   You can check whether your merge-request indeed passed the tests by checking
+   its build-status |build-status| on the integration-server's site (TravisCI).
+
+    .. Tip:: Skim through the small IPython developer'ss documentantion on the matter:
+        `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
+
+
+
+.. _begin_test_cases:
 
 Tests & Metrics
 ---------------
@@ -366,7 +444,7 @@ Development team
 
 
 
-.. _begin-glossary:
+.. _begin_glossary:
 
 Glossary
 ========
@@ -405,6 +483,8 @@ Glossary
         Reduction of the top-velocity of the original drive trace to be followed, to ensure that the vehicle
         is not driven in an unduly high proportion of "full throttle".
 
+
+.. _begin_replacements:
 
 .. |CO2| replace:: CO\ :sub:`2`
 
