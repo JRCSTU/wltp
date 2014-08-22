@@ -185,8 +185,8 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     50%      41.500000    26.887526     2.777778  1776.000000     0.183556
     75%      68.700000    35.439868    11.536033  2300.800000     0.300178
     max     131.300000    70.393282    46.059731  4201.600000     0.722578
-    <BLANKLINE>
-    [8 rows x 10 columns]
+    ...
+
     >>> print(processor.driveability_report())                                      # doctest: +SKIP
     ...
       12: (a: X-->0)
@@ -327,7 +327,7 @@ in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenv
 
     If you also choose to use the same IDE, you have to add
     under :menuselection:`Windows --> Preferences --> PyDev --> Interpreters --> Python Interpreter`
-    a new python-intepreter named ``wltp.venv`` since this is the name already specified in the ``.project`` file.
+    a new python-intepreter named ``wltp.venv`` since this is the name already specified in the :file:`.project` file.
     You can change this choice in :guilabel:`Right-click on Project` + :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`
     but you should not commit this change.
 
