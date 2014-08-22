@@ -8,7 +8,8 @@ install: "pip install ."
 
 # command to run tests
 script:
-    - "python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80"
+    - "python build"
+    - "python setup.py nosetests"
     - "python setup.py build_sphinx"
     - "python setup.py build_sphinx -b doctest"
 after_success:

@@ -158,22 +158,35 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     :options: +ELLIPSIS, +NORMALIZE_WHITESPACE
 
     >>> import pandas as pd
-    >>> df = pd.DataFrame(mdl['cycle_run'])
+    >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
+    >>> print(df.shape)                 ## ROWS(time-steps) X COLUMNS.
+    (1801, 11)
     >>> df.columns
     Index(['v_class', 'v_target', 'clutch', 'gears_orig', 'gears', 'v_real', 'p_available', 'p_required', 'rpm', 'rpm_norm', 'driveability'], dtype='object')
-    >>> df.index.name = 't'
     >>> print('Mean engine_speed: ', df.rpm.mean())
     Mean engine_speed:  1917.0407829
-
-    >>> print(df.head())                                                            # doctest: +SKIP
-      clutch driveability  gears  gears_orig  p_available  p_required  rpm  \
-    t
-    0  False                   0           0            9           0  950
-    1  False                   0           0            9           0  950
-    2  False                   0           0            9           0  950
-    3  False                   0           0            9           0  950
-    4  False                   0           0            9           0  950
-    ...
+    >>> print(df.describe())
+               v_class     v_target     clutch   gears_orig        gears  \
+    count  1801.000000  1801.000000       1801  1801.000000  1801.000000
+    mean     46.506718    46.506718  0.0660744     3.794003     3.683509
+    std      36.119280    36.119280  0.2484811     2.278959     2.278108
+    min       0.000000     0.000000      False     0.000000     0.000000
+    25%      17.700000    17.700000      False     2.000000     2.000000
+    50%      41.500000    41.500000          0     5.000000     4.000000
+    75%      68.700000    68.700000      False     6.000000     6.000000
+    max     131.300000   131.300000       True     6.000000     6.000000
+    <BLANKLINE>
+                v_real  p_available   p_required          rpm     rpm_norm
+    count  1801.000000  1801.000000  1801.000000  1801.000000  1801.000000
+    mean     50.356222    28.846639     4.991915  1917.040783     0.214898
+    std      32.336908    15.833262    12.139823   878.139758     0.195142
+    min       0.200000     9.000000   -34.246016     6.400000    -0.209689
+    25%      28.000000    17.305519    -0.304174  1327.500000     0.083889
+    50%      41.500000    26.887526     2.777778  1776.000000     0.183556
+    75%      68.700000    35.439868    11.536033  2300.800000     0.300178
+    max     131.300000    70.393282    46.059731  4201.600000     0.722578
+    <BLANKLINE>
+    [8 rows x 10 columns]
     >>> print(processor.driveability_report())                                      # doctest: +SKIP
     ...
       12: (a: X-->0)
@@ -231,7 +244,7 @@ Cmd-line usage
 The examples presented so far required to execute multiple commands interactively inside
 the Python interpreter (REPL).
 The comand-line usage below still requires the Python environment to be installed, but provides for
-executing an experiment directly from the OS's shell (i.e. ``cmd.exe`` in windows or ``bash`` in POSIX),
+executing an experiment directly from the OS's shell (i.e. :program:`cmd` in windows or :program:`bash` in POSIX),
 and in a *single* command.
 
 The entry-point script is called ``wltp.py``, and it must have been placed in your ``PATH``
@@ -300,6 +313,25 @@ To get involved with development, first you need to download the latest sources:
     $ cd wltp.git
 
 
+It is preferable that you install the project's dependencies, isolated, and **without admin-rights**,
+in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_:
+
+.. code-block:: console
+
+    $ pip3 install virtualenv                           ## Ensure `virtualenv` is installed.
+    $ virtualenv --system-site-packages ../wltp.venv    ## If both python-2 & 3 installed, use:  -p <PATH_TO_PYTHON_3>
+    $ .  ../wltp.venv/bin/activate                      ## To deactivate virtual-environment type: deactivate
+
+.. Tip:: Within the sources it is included a ``.project`` file for the comprehensive
+    `LiClipse <https://brainwy.github.io/liclipse/>`_ IDE.
+
+    If you also choose to use the same IDE, you have to add
+    under :menuselection:`Windows --> Preferences --> PyDev --> Interpreters --> Python Interpreter`
+    a new python-intepreter named ``wltp.venv`` since this is the name already specified in the ``.project`` file.
+    You can change this choice in :guilabel:`Right-click on Project` + :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`
+    but you should not commit this change.
+
+
 Then you can install all project's dependencies using the ``setup.py`` script:
 
 .. code-block:: console
@@ -313,28 +345,15 @@ Then you can install all project's dependencies using the ``setup.py`` script:
     Global options:
     ...
 
-    $ python3 setup.py develop                          ## Install dependencies into project's folder.
-
-
-The dependencies installed with the last command, above, will only be available when running
-build-commands through the ``setup.py`` script or the ``pip`` command.  If you need to install
-the project's dependencies for all python sessions and IDEs such as `LiClipse <https://brainwy.github.io/liclipse/>`_,
-it is preferable that you install them
-in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_:
-
-.. code-block:: console
-
-    $ pip3 install virtualenv                           ## Ensure `virtualenv` is installed.
-    $ virtualenv --system-site-packages ../wltp.venv    ## If both python-2 & 3 installed, use:  -p <PATH_TO_PYTHON_3>
-    $ .  ../wltp.venv/bin/activate                      ## To deactivate virtual-environment type: deactivate
-    $ python setup.py install                           ## Install dependencies into the virtual-environment.
+    $ python setup.py build                             ## Also installs dependencies into project's folder.
+    $ python setup.py develop                           ## Updates path of the virtual-env with scripts.
 
 
 You should now run the test-cases (see :ref:`begin_test_cases`, below) to check that the sources are in good shape:
 
 .. code-block:: console
 
-   $ python setup.py test                               ## or: python setup.py nosetests
+   $ python setup.py test
 
 
 
@@ -348,19 +367,23 @@ The typical development procedure is like this:
 3. Rerun all test-cases to ensure that you didn't break anything,
    and check their *coverage* remain above 80%:
 
-.. code-block:: console
+    .. code-block:: console
 
-    $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
+        $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
+
+
+    .. Note:: You can enter just: ``python setup.py nosetests`` and the above cmd-line will run automatically,
+        due to the contents of the ``setup.cfg`` file.
 
 
 4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
    other documents (i.e. README.rst).  To see the rendered results of the documents,
    issue the following commands and read the result html-file at ``build/sphinx/html/index.html``:
 
-.. code-block:: console
+    .. code-block:: console
 
-    $ python setup.py build_sphinx                  # Builds html docs
-    $ python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
+        $ python setup.py build_sphinx                  # Builds html docs
+        $ python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
 
 
 5. If there are no problems, commit your changes with a descriptive message.
@@ -370,7 +393,7 @@ The typical development procedure is like this:
    You can check whether your merge-request indeed passed the tests by checking
    its build-status |build-status| on the integration-server's site (TravisCI).
 
-    .. Tip:: Skim through the small IPython developer'ss documentantion on the matter:
+    .. Tip:: Skim through the small IPython developer's documentantion on the matter:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
 

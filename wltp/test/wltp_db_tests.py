@@ -102,11 +102,15 @@ class WltpDbTests(unittest.TestCase):
 
     #@skip
     def test0_runExperiment(self, plot_results=False, encoding="UTF-8"):
-        _run_the_experiments(transplant_original_gears=False, compare_results=self.run_comparison, encoding=encoding)
+        paths = glob.glob(gened_fname_glob)
+        if _is_experiments_outdated(paths):
+            _run_the_experiments(transplant_original_gears=False, compare_results=self.run_comparison, encoding=encoding)
 
     #@skip
     def test0_runExperimentTransplant(self, plot_results=False, encoding="UTF-8"):
-        _run_the_experiments(transplant_original_gears=True, compare_results=self.run_comparison, encoding=encoding)
+        paths = glob.glob(trans_fname_glob)
+        if _is_experiments_outdated(paths):
+            _run_the_experiments(transplant_original_gears=True, compare_results=self.run_comparison, encoding=encoding)
 
 
 
@@ -746,13 +750,13 @@ def plot_diffs_with_heinz(diff_results, g_diff, transplant_original_gears=False)
     plt.show()
 
 
-def _is_experiments_outdated(outfiles):
+def _is_experiments_outdated(outfiles, force_rerun_experiments=False):
     if not outfiles or force_rerun_experiments:
         return True
 
     resfiles_date = min([os.path.getmtime(file) for file in outfiles])
-    checkfiles = ['../../model.py', '../../experiment.py', 'wltp_db_vehicles.csv']
-    checkdates = [os.path.getmtime(heinz_fname) for heinz_fname in checkfiles]
+    checkfiles = [__file__, '../../model.py', '../../experiment.py', 'wltp_db_vehicles.csv']
+    checkdates = [os.path.getmtime(fname) for fname in checkfiles]
     modifs = [fdate > resfiles_date for fdate in checkdates]
     return any(modifs)
 
