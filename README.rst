@@ -324,6 +324,8 @@ in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenv
     $ pip3 install virtualenv                           ## Ensure `virtualenv` is installed.
     $ virtualenv --system-site-packages ../wltp.venv    ## If both python-2 & 3 installed, use:  -p <PATH_TO_PYTHON_3>
     $ .  ../wltp.venv/bin/activate                      ## To deactivate virtual-environment type: deactivate
+    (wltp.venv) $
+
 
 .. Tip:: Within the sources it is included a :file:`.project` file for the comprehensive
     `LiClipse <https://brainwy.github.io/liclipse/>`_ IDE.
@@ -341,7 +343,7 @@ Then you can install all project's dependencies using the :file:`setup.py` scrip
 
 .. code-block:: console
 
-    $ python3 setup.py --help                           ## Get help for this script.
+    $ python setup.py --help                           ## Get help for this script.
     Common commands: (see '--help-commands' for more)
 
       setup.py build      will build the package underneath 'build/'
@@ -354,7 +356,7 @@ Then you can install all project's dependencies using the :file:`setup.py` scrip
     ...
 
     $ python setup.py build                             ## Installs also dependencies into project's folder.
-    $ python setup.py develop                           ## Updates path of the virtual-env with scripts.
+    $ python setup.py develop                           ## Links sources with virtual-env's paths.
 
 
 You should now run the test-cases (see :ref:`begin_test_cases`, below) to check that the sources are in good shape:
@@ -363,6 +365,16 @@ You should now run the test-cases (see :ref:`begin_test_cases`, below) to check 
 
    $ python setup.py test
 
+
+.. Important:: The above commands installed dependencies inside the project folder and
+    in the *virtual-environment*.
+    If you want to permantly install dependant packages in your *base* python environment,
+    you have to *deactivate* the virtual-environment before installing them:
+
+    .. code-block:: console
+
+       $ deactivate
+       $ python setup.py develop
 
 
 Development procedure
@@ -380,8 +392,8 @@ The typical development procedure is like this:
         $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
 
 
-    .. Note:: You can enter just: :samp:`python setup.py nosetests` and the above cmd-line will run automatically,
-        due to the contents of the :file:`setup.cfg` file.
+    .. Tip:: You can enter just: :samp:`python setup.py covertest` instead of the above cmd-line
+        since it has been *aliased* in the :file:`setup.cfg` file.
 
 
 4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
@@ -401,7 +413,7 @@ The typical development procedure is like this:
    You can check whether your merge-request indeed passed the tests by checking
    its build-status |build-status| on the integration-server's site (TravisCI).
 
-    .. Tip:: Skim through the small IPython developer's documentantion on the matter:
+    .. Hint:: Skim through the small IPython developer's documentantion on the matter:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
 
@@ -458,8 +470,6 @@ Cycles
     :align: center
 .. figure:: docs/wltc_class3b.png
     :align: center
-
-.. Seealso:: :doc:`CHANGES`
 
 
 

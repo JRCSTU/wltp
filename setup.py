@@ -90,6 +90,7 @@ setup(
         'matplotlib',
     ],
     setup_requires = [
+        'setuptools>=3.4.4'
         'sphinx',
         'sphinx_rtd_theme',
         'pandas',

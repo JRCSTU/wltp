@@ -10,14 +10,14 @@ before_install:
     - pip install coveralls
 
 install:
-    - python setup.py build
+    - python setup.py build_py
     - python setup.py develop
 
 # command to run tests
 script:
-    - python setup.py nosetests                     # Run Test-cases and Coverage.
+    - python setup.py covertest                     # Run Test-cases and Coverage.
     - python setup.py build_sphinx                  # Build html-docs.
-    - python setup.py build_sphinx -b doctest       # Check code embeded in comments with `doctest`.
+    - python setup.py doctest                       # Check code embeded in comments with `doctest`.
     - python setup.py sdist  --formats=zip,bztar    # Create archives for PyPI repo.
 
 after_success:
