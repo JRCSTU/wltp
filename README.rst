@@ -10,7 +10,7 @@ wltp: A *wltc* gear-shifts calculator
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
 Calculates the *gear-shifts* of Light-duty vehicles running the :term:`WLTP`
-driving-cycles, according to the specifications of the :term:`UNECE` draft.
+driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regulation)` draft.
 
 .. figure:: docs/wltc_class3b.png
     :align: center
@@ -30,9 +30,9 @@ driving-cycles, according to the specifications of the :term:`UNECE` draft.
 Introduction
 ============
 
-The calculator accepts as input the vehicle-specifications and parameters for modifying the execution
-of the :term:`WLTC` cycle and spits-out the it gear-shifts of the vehicle, the attained speed-profile,
-and any warnings.  It certainly does not calculate any CO2 emissions or other metrics.
+The calculator accepts as input the vehicle's technical data, along with parameters for modifying the execution
+of the :term:`WLTC` cycle, and it then spits-out the gear-shifts of the vehicle, the attained speed-profile,
+and any warnings.  It does not calculate any |CO2| emissions.
 
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
@@ -185,7 +185,6 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     25%      28.000000    17.305519    -0.304174  1327.500000     0.083889
     50%      41.500000    26.887526     2.777778  1776.000000     0.183556
     75%      68.700000    35.439868    11.536033  2300.800000     0.300178
-    max     131.300000    70.393282    46.059731  4201.600000     0.722578
     ...
 
     >>> print(processor.driveability_report())                                      # doctest: +SKIP
@@ -428,7 +427,7 @@ Specs & Algorithm
 -----------------
 This program was implemented from scratch based on
 this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
-(included in the :file:`docs/` folder).  The latest version of this :abbr:`GTR (Global Technical Regulation)`, along
+(included in the :file:`docs/` folder).  The latest version of this GTR, along
 with other related documents can be found at UNECE's site:
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
