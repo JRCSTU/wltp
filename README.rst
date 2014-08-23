@@ -73,8 +73,22 @@ with the :cmd:`pip` command for python-3
     driving-cycles, according to the specifications of the :term:`UNECE` draft.
     ...
 
+.. Tip::
+    The console-commands listed here to begin with ``$`` are for a *POSIX* environment
+    (*Linux*, *OS X*). They are simple enough and easy to translate into their *Windows* counterparts,
+    but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get
+    the same environment on *Windows* machines.
 
-Or you can build it from the latest sources
+    In the cygwin's installation wizard, make sure that the following packages are also included::
+
+        * git
+        * make
+        * openssh
+        * curl
+        * wget
+
+
+Or you can build it from the latest sources in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
 (assuming you have a working installation of `git <http://git-scm.com/>`_):
 
 .. code-block:: console
@@ -108,7 +122,7 @@ Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)` examples to cre
 with the input-data for runing a single experiment:
 
 .. doctest::
-    :options: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    :options: +NORMALIZE_WHITESPACE
 
     >>> from wltp import model
     >>> from wltp.experiment import Experiment
@@ -131,7 +145,7 @@ with the input-data for runing a single experiment:
 If model validated without any errors, you can then run the experiment:
 
 .. doctest::
-    :options: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    :options: +NORMALIZE_WHITESPACE
 
     >>> mdl = processor.run()               ## Runs experiment and augments model with results.
     >>> model.json_dumps(mdl)               ## Would print the complete augmented model (long!).            # doctest: +SKIP
@@ -156,7 +170,7 @@ If model validated without any errors, you can then run the experiment:
 To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
 
 .. doctest::
-    :options: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    :options: +NORMALIZE_WHITESPACE
 
     >>> import pandas as pd
     >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
@@ -290,24 +304,10 @@ This project is hosted in **github**.
 To provide feedback about bugs and errors or questions and requests for enhancements,
 use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
 
-.. Tip::
-    The console-commands listed in the following sections are for a *POSIX* environments
-    (*Linux* & *OS X*). They are simple enough and easy to translate into their *Windows* counterparts,
-    but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get
-    the same environment on *Windows* machines.
-
-    In the cygwin's installation wizard, make sure that the following packages are also included::
-
-        * git
-        * make
-        * openssh
-        * curl
-        * wget
 
 
-
-Sources & Dependent libraries
------------------------------
+Install Sources & Dependent libraries
+-------------------------------------
 To get involved with development, first you need to download the latest sources:
 
 .. code-block:: console
@@ -339,7 +339,7 @@ in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenv
     but you have to remember not commit this change.
 
 
-Then you can install all project's dependencies using the :file:`setup.py` script:
+Then you can install all project's dependencies in *`development mode* using the :file:`setup.py` script:
 
 .. code-block:: console
 
@@ -355,26 +355,35 @@ Then you can install all project's dependencies using the :file:`setup.py` scrip
       --dry-run (-n)      don't actually do anything
     ...
 
-    $ python setup.py build                             ## Installs also dependencies into project's folder.
-    $ python setup.py develop                           ## Links sources with virtual-env's paths.
+    $ python setup.py develop                           ## Also installs dependencies into project's folder.
+    $ python setup.py build                             ## Check that the project indeed builds ok.
 
 
-You should now run the test-cases (see :ref:`begin_test_cases`, below) to check that the sources are in good shape:
+You should now run the test-cases (see :ref:`begin_test_cases`, below) to check
+that the sources are in good shape:
 
 .. code-block:: console
 
    $ python setup.py test
 
 
-.. Important:: The above commands installed dependencies inside the project folder and
-    in the *virtual-environment*.
-    If you want to permantly install dependant packages in your *base* python environment,
-    you have to *deactivate* the virtual-environment before installing them:
+.. Important:: The above commands install dependencies inside the project folder and
+    inside the *virtual-environment*.
+
+    If you are dealing with installation problems and/or you want to permantly install dependant packages into
+    your *base* python environment, you have to *deactivate* the virtual-environment before installing them:
 
     .. code-block:: console
 
        $ deactivate
        $ python setup.py develop
+
+    or even try the more *permanent* installation-mode:
+
+    .. code-block:: console
+
+       $ python setup.py install                # May require admin-rights
+
 
 
 Development procedure
@@ -523,7 +532,7 @@ Glossary
 
 .. |CO2| replace:: CO\ :sub:`2`
 
-.. |build-status| image:: https://travis-ci.org/ankostis/wltp.svg?branch=master
+.. |build-status| image:: https://travis-ci.org/ankostis/wltp.svg
     :alt: Integration-build status
     :scale: 100%
     :target: https://travis-ci.org/ankostis/wltp/builds
