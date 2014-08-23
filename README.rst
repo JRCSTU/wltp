@@ -18,7 +18,7 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
 
 
-.. important:: This project is still in *alpha* stage.  Its results are not
+.. Attention:: This project is still in *alpha* stage.  Its results are not
     considered "correct", and no approval procedure should rely on them.
     Some of the known deficiencies are described in :doc:`CHANGES`.
     Comparison of result with those from Heinz-db are imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case.
@@ -306,8 +306,8 @@ use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
 
 
 
-Install Sources & Dependent libraries
--------------------------------------
+Sources & Dependencies
+----------------------
 To get involved with development, first you need to download the latest sources:
 
 .. code-block:: console
@@ -367,11 +367,12 @@ that the sources are in good shape:
    $ python setup.py test
 
 
-.. Important:: The above commands install dependencies inside the project folder and
+.. Note:: The above commands installed the dependencies inside the project folder and
     inside the *virtual-environment*.
 
-    If you are dealing with installation problems and/or you want to permantly install dependant packages into
-    your *base* python environment, you have to *deactivate* the virtual-environment before installing them:
+    If you are dealing with installation problems and/or you want to permantly install dependant packages,
+    you have to *deactivate* the virtual-environment and start installing them into your *base*
+    python environment:
 
     .. code-block:: console
 

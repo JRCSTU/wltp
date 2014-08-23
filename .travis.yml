@@ -18,6 +18,7 @@ script:
     - python setup.py covertest                     # Run Test-cases and Coverage.
     - python setup.py build_sphinx                  # Build html-docs.
     - python setup.py doctest                       # Check code embeded in comments with `doctest`.
+                                                    # Always PASS due to: https://bitbucket.org/birkenfeld/sphinx/issue/508/sphinx-should-exit-with-non-zero-exit-code
     - python setup.py sdist  --formats=zip,bztar    # Create archives for PyPI repo.
 
 after_success:
