@@ -24,7 +24,7 @@ class Test(unittest.TestCase):
         mdl = goodVehicle()
 
         exp = Experiment(mdl)
-        mdl = exp.model
+        mdl = exp._model
         self.assertTrue(pd.DataFrame(mdl['vehicle']['full_load_curve']).equals(pd.DataFrame(model.default_load_curve())))
 
 
@@ -38,7 +38,7 @@ class Test(unittest.TestCase):
         }
 
         exp = Experiment(mdl, mdl2)
-        mdl = exp.model
+        mdl = exp._model
         self.assertEqual(mdl['vehicle']['n_rated'], nval)
 
     def testMultiErrors(self):

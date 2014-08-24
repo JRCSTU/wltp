@@ -99,7 +99,7 @@ Or you can build it from the latest sources in `development mode <http://pythonh
 
 
 That way you get the complete source-tree of the project, ready for development
-(see :doc:`contribute`)::
+(see :doc:`contribute` section, below)::
 
     +--wltp/            ## (package) The python-code of the calculator
     |   +--cycles/      ## (package) The python-code for the WLTC data
@@ -118,8 +118,20 @@ That way you get the complete source-tree of the project, ready for development
 
 Python usage
 ------------
-Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)` examples to create and validate a *model*
-with the input-data for runing a single experiment:
+Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)` example to define and run
+an experiment.
+
+First you have to create a :mod:`~wltp.model` containing the input-data required for running
+a single experiment. You construct the model-trees from:
+
+* Sequences,
+* Dictionaries,
+* :class:`pandas.DataFrame`, and
+* :class:`pandas.Series`.
+
+
+You then provide the model to the :class:`~wltp.experiment.Experiment` constructor
+where default values for the model are filled in and gets validated:
 
 .. doctest::
 
@@ -139,30 +151,28 @@ with the input-data for runing a single experiment:
     ...     "resistance_coeffs":[100, 0.5, 0.04],
     ...   }
     ... }
-    >>> processor = Experiment(mdl)         ## Validates model
+    >>> processor = Experiment(mdl)         ## Fills-in defaults and Validates model.
 
-If model validated without any errors, you can then run the experiment:
+
+Assuming validation passes without errors, you can now inspect the defaulted-model
+before running the experiment:
 
 .. doctest::
 
-    >>> mdl = processor.run()               ## Runs experiment and augments model with results.
-    >>> model.json_dumps(mdl)               ## Would print the complete augmented model (long!).            # doctest: +SKIP
-    ...
-    >>> print(model.json_dumps(mdl['params'], indent=2))     ## The `params` augmented with the WLTC-class & downscaling.  # doctest: +SKIP
-    {
-      "wltc_class": "class3b",
-      "f_downscale": 0,
-      "f_inertial": 1.1,
-      "f_n_min_gear2": 0.9,
-      "f_n_max": 1.2,
-      "f_n_clutch_gear2": [
-        1.15,
-        0.03
-      ],
-      "v_stopped_threshold": 1,
-      "f_n_min": 0.125,
-      "f_safety_margin": 0.9
-    }
+    >>> mdl = processor.model()             ## Returns the validated model with filled-in defaults.
+    >>> sorted(mdl)                         ## The "defaulted" model now includes the `params` branch.
+    ['params', 'vehicle']
+    >>> 'full_load_curve' in mdl['vehicle'] ## A default wot was also provided in the `vehicle`.
+    True
+
+
+Now you can run the experiment:
+
+.. doctest::
+
+    >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
+    >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
+    ['cycle_run', 'params', 'vehicle']
 
 
 To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
@@ -207,9 +217,9 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
 
 You can export the cycle-run results in a CSV-file with the following pandas command:
 
-.. doctest::
+.. code-block:: pycon
 
-    >>> df.to_csv('cycle_run.csv')
+    >>> df.to_csv('cycle_run.csv')                                                      # doctest: +SKIP
 
 For information on the model-data, check the schema:
 

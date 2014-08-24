@@ -15,7 +15,7 @@ install:
 
 # command to run tests
 script:
-    - python setup.py test_all                      # Nose tests, doctests in *.rst and modules, and coverage-report.
+    - python setup.py test_all                      # Nose tests, doctests in *.rst and modules, and report coverage.
     - python setup.py build_sphinx                  # Build html-docs.
     - python setup.py sdist                         # Create archives for PyPI repo.
     - python setup.py install

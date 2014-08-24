@@ -88,8 +88,8 @@ class Experiment(object):
 
         self.dtype = np.float64
         self.set_models(*models, skip_validation=skip_model_validation)
-        self.wltc = wltc_data()
 
+        self.wltc = wltc_data()
         if (validate_wltc):
             self.validateWltc()
 
@@ -111,7 +111,7 @@ class Experiment(object):
         @see: Annex 2, p 70
         '''
 
-        model       = self.model
+        model       = self._model
         vehicle     = model['vehicle']
 
         ## Prepare results
@@ -241,20 +241,22 @@ class Experiment(object):
         import functools
         from wltp.model import model_base, merge
 
-        self.model = model_base()
-        functools.reduce(merge, [self.model] + list(models))
+        self._model = model_base()
+        functools.reduce(merge, [self._model] + list(models))
         if not skip_validation:
             self.validate()
 
+    def model(self):
+        return self._model
 
     def validate(self, iter_errors=False):
-        ## TODO: Move-out  model-validation from experiment
+        ## TODO: Move-out model-validation from experiment
 
-        return model.validate_model(self.model, iter_errors=iter_errors)
+        return model.validate_model(self._model, iter_errors=iter_errors)
 
 
     def driveability_report(self):
-        cycle = self.model.get('cycle_run')
+        cycle = self._model.get('cycle_run')
         if (not cycle is None):
             issues = []
             drv = cycle['driveability']
