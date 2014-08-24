@@ -1,5 +1,5 @@
 ## TravisCI config:
-# Created on 4 Aug 2014
+#   Created on 4 Aug 2014
 #
 language: python
 python:
@@ -15,11 +15,10 @@ install:
 
 # command to run tests
 script:
-    - python setup.py covertest                     # Run Test-cases and Coverage.
+    - python setup.py test_all                      # Nose tests, doctests in *.rst and modules, and coverage-report.
     - python setup.py build_sphinx                  # Build html-docs.
-    - python setup.py doctest                       # Check code embeded in comments with `doctest`.
-                                                    # Always PASS due to: https://bitbucket.org/birkenfeld/sphinx/issue/508/sphinx-should-exit-with-non-zero-exit-code
-    - python setup.py sdist  --formats=zip,bztar    # Create archives for PyPI repo.
+    - python setup.py sdist                         # Create archives for PyPI repo.
+    - python setup.py install
 
 after_success:
     coveralls

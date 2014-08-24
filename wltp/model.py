@@ -10,19 +10,20 @@
 
 '''
 import json
+import logging
+from textwrap import dedent
+from wltp.cycles import (class1, class2, class3)
+
 from jsonschema import ValidationError
 import jsonschema
-import logging
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
-from textwrap import dedent
 
 import itertools as it
 import numpy as np
 import operator as ops
 import pandas as pd
-from wltp.cycles import (class1, class2, class3)
 
 
 log = logging.getLogger(__name__)
@@ -311,7 +312,7 @@ def model_schema(additional_properties=False):
                             Example::
 
                                 np.array([
-                                    [ 0, 10, 20, 30, 40, 50, 60, 70. 80, 90 100, 110, 120 ],
+                                    [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120 ],
                                     [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
                                 ]).T
 
@@ -576,11 +577,42 @@ def model_validator(additional_properties=False):
     return validator
 
 def validate_model(mdl, additional_properties=False, iter_errors=False):
+    """
+    :param bool iter_errors: does not fail, but returns a generator of ValidationErrors
+
+    >>> validate_model(None)
+    Traceback (most recent call last):
+    jsonschema.exceptions.ValidationError: None is not of type 'object'
+    ...
+
+    >>> mdl = model_base()
+    >>> err_generator = validate_model(mdl, iter_errors=True)
+    >>> list(err_generator)     #doctest: +NORMALIZE_WHITESPACE
+    [<ValidationError: "None is not of type 'number'">,
+     <ValidationError: "None is not of type 'number'">,
+    ...
+
+    >>> mdl = model_base()
+    >>> mdl["vehicle"].update({
+    ...     "unladen_mass":1230,
+    ...     "test_mass":   1300,
+    ...     "v_max":   195,
+    ...     "p_rated": 110.625,
+    ...     "n_rated": 5450,
+    ...     "n_idle":  950,
+    ...     "n_min":   500,
+    ...     "gear_ratios":[120.5, 75, 50, 43, 33, 28],
+    ...     "resistance_coeffs":[100, 0.5, 0.04],
+    ... })
+    >>> err_generator = validate_model(mdl, iter_errors=True)
+    >>> len(list(err_generator))
+    0
+    """
     validator = model_validator(additional_properties=additional_properties)
     validators = [
         validator.iter_errors(mdl),
-        yield_load_curve_errors(mdl['vehicle'], mdl['params']['f_n_max']),
-        yield_forced_cycle_errors(mdl['params'], additional_properties)
+        yield_load_curve_errors(mdl),
+        yield_forced_cycle_errors(mdl, additional_properties)
     ]
     errors = it.chain(*[v for v in validators if not v is None])
 
@@ -600,7 +632,9 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
 
 
 
-def yield_load_curve_errors(vehicle, f_n_max):
+def yield_load_curve_errors(mdl):
+    vehicle = mdl['vehicle']
+    f_n_max = mdl['params']['f_n_max']
     wot = vehicle['full_load_curve']
     try:
         if not isinstance(wot, pd.DataFrame):
@@ -611,7 +645,7 @@ def yield_load_curve_errors(vehicle, f_n_max):
         cols = wot.columns
         if wot.shape[1] == 1:
             if cols[0] != 'p_norm':
-                log.warning("Assuming the single-column(%s) to be the `p_norm` and the index the `1n_norm`.", cols[0])
+                log.warning("Assuming the single-column(%s) to be the `p_norm` and the index the `n_norm`.", cols[0])
                 cols = ['p_norm']
                 wot.columns = cols
             wot['n_norm'] = wot.index
@@ -637,7 +671,8 @@ def yield_load_curve_errors(vehicle, f_n_max):
     except (KeyError, PandasError) as ex:
         yield ValidationError('Invalid Full-load-curve, due to: %s' % ex, cause= ex)
 
-def yield_forced_cycle_errors(params, additional_properties):
+def yield_forced_cycle_errors(mdl, additional_properties):
+    params = mdl['params']
     forced_cycle = params.get('forced_cycle')
     if not forced_cycle is None:
         try:
@@ -664,7 +699,6 @@ def yield_forced_cycle_errors(params, additional_properties):
 
 
 if __name__ == '__main__':
-    import json
     print('Model: %s' % json.dumps([model_schema(), wltc_schema()], indent=1))
     print('Model: %s' % json.dumps(model_base(), indent=1))
 

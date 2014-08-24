@@ -323,7 +323,7 @@ in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenv
 
     $ pip3 install virtualenv                           ## Ensure `virtualenv` is installed.
     $ virtualenv --system-site-packages ../wltp.venv    ## If both python-2 & 3 installed, use:  -p <PATH_TO_PYTHON_3>
-    $ .  ../wltp.venv/bin/activate                      ## To deactivate virtual-environment type: deactivate
+    $ .  ../wltp.venv/bin/activate                      ## In Windows: ../wltp.venv/Scripts/activate
     (wltp.venv) $
 
 
@@ -331,7 +331,7 @@ in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenv
     `LiClipse <https://brainwy.github.io/liclipse/>`_ IDE.
 
     If you also choose to use the same IDE, you have to add
-    under :menuselection:`Windows --> Preferences --> PyDev --> Interpreters --> Python Interpreter`
+    under :menuselection:`&Windows --> &Preferences --> PyDev --> Interpreters --> Python Interpreter`
     a new python-intepreter named ``wltp.venv`` since this is the name already specified in the :file:`.project` file.
 
     You can change this choice by :guilabel:`Right-clicking` on the Project and navigating
@@ -368,7 +368,8 @@ that the sources are in good shape:
 
 
 .. Note:: The above commands installed the dependencies inside the project folder and
-    inside the *virtual-environment*.
+    for the *virtual-environment*.  That is why all build and testing actions have to go through
+    :samp:`python setup.py {some_cmd}`.
 
     If you are dealing with installation problems and/or you want to permantly install dependant packages,
     you have to *deactivate* the virtual-environment and start installing them into your *base*
@@ -402,8 +403,9 @@ The typical development procedure is like this:
         $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
 
 
-    .. Tip:: You can enter just: :samp:`python setup.py covertest` instead of the above cmd-line
+    .. Tip:: You can enter just: :samp:`python setup.py test_all` instead of the above cmd-line
         since it has been *aliased* in the :file:`setup.cfg` file.
+        Check this file for more example commands to use during development.
 
 
 4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or

@@ -94,8 +94,9 @@ extensions = [
     'matplotlib.sphinxext.plot_directive',
 ]
 
-## Work even without it of README.
-doctest_test_doctest_blocks = True
+## Prevent Sphinx from doctesting python-modules doctests,
+# they will be checked separately with `nose` plugin.
+doctest_test_doctest_blocks = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

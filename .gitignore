@@ -73,3 +73,5 @@ __pycache__/
 ~*
 # From doctest.
 cycle_run.csv
+coverage.xml
+cover/
