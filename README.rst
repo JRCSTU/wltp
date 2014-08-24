@@ -122,7 +122,6 @@ Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)` examples to cre
 with the input-data for runing a single experiment:
 
 .. doctest::
-    :options: +NORMALIZE_WHITESPACE
 
     >>> from wltp import model
     >>> from wltp.experiment import Experiment
@@ -145,7 +144,6 @@ with the input-data for runing a single experiment:
 If model validated without any errors, you can then run the experiment:
 
 .. doctest::
-    :options: +NORMALIZE_WHITESPACE
 
     >>> mdl = processor.run()               ## Runs experiment and augments model with results.
     >>> model.json_dumps(mdl)               ## Would print the complete augmented model (long!).            # doctest: +SKIP
@@ -170,7 +168,6 @@ If model validated without any errors, you can then run the experiment:
 To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
 
 .. doctest::
-    :options: +NORMALIZE_WHITESPACE
 
     >>> import pandas as pd
     >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
@@ -185,20 +182,12 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     count  1801.000000  1801.000000       1801  1801.000000  1801.000000
     mean     46.506718    46.506718  0.0660744     3.794003     3.683509
     std      36.119280    36.119280  0.2484811     2.278959     2.278108
-    min       0.000000     0.000000      False     0.000000     0.000000
-    25%      17.700000    17.700000      False     2.000000     2.000000
-    50%      41.500000    41.500000          0     5.000000     4.000000
-    75%      68.700000    68.700000      False     6.000000     6.000000
-    max     131.300000   131.300000       True     6.000000     6.000000
+    ...
     <BLANKLINE>
                 v_real  p_available   p_required          rpm     rpm_norm
     count  1801.000000  1801.000000  1801.000000  1801.000000  1801.000000
     mean     50.356222    28.846639     4.991915  1917.040783     0.214898
     std      32.336908    15.833262    12.139823   878.139758     0.195142
-    min       0.200000     9.000000   -34.246016     6.400000    -0.209689
-    25%      28.000000    17.305519    -0.304174  1327.500000     0.083889
-    50%      41.500000    26.887526     2.777778  1776.000000     0.183556
-    75%      68.700000    35.439868    11.536033  2300.800000     0.300178
     ...
 
     >>> print(processor.driveability_report())                                      # doctest: +SKIP
@@ -225,7 +214,6 @@ You can export the cycle-run results in a CSV-file with the following pandas com
 For information on the model-data, check the schema:
 
 .. doctest::
-    :options: +SKIP
 
     >>> print(model.json_dumps(model.model_schema(), indent=2))                         # doctest: +SKIP
     {
