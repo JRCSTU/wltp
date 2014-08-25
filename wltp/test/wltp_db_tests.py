@@ -118,9 +118,7 @@ def _read_heinz_file(veh_num):
 
 def _is_file_up_to_date(result_file, other_dependency_files = None):
 
-    if force_rerun:
-        return True
-    if not os.path.exists(result_file):
+    if force_rerun or not os.path.exists(result_file):
         return False
 
     checkfiles = [__file__, '../../model.py', '../../experiment.py', vehs_data_inp_fname]
