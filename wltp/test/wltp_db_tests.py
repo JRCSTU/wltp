@@ -130,13 +130,13 @@ class WltpDbTests(unittest.TestCase):
         os.chdir(os.path.join(mydir, samples_dir))
 
 
-    @skip
+    #@skip
     def test0_runExperiment(self, plot_results=False, encoding="UTF-8"):
         paths = glob.glob(gened_fname_glob)
         if _is_experiments_outdated(paths):
             _run_the_experiments(transplant_original_gears=False, compare_results=self.run_comparison, encoding=encoding)
 
-    @skip
+    #@skip
     def test0_runExperimentTransplant(self, plot_results=False, encoding="UTF-8"):
         paths = glob.glob(trans_fname_glob)
         if _is_experiments_outdated(paths):
@@ -171,12 +171,22 @@ class WltpDbTests(unittest.TestCase):
         df = res.describe()
 
         df['diff_prcnt'] = 100 * (df.heinz - df.python) / df.min(axis=1)
-
         print(df)
 
         diff_prcnt = df.loc['mean', 'diff_prcnt']
         self.assertLess(abs(diff_prcnt), pcrnt_limit)
 
+
+
+    def _check_n_mean(self, fname_glob):
+        res = _vehicles_applicator(fname_glob, lambda _, df_g, df_h:
+                                          (df_g['rpm'].mean(), df_h['n'].mean()))
+        res.columns = ['python', 'heinz']
+
+        res_totals = res.describe()
+        res_totals['diff_prcnt'] = 100 * (res_totals.heinz - res_totals.python) / res_totals.min(axis=1)
+
+        return res_totals
 
     def test2_AvgRPMs(self):
         """Check mean-rpm diff with Heinz stays within some percent.
@@ -204,18 +214,10 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 1.3
 
-        res = _vehicles_applicator(gened_fname_glob, lambda _, df_g, df_h:
-                                          (df_g['rpm'].mean(), df_h['n'].mean()))
-        res.columns = ['python', 'heinz']
+        res_totals = self._check_n_mean(gened_fname_glob)
+        print(res_totals)
 
-
-        df = res.describe()
-
-        df['diff_prcnt'] = 100 * (df.heinz - df.python) / df.min(axis=1)
-
-        print(df)
-
-        diff_prcnt = df.loc['mean', 'diff_prcnt']
+        diff_prcnt = res_totals.loc['mean', 'diff_prcnt']
         self.assertLess(abs(diff_prcnt), pcrnt_limit)
 
 
@@ -239,19 +241,33 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 1.1
 
-        res = _vehicles_applicator(trans_fname_glob, lambda _, df_g, df_h:
-                                          (df_g['rpm'].mean(), df_h['n'].mean()))
-        res.columns = ['python', 'heinz']
+        res_totals = self._check_n_mean(trans_fname_glob)
+        print(res_totals)
 
-        df = res.describe()
-
-        df['diff_prcnt'] = 100 * (df.heinz - df.python) / df.min(axis=1)
-
-        print(df)
-
-        diff_prcnt = df.loc['mean', 'diff_prcnt']
+        diff_prcnt = res_totals.loc['mean', 'diff_prcnt']
         self.assertLess(abs(diff_prcnt), pcrnt_limit)
 
+
+
+    def _check_n_mean_per_pmr(self, fname_glob):
+        vehdata = _read_vehicle_data()
+        vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
+        np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
+
+        res = _vehicles_applicator(fname_glob, lambda _, df_g, df_h:
+                                          (df_g['rpm'].mean(), df_h['n'].mean()))
+
+        vehdata[['gened_mean_rpm', 'heinz_mean_rpm']] = res
+
+        df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
+        dfg = df.groupby(pd.cut(vehdata.pmr, 12))
+        pmr_histogram = dfg.mean()
+
+        dif = (pmr_histogram['heinz_mean_rpm'] - pmr_histogram['gened_mean_rpm']) / pmr_histogram.min(axis=1)
+        pmr_histogram['diff_prcnt']= 100 * dif
+        pmr_histogram['count']= dfg.count().iloc[:, -1]
+
+        return pmr_histogram
 
     def test2_PMRatio(self):
         """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
@@ -297,28 +313,12 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 2.5
 
-        vehdata = _read_vehicle_data()
-        vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
-        np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
+        pmr_histogram = self._check_n_mean_per_pmr(gened_fname_glob)
 
-        res = _vehicles_applicator(gened_fname_glob, lambda _, df_g, df_h:
-                                          (df_g['rpm'].mean(), df_h['n'].mean()))
+        print (pmr_histogram)
 
-        vehdata[['gened_mean_rpm', 'heinz_mean_rpm']] = res
-
-        df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
-        dfg = df.groupby(pd.cut(vehdata.pmr, 12))
-        pmr_hist = dfg.mean()
-
-        dif = (pmr_hist['heinz_mean_rpm'] - pmr_hist['gened_mean_rpm']) / pmr_hist.min(axis=1)
-        pmr_hist['diff_prcnt']= 100 * dif
-        pmr_hist['count']= dfg.count().iloc[:, -1]
-
-        print (pmr_hist)
-
-        diff_prcnt = pmr_hist['diff_prcnt']
+        diff_prcnt = pmr_histogram['diff_prcnt']
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
-
 
     def test3_PMRatio_trasnaplanted(self):
         """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
@@ -361,28 +361,24 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 1.5
 
-        vehdata = _read_vehicle_data()
-        vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
-        np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
+        pmr_histogram = self._check_n_mean_per_pmr(trans_fname_glob)
 
-        res = _vehicles_applicator(trans_fname_glob, lambda _, df_g, df_h:
-                                          (df_g['rpm'].mean(), df_h['n'].mean()))
+        print (pmr_histogram)
 
-        vehdata[['gened_mean_rpm', 'heinz_mean_rpm']] = res
-
-        df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
-        dfg = df.groupby(pd.cut(vehdata.pmr, 12))
-        pmr_hist = dfg.mean()
-
-        dif = (pmr_hist['heinz_mean_rpm'] - pmr_hist['gened_mean_rpm']) / pmr_hist.min(axis=1)
-        pmr_hist['diff_prcnt']= 100 * dif
-        pmr_hist['count']= dfg.count().iloc[:, -1]
-
-        print (pmr_hist)
-
-        diff_prcnt = pmr_hist['diff_prcnt']
+        diff_prcnt = pmr_histogram['diff_prcnt']
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
+
+
+    def _check_gear_diffs(self, fname_glob):
+        res = _compare_gears_with_heinz(fname_glob) # ndiff_gears, ndiff_gears_accel, ndiff_gears_orig
+        res.columns = ['diff_gears', 'diff_accel', 'diff_orig']
+
+        res_totals = res.describe()
+        res_totals.loc['sum', :] = res.sum(axis=0)
+        res_totals.loc['mean%', :] = 100 * res_totals.loc['mean', :] / 1800 # class3-duration
+
+        return res_totals
 
     def test2_GearDiffs(self):
         """Check diff-gears with Heinz stays within some percent.
@@ -413,19 +409,11 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 6
 
-        res = _compare_gears_with_heinz(gened_fname_glob) # ndiff_gears, ndiff_gears_accel, ndiff_gears_orig
-        res.columns = ['diff_gears', 'diff_accel', 'diff_orig']
+        res_totals = self._check_gear_diffs(gened_fname_glob)
+        print(res_totals)
 
-        df = res.describe()
-        df.loc['sum', :] = res.sum(axis=0)
-        df.loc['mean%', :] = 100 * df.loc['mean', :] / 1800 # class3-duration
-
-
-        print(df)
-
-        diff_prcnt = df.loc['mean%', ['diff_gears', 'diff_accel']]
+        diff_prcnt = res_totals.loc['mean%', ['diff_gears', 'diff_accel']]
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
-
 
     def test3_GearDiffs_transplanted(self):
         """Check driveability-only diff-gears with Heinz stays within some percent.
@@ -450,17 +438,10 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 0.9 # mean
 
-        res = _compare_gears_with_heinz(trans_fname_glob) # ndiff_gears, ndiff_gears_accel, ndiff_gears_orig
-        res.columns = ['diff_gears', 'diff_accel', 'diff_orig']
+        res_totals = self._check_gear_diffs(trans_fname_glob)
+        print(res_totals)
 
-        df = res.describe()
-        df.loc['sum', :] = res.sum(axis=0)
-        df.loc['mean%', :] = 100 * df.loc['mean', :] / 1800 # class3-duration
-
-
-        print(df)
-
-        diff_prcnt = df.loc['mean%', ['diff_gears', 'diff_accel']]
+        diff_prcnt = res_totals.loc['mean%', ['diff_gears', 'diff_accel']]
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
 
