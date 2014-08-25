@@ -6,15 +6,12 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 '''Defines the schema, defaults and validation operations for the data consumed and produced by the :class:`~wltp.experiment.Experiment`.
 
-.. Attention:: The documentation and some function of this module have some issues and need more work.
-
-The :dfn:`model` is a hierarchical-tree of strings and numbers, composed with:
+The :dfn:`model` is a hierarchical-tree of strings and numbers assembled with:
 
 * Sequences,
 * Dictionaries,
 * :class:`pandas.DataFrame` and
 * :class:`pandas.Series` instances.
-
 
 .. TODO::
     Each model instance gets constructed by merging multiple *sub-models* in a *stack*.
@@ -23,28 +20,28 @@ The :dfn:`model` is a hierarchical-tree of strings and numbers, composed with:
 
     The building of a model-instance happens in 4-steps::
 
-                         ........................ Model Construction ..........................
-          .------------. '  ________________                                                  '
-         /  top_model /--->| 1.pre-validate |-+                                               '
-        '------------'   ' |________________|  \                                              '
-          .------------. '  ________________    \  _________     ____________     __________  '  .-------.
-         / a_submodel /--->| 1.pre-validate |---->| 2.Merge |-->| 3.Validate |-->| 4.Curate |-->/ model /
-        '------------'   ' |________________|   / |_________|   |____________|   |__________| ''-------'
-          .------------. '  ________________   /                                              '
-         / base_model /--->| 1.pre-validate |-+                                               '
-        '------------'   ' |________________|                                                 '
-                         '....................................................................'
+                        ........................ Model Construction ........................
+          .----------.'  ________________                                                  '
+         / top_model/-->| 1.Pre-validate |---+                                             '
+        '----------'  ' |________________|   |                                             '
+          .----------.'  ________________    |                                             '
+         /   ....   /-->| 1.Pre-validate |-+ |                                             '
+        '----------'  ' |________________| | |                                             '
+          .----------.'  ________________  | |   _________     ___________      __________ '   .------.
+         /   base   /-->| 1.Pre-validate |-+-+->| 2.Merge |-->| 3.Validate |-->| 4.Curate |-->/ model/
+        '----------'  ' |________________|      |_________|   |____________|   |__________|' '------'
+                      '....................................................................'
 
 
-    1. Loosely **pre-validate** separately sub-models with `json-schema <http://www.jsonschema.net/>`_,
+    1. Loosely **pre-validate** each sub-model separately with `json-schema <http://www.jsonschema.net/>`_,
     2. Recursively **merge** the stack of sub-modules in a single tree
-       (taking into account different objects, ie. merging a ``dict`` with a ``DataFrame``),
+       taking into account different objects (ie. merging a ``dict`` with a ``DataFrame``),
     3. Strictly json-**validate** the final result tree ("the model").
     4. Ad-hoc **curation** of the model to enforce dependencies and generation-rules among the data.
 
     The whole procedure happens "lazily", using generators (with :keyword:`yield`).
     Before proceeding to the next step, the previous one must have completed successfully.
-    That way, code in steps 2 and 4 will not suffer a horrible death due to badly-formed data.
+    That way, ad-hoc code in step 4 will not suffer a horrible death due to badly-formed data.
 
 '''
 import json
