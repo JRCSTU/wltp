@@ -72,6 +72,7 @@ def _make_gened_fname(transplant_original_gears, veh_num):
     root, ext = os.path.splitext(vehs_data_inp_fname)
     transplant = 'trans-' if transplant_original_gears else ''
     outfname = '{}{}-{:05}{}'.format(transplant, root, veh_num, ext)
+
     return outfname
 
 def _make_heinz_fname(veh_num):
@@ -95,6 +96,7 @@ def memoize(f):
 @memoize
 def _read_gened_file(inpfname):
     df = pd.read_csv(inpfname, header=0, index_col=0)
+    assert not df.empty
     assert df.index.name == 'time', df.index.name
 
     return df
@@ -108,6 +110,7 @@ def _read_heinz_file(veh_num):
         raise FileNotFoundError("Skipped veh_id(%s), no file found: %s" % (veh_num, vehfpath))
 
     df = pd.read_csv(inpfname, encoding='UTF-8', header=0, index_col=0)
+    assert not df.empty
     assert df.index.name == 't', df.index.name
 
     return df
@@ -115,8 +118,10 @@ def _read_heinz_file(veh_num):
 
 def _is_file_up_to_date(result_file, other_dependency_files = None):
 
-    if force_rerun or not os.path.exists(result_file):
+    if force_rerun:
         return True
+    if not os.path.exists(result_file):
+        return False
 
     checkfiles = [__file__, '../../model.py', '../../experiment.py', vehs_data_inp_fname]
     if other_dependency_files:

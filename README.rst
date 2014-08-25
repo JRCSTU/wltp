@@ -57,7 +57,7 @@ Requires Python 3.3+.
     for *Windows* and *OS X*, respectively.
 
 You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
-with the :cmd:`pip` command for python-3
+with :command:`pip` for python-3
 (note the :option:`--pre`, since the package is still in *alpha* version):
 
 .. code-block:: console
@@ -89,7 +89,7 @@ with the :cmd:`pip` command for python-3
         * wget
 
 
-Or you can build it from the latest sources in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
+Alternatively you can build it from the latest sources in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
 (assuming you have a working installation of `git <http://git-scm.com/>`_):
 
 .. code-block:: console

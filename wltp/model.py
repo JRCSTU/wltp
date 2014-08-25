@@ -16,21 +16,35 @@ The :dfn:`model` is a hierarchical-tree of strings and numbers, composed with:
 * :class:`pandas.Series` instances.
 
 
-.. TODO::  Each model instance gets constructed by merging multiple *sub-models* in a *stack*.
+.. TODO::
+    Each model instance gets constructed by merging multiple *sub-models* in a *stack*.
     Branches from sub-models higher in the stack override the respective ones
     from the sub-models below, recursively.
 
-    The building and the validation of the model happens in 4-steps:
+    The building of a model-instance happens in 4-steps::
 
-    1. Loosely **pre-validate** sub-models with `json-schema <http://www.jsonschema.net/>`_,
+                         ........................ Model Construction ..........................
+          .------------. '  ________________                                                  '
+         /  top_model /--->| 1.pre-validate |-+                                               '
+        '------------'   ' |________________|  \                                              '
+          .------------. '  ________________    \  _________     ____________     __________  '  .-------.
+         / a_submodel /--->| 1.pre-validate |---->| 2.Merge |-->| 3.Validate |-->| 4.Curate |-->/ model /
+        '------------'   ' |________________|   / |_________|   |____________|   |__________| ''-------'
+          .------------. '  ________________   /                                              '
+         / base_model /--->| 1.pre-validate |-+                                               '
+        '------------'   ' |________________|                                                 '
+                         '....................................................................'
+
+
+    1. Loosely **pre-validate** separately sub-models with `json-schema <http://www.jsonschema.net/>`_,
     2. Recursively **merge** the stack of sub-modules in a single tree
        (taking into account different objects, ie. merging a ``dict`` with a ``DataFrame``),
     3. Strictly json-**validate** the final result tree ("the model").
-    4. Manually **curate** model to enforce dependencies and generation-rules among the data.
+    4. Ad-hoc **curation** of the model to enforce dependencies and generation-rules among the data.
 
     The whole procedure happens "lazily", using generators (with :keyword:`yield`).
     Before proceeding to the next step, the previous one must have completed successfully.
-    That way, code in the 4th step will not suffer a horrible death due to badly-formed data.
+    That way, code in steps 2 and 4 will not suffer a horrible death due to badly-formed data.
 
 '''
 import json
