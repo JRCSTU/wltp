@@ -19,7 +19,8 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
 
 
 .. Attention:: This project is still in *alpha* stage.  Its results are not
-    considered "correct", and no approval procedure should rely on them.
+    considered "correct" (mean gears-differ < 6% for a 1800-step class-3 cycle),
+    and official approval procedures should not rely on them.
     Some of the known deficiencies are described in :doc:`CHANGES`.
     Comparison of result with those from Heinz-db are imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case.
 

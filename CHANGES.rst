@@ -10,19 +10,26 @@ Known deficiencies
 * (!) Driveability-rules not ordered as defined in the latest task-force meeting.
 * (!) The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
   along with other recent updates.
+* (!) The ``n_max`` is calculated for ALL GEARS, resulting in "clipped" velocity-profiles,
+  leading to reduced rpm's for low-powered vehicles.
 * Clutching-points and therefore engine-speed are very preliminary.
-* Results are not yet compared with the new wltp_db sample-vehicles.
 
 TODOs
 =====
 * Add cmd-line front-end.
 * Add IPython front-end.
-* No automatic calculation of masses and road-load coefficients from H & L vehicles.
+* Automatically calculate masses and road-load coefficients from H & L vehicles.
 * wltp_db: Improve test-metrics with group-by classes/phases.
 * wltp_db: Add diagrams auto-generated from test-metrics into generated site (Getting Involved section).
 * wltp_db: Speed-up tests by caching files to read and compare.
+* core: model: Improve model-preprocessing by interleaving "octapus" merging stacked-models
+  between 2 validation stages.
+* core: Move calculations as class-methods to provide for overriding certain parts of the algorithm.
+* core: Support to provide and override arbitrary model-data, and ask for arbitrary output-ones
+  by topologically sorting the  graphs of the calculation-dependencies.
 
 .. todolist::
+
 
 Changelog
 =========

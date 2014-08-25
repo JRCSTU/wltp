@@ -4,9 +4,33 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''The hierarchical data and their schema for the WLTC calculator (defaults, WLTC-data) used by the Model and Experiments classes.
+'''Defines the schema, defaults and validation operations for the data consumed and produced by the :class:`~wltp.experiment.Experiment`.
 
-.. Attention:: The documentation of this core module has several issues and needs work.
+.. Attention:: The documentation and some function of this module have some issues and need more work.
+
+The :dfn:`model` is a hierarchical-tree of strings and numbers, composed with:
+
+* Sequences,
+* Dictionaries,
+* :class:`pandas.DataFrame` and
+* :class:`pandas.Series` instances.
+
+
+.. TODO::  Each model instance gets constructed by merging multiple *sub-models* in a *stack*.
+    Branches from sub-models higher in the stack override the respective ones
+    from the sub-models below, recursively.
+
+    The building and the validation of the model happens in 4-steps:
+
+    1. Loosely **pre-validate** sub-models with `json-schema <http://www.jsonschema.net/>`_,
+    2. Recursively **merge** the stack of sub-modules in a single tree
+       (taking into account different objects, ie. merging a ``dict`` with a ``DataFrame``),
+    3. Strictly json-**validate** the final result tree ("the model").
+    4. Manually **curate** model to enforce dependencies and generation-rules among the data.
+
+    The whole procedure happens "lazily", using generators (with :keyword:`yield`).
+    Before proceeding to the next step, the previous one must have completed successfully.
+    That way, code in the 4th step will not suffer a horrible death due to badly-formed data.
 
 '''
 import json

@@ -45,9 +45,6 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
     One row per gear having ``True`` wherever gear is possible for each step.
 
 .. Seealso:: :mod:`model` for in/out schemas
-
-:since: 1 Jan 2014
-
 '''
 
 import numpy as np
