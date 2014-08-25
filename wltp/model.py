@@ -611,9 +611,8 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
 
     >>> mdl = model_base()
     >>> err_generator = validate_model(mdl, iter_errors=True)
-    >>> list(err_generator)     #doctest: +NORMALIZE_WHITESPACE
-    [<ValidationError: "None is not of type 'number'">,
-     <ValidationError: "None is not of type 'number'">,
+    >>> sorted(err_generator, key=hash)
+    [<ValidationError:
     ...
 
     >>> mdl = model_base()

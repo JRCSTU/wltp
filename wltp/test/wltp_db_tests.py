@@ -28,8 +28,9 @@ from wltp.test.goodvehicle import goodVehicle
 
 
 mydir = os.path.dirname(__file__)
+force_rerun = False
 samples_dir = 'wltp_db'
-veh_data_fname = 'wltp_db_vehicles.csv'
+vehs_data_inp_fname = 'wltp_db_vehicles.csv'
 gened_fname_regex = r'.*wltp_db_vehicles-(\d+).csv'
 heinz_fname_regex = r'.*heinz-(\d+).csv'
 gened_fname_glob = 'wltp_db_vehicles-*.csv'
@@ -48,8 +49,10 @@ def _init_logging(loglevel = logging.DEBUG):
     return log
 log = _init_logging()
 
+
+
 def _read_vehicle_data():
-    df = pd.read_csv(veh_data_fname, encoding = encoding, index_col = 0)
+    df = pd.read_csv(vehs_data_inp_fname, encoding = encoding, index_col = 0)
 
     return df
 
@@ -65,15 +68,40 @@ def _select_wot(wots, isDiesel):
 
     return wots
 
+def _make_gened_fname(transplant_original_gears, veh_num):
+    root, ext = os.path.splitext(vehs_data_inp_fname)
+    transplant = 'trans-' if transplant_original_gears else ''
+    outfname = '{}{}-{:05}{}'.format(transplant, root, veh_num, ext)
+    return outfname
+
+def _make_heinz_fname(veh_num):
+    return 'heinz-{:04}.csv'.format(veh_num)
+
+
+## From http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
+#
+def memoize(f):
+    """ Memoization decorator for functions taking one or more arguments. """
+    class memodict(dict):
+        def __init__(self, f):
+            self.f = f
+        def __call__(self, *args):
+            return self[args]
+        def __missing__(self, key):
+            ret = self[key] = self.f(*key)
+            return ret
+    return memodict(f)
+
+@memoize
 def _read_gened_file(inpfname):
     df = pd.read_csv(inpfname, header=0, index_col=0)
     assert df.index.name == 'time', df.index.name
 
     return df
 
-
+@memoize
 def _read_heinz_file(veh_num):
-    vehfpath = 'heinz-{:04}.csv'.format(veh_num)
+    vehfpath = _make_heinz_fname(veh_num)
     try:
         inpfname = glob.glob(vehfpath)[0]
     except IndexError:
@@ -83,6 +111,21 @@ def _read_heinz_file(veh_num):
     assert df.index.name == 't', df.index.name
 
     return df
+
+
+def _is_file_up_to_date(result_file, other_dependency_files = None):
+
+    if force_rerun or not os.path.exists(result_file):
+        return True
+
+    checkfiles = [__file__, '../../model.py', '../../experiment.py', vehs_data_inp_fname]
+    if other_dependency_files:
+        checkfiles = checkfiles + list(other_dependency_files)
+    latest_dep_date = max([os.path.getmtime(file) for file in checkfiles])
+
+    result_date = os.path.getmtime(result_file)
+
+    return result_date > latest_dep_date
 
 
 def _vehicles_applicator(gened_fname_glob, pair_func):
@@ -132,15 +175,11 @@ class WltpDbTests(unittest.TestCase):
 
     #@skip
     def test0_runExperiment(self, plot_results=False, encoding="UTF-8"):
-        paths = glob.glob(gened_fname_glob)
-        if _is_experiments_outdated(paths):
-            _run_the_experiments(transplant_original_gears=False, compare_results=self.run_comparison, encoding=encoding)
+        _run_the_experiments(transplant_original_gears=False, compare_results=self.run_comparison, encoding=encoding)
 
     #@skip
     def test0_runExperimentTransplant(self, plot_results=False, encoding="UTF-8"):
-        paths = glob.glob(trans_fname_glob)
-        if _is_experiments_outdated(paths):
-            _run_the_experiments(transplant_original_gears=True, compare_results=self.run_comparison, encoding=encoding)
+        _run_the_experiments(transplant_original_gears=True, compare_results=self.run_comparison, encoding=encoding)
 
 
 
@@ -320,7 +359,7 @@ class WltpDbTests(unittest.TestCase):
         diff_prcnt = pmr_histogram['diff_prcnt']
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
-    def test3_PMRatio_trasnaplanted(self):
+    def test3_PMRatio_transplanted(self):
         """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
 
         ### Comparison history ###
@@ -371,7 +410,26 @@ class WltpDbTests(unittest.TestCase):
 
 
     def _check_gear_diffs(self, fname_glob):
-        res = _compare_gears_with_heinz(fname_glob) # ndiff_gears, ndiff_gears_accel, ndiff_gears_orig
+        def read_and_compare_experiment(veh_num, df_my, df_hz):
+            ## Count base-calc errors (before dirveability).
+            ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
+
+            ## Count all errors.
+            #
+            my_gears = df_my['gears']
+            gears_hz = df_hz['gear']
+            diff_gears = (my_gears != gears_hz)
+            ndiff_gears = np.count_nonzero(diff_gears)
+
+            ## Count Acceleration-only errors.
+            #
+            accel = np.gradient(df_my['v_class'])
+            diff_gears_accel = diff_gears[accel >= 0]
+            ndiff_gears_accel = np.count_nonzero(diff_gears_accel)
+
+            return (ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
+
+        res = _vehicles_applicator(fname_glob, read_and_compare_experiment)
         res.columns = ['diff_gears', 'diff_accel', 'diff_orig']
 
         res_totals = res.describe()
@@ -445,6 +503,8 @@ class WltpDbTests(unittest.TestCase):
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
 
+
+
 def _run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="UTF-8"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
@@ -453,6 +513,11 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
 
     for (ix, row) in df.iterrows():
         veh_num = ix
+        heinz_fname = _make_heinz_fname(veh_num)
+        outfname = _make_gened_fname(transplant_original_gears, veh_num)
+
+        if _is_file_up_to_date(outfname, [heinz_fname]):
+            continue
 
         model = goodVehicle()
         veh = model['vehicle']
@@ -494,10 +559,6 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
 
             # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
             # heinz:         't', 'km_h', 'stg', 'gear'
-
-            (root, ext) = os.path.splitext(veh_data_fname)
-            transplant = 'trans-' if transplant_original_gears else ''
-            outfname = '{}{}-{:05}{}'.format(transplant, root, veh_num, ext)
             df = pd.DataFrame(model['cycle_run'])
 
             _compare_exp_results(df, outfname, compare_results)
@@ -532,33 +593,6 @@ def _compare_exp_results(tabular, outfname, run_comparison):
             print('>> COMPARING(%s): No old-tabular found, 1st time to run' % outfname)
             run_comparison = False
 
-
-
-def _compare_gears_with_heinz(fname_glob):
-
-
-    def read_and_compare_experiment(veh_num, df_my, df_hz):
-        ## Count base-calc errors (before dirveability).
-        ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
-
-        ## Count all errors.
-        #
-        my_gears = df_my['gears']
-        gears_hz = df_hz['gear']
-        diff_gears = (my_gears != gears_hz)
-        ndiff_gears = np.count_nonzero(diff_gears)
-
-        ## Count Acceleration-only errors.
-        #
-        accel = np.gradient(df_my['v_class'])
-        diff_gears_accel = diff_gears[accel >= 0]
-        ndiff_gears_accel = np.count_nonzero(diff_gears_accel)
-
-        return (ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
-
-    res = _vehicles_applicator(fname_glob, read_and_compare_experiment)
-
-    return res
 
 
 def _plotResults(veh_fname, df_g, df_h,  res, ax, plot_diffs_gears_only=True, plot_original_gears = False):
@@ -690,17 +724,6 @@ def plot_diffs_with_heinz(diff_results, res, transplant_original_gears=False):
     plt.show()
 
 
-def _is_experiments_outdated(outfiles, force_rerun_experiments=False):
-    if not outfiles or force_rerun_experiments:
-        return True
-
-    resfiles_date = min([os.path.getmtime(file) for file in outfiles])
-    checkfiles = [__file__, '../../model.py', '../../experiment.py', 'wltp_db_vehicles.csv']
-    checkdates = [os.path.getmtime(fname) for fname in checkfiles]
-    modifs = [fdate > resfiles_date for fdate in checkdates]
-    return any(modifs)
-
-
 
 if __name__ == "__main__":
     import sys
@@ -708,7 +731,7 @@ if __name__ == "__main__":
     heinz_dir               = None
     experiment_num          = None
     compare_original_gears  = False
-    force_rerun_experiments = False  # Set to True to recalc experiments or 'compare_original_gears' has changed.
+    force_rerun = False  # Set to True to recalc experiments or 'compare_original_gears' has changed.
     os.chdir(os.path.join(mydir, samples_dir))
     try:
         if len(sys.argv) > 1:

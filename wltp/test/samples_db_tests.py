@@ -30,7 +30,7 @@ from wltp.test.goodvehicle import goodVehicle
 
 
 mydir = os.path.dirname(__file__)
-veh_data_fname = 'sample_vehicles.csv'
+vehs_data_inp_fname = 'sample_vehicles.csv'
 samples_dir = 'samples_db'
 gened_fname_regex = r'.*sample_vehicles-(\d+).csv'
 heinz_fname_regex = r'.*heinz-(\d+).csv'
@@ -52,7 +52,7 @@ def make_heinz_fname(veh_num):
     return 'heinz_Petrol_veh{:05}.csv'.format(veh_num)
 
 def read_vehicle_data():
-    csvfname = os.path.join(mydir, samples_dir, veh_data_fname)
+    csvfname = os.path.join(mydir, samples_dir, vehs_data_inp_fname)
     df = pd.read_csv(csvfname, encoding = encoding, index_col = 0)
 
     return df
@@ -218,7 +218,7 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
         # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
         # heinz:         't', 'km_h', 'stg', 'gear'
 
-        (root, ext) = os.path.splitext(veh_data_fname)
+        (root, ext) = os.path.splitext(vehs_data_inp_fname)
         outfname = os.path.join(mydir, samples_dir, '{}-{:05}{}'.format(root, veh_num, ext))
         df = pd.DataFrame(model['cycle_run'])
 
