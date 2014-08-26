@@ -12,6 +12,7 @@
 :created: 28 July 2014
 '''
 
+from collections import OrderedDict
 import glob
 import logging
 import math
@@ -19,12 +20,12 @@ import os
 import re
 import unittest
 from unittest.case import skip
+from wltp.experiment import Experiment
+from wltp.test.goodvehicle import goodVehicle
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
-from wltp.experiment import Experiment
-from wltp.test.goodvehicle import goodVehicle
 
 
 mydir = os.path.dirname(__file__)
@@ -71,7 +72,7 @@ def _select_wot(wots, isDiesel):
 def _make_gened_fname(transplant_original_gears, veh_num):
     root, ext = os.path.splitext(vehs_data_inp_fname)
     transplant = 'trans-' if transplant_original_gears else ''
-    outfname = '{}{}-{:05}{}'.format(transplant, root, veh_num, ext)
+    outfname = '{}{}-{:04}{}'.format(transplant, root, veh_num, ext)
 
     return outfname
 
@@ -130,17 +131,17 @@ def _is_file_up_to_date(result_file, other_dependency_files = None):
 
     return result_date > latest_dep_date
 
-
-def _vehicles_applicator(gened_fname_glob, pair_func):
+def _file_pairs(fname_glob):
     """
-    Applies a function onto a pair of (generated, heinz) files for each tested-vehicle in the glob.
+    Generates pairs of files to compare, skipping non-existent and those with mismatching #_of_rows.
 
-    :param pair_func: signature: func(veh_no, gened_df, heinz_df)
-    :return: a dataframe with the columns returned from the pair_func, row_indexed by veh_num
+    Example:
+
+    >>> for (veh_num, df_g, df_h) in _file_pairs('wltp_db_vehicles-00*.csv')
+            pass
     """
 
-    res = []
-    all_gened = glob.glob(gened_fname_glob)
+    all_gened = glob.glob(fname_glob)
     for g_fname in all_gened:
         m = re.match(gened_fname_regex, g_fname)
         veh_num = int(m.groups()[0])
@@ -155,13 +156,26 @@ def _vehicles_applicator(gened_fname_glob, pair_func):
             log.warning('Cycle-mismatched(%s): gened(%s) !+ heinz(%s)!', g_fname, df_g.v_class.sum(), df_h.v_orig.sum())
             continue
 
+        yield (veh_num, df_g, df_h)
+
+def _vehicles_applicator(fname_glob, pair_func):
+    """
+    Applies the fun onto a pair of (generated, heinz) files for each tested-vehicle in the glob and
+    appends results to list, preffixed by veh_num.
+
+    :param pair_func: signature: func(veh_no, gened_df, heinz_df)-->sequence_of_numbers
+    :return: a dataframe with the columns returned from the pair_func, row_indexed by veh_num
+    """
+
+    res = []
+    for (veh_num, df_g, df_h) in _file_pairs(fname_glob):
         row = pair_func(veh_num, df_g, df_h)
         res.append([veh_num] + list(row))
 
-    res = np.array(res)
-    res = pd.DataFrame(res[:, 1:], index=res[:, 0])
+    ares = np.array(res)
+    df = pd.DataFrame(ares[:, 1:], index=ares[:, 0])
 
-    return res
+    return df
 
 
 
@@ -311,7 +325,7 @@ class WltpDbTests(unittest.TestCase):
 
         return pmr_histogram
 
-    def test2_PMRatio(self):
+    def test2_n_mean_per_PMR(self):
         """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
 
         ### Comparison history ###
@@ -362,7 +376,7 @@ class WltpDbTests(unittest.TestCase):
         diff_prcnt = pmr_histogram['diff_prcnt']
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
-    def test3_PMRatio_transplanted(self):
+    def test3_n_mean_per_PMR_transplanted(self):
         """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
 
         ### Comparison history ###
@@ -408,6 +422,88 @@ class WltpDbTests(unittest.TestCase):
         print (pmr_histogram)
 
         diff_prcnt = pmr_histogram['diff_prcnt']
+        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
+
+
+    def _check_n_mean_per_gear(self, fname_glob):
+        def avg_by_column(group_column, aggregate_column, df):
+            sr = df.groupby(group_column)[aggregate_column].describe()
+
+            ## Ensure 6-gears for all vehicles
+            #
+            index = [range(7), ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']]
+            index = pd.MultiIndex.from_product(index, names=['gear', 'aggregate'])
+            sr = sr.reindex(index)
+
+            return sr
+
+        vehdata = OrderedDict()
+
+        for (veh_num, df_g, df_h) in _file_pairs(fname_glob):
+            df = pd.concat((avg_by_column('gears', 'rpm', df_g), avg_by_column('gear', 'n', df_h)), axis=1)
+            df.columns = ['python', 'heinz']
+            df['diff'] = df.python - df.heinz
+            df['diff%'] = 100 * abs(df.python - df.heinz) / df.iloc[:, 2].min(axis=1)
+
+            vehdata[veh_num] = df
+
+        vehdata = pd.Panel(vehdata).to_frame(filter_observations=False)
+
+        diff_prcnt_by_gears = vehdata.xs('mean', level=1).xs('diff%', level=1).mean(axis=1)
+        diff_prcnt_by_gears.name = 'diff_prcnt_by_gears'
+
+        return diff_prcnt_by_gears
+
+    def test2_n_mean_per_gear(self):
+        """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
+
+        ### Comparison history ###
+
+
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
+            gear
+            0       -8.173741
+            1      -38.022558
+            2      -14.872497
+            3      -16.511565
+            4      -12.933735
+            5       -6.003699
+            6       -3.600086
+        """
+        pcrnt_limit = 40
+
+        pmr_histogram = self._check_n_mean_per_gear(gened_fname_glob)
+
+        print (pmr_histogram)
+
+        diff_prcnt = pmr_histogram
+        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
+
+    def test2_n_mean_per_gear_transplanted(self):
+        """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
+
+        ### Comparison history ###
+
+
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
+            gear
+            0       -8.960919
+            1      -26.601088
+            2       -4.137992
+            3       -3.965282
+            4       -2.827028
+            5       -2.464225
+            6       -0.383435
+        """
+        pcrnt_limit = 40
+
+        pmr_histogram = self._check_n_mean_per_gear(trans_fname_glob)
+
+        print (pmr_histogram)
+
+        diff_prcnt = pmr_histogram
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
 
@@ -748,11 +844,11 @@ if __name__ == "__main__":
     except (ValueError, IndexError) as ex:
         exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
 
-    paths = glob.glob(gened_fname_glob)
+    paths = glob.glob(fname_glob)
 
     if _is_experiments_outdated(paths):
         _run_the_experiments(transplant_original_gears = False)
-        paths = glob.glob(gened_fname_glob)
+        paths = glob.glob(fname_glob)
 
-    (diff_results, res) = _compare_gears_with_heinz(gened_fname_glob)  ## FIXME, old code
+    (diff_results, res) = _compare_gears_with_heinz(fname_glob)  ## FIXME, old code
     plot_diffs_with_heinz(diff_results, res, transplant_original_gears = compare_original_gears)

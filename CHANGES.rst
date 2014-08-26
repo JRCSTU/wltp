@@ -12,7 +12,8 @@ Known deficiencies
   along with other recent updates.
 * (!) The ``n_max`` is calculated for ALL GEARS, resulting in "clipped" velocity-profiles,
   leading to reduced rpm's for low-powered vehicles.
-* Clutching-points and therefore engine-speed are very preliminary.
+* Clutching-points and therefore engine-speed are very preliminary
+  (ie ``rpm`` when starting from stop might be < ``n_idle``).
 
 TODOs
 =====
