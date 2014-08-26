@@ -385,21 +385,6 @@ class WltpDbTests(unittest.TestCase):
 
                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
             pmr
-            (9.973, 24.823]        1566.018469     1568.360963    0.149583     32
-            (24.823, 39.496]       1694.829888     1696.482640    0.097517     34
-            (39.496, 54.17]        1806.916712     1789.409819   -0.978361    120
-            (54.17, 68.843]        2219.059646     2165.214662   -2.486820     94
-            (68.843, 83.517]       2078.194023     2043.741660   -1.685749     59
-            (83.517, 98.191]       1898.241000     1890.040533   -0.433878      4
-            (98.191, 112.864]      1794.673461     1792.693611   -0.110440     31
-            (112.864, 127.538]     2606.773081     2568.011660   -1.509394      2
-            (127.538, 142.211]     1627.952896     1597.571904   -1.901698      1
-            (142.211, 156.885]             NaN             NaN         NaN      0
-            (156.885, 171.558]             NaN             NaN         NaN      0
-            (171.558, 186.232]     1396.061758     1385.176569   -0.785834      1
-
-                                gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
-            pmr
             (9.973, 24.823]        1557.225037     1568.360963    0.715113     32
             (24.823, 39.496]       1686.859826     1696.482640    0.570457     34
             (39.496, 54.17]        1771.670097     1789.409819    1.001299    120
@@ -431,7 +416,7 @@ class WltpDbTests(unittest.TestCase):
 
             ## Ensure 6-gears for all vehicles
             #
-            index = [range(7), ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max']]
+            index = [range(7), ['mean', 'std', 'min', 'max']]
             index = pd.MultiIndex.from_product(index, names=['gear', 'aggregate'])
             sr = sr.reindex(index)
 
@@ -443,7 +428,7 @@ class WltpDbTests(unittest.TestCase):
             df = pd.concat((avg_by_column('gears', 'rpm', df_g), avg_by_column('gear', 'n', df_h)), axis=1)
             df.columns = ['python', 'heinz']
             df['diff'] = df.python - df.heinz
-            df['diff%'] = 100 * abs(df.python - df.heinz) / df.iloc[:, 2].min(axis=1)
+            df['diff%'] = 100 * df['diff'] / df.iloc[:, :2].abs().min(axis=1)
 
             vehdata[veh_num] = df
 
@@ -455,7 +440,7 @@ class WltpDbTests(unittest.TestCase):
         return diff_prcnt_by_gears
 
     def test2_n_mean_per_gear(self):
-        """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
+        """Check mean-rpm diff% with Heinz stays within some percent for all gears.
 
         ### Comparison history ###
 
@@ -463,15 +448,15 @@ class WltpDbTests(unittest.TestCase):
         All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
 
             gear
-            0       -8.173741
-            1      -38.022558
-            2      -14.872497
-            3      -16.511565
-            4      -12.933735
-            5       -6.003699
-            6       -3.600086
+            0       -9.925769
+            1      -44.450903
+            2        6.520319
+            3        7.804359
+            4        5.401895
+            5        1.892950
+            6        2.228276
         """
-        pcrnt_limit = 40
+        pcrnt_limit = 45
 
         pmr_histogram = self._check_n_mean_per_gear(gened_fname_glob)
 
@@ -481,7 +466,7 @@ class WltpDbTests(unittest.TestCase):
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
     def test2_n_mean_per_gear_transplanted(self):
-        """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
+        """Check mean-rpm diff% with Heinz stays within some percent for all gears.
 
         ### Comparison history ###
 
@@ -489,15 +474,15 @@ class WltpDbTests(unittest.TestCase):
         All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
 
             gear
-            0       -8.960919
-            1      -26.601088
-            2       -4.137992
-            3       -3.965282
-            4       -2.827028
-            5       -2.464225
-            6       -0.383435
+            0       -9.926855
+            1      -24.409425
+            2        1.616768
+            3        1.700642
+            4        0.119165
+            5       -0.320293
+            6       -0.096754
         """
-        pcrnt_limit = 40
+        pcrnt_limit = 25
 
         pmr_histogram = self._check_n_mean_per_gear(trans_fname_glob)
 
