@@ -233,6 +233,100 @@ class WltpDbTests(unittest.TestCase):
         self.assertLess(abs(diff_prcnt), pcrnt_limit)
 
 
+    def _check_gear_diffs(self, fname_glob):
+        def read_and_compare_experiment(veh_num, df_my, df_hz):
+            ## Count base-calc errors (before dirveability).
+            ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
+
+            ## Count all errors.
+            #
+            my_gears = df_my['gears']
+            gears_hz = df_hz['gear']
+            diff_gears = (my_gears != gears_hz)
+            ndiff_gears = np.count_nonzero(diff_gears)
+
+            ## Count Acceleration-only errors.
+            #
+            accel = np.gradient(df_my['v_class'])
+            diff_gears_accel = diff_gears[accel >= 0]
+            ndiff_gears_accel = np.count_nonzero(diff_gears_accel)
+
+            return (ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
+
+        res = _vehicles_applicator(fname_glob, read_and_compare_experiment)
+        res.columns = ['diff_gears', 'diff_accel', 'diff_orig']
+
+        res_totals = res.describe()
+        res_totals.loc['sum', :] = res.sum(axis=0)
+        res_totals.loc['mean%', :] = 100 * res_totals.loc['mean', :] / 1800 # class3-duration
+
+        return res_totals
+
+    def test2a_gear_diffs(self):
+        """Check diff-gears with Heinz stays within some percent.
+
+        ### Comparison history ###
+
+        Class3b-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
+                         count       MEAN        STD  min  max
+            gears        23387  75.931818  56.921729    6  279
+            accell       19146  62.162338  48.831155    4  238
+            senza rules  16133  52.379870  35.858415   11  170
+
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
+                     diff_gears    diff_accel     diff_orig
+            count    378.000000    378.000000    378.000000
+            mean     104.965608     86.171958     90.235450
+            std      100.439783     82.613475    109.283901
+            min        6.000000      4.000000     11.000000
+            25%       36.250000     25.250000     23.000000
+            50%       69.000000     57.500000     51.000000
+            75%      142.000000    119.750000    104.750000
+            max      524.000000    404.000000    600.000000
+            sum    39677.000000  32573.000000  34109.000000
+            mean%      5.831423      4.787331      5.013081
+        """
+
+        pcrnt_limit = 6
+
+        res_totals = self._check_gear_diffs(gened_fname_glob)
+        print(res_totals)
+
+        diff_prcnt = res_totals.loc['mean%', ['diff_gears', 'diff_accel']]
+        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
+
+    def test2b_gear_diffs_transplanted(self):
+        """Check driveability-only diff-gears with Heinz stays within some percent.
+
+        ### Comparison history ###
+
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
+                    diff_gears   diff_accel  diff_orig
+            count   378.000000   378.000000        378
+            mean     15.566138     5.634921          0
+            std      16.554295     8.136700          0
+            min       0.000000     0.000000          0
+            25%       5.000000     1.000000          0
+            50%      11.000000     3.000000          0
+            75%      19.750000     7.000000          0
+            max     123.000000    78.000000          0
+            sum    5884.000000  2130.000000          0
+            mean%     0.864785     0.313051          0
+
+        """
+
+        pcrnt_limit = 0.9 # mean
+
+        res_totals = self._check_gear_diffs(trans_fname_glob)
+        print(res_totals)
+
+        diff_prcnt = res_totals.loc['mean%', ['diff_gears', 'diff_accel']]
+        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
+
+
 
     def _check_n_mean(self, fname_glob):
         res = _vehicles_applicator(fname_glob, lambda _, df_g, df_h:
@@ -244,7 +338,7 @@ class WltpDbTests(unittest.TestCase):
 
         return res_totals
 
-    def test2_AvgRPMs(self):
+    def test3a_n_mean(self):
         """Check mean-rpm diff with Heinz stays within some percent.
 
         ### Comparison history ###
@@ -277,7 +371,7 @@ class WltpDbTests(unittest.TestCase):
         self.assertLess(abs(diff_prcnt), pcrnt_limit)
 
 
-    def test3_AvgRPMs_transplanted(self):
+    def test3b_n_mean_transplanted(self):
         """Check driveability-only mean-rpm diff with Heinz stays within some percent.
 
         ### Comparison history ###
@@ -305,7 +399,7 @@ class WltpDbTests(unittest.TestCase):
 
 
 
-    def _check_n_mean_per_pmr(self, fname_glob):
+    def _check_n_mean__pmr(self, fname_glob):
         vehdata = _read_vehicle_data()
         vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
         np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
@@ -325,7 +419,7 @@ class WltpDbTests(unittest.TestCase):
 
         return pmr_histogram
 
-    def test2_n_mean_per_PMR(self):
+    def test4a_n_mean__PMR(self):
         """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
 
         ### Comparison history ###
@@ -369,14 +463,14 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 2.5
 
-        pmr_histogram = self._check_n_mean_per_pmr(gened_fname_glob)
+        pmr_histogram = self._check_n_mean__pmr(gened_fname_glob)
 
         print (pmr_histogram)
 
         diff_prcnt = pmr_histogram['diff_prcnt']
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
-    def test3_n_mean_per_PMR_transplanted(self):
+    def test4b_n_mean__PMR_transplanted(self):
         """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
 
         ### Comparison history ###
@@ -402,7 +496,7 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 1.5
 
-        pmr_histogram = self._check_n_mean_per_pmr(trans_fname_glob)
+        pmr_histogram = self._check_n_mean__pmr(trans_fname_glob)
 
         print (pmr_histogram)
 
@@ -410,7 +504,7 @@ class WltpDbTests(unittest.TestCase):
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
 
-    def _check_n_mean_per_gear(self, fname_glob):
+    def _check_n_mean__gear(self, fname_glob):
         def avg_by_column(group_column, aggregate_column, df):
             sr = df.groupby(group_column)[aggregate_column].describe()
 
@@ -427,19 +521,22 @@ class WltpDbTests(unittest.TestCase):
         for (veh_num, df_g, df_h) in _file_pairs(fname_glob):
             df = pd.concat((avg_by_column('gears', 'rpm', df_g), avg_by_column('gear', 'n', df_h)), axis=1)
             df.columns = ['python', 'heinz']
-            df['diff'] = df.python - df.heinz
-            df['diff%'] = 100 * df['diff'] / df.iloc[:, :2].abs().min(axis=1)
+            df['diff%'] = 100 * (df.python - df.heinz) / df.iloc[:, :2].abs().min(axis=1)
 
             vehdata[veh_num] = df
 
         vehdata = pd.Panel(vehdata).to_frame(filter_observations=False)
 
-        diff_prcnt_by_gears = vehdata.xs('mean', level=1).xs('diff%', level=1).mean(axis=1)
+        diff_prcnt_by_gears = vehdata.xs('mean', level=1).mean(axis=1)
+        diff_prcnt_by_gears = pd.DataFrame(diff_prcnt_by_gears).unstack()
         diff_prcnt_by_gears.name = 'diff_prcnt_by_gears'
+
+        diff_prcnt_by_gears = diff_prcnt_by_gears[0]
+        diff_prcnt_by_gears.columns.name = 'n_mean'
 
         return diff_prcnt_by_gears
 
-    def test2_n_mean_per_gear(self):
+    def test5a_n_mean__gear(self):
         """Check mean-rpm diff% with Heinz stays within some percent for all gears.
 
         ### Comparison history ###
@@ -447,25 +544,28 @@ class WltpDbTests(unittest.TestCase):
 
         All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
 
+            n_mean      python        heinz      diff%
             gear
-            0       -9.925769
-            1      -44.450903
-            2        6.520319
-            3        7.804359
-            4        5.401895
-            5        1.892950
-            6        2.228276
+            0       732.358286   804.656085  -9.925769
+            1       870.080494  1177.547512 -44.450903
+            2      1789.787609  1650.383967   6.520319
+            3      1921.271483  1761.172027   7.804359
+            4      1990.286402  1886.563262   5.401895
+            5      2138.445024  2112.552162   1.892950
+            6      2030.970322  1987.865039   2.228276
+
+
         """
         pcrnt_limit = 45
 
-        pmr_histogram = self._check_n_mean_per_gear(gened_fname_glob)
+        histogram = self._check_n_mean__gear(gened_fname_glob)
 
-        print (pmr_histogram)
+        print (histogram)
 
-        diff_prcnt = pmr_histogram
+        diff_prcnt = histogram['diff%']
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
-    def test2_n_mean_per_gear_transplanted(self):
+    def test5b_n_mean__gear_transplanted(self):
         """Check mean-rpm diff% with Heinz stays within some percent for all gears.
 
         ### Comparison history ###
@@ -473,118 +573,26 @@ class WltpDbTests(unittest.TestCase):
 
         All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
 
+            n_mean      python        heinz      diff%
             gear
-            0       -9.926855
-            1      -24.409425
-            2        1.616768
-            3        1.700642
-            4        0.119165
-            5       -0.320293
-            6       -0.096754
+            0       732.357001   804.656085  -9.926855
+            1       966.022039  1177.547512 -24.409425
+            2      1678.578373  1650.383967   1.616768
+            3      1791.644768  1761.172027   1.700642
+            4      1883.504933  1886.563262   0.119165
+            5      2099.218160  2112.552162  -0.320293
+            6      1985.732086  1987.865039  -0.096754
         """
         pcrnt_limit = 25
 
-        pmr_histogram = self._check_n_mean_per_gear(trans_fname_glob)
+        histogram = self._check_n_mean__gear(trans_fname_glob)
 
-        print (pmr_histogram)
+        print (histogram)
 
-        diff_prcnt = pmr_histogram
+        diff_prcnt = histogram['diff%']
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
 
-
-    def _check_gear_diffs(self, fname_glob):
-        def read_and_compare_experiment(veh_num, df_my, df_hz):
-            ## Count base-calc errors (before dirveability).
-            ndiff_gears_orig = np.count_nonzero(df_my['gears_orig'] != df_hz['g_max'])
-
-            ## Count all errors.
-            #
-            my_gears = df_my['gears']
-            gears_hz = df_hz['gear']
-            diff_gears = (my_gears != gears_hz)
-            ndiff_gears = np.count_nonzero(diff_gears)
-
-            ## Count Acceleration-only errors.
-            #
-            accel = np.gradient(df_my['v_class'])
-            diff_gears_accel = diff_gears[accel >= 0]
-            ndiff_gears_accel = np.count_nonzero(diff_gears_accel)
-
-            return (ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
-
-        res = _vehicles_applicator(fname_glob, read_and_compare_experiment)
-        res.columns = ['diff_gears', 'diff_accel', 'diff_orig']
-
-        res_totals = res.describe()
-        res_totals.loc['sum', :] = res.sum(axis=0)
-        res_totals.loc['mean%', :] = 100 * res_totals.loc['mean', :] / 1800 # class3-duration
-
-        return res_totals
-
-    def test2_GearDiffs(self):
-        """Check diff-gears with Heinz stays within some percent.
-
-        ### Comparison history ###
-
-        Class3b-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
-
-                         count       MEAN        STD  min  max
-            gears        23387  75.931818  56.921729    6  279
-            accell       19146  62.162338  48.831155    4  238
-            senza rules  16133  52.379870  35.858415   11  170
-
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
-
-                     diff_gears    diff_accel     diff_orig
-            count    378.000000    378.000000    378.000000
-            mean     104.965608     86.171958     90.235450
-            std      100.439783     82.613475    109.283901
-            min        6.000000      4.000000     11.000000
-            25%       36.250000     25.250000     23.000000
-            50%       69.000000     57.500000     51.000000
-            75%      142.000000    119.750000    104.750000
-            max      524.000000    404.000000    600.000000
-            sum    39677.000000  32573.000000  34109.000000
-            mean%      5.831423      4.787331      5.013081
-        """
-
-        pcrnt_limit = 6
-
-        res_totals = self._check_gear_diffs(gened_fname_glob)
-        print(res_totals)
-
-        diff_prcnt = res_totals.loc['mean%', ['diff_gears', 'diff_accel']]
-        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
-
-    def test3_GearDiffs_transplanted(self):
-        """Check driveability-only diff-gears with Heinz stays within some percent.
-
-        ### Comparison history ###
-
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
-
-                    diff_gears   diff_accel  diff_orig
-            count   378.000000   378.000000        378
-            mean     15.566138     5.634921          0
-            std      16.554295     8.136700          0
-            min       0.000000     0.000000          0
-            25%       5.000000     1.000000          0
-            50%      11.000000     3.000000          0
-            75%      19.750000     7.000000          0
-            max     123.000000    78.000000          0
-            sum    5884.000000  2130.000000          0
-            mean%     0.864785     0.313051          0
-
-        """
-
-        pcrnt_limit = 0.9 # mean
-
-        res_totals = self._check_gear_diffs(trans_fname_glob)
-        print(res_totals)
-
-        diff_prcnt = res_totals.loc['mean%', ['diff_gears', 'diff_accel']]
-        np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
 
 
