@@ -15,6 +15,7 @@
 
 import sys
 import os
+import re
 
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
@@ -62,16 +63,30 @@ if on_rtd:
 if on_rtd:
     mathjax_path = 'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
-## Autodoc always includes constructors.
+## Make autodoc always includes constructors.
 #    From http://stackoverflow.com/a/5599712/548792
+#    and http://stackoverflow.com/questions/3757500/how-do-i-connect-sphinxs-autodoc-skip-member-to-my-function
 #
-def skip(app, what, name, obj, skip, options):
-    if name == "__init__":
-        return False
-    return skip
+autodoc_default_flags = ['members', 'private-members',
+                    'special-members',
+                    #'undoc-members',
+                    'show-inheritance']
+# autoclass_content = 'both' ## Join class+ __init__() docstrings
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    exclusions = ('__weakref__',  # special-members
+                  '__doc__', '__module__', '__dict__',  # undoc-members
+                  #'__init__', __new__
+                  )
+    exclude = name in exclusions
+    return skip or exclude
+# #     if what == 'method' and \
+# #             (name == "__init__" or re.match(r'^_[A-Za-z]', name)):
+#     if (name == "__init__" or re.match(r'^_[A-Za-z]', name)):
+#         return False
+#     return skip
 
 def setup(app):
-    app.connect("autodoc-skip-member", skip)
+    app.connect("autodoc-skip-member", autodoc_skip_member)
 
 
 # -- General configuration ------------------------------------------------
@@ -176,12 +191,15 @@ if not on_rtd:
     html_theme = "sphinx_rtd_theme"
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
+    html_theme_options = {
+        'sticky_navigation':True,
+    }
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-    'sticky_navigation':True,
-}
+# html_theme_options = {
+# }
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []

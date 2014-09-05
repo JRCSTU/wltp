@@ -7,6 +7,7 @@ The core of the simulator is composed from the following modules:
 
     experiment
     model
+    pandel
 
 Among the various tests, those running on 'sample' databases for comparing differences
 with existing tool are the following:
@@ -33,6 +34,11 @@ Module: :mod:`wltp.experiment`
 Module: :mod:`wltp.model`
 -------------------------
 .. automodule:: wltp.model
+    :members:
+
+Module: :mod:`wltp.pandel`
+--------------------------
+.. automodule:: wltp.pandel
     :members:
 
 Module: :mod:`wltp.test.samples_db_tests`

@@ -4,56 +4,22 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''Defines the schema, defaults and validation operations for the data consumed and produced by the :class:`~wltp.experiment.Experiment`.
+"""Defines the schema, defaults and validation operations for the data consumed and produced by the :class:`~wltp.experiment.Experiment`.
 
-The :dfn:`model` is a hierarchical-tree of strings and numbers assembled with:
-
-* Sequences,
-* Dictionaries,
-* :class:`pandas.DataFrame` and
-* :class:`pandas.Series` instances.
-
-.. TODO::
-    Each model instance gets constructed by merging multiple *sub-models* in a *stack*.
-    Branches from sub-models higher in the stack override the respective ones
-    from the sub-models below, recursively.
-
-    The building of a model-instance happens in 4-steps::
-
-                        ........................ Model Construction ........................
-          .----------.'  ________________                                                  '
-         / top_model/-->| 1.Pre-validate |---+                                             '
-        '----------'  ' |________________|   |                                             '
-          .----------.'  ________________    |                                             '
-         /   ....   /-->| 1.Pre-validate |-+ |                                             '
-        '----------'  ' |________________| | |                                             '
-          .----------.'  ________________  | |   _________     ___________      __________ '   .------.
-         /   base   /-->| 1.Pre-validate |-+-+->| 2.Merge |-->| 3.Validate |-->| 4.Curate |-->/ model/
-        '----------'  ' |________________|      |_________|   |____________|   |__________|' '------'
-                      '....................................................................'
-
-
-    1. Loosely **pre-validate** each sub-model separately with `json-schema <http://www.jsonschema.net/>`_,
-    2. Recursively **merge** the stack of sub-modules in a single tree
-       taking into account different objects (ie. merging a ``dict`` with a ``DataFrame``),
-    3. Strictly json-**validate** the final result tree ("the model").
-    4. Ad-hoc **curation** of the model to enforce dependencies and generation-rules among the data.
-
-    The whole procedure happens "lazily", using generators (with :keyword:`yield`).
-    Before proceeding to the next step, the previous one must have completed successfully.
-    That way, ad-hoc code in step 4 will not suffer a horrible death due to badly-formed data.
-
-'''
+The model-instance is managed by :class:`pandel.Pandel`.
+"""
+from collections.abc import Mapping
 import json
-import logging
-from textwrap import dedent
-from wltp.cycles import (class1, class2, class3)
-
+from jsonschema import Draft4Validator
 from jsonschema import ValidationError
 import jsonschema
+import logging
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
+from textwrap import dedent
+
+from wltp.cycles import (class1, class2, class3)
 
 import itertools as it
 import numpy as np
@@ -85,13 +51,13 @@ def json_dump(obj, fp, pd_method=None, **kwargs):
     json.dump(obj, fp, default=make_json_defaulter(pd_method), **kwargs)
 
 def model_base():
-    '''The base model for running a WLTC experiment.
+    """The base model for running a WLTC experiment.
 
     It contains some default values for the experiment (ie the default 'full-load-curve' for the vehicles).
     But note that it this model is not valid - you need to iverride its attributes.
 
     :return: a tree with the default values for the experiment.
-    '''
+    """
 
     ## Form Heinz-db
     petrol = [
@@ -206,10 +172,10 @@ def results_base():
 
 
 def wltc_data():
-    '''The WLTC-data required to run an experiment (the class-cycles and their attributes)..
+    """The WLTC-data required to run an experiment (the class-cycles and their attributes)..
 
     :return: a tree
-    '''
+    """
 
     ## See schemas for explainations.
     ##
@@ -230,9 +196,7 @@ def wltc_data():
 
 
 def merge(a, b, path=[]):
-    ''''merges b into a'''
-
-    from collections.abc import Mapping
+    """'merges b into a"""
 
     for key in b:
         bv = b[key]
@@ -257,10 +221,11 @@ def merge(a, b, path=[]):
 
 
 
-def model_schema(additional_properties=False):
-    ''':return: The json-schema(dict) for input/output of the WLTC experiment. '''
-
-    from textwrap import dedent
+def model_schema(additional_properties=False, for_prevalidation=False):
+    """
+    :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
+    :return: The json-schema(dict) for input/output of the WLTC experiment.
+    """
 
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
@@ -289,11 +254,11 @@ def model_schema(additional_properties=False):
                        'type': ['integer', 'null'],
                        'minimum': 0,
                        'exclusiveMinimum': True,
-                       'description': dedent('''
+                       'description': dedent("""
                            The maximum velocity as declared by the manufacturer.
                            If ommited, calculated as::
                                v_max = (n_rated * f_n_max (=1.2)) / gear_ratio[last]
-                       '''),
+                       """),
                    },
                    'p_rated': {
                        'title': 'maximum rated power',
@@ -303,12 +268,12 @@ def model_schema(additional_properties=False):
                    'n_rated': {
                        'title': 'rated engine revolutions',
                        '$ref': '#/definitions/positiveNumber',
-                       'description': dedent('''
+                       'description': dedent("""
                            The rated engine revolutions at which an engine develops its maximum power.
                            If the maximum power is developed over an engine revolutions range,
                            it is determined by the mean of this range.
                            This is called 's' in the specs.
-                       '''),
+                       """),
                     },
                    'n_idle': {
                        'title': 'idling revolutions',
@@ -318,12 +283,12 @@ def model_schema(additional_properties=False):
                    'n_min': {
                        'title': 'minimum engine revolutions',
                        'type': ['integer', 'null'],
-                       'description': dedent('''
+                       'description': dedent("""
                         minimum engine revolutions for gears > 2 when the vehicle is in motion. The minimum value
                         is determined by the following equation::
                             n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
                         Higher values may be used if requested by the manufacturer, by setting this one.
-                       '''),
+                       """),
                     },
                    'gear_ratios': {
                        'title': 'gear ratios',
@@ -406,11 +371,11 @@ def model_schema(additional_properties=False):
                         'default': 0.9,
                     },
                     'f_n_clutch_gear2': {
-                        'description': dedent('''
+                        'description': dedent("""
                             A 2-value number-array(f1, f2) controlling when to clutch gear-2::
                                 N < n_clutch_gear2 := max(f1 * n_idle, f2 * n_range + n_idle),
                             unless "clutched"...
-                        '''),
+                        """),
                         'type': [ 'array', 'null'],
                         'default': [1.15, 0.03],
                     },
@@ -476,10 +441,10 @@ def model_schema(additional_properties=False):
                 'properties': {
                     '$merge': {
                         'enum': ['merge', 'replace', 'append_head', 'append_tail', 'overwrite_head', 'overwrite_tail'],
-                        'description': dedent('''
+                        'description': dedent("""
                             merge       := appends any non-existent elements
                             replace     := (default) all items replaced
-                        '''),
+                        """),
                     },
                     '$list': {
                         'type': 'array',
@@ -491,10 +456,10 @@ def model_schema(additional_properties=False):
                 'properties': {
                     '$merge': {
                         'type': 'boolean',
-                        'description': dedent('''
+                        'description': dedent("""
                             true    := (default) merge properties
                             false   := replace properties
-                        '''),
+                        """),
                     },
                 },
             },
@@ -504,10 +469,10 @@ def model_schema(additional_properties=False):
     return schema
 
 def wltc_schema():
-    '''The json-schema for the WLTC-data required to run a WLTC experiment.
+    """The json-schema for the WLTC-data required to run a WLTC experiment.
 
     :return :dict:
-    '''
+    """
 
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
@@ -598,13 +563,11 @@ def wltc_schema():
 
 
 def wltc_validator():
-    from jsonschema import Draft4Validator
     schema = wltc_schema()
     return Draft4Validator(schema)
 
 
 def model_validator(additional_properties=False):
-    from jsonschema import Draft4Validator
     schema = model_schema(additional_properties)
     validator = Draft4Validator(schema)
     validator._types.update({"ndarray": np.ndarray, "DataFrame" : pd.DataFrame, 'Series':pd.Series})
@@ -642,6 +605,7 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
     >>> len(list(err_generator))
     0
     """
+
     validator = model_validator(additional_properties=additional_properties)
     validators = [
         validator.iter_errors(mdl),
@@ -729,7 +693,6 @@ def yield_forced_cycle_errors(mdl, additional_properties):
             params['forced_cycle'] = forced_cycle
         except PandasError as ex:
             yield ValidationError('Invalid forced_cycle, due to: %s' % ex, cause= ex)
-
 
 
 if __name__ == '__main__':

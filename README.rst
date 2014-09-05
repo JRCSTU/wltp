@@ -39,14 +39,14 @@ and any warnings.  It does not calculate any |CO2| emissions.
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
+          ---------------------    ______________         ---------------------
+         ;        model      ;    | Experiment   |       ; model(augmented)  ;
+        ;-------------------;     |______________|      ;-------------------;
+       ; +--vehicle        ;  ==> |  ------------| ==> ; +...              ;
+      ;  +--params        ;       | ; WLTC-data; |    ;  +--cycle_run     ;
+     ;                   ;        | -----------  |   ;                   ;
+     --------------------         |______________|   --------------------
 
-         .-------------------.    ______________        .-------------------.
-        /        Model      /    | Experiment   |       / Model(augmented)  /
-       /-------------------/     |--------------|      /-------------------/
-      / +--vehicle        /  ==> |  .----------.| ==> / +...              /
-     /  +--params        /       | / WLTC-data/ |    /  +--cycle_run     /
-    /                   /        |'----------'  |   /                   /
-    '------------------'         |______________|  '-------------------'
 
 
 Install
@@ -58,12 +58,12 @@ Requires Python 3.3+.
     for *Windows* and *OS X*, respectively.
 
 You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
-with :command:`pip` for python-3
-(note the :option:`--pre`, since the package is still in *alpha* version):
+with :command:`pip`.
+Notice that :option:`--pre` is required, since all realeased packages so far were *pre*-release (``-alpha``) versions:
 
 .. code-block:: console
 
-    $ pip3 install wltp --pre
+    $ pip install wltp --pre                    ## Use `pip3` if your system has both python-2 & 3 installed.
     $ wltp.py --help
     usage: wltp.py -I ARG [ARG ...] [-c COLUMN_SPEC [COLUMN_SPEC ...]]
               [-r [COLUMN_SPEC [COLUMN_SPEC ...]]]
@@ -76,12 +76,13 @@ with :command:`pip` for python-3
     ...
 
 .. Tip::
-    The console-commands listed here to begin with ``$`` are for a *POSIX* environment
-    (*Linux*, *OS X*). They are simple enough and easy to translate into their *Windows* counterparts,
-    but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get
+    The console-commands that are listed here to begin with ``$`` are for a *POSIX* environment
+    (*Linux*, *OS X*). They are simple enough and easy to translate into their *Windows* ``cmd.exe``
+    counterparts, but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get
     the same environment on *Windows* machines.
 
-    In the cygwin's installation wizard, make sure that the following packages are also included::
+    If you choose to do that, make sure that in the *cygwin*'s installation wizard the following packages
+    are also included::
 
         * git
         * make
@@ -90,14 +91,16 @@ with :command:`pip` for python-3
         * wget
 
 
-Alternatively you can build it from the latest sources in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
-(assuming you have a working installation of `git <http://git-scm.com/>`_):
+Alternatively you can build the latest version from the sources,
+(assuming you have a working installation of `git <http://git-scm.com/>`_)
+and install it in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
+with the following series of commands:
 
 .. code-block:: console
 
-    $ git clone "https://github.com/ankostis/wltp.git" wltp
-    $ cd wltp
-    $ python3 setup.py develop
+    $ git clone "https://github.com/ankostis/wltp.git" wltp.git
+    $ cd wltp.git
+    $ python setup.py develop                   ## Use `python3` if you have installed both python-2 & 3.
 
 
 That way you get the complete source-tree of the project, ready for development
@@ -124,7 +127,7 @@ Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)` example to defi
 an experiment.
 
 First you have to create a :mod:`~wltp.model` containing the input-data required for running
-a single experiment. You construct the model-trees from:
+a single experiment. The :class:`~wltp.model.ModelMaker` constructs a model-tree from:
 
 * Sequences,
 * Dictionaries,
@@ -133,7 +136,7 @@ a single experiment. You construct the model-trees from:
 
 
 You then provide the model to the :class:`~wltp.experiment.Experiment` constructor
-where default values for the model are filled in and gets validated:
+where default values for the model are filled in and then gets validated by a pre-defined :term:`JSON-schema`:
 
 .. doctest::
 
@@ -223,7 +226,7 @@ You can export the cycle-run results in a CSV-file with the following pandas com
 
     >>> df.to_csv('cycle_run.csv')                                                      # doctest: +SKIP
 
-For information on the model-data, check the schema:
+For information on the model-data, check its JSON-schema:
 
 .. doctest::
 
@@ -529,6 +532,21 @@ Glossary
     Downscaling
         Reduction of the top-velocity of the original drive trace to be followed, to ensure that the vehicle
         is not driven in an unduly high proportion of "full throttle".
+
+    JSON-schema
+        The `JSON schema <http://json-schema.org/>`_ is an `IETF draft <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_
+        that provides a *contract* for what JSON-data is required for a given application and how to interact
+        with it.  JSON Schema is intended to define validation, documentation, hyperlink navigation, and
+        interaction control of JSON data.
+
+        You can learn more about it from `excellent guide <http://spacetelescope.github.io/understanding-json-schema/>`_,
+        and/or experiment with this `on-line validator <http://www.jsonschema.net/>`_.
+
+    JSON-pointer
+        JSON Pointer(:rfc:`6901`) defines a string syntax for identifying a specific value within
+        a JavaScript Object Notation (JSON) document. It aims to serve the same purpose as *XPath* from the XML world,
+        but it is much simpler.
+
 
 
 .. _begin_replacements:

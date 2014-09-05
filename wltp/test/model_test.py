@@ -10,9 +10,9 @@
 
 import unittest
 
-import numpy as np
-import pandas as pd
 from wltp import model
+
+import pandas as pd
 
 from ..experiment import Experiment
 from .goodvehicle import goodVehicle

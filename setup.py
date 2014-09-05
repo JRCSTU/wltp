@@ -85,13 +85,15 @@ setup(
     install_requires = [
         'jsonschema>=2.4',
         'jsonpointer',
+#         'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
         'numpy',
         'pandas', #'openpyxl', 'xlrd',
         'matplotlib',
     ],
     setup_requires = [
-        'setuptools>=3.4.4'
-        'sphinx',
+        'setuptools>=3.4.4',
+        'sphinx>=1.2', # >=1.3
+        'sphinxcontrib-napoleon', # DELETE when sphinx >=1.3
         'sphinx_rtd_theme',
         'pandas',
         'matplotlib',

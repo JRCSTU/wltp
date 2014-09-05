@@ -351,6 +351,7 @@ class WltpDbTests(unittest.TestCase):
             diff_prcnt    -0.3896     -3.3772       4.4428      -1.4377
 
         All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+
                         python        heinz  diff_prcnt
             count   378.000000   378.000000    0.000000
             mean   1923.908119  1899.366431   -1.292099
@@ -471,7 +472,7 @@ class WltpDbTests(unittest.TestCase):
         np.testing.assert_array_less(abs(diff_prcnt.fillna(0)), pcrnt_limit)
 
     def test4b_n_mean__PMR_transplanted(self):
-        """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
+        """Check driveability-only mean-rpm diff with Heinz stays within some percent for all PMRs.
 
         ### Comparison history ###
 
