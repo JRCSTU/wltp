@@ -205,7 +205,7 @@ class WltpDbTests(unittest.TestCase):
 
         ### Comparison history ###
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                        python       heinz    diff_prcnt
             count  378.000000  378.000000  0.000000e+00
@@ -267,14 +267,14 @@ class WltpDbTests(unittest.TestCase):
 
         ### Comparison history ###
 
-        Class3b-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        Class3b-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                          count       MEAN        STD  min  max
             gears        23387  75.931818  56.921729    6  279
             accell       19146  62.162338  48.831155    4  238
             senza rules  16133  52.379870  35.858415   11  170
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                      diff_gears    diff_accel     diff_orig
             count    378.000000    378.000000    378.000000
@@ -302,7 +302,7 @@ class WltpDbTests(unittest.TestCase):
 
         ### Comparison history ###
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                     diff_gears   diff_accel  diff_orig
             count   378.000000   378.000000        378
@@ -343,14 +343,14 @@ class WltpDbTests(unittest.TestCase):
 
         ### Comparison history ###
 
-        Class3b-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        Class3b-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                                mean         std          min          max
             python      1766.707825  410.762478  1135.458463  3217.428423
             heinz       1759.851498  397.343498  1185.905053  3171.826208
             diff_prcnt    -0.3896     -3.3772       4.4428      -1.4377
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                         python        heinz  diff_prcnt
             count   378.000000   378.000000    0.000000
@@ -377,7 +377,7 @@ class WltpDbTests(unittest.TestCase):
 
         ### Comparison history ###
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                         python        heinz  diff_prcnt
             count   378.000000   378.000000    0.000000
@@ -426,7 +426,7 @@ class WltpDbTests(unittest.TestCase):
         ### Comparison history ###
 
 
-        Class3b-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        Class3b-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                                 gened_mean_rpm  heinz_mean_rpm  diff_ratio  count
             pmr
@@ -443,7 +443,7 @@ class WltpDbTests(unittest.TestCase):
             (156.885, 171.558]             NaN             NaN         NaN      0
             (171.558, 186.232]     1396.061758     1385.176569   -0.007858      1
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
             pmr
@@ -476,7 +476,7 @@ class WltpDbTests(unittest.TestCase):
 
         ### Comparison history ###
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
             pmr
@@ -543,7 +543,7 @@ class WltpDbTests(unittest.TestCase):
         ### Comparison history ###
 
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
             n_mean      python        heinz      diff%
             gear
@@ -572,7 +572,7 @@ class WltpDbTests(unittest.TestCase):
         ### Comparison history ###
 
 
-        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014)::
+        All-Vehicles, Phase-1b-beta(ver <= 0.0.8, Aug-2014) with Heinz maxt gear-time=2sec::
 
             n_mean      python        heinz      diff%
             gear

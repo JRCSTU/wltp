@@ -25,7 +25,7 @@ Or get it directly from the PIP repository::
 from setuptools import setup
 #from cx_Freeze import Executable
 #from cx_Freeze import setup
-import os, sys
+import os, sys, re
 
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
@@ -40,16 +40,72 @@ def read_project_version():
     fglobals = {}
     exec(open(os.path.join(mydir, projname, '_version.py')).read(), fglobals)  # To read __version__
     return fglobals['__version__']
-proj_ver = read_project_version()
 
 def read_text_lines(fname):
     with open(os.path.join(mydir, fname)) as fd:
         return fd.readlines()
 
-readme_lines = read_text_lines('README.rst')
+def yield_sphinx_only_markup(lines):
+    """
+    :param file_inp:     a `filename` or ``sys.stdin``?
+    :param file_out:     a `filename` or ``sys.stdout`?`
 
-long_desc = readme_lines + ['\n\n\n'] + read_text_lines('CHANGES.rst')
-long_desc = '\n'.join(long_desc)
+    """
+    substs = [
+        ## Selected Sphinx-only Roles.
+        #
+        (r':abbr:`([^`]+)`',        r'\1'),
+        (r':ref:`([^`]+)`',         r'`\1`_'),
+        (r':term:`([^`]+)`',        r'**\1**'),
+        (r':dfn:`([^`]+)`',         r'**\1**'),
+        (r':(samp|guilabel|menuselection):`([^`]+)`',        r'``\2``'),
+
+
+        ## Sphinx-only roles:
+        #        :foo:`bar`   --> foo(``bar``)
+        #        :a:foo:`bar` XXX afoo(``bar``)
+        #
+        #(r'(:(\w+))?:(\w+):`([^`]*)`', r'\2\3(``\4``)'),
+        (r':(\w+):`([^`]*)`', r'\1(``\2``)'),
+
+
+        ## Sphinx-only Directives.
+        #
+        (r'\.\. doctest',           r'code-block'),
+        (r'\.\. plot::',            r'.. '),
+        (r'\.\. seealso',           r'info'),
+        (r'\.\. glossary',          r'rubric'),
+        (r'\.\. figure::',          r'.. '),
+
+
+        ## Other
+        #
+        (r'\|version\|',              r'x.x.x'),
+    ]
+
+    regex_subs = [ (re.compile(regex, re.IGNORECASE), sub) for (regex, sub) in substs ]
+
+    def clean_line(line):
+        try:
+            for (regex, sub) in regex_subs:
+                line = regex.sub(sub, line)
+        except Exception as ex:
+            print("ERROR: %s, (line(%s)"%(regex, sub))
+            raise ex
+
+        return line
+
+    for line in lines:
+        yield clean_line(line)
+
+
+
+proj_ver = read_project_version()
+
+
+readme_lines = read_text_lines('README.rst')
+description = readme_lines[1]
+long_desc = ''.join(yield_sphinx_only_markup(readme_lines))
 
 setup(
     name = projname,
@@ -58,7 +114,7 @@ setup(
 #     scripts = ['wltp.py'],
     version=proj_ver,
     test_suite='nose.collector',
-    description=readme_lines[1],
+    description=description,
     long_description=long_desc,
     author="Kostis Anagnostopoulos @ European Commission (JRC)",
     author_email="ankostis@gmail.com",
@@ -139,3 +195,6 @@ setup(
     },
 #     executables=[Executable("wltp.py", )], #base="Win32GUI")],
 )
+
+
+

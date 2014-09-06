@@ -1,10 +1,10 @@
-#######
+=======
 Indices
-#######
+=======
 
 .. include:: ../README.rst
-    :start-after: _begin_glossary:
+    :start-after: _begin-glossary:
 
 :ref:`Index <genindex>`
-=======================
+-----------------------
 

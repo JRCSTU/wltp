@@ -1,6 +1,6 @@
 .. include:: ../README.rst
-    :start-after: _begin_contribute:
-    :end-before: _begin_glossary:
+    :start-after: _begin-contribute:
+    :end-before: _begin-glossary:
 
 .. include:: ../README.rst
-    :start-after: _begin_replacements:
+    :start-after: _begin-replacements:

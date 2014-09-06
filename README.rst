@@ -1,6 +1,7 @@
-#####################################
-wltp: A *wltc* gear-shifts calculator
-#####################################
+===============================
+``wltp`` gear-shifts calculator
+===============================
+
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
 :Version:       |version|
@@ -27,7 +28,7 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
 
 
 
-.. _begin_intro:
+.. _begin-intro:
 
 Introduction
 ============
@@ -126,36 +127,45 @@ Python usage
 Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)` example to define and run
 an experiment.
 
-First you have to create a :mod:`~wltp.model` containing the input-data required for running
-a single experiment. The :class:`~wltp.model.ModelMaker` constructs a model-tree from:
+First you have to create a :term:`pandas-model` that contains the input-data (strings and numbers)
+of the experiment.  You can assemble the model-tree by the use of:
 
-* Sequences,
-* Dictionaries,
-* :class:`pandas.DataFrame`, and
-* :class:`pandas.Series`.
+* sequences,
+* dictionaries,
+* :class:`pandas.DataFrame`,
+* :class:`pandas.Series`, and
+* URI-references to other model-trees.
 
 
-You then provide the model to the :class:`~wltp.experiment.Experiment` constructor
-where default values for the model are filled in and then gets validated by a pre-defined :term:`JSON-schema`:
+For instance:
 
 .. doctest::
 
     >>> from wltp import model
     >>> from wltp.experiment import Experiment
+    >>> from collections import OrderedDict as odic         ## It is handy to preserve keys-order.
 
-    >>> mdl = {
-    ...   "vehicle": {
-    ...     "unladen_mass": 1430,
-    ...     "test_mass":    1500,
-    ...     "v_max":    195,
-    ...     "p_rated":  100,
-    ...     "n_rated":  5450,
-    ...     "n_idle":   950,
-    ...     "n_min":    None, # Can be overriden by manufacturer.
-    ...     "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
-    ...     "resistance_coeffs":[100, 0.5, 0.04],
-    ...   }
-    ... }
+    >>> mdl = odic(
+    ...   vehicle = odic(
+    ...     unladen_mass = 1430,
+    ...     test_mass    = 1500,
+    ...     v_max        = 195,
+    ...     p_rated      = 100,
+    ...     n_rated      = 5450,
+    ...     n_idle       = 950,
+    ...     n_min        = None,                            ## Optionally overriden by manufacturers.
+    ...     gear_ratios         = [120.5, 75, 50, 43, 37, 32],
+    ...     resistance_coeffs   = [100, 0.5, 0.04],
+    ...   )
+    ... )
+
+
+You then feed this model-tree to the :class:`~wltp.experiment.Experiment`
+constructor. Internally the :class:`~wltp.pandel.Pandel` resolves URIs, fills-in default values and
+validates the data based on the project's pre-defined :term:`JSON-schema`:
+
+.. doctest::
+
     >>> processor = Experiment(mdl)         ## Fills-in defaults and Validates model.
 
 
@@ -298,7 +308,7 @@ IPython usage
 
 
 
-.. _begin_contribute:
+.. _begin-contribute:
 
 Getting Involved
 ================
@@ -362,7 +372,7 @@ Then you can install all project's dependencies in *`development mode* using the
     $ python setup.py build                             ## Check that the project indeed builds ok.
 
 
-You should now run the test-cases (see :ref:`begin_test_cases`, below) to check
+You should now run the test-cases (see `Tests & Metrics`_, below) to check
 that the sources are in good shape:
 
 .. code-block:: console
@@ -406,7 +416,7 @@ The typical development procedure is like this:
         $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
 
 
-    .. Tip:: You can enter just: :samp:`python setup.py test_all` instead of the above cmd-line
+    .. Tip:: You can enter just: ``python setup.py test_all`` instead of the above cmd-line
         since it has been *aliased* in the :file:`setup.cfg` file.
         Check this file for more example commands to use during development.
 
@@ -432,8 +442,6 @@ The typical development procedure is like this:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
 
-
-.. _begin_test_cases:
 
 Tests & Metrics
 ---------------
@@ -500,7 +508,7 @@ Development team
 
 
 
-.. _begin_glossary:
+.. _begin-glossary:
 
 Glossary
 ========
@@ -533,14 +541,18 @@ Glossary
         Reduction of the top-velocity of the original drive trace to be followed, to ensure that the vehicle
         is not driven in an unduly high proportion of "full throttle".
 
+    pandas-model
+        The *container* of data that the gear-shift calculator consumes and produces.
+        It is implemented by :class:`wltp.pandel.Pandel` as a mergeable stack of :term:`JSON-schema` abiding trees of
+        strings and numbers, formed with sequences, dictionaries, :mod:`pandas`-instances and URI-references.
+
     JSON-schema
         The `JSON schema <http://json-schema.org/>`_ is an `IETF draft <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_
         that provides a *contract* for what JSON-data is required for a given application and how to interact
         with it.  JSON Schema is intended to define validation, documentation, hyperlink navigation, and
         interaction control of JSON data.
-
-        You can learn more about it from `excellent guide <http://spacetelescope.github.io/understanding-json-schema/>`_,
-        and/or experiment with this `on-line validator <http://www.jsonschema.net/>`_.
+        You can learn more about it from this `excellent guide <http://spacetelescope.github.io/understanding-json-schema/>`_,
+        and experiment with this `on-line validator <http://www.jsonschema.net/>`_.
 
     JSON-pointer
         JSON Pointer(:rfc:`6901`) defines a string syntax for identifying a specific value within
@@ -549,7 +561,7 @@ Glossary
 
 
 
-.. _begin_replacements:
+.. _begin-replacements:
 
 .. |CO2| replace:: CO\ :sub:`2`
 
