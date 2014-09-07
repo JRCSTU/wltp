@@ -4,13 +4,15 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""A :dfn:`pandas-model` is a tree of strings, numbers, sequences, dicts, and pandas instances (see :class:`Pandel`). """
+"""A :dfn:`pandas-model` is a tree of strings, numbers, sequences, dicts, pandas instances and resolvable
+URI-references, implemented by :class:`Pandel`. """
 
 import abc
 from collections import OrderedDict, namedtuple
 from collections.abc import Mapping, Sequence
-from jsonschema import Draft4Validator
-from jsonschema import ValidationError
+from jsonschema import Draft4Validator, ValidationError
+import jsonschema
+import re
 
 import numpy as np
 import pandas as pd
@@ -63,12 +65,14 @@ class BranchCntxt(namedtuple('BranchCntxt', 'inp out conv')):
 
 class Pandel:
     """
-    Builds, validates and stores a *pandas-model*, a JSON-schema abiding tree of strings and numbers assembled with
+    Builds, validates and stores a *pandas-model*, a mergeable stack of JSON-schema abiding trees of
+    strings and numbers, assembled with
 
     * sequences,
     * dictionaries,
-    * :class:`pandas.DataFrame` and
-    * :class:`pandas.Series` instances.
+    * :class:`pandas.DataFrame`,
+    * :class:`pandas.Series`, and
+    * URI-references to other model-trees.
 
 
 
@@ -163,8 +167,7 @@ class Pandel:
         ============ ========== =========================================
 
 
-    4.  Strictly json-:meth:`_validate` the unified-model, after (parodically) converting pandas
-        into dictionaries.
+    4.  Strictly json-:meth:`_validate` the unified-model (ie enforcing ``required`` schema-rules).
 
         The required **conversions** from pandas classes can be customized as :ref:`explained  <pandel-customization>`
         below.
@@ -404,13 +407,46 @@ class Pandel:
         """
         pass # TODO: impl write_branch()
 
-    @abc.abstractmethod
     def _get_json_schema(self, is_prevalidation):
+        """
+        :return: a json schema, more loose when `prevalidation` for each case
+        :rtype: dictionary
+        """
         pass
 
+    def _rule_AdditionalProperties_for_dict_or_pandas(self, validator, aP, required, instance, schema):
+        properties = schema.get("properties", {})
+        patterns = "|".join(schema.get("patternProperties", {}))
+        extras = set()
+        for prop in instance:
+            if prop not in properties:
+                if patterns and re.search(patterns, prop):
+                    continue
+                extras.add(prop)
+
+        if validator.is_type(aP, "object"):
+            for extra in extras:
+                for error in validator.descend(instance[extra], aP, path=extra):
+                    yield error
+        elif not aP and extras:
+            error = "Additional properties are not allowed (%s %s unexpected)"
+            yield ValidationError(error % jsonschema._utils.extras_msg(extras))
+
+
+    def _rule_Required_for_dict_or_pandas(self, validator, required, instance, schema):
+        if (validator.is_type(instance, "object") or
+                validator.is_type(instance, "DataFrame") or
+                 validator.is_type(instance, "Series")):
+            for prop in required:
+                if prop not in instance:
+                    yield ValidationError("%r is a required property" % prop)
+
+
     def _get_model_validator(self, schema):
+
         validator = Draft4Validator(schema)
         validator._types.update({"ndarray": np.ndarray, "DataFrame" : pd.DataFrame, 'Series':pd.Series})
+        validator.VALIDATORS['DataFrame'] = self._rule_Required_for_dict_or_pandas
 
         return validator
 
