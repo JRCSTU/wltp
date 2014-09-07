@@ -495,6 +495,7 @@ Cycles
     :align: center
 
 
+.. _dev-team:
 
 Development team
 ----------------
@@ -523,11 +524,15 @@ Glossary
         on the :term:`WLTP`.
 
     GRPE
-        UNECE Working party on Pollution and Energy - Transport Programme
+        :term:`UNECE` Working party on Pollution and Energy - Transport Programme
+
+    GS Task-Force
+        The Gear-shift Task-force of the :term:`GRPE`. It is the team of automotive experts drafting
+        the gear-shifting strategy for vehicles running the :term:`WLTP` cycles.
 
     WLTC
-        The family of the 3 pre-defined *driving-cycles* to use for each vehicle depending on its
-        :abbr:`PMR (Power to Mass Ratio)`. Classes 1,2 & 3 are split in 2, 4 and 4 *parts* respectively.
+        The family of pre-defined *driving-cycles* corresponding to vehicles with different
+        :abbr:`PMR (Power to Mass Ratio)`. Classes 1,2, 3a & 3b are split in 2, 4, 4 and 4 *parts* respectively.
 
     Unladen mass
         *UM* or *Curb weight*, the weight of the vehicle in running order minus

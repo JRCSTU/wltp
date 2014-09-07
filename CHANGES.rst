@@ -15,6 +15,8 @@ Known deficiencies
 * Clutching-points and therefore engine-speed are very preliminary
   (ie ``rpm`` when starting from stop might be < ``n_idle``).
 
+.. _todos-list:
+
 TODOs
 =====
 * Add cmd-line front-end.
@@ -28,6 +30,7 @@ TODOs
 * core: Move calculations as class-methods to provide for overriding certain parts of the algorithm.
 * core: Support to provide and override arbitrary model-data, and ask for arbitrary output-ones
   by topologically sorting the  graphs of the calculation-dependencies.
+* data: Add NEDC cycles, for facilitating comparisons.
 
 .. todolist::
 

@@ -11,6 +11,7 @@
 
     intro
     contribute
+    faq
     code
     CHANGES
     indices
