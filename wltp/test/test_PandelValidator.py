@@ -208,8 +208,8 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         e = errors[0]
 
-        self.assertEqual(e.rule, "anyOf")
-        self.assertEqual(e.rule_value, schema["anyOf"])
+        self.assertEqual(e.validator, "anyOf")
+        self.assertEqual(e.validator_value, schema["anyOf"])
         self.assertEqual(e.instance, instance)
         self.assertEqual(e.schema, schema)
         self.assertIsNone(e.parent)
@@ -226,8 +226,8 @@ class TestValidationErrorDetails(unittest.TestCase):
 
         e1, e2 = sorted_errors(e.context)
 
-        self.assertEqual(e1.rule, "minimum")
-        self.assertEqual(e1.rule_value, schema["anyOf"][0]["minimum"])
+        self.assertEqual(e1.validator, "minimum")
+        self.assertEqual(e1.validator_value, schema["anyOf"][0]["minimum"])
         self.assertEqual(e1.instance, instance)
         self.assertEqual(e1.schema, schema["anyOf"][0])
         self.assertIs(e1.parent, e)
@@ -244,8 +244,8 @@ class TestValidationErrorDetails(unittest.TestCase):
 
         self.assertFalse(e1.context)
 
-        self.assertEqual(e2.rule, "type")
-        self.assertEqual(e2.rule_value, schema["anyOf"][1]["type"])
+        self.assertEqual(e2.validator, "type")
+        self.assertEqual(e2.validator_value, schema["anyOf"][1]["type"])
         self.assertEqual(e2.instance, instance)
         self.assertEqual(e2.schema, schema["anyOf"][1])
         self.assertIs(e2.parent, e)
@@ -282,8 +282,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             self.assertEqual(len(errors), 1)
             e = errors[0]
 
-            self.assertEqual(e.rule, "type")
-            self.assertEqual(e.rule_value, schema["type"])
+            self.assertEqual(e.validator, "type")
+            self.assertEqual(e.validator_value, schema["type"])
             self.assertEqual(e.instance, instance)
             self.assertEqual(e.schema, schema)
             self.assertIsNone(e.parent)
@@ -300,8 +300,8 @@ class TestValidationErrorDetails(unittest.TestCase):
 
             e1, e2 = sorted_errors(e.context)
 
-            self.assertEqual(e1.rule, "type")
-            self.assertEqual(e1.rule_value, schema["type"][0]["type"])
+            self.assertEqual(e1.validator, "type")
+            self.assertEqual(e1.validator_value, schema["type"][0]["type"])
             self.assertEqual(e1.instance, instance)
             self.assertEqual(e1.schema, schema["type"][0])
             self.assertIs(e1.parent, e)
@@ -316,8 +316,8 @@ class TestValidationErrorDetails(unittest.TestCase):
 
             self.assertFalse(e1.context)
 
-            self.assertEqual(e2.rule, "enum")
-            self.assertEqual(e2.rule_value, [2])
+            self.assertEqual(e2.validator, "enum")
+            self.assertEqual(e2.validator_value, [2])
             self.assertEqual(e2.instance, 1)
             self.assertEqual(e2.schema, {u"enum" : [2]})
             self.assertIs(e2.parent, e)
@@ -374,10 +374,10 @@ class TestValidationErrorDetails(unittest.TestCase):
             self.assertEqual(e3.absolute_path, deque(["baz"]))
             self.assertEqual(e4.absolute_path, deque(["foo"]))
 
-            self.assertEqual(e1.rule, "minItems")
-            self.assertEqual(e2.rule, "enum")
-            self.assertEqual(e3.rule, "maximum")
-            self.assertEqual(e4.rule, "type")
+            self.assertEqual(e1.validator, "minItems")
+            self.assertEqual(e2.validator, "enum")
+            self.assertEqual(e3.validator, "maximum")
+            self.assertEqual(e4.validator, "type")
 
     @skip("For Draft3Validator only!")
     def test_multiple_nesting(self):
@@ -427,12 +427,12 @@ class TestValidationErrorDetails(unittest.TestCase):
             list(e6.schema_path), ["items", "properties", "foo", "enum"],
         )
 
-        self.assertEqual(e1.rule, "type")
-        self.assertEqual(e2.rule, "type")
-        self.assertEqual(e3.rule, "type")
-        self.assertEqual(e4.rule, "required")
-        self.assertEqual(e5.rule, "minItems")
-        self.assertEqual(e6.rule, "enum")
+        self.assertEqual(e1.validator, "type")
+        self.assertEqual(e2.validator, "type")
+        self.assertEqual(e3.validator, "type")
+        self.assertEqual(e4.validator, "required")
+        self.assertEqual(e5.validator, "minItems")
+        self.assertEqual(e6.validator, "enum")
 
     def test_additionalProperties(self):
         data = {"bar": "bar", "foo": 2}
@@ -449,8 +449,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             self.assertEqual(e1.path, deque(["bar"]))
             self.assertEqual(e2.path, deque(["foo"]))
 
-            self.assertEqual(e1.rule, "type")
-            self.assertEqual(e2.rule, "minimum")
+            self.assertEqual(e1.validator, "type")
+            self.assertEqual(e2.validator, "minimum")
 
     def test_patternProperties(self):
         data = {"bar": 1, "foo": 2}
@@ -474,8 +474,8 @@ class TestValidationErrorDetails(unittest.TestCase):
             self.assertEqual(e1.path, deque(["bar"]))
             self.assertEqual(e2.path, deque(["foo"]))
 
-            self.assertEqual(e1.rule, "type")
-            self.assertEqual(e2.rule, "minimum")
+            self.assertEqual(e1.validator, "type")
+            self.assertEqual(e2.validator, "minimum")
 
     def test_additionalItems(self):
         data = ["foo", 1]
@@ -495,7 +495,7 @@ class TestValidationErrorDetails(unittest.TestCase):
 
             if not isinstance(instance, np.ndarray):
                 ## numpy-arrays have column-types so str+int-->str and both errors are type-errors.
-                self.assertSequenceEqual([e.rule for e in (e1,e2)], ("type", "minimum"), (e1,e2))
+                self.assertSequenceEqual([e.validator for e in (e1,e2)], ("type", "minimum"), (e1,e2))
 
     def test_additionalItems_with_items(self):
         data = ["foo", "bar", 1]
@@ -515,7 +515,7 @@ class TestValidationErrorDetails(unittest.TestCase):
 
             if not isinstance(instance, np.ndarray):
                 ## numpy-arrays have column-types so str+int-->str and both errors are type-errors.
-                self.assertSequenceEqual([e.rule for e in (e1,e2)], ("type", "minimum"), (e1,e2))
+                self.assertSequenceEqual([e.validator for e in (e1,e2)], ("type", "minimum"), (e1,e2))
 
 
 class ValidatorTestMixin(object):

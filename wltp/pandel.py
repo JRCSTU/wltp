@@ -160,7 +160,7 @@ class PandelValidator(Draft4Validator):
             "array":    (list, tuple, np.ndarray),
             "object" :  (dict, pd.DataFrame, pd.Series)
         })
-        self.RULES.update({
+        self.VALIDATORS.update({
             'properties':           PandelValidator._rule_properties,
             'items':                PandelValidator._rule_items,
             'required':             PandelValidator._rule_required,

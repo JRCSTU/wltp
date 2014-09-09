@@ -149,6 +149,7 @@ setup(
     setup_requires = [
         'setuptools>=3.4.4',
         'sphinx>=1.2', # >=1.3
+
         'sphinxcontrib-napoleon', # DELETE when sphinx >=1.3
         'sphinx_rtd_theme',
         'pandas',
