@@ -12,8 +12,8 @@ The author is a participating member in the :term:`GS Task-Force` on behalf of t
 The contact-emails to use are ...[TBD]
 
 
-What is this project's status? Is it "official"?
-------------------------------------------------
+What is the status of the project? Is it "official"?
+----------------------------------------------------
 [TBD]
 
 
@@ -24,6 +24,13 @@ What is the roadmap for this project?
 * In the longer run, it is expected to incorporate more *WLTP* calculations and reference data so that
   this projects acts as repository for diagrams and technical reports on those algorithms.
 
+
+Can i copy/extend it?  What is its License, in practical terms?
+---------------------------------------------------------------
+I'm not a lawyer, but in a broad view, the core algorithm of the project is "copylefted" with
+the *EUPL-1.1+ license*, and it includes files from other "non-copyleft" open source licenses like
+*MIT MIT License* and *Apache License*, appropriately marked as such.  So in an nutshell, you can study it,
+copy it, modify or extend it, and distrbute it, as long as you always distribute the sources of your changes.
 
 
 Technical
@@ -63,4 +70,9 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
   Write down your platform (Windows, OS X, Linux), your exact python distribution
   and version, and include the *print-out of the failed command along with its error-message.*
 
-  `This last step will improve the documentation and help others as well.
+  This last step will improve the documentation and help others as well.
+
+
+Is it possible to test some *demo* it without installing python?
+----------------------------------------------------------------
+[TBD]

@@ -40,13 +40,13 @@ and any warnings.  It does not calculate any |CO2| emissions.
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
-          ---------------------    ______________         ---------------------
-         ;        model      ;    | Experiment   |       ; model(augmented)  ;
-        ;-------------------;     |______________|      ;-------------------;
-       ; +--vehicle        ;  ==> |  ------------| ==> ; +...              ;
-      ;  +--params        ;       | ; WLTC-data; |    ;  +--cycle_run     ;
-     ;                   ;        | -----------  |   ;                   ;
-     --------------------         |______________|   --------------------
+         ---------------    ________________         ------------------
+        ;  inp-model  ;    |   Experiment   |       ;   out-model    ;
+       ;-------------;     |________________|      ;----------------;
+      ; +--vehicle  ;  ==> |  ------------- | ==> ; +...           ;
+     ;  +--params  ;       | ; WLTC-data ;  |    ;  +--cycle_run  ;
+    ;             ;        | ------------   |   ;                ;
+    --------------         |________________|   -----------------
 
 
 
@@ -54,9 +54,9 @@ Install
 -------
 Requires Python 3.3+.
 
-.. Tip:: Try the `WinPython <http://winpython.sourceforge.net/>`_ and
-    `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ python distributions
-    for *Windows* and *OS X*, respectively.
+.. Tip:: To install *python*, you can try `WinPython <http://winpython.sourceforge.net/>`_ distribution
+    for Windows*, or `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_
+    for *Windows* and *OS X*.
 
 You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
 with :command:`pip`.
@@ -153,16 +153,39 @@ For instance:
     ...     p_rated      = 100,
     ...     n_rated      = 5450,
     ...     n_idle       = 950,
-    ...     n_min        = None,                            ## Optionally overriden by manufacturers.
+    ...     n_min        = None,                            ## Manufacturers my overridde it
     ...     gear_ratios         = [120.5, 75, 50, 43, 37, 32],
     ...     resistance_coeffs   = [100, 0.5, 0.04],
     ...   )
     ... )
 
 
-You then feed this model-tree to the :class:`~wltp.experiment.Experiment`
+For information on the accepted model-data, check its :term:`JSON-schema`:
+
+.. doctest::
+
+    >>> print(model.json_dumps(model.model_schema(), indent=2))                         # doctest: +SKIP
+    {
+      "properties": {
+        "params": {
+          "properties": {
+            "f_n_min_gear2": {
+              "description": "Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.",
+              "type": [
+                "number",
+                "null"
+              ],
+              "default": 0.9
+            },
+            "v_stopped_threshold": {
+              "description": "Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).",
+              "type": [
+    ...
+
+
+You then have to feed this model-tree to the :class:`~wltp.experiment.Experiment`
 constructor. Internally the :class:`~wltp.pandel.Pandel` resolves URIs, fills-in default values and
-validates the data based on the project's pre-defined :term:`JSON-schema`:
+validates the data based on the project's pre-defined JSON-schema:
 
 .. doctest::
 
@@ -236,28 +259,6 @@ You can export the cycle-run results in a CSV-file with the following pandas com
 
     >>> df.to_csv('cycle_run.csv')                                                      # doctest: +SKIP
 
-For information on the model-data, check its JSON-schema:
-
-.. doctest::
-
-    >>> print(model.json_dumps(model.model_schema(), indent=2))                         # doctest: +SKIP
-    {
-      "properties": {
-        "params": {
-          "properties": {
-            "f_n_min_gear2": {
-              "description": "Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.",
-              "type": [
-                "number",
-                "null"
-              ],
-              "default": 0.9
-            },
-            "v_stopped_threshold": {
-              "description": "Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).",
-              "type": [
-    ...
-
 
 For more examples, download the sources and check the test-cases
 found under the :file:`/wltp/test/` folder.
@@ -313,7 +314,6 @@ IPython usage
 Getting Involved
 ================
 This project is hosted in **github**.
-
 To provide feedback about bugs and errors or questions and requests for enhancements,
 use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
 

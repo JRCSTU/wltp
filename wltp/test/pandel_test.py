@@ -5,12 +5,13 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 from jsonschema.exceptions import ValidationError
-
 import unittest
-import numpy.testing as npt
 
-import pandas as pd
 from wltp import pandel
+
+import numpy.testing as npt
+import pandas as pd
+from wltp.pandel import PandelValidator
 
 from ..experiment import Experiment
 from .goodvehicle import goodVehicle
@@ -24,7 +25,7 @@ class Test(unittest.TestCase):
             def _get_json_schema(self, is_prevalidation):
                 return {
                     '$schema': 'http://json-schema.org/draft-04/schema#',
-                    'type': ['object', 'DataFrame'],
+                    'type': ['object'],
                     'required': [] if is_prevalidation else ['a', 'b'],
                     'properties': {
                         'a': {'type': ['number', 'array']},
@@ -120,6 +121,63 @@ class Test(unittest.TestCase):
 
         mm = MyMaker([{'a': 'foo', 'b': 'string'}])     ## Invalid submodel['b'], must be a number
         self.assertRaisesRegex(ValidationError, "Failed validating 'type' in schema\['properties']\['b']", mm.build)
+
+    def test_validate_object_or_pandas(self):
+        schema = {
+            'type': ['object'],
+        }
+        pv = PandelValidator(schema)
+
+        pv.validate({'foo': 'bar'})
+        pv.validate(pd.Series({'foo': 'bar', 'foofoo': 'bar'}))
+        pv.validate(pd.DataFrame({'foo': [1,2], 'foofoo': [3,4]}))
+
+        with self.assertRaisesRegex(ValidationError, "\[1, 2, 3\] is not of type 'object'"):
+            pv.validate([1,2,3])
+
+
+    def test_rule_requiredProperties_rule_for_pandas(self):
+        schema = {
+            'type': ['object'],
+            'required': ['foo']
+        }
+        pv = PandelValidator(schema)
+
+        pv.validate({'foo': 'bar'})
+        with self.assertRaisesRegex(ValidationError, "'foo' is a required property"):
+            pv.validate({'foofoo': 'bar'})
+
+        pv.validate(pd.Series({'foo': 'bar', 'foofoo': 'bar'}))
+        with self.assertRaisesRegex(ValidationError, "'foo' is a required property"):
+            pv.validate(pd.Series({'foofoo': 'bar'}))
+
+        pv.validate(pd.DataFrame({'foo': [1,2], 'foofoo': [3,4]}))
+        with self.assertRaisesRegex(ValidationError, "'foo' is a required property"):
+            pv.validate(pd.DataFrame({'foofoo': [1,2], 'bar': [3,4]}))
+
+
+
+    def test_rule_additionalProperties_for_pandas(self):
+        schema = {
+            'type': ['object'],
+            'additionalProperties': False,
+            'properties': {
+                'foo': {},
+            }
+        }
+        pv = PandelValidator(schema)
+
+        pv.validate({'foo': 1})
+        with self.assertRaisesRegex(ValidationError, "Additional properties are not allowed \('bar' was unexpected\)"):
+            pv.validate({'foo': 1, 'bar': 2})
+
+        pv.validate(pd.Series({'foo': 1}))
+        with self.assertRaisesRegex(ValidationError, "Additional properties are not allowed \('bar' was unexpected\)"):
+            pv.validate(pd.Series({'foo': 1, 'bar': 2}))
+
+        pv.validate(pd.DataFrame({'foo': [1]}))
+        with self.assertRaisesRegex(ValidationError, "Additional properties are not allowed \('bar' was unexpected\)"):
+            pv.validate(pd.DataFrame({'foo': [1], 'bar': [2]}))
 
 
 

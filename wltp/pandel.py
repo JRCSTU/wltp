@@ -16,11 +16,11 @@ import re
 
 import numpy as np
 import pandas as pd
+from pandas.core.generic import NDFrame
 
-
-class BranchCntxt(namedtuple('BranchCntxt', 'inp out conv')):
+class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
     """
-    Infos associated to (sub)models branches, customizing the *conversion* and *IO* operations of self-or-descedant values of the branch.
+    Customization functions for travesring, I/O, and converting self-or-descedant branch (sub)model values.
     """
     def __new__(cls, inp=None, out=None, conv=None):
         """
@@ -46,13 +46,12 @@ class BranchCntxt(namedtuple('BranchCntxt', 'inp out conv')):
 
                             The minimum convertors demanded by :class:`Pandel` are (at least, check the code for more):
 
-                            * dict --> DataFrame
-                            * DataFrame --> dict
-                            * dict --> Series
-                            * Series --> dict
+                            * DataFrame  <--> dict
+                            * Series     <--> dict
+                            * ndarray    <--> list
         """
 
-        return super(BranchCntxt, cls).__new__(cls, inp, out, conv)
+        return super(ModelOperations, cls).__new__(cls, inp, out, conv)
 
     def choose_out_args(self, branch):
         pass
@@ -60,6 +59,186 @@ class BranchCntxt(namedtuple('BranchCntxt', 'inp out conv')):
     def choose_convertor(self, from_type, to_type):
         pass
 
+class PathMaps:
+    """
+    Cascade prefix-mapping of json-paths to any values (here :class:`ModelOperations`.
+    """
+    pass
+
+
+class PandelValidator(Draft4Validator):
+    """
+    A customized :class:`Draft4Validator` suporting instance-trees with pandas and numpy objects, natively.
+
+    Any pandas or numpy instance (for example ``obj``) is treated like that:
+
+    * :class:`pandas.DataFrame`:   as ``object`` *json-type*, with
+      ``obj.columns`` as *keys*, and ``obj[col].values`` as *values*
+    * :class:`pandas.Series`:      as ``object`` *json-type*, with
+      ``obj.index`` as *keys*, and ``obj.values`` as *values*
+    * :class:`np.ndarray`:      as ``array`` *json-type*
+    * :class:`tuple`:              as ``array`` *json-type*
+
+    Note that the value of each dataFrame column is a :``ndarray`` instances.
+
+    The simplest validations of an object or a pandas-instance is like this:
+
+        >>> import pandas as pd
+
+        >>> schema = {
+        ...     'type': ['object', 'Series'],
+        ... }
+        >>> pv = PandelValidator(schema)
+
+        >>> pv.validate({'foo': 'bar'})
+        >>> pv.validate(pd.Series({'foo': 1}))
+        >>> pv.validate([1,2])                                       ## invalid type
+        Traceback (most recent call last):
+        ...
+        jsonschema.exceptions.ValidationError: [1, 2] is not of type 'object', 'Series'
+        <BLANKLINE>
+        Failed validating 'type' in schema:
+            {'type': ['object', 'Series']}
+        <BLANKLINE>
+        On instance:
+            [1, 2]
+
+
+    Or demanding specific properties with ``required`` and no ``additionalProperties``:
+
+        >>> schema = {
+        ...     'type':     ['object', 'Series'],
+        ...     'required': ['foo'],
+        ...    'additionalProperties': False,
+        ...    'properties': {
+        ...        'foo': {}
+        ...    }
+        ... }
+        >>> pv = PandelValidator(schema)
+
+        >>> pv.validate(pd.Series({'foo': 1}))
+        >>> pv.validate(pd.Series({'foo': 1, 'bar': 2}))             ## Additional 'bar' is present!
+        Traceback (most recent call last):
+        ...
+        jsonschema.exceptions.ValidationError: Additional properties are not allowed ('bar' was unexpected)
+        <BLANKLINE>
+        Failed validating 'additionalProperties' in schema:
+            {'additionalProperties': False,
+             'properties': {'foo': {}},
+             'required': ['foo'],
+             'type': ['object', 'Series']}
+        <BLANKLINE>
+        On instance:
+            bar    2
+            foo    1
+            dtype: int64
+
+        >>> pv.validate(pd.Series({}))                               ## Required 'foo' missing!
+        Traceback (most recent call last):
+        ...
+        jsonschema.exceptions.ValidationError: 'foo' is a required property
+        <BLANKLINE>
+        Failed validating 'required' in schema:
+            {'additionalProperties': False,
+             'properties': {'foo': {}},
+             'required': ['foo'],
+             'type': ['object', 'Series']}
+        <BLANKLINE>
+        On instance:
+            Series([], dtype: float64)
+
+    """
+
+    def __init__(self, schema, types=(), resolver=None, format_checker=None):
+        super().__init__(schema, types, resolver, format_checker)
+
+        self._types.update({
+            "array":    (list, tuple, np.ndarray),
+            "object" :  (dict, pd.DataFrame, pd.Series)
+        })
+        self.RULES.update({
+            'properties':           PandelValidator._rule_properties,
+            'items':                PandelValidator._rule_items,
+            'required':             PandelValidator._rule_required,
+            'additionalProperties': PandelValidator._rule_additionalProperties,
+        })
+
+    def _get_iprop(self, instance, prop):
+        return instance[prop]
+
+    def _is_iprop_in(self, instance, prop):
+        return prop in instance.keys()
+
+    def _iter_iprop_names(self, instance):
+        return instance.keys()
+
+    def _iter_iprop_pairs(self, instance):
+        if isinstance(instance, pd.DataFrame):
+            return ((k, v.values) for k, v in instance.iteritems())
+        if isinstance(instance, pd.Series):
+            return instance.iteritems()
+        return instance.items()
+
+    def _iter_iitems(self, instance):
+        return instance
+
+
+    def _rule_properties(self, sprops, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+
+        iprops = set(self._iter_iprop_names(instance))
+        for prop in iprops & set(sprops.keys()):
+            subschema = sprops[prop]
+            for error in self.descend(
+                instance[prop],
+                subschema,
+                path=prop,
+                schema_path=prop,
+            ):
+                yield error
+
+    def _rule_items(self, items, instance, schema):
+        if not self.is_type(instance, "array"):
+            return
+
+        if self.is_type(items, "object"):
+            for index, item in enumerate(self._iter_iprop_names(instance)):
+                for error in self.descend(item, items, path=index):
+                    yield error
+        else:
+            for (index, item), subschema in zip(enumerate(self._iter_iitems(instance)), items):
+                for error in self.descend(
+                    item, subschema, path=index, schema_path=index,
+                ):
+                    yield error
+
+    def _rule_additionalProperties(self, aP, instance, schema):
+        if not self.is_type(instance, 'object'):
+            return
+
+        sprops = schema.get("properties", {})
+        patterns = "|".join(schema.get("patternProperties", {}))
+        extras = set()
+        for iprop in self._iter_iprop_names(instance):
+            if iprop not in sprops and \
+                    not patterns or not re.search(patterns, iprop):
+                extras.add(iprop)
+
+        if extras:
+            if self.is_type(aP, "object"):
+                for extra in extras:
+                    for error in self.descend(self._get_iprop(instance, extra), aP, path=extra):
+                        yield error
+            elif not aP:
+                error = "Additional properties are not allowed (%s %s unexpected)"
+                yield ValidationError(error % jsonschema._utils.extras_msg(extras))
+
+    def _rule_required(self, required, instance, schema):
+        if self.is_type(instance, 'object'):
+            for sprop in required:
+                if not self._is_iprop_in(instance, sprop):
+                    yield ValidationError("%r is a required property" % sprop)
 
 
 
@@ -199,7 +378,7 @@ class Pandel:
     Some operations within steps (namely *conversion* and *IO*) can be customized by the following means
     (from lower to higher precedance):
 
-    a.  The global-default :class:`BranchCntxt` instance on the :attr:`_global_cntxt`,
+    a.  The global-default :class:`ModelOperations` instance on the :attr:`_global_cntxt`,
         applied on both submodels and unified-model.
 
         For example to channel the whole reading/writing of models through
@@ -208,15 +387,15 @@ class Pandel:
 
             pm = FooPandelModel()                        ## some concrete model-maker
             io_args = ["HDF5"]
-            pm.mod_global_cntxt(inp=io_args, out=io_args)
+            pm.mod_global_operations(inp=io_args, out=io_args)
 
     b.  [TODO] Extra-properties on the json-schema applied on both submodels and unified-model for the specific path defined.
-        The supported properties are the non-functional properties of :class:`BranchCntxt`.
+        The supported properties are the non-functional properties of :class:`ModelOperations`.
 
     d.  Specific-properties regarding *IO* operations within each submodel - see the *resolve* building-step,
         above.
 
-    c.  Context-maps of ``json_paths`` --> :class:`BranchCntxt` instances, installed by :meth:`add_submodel()` and
+    c.  Context-maps of ``json_paths`` --> :class:`ModelOperations` instances, installed by :meth:`add_submodel()` and
         :attr:`unified_contexts` on the model-maker.  They apply to self-or-descedant subtree of each model.
 
         The `json_path` is a strings obeying a simplified :term:`json-pointer` syntax (no char-normalizations yet),
@@ -256,8 +435,8 @@ class Pandel:
 
     .. Attribute:: _global_cntxt
 
-        A :class:`BranchCntxt` instance acting as the global-default context for the unified-model and all submodels.
-        Use :meth:`mod_global_cntxt()` to modify it.
+        A :class:`ModelOperations` instance acting as the global-default context for the unified-model and all submodels.
+        Use :meth:`mod_global_operations()` to modify it.
 
 
     .. Attribute:: _curate_funcs
@@ -302,8 +481,8 @@ class Pandel:
     Then you can instanciate it and add your submodels:
 
         >>> mm = MyModel()
-        >>> mm.add_submodule(od(a='foo', b=1)                                   ## submodel-1 (base)
-        >>> mm.add_submodule(pd.Series(od(a='bar', c=2}))                       ## submodel-2 (top-model)
+        >>> mm.add_submodel(od(a='foo', b=1))                                   ## submodel-1 (base)
+        >>> mm.add_submodel(pd.Series(od(a='bar', c=2}))                       ## submodel-2 (top-model)
 
 
     You then have to build the final unified-model (any validation errors would be reported at this point):
@@ -324,7 +503,7 @@ class Pandel:
     Lets try to construct an invalid model:
 
         >>> mm = MyModel()
-        >>> mm.add_submodule({
+        >>> mm.add_submodel([{
         ...     'a': 1,                             ## According to the schema, this should have been a string,
         ...     'b': 'string'                       ## and this one, a number.
         ... }])
@@ -353,30 +532,31 @@ class Pandel:
         self._errored       = None
         self._submodels     = []
         self._curate_funcs  = list(curate_funcs)
-        self._global_cntxt  = sdfddsf
+        self._global_cntxt  = []
         self._unified_contexts = None
 
 
-    def mod_global_cntxt(self, branch_cntxt=None, **cntxt_kwargs):
+    def mod_global_operations(self, operations=None, **cntxt_kwargs):
         """
 
-        Since it is the fall-back context for *conversions* and *IO* operation, it must exist and have
+        Since it is the fall-back operation for *conversions* and *IO* operation, it must exist and have
         all its props well-defined for the class to work correctly.
 
-        :param branch_cntxt:     Replaces values of the installed context with non-empty values from this one.
-        :param cntxt_kwargs:     Replaces the keyworded-values on the existing `branch_cntxt`.
-                                 See :class:`BranchCntxt` for supported keywords.
+        :param ModelOperations operations:  Replaces values of the installed context with
+                                            non-empty values from this one.
+        :param cntxt_kwargs:                Replaces the keyworded-values on the existing `operations`.
+                                            See :class:`ModelOperations` for supported keywords.
         """
-        if branch_cntxt:
-            assert isinstance(branch_cntxt, BranchCntxt), (type(branch_cntxt), branch_cntxt)
-            self._global_cntxt = branch_cntxt
+        if operations:
+            assert isinstance(operations, ModelOperations), (type(operations), operations)
+            self._global_cntxt = operations
         self._global_cntxt._replace(**cntxt_kwargs)
 
 
     @property
     def unified_contexts(self):
         """
-        A map of ``json_paths`` --> :class:`BranchCntxt` instances acting on the unified-model.
+        A map of ``json_paths`` --> :class:`ModelOperations` instances acting on the unified-model.
         """
         return self._unified_contexts
     @unified_contexts.setter
@@ -391,7 +571,7 @@ class Pandel:
 
         :param str path:    the branch's jsonpointer-path
         :param str branch:  the actual branch's node
-        :return:            the selected :class:`BranchCntxt`
+        :return:            the selected :class:`ModelOperations`
         """
         pass
 
@@ -414,7 +594,7 @@ class Pandel:
         """
         pass
 
-    def _rule_AdditionalProperties_for_dict_or_pandas(self, validator, aP, required, instance, schema):
+    def _rule_AdditionalProperties(self, validator, aP, required, instance, schema):
         properties = schema.get("properties", {})
         patterns = "|".join(schema.get("patternProperties", {}))
         extras = set()
@@ -433,7 +613,7 @@ class Pandel:
             yield ValidationError(error % jsonschema._utils.extras_msg(extras))
 
 
-    def _rule_Required_for_dict_or_pandas(self, validator, required, instance, schema):
+    def _rule_Required(self, validator, required, instance, schema):
         if (validator.is_type(instance, "object") or
                 validator.is_type(instance, "DataFrame") or
                  validator.is_type(instance, "Series")):
@@ -446,7 +626,7 @@ class Pandel:
 
         validator = Draft4Validator(schema)
         validator._types.update({"ndarray": np.ndarray, "DataFrame" : pd.DataFrame, 'Series':pd.Series})
-        validator.VALIDATORS['DataFrame'] = self._rule_Required_for_dict_or_pandas
+        validator.VALIDATORS['DataFrame'] = self._rule_Required
 
         return validator
 
@@ -542,7 +722,7 @@ class Pandel:
         Pushes on top a submodel, along with its context-map.
 
         :param model:               the model-tree (sequence, mapping, pandas-types)
-        :param dict contexts_map:   A map of ``json_paths`` --> :class:`BranchCntxt` instances acting on the
+        :param dict contexts_map:   A map of ``json_paths`` --> :class:`ModelOperations` instances acting on the
                                     unified-model.  The `contexts_map` may often be empty.
 
         **Examples**
@@ -550,7 +730,7 @@ class Pandel:
         To change the default DataFrame --> dictionary convertor for a submodel, use the following:
 
             >>> mdl = {'foo': 'bar'}                       ## Some content
-            >>> submdl = BranchCntxt(mdl, df_to_map={None: lambda df: df.to_dict('record')})
+            >>> submdl = ModelOperations(mdl, df_to_map={None: lambda df: df.to_dict('record')})
 
         """
 
