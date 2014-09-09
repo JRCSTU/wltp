@@ -4,6 +4,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+import numbers
 """A :dfn:`pandas-model` is a tree of strings, numbers, sequences, dicts, pandas instances and resolvable
 URI-references, implemented by :class:`Pandel`. """
 
@@ -153,6 +154,9 @@ class PandelValidator(Draft4Validator):
         super().__init__(schema, types, resolver, format_checker)
 
         self._types.update({
+            "number":   (numbers.Number, np.number), ## type(np.nan) == builtins.float! FIXME, are numpy-numbers --> json-types OK??
+            "integer":  (int, np.integer),
+            "boolean":  (bool, np.bool_), #, np.bool8),
             "array":    (list, tuple, np.ndarray),
             "object" :  (dict, pd.DataFrame, pd.Series)
         })
@@ -161,10 +165,14 @@ class PandelValidator(Draft4Validator):
             'items':                PandelValidator._rule_items,
             'required':             PandelValidator._rule_required,
             'additionalProperties': PandelValidator._rule_additionalProperties,
+            'additionalItems':      PandelValidator._rule_additionalItems,
         })
 
     def _get_iprop(self, instance, prop):
-        return instance[prop]
+        val = instance[prop]
+        if isinstance(val, NDFrame):
+            val = val.values
+        return val
 
     def _is_iprop_in(self, instance, prop):
         return prop in instance.keys()
@@ -191,7 +199,7 @@ class PandelValidator(Draft4Validator):
         for prop in iprops & set(sprops.keys()):
             subschema = sprops[prop]
             for error in self.descend(
-                instance[prop],
+                self._get_iprop(instance, prop),
                 subschema,
                 path=prop,
                 schema_path=prop,
@@ -231,8 +239,29 @@ class PandelValidator(Draft4Validator):
                     for error in self.descend(self._get_iprop(instance, extra), aP, path=extra):
                         yield error
             elif not aP:
-                error = "Additional properties are not allowed (%s %s unexpected)"
-                yield ValidationError(error % jsonschema._utils.extras_msg(extras))
+                yield ValidationError(
+                    "Additional properties are not allowed (%s %s unexpected)" %
+                    jsonschema._utils.extras_msg(extras))
+
+    def _rule_additionalItems(self, aI, instance, schema):
+        if (
+            not self.is_type(instance, "array") or
+            self.is_type(schema.get("items", {}), "object")
+        ):
+            return
+
+        len_items = len(schema.get("items", []))
+        if self.is_type(aI, "object"):
+            for index, item in enumerate(instance[len_items:], start=len_items):
+                for error in self.descend(item, aI, path=index):
+                    yield error
+        elif not aI and len(instance) > len_items:
+            yield ValidationError(
+                "Additional items are not allowed (%s %s unexpected)" %
+                jsonschema._utils.extras_msg(instance[len(schema.get("items", [])):])
+            )
+
+
 
     def _rule_required(self, required, instance, schema):
         if self.is_type(instance, 'object'):

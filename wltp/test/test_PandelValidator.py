@@ -42,24 +42,19 @@ def wrap_as_sequences(seq):
     Accepts a sequence and yields it like (list, tuple, ndarray),
     """
 
-    for op in (list, tuple, np.ndarray):
-        yield op(seq)
 
-def wrap_as_mappings(adict):
+def wrap_in_pandas(dict_or_list, wrap_as_df=False):
     """
     Accepts a mapping and yields it like (dict, Series),
     """
-
-    for op in (dict, pd.Series):
-        yield op(adict)
-
-def wrap_as_mappings_or_dataframe(adict):
-    """
-    Accepts a mapping and yields it like (dict, Series, DataFrame),
-    """
-
-    for op in (dict, pd.Series, pd.DataFrame):
-        yield op(adict)
+    if isinstance(dict_or_list, dict):
+            for op in (dict, pd.Series):
+                yield op(dict_or_list)
+            if wrap_as_df:
+                yield pd.DataFrame(dict_or_list)
+    else:
+        for op in (list, tuple, np.array):
+            yield op(dict_or_list)
 
 
 class TestIterErrors(unittest.TestCase):
@@ -68,39 +63,37 @@ class TestIterErrors(unittest.TestCase):
 
     @skip("For Draft3Validator only!")
     def test_iter_errors(self):
-#         data = [1, 2]
-#         for instance in wrap_as_sequences(data):
-        instance = [1, 2]
-        schema = {
-            u"disallow" : u"array",
-            u"enum" : [["a", "b", "c"], ["d", "e", "f"]],
-            u"minItems" : 3
-        }
+        data = [1, 2]
+        for instance in wrap_in_pandas(data):
+            schema = {
+                u"disallow" : u"array",
+                u"enum" : [["a", "b", "c"], ["d", "e", "f"]],
+                u"minItems" : 3
+            }
 
-        got = (e.message for e in self.validator.iter_errors(instance, schema))
-        expected = [
-            "%r is disallowed for [1, 2]" % (schema["disallow"],),
-            "[1, 2] is too short",
-            "[1, 2] is not one of %r" % (schema["enum"],),
-        ]
-        self.assertListEqual(sorted(got), sorted(expected))
+            got = (e.message for e in self.validator.iter_errors(instance, schema))
+            expected = [
+                "%r is disallowed for [1, 2]" % (schema["disallow"],),
+                "[1, 2] is too short",
+                "[1, 2] is not one of %r" % (schema["enum"],),
+            ]
+            self.assertListEqual(sorted(got), sorted(expected))
 
     def test_iter_errors_multiple_failures_one_validator(self):
-#         tree1 = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
-#         tree2 = {"foo" : 2, "bar" : np.array([1]), "baz" : 15, "quux" : "spam"}
-#         for data in (tree1, tree2):
-#         for instance in wrap_as_mappings(data):
-        instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
-        schema = {
-            u"properties" : {
-                "foo" : {u"type" : "string"},
-                "bar" : {u"minItems" : 2},
-                "baz" : {u"maximum" : 10, u"enum" : [2, 4, 6, 8]},
-            }
-        }
+        tree1 = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
+        tree2 = {"foo" : 2, "bar" : np.array([1]), "baz" : 15, "quux" : "spam"}
+        for data in (tree1, tree2,):
+            for instance in wrap_in_pandas(data):
+                schema = {
+                    u"properties" : {
+                        "foo" : {u"type" : "string"},
+                        "bar" : {u"minItems" : 2},
+                        "baz" : {u"maximum" : 10, u"enum" : [2, 4, 6, 8]},
+                    }
+                }
 
-        errors = list(self.validator.iter_errors(instance, schema))
-        self.assertEqual(len(errors), 4, errors)
+                errors = list(self.validator.iter_errors(instance, schema))
+                self.assertEqual(len(errors), 4, errors)
 
 
 class TestValidationErrorMessages(unittest.TestCase):
@@ -146,34 +139,44 @@ class TestValidationErrorMessages(unittest.TestCase):
     def test_dependencies_failure_has_single_element_not_list(self):
         depend, on = "bar", "foo"
         schema = {u"dependencies" : {depend : on}}
-        message = self.message_for({"bar" : 2}, schema)
-        self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
+        data = {"bar" : 2}
+        for instance in wrap_in_pandas(data):
+            message = self.message_for(instance, schema)
+            self.assertEqual(message, "%r is a dependency of %r" % (on, depend))
 
     def test_additionalItems_single_failure(self):
-        message = self.message_for(
-            [2], {u"items" : [], u"additionalItems" : False},
-        )
+        data = [2]
+        for instance in wrap_in_pandas(data):
+            message = self.message_for(
+                instance, {u"items" : [], u"additionalItems" : False},
+            )
         self.assertIn("(2 was unexpected)", message)
 
     def test_additionalItems_multiple_failures(self):
-        message = self.message_for(
-            [1, 2, 3], {u"items" : [], u"additionalItems" : False}
-        )
-        self.assertIn("(1, 2, 3 were unexpected)", message)
+        data  = [1, 2, 3]
+        for instance in wrap_in_pandas(data):
+            message = self.message_for(
+                instance, {u"items" : [], u"additionalItems" : False}
+            )
+            self.assertIn("(1, 2, 3 were unexpected)", message)
 
     def test_additionalProperties_single_failure(self):
         additional = "foo"
         schema = {u"additionalProperties" : False}
-        message = self.message_for({additional : 2}, schema)
-        self.assertIn("(%r was unexpected)" % (additional,), message)
+        data  = {additional : 2}
+        for instance in wrap_in_pandas(data):
+            message = self.message_for(instance, schema)
+            self.assertIn("(%r was unexpected)" % (additional,), message)
 
     def test_additionalProperties_multiple_failures(self):
         schema = {u"additionalProperties" : False}
-        message = self.message_for(dict.fromkeys(["foo", "bar"]), schema)
+        data  = ["foo", "bar"]
+        for instance in wrap_in_pandas(data):
+            message = self.message_for(dict.fromkeys(instance), schema)
 
-        self.assertIn(repr("foo"), message)
-        self.assertIn(repr("bar"), message)
-        self.assertIn("were unexpected)", message)
+            self.assertIn(repr("foo"), message)
+            self.assertIn(repr("bar"), message)
+            self.assertIn("were unexpected)", message)
 
     def test_invalid_format_default_message(self):
         checker = FormatChecker(formats=())
@@ -273,69 +276,71 @@ class TestValidationErrorDetails(unittest.TestCase):
         }
 
         validator = PandelValidator(schema)
-        errors = list(validator.iter_errors(instance))
-        self.assertEqual(len(errors), 1)
-        e = errors[0]
+        data  = {"foo": 1}
+        for instance in wrap_in_pandas(data):
+            errors = list(validator.iter_errors(instance))
+            self.assertEqual(len(errors), 1)
+            e = errors[0]
 
-        self.assertEqual(e.rule, "type")
-        self.assertEqual(e.rule_value, schema["type"])
-        self.assertEqual(e.instance, instance)
-        self.assertEqual(e.schema, schema)
-        self.assertIsNone(e.parent)
+            self.assertEqual(e.rule, "type")
+            self.assertEqual(e.rule_value, schema["type"])
+            self.assertEqual(e.instance, instance)
+            self.assertEqual(e.schema, schema)
+            self.assertIsNone(e.parent)
 
-        self.assertEqual(e.path, deque([]))
-        self.assertEqual(e.relative_path, deque([]))
-        self.assertEqual(e.absolute_path, deque([]))
+            self.assertEqual(e.path, deque([]))
+            self.assertEqual(e.relative_path, deque([]))
+            self.assertEqual(e.absolute_path, deque([]))
 
-        self.assertEqual(e.schema_path, deque(["type"]))
-        self.assertEqual(e.relative_schema_path, deque(["type"]))
-        self.assertEqual(e.absolute_schema_path, deque(["type"]))
+            self.assertEqual(e.schema_path, deque(["type"]))
+            self.assertEqual(e.relative_schema_path, deque(["type"]))
+            self.assertEqual(e.absolute_schema_path, deque(["type"]))
 
-        self.assertEqual(len(e.context), 2)
+            self.assertEqual(len(e.context), 2)
 
-        e1, e2 = sorted_errors(e.context)
+            e1, e2 = sorted_errors(e.context)
 
-        self.assertEqual(e1.rule, "type")
-        self.assertEqual(e1.rule_value, schema["type"][0]["type"])
-        self.assertEqual(e1.instance, instance)
-        self.assertEqual(e1.schema, schema["type"][0])
-        self.assertIs(e1.parent, e)
+            self.assertEqual(e1.rule, "type")
+            self.assertEqual(e1.rule_value, schema["type"][0]["type"])
+            self.assertEqual(e1.instance, instance)
+            self.assertEqual(e1.schema, schema["type"][0])
+            self.assertIs(e1.parent, e)
 
-        self.assertEqual(e1.path, deque([]))
-        self.assertEqual(e1.relative_path, deque([]))
-        self.assertEqual(e1.absolute_path, deque([]))
+            self.assertEqual(e1.path, deque([]))
+            self.assertEqual(e1.relative_path, deque([]))
+            self.assertEqual(e1.absolute_path, deque([]))
 
-        self.assertEqual(e1.schema_path, deque([0, "type"]))
-        self.assertEqual(e1.relative_schema_path, deque([0, "type"]))
-        self.assertEqual(e1.absolute_schema_path, deque(["type", 0, "type"]))
+            self.assertEqual(e1.schema_path, deque([0, "type"]))
+            self.assertEqual(e1.relative_schema_path, deque([0, "type"]))
+            self.assertEqual(e1.absolute_schema_path, deque(["type", 0, "type"]))
 
-        self.assertFalse(e1.context)
+            self.assertFalse(e1.context)
 
-        self.assertEqual(e2.rule, "enum")
-        self.assertEqual(e2.rule_value, [2])
-        self.assertEqual(e2.instance, 1)
-        self.assertEqual(e2.schema, {u"enum" : [2]})
-        self.assertIs(e2.parent, e)
+            self.assertEqual(e2.rule, "enum")
+            self.assertEqual(e2.rule_value, [2])
+            self.assertEqual(e2.instance, 1)
+            self.assertEqual(e2.schema, {u"enum" : [2]})
+            self.assertIs(e2.parent, e)
 
-        self.assertEqual(e2.path, deque(["foo"]))
-        self.assertEqual(e2.relative_path, deque(["foo"]))
-        self.assertEqual(e2.absolute_path, deque(["foo"]))
+            self.assertEqual(e2.path, deque(["foo"]))
+            self.assertEqual(e2.relative_path, deque(["foo"]))
+            self.assertEqual(e2.absolute_path, deque(["foo"]))
 
-        self.assertEqual(
-            e2.schema_path, deque([1, "properties", "foo", "enum"]),
-        )
-        self.assertEqual(
-            e2.relative_schema_path, deque([1, "properties", "foo", "enum"]),
-        )
-        self.assertEqual(
-            e2.absolute_schema_path,
-            deque(["type", 1, "properties", "foo", "enum"]),
-        )
+            self.assertEqual(
+                e2.schema_path, deque([1, "properties", "foo", "enum"]),
+            )
+            self.assertEqual(
+                e2.relative_schema_path, deque([1, "properties", "foo", "enum"]),
+            )
+            self.assertEqual(
+                e2.absolute_schema_path,
+                deque(["type", 1, "properties", "foo", "enum"]),
+            )
 
-        self.assertFalse(e2.context)
+            self.assertFalse(e2.context)
 
     def test_single_nesting(self):
-        instance = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
+        data = {"foo" : 2, "bar" : [1], "baz" : 15, "quux" : "spam"}
         schema = {
             "properties" : {
                 "foo" : {"type" : "string"},
@@ -345,28 +350,34 @@ class TestValidationErrorDetails(unittest.TestCase):
         }
 
         validator = PandelValidator(schema)
-        errors = validator.iter_errors(instance)
-        e1, e2, e3, e4 = sorted_errors(errors)
+        for instance in wrap_in_pandas(data):
+            errors = validator.iter_errors(instance)
+            errors = sorted_errors(errors)
+            try:
+                e1, e2, e3, e4 = errors
+            except ValueError as ex:
+                print(list(sorted_errors(validator.iter_errors(instance))))
+                raise ex
 
-        self.assertEqual(e1.path, deque(["bar"]))
-        self.assertEqual(e2.path, deque(["baz"]))
-        self.assertEqual(e3.path, deque(["baz"]))
-        self.assertEqual(e4.path, deque(["foo"]))
+            self.assertEqual(e1.path, deque(["bar"]))
+            self.assertEqual(e2.path, deque(["baz"]))
+            self.assertEqual(e3.path, deque(["baz"]))
+            self.assertEqual(e4.path, deque(["foo"]))
 
-        self.assertEqual(e1.relative_path, deque(["bar"]))
-        self.assertEqual(e2.relative_path, deque(["baz"]))
-        self.assertEqual(e3.relative_path, deque(["baz"]))
-        self.assertEqual(e4.relative_path, deque(["foo"]))
+            self.assertEqual(e1.relative_path, deque(["bar"]))
+            self.assertEqual(e2.relative_path, deque(["baz"]))
+            self.assertEqual(e3.relative_path, deque(["baz"]))
+            self.assertEqual(e4.relative_path, deque(["foo"]))
 
-        self.assertEqual(e1.absolute_path, deque(["bar"]))
-        self.assertEqual(e2.absolute_path, deque(["baz"]))
-        self.assertEqual(e3.absolute_path, deque(["baz"]))
-        self.assertEqual(e4.absolute_path, deque(["foo"]))
+            self.assertEqual(e1.absolute_path, deque(["bar"]))
+            self.assertEqual(e2.absolute_path, deque(["baz"]))
+            self.assertEqual(e3.absolute_path, deque(["baz"]))
+            self.assertEqual(e4.absolute_path, deque(["foo"]))
 
-        self.assertEqual(e1.rule, "minItems")
-        self.assertEqual(e2.rule, "enum")
-        self.assertEqual(e3.rule, "maximum")
-        self.assertEqual(e4.rule, "type")
+            self.assertEqual(e1.rule, "minItems")
+            self.assertEqual(e2.rule, "enum")
+            self.assertEqual(e3.rule, "maximum")
+            self.assertEqual(e4.rule, "type")
 
     @skip("For Draft3Validator only!")
     def test_multiple_nesting(self):
@@ -424,23 +435,25 @@ class TestValidationErrorDetails(unittest.TestCase):
         self.assertEqual(e6.rule, "enum")
 
     def test_additionalProperties(self):
-        instance = {"bar": "bar", "foo": 2}
+        data = {"bar": "bar", "foo": 2}
         schema = {
             "additionalProperties" : {"type": "integer", "minimum": 5}
         }
 
         validator = PandelValidator(schema)
-        errors = validator.iter_errors(instance)
-        e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(e1.path, deque(["bar"]))
-        self.assertEqual(e2.path, deque(["foo"]))
+        for instance in wrap_in_pandas(data):
+            errors = validator.iter_errors(instance)
+            e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(e1.rule, "type")
-        self.assertEqual(e2.rule, "minimum")
+            self.assertEqual(e1.path, deque(["bar"]))
+            self.assertEqual(e2.path, deque(["foo"]))
+
+            self.assertEqual(e1.rule, "type")
+            self.assertEqual(e2.rule, "minimum")
 
     def test_patternProperties(self):
-        instance = {"bar": 1, "foo": 2}
+        data = {"bar": 1, "foo": 2}
         schema = {
             "patternProperties" : {
                 "bar": {"type": "string"},
@@ -449,48 +462,60 @@ class TestValidationErrorDetails(unittest.TestCase):
         }
 
         validator = PandelValidator(schema)
-        errors = validator.iter_errors(instance)
-        e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(e1.path, deque(["bar"]))
-        self.assertEqual(e2.path, deque(["foo"]))
+        for instance in wrap_in_pandas(data):
+            errors = validator.iter_errors(instance)
+            try:
+                e1, e2 = sorted_errors(errors)
+            except ValueError as ex:
+                print(list(sorted_errors(validator.iter_errors(instance))))
+                raise ex
 
-        self.assertEqual(e1.rule, "type")
-        self.assertEqual(e2.rule, "minimum")
+            self.assertEqual(e1.path, deque(["bar"]))
+            self.assertEqual(e2.path, deque(["foo"]))
+
+            self.assertEqual(e1.rule, "type")
+            self.assertEqual(e2.rule, "minimum")
 
     def test_additionalItems(self):
-        instance = ["foo", 1]
+        data = ["foo", 1]
         schema = {
             "items": [],
             "additionalItems" : {"type": "integer", "minimum": 5}
         }
 
         validator = PandelValidator(schema)
-        errors = validator.iter_errors(instance)
-        e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(e1.path, deque([0]))
-        self.assertEqual(e2.path, deque([1]))
+        for instance in wrap_in_pandas(data):
+            errors = validator.iter_errors(instance)
+            e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(e1.rule, "type")
-        self.assertEqual(e2.rule, "minimum")
+            self.assertEqual(e1.path, deque([0]))
+            self.assertEqual(e2.path, deque([1]))
+
+            if not isinstance(instance, np.ndarray):
+                ## numpy-arrays have column-types so str+int-->str and both errors are type-errors.
+                self.assertSequenceEqual([e.rule for e in (e1,e2)], ("type", "minimum"), (e1,e2))
 
     def test_additionalItems_with_items(self):
-        instance = ["foo", "bar", 1]
+        data = ["foo", "bar", 1]
         schema = {
             "items": [{}],
             "additionalItems" : {"type": "integer", "minimum": 5}
         }
 
         validator = PandelValidator(schema)
-        errors = validator.iter_errors(instance)
-        e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(e1.path, deque([1]))
-        self.assertEqual(e2.path, deque([2]))
+        for instance in wrap_in_pandas(data):
+            errors = validator.iter_errors(instance)
+            e1, e2 = sorted_errors(errors)
 
-        self.assertEqual(e1.rule, "type")
-        self.assertEqual(e2.rule, "minimum")
+            self.assertEqual(e1.path, deque([1]))
+            self.assertEqual(e2.path, deque([2]))
+
+            if not isinstance(instance, np.ndarray):
+                ## numpy-arrays have column-types so str+int-->str and both errors are type-errors.
+                self.assertSequenceEqual([e.rule for e in (e1,e2)], ("type", "minimum"), (e1,e2))
 
 
 class ValidatorTestMixin(object):
