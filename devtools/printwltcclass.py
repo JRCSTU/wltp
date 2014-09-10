@@ -17,9 +17,12 @@ Or for printing all classes::
 
 Then copy-paste the output of the program as a python-variable within the respective
  wltp.classes.classX.py modules.
-
-:created: Jan 2014
 '''
+
+import collections
+import csv
+import os, io
+
 
 wltc_data_files = {
     'class1': [
@@ -53,12 +56,6 @@ def read_wltc_class(wltc_class, assert_files = False):
     :return :generator: with the speed_column floats
     '''
 
-    import collections
-    import csv
-    import io
-    import os
-
-
     def iterate_csv(fnames, yieldfun, beginfilefunc = None, endfilefunc = None):
         '''
         :argument: stringarray: fnames: the names of the resource-files
@@ -67,7 +64,7 @@ def read_wltc_class(wltc_class, assert_files = False):
         '''
 
         for fname in fnames:
-            with open(fname, 'rb') as csvfile:  # @UndefinedVariable
+            with io.open(fname, 'rb') as csvfile:  # @UndefinedVariable
                 first_line = True
                 reader = csv.reader(io.TextIOWrapper(csvfile))
                 for row in reader:

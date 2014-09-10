@@ -22,11 +22,14 @@ Or get it directly from the PIP repository::
 #    http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
 #    http://python-packaging-user-guide.readthedocs.org/en/latest/current.html
 
+import os, sys, io
+import re
+
 from setuptools import setup
+
+
 #from cx_Freeze import Executable
 #from cx_Freeze import setup
-import os, sys, re
-
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
 
@@ -38,11 +41,12 @@ if sys.version_info[0] < 3:
 ##
 def read_project_version():
     fglobals = {}
-    exec(open(os.path.join(mydir, projname, '_version.py')).read(), fglobals)  # To read __version__
+    with io.open(os.path.join(mydir, projname, '_version.py')) as fd:
+        exec(fd.read(), fglobals)  # To read __version__
     return fglobals['__version__']
 
 def read_text_lines(fname):
-    with open(os.path.join(mydir, fname)) as fd:
+    with io.open(os.path.join(mydir, fname)) as fd:
         return fd.readlines()
 
 def yield_sphinx_only_markup(lines):
@@ -126,6 +130,8 @@ setup(
     ],
     classifiers = [
         "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Development Status :: 3 - Alpha",
         'Natural Language :: English',

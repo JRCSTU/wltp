@@ -17,8 +17,6 @@ Example::
     cat multiColumn.txt | python3 csvcolumns8to2.py > out.csv
 or::
     python3 csvcolumns8to2.py multiColumn.txt
-
-:created: Dec 14, 2013
 """
 
 def csvcolumns8to2(inp, inpfname, out, outfname):

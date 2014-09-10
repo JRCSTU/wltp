@@ -2,7 +2,8 @@
 
 
 import re
-import sys
+import sys, io
+
 
 def clean_sphinx_only_markup(file_inp=None, file_out=None):
     """
@@ -59,8 +60,8 @@ def clean_sphinx_only_markup(file_inp=None, file_out=None):
     if not file_out:
         file_out = sys.stdout
 
-    with open(file_inp) if isinstance(file_inp, str) else file_inp as fd_in:
-        with open(file_out) if isinstance(file_out, str) else file_out as fd_out:
+    with io.open(file_inp) if isinstance(file_inp, str) else file_inp as fd_in:
+        with io.open(file_out) if isinstance(file_out, str) else file_out as fd_out:
             line = fd_in.readline()
             while line:
                 line = clean_line(line)

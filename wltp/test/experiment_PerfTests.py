@@ -4,15 +4,15 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''
-:created: 5 Jan 2014
-'''
+
+from __future__ import print_function, unicode_literals
+
+import logging
+import time
+import unittest
 
 from ..experiment import Experiment
 from .goodvehicle import goodVehicle
-import logging
-import unittest
-import time
 
 
 class ExperimentPerf(unittest.TestCase):

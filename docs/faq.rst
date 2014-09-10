@@ -73,6 +73,6 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
   This last step will improve the documentation and help others as well.
 
 
-Is it possible to test some *demo* it without installing python?
-----------------------------------------------------------------
+I do not have python / cannot install it.  Is it possible to try a *demo*?
+--------------------------------------------------------------------------
 [TBD]

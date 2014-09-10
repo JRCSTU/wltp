@@ -17,25 +17,29 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+
+from __future__ import print_function, unicode_literals
+
 from collections import deque
 from contextlib import contextmanager
 import json
+from unittest import mock
+import unittest
+from unittest.case import skip
+from wltp.pandel import PandelVisitor
+
 from jsonschema import FormatChecker, ValidationError
 from jsonschema.validators import (
     RefResolutionError, UnknownType,
     RefResolver
 )
-from unittest import mock
-import unittest
-from unittest.case import skip
 
 import numpy as np
 import pandas as pd
-from wltp.pandel import PandelValidator
 
 
 def validate(instance, schema, *args, **kws):
-    return PandelValidator(schema, *args, **kws).validate(instance)
+    return PandelVisitor(schema, *args, **kws).validate(instance)
 
 def wrap_as_sequences(seq):
     """
@@ -59,7 +63,7 @@ def wrap_in_pandas(dict_or_list, wrap_as_df=False):
 
 class TestIterErrors(unittest.TestCase):
     def setUp(self):
-        self.validator = PandelValidator({})
+        self.validator = PandelVisitor({})
 
     @skip("For Draft3Validator only!")
     def test_iter_errors(self):
@@ -203,7 +207,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             ]
         }
 
-        validator = PandelValidator(schema)
+        validator = PandelVisitor(schema)
         errors = list(validator.iter_errors(instance))
         self.assertEqual(len(errors), 1)
         e = errors[0]
@@ -275,7 +279,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             ]
         }
 
-        validator = PandelValidator(schema)
+        validator = PandelVisitor(schema)
         data  = {"foo": 1}
         for instance in wrap_in_pandas(data):
             errors = list(validator.iter_errors(instance))
@@ -349,7 +353,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             }
         }
 
-        validator = PandelValidator(schema)
+        validator = PandelVisitor(schema)
         for instance in wrap_in_pandas(data):
             errors = validator.iter_errors(instance)
             errors = sorted_errors(errors)
@@ -399,7 +403,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             }
         }
 
-        validator = PandelValidator(schema)
+        validator = PandelVisitor(schema)
         errors = validator.iter_errors(instance)
         e1, e2, e3, e4, e5, e6 = sorted_errors(errors)
 
@@ -440,7 +444,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             "additionalProperties" : {"type": "integer", "minimum": 5}
         }
 
-        validator = PandelValidator(schema)
+        validator = PandelVisitor(schema)
 
         for instance in wrap_in_pandas(data):
             errors = validator.iter_errors(instance)
@@ -461,7 +465,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             }
         }
 
-        validator = PandelValidator(schema)
+        validator = PandelVisitor(schema)
 
         for instance in wrap_in_pandas(data):
             errors = validator.iter_errors(instance)
@@ -484,7 +488,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             "additionalItems" : {"type": "integer", "minimum": 5}
         }
 
-        validator = PandelValidator(schema)
+        validator = PandelVisitor(schema)
 
         for instance in wrap_in_pandas(data):
             errors = validator.iter_errors(instance)
@@ -504,7 +508,7 @@ class TestValidationErrorDetails(unittest.TestCase):
             "additionalItems" : {"type": "integer", "minimum": 5}
         }
 
-        validator = PandelValidator(schema)
+        validator = PandelVisitor(schema)
 
         for instance in wrap_in_pandas(data):
             errors = validator.iter_errors(instance)
@@ -582,10 +586,10 @@ class ValidatorTestMixin(object):
             self.validator.is_type("foo", object())
 
 
-class TestPandelValidator(ValidatorTestMixin, unittest.TestCase):
+class TestPandelVisitor(ValidatorTestMixin, unittest.TestCase):
     """Originally TestDraf3Validator"""
 
-    validator_class = PandelValidator
+    validator_class = PandelVisitor
 
     @skip("For Draft3Validator only!")
     def test_is_type_is_true_for_any_type(self):

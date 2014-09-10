@@ -47,12 +47,14 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
 .. Seealso:: :mod:`model` for in/out schemas
 '''
 
-import numpy as np
-import pandas as pd
 import logging
 import re
 
+import numpy as np
+import pandas as pd
+
 from . import model
+
 
 log = logging.getLogger(__name__)
 

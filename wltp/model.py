@@ -8,6 +8,7 @@
 
 The model-instance is managed by :class:`pandel.Pandel`.
 """
+
 from collections.abc import Mapping
 import json
 from jsonschema import Draft4Validator

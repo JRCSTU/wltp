@@ -4,18 +4,18 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''
-:created: 10-Aug 2014
-'''
 
-from jsonschema import ValidationError
+from __future__ import print_function, unicode_literals
+
 import logging
 import unittest
+from wltp.experiment import Experiment
+from wltp.test.goodvehicle import goodVehicle
+
+from jsonschema import ValidationError
 
 import numpy as np
 import pandas as pd
-from wltp.experiment import Experiment
-from wltp.test.goodvehicle import goodVehicle
 
 
 class TestForcedCycle(unittest.TestCase):

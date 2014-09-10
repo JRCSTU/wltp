@@ -4,15 +4,17 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-from jsonschema.exceptions import ValidationError
-'''Testing of the pure-tree data (just dictionary & lists), without the Model/Experiment classes.
-
-:created: 29 Dec 2013
+'''
+Testing of the pure-tree data (just dictionary & lists), without the Model/Experiment classes.
 '''
 
+from __future__ import print_function, unicode_literals
+
 import json
-import jsonschema
 import unittest
+
+import jsonschema
+from jsonschema.exceptions import ValidationError
 
 from .. import model
 from .goodvehicle import goodVehicle

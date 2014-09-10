@@ -4,18 +4,20 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-from matplotlib.pyplot import pause
 '''Plot the class3 diagram used in the documents and stores in project's ``docs/_static`` folder.
 
 Invoked with 1 arg will draw diagram on screen and wait before ending.
 Invoked with 2 args will additionally save image as well.
-
-:created: 3 Aug 2014
 '''
+
 import sys, os, os.path as path
-import numpy as np
-from matplotlib import pyplot as plt
 from wltp import model
+
+from matplotlib import pyplot as plt
+from matplotlib.pyplot import pause
+
+import numpy as np
+
 
 def make_class_fig(class_name, class_data):
     font_size = 8

@@ -4,17 +4,18 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''
-:created: 5 Jan 2014
-'''
 
-import wltp.experiment as ex
-from ..experiment import downscaleCycle
-from ..model import wltc_data
+from __future__ import print_function, unicode_literals
+
 import logging
+import unittest
+
 import numpy as np
 import numpy.testing as npt
-import unittest
+import wltp.experiment as ex
+
+from ..experiment import downscaleCycle
+from ..model import wltc_data
 
 
 class experimentFuncs(unittest.TestCase):

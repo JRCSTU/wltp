@@ -13,17 +13,19 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
-import os
 import re
+import sys, os, io
+
 
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
 
 def read_project_version():
     fglobals = {}
-    exec(open(os.path.join(mydir, '..', projname, '_version.py')).read(), fglobals)  # To read __version__
+    with io.open(os.path.join(mydir, '..', projname, '_version.py')) as fd:
+        exec(fd.read(), fglobals)  # To read __version__
     return fglobals['__version__']
+
 proj_ver = read_project_version()
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'

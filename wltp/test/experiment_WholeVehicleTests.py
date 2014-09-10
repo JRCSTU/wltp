@@ -4,22 +4,24 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-'''Tests check top-level functionality.
+'''Tests check top-level functionality. '''
 
-:created: 5 Jan 2014
-'''
+from __future__ import print_function, unicode_literals
 
-
-from ..experiment import Experiment
-from .goodvehicle import goodVehicle
-from matplotlib import pyplot as plt
 import logging
-import numpy as np
-import numpy.testing as npt
-import os
+import os, io
 import pickle
 import tempfile
 import unittest
+
+from matplotlib import pyplot as plt
+
+import numpy as np
+import numpy.testing as npt
+
+from ..experiment import Experiment
+from .goodvehicle import goodVehicle
+
 
 log = logging.getLogger(__name__)
 
@@ -36,11 +38,11 @@ class ExperimentWholeVehs(unittest.TestCase):
         tmpfname = os.path.join(tempfile.gettempdir(), '%s.pkl'%fname)
         if (run_comparison):
             try:
-                with open(tmpfname, 'rb') as tmpfile:
+                with io.open(tmpfname, 'rb') as tmpfile:
                     data_prev = pickle.load(tmpfile)
                     ## Compare changed-tabular
                     #
-                    npt.assert_equal(tabular['gears'],  data_prev['gears'])
+                    npt.assert_array_equal(tabular['gears'],  data_prev['gears'])
                     # Unreached code in case of assertion.
                     # cmp = tabular['gears'] != data_prev['gears']
                     # if (cmp.any()):
@@ -53,7 +55,7 @@ class ExperimentWholeVehs(unittest.TestCase):
                 run_comparison = False
 
         if (not run_comparison):
-            with open(tmpfname, 'wb') as tmpfile:
+            with io.open(tmpfname, 'wb') as tmpfile:
                 pickle.dump(tabular, tmpfile)
 
 

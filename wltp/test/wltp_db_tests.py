@@ -8,9 +8,9 @@
 
 * Run as Test-case to generate results for sample-vehicles.
 * Run it as cmd-line to compare with Heinz's results.
-
-:created: 28 July 2014
 '''
+
+from __future__ import print_function, unicode_literals
 
 from collections import OrderedDict
 import glob
@@ -98,7 +98,8 @@ def memoize(f):
 def _read_gened_file(inpfname):
     df = pd.read_csv(inpfname, header=0, index_col=0)
     assert not df.empty
-    assert df.index.name == 'time', df.index.name
+    assert df.index.name == 'time', \
+            df.index.name
 
     return df
 

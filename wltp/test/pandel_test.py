@@ -4,14 +4,17 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-from jsonschema.exceptions import ValidationError
-import unittest
 
+from __future__ import print_function, unicode_literals
+
+import unittest
 from wltp import pandel
+from wltp.pandel import PandelVisitor
+
+from jsonschema.exceptions import ValidationError
 
 import numpy.testing as npt
 import pandas as pd
-from wltp.pandel import PandelValidator
 
 from ..experiment import Experiment
 from .goodvehicle import goodVehicle
@@ -35,7 +38,7 @@ class Test(unittest.TestCase):
                 }
 
         ## Maps
-        mm = MyMaker(None)
+        mm = MyMaker()
 
         (s1, s2) = {'a': 1}, {'a':2}
         mdl = mm._clone_and_merge_submodels(s1, s2)
@@ -108,10 +111,10 @@ class Test(unittest.TestCase):
                     }
                 }
 
-        mm = MyMaker([
-           {'a': 'foo', 'b': 1},
-           {'a': 'bar', 'c': 2},
-        ])
+        mm = MyMaker()
+        mm.add_submodel({'a': 'foo', 'b': 1})
+        mm.add_submodel({'a': 'bar', 'c': 2})
+
         mdl = mm.build()
 
         self.assertEqual(mdl['a'], 'bar')
@@ -119,14 +122,15 @@ class Test(unittest.TestCase):
         self.assertEqual(mdl['c'], 2)
 
 
-        mm = MyMaker([{'a': 'foo', 'b': 'string'}])     ## Invalid submodel['b'], must be a number
+        mm = MyMaker()     ## Invalid submodel['b'], must be a number
+        mm.add_submodel({'a': 'foo', 'b': 'string'})
         self.assertRaisesRegex(ValidationError, "Failed validating 'type' in schema\['properties']\['b']", mm.build)
 
     def test_validate_object_or_pandas(self):
         schema = {
             'type': ['object'],
         }
-        pv = PandelValidator(schema)
+        pv = PandelVisitor(schema)
 
         pv.validate({'foo': 'bar'})
         pv.validate(pd.Series({'foo': 'bar', 'foofoo': 'bar'}))
@@ -141,7 +145,7 @@ class Test(unittest.TestCase):
             'type': ['object'],
             'required': ['foo']
         }
-        pv = PandelValidator(schema)
+        pv = PandelVisitor(schema)
 
         pv.validate({'foo': 'bar'})
         with self.assertRaisesRegex(ValidationError, "'foo' is a required property"):
@@ -165,7 +169,7 @@ class Test(unittest.TestCase):
                 'foo': {},
             }
         }
-        pv = PandelValidator(schema)
+        pv = PandelVisitor(schema)
 
         pv.validate({'foo': 1})
         with self.assertRaisesRegex(ValidationError, "Additional properties are not allowed \('bar' was unexpected\)"):

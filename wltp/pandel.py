@@ -4,20 +4,22 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-import numbers
 """A :dfn:`pandas-model` is a tree of strings, numbers, sequences, dicts, pandas instances and resolvable
 URI-references, implemented by :class:`Pandel`. """
 
 import abc
 from collections import OrderedDict, namedtuple
 from collections.abc import Mapping, Sequence
+import numbers
+import re
+
 from jsonschema import Draft4Validator, ValidationError
 import jsonschema
-import re
+from pandas.core.generic import NDFrame
 
 import numpy as np
 import pandas as pd
-from pandas.core.generic import NDFrame
+
 
 class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
     """
@@ -67,7 +69,9 @@ class PathMaps:
     pass
 
 
-class PandelValidator(Draft4Validator):
+
+ValidatorBase = jsonschema.validators.extend(Draft4Validator, {}) # Workaround https://github.com/Julian/jsonschema/issues/178
+class PandelVisitor(ValidatorBase):
     """
     A customized :class:`Draft4Validator` suporting instance-trees with pandas and numpy objects, natively.
 
@@ -89,7 +93,7 @@ class PandelValidator(Draft4Validator):
         >>> schema = {
         ...     'type': ['object', 'Series'],
         ... }
-        >>> pv = PandelValidator(schema)
+        >>> pv = PandelVisitor(schema)
 
         >>> pv.validate({'foo': 'bar'})
         >>> pv.validate(pd.Series({'foo': 1}))
@@ -115,7 +119,7 @@ class PandelValidator(Draft4Validator):
         ...        'foo': {}
         ...    }
         ... }
-        >>> pv = PandelValidator(schema)
+        >>> pv = PandelVisitor(schema)
 
         >>> pv.validate(pd.Series({'foo': 1}))
         >>> pv.validate(pd.Series({'foo': 1, 'bar': 2}))             ## Additional 'bar' is present!
@@ -161,11 +165,11 @@ class PandelValidator(Draft4Validator):
             "object" :  (dict, pd.DataFrame, pd.Series)
         })
         self.VALIDATORS.update({
-            'properties':           PandelValidator._rule_properties,
-            'items':                PandelValidator._rule_items,
-            'required':             PandelValidator._rule_required,
-            'additionalProperties': PandelValidator._rule_additionalProperties,
-            'additionalItems':      PandelValidator._rule_additionalItems,
+            'properties':           PandelVisitor._rule_properties,
+            'items':                PandelVisitor._rule_items,
+            'required':             PandelVisitor._rule_required,
+            'additionalProperties': PandelVisitor._rule_additionalProperties,
+            'additionalItems':      PandelVisitor._rule_additionalItems,
         })
 
     def _get_iprop(self, instance, prop):
@@ -456,9 +460,9 @@ class Pandel:
         Depending on the submodels, the top-value can be any of the supported model data-types.
 
 
-    .. Attribute:: _submodels
+    .. Attribute:: _submodel_tuples
 
-        The list of (``submodel``, ``contexts_map``) tuples. The list's 1st element is the :dfn:`base-model`,
+        The stack of (``submodel``, ``path_ops``) tuples. The list's 1st element is the :dfn:`base-model`,
         the last one, the :dfn:`top-model`.  Use the :meth:`add_submodel()` to build this list.
 
 
@@ -551,7 +555,7 @@ class Pandel:
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, curate_funcs=None):
+    def __init__(self, curate_funcs=()):
         """
 
         :param sequence curate_funcs:   See :attr:`_curate_funcs`.
@@ -559,8 +563,8 @@ class Pandel:
 
         self.model          = None
         self._errored       = None
-        self._submodels     = []
-        self._curate_funcs  = list(curate_funcs)
+        self._submodel_tuples   = []
+        self._curate_funcs  = curate_funcs
         self._global_cntxt  = []
         self._unified_contexts = None
 
@@ -589,9 +593,9 @@ class Pandel:
         """
         return self._unified_contexts
     @unified_contexts.setter
-    def unified_contexts(self, contexts_map):
-        assert isinstance(contexts_map, Mapping), (type(contexts_map), contexts_map)
-        self._unified_contexts = contexts_map
+    def unified_contexts(self, path_ops):
+        assert isinstance(path_ops, Mapping), (type(path_ops), path_ops)
+        self._unified_contexts = path_ops
 
     def _select_context(self, path, branch):
         """
@@ -723,13 +727,13 @@ class Pandel:
 
     def _prevalidate(self):
         "Step-1"
-        for mdl in self._submodels:
+        for (mdl, path_ops) in self._submodel_tuples:
             schema = self._get_json_schema(is_prevalidation=True)
             yield from self._validate_json_model(schema, mdl)
 
     def _merge(self):
         "Step-2"
-        for mdl in self._submodels:
+        for (mdl, path_ops) in self._submodel_tuples:
             self.model = self._clone_and_merge_submodels(self.model, mdl)
         if False:
             yield       ## Just mark method as generator.
@@ -746,13 +750,13 @@ class Pandel:
         for curfunc in self._curate_funcs:
             curfunc(self)
 
-    def add_submodel(self, model, contexts_map=None):
+    def add_submodel(self, model, path_ops=None):
         """
         Pushes on top a submodel, along with its context-map.
 
         :param model:               the model-tree (sequence, mapping, pandas-types)
-        :param dict contexts_map:   A map of ``json_paths`` --> :class:`ModelOperations` instances acting on the
-                                    unified-model.  The `contexts_map` may often be empty.
+        :param dict path_ops:       A map of ``json_paths`` --> :class:`ModelOperations` instances acting on the
+                                    unified-model.  The `path_ops` may often be empty.
 
         **Examples**
 
@@ -763,10 +767,10 @@ class Pandel:
 
         """
 
-        if contexts_map:
-            assert isinstance(contexts_map, Mapping), (type(contexts_map), contexts_map)
+        if path_ops:
+            assert isinstance(path_ops, Mapping), (type(path_ops), path_ops)
 
-        return self._submodels.append((model, contexts_map))
+        return self._submodel_tuples.append((model, path_ops))
 
 
     def build_iter(self):

@@ -12,6 +12,7 @@ found inside the source-distribution:
 * :file:`devtools/printwltcclass.py`
 * :file:`devtools/csvcolumns8to2.py`
 '''
+
 def class_data_a():
     data = {
         'parts': [[0, 589], [590, 1022], [1023, 1477], [1478, 1800]],

@@ -8,25 +8,26 @@
 
 * Run as Test-case to generate results for sample-vehicles.
 * Run it as cmd-line to compare with Heinz's results.
-
-:created: 5 Jan 2014
 '''
+
+from __future__ import print_function, unicode_literals
 
 import glob
 import logging
 import math
-from matplotlib import pyplot as plt
 import os
 import re
 import unittest
 from unittest.case import skip
+from wltp.experiment import Experiment
+from wltp.experiment import applyDriveabilityRules
+from wltp.test.goodvehicle import goodVehicle
+
+from matplotlib import pyplot as plt
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
-from wltp.experiment import Experiment
-from wltp.experiment import applyDriveabilityRules
-from wltp.test.goodvehicle import goodVehicle
 
 
 mydir = os.path.dirname(__file__)

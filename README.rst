@@ -1,5 +1,5 @@
 ===============================
-``wltp`` gear-shifts calculator
+*wltp* gear-shifts calculator
 ===============================
 
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
@@ -329,27 +329,26 @@ To get involved with development, first you need to download the latest sources:
     $ cd wltp.git
 
 
-It is preferable that you install the project's dependencies, isolated, and **without admin-rights**,
-in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_:
+.. Admonition:: Virtualenv & Liclipse IDE
+    :class: note
 
-.. code-block:: console
+    You may choose to work in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_,
+    to install dependency libraries isolated from system's ones, and/or without *admin-rights*.
 
-    $ pip3 install virtualenv                           ## Ensure `virtualenv` is installed.
-    $ virtualenv --system-site-packages ../wltp.venv    ## If both python-2 & 3 installed, use:  -p <PATH_TO_PYTHON_3>
-    $ .  ../wltp.venv/bin/activate                      ## In Windows: ../wltp.venv/Scripts/activate
-    (wltp.venv) $
+    .. Attention::
+        If you reuse pre-installed packages with ``virtualenvs``'s :option:`--system-site-packages`
+        (to avoid, for instance, having to reinstall *numpy* and *pandas* that require native-libraries)
+        you may be bitten by `bug #461 <https://github.com/pypa/virtualenv/issues/461>`_ which
+        prevents you from upgrading any of the pre-installed packages with :command:`pip`.
 
-
-.. Tip:: Within the sources it is included a :file:`.project` file for the comprehensive
-    `LiClipse <https://brainwy.github.io/liclipse/>`_ IDE.
-
-    If you also choose to use the same IDE, you have to add
+    Within the sources it is included a :file:`.project` file for the comprehensive
+    `LiClipse <https://brainwy.github.io/liclipse/>`_, an **eclipse** IDE pre-configured with the
+    excellent **PyDev** environment.  If you also choose to use it, you have to add a new PyDev python-intepreter
     under :menuselection:`&Windows --> &Preferences --> PyDev --> Interpreters --> Python Interpreter`
-    a new python-intepreter named ``wltp.venv`` since this is the name already specified in the :file:`.project` file.
-
-    You can change this choice by :guilabel:`Right-clicking` on the Project and navigating
+    named ``wltp.venv``, since this is the name already specified in the :file:`.project`.
+    You may change this name by :guilabel:`Right-clicking` on the Project and navigating
     to :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`,
-    but you have to remember not commit this change.
+    but you have to remember not commit this change in :file:`.project`.
 
 
 Then you can install all project's dependencies in *`development mode* using the :file:`setup.py` script:

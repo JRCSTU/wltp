@@ -10,7 +10,7 @@
     :func:`main()`
 """
 
-import argparse
+
 import ast
 import collections
 import functools
@@ -21,6 +21,7 @@ import re
 import sys
 from textwrap import dedent
 
+import argparse
 from pandas.core.generic import NDFrame
 
 import jsonpointer as jsonp
@@ -28,10 +29,10 @@ import jsonschema as jsons
 import operator as ops
 import pandas as pd
 
-from . import model
-from ._version import __version__ # @UnusedImport
-from .model import json_dump, json_dumps, validate_model
 from . import experiment
+from . import model
+from ._version import __version__  # @UnusedImport
+from .model import json_dump, json_dumps, validate_model
 from .utils import str2bool, Lazy
 
 

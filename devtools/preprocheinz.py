@@ -4,7 +4,6 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-from openpyxl.exceptions import IllegalCharacterError
 '''
 Converts to CSVs and consolidate input & results tables from Heinz' ms-access db.
 
@@ -16,13 +15,14 @@ Converts to CSVs and consolidate input & results tables from Heinz' ms-access db
 
 .. Note: Requires excel-files to be present that were produced from ``A gearshift_table_check_result_final``
 ms-access query.
-
-:created: 28 Jul 2014
 '''
 
 import glob, os, os.path as path
-import numpy as np, pandas as pd
 import re
+
+from openpyxl.exceptions import IllegalCharacterError
+
+import numpy as np, pandas as pd
 
 
 def heinz_db_result_table_to_csv(heinz_results_glob, inp_vehs_df, cols_to_move, cols_to_rename, cols_to_drop, index_col):
