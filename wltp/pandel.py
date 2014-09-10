@@ -91,19 +91,19 @@ class PandelVisitor(ValidatorBase):
         >>> import pandas as pd
 
         >>> schema = {
-        ...     'type': ['object', 'Series'],
+        ...     'type': 'object',
         ... }
         >>> pv = PandelVisitor(schema)
 
         >>> pv.validate({'foo': 'bar'})
         >>> pv.validate(pd.Series({'foo': 1}))
-        >>> pv.validate([1,2])                                       ## invalid type
+        >>> pv.validate([1,2])                                       ## A sequence is invalid here.
         Traceback (most recent call last):
         ...
-        jsonschema.exceptions.ValidationError: [1, 2] is not of type 'object', 'Series'
+        jsonschema.exceptions.ValidationError: [1, 2] is not of type 'object'
         <BLANKLINE>
         Failed validating 'type' in schema:
-            {'type': ['object', 'Series']}
+            {'type': 'object'}
         <BLANKLINE>
         On instance:
             [1, 2]
@@ -515,7 +515,7 @@ class Pandel:
 
         >>> mm = MyModel()
         >>> mm.add_submodel(od(a='foo', b=1))                                   ## submodel-1 (base)
-        >>> mm.add_submodel(pd.Series(od(a='bar', c=2}))                       ## submodel-2 (top-model)
+        >>> mm.add_submodel(pd.Series(od(a='bar', c=2)))                        ## submodel-2 (top-model)
 
 
     You then have to build the final unified-model (any validation errors would be reported at this point):
@@ -533,23 +533,31 @@ class Pandel:
         True
 
 
-    Lets try to construct an invalid model:
+    Lets try to build with invalid submodels:
 
         >>> mm = MyModel()
-        >>> mm.add_submodel([{
-        ...     'a': 1,                             ## According to the schema, this should have been a string,
-        ...     'b': 'string'                       ## and this one, a number.
-        ... }])
+        >>> mm.add_submodel({'a': 1})               ## According to the schema, this should have been a string,
+        >>> mm.add_submodel({'b': 'string'})        ## and this one, a number.
 
         >>> sorted(mm.build_iter(), key=lambda ex: ex.message)                   ## Fetch a list with all validation errors.
         [<ValidationError: "'string' is not of type 'number'">,
-        <ValidationError: "1 is not of type 'string'">,
-        <ValidationError: 'Gave-up building model after step 2.prevalidate (out of 5).'>]
+         <ValidationError: "1 is not of type 'string'">,
+         <ValidationError: 'Gave-up building model after step 1.prevalidate (out of 4).'>]
 
         >>> mdl = mm.model
         >>> mdl is None                                     ## No model constructed, failed before merging.
         True
 
+
+    And lets try to build with valid submodels but invalid merged-one:
+
+        >>> mm = MyModel()
+        >>> mm.add_submodel({'a': 'a str'})
+        >>> mm.add_submodel({'c': 1})
+
+        >>> sorted(mm.build_iter(), key=lambda ex: ex.message)        ## Missing required('b') prop rom merged-model.
+        [<ValidationError: "'b' is a required property">,
+         <ValidationError: 'Gave-up building model after step 3.validate (out of 4).'>]
 
     """
 
@@ -762,8 +770,8 @@ class Pandel:
 
         To change the default DataFrame --> dictionary convertor for a submodel, use the following:
 
-            >>> mdl = {'foo': 'bar'}                       ## Some content
-            >>> submdl = ModelOperations(mdl, df_to_map={None: lambda df: df.to_dict('record')})
+            >>> mdl = {'foo': 'bar'}
+            >>> submdl = ModelOperations(mdl, conv={(pd.DataFrame, dict): lambda df: df.to_dict('record')})
 
         """
 

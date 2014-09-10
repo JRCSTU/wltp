@@ -4,23 +4,24 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""Defines the schema, defaults and validation operations for the data consumed and produced by the :class:`~wltp.experiment.Experiment`.
+"""
+Defines the schema, defaults and validation operations for the data consumed and produced by the :class:`~wltp.experiment.Experiment`.
 
 The model-instance is managed by :class:`pandel.Pandel`.
 """
 
 from collections.abc import Mapping
 import json
+import logging
+from textwrap import dedent
+from wltp.cycles import (class1, class2, class3)
+
 from jsonschema import Draft4Validator
 from jsonschema import ValidationError
 import jsonschema
-import logging
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
-from textwrap import dedent
-
-from wltp.cycles import (class1, class2, class3)
 
 import itertools as it
 import numpy as np
@@ -258,6 +259,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                        'description': dedent("""
                            The maximum velocity as declared by the manufacturer.
                            If ommited, calculated as::
+
                                v_max = (n_rated * f_n_max (=1.2)) / gear_ratio[last]
                        """),
                    },
