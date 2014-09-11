@@ -1,6 +1,7 @@
 #####################################
 wltp: A *wltc* gear-shifts calculator
 #####################################
+:Version:       |version|
 :Home:          https://github.com/ankostis/wltp
 :Documentation: https://wltp.readthedocs.org/
 :PyPI:          https://pypi.python.org/pypi/wltp
@@ -54,8 +55,9 @@ Requires Python 3.3+.
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ python distributions
     for *Windows* and *OS X*, respectively.
 
-You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository 
-with the usual command::
+You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
+with :command:`pip`.
+Notice that :option:`--pre` is required, since all realeased packages so far were *pre*-release (``-alpha``) versions:
 
     $ pip3 install wltp
 

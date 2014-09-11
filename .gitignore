@@ -70,4 +70,9 @@ __pycache__/
 *.docx#
 
 #Scratch
-~*.txt
+~*
+# From doctest.
+cycle_run.csv
+coverage.xml
+cover/
+/.noseids
