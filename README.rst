@@ -59,23 +59,16 @@ Requires Python 3.3+.
     for Windows*, or `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_
     for *Windows* and *OS X*.
 
-You can install the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
+You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
 with :command:`pip`.
 Notice that :option:`--pre` is required, since all realeased packages so far were *pre*-release (``-alpha``) versions:
 
 .. code-block:: console
 
-    $ pip install wltp --pre                    ## Use `pip3` if your system has both python-2 & 3 installed.
-    $ wltp.py --help
-    usage: wltp.py -I ARG [ARG ...] [-c COLUMN_SPEC [COLUMN_SPEC ...]]
-              [-r [COLUMN_SPEC [COLUMN_SPEC ...]]]
-              [-m MODEL_PATH=VALUE [MODEL_PATH=VALUE ...]]
-              [--strict [TRUE | FALSE]] [-M [MODEL_PATH [MODEL_PATH ...]]]
-              [-O ARG [ARG ...]] [-d] [-v] [--version] [--help]
+    $ pip install wltp --pre -U                 ## Use `pip3` if your system has both python-2 & 3 installed.
+    $ wltp.py --version                         ## Check which version installed.
+    wltp.py 0.0.9-alpha
 
-    Calculates the *gear-shifts* of Light-duty vehicles running the :term:`WLTP`
-    driving-cycles, according to the specifications of the :term:`UNECE` draft.
-    ...
 
 .. Tip::
     The console-commands that are listed here to begin with ``$`` are for a *POSIX* environment
@@ -125,10 +118,25 @@ That way you get the complete source-tree of the project, ready for development
 
 Python usage
 ------------
-Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)` example to define and run
-an experiment.
+Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)`-example to setup and run
+an *experiment*.  First run :command:`python` and try to import the project to check its version:
 
-First you have to create a :term:`pandas-model` that contains the input-data (strings and numbers)
+.. doctest::
+
+    >>> import wltp
+
+    >>> wltp.__version__
+    '0.0.9-alpha'
+
+    >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
+    /usr/local/lib/site-package/wltp-...
+
+
+.. Tip::
+    You can copy the the python commands starting with ``>>>`` and ``...`` and copy paste them directly
+    into the python interpreter; it will remove these prefixes.
+
+If everything works, create the :term:`pandas-model` that will hold the input-data (strings and numbers)
 of the experiment.  You can assemble the model-tree by the use of:
 
 * sequences,

@@ -118,7 +118,7 @@ def main(argv=None):
 
     global log, DEBUG
 
-    program_name    = 'fuefit' #os.path.basename(sys.argv[0])
+    program_name    = os.path.basename(sys.argv[0])
 
     if argv is None:
         argv = sys.argv[1:]
@@ -467,7 +467,7 @@ class RawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
 
 
 def build_args_parser(program_name, version, desc, epilog):
-    version_string  = '%%prog %s' % (version)
+    version_string  = '%(prog)s ' + str(version)
 
     parser = argparse.ArgumentParser(prog=program_name, description=desc, epilog=epilog, add_help=False,
                                      formatter_class=RawTextHelpFormatter)

@@ -70,19 +70,28 @@ class PathMaps:
 
 
 
-ValidatorBase = jsonschema.validators.extend(Draft4Validator, {}) # Workaround https://github.com/Julian/jsonschema/issues/178
-class PandelVisitor(ValidatorBase):
+Validator = jsonschema.validators.extend(Draft4Validator, {}) # Workaround https://github.com/Julian/jsonschema/issues/178
+class PandelVisitor(Validator):
     """
     A customized :class:`Draft4Validator` suporting instance-trees with pandas and numpy objects, natively.
 
     Any pandas or numpy instance (for example ``obj``) is treated like that:
 
-    * :class:`pandas.DataFrame`:   as ``object`` *json-type*, with
-      ``obj.columns`` as *keys*, and ``obj[col].values`` as *values*
-    * :class:`pandas.Series`:      as ``object`` *json-type*, with
-      ``obj.index`` as *keys*, and ``obj.values`` as *values*
-    * :class:`np.ndarray`:      as ``array`` *json-type*
-    * :class:`tuple`:              as ``array`` *json-type*
+    +----------------------------+-----------------------------------------+
+    |        Python Type         |     JSON Equivalence                    |
+    +============================+=========================================+
+    | :class:`pandas.DataFrame`  | as ``object`` *json-type*, with         |
+    |                            | ``obj.columns`` as *keys*, and          |
+    |                            | ``obj[col].values`` as *values*         |
+    +----------------------------+-----------------------------------------+
+    | :class:`pandas.Series`     | as ``object`` *json-type*, with         |
+    |                            | ``obj.index`` as *keys*, and            |
+    |                            | ``obj.values`` as *values*              |
+    +----------------------------+-----------------------------------------+
+    | :class:`np.ndarray`,       | as ``array`` *json-type*                |
+    | :class:`list`,             |                                         |
+    | :class:`tuple`             |                                         |
+    +----------------------------+-----------------------------------------+
 
     Note that the value of each dataFrame column is a :``ndarray`` instances.
 
