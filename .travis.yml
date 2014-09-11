@@ -9,6 +9,7 @@ before_install:
     - sudo apt-get install python3-setuptools
     - pip install setuptools pip -U
     - pip install coveralls
+    - pip install sphinx
 
 install:
     - python setup.py build_py
