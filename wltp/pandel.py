@@ -123,7 +123,7 @@ class PandelVisitor(ValidatorBase):
     Or demanding specific properties with ``required`` and no ``additionalProperties``:
 
         >>> schema = {
-        ...     'type':     ['object', 'Series'],
+        ...     'type':     'object',
         ...     'required': ['foo'],
         ...    'additionalProperties': False,
         ...    'properties': {
@@ -142,7 +142,7 @@ class PandelVisitor(ValidatorBase):
             {'additionalProperties': False,
              'properties': {'foo': {}},
              'required': ['foo'],
-             'type': ['object', 'Series']}
+             'type': 'object'}
         <BLANKLINE>
         On instance:
             bar    2
@@ -158,7 +158,7 @@ class PandelVisitor(ValidatorBase):
             {'additionalProperties': False,
              'properties': {'foo': {}},
              'required': ['foo'],
-             'type': ['object', 'Series']}
+             'type': 'object'}
         <BLANKLINE>
         On instance:
             Series([], dtype: float64)

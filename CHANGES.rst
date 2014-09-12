@@ -30,7 +30,6 @@ TODOs
 * core: Move calculations as class-methods to provide for overriding certain parts of the algorithm.
 * core: Support to provide and override arbitrary model-data, and ask for arbitrary output-ones
   by topologically sorting the  graphs of the calculation-dependencies.
-* data: Add NEDC cycles, for facilitating comparisons.
 
 .. todolist::
 
@@ -41,11 +40,15 @@ Changelog
 
 v0.0.9-beta, XX-Aug-2014
 ---------------------------------------
-* Discriminate between :term:`Unladen mass` and :term:`Test mass`.
-* Possible to overide WLTP-Class, Target-V & Slope, Gears and other "results".
-* Include sample-vehicles along with the distribution.
+* Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced
+  by `driver_mass'=75(kg).
+* Possible to overide WLTP-Class, Target-V & Slope, Gears if present in the ``cycle_run`` table.
+* data: Add NEDC cycles, for facilitating comparisons.
+* tests: Include sample-vehicles along with the distribution.
+* tests: Speed-up tests by caching files to read and compare.
+* docs: Considerable improvements, validate code in comments and docs with *doctest*.
 * build: Use TravisCI as integration server, Coveralls.io as test-coverage service-providers.
-* build: Not possible anymore to distribute it as .EXE; need a proper python envronment.
+* build: Not possible anymore to distribute it as .EXE; need a proper python-3 envronment.
 
 v0.0.8-alpha, 04-Aug-2014
 ---------------------------------------

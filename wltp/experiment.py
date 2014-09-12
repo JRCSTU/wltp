@@ -119,9 +119,9 @@ class Experiment(object):
         results             = model.get('cycle_run')
         if results is None:
             results             = pd.DataFrame()
-            model['cycle_run']  = results
         else:
             results             = pd.DataFrame(results)
+        model['cycle_run']  = results
 
         ## Extract vehicle attributes from model.
         #
