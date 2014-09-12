@@ -146,11 +146,12 @@ class Experiment(object):
         else:
             ## Decide WLTC-class.
             #
-            class_limits            = self.wltc['classification']['p_to_mass_class_limits']
-            class3_velocity_split   = self.wltc['classification']['class3_split_velocity']
             wltc_class = params.get('wltc_class')
             if wltc_class is None:
-                wltc_class              = decideClass(class_limits, class3_velocity_split, unladen_mass, p_rated, v_max)
+                p_m_ratio           = (1000 * p_rated / unladen_mass)
+                params['pmr']           = p_m_ratio
+
+                wltc_class              = decideClass(self.wltc, p_m_ratio, v_max)
                 params['wltc_class']    = wltc_class
 
             class_data              = self.wltc['classes'][wltc_class]
@@ -293,21 +294,21 @@ def addDriveabilityProblems(_GEARS_BAD, reason, driveability_issues):
             addDriveabilityMessage(step, reason, driveability_issues)
 
 
-def decideClass(class_limits, class3_velocity_split, unladen_mass, p_rated, v_max):
+def decideClass(wltc_data, p_m_ratio, v_max):
     '''
 
     @see: Annex 1, p 19
     '''
+    class_limits            = {cl: (cd['pmr_limits'], cd.get('velocity_limits')) for (cl, cd) in wltc_data['classes'].items()}
 
-    p_m_ratio           = (1000 * p_rated / unladen_mass)
-    if (p_m_ratio > class_limits[-1]):
-        wltc_class      = 'class3'
-        ab              = 'b' if v_max >= class3_velocity_split else 'a'
-        wltc_class      += ab
-    elif (p_m_ratio > class_limits[-2]):
-        wltc_class      = 'class2'
+    for (cls, ((pmr_low, pmr_high), v_limits)) in class_limits.items():
+        if pmr_low <= p_m_ratio < pmr_high and \
+                (not v_limits or v_limits[0] < v_max <= v_limits[1]):
+            wltc_class      = cls
+            break
     else:
-        wltc_class      = 'class1'
+        raise ValueError("Cannot determine wltp-class for PMR(%s)!\n  Class-limits(%s)" %(p_m_ratio, class_limits))
+
     return wltc_class
 
 

@@ -14,7 +14,12 @@ found inside the source-distribution:
 '''
 
 def class_data():
+    """
+    Cycles for vehicles with :abbr:`PMR` ≤ 22 W/kg.
+    """
+
     data = {
+        'pmr_limits': [0, 22],                      ## PMR (low, high]
         'parts': [[0, 589], [590, 1022]],
         'downscale': {
             'phases': [651, 848, 906],              ## Note: Start end end +1 from specs.

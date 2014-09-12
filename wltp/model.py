@@ -188,10 +188,6 @@ def wltc_data():
             'class3a': class3.class_data_a(),
             'class3b': class3.class_data_b(),
         },
-        'classification': {
-            'p_to_mass_class_limits':   [22, 34], #  W/kg, <=, choose class1/2/3
-            'class3_split_velocity':    120,       # Km/h, <, choose class3a/3b
-        }
     }
 
     return wltc_data
@@ -382,6 +378,10 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                         'type': [ 'array', 'null'],
                         'default': [1.15, 0.03],
                     },
+                    'pmr': {
+                        'description': 'Power_To_unladen-Mass ratio (kg).',
+                        'type': 'number',
+                    },
                     'wltc_class': {
                         'description': 'The name of the WLTC-class (found within WLTC-data/classes) as selected by the experiment.',
                         'type': 'string',
@@ -481,7 +481,7 @@ def wltc_schema():
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'title': 'WLTC data',
         'type': 'object', 'additionalProperties': False,
-        'required': ['classes', 'classification'],
+        'required': ['classes'],
         'properties': {
             'classes': {
                 'type': 'object', 'additionalProperties': False,
@@ -493,34 +493,31 @@ def wltc_schema():
                     'class3b': {'$ref': '#/definitions/class'},
                 }
             },
-            'classification': {
-                'type': 'object', 'additionalProperties': False,
-                'required': ['p_to_mass_class_limits', 'class3_split_velocity'],
-                'properties': {
-                    'p_to_mass_class_limits': {
-                        'description': 'Power_to_unladen-mass ratio (W/kg) used to select class (Annex 1, p19).',
-                        'type': 'array',
-                        'default': [22, 34],
-                    },
-                    'class3_split_velocity': {
-                        'description': 'Velocity (Km/h) under which (<) version-B from class3 is selected (Annex 1, p19).',
-                        'type': 'integer',
-                        'default':120,
-                    },
-                }
-            },
         },
         'definitions': {
             'class': {
                 'title': 'WLTC class data',
                 'type': 'object', 'additionalProperties': False,
-                'required': ['parts', 'downscale', 'cycle'],
+                'required': ['pmr_limits', 'parts', 'downscale', 'cycle'],
                 'properties': {
+                    'pmr_limits': {
+                        'title': 'PMR (low, high]',
+                        'description': 'Power_To_unladen-Mass ratio-limits ((low, high], W/kg) used to select classes (Annex 1, p19).',
+                        'type': 'array',
+                        'items': {'type': 'number'},
+                        'minItems': 2, 'maxItems': 2,
+                    },
+                    'velocity_limits': {
+                        'description': 'Velocity-limits ([low, high), Km/h) within which (<) version-a/b from class3 is selected (Annex 1, p19).',
+                        'type': 'array',
+                        'items': {'type': 'number'},
+                        'minItems': 2, 'maxItems': 2,
+                    },
                     'parts': {
                         'type': 'array', 'items': {
-                            'type': 'array', 'items': {'type': 'integer',},
-                            'minItems': 2,
-                            'maxItems': 2,
+                            'type': 'array',
+                            'items': {'type': 'integer',},
+                            'minItems': 2, 'maxItems': 2,
                         }
                     },
                     'downscale': {

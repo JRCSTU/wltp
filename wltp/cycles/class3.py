@@ -14,7 +14,13 @@ found inside the source-distribution:
 '''
 
 def class_data_a():
+    """
+    Cycles for vehicles with :abbr:`PMR` > 34 W/kg.
+    """
+
     data = {
+        'pmr_limits': [34, float('inf')],           ## PMR (low, high]
+        'velocity_limits': [0, 120],                ## Km/h [low, high)
         'parts': [[0, 589], [590, 1022], [1023, 1477], [1478, 1800]],
         'downscale': {
             'phases': [1533, 1724, 1762],           ## Note: Start end end +1 from specs.
@@ -263,6 +269,7 @@ def class_data_b():
 
     data = class_data_a()
     data['cycle'] = cycle
+    data['velocity_limits'] = [120, float('inf')]   ## Km/h [low, high)
 
     return data
 

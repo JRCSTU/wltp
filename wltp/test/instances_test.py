@@ -74,11 +74,26 @@ class InstancesTest(unittest.TestCase):
             raise
 
 
-    def testWltcData(self):
-        mdl = model.wltc_data()
+    def test_validate_wltc_data(self):
+        wltc = model.wltc_data()
         validator = model.wltc_validator()
 
-        validator.validate(mdl)
+        validator.validate(wltc)
+
+    def test_validate_class_parts(self):
+        wltc = model.wltc_data()
+
+        for cl, cd in wltc['classes'].items():
+            cycle = cd['cycle']
+            parts = cd['parts']
+            prev_high = -1
+            for i, (low, high) in enumerate(parts):
+                self.assertLess(low, high, cl)
+                self.assertLess(high, len(cycle), 'class(%s), part(%s)'%(cl, i))
+                self.assertGreater(low, prev_high, cl)
+
+                prev_high = high
+            self.assertEqual(prev_high, len(cycle)-1)
 
 
     def testModelBase_plainInvalid(self):

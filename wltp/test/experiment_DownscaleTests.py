@@ -38,9 +38,7 @@ class ExperimentDownscale(unittest.TestCase):
         ## Decide WLTC-class.
         #
         wltc                    = model.wltc_data()
-        class_limits            = wltc['classification']['p_to_mass_class_limits']
-        class3_velocity_split   = wltc['classification']['class3_split_velocity']
-        wltc_class              = decideClass(class_limits, class3_velocity_split, mass, p_rated, v_max)
+        wltc_class              = decideClass(wltc, p_rated/mass, v_max)
         class_data              = wltc['classes'][wltc_class]
         cycle                   = np.asarray(class_data['cycle'], dtype=dtp)
 
