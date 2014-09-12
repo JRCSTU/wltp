@@ -15,7 +15,7 @@ found inside the source-distribution:
 
 def class_data_a():
     """
-    Cycles for vehicles with :abbr:`PMR` > 34 W/kg.
+    Cycles for vehicles with :abbr:`PMR` > 34 W/kg and max-velocity < 120 km/h.
     """
 
     data = {
@@ -150,6 +150,10 @@ def class_data_a():
 
 
 def class_data_b():
+    """
+    Cycles for vehicles with :abbr:`PMR` > 34 W/kg and max-velocity >= 120 km/h.
+    """
+
     cycle = [
         0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 1.7, 5.4, 9.9,
         13.1, 16.9, 21.7, 26.0, 27.5, 28.1, 28.3, 28.8, 29.1, 30.8, 31.9, 34.1, 36.6, 39.1, 41.3, 42.5,
