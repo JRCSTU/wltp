@@ -28,10 +28,10 @@ import unittest
 from unittest.case import skip
 from wltp.pandel import PandelVisitor
 
-from jsonschema import FormatChecker, ValidationError
+from jsonschema import validators, FormatChecker, ValidationError
 from jsonschema.validators import (
-    RefResolutionError, UnknownType,
-    RefResolver
+    RefResolutionError, UnknownType, RefResolver,
+    Draft3Validator, Draft4Validator
 )
 
 import numpy as np
@@ -70,6 +70,7 @@ class TestIterErrors(unittest.TestCase):
         data = [1, 2]
         for instance in wrap_in_pandas(data):
             schema = {
+                "$schema" : "http://json-schema.org/draft-03/schema#",
                 u"disallow" : u"array",
                 u"enum" : [["a", "b", "c"], ["d", "e", "f"]],
                 u"minItems" : 3
@@ -121,14 +122,20 @@ class TestValidationErrorMessages(unittest.TestCase):
 
     @skip("For Draft3Validator only!")
     def test_object_without_title_type_failure(self):
-        type = {u"type" : [{u"minimum" : 3}]}
+        type = {
+            u"type" : [{u"minimum" : 3}],
+            "$schema" : "http://json-schema.org/draft-03/schema#"
+        }
         message = self.message_for(instance=1, schema={u"type" : [type]})
         self.assertEqual(message, "1 is not of type %r" % (type,))
 
-    @skip("For Draft3Validator only!")
+    #@skip("For Draft3Validator only!")
     def test_object_with_name_type_failure(self):
         name = "Foo"
-        schema = {u"type" : [{u"name" : name, u"minimum" : 3}]}
+        schema = {
+            u"type" : [{u"name" : name, u"minimum" : 3}],
+            "$schema" : "http://json-schema.org/draft-03/schema#"
+        }
         message = self.message_for(instance=1, schema=schema)
         self.assertEqual(message, "1 is not of type %r" % (name,))
 
@@ -142,7 +149,10 @@ class TestValidationErrorMessages(unittest.TestCase):
 
     def test_dependencies_failure_has_single_element_not_list(self):
         depend, on = "bar", "foo"
-        schema = {u"dependencies" : {depend : on}}
+        schema = {
+            u"dependencies" : {depend : on},
+            "$schema" : "http://json-schema.org/draft-03/schema#"
+        }
         data = {"bar" : 2}
         for instance in wrap_in_pandas(data):
             message = self.message_for(instance, schema)
@@ -152,7 +162,10 @@ class TestValidationErrorMessages(unittest.TestCase):
         data = [2]
         for instance in wrap_in_pandas(data):
             message = self.message_for(
-                instance, {u"items" : [], u"additionalItems" : False},
+                instance, {
+                    u"items" : [], u"additionalItems" : False,
+                    "$schema" : "http://json-schema.org/draft-03/schema#"
+            },
             )
         self.assertIn("(2 was unexpected)", message)
 
@@ -160,7 +173,10 @@ class TestValidationErrorMessages(unittest.TestCase):
         data  = [1, 2, 3]
         for instance in wrap_in_pandas(data):
             message = self.message_for(
-                instance, {u"items" : [], u"additionalItems" : False}
+                instance, {
+                    "$schema" : "http://json-schema.org/draft-03/schema#",
+                    u"items" : [], u"additionalItems" : False
+                }
             )
             self.assertIn("(1, 2, 3 were unexpected)", message)
 
@@ -268,6 +284,7 @@ class TestValidationErrorDetails(unittest.TestCase):
     def test_type(self):
         instance = {"foo": 1}
         schema = {
+            "$schema" : "http://json-schema.org/draft-03/schema#",
             "type": [
                 {"type": "integer"},
                 {
@@ -383,10 +400,11 @@ class TestValidationErrorDetails(unittest.TestCase):
             self.assertEqual(e3.validator, "maximum")
             self.assertEqual(e4.validator, "type")
 
-    @skip("For Draft3Validator only!")
+    #@skip("For Draft3Validator only!")
     def test_multiple_nesting(self):
         instance = [1, {"foo" : 2, "bar" : {"baz" : [1]}}, "quux"]
         schema = {
+            "$schema" : "http://json-schema.org/draft-03/schema#",
             "type" : "string",
             "items" : {
                 "type" : ["string", "object"],
@@ -484,6 +502,7 @@ class TestValidationErrorDetails(unittest.TestCase):
     def test_additionalItems(self):
         data = ["foo", 1]
         schema = {
+            "$schema" : "http://json-schema.org/draft-03/schema#",
             "items": [],
             "additionalItems" : {"type": "integer", "minimum": 5}
         }
@@ -586,24 +605,61 @@ class ValidatorTestMixin(object):
             self.validator.is_type("foo", object())
 
 
-class TestPandelVisitor(ValidatorTestMixin, unittest.TestCase):
-    """Originally TestDraf3Validator"""
-
+class TestDraft3lValidator(ValidatorTestMixin, unittest.TestCase):
     validator_class = PandelVisitor
 
     @skip("For Draft3Validator only!")
     def test_is_type_is_true_for_any_type(self):
-        self.assertTrue(self.validator.is_valid(mock.Mock(), {"type": "any"}))
+        self.assertTrue(self.validator.is_valid(mock.Mock(), {
+            "type": "any",
+            "$schema" : "http://json-schema.org/draft-03/schema#"
+        }))
 
     @skip("For Draft3Validator only!")
     def test_is_type_does_not_evade_bool_if_it_is_being_tested(self):
         self.assertTrue(self.validator.is_type(True, "boolean"))
-        self.assertTrue(self.validator.is_valid(True, {"type": "any"}))
+        self.assertTrue(self.validator.is_valid(True, {
+            "type": "any",
+            "$schema" : "http://json-schema.org/draft-03/schema#"
+        }))
 
+    @skip("???")
     def test_non_string_custom_types(self):
-        schema = {'type': [None]}
+        schema = {
+            'type': [None],
+            "$schema" : "http://json-schema.org/draft-03/schema#"
+        }
         cls = self.validator_class(schema, types={None: type(None)})
         cls.validate(None, schema)
+
+
+class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
+    validator_class = PandelVisitor
+
+
+class TestSchemaIsChecked(unittest.TestCase):  ## Was: class TestValidate
+    def test_draft3_validator_is_chosen(self):
+        schema = {"$schema" : "http://json-schema.org/draft-03/schema#"}
+        with mock.patch.object(Draft3Validator, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
+            validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
+        # Make sure it works without the empty fragment
+        schema = {"$schema" : "http://json-schema.org/draft-03/schema"}
+        with mock.patch.object(Draft3Validator, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
+            validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
+
+    def test_draft4_validator_is_chosen(self):
+        schema = {"$schema" : "http://json-schema.org/draft-04/schema#"}
+        with mock.patch.object(Draft4Validator, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
+            validate({}, schema)
+            chk_schema.assert_called_once_with(schema)
+
+    def test_draft4_validator_is_the_default(self):
+        with mock.patch.object(Draft4Validator, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
+            validate({}, {})
+            chk_schema.assert_called_once_with({})
+
 
 
 class TestRefResolver(unittest.TestCase):
@@ -724,6 +780,7 @@ class TestRefResolver(unittest.TestCase):
             with resolver.resolving(ref):
                 pass
         self.assertEqual(str(err.exception), "Oh no! What's this?")
+
 
 
 def sorted_errors(errors):

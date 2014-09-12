@@ -10,11 +10,14 @@ URI-references, implemented by :class:`Pandel`. """
 import abc
 from collections import OrderedDict, namedtuple
 from collections.abc import Mapping, Sequence
+import contextlib
 import numbers
 import re
 
+from IPython.external.jsonschema import Draft3Validator
 from jsonschema import Draft4Validator, ValidationError
 import jsonschema
+from jsonschema.exceptions import SchemaError
 from pandas.core.generic import NDFrame
 
 import numpy as np
@@ -70,8 +73,8 @@ class PathMaps:
 
 
 
-Validator = jsonschema.validators.extend(Draft4Validator, {}) # Workaround https://github.com/Julian/jsonschema/issues/178
-class PandelVisitor(Validator):
+ValidatorBase = jsonschema.validators.create({}) # Workaround https://github.com/Julian/jsonschema/issues/178
+class PandelVisitor(ValidatorBase):
     """
     A customized :class:`Draft4Validator` suporting instance-trees with pandas and numpy objects, natively.
 
@@ -162,7 +165,6 @@ class PandelVisitor(Validator):
             Series([], dtype: float64)
 
     """
-
     def __init__(self, schema, types=(), resolver=None, format_checker=None):
         super().__init__(schema, types, resolver, format_checker)
 
@@ -173,13 +175,39 @@ class PandelVisitor(Validator):
             "array":    (list, tuple, np.ndarray),
             "object" :  (dict, pd.DataFrame, pd.Series)
         })
-        self.VALIDATORS.update({
-            'properties':           PandelVisitor._rule_properties,
-            'items':                PandelVisitor._rule_items,
-            'required':             PandelVisitor._rule_required,
-            'additionalProperties': PandelVisitor._rule_additionalProperties,
-            'additionalItems':      PandelVisitor._rule_additionalItems,
-        })
+
+        ## Setup Draft4/3 validation
+        #
+        # Meta-validate schema
+        #    with original validators (and not self)
+        #    because this class inherits an empty (schema/rules) validator.
+        #  TODO: Check Draft3 pass tests.
+        validator_class = jsonschema.validators.validator_for(schema)  ## Fallsback to 'Draft4' if no `$schema` exists.
+        ## Cannot use validator_class.check_schema() because
+        #    need to relay my args to ``validator_class.__init__()``.
+        #validator_class.check_schema(schema)
+        v = validator_class(validator_class.META_SCHEMA, types=types, resolver=resolver, format_checker=format_checker)
+        for error in v.iter_errors(schema):
+            raise SchemaError.create_from(error)
+
+        self.VALIDATORS = validator_class.VALIDATORS.copy()
+        if validator_class == Draft4Validator:
+            self.VALIDATORS.update({
+                'properties':           PandelVisitor._rule_properties_draft4,
+                'items':                PandelVisitor._rule_items,
+                'required':             PandelVisitor._rule_required,
+                'additionalProperties': PandelVisitor._rule_additionalProperties,
+                'additionalItems':      PandelVisitor._rule_additionalItems,
+            })
+        else:
+            self.VALIDATORS.update({
+                'properties':           PandelVisitor._rule_properties_draft3,
+            })
+
+
+    ##################################
+    ######## Visiting and Rules ######
+    ##################################
 
     def _get_iprop(self, instance, prop):
         val = instance[prop]
@@ -204,7 +232,7 @@ class PandelVisitor(Validator):
         return instance
 
 
-    def _rule_properties(self, sprops, instance, schema):
+    def _rule_properties_draft4(self, sprops, instance, schema):
         if not self.is_type(instance, "object"):
             return
 
@@ -217,6 +245,31 @@ class PandelVisitor(Validator):
                 path=prop,
                 schema_path=prop,
             ):
+                yield error
+
+    def _rule_properties_draft3(self, properties, instance, schema):
+        if not self.is_type(instance, "object"):
+            return
+
+        for prop, subschema in self._iter_iprop_pairs(properties):
+            if self._is_iprop_in(instance, prop):
+                for error in self.descend(
+                    self._get_iprop(instance, prop),
+                    subschema,
+                    path=prop,
+                    schema_path=prop,
+                ):
+                    yield error
+            elif subschema.get("required", False):
+                error = ValidationError("%r is a required prop" % prop)
+                error._set(
+                    validator="required",
+                    validator_value=subschema["required"],
+                    instance=instance,
+                    schema=schema,
+                )
+                error.path.appendleft(prop)
+                error.schema_path.extend([prop, "required"])
                 yield error
 
     def _rule_items(self, items, instance, schema):
