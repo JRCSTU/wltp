@@ -116,8 +116,12 @@ class Experiment(object):
 
         ## Prepare results
         #
-        tabular             = pd.DataFrame()
-        model['cycle_run']  = tabular
+        results             = model.get('cycle_run')
+        if results is None:
+            results             = pd.DataFrame()
+            model['cycle_run']  = results
+        else:
+            results             = pd.DataFrame(results)
 
         ## Extract vehicle attributes from model.
         #
@@ -134,15 +138,18 @@ class Experiment(object):
             v_max = n_rated / gear_ratios[-1]
 
 
-        forced_cycle        = params.get('forced_cycle')
-        is_cycle_forced     = forced_cycle is not None
+        is_velocity_forced      = any(col in results for col in ('v_class', 'v_target'))
+        if (is_velocity_forced):
+            forced_v_column         = 'v_class' if 'v_class' in results else 'v_target'
+            log.info("Found forced_velocity(%s).", forced_v_column)
 
-        if (is_cycle_forced and 'v' in forced_cycle):
-            log.info("Found forced_cycle %s", forced_cycle.columns)
-            V               = np.asarray(forced_cycle['v'])
-            SLOPE           = forced_cycle.get('slope')
+            V                       = results[forced_v_column].values
+            SLOPE                   = results.get('slope')
             if not SLOPE is None:
                 SLOPE = np.asarray(SLOPE)
+
+            results['v_class']      = V
+            results['v_target']     = V
         else:
             ## Decide WLTC-class.
             #
@@ -154,11 +161,12 @@ class Experiment(object):
                 wltc_class              = decideClass(self.wltc, p_m_ratio, v_max)
                 params['wltc_class']    = wltc_class
 
-            class_data              = self.wltc['classes'][wltc_class]
-            V                       = np.asarray(class_data['cycle'], dtype=self.dtype)
-            SLOPE                   = None
+            class_data          = self.wltc['classes'][wltc_class]
+            V                   = np.asarray(class_data['cycle'], dtype=self.dtype)
+            SLOPE               = None
 
-        tabular['v_class']  = V
+            results['v_class']  = V
+
 
         ## NOTE: Improved Acceleration calc on central-values with gradient.
         #    The pure_load 2nd-part of the P_REQ from start-to-stop is 0, as it should.
@@ -172,7 +180,7 @@ class Experiment(object):
         f_inertial          = params.get('f_inertial', 1.1)
         P_REQ               = calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial)
 
-        if (not is_cycle_forced or not 'v' in forced_cycle):
+        if (not is_velocity_forced):
             ## Downscale velocity-profile.
             #
             f_downscale_threshold = params.get('f_downscale_threshold', 0.01)
@@ -189,7 +197,7 @@ class Experiment(object):
             params['f_downscale'] = f_downscale
             if (f_downscale > 0):
                 V               = downscaleCycle(V, f_downscale, phases)
-            tabular['v_target'] = V
+            results['v_target'] = V
 
 
         ## Run cycle to find internal matrices for all gears
@@ -202,10 +210,14 @@ class Experiment(object):
             driveability_issues)    = run_cycle(V, A, P_REQ, gear_ratios,
                                                n_idle, n_min_drive, n_rated,
                                                p_rated, load_curve, params)
-        tabular['clutch']       = CLUTCH
-        if (is_cycle_forced and 'gears_orig' in forced_cycle):
-            GEARS_ORIG = np.asarray(forced_cycle['gears_orig'])
-        tabular['gears_orig']   = GEARS_ORIG
+        results['clutch']       = CLUTCH    # TODO: Allow overridde clutch, etc.
+        if ('gears_orig' in results):
+            forced_gears = results['gears_orig'].values
+            if (GEARS_ORIG.max()+1 != len(gear_ratios)):
+                raise ValueError('Forced gears(%s) specify gears(%i) > num_of_gears(%i)'%(forced_gears.shape, GEARS_ORIG.max()+1, len(gear_ratios)))
+            GEARS_ORIG = forced_gears
+        else:
+            results['gears_orig']   = GEARS_ORIG
 
         ## Apply Driveability-rules.
         #
@@ -220,13 +232,13 @@ class Experiment(object):
         V_REAL                      = RPM / _GEAR_RATIOS[GEARS - 1, range(len(V))]
 
 
-        tabular['gears']        = GEARS
-        tabular['v_real']       = V_REAL
-        tabular['p_available']  = P_AVAIL
-        tabular['p_required']   = P_REQ
-        tabular['rpm']          = RPM
-        tabular['rpm_norm']     = N_NORM
-        tabular['driveability'] = driveability_issues
+        results['gears']        = GEARS
+        results['v_real']       = V_REAL
+        results['p_available']  = P_AVAIL
+        results['p_required']   = P_REQ
+        results['rpm']          = RPM
+        results['rpm_norm']     = N_NORM
+        results['driveability'] = driveability_issues
 
 
         return model

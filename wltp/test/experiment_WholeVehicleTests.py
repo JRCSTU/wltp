@@ -120,6 +120,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         veh['p_rated']      =  80
         veh['v_max']        =  120
         veh['gear_ratios']  = [120.5, 95, 72, 52]
+        del model['cycle_run']
 
         experiment = Experiment(model)
         model = experiment.run()

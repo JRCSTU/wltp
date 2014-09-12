@@ -14,7 +14,6 @@ import contextlib
 import numbers
 import re
 
-from IPython.external.jsonschema import Draft3Validator
 from jsonschema import Draft4Validator, ValidationError
 import jsonschema
 from jsonschema.exceptions import SchemaError

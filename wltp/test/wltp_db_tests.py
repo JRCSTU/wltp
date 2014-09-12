@@ -634,10 +634,7 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
             log.warning(">>> Transplanting gears from Heinz's!")
             df_h = _read_heinz_file(veh_num)
 
-            forced_cycle = df_h['g_max']
-            forced_cycle.name = 'gears_orig'
-
-            model['params']['forced_cycle'] = forced_cycle
+            model['cycle_run'] = {'gears_orig': df_h['g_max'].values}
 
         try:
             experiment = Experiment(model)
