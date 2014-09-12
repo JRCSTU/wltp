@@ -112,6 +112,7 @@ class Experiment(object):
 
         model       = self._model
         vehicle     = model['vehicle']
+        params      = model['params']
 
         ## Prepare results
         #
@@ -120,15 +121,14 @@ class Experiment(object):
 
         ## Extract vehicle attributes from model.
         #
-        unladen_mass        = vehicle['unladen_mass']
         test_mass           = vehicle['test_mass']
+        unladen_mass        = vehicle.get('unladen_mass') or test_mass - params['driver_mass']
         p_rated             = vehicle['p_rated']
         n_rated             = vehicle['n_rated']
         n_idle              = vehicle['n_idle']
         n_min_drive         = vehicle['n_min']
         gear_ratios         = vehicle['gear_ratios']
         (f0, f1, f2)        = vehicle['resistance_coeffs']
-        params              = model['params']
         v_max               = vehicle['v_max']
         if (v_max is None):
             v_max = n_rated / gear_ratios[-1]

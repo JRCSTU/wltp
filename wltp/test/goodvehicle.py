@@ -10,7 +10,6 @@ from __future__ import print_function, unicode_literals
 def goodVehicle():
     goodVehicle = {
         "vehicle": {
-            "unladen_mass": 1430,
             "test_mass":    1500,
             "v_max":    None,
             "p_rated":  100,

@@ -140,7 +140,8 @@ def model_base():
             'full_load_curve': default_load_curve, # FIXME: Decide load_curtve by engine-type!
         },
         'params': {
-            'v_stopped_threshold':      1,          # Km/h, <=
+            'driver_mass':              75,         # kg
+            'v_stopped_threshold':      1,          # km/h, <=
             'f_inertial':               1.1,
             'f_safety_margin':          0.9,
             'f_n_max':                  1.2,
@@ -234,12 +235,14 @@ def model_schema(additional_properties=False, for_prevalidation=False):
             'vehicle': {
                 'title': 'vehicle model',
                 'type': 'object', 'additionalProperties': additional_properties,
-                'required': ['unladen_mass', 'test_mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
+                'required': ['test_mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
                 'description': 'The vehicle attributes required for generating the WLTC velocity-profile downscaling and gear-shifts.',
                 'properties': {
                    'unladen_mass': {
                        'title': 'vehicle unladen mass',
-                       '$ref': '#/definitions/positiveNumber',
+                       'type': ['number', 'null'],
+                       'minimum': 0,
+                       'exclusiveMinimum': True,
                        'description': 'The mass of the vehicle without the driver, used to diced class (kg).',
                     },
                    'test_mass': {
@@ -330,6 +333,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                 'title': 'experiment parameters',
                 'type': 'object', 'additionalProperties': additional_properties,
                 'required': [
+                    'driver_mass',
                     'v_stopped_threshold',
                     'f_inertial',
                     'f_safety_margin',
@@ -339,8 +343,14 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                     'f_n_clutch_gear2',
                 ],
                 'properties': {
+                    'driver_mass': {
+                        'title': "Driver's mass (kg)",
+                        'description': "The mass (kg) of the vehicle's driver, where: Unladen_mass = (Test_mass - driver_mass) (Annex 1-3.2.6, p9).",
+                        'type': [ 'number', 'null'],
+                        'default': 75,
+                    },
                     'v_stopped_threshold': {
-                        'description': 'Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).',
+                        'description': 'Velocity (km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).',
                         'type': [ 'number', 'null'],
                         'default': 1,
                     },
@@ -508,7 +518,7 @@ def wltc_schema():
                         'minItems': 2, 'maxItems': 2,
                     },
                     'velocity_limits': {
-                        'description': 'Velocity-limits ([low, high), Km/h) within which (<) version-a/b from class3 is selected (Annex 1, p19).',
+                        'description': 'Velocity-limits ([low, high), km/h) within which (<) version-a/b from class3 is selected (Annex 1, p19).',
                         'type': 'array',
                         'items': {'type': 'number'},
                         'minItems': 2, 'maxItems': 2,

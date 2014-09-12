@@ -30,6 +30,9 @@ import numpy.testing as npt
 import pandas as pd
 
 
+overwrite_old_results = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
+
+
 mydir = os.path.dirname(__file__)
 vehs_data_inp_fname = 'sample_vehicles.csv'
 samples_dir = 'samples_db'
@@ -64,7 +67,7 @@ class ExperimentSampleVehs(unittest.TestCase):
 
 
     def setUp(self):
-        self.run_comparison = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
+        self.run_comparison = overwrite_old_results
 
 
     #@skip
