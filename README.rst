@@ -311,11 +311,17 @@ for which you want to override the ``n_idle`` only, run the following:
 
 
 
-IPython usage
--------------
-.. Note:: Not implemented in yet.
+IPython notebook usage
+----------------------
+Here is a simple `notebook <http://nbviewer.ipython.org/gist/ankostis/d3a11fa5803d9fbbeb69>`_ for running
+both WLTC and NEDC for a single vehicle. In order to run it, you should do the following:
 
+a. Ensure that ipython-notebook server >= v.2 is installed.
+b. Ensure *wltp* is installed on the system,
+c. Download the notbook (icon at the top left), and
+d. drag n' drop the file on your notebook's server landing page.
 
+Thats it!
 
 
 .. _begin-contribute:
