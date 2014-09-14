@@ -11,13 +11,12 @@ import abc
 from collections import OrderedDict, namedtuple
 from collections.abc import Mapping, Sequence
 import contextlib
-import numbers
-import re
-
-from jsonschema import Draft4Validator, ValidationError
+from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
 from jsonschema.exceptions import SchemaError
+import numbers
 from pandas.core.generic import NDFrame
+import re
 
 import numpy as np
 import pandas as pd
@@ -164,7 +163,7 @@ class PandelVisitor(ValidatorBase):
             Series([], dtype: float64)
 
     """
-    def __init__(self, schema, types=(), resolver=None, format_checker=None):
+    def __init__(self, schema, types=(), resolver=None, format_checker=None, skip_meta_validation=False):
         super().__init__(schema, types, resolver, format_checker)
 
         self._types.update({
@@ -180,27 +179,30 @@ class PandelVisitor(ValidatorBase):
         # Meta-validate schema
         #    with original validators (and not self)
         #    because this class inherits an empty (schema/rules) validator.
-        #  TODO: Check Draft3 pass tests.
-        validator_class = jsonschema.validators.validator_for(schema)  ## Fallsback to 'Draft4' if no `$schema` exists.
-        ## Cannot use validator_class.check_schema() because
+        validator_class = jsonschema.validators.validator_for(schema)  ## Falls back to 'Draft4' if no `$schema` exists.
+        ## Cannot use ``validator_class.check_schema()`` because
         #    need to relay my args to ``validator_class.__init__()``.
         #validator_class.check_schema(schema)
-        v = validator_class(validator_class.META_SCHEMA, types=types, resolver=resolver, format_checker=format_checker)
-        for error in v.iter_errors(schema):
-            raise SchemaError.create_from(error)
+        if not skip_meta_validation:
+            v = validator_class(validator_class.META_SCHEMA, types=types, resolver=resolver, format_checker=format_checker)
+            for error in v.iter_errors(schema):
+                raise SchemaError.create_from(error)
 
         self.VALIDATORS = validator_class.VALIDATORS.copy()
-        if validator_class == Draft4Validator:
+        self.META_SCHEMA = validator_class.META_SCHEMA
+        self.VALIDATORS.update({
+            'items':                PandelVisitor._rule_items,
+            'additionalProperties': PandelVisitor._rule_additionalProperties,
+            'additionalItems':      PandelVisitor._rule_additionalItems,
+        })
+        if validator_class == Draft3Validator:
             self.VALIDATORS.update({
-                'properties':           PandelVisitor._rule_properties_draft4,
-                'items':                PandelVisitor._rule_items,
-                'required':             PandelVisitor._rule_required,
-                'additionalProperties': PandelVisitor._rule_additionalProperties,
-                'additionalItems':      PandelVisitor._rule_additionalItems,
+                'properties':           PandelVisitor._rule_properties_draft3,
             })
         else:
             self.VALIDATORS.update({
-                'properties':           PandelVisitor._rule_properties_draft3,
+                'properties':           PandelVisitor._rule_properties_draft4,
+                'required':             PandelVisitor._rule_required_draft4,
             })
 
 
@@ -276,7 +278,7 @@ class PandelVisitor(ValidatorBase):
             return
 
         if self.is_type(items, "object"):
-            for index, item in enumerate(self._iter_iprop_names(instance)):
+            for index, item in enumerate(self._iter_iitems(instance)):
                 for error in self.descend(item, items, path=index):
                     yield error
         else:
@@ -328,7 +330,7 @@ class PandelVisitor(ValidatorBase):
 
 
 
-    def _rule_required(self, required, instance, schema):
+    def _rule_required_draft4(self, required, instance, schema):
         if self.is_type(instance, 'object'):
             for sprop in required:
                 if not self._is_iprop_in(instance, sprop):
@@ -360,10 +362,10 @@ class Pandel:
 
                        ....................... Model Construction .................
           ------------ :  _______    ___________                                  :
-         / top_model /-->|Resolve|->|PreValidate|-+                               :
+         / top_model /==>|Resolve|->|PreValidate|-+                               :
          -----------'  : |___0___|  |_____1_____| |                               :
           ------------ :  _______    ___________  |   _____    ________    ______ :   --------
-         / base-model/-->|Resolve|->|PreValidate|-+->|Merge|->|Validate|->|Curate|-->/ model /
+         / base-model/==>|Resolve|->|PreValidate|-+->|Merge|->|Validate|->|Curate|==>/ model /
          -----------'  : |___0___|  |_____1_____|    |_ 2__|  |___3____|  |__4+__|:  -------'
                        ............................................................
 

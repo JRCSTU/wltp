@@ -51,6 +51,8 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
 
 
 
+.. _wltp_install:
+
 Install
 -------
 Requires Python 3.3+.
@@ -65,7 +67,7 @@ Notice that :option:`--pre` is required, since all realeased packages so far wer
 
 .. code-block:: console
 
-    $ pip install wltp --pre -U                 ## Use `pip3` if your system has both python-2 & 3 installed.
+    $ pip install wltp --pre -U                 ## Use `pip3` if both python-2 & 3 installed.
     $ wltp.py --version                         ## Check which version installed.
     wltp.py 0.0.9-alpha
 
@@ -313,15 +315,25 @@ for which you want to override the ``n_idle`` only, run the following:
 
 IPython notebook usage
 ----------------------
-Here is a simple `notebook <http://nbviewer.ipython.org/gist/ankostis/d3a11fa5803d9fbbeb69>`_ for running
-both WLTC and NEDC for a single vehicle. In order to run it, you should do the following:
+The list of `IPython notebooks <http://ipython.org/notebook.html>`_ for wltp
+is maintained at the `wiki <https://github.com/ankostis/wltp/wiki>`_ of the project.
 
-a. Ensure that ipython-notebook server >= v.2 is installed.
-b. Ensure *wltp* is installed on the system,
-c. Download the notbook (icon at the top left), and
-d. drag n' drop the file on your notebook's server landing page.
+Requirements
+^^^^^^^^^^^^
+In order to run them interactively, ensure that the following requirements are satisfied:
 
-Thats it!
+a. You have installed, and up and running a *ipython-notebook server* >= v.2.
+b. The *wltp* is installed on your *python-3* of your system (see `wltp_install`_ above).
+
+Instructions
+^^^^^^^^^^^^
+* Visit each *notebook* from the wiki-list that you wish to run and download it as :file:`ipynb` file
+  (:menuselection:`File|Download as...|ipynb`).
+* Locate the downloaded file with your *file-browser* and drag n' drop it on the landing page
+  of your notebook's server (the one with the folder-list).
+
+
+Enjoy!
 
 
 .. _begin-contribute:
