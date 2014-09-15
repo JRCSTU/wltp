@@ -239,6 +239,10 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                 'required': ['test_mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
                 'description': 'The vehicle attributes required for generating the WLTC velocity-profile downscaling and gear-shifts.',
                 'properties': {
+                   'id': {
+                       'title': 'Any identifier for the object',
+                       'type': ['integer', 'string'],
+                   },
                    'unladen_mass': {
                        'title': 'vehicle unladen mass',
                        'type': ['number', 'null'],
