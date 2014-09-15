@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
@@ -11,6 +12,7 @@
 """
 
 
+import argparse
 import ast
 import collections
 import functools
@@ -21,7 +23,6 @@ import re
 import sys
 from textwrap import dedent
 
-import argparse
 from pandas.core.generic import NDFrame
 
 import jsonpointer as jsonp

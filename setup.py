@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
@@ -150,7 +151,7 @@ setup(
 #         'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
         'numpy',
         'pandas', #'openpyxl', 'xlrd',
-        'matplotlib',
+        'matplotlib>=1.4',
     ],
     setup_requires = [
         'setuptools>=3.4.4',
