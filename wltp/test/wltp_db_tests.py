@@ -96,7 +96,7 @@ def memoize(f):
             return ret
     return memodict(f)
 
-@memoize
+#@memoize
 def _read_gened_file(inpfname):
     df = pd.read_csv(inpfname, header=0, index_col=0)
     assert not df.empty
@@ -105,7 +105,7 @@ def _read_gened_file(inpfname):
 
     return df
 
-@memoize
+#@memoize
 def _read_heinz_file(veh_num):
     vehfpath = _make_heinz_fname(veh_num)
     try:
