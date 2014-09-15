@@ -3,7 +3,7 @@
 #
 language: python
 python:
-  #- "3.3"  ## (fails due https://github.com/matplotlib/matplotlib/pull/3414) Re-enable when matplotlib 1.4.x released.
+  - "3.3"
   - "3.4"
 before_install:
     - sudo apt-get install python3-setuptools
