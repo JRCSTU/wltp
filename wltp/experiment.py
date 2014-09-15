@@ -220,8 +220,8 @@ class Experiment(object):
         results['clutch']       = CLUTCH    # TODO: Allow overridde clutch, etc.
         if ('gears_orig' in results):
             forced_gears = results['gears_orig'].values
-            if (GEARS_ORIG.max()+1 != len(gear_ratios)):
-                raise ValueError('Forced gears(%s) specify gears(%i) > num_of_gears(%i)'%(forced_gears.shape, GEARS_ORIG.max()+1, len(gear_ratios)))
+            if (GEARS_ORIG.max() != len(gear_ratios)):
+                raise ValueError('Forced gears(%s) specify gears(%i) > num_of_gears(%i)'%(forced_gears.shape, GEARS_ORIG.max(), len(gear_ratios)))
             GEARS_ORIG = forced_gears
         else:
             results['gears_orig']   = GEARS_ORIG

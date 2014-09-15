@@ -174,6 +174,7 @@ def _vehicles_applicator(fname_glob, pair_func):
     for (veh_num, df_g, df_h) in _file_pairs(fname_glob):
         row = pair_func(veh_num, df_g, df_h)
         res.append([int(veh_num)] + list(row))
+    assert len(res) > 0
 
     ares = np.array(res)
     df = pd.DataFrame(ares[:, 1:], index=ares[:, 0])
@@ -642,6 +643,7 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
     df = _read_vehicle_data()
     wots = _read_wots()
 
+    failed_vehicles = 0
     for (ix, row) in df.iterrows():
         veh_num = ix
         heinz_fname = _make_heinz_fname(veh_num)
@@ -677,6 +679,8 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
             model = experiment.run()
         except Exception as ex:
             log.warning('VEHICLE_FAILED(%s): %s', veh_num, str(ex))
+            failed_vehicles += 1
+            continue
         else:
             params = model['params']
 
@@ -691,7 +695,9 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
 
             _compare_exp_results(df, outfname, compare_results)
             df.to_csv(outfname, index_label='time')
-
+    fail_limit_prcnt = 0.1
+    assert failed_vehicles < fail_limit_prcnt * df.shape[0], \
+            'TOO MANY(>%f) vehicles have Failed(%i out of %i)!'% (fail_limit_prcnt, failed_vehicles, df.shape[0])
 
 
 #     vehfpath = os.path.join(samples_dir, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
@@ -854,30 +860,5 @@ def plot_diffs_with_heinz(diff_results, res, transplant_original_gears=False):
 
 
 if __name__ == "__main__":
-    import sys
+    unittest.main()
 
-    heinz_dir               = None
-    experiment_num          = None
-    compare_original_gears  = False
-    force_rerun = False  # Set to True to recalc experiments or 'compare_original_gears' has changed.
-    os.chdir(os.path.join(mydir, samples_dir))
-    try:
-        if len(sys.argv) > 1:
-            heinz_dir = sys.argv[1]
-
-            if len(sys.argv) > 2:
-                experiment_num = int(sys.argv[2])
-
-                if len(sys.argv) > 3:
-                    compare_original_gears = bool(sys.argv[3])
-    except (ValueError, IndexError) as ex:
-        exit('Help: \n  <cmd> [heinz_dir [vehicle_num]]\neg: \n  python experiment_SampleVehicleTests d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_* \nor \n  d:\Work/Fontaras\WLTNED\HeinzCycles\for_JRC_Petrol_*  2357')
-
-    paths = glob.glob(fname_glob)
-
-    if _is_experiments_outdated(paths):
-        _run_the_experiments(transplant_original_gears = False)
-        paths = glob.glob(fname_glob)
-
-    (diff_results, res) = _compare_gears_with_heinz(fname_glob)  ## FIXME, old code
-    plot_diffs_with_heinz(diff_results, res, transplant_original_gears = compare_original_gears)
