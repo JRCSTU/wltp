@@ -120,6 +120,7 @@ class Experiment(object):
         results             = model.get('cycle_run')
         if results is None:
             results             = pd.DataFrame()
+            log.info('Found forced `cycle-run` table(%ix%i).', results.shape[0], results.shape[1])
         else:
             results             = pd.DataFrame(results)
         model['cycle_run']  = results
@@ -148,7 +149,7 @@ class Experiment(object):
         is_velocity_forced      = any(col in results for col in ('v_class', 'v_target'))
         if (is_velocity_forced):
             forced_v_column         = 'v_class' if 'v_class' in results else 'v_target'
-            log.info("Found forced_velocity(%s).", forced_v_column)
+            log.info("Found forced velocity(%s).", forced_v_column)
 
             V                       = results[forced_v_column].values
             SLOPE                   = results.get('slope')
@@ -167,6 +168,8 @@ class Experiment(object):
 
                 wltc_class              = decideClass(self.wltc, p_m_ratio, v_max)
                 params['wltc_class']    = wltc_class
+            else:
+                log.info('Found forced wltc_class(%s).', wltc_class)
 
             class_data          = self.wltc['classes'][wltc_class]
             V                   = np.asarray(class_data['cycle'], dtype=self.dtype)
@@ -220,6 +223,7 @@ class Experiment(object):
         results['clutch']       = CLUTCH    # TODO: Allow overridde clutch, etc.
         if ('gears_orig' in results):
             forced_gears = results['gears_orig'].values
+            log.info('Found forced gears(%ix%i).', forced_gears[0], forced_gears[1])
             if (GEARS_ORIG.max() != len(gear_ratios)):
                 raise ValueError('Forced gears(%s) specify gears(%i) > num_of_gears(%i)'%(forced_gears.shape, GEARS_ORIG.max(), len(gear_ratios)))
             GEARS_ORIG = forced_gears

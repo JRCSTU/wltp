@@ -484,7 +484,7 @@ class WltpDbTests(unittest.TestCase):
 
         """
 
-        pcrnt_limit = 3
+        pcrnt_limit = 4.2
 
         pmr_histogram = self._check_n_mean__pmr(gened_fname_glob)
 

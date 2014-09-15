@@ -61,6 +61,11 @@ Requires Python 3.3+.
     for Windows*, or `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_
     for *Windows* and *OS X*.
 
+    The most recent version of *WinPython* (python-3.3.5)* has recently
+    `change maintainer <http://sourceforge.net/projects/stonebig.u/files/Winpython_3.4/>`_ but it remains
+    a higly active project.
+
+
 You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
 with :command:`pip`.
 Notice that :option:`--pre` is required, since all realeased packages so far were *pre*-release (``-alpha``) versions:
