@@ -123,6 +123,12 @@ class Experiment(object):
             results             = pd.DataFrame(results)
         model['cycle_run']  = results
 
+        ## Ensure Time-steps start from 0 (not 1!).
+        #
+        results.reset_index()
+        results.index.name='t'
+
+
         ## Extract vehicle attributes from model.
         #
         test_mass           = vehicle['test_mass']
@@ -240,7 +246,6 @@ class Experiment(object):
         results['rpm_norm']     = N_NORM
         results['driveability'] = driveability_issues
 
-
         return model
 
 
@@ -314,8 +319,8 @@ def decideClass(wltc_data, p_m_ratio, v_max):
     class_limits            = {cl: (cd['pmr_limits'], cd.get('velocity_limits')) for (cl, cd) in wltc_data['classes'].items()}
 
     for (cls, ((pmr_low, pmr_high), v_limits)) in class_limits.items():
-        if pmr_low <= p_m_ratio < pmr_high and \
-                (not v_limits or v_limits[0] < v_max <= v_limits[1]):
+        if pmr_low < p_m_ratio <= pmr_high and \
+                (not v_limits or v_limits[0] <= v_max < v_limits[1]):
             wltc_class      = cls
             break
     else:

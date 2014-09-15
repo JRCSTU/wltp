@@ -11,12 +11,13 @@ import abc
 from collections import OrderedDict, namedtuple
 from collections.abc import Mapping, Sequence
 import contextlib
+import numbers
+import re
+
 from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
 from jsonschema.exceptions import SchemaError
-import numbers
 from pandas.core.generic import NDFrame
-import re
 
 import numpy as np
 import pandas as pd

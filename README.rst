@@ -315,21 +315,21 @@ for which you want to override the ``n_idle`` only, run the following:
 
 IPython notebook usage
 ----------------------
-The list of `IPython notebooks <http://ipython.org/notebook.html>`_ for wltp
-is maintained at the `wiki <https://github.com/ankostis/wltp/wiki>`_ of the project.
+The list of *IPython notebooks* for wltp is maintained at the `wiki <https://github.com/ankostis/wltp/wiki>`_
+of the project.
 
 Requirements
 ^^^^^^^^^^^^
 In order to run them interactively, ensure that the following requirements are satisfied:
 
-a. You have installed, and up and running a *ipython-notebook server* >= v.2.
+a. A `ipython-notebook server <http://ipython.org/notebook.html>`_ >= v2.x.x is installed, up and running.
 b. The *wltp* is installed on your *python-3* of your system (see `wltp_install`_ above).
 
 Instructions
 ^^^^^^^^^^^^
-* Visit each *notebook* from the wiki-list that you wish to run and download it as :file:`ipynb` file
-  (:menuselection:`File|Download as...|ipynb`).
-* Locate the downloaded file with your *file-browser* and drag n' drop it on the landing page
+* Visit each *notebook* from the wiki-list that you wish to run and **download** it as :file:`ipynb` file
+  from the menu (:menuselection:`File|Download as...|IPython Notebook(.ipynb)`).
+* Locate the downloaded file with your *file-browser* and **drag n' drop** it on the landing page
   of your notebook's server (the one with the folder-list).
 
 
@@ -360,10 +360,12 @@ To get involved with development, first you need to download the latest sources:
     :class: note
 
     You may choose to work in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_,
-    to install dependency libraries isolated from system's ones, and/or without *admin-rights*.
+    to install dependency libraries isolated from system's ones, and/or without *admin-rights*
+    (recommended for *Linux*/*Mac OS*).
 
     .. Attention::
-        If you reuse pre-installed packages with ``virtualenvs``'s :option:`--system-site-packages`
+        If you decide to reuse stystem-installed packages using  :option:`--system-site-packages`
+        with ``virtualenv <= 1.11.6``
         (to avoid, for instance, having to reinstall *numpy* and *pandas* that require native-libraries)
         you may be bitten by `bug #461 <https://github.com/pypa/virtualenv/issues/461>`_ which
         prevents you from upgrading any of the pre-installed packages with :command:`pip`.

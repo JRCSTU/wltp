@@ -20,16 +20,18 @@ Known deficiencies
 TODOs
 =====
 * Add cmd-line front-end.
-* Add IPython front-end.
 * Automatically calculate masses and road-load coefficients from H & L vehicles.
 * wltp_db: Improve test-metrics with group-by classes/phases.
 * wltp_db: Add diagrams auto-generated from test-metrics into generated site (Getting Involved section).
 * wltp_db: Speed-up tests by caching files to read and compare.
-* core: model: Enhance model-preprocessing by interleaving "octapus" merging stacked-models
+* model: Enhance model-preprocessing by interleaving "octapus" merging stacked-models
   between validation stages.
+* model: finalize data-schema (renaming columns and adding ``name`` fields in major blocks).
+* model/core: Accept units on all quantities.
 * core: Move calculations as class-methods to provide for overriding certain parts of the algorithm.
 * core: Support to provide and override arbitrary model-data, and ask for arbitrary output-ones
   by topologically sorting the  graphs of the calculation-dependencies.
+
 
 .. todolist::
 
@@ -43,10 +45,11 @@ v0.0.9-beta, XX-Aug-2014
 * Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced
   by `driver_mass'=75(kg).
 * Possible to overide WLTP-Class, Target-V & Slope, Gears if present in the ``cycle_run`` table.
-* data: Add NEDC cycles, for facilitating comparisons.
+* data: Add NEDC cycle, for facilitating comparisons.
 * tests: Include sample-vehicles along with the distribution.
 * tests: Speed-up tests by caching files to read and compare.
 * docs: Considerable improvements, validate code in comments and docs with *doctest*.
+* docs: Provide a http-link to the list of IPython front-ends in the project's wiki.
 * build: Use TravisCI as integration server, Coveralls.io as test-coverage service-providers.
 * build: Not possible anymore to distribute it as .EXE; need a proper python-3 envronment.
 

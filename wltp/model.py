@@ -243,12 +243,18 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                        'type': ['number', 'null'],
                        'minimum': 0,
                        'exclusiveMinimum': True,
-                       'description': 'The mass of the vehicle without the driver, used to diced class (kg).',
+                       'description': dedent("""
+                           The mass (kg) of the vehicle without the driver, used to decide its class,
+                           as defined in Annex-4
+                           """),
                     },
                    'test_mass': {
                        'title': 'vehicle test mass',
                        '$ref': '#/definitions/positiveNumber',
-                       'description': 'The test mass of the vehicle used in all calculations (kg).',
+                       'description': dedent("""
+                           The test mass of the vehicle used in all calculations (kg),
+                           as defined in Annex 4.2.1.3.1, pg 94.
+                           """),
                     },
                    'v_max': {
                        'title': 'maximum vehicle velocity',
@@ -280,7 +286,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                    'n_idle': {
                        'title': 'idling revolutions',
                        '$ref': '#/definitions/positiveNumber',
-                       'description': 'The idling engine revolutions as defined of Annex 1.',
+                       'description': 'The idling engine revolutions (Annex 1).',
                     },
                    'n_min': {
                        'title': 'minimum engine revolutions',
@@ -305,7 +311,10 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                        'type': 'array', 'items': {'type': 'number'},
                        'minItems': 3,
                        'maxItems': 3,
-                       'description': 'The 3 driving resistance coefficients f0, f1, f2 as defined in Annex 4, in N, N/(km/h), and N/(km/h)² respectively.',
+                       'description': dedent("""
+                           The 3 driving resistance coefficients f0, f1, f2,
+                           in N, N/(km/h), and N/(km/h)² respectively (Annex 4).
+                        """),
                     },
                    'full_load_curve': {
                        'title': 'full load power curve',
@@ -555,6 +564,7 @@ def wltc_schema():
                                 'type': 'array',
                             },
                             'v_max_split': {
+                                'description': 'Velocity-limit (<, km/h) for calculating class-2 & 3 ``f_downscaling`` (Annex 1.7.3, p68).',
                                 'type': 'number',
                             },
                         }
