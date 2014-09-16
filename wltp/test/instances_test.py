@@ -189,53 +189,6 @@ class InstancesTest(unittest.TestCase):
             self.checkModel_invalid(mdl, ex=ValidationError)
 
 
-    def testForcedCycle_valid(self):
-        import numpy as np
-        import pandas as pd
-        cycles = [
-            None,
-            [1,2,3],
-            np.array([5,6,7]),
-            pd.Series([5,6,7]),
-            pd.DataFrame({'v':[10,11,12]}),
-            pd.DataFrame({'foo':[10,11,12]}),
-            pd.DataFrame({'v':[10,11,12], 'foo':[1,2,3]}),
-            pd.DataFrame({'v':[100,200,300], 'altitude':[0,1,0]}),
-            pd.DataFrame({'v':[101,201,301,401,402], 'altitude':[0,1,0,1,1], 'foo':[1,2,3,4,5], 'bar':[0,0,0,0,0], }),
-
-            [[1,2,3],[4,5,6]],
-            np.array([[1,2,3],[4,5,6]]),
-            pd.DataFrame({'speed':[10,11,12], 'foo':[1,2,3]}),
-
-            pd.DataFrame({'velocity':[100,200,300], 'alt':[0,1,0]}),
-
-        ]
-
-        for c in cycles:
-            mdl = model.model_base()
-            mdl['vehicle'].update(goodVehicle()['vehicle'])
-
-            mdl['params']['forced_cycle'] = c
-            self.checkModel_valid(mdl)
-
-    def testForcedCycle_invalid(self):
-        import numpy as np
-        import pandas as pd
-        cycles = [
-            0,
-            [[1,2,3], [4,5,6], [7,8,9]],
-            np.array([1]),
-            np.array([[1,2,3], [4,5,6], [7,8,9]]),
-        ]
-
-        for c in cycles:
-            mdl = model.model_base()
-            mdl['vehicle'].update(goodVehicle()['vehicle'])
-
-            mdl['params']['forced_cycle'] = c
-            self.assertRaises(ValidationError, model.validate_model, mdl, additional_properties=False)
-            #self.checkModel_invalid(mdl, ex=ValidationError)
-
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

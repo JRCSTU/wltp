@@ -341,6 +341,14 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                        """),
                        'type': [ 'object', 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
                     },
+                    'pmr': {
+                        'description': 'Power_To_unladen-Mass ratio (kg).',
+                        'type': 'number',
+                    },
+                    'wltc_class': {
+                        'description': 'The name of the WLTC-class (found within WLTC-data/classes) as selected by the experiment.',
+                        'type': 'string',
+                    },
                 }  #veh-props
             }, # veh
             'params': {
@@ -402,42 +410,9 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                         'type': [ 'array', 'null'],
                         'default': [1.15, 0.03],
                     },
-                    'pmr': {
-                        'description': 'Power_To_unladen-Mass ratio (kg).',
-                        'type': 'number',
-                    },
-                    'wltc_class': {
-                        'description': 'The name of the WLTC-class (found within WLTC-data/classes) as selected by the experiment.',
-                        'type': 'string',
-                    },
                     'f_downscale': {
                         'description': 'The downscaling-factor as calculated by the experiment (Annex 1-7.3, p68).',
                         'type': 'number',
-                    },
-                    'forced_cycle': {
-                        'title': 'Forced cycle profile',
-                        'description': dedent("""An alternative cycle to run, instead of the WLTC ones.
-                        When this param exists, no class-selection/downscaling happens.
-                        It can be a sequence, a map, a Series or DataFrame and it can either contain a single column
-                        (velocity-profile) or multiple columns with ``t``, ``time`` or unamed index and 2 columns:
-                             1. ``v``: in km/h
-                             2. ``slope``: (optional) in radians.
-
-                        Example::
-
-                            mdl = {
-                                "vehicle": {
-                                    ...
-                                }, 'params': {
-                                    'forced_cycle': {
-                                        'v': [0,2,5,10,20,30,40,50,30,20,10,5,1,0],
-                                        'slope': [0, 0, 0.1, 0.1, 0.2, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1,0,0,0],
-                                    },
-                                }
-                            }
-                        """),
-                        'type': [ 'object', 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
-                        'default': None,
                     },
                 }
             },

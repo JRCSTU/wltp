@@ -666,7 +666,7 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
         veh['full_load_curve'] = _select_wot(wots, row['IDcat'] == 2)
 
         ## Override always class-3.
-        model['params'] = {'wltc_class': 'class3b'}
+        veh['wltc_class'] = 'class3b'
 
         if (transplant_original_gears):
             log.warning(">>> Transplanting gears from Heinz's!")

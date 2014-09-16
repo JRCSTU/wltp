@@ -161,13 +161,13 @@ class Experiment(object):
         else:
             ## Decide WLTC-class.
             #
-            wltc_class = params.get('wltc_class')
+            wltc_class = vehicle.get('wltc_class')
             if wltc_class is None:
-                p_m_ratio           = (1000 * p_rated / unladen_mass)
-                params['pmr']           = p_m_ratio
+                p_m_ratio               = (1000 * p_rated / unladen_mass)
+                vehicle['pmr']          = p_m_ratio
 
                 wltc_class              = decideClass(self.wltc, p_m_ratio, v_max)
-                params['wltc_class']    = wltc_class
+                vehicle['wltc_class']   = wltc_class
             else:
                 log.info('Found forced wltc_class(%s).', wltc_class)
 
