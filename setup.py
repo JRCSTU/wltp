@@ -30,12 +30,8 @@ import re
 from setuptools import setup
 
 
-#from cx_Freeze import Executable
-#from cx_Freeze import setup
-projname = 'wltp'
-mydir = os.path.dirname(__file__)
-
-
+## Fail early in ancient python-versions
+#
 py_verinfo = sys.version_info
 py_sver = StrictVersion("%s.%s.%s" % py_verinfo[:3])
 if py_verinfo[0] == 2 and py_sver < StrictVersion("2.7"):
@@ -43,6 +39,11 @@ if py_verinfo[0] == 2 and py_sver < StrictVersion("2.7"):
 if py_verinfo[0] == 3 and py_sver < StrictVersion("3.3"):
     exit("Sorry, only Python >= 3.3 is supported!")
 PY2 = py_verinfo[0] < 3
+
+projname = 'wltp'
+mydir = os.path.dirname(__file__)
+
+
 
 ## Version-trick to have version-info in a single place,
 ## taken from: http://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
@@ -119,6 +120,21 @@ readme_lines = read_text_lines('README.rst')
 description = readme_lines[1]
 long_desc = ''.join(yield_sphinx_only_markup(readme_lines))
 
+install_deps = [
+    'six',
+    'jsonschema>=2.4',
+    'jsonpointer',
+#     'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
+    'numpy',
+    'pandas', #'openpyxl', 'xlrd',
+    'matplotlib', #>=1.4', ## Let it mature some time more...
+]
+if PY2:
+    install_deps += ['mock']
+
+
+
+
 setup(
     name = projname,
     packages = ['wltp', 'wltp.cycles', 'wltp.test', ],
@@ -138,6 +154,8 @@ setup(
     ],
     classifiers = [
         "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
@@ -152,15 +170,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     scripts = ['wltp.py'],
-    install_requires = [
-        'six',
-        'jsonschema>=2.4',
-        'jsonpointer',
-#         'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
-        'numpy',
-        'pandas', #'openpyxl', 'xlrd',
-        'matplotlib', #>=1.4', ##When things
-    ] + ['mock'] if PY2 else [],
+    install_requires = install_deps,
     setup_requires = [
         'setuptools>=3.4.4',
         'sphinx>=1.2', # >=1.3
@@ -173,39 +183,6 @@ setup(
     ],
     include_package_data = True,
     zip_safe=True,
-    options = {
-        'build_exe': {
-            "excludes": [
-                "jsonschema", #!!!! Schemas do not work in library-zip, so needs manuall to copy directly into app-dir
-                "numpy", "scipy", #!!!! lostesso
-                "PyQt4", "PySide",
-                "IPython", "numexpr",
-                "pygments", "pyreadline", "jinja2",
-                "setuptools",
-                "statsmodels", "docutils",
-                "xmlrpc", "pytz",
-                "nose",
-                "Cython", "pydoc_data", "sphinx", "docutils",
-                "multiprocessing", "lib2to3", "_markerlib",
-#                 #urllib<--email<--http<--pandas
-#                 #distutils" <-- pandas.compat
-            ],
-            'includes': [
-#                 'matplotlib.backends.backend_tkagg',
-            ],
-            'include_files': [
-                ## MANUAL COPY into build/exe-dir
-                ##     from: https://bitbucket.org/anthony_tuininga/cx_freeze/issue/43/import-errors-when-using-cx_freeze-with
-                #  site_packages(32bit/64bit)/
-                #    jsonschema
-                #    numpy
-                #    scipy
-            ],
-        }, 'bdist_msi': {
-            'add_to_path': False,
-        },
-    },
-#     executables=[Executable("wltp.py", )], #base="Win32GUI")],
 )
 
 

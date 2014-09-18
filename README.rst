@@ -55,20 +55,19 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
 
 Install
 -------
-Requires Python 3.3+.
+Requires Python-2.7+ or Python-3.3+ (preferred).
 
 .. Tip:: To install *python*, you can try the free (as in beer) distribution
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ for *Windows* and *OS X*, or
-    the totally free `WinPython <http://winpython.sourceforge.net/>`_ distribution, but for *Windows* only.
+    the totally free `WinPython <http://winpython.sourceforge.net/>`_ distribution, but for *Windows* only:
 
     * For *Anaconda* you may need to install project's dependencies manually (see :file:`setup.py`)
-    using :command:`conda`.
-
-    * The most recent version of *WinPython* (python-3.3.5)* is in the process of
-    `changing maintainer <http://sourceforge.net/projects/stonebig.u/files/>`_,
-    yet it still remains a higly active project, that can even compile native libraries using
-    installation of *Visual Studio, if any
-    (required when upgrading ``numpy/scipy``,``pandas`` or ``matplotlib`` with :command:`pip`).
+      using :command:`conda`.
+    * The most recent version of *WinPython* (python-3.4) is in the process of
+      `changing maintainer <http://sourceforge.net/projects/stonebig.u/files/>`_,
+      yet it still remains a higly active project, that can even compile native libraries using
+      installation of *Visual Studio*, if any
+      (required when upgrading ``numpy/scipy``,``pandas`` or ``matplotlib`` with :command:`pip`).
 
 
 You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository

@@ -20,7 +20,7 @@ install:
 script:
 #    - python setup.py test_all                      # Nose tests, doctests in *.rst and modules, and report coverage.
     - python setup.py test_code                      # Nose tests, doctests in *.rst and modules, and report coverage.
-    - python setup.py build_sphinx                  # Build html-docs.
+    - python setup.py build_sphinx                   # Build html-docs.
     - python setup.py --long-description | rst2html.py  --halt=warning            # Ensure README valid ReST for PyPI.
     - python setup.py install
     - python setup.py sdist                         # Create archives for PyPI repo.

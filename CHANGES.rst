@@ -41,7 +41,8 @@ Changelog
 
 
 v0.0.9-beta, XX-Aug-2014
----------------------------------------
+------------------------
+* Backported to Python-2.7.
 * Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced
   by ``driver_mass`` = 75(kg)).
 * Possible to overide WLTP-Class, Target-V & Slope, Gears if present in the ``cycle_run`` table.
@@ -54,7 +55,7 @@ v0.0.9-beta, XX-Aug-2014
 * build: Not possible anymore to distribute it as .EXE; need a proper python-3 envronment.
 
 v0.0.8-alpha, 04-Aug-2014
----------------------------------------
+-------------------------
 * Documentation fixes.
 
 
