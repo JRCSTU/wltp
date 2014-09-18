@@ -9,6 +9,8 @@
 wltc module: WLTC gear-shift calculator
 '''
 
+from __future__ import division, unicode_literals
+
 from ._version import __version__
 
 

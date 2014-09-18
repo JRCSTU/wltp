@@ -11,7 +11,9 @@ Defines the schema, defaults and validation operations for the data consumed and
 The model-instance is managed by :class:`pandel.Pandel`.
 """
 
-from collections.abc import Mapping
+from __future__ import division, print_function, unicode_literals
+
+from collections import Mapping
 import json
 import logging
 from textwrap import dedent
@@ -23,6 +25,7 @@ import jsonschema
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
+from six import string_types
 
 import itertools as it
 import numpy as np
@@ -649,7 +652,7 @@ def yield_load_curve_errors(mdl):
             wot['n_norm'] = wot.index
             wot = wot[['n_norm', 'p_norm']]
         elif wot.shape[1] == 2:
-            if not all(isinstance(i, str) for i in cols):
+            if not all(isinstance(i, string_types) for i in cols):
                 wot.columns = ['n_norm', 'p_norm']
 
         n_norm = wot['n_norm']

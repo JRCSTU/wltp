@@ -11,6 +11,8 @@ Invoked with 1 arg will draw diagram on screen and wait before ending.
 Invoked with 2 args will additionally save image as well.
 '''
 
+from __future__ import print_function, unicode_literals
+
 import sys, os, os.path as path
 from wltp import model
 

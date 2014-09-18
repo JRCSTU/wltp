@@ -11,8 +11,8 @@
     :func:`main()`
 """
 
+from __future__ import division, unicode_literals
 
-import argparse
 import ast
 import collections
 import functools
@@ -23,6 +23,7 @@ import re
 import sys
 from textwrap import dedent
 
+import argparse
 from pandas.core.generic import NDFrame
 
 import jsonpointer as jsonp

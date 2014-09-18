@@ -7,7 +7,7 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 '''Tests check top-level functionality. '''
 
-from __future__ import print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 import logging
 import os, io
@@ -23,6 +23,12 @@ import numpy.testing as npt
 from ..experiment import Experiment
 from .goodvehicle import goodVehicle
 
+## Python-2 compatibility
+#
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError  # @ReservedAssignment
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +57,7 @@ class ExperimentWholeVehs(unittest.TestCase):
                     #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
                     # else:
                     #     print('>> COMPARING(%s): OK'%fname)
-            except FileNotFoundError as ex:  # @UnusedVariable
+            except (FileNotFoundError, ValueError) as ex:  # @UnusedVariable
                 print('>> COMPARING(%s): No old-tabular found, 1st time to be stored in: '%fname, tmpfname)
                 run_comparison = False
 

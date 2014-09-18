@@ -8,9 +8,11 @@
 """A :dfn:`pandas-model` is a tree of strings, numbers, sequences, dicts, pandas instances and resolvable
 URI-references, implemented by :class:`Pandel`. """
 
+from __future__ import division, unicode_literals
+
 import abc
+from collections import Mapping, Sequence
 from collections import OrderedDict, namedtuple
-from collections.abc import Mapping, Sequence
 import contextlib
 import numbers
 import re
@@ -19,6 +21,7 @@ from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
 from jsonschema.exceptions import SchemaError
 from pandas.core.generic import NDFrame
+from six import string_types
 
 import numpy as np
 import pandas as pd
@@ -65,7 +68,7 @@ class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
     def choose_convertor(self, from_type, to_type):
         pass
 
-class PathMaps:
+class PathMaps(object):
     """
     Cascade prefix-mapping of json-paths to any values (here :class:`ModelOperations`.
     """
@@ -166,7 +169,7 @@ class PandelVisitor(ValidatorBase):
 
     """
     def __init__(self, schema, types=(), resolver=None, format_checker=None, skip_meta_validation=False):
-        super().__init__(schema, types, resolver, format_checker)
+        super(PandelVisitor, self).__init__(schema, types, resolver, format_checker)
 
         self._types.update({
             "number":   (numbers.Number, np.number), ## type(np.nan) == builtins.float! FIXME, are numpy-numbers --> json-types OK??
@@ -340,7 +343,7 @@ class PandelVisitor(ValidatorBase):
 
 
 
-class Pandel:
+class Pandel(object):
     """
     Builds, validates and stores a *pandas-model*, a mergeable stack of JSON-schema abiding trees of
     strings and numbers, assembled with
@@ -772,8 +775,8 @@ class Pandel:
                     val = b_val
                 a[key] = val
 
-        elif (isinstance(a, Sequence) and not isinstance(a, str)) or \
-                (isinstance(b, Sequence) and not isinstance(b, str)):
+        elif (isinstance(a, Sequence) and not isinstance(a, string_types)) or \
+                (isinstance(b, Sequence) and not isinstance(b, string_types)):
             if not b is None:
                 val = b
             else:
@@ -802,7 +805,8 @@ class Pandel:
         "Step-1"
         for (mdl, path_ops) in self._submodel_tuples:
             schema = self._get_json_schema(is_prevalidation=True)
-            yield from self._validate_json_model(schema, mdl)
+            for err in self._validate_json_model(schema, mdl):
+                yield err
 
     def _merge(self):
         "Step-2"
@@ -814,7 +818,8 @@ class Pandel:
     def _validate(self):
         "Step-3"
         schema = self._get_json_schema(is_prevalidation=False)
-        yield from self._validate_json_model(schema, self.model)
+        for err in self._validate_json_model(schema, self.model):
+            yield err
 
     def _curate(self):
         "Step-4:  Invokes any curate-functions found in :attr:`_curate_funcs`."
@@ -865,7 +870,8 @@ class Pandel:
 
         for (i, (step, step_name)) in enumerate(steps, start=1):
             try:
-                yield from step()
+                for err in step():
+                    yield err
             except ValidationError as ex:
                 self._errored = True
                 yield ex

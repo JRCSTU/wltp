@@ -11,7 +11,7 @@
 * Run it as cmd-line to compare with Heinz's results.
 '''
 
-from __future__ import print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 import glob
 import logging
@@ -25,10 +25,19 @@ from wltp.experiment import applyDriveabilityRules
 from wltp.test.goodvehicle import goodVehicle
 
 from matplotlib import pyplot as plt
+from six import string_types
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+
+
+## Python-2 compatibility
+#
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError  # @ReservedAssignment
 
 
 overwrite_old_results = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
@@ -302,7 +311,7 @@ def _plotResults(veh_fname, df_g, df_h,  g_diff, ax, plot_diffs_gears_only=True,
     ## Add pickers on driveability lines showing the specific msg.
     #
     driveability = df_g['driveability']
-    driveability_true = driveability.apply(lambda s: isinstance(s, str))
+    driveability_true = driveability.apply(lambda s: isinstance(s, string_types))
     lines = ax2.vlines(driveability_true.nonzero()[0],  2, 4, 'c', picker=5)
     lines.set_urls(driveability[driveability_true])
 

@@ -20,6 +20,9 @@ or::
     python3 csvcolumns8to2.py multiColumn.txt
 """
 
+
+from __future__ import print_function, unicode_literals
+
 def csvcolumns8to2(inp, inpfname, out, outfname):
     import pandas as pd
 

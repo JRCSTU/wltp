@@ -23,6 +23,7 @@ Or get it directly from the PIP repository::
 #    http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
 #    http://python-packaging-user-guide.readthedocs.org/en/latest/current.html
 
+from distutils.version import StrictVersion
 import os, sys, io
 import re
 
@@ -34,8 +35,14 @@ from setuptools import setup
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
 
-if sys.version_info[0] < 3:
-    exit("Sorry, only Python 3 is supported!")
+
+py_verinfo = sys.version_info
+py_sver = StrictVersion("%s.%s.%s" % py_verinfo[:3])
+if py_verinfo[0] == 2 and py_sver < StrictVersion("2.7"):
+    exit("Sorry, only Python >= 2.7 is supported!")
+if py_verinfo[0] == 3 and py_sver < StrictVersion("3.3"):
+    exit("Sorry, only Python >= 3.3 is supported!")
+PY2 = py_verinfo[0] < 3
 
 ## Version-trick to have version-info in a single place,
 ## taken from: http://stackoverflow.com/questions/2058802/how-can-i-get-the-version-defined-in-setup-py-setuptools-in-my-package
@@ -146,13 +153,14 @@ setup(
     ],
     scripts = ['wltp.py'],
     install_requires = [
+        'six',
         'jsonschema>=2.4',
         'jsonpointer',
 #         'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
         'numpy',
         'pandas', #'openpyxl', 'xlrd',
-        'matplotlib>=1.4',
-    ],
+        'matplotlib', #>=1.4', ##When things
+    ] + ['mock'] if PY2 else [],
     setup_requires = [
         'setuptools>=3.4.4',
         'sphinx>=1.2', # >=1.3

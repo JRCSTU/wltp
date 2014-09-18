@@ -1,5 +1,15 @@
 #!/usr/bin/python3
+"""
+Sed-file to clean-up Sphinx-only constructs (ie from README.rst),
+so that *PyPi* can format it properly.
 
+To check for remaining errors, install ``sphinx`` and run::
+
+        python setup.py --long-description | sed -file 'this_file.sed' | rst2html.py  --halt=warning
+
+"""
+
+from __future__ import print_function, unicode_literals
 
 import re
 import sys, io
@@ -31,11 +41,11 @@ def clean_sphinx_only_markup(file_inp=None, file_out=None):
 
         ## Sphinx-only Directives.
         #
-        (r'\.\. doctest',           r'code-block'),
-        (r'\.\. plot::',            r'.. '),
-        (r'\.\. seealso',           r'info'),
-        (r'\.\. glossary',          r'rubric'),
-        (r'\.\. figure::',          r'.. '),
+        (r'\.\. +doctest',           r'code-block'),
+        (r'\.\. +plot::',            r'.. '),
+        (r'\.\. +seealso',           r'info'),
+        (r'\.\. +glossary',          r'rubric'),
+        (r'\.\. +figure::',          r'.. '),
 
 
         ## Other

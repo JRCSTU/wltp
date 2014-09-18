@@ -57,13 +57,18 @@ Install
 -------
 Requires Python 3.3+.
 
-.. Tip:: To install *python*, you can try `WinPython <http://winpython.sourceforge.net/>`_ distribution
-    for Windows*, or `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_
-    for *Windows* and *OS X*.
+.. Tip:: To install *python*, you can try the free (as in beer) distribution
+    `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ for *Windows* and *OS X*, or
+    the totally free `WinPython <http://winpython.sourceforge.net/>`_ distribution, but for *Windows* only.
 
-    The most recent version of *WinPython* (python-3.3.5)* has recently
-    `change maintainer <http://sourceforge.net/projects/stonebig.u/files/Winpython_3.4/>`_ but it remains
-    a higly active project.
+    * For *Anaconda* you may need to install project's dependencies manually (see :file:`setup.py`)
+    using :command:`conda`.
+
+    * The most recent version of *WinPython* (python-3.3.5)* is in the process of
+    `changing maintainer <http://sourceforge.net/projects/stonebig.u/files/>`_,
+    yet it still remains a higly active project, that can even compile native libraries using
+    installation of *Visual Studio, if any
+    (required when upgrading ``numpy/scipy``,``pandas`` or ``matplotlib`` with :command:`pip`).
 
 
 You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
@@ -86,14 +91,12 @@ Notice that :option:`--pre` is required, since all realeased packages so far wer
     If you choose to do that, make sure that in the *cygwin*'s installation wizard the following packages
     are also included::
 
-        * git
+        * git, git-completion
         * make
-        * openssh
-        * curl
-        * wget
+        * openssh, curl, wget
 
 
-Alternatively you can build the latest version from the sources,
+Alternatively you can build the latest version of the project from the sources,
 (assuming you have a working installation of `git <http://git-scm.com/>`_)
 and install it in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
 with the following series of commands:
@@ -103,6 +106,7 @@ with the following series of commands:
     $ git clone "https://github.com/ankostis/wltp.git" wltp.git
     $ cd wltp.git
     $ python setup.py develop                   ## Use `python3` if you have installed both python-2 & 3.
+
 
 
 That way you get the complete source-tree of the project, ready for development
@@ -116,9 +120,20 @@ That way you get the complete source-tree of the project, ready for development
     +--docs/            ## Documentation folder
     +--devtools/        ## Scripts for preprocessing WLTC data and the wltp_db
     +--wltp.py          ## (script) The cmd-line entry-point script for the calculator
+    +--setup.py         ## (script) The entry point for `setuptools`, installing, testing, etc
+    +--requirements.txt ## The installation dependencies.
     +--README.rst
     +--CHANGES.rst
     +--LICENSE.txt
+
+
+The previous command installed also any *dependencies* inside the project-folder.  If you wish to install them
+on your system (or virtualenv), enter:
+
+.. code-block:: console
+
+    pip install -r requirements.txt
+
 
 
 
@@ -132,7 +147,7 @@ an *experiment*.  First run :command:`python` and try to import the project to c
 
     >>> import wltp
 
-    >>> wltp.__version__
+    >>> wltp.__version__            ## Check version once more.
     '0.0.9-alpha'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
@@ -180,7 +195,7 @@ For information on the accepted model-data, check its :term:`JSON-schema`:
 
 .. doctest::
 
-    >>> print(model.json_dumps(model.model_schema(), indent=2))                         # doctest: +SKIP
+    >>> model.json_dumps(model.model_schema(), indent=2)                                # doctest: +SKIP
     {
       "properties": {
         "params": {
@@ -235,13 +250,13 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
 
     >>> import pandas as pd
     >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
-    >>> print(df.shape)                 ## ROWS(time-steps) X COLUMNS.
+    >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
     (1801, 11)
     >>> df.columns
     Index(['v_class', 'v_target', 'clutch', 'gears_orig', 'gears', 'v_real', 'p_available', 'p_required', 'rpm', 'rpm_norm', 'driveability'], dtype='object')
-    >>> print('Mean engine_speed: ', df.rpm.mean())
-    Mean engine_speed:  1917.0407829
-    >>> print(df.describe())
+    >>> 'Mean engine_speed: %s' % df.rpm.mean()
+    'Mean engine_speed: 1917.0407829'
+    >>> df.describe()
                v_class     v_target     clutch   gears_orig        gears  \
     count  1801.000000  1801.000000       1801  1801.000000  1801.000000
     mean     46.506718    46.506718  0.0660744     3.794003     3.683509
@@ -254,7 +269,7 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     std      32.336908    15.833262    12.139823   878.139758     0.195142
     ...
 
-    >>> print(processor.driveability_report())                                      # doctest: +SKIP
+    >>> processor.driveability_report()                                             # doctest: +SKIP
     ...
       12: (a: X-->0)
       13: g1: Revolutions too low!

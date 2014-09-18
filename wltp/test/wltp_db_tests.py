@@ -11,7 +11,7 @@
 * Run it as cmd-line to compare with Heinz's results.
 '''
 
-from __future__ import print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 from collections import OrderedDict
 import glob
@@ -24,9 +24,19 @@ from unittest.case import skip
 from wltp.experiment import Experiment
 from wltp.test.goodvehicle import goodVehicle
 
+from six import string_types
+
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+
+
+## Python-2 compatibility
+#
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError  # @ReservedAssignment
 
 overwrite_old_results = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
 
@@ -120,19 +130,22 @@ def _read_heinz_file(veh_num):
     return df
 
 
-def _is_file_up_to_date(result_file, other_dependency_files = None):
+_sources_latest_date = None
+def _is_file_up_to_date(result_file, other_dependency_files = ()):
 
     if force_rerun or not os.path.exists(result_file):
         return False
-
-    checkfiles = [__file__, '../../model.py', '../../experiment.py', vehs_data_inp_fname]
-    if other_dependency_files:
-        checkfiles = checkfiles + list(other_dependency_files)
-    latest_dep_date = max([os.path.getmtime(file) for file in checkfiles])
-
     result_date = os.path.getmtime(result_file)
 
+    if _sources_latest_date is None:
+        source_fnames = [__file__, '../../model.py', '../../experiment.py', vehs_data_inp_fname]
+        _sources_latest_dep_date = max([os.path.getmtime(file) for file in source_fnames])
+
+    latest_dep_date = max([os.path.getmtime(file) for file in other_dependency_files])
+    latest_dep_date = max(latest_dep_date, _sources_latest_dep_date)
+
     return result_date > latest_dep_date
+
 
 def _file_pairs(fname_glob):
     """
@@ -465,7 +478,7 @@ class WltpDbTests(unittest.TestCase):
             (156.885, 171.558]             NaN             NaN         NaN      0
             (171.558, 186.232]     1396.061758     1385.176569   -0.785834      1
 
-        As above, fixed pandas::
+        As above, BROKEN _applicator changed::
 
                                  gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
             pmr
@@ -482,9 +495,26 @@ class WltpDbTests(unittest.TestCase):
             (157.14, 171.686]               NaN             NaN         NaN      0
             (171.686, 186.232]      1396.061758     1385.176569   -0.785834      2
 
+        As above, Fixed::
+
+                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
+            pmr
+            (11.504, 26.225]        1579.612698     1585.721306    0.386716     28
+            (26.225, 40.771]        1706.865069     1700.689983   -0.363093     41
+            (40.771, 55.317]        1866.150857     1841.779091   -1.323273    119
+            (55.317, 69.863]        2122.662626     2085.262950   -1.793523    122
+            (69.863, 84.409]        2228.282795     2171.952804   -2.593518     29
+            (84.409, 98.955]        1783.316413     1787.378401    0.227777      4
+            (98.955, 113.501]       1718.157828     1718.516147    0.020855     31
+            (113.501, 128.0475]     2005.415058     1954.763742   -2.591173      2
+            (128.0475, 142.594]     1566.601860     1553.383676   -0.850928      1
+            (142.594, 157.14]               NaN             NaN         NaN      0
+            (157.14, 171.686]               NaN             NaN         NaN      0
+            (171.686, 186.232]      1396.061758     1385.176569   -0.785834      1
+
         """
 
-        pcrnt_limit = 4.2
+        pcrnt_limit = 2.65
 
         pmr_histogram = self._check_n_mean__pmr(gened_fname_glob)
 
@@ -515,7 +545,7 @@ class WltpDbTests(unittest.TestCase):
             (156.885, 171.558]             NaN             NaN         NaN      0
             (171.558, 186.232]     1367.068837     1385.176569    1.324566      1
 
-        As above, fixed pandas::
+        As above, BROKEN _applicator changed::
 
                                  gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
             pmr
@@ -532,9 +562,26 @@ class WltpDbTests(unittest.TestCase):
             (157.14, 171.686]               NaN             NaN         NaN      0
             (171.686, 186.232]      1367.068837     1385.176569    1.324566      2
 
+        As above, Fixed::
+
+                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
+            pmr
+            (11.504, 26.225]        1572.733597     1585.721306    0.825805     28
+            (26.225, 40.771]        1690.081663     1700.689983    0.627681     41
+            (40.771, 55.317]        1821.319706     1841.779091    1.123327    119
+            (55.317, 69.863]        2060.507029     2085.262950    1.201448    122
+            (69.863, 84.409]        2142.964427     2171.952804    1.352723     29
+            (84.409, 98.955]        1783.214173     1787.378401    0.233524      4
+            (98.955, 113.501]       1713.473617     1718.516147    0.294287     31
+            (113.501, 128.0475]     1950.373771     1954.763742    0.225084      2
+            (128.0475, 142.594]     1543.937285     1553.383676    0.611838      1
+            (142.594, 157.14]               NaN             NaN         NaN      0
+            (157.14, 171.686]               NaN             NaN         NaN      0
+            (171.686, 186.232]      1367.068837     1385.176569    1.324566      1
+
         """
 
-        pcrnt_limit = 5
+        pcrnt_limit = 1.5
 
         pmr_histogram = self._check_n_mean__pmr(trans_fname_glob)
 
@@ -634,6 +681,10 @@ class WltpDbTests(unittest.TestCase):
 
 
 
+
+###################
+# RUN EXPERIMENTS #
+###################
 
 
 
@@ -752,7 +803,7 @@ def _plotResults(veh_fname, df_g, df_h,  res, ax, plot_diffs_gears_only=True, pl
     ## Add pickers on driveability lines showing the specific msg.
     #
     driveability = df_g['driveability']
-    driveability_true = driveability.apply(lambda s: isinstance(s, str))
+    driveability_true = driveability.apply(lambda s: isinstance(s, string_types))
     lines = ax2.vlines(driveability_true.nonzero()[0],  2, 4, 'c', picker=5)
     lines.set_urls(driveability[driveability_true])
 

@@ -6,7 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-from __future__ import print_function, unicode_literals
+from __future__ import division, unicode_literals
 
 import unittest
 from wltp import pandel
@@ -17,8 +17,7 @@ from jsonschema.exceptions import ValidationError
 import numpy.testing as npt
 import pandas as pd
 
-from ..experiment import Experiment
-from .goodvehicle import goodVehicle
+from ..utils import assertRaisesRegex
 
 
 class Test(unittest.TestCase):
@@ -125,7 +124,7 @@ class Test(unittest.TestCase):
 
         mm = MyMaker()     ## Invalid submodel['b'], must be a number
         mm.add_submodel({'a': 'foo', 'b': 'string'})
-        self.assertRaisesRegex(ValidationError, "Failed validating 'type' in schema\['properties']\['b']", mm.build)
+        assertRaisesRegex(self, ValidationError, "Failed validating u?'type' in schema\[u?'properties']\[u?'b']", mm.build)
 
     def test_validate_object_or_pandas(self):
         schema = {
@@ -137,7 +136,7 @@ class Test(unittest.TestCase):
         pv.validate(pd.Series({'foo': 'bar', 'foofoo': 'bar'}))
         pv.validate(pd.DataFrame({'foo': [1,2], 'foofoo': [3,4]}))
 
-        with self.assertRaisesRegex(ValidationError, "\[1, 2, 3\] is not of type 'object'"):
+        with assertRaisesRegex(self, ValidationError, "\[1, 2, 3\] is not of type u?'object'"):
             pv.validate([1,2,3])
 
 
@@ -149,15 +148,15 @@ class Test(unittest.TestCase):
         pv = PandelVisitor(schema)
 
         pv.validate({'foo': 'bar'})
-        with self.assertRaisesRegex(ValidationError, "'foo' is a required property"):
+        with assertRaisesRegex(self, ValidationError, "'foo' is a required property"):
             pv.validate({'foofoo': 'bar'})
 
         pv.validate(pd.Series({'foo': 'bar', 'foofoo': 'bar'}))
-        with self.assertRaisesRegex(ValidationError, "'foo' is a required property"):
+        with assertRaisesRegex(self, ValidationError, "'foo' is a required property"):
             pv.validate(pd.Series({'foofoo': 'bar'}))
 
         pv.validate(pd.DataFrame({'foo': [1,2], 'foofoo': [3,4]}))
-        with self.assertRaisesRegex(ValidationError, "'foo' is a required property"):
+        with assertRaisesRegex(self, ValidationError, "'foo' is a required property"):
             pv.validate(pd.DataFrame({'foofoo': [1,2], 'bar': [3,4]}))
 
 
@@ -173,15 +172,15 @@ class Test(unittest.TestCase):
         pv = PandelVisitor(schema)
 
         pv.validate({'foo': 1})
-        with self.assertRaisesRegex(ValidationError, "Additional properties are not allowed \('bar' was unexpected\)"):
+        with assertRaisesRegex(self, ValidationError, "Additional properties are not allowed \(u?'bar' was unexpected\)"):
             pv.validate({'foo': 1, 'bar': 2})
 
         pv.validate(pd.Series({'foo': 1}))
-        with self.assertRaisesRegex(ValidationError, "Additional properties are not allowed \('bar' was unexpected\)"):
+        with assertRaisesRegex(self, ValidationError, "Additional properties are not allowed \(u?'bar' was unexpected\)"):
             pv.validate(pd.Series({'foo': 1, 'bar': 2}))
 
         pv.validate(pd.DataFrame({'foo': [1]}))
-        with self.assertRaisesRegex(ValidationError, "Additional properties are not allowed \('bar' was unexpected\)"):
+        with assertRaisesRegex(self, ValidationError, "Additional properties are not allowed \(u?'bar' was unexpected\)"):
             pv.validate(pd.DataFrame({'foo': [1], 'bar': [2]}))
 
 

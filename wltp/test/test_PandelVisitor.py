@@ -18,13 +18,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from __future__ import print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 from collections import deque
 from contextlib import contextmanager
 import json
-import numpy.testing as npt
-from unittest import mock
 import unittest
 from unittest.case import skip
 from wltp.pandel import PandelVisitor
@@ -36,7 +34,16 @@ from jsonschema.validators import (
 )
 
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
+
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
+
 
 
 def validate(instance, schema, *args, **kws):
@@ -614,7 +621,7 @@ class ValidatorTestMixin(object):
 class TestDraft3lValidator(ValidatorTestMixin, unittest.TestCase):
     validator_class = PandelVisitor
     def setUp(self):
-        super().setUp()
+        super(TestDraft3lValidator, self).setUp()
         self.validator = PandelVisitor({
             "$schema" : "http://json-schema.org/draft-03/schema#"
     })

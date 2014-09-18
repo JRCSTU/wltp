@@ -18,6 +18,8 @@ Converts to CSVs and consolidate input & results tables from Heinz' ms-access db
 ms-access query.
 '''
 
+from __future__ import print_function, unicode_literals
+
 import glob, os, os.path as path
 import re
 

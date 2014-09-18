@@ -6,7 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-from __future__ import print_function, unicode_literals
+from __future__ import division, unicode_literals
 
 def goodVehicle():
     goodVehicle = {

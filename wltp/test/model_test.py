@@ -6,9 +6,10 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-from __future__ import print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 import unittest
+from unittest.case import skip
 from wltp import model
 
 import pandas as pd
@@ -27,6 +28,7 @@ class Test(unittest.TestCase):
         self.assertTrue(pd.DataFrame(mdl['vehicle']['full_load_curve']).equals(pd.DataFrame(model.default_load_curve())))
 
 
+    @skip("Cascade-models disabled") ##TODO: Re-enabl;e when pandel works.
     def testOverlayOnInit(self):
         mdl = goodVehicle()
         nval = 6000
@@ -42,14 +44,12 @@ class Test(unittest.TestCase):
 
     def testMultiErrors(self):
         mdl = goodVehicle()
-        mdl2 = {
-            "vehicle": {
-                "n_rated":-1,
-                "n_idle":-2,
-            }
-        }
+        mdl['vehicle'].update({
+            "n_rated":-1,
+            "n_idle":-2,
+        })
 
-        exp = Experiment(mdl, mdl2, skip_model_validation=True)
+        exp = Experiment(mdl, skip_model_validation=True)
         errors = list(exp.validate(iter_errors=True))
         self.assertIsNotNone(errors)
         self.assertEqual(len(errors), 2)

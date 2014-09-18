@@ -48,8 +48,11 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
 .. Seealso:: :mod:`model` for in/out schemas
 '''
 
+from __future__ import division, unicode_literals
+
 import logging
 import re
+import sys
 
 import numpy as np
 import pandas as pd
@@ -78,16 +81,16 @@ class Experiment(object):
     '''
 
 
-    def __init__(self, *models, skip_model_validation=False, validate_wltc = False):
+    def __init__(self, model, skip_model_validation=False, validate_wltc=False):
         """
-        :param models: trees (formed by dicts & lists) holding the experiment data.
-        :param skip_model_validation: when true, does not validate the models.
+        :param model:                 trees (formed by dicts & lists) holding the experiment data.
+        :param skip_model_validation:  when true, does not validate the model.
         """
 
         from wltp.model import wltc_data
 
         self.dtype = np.float64
-        self.set_models(*models, skip_validation=skip_model_validation)
+        self.set_model(model, skip_validation=skip_model_validation)
 
         self.wltc = wltc_data()
         if (validate_wltc):
@@ -223,7 +226,7 @@ class Experiment(object):
         results['clutch']       = CLUTCH    # TODO: Allow overridde clutch, etc.
         if ('gears_orig' in results):
             forced_gears = results['gears_orig'].values
-            log.info('Found forced gears(%ix%i).', forced_gears[0], forced_gears[1])
+            log.info('Found forced gears(x%i).', forced_gears.size)
             if (GEARS_ORIG.max() != len(gear_ratios)):
                 raise ValueError('Forced gears(%s) specify gears(%i) > num_of_gears(%i)'%(forced_gears.shape, GEARS_ORIG.max(), len(gear_ratios)))
             GEARS_ORIG = forced_gears
@@ -259,12 +262,12 @@ class Experiment(object):
 #######################
 
 
-    def set_models(self, *models, skip_validation=False):
+    def set_model(self, model, skip_validation=False):
         import functools
         from wltp.model import model_base, merge
 
         self._model = model_base()
-        functools.reduce(merge, [self._model] + list(models))
+        functools.reduce(merge, [self._model, model])
         if not skip_validation:
             self.validate()
 
@@ -575,10 +578,15 @@ def selectGears(_GEARS, _G_BY_N, _G_BY_P, driveability_issues):
 
 _escape_char = 128
 
-_regex_gears2regex = re.compile(r'\\g(\d+)')
+_regex_gears2regex = re.compile(br'\\g(\d+)')
 
-def dec_byte_repl(m):
-    return chr(_escape_char + int(m.group(1)))
+PY2 = sys.version_info[0] < 3
+if PY2:
+    def dec_byte_repl(m):
+        return chr(_escape_char + int(m.group(1)))
+else:
+    def dec_byte_repl(m):
+        return bytes([_escape_char + int(m.group(1))])
 
 
 def gearsregex(gearspattern):
@@ -589,15 +597,16 @@ def gearsregex(gearspattern):
                             \g124|\g7 --> unicode(128+124=252)|unicode(128+7=135)
     '''
 
-    assert          isinstance(gearspattern, str), 'Not str: %s' % gearspattern
+    assert          isinstance(gearspattern, bytes), 'Not bytes: %s' % gearspattern
+    #gearspattern = str(gearspattern) # For python-2 to work with __future__.unicode_literals.
 
     regex           = _regex_gears2regex.sub(dec_byte_repl, gearspattern)
-    return          re.compile(bytes(regex, 'latin_1'))
+    return          re.compile(regex)
 
 
 def np2bytes(NUMS):
-    if (NUMS < -1).any() or (NUMS >= (256 - _escape_char)).any():
-        assert          all(NUMS >= -1)  and all(NUMS < (256 - _escape_char)), 'Outside byte-range: %s' % NUMS[(NUMS < -1) | (NUMS >= (256 - _escape_char))]
+    if (NUMS < 0).any() or (NUMS >= (256 - _escape_char)).any():
+        assert          all(NUMS >= 0)  and all(NUMS < (256 - _escape_char)), 'Outside byte-range: %s' % NUMS[(NUMS < 0) | (NUMS >= (256 - _escape_char))]
 
     return          (NUMS + _escape_char).astype('uint8').tostring()
 
@@ -605,7 +614,7 @@ def np2bytes(NUMS):
 def bytes2np(bytesarr):
     assert          isinstance(bytesarr, bytes), 'Not bytes: %s' % bytesarr
 
-    return          np.array(list(bytesarr)) - _escape_char
+    return          np.fromstring(bytesarr, dtype='uint8') - _escape_char
 
 
 def assert_regexp_unmatched(regex, string, msg):
@@ -618,7 +627,7 @@ def assert_regexp_unmatched(regex, string, msg):
 #=====================
 
 def rule_checkSingletons(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
-    re_singletons = gearsregex('(\g0)')
+    re_singletons = gearsregex(b'(\g0)')
 
 def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
     """Rule (a): Clutch & set to 1st-gear before accelerating from standstill.
@@ -794,7 +803,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
     #
     V                           = V.copy(); V[V > (255 - _escape_char)] = (255 - _escape_char)
     bV                          = np2bytes(V)
-    re_zeros                    = gearsregex('\g0+')
+    re_zeros                    = gearsregex(br'\g0+')
 
     ## NOTE: Extra_rule(1): Smooth-away INVALID-GEARS.
     #
