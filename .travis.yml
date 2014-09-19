@@ -18,8 +18,7 @@ install:
 
 # command to run tests
 script:
-#    - python setup.py test_all                      # TODO: Use bash shell to run doctests only on p3Nose tests, doctests in *.rst and modules, and report coverage.
-    - python setup.py test_code                      # Nose tests, doctests in *.rst and modules, and report coverage.
+    - ./devtools/run_tests.sh                        # Use bash shell to run doctests & coverage only on p3.
     - python setup.py build_sphinx                   # Build html-docs.
     - python setup.py --long-description | rst2html.py  --halt=warning            # Ensure README valid ReST for PyPI.
     - python setup.py install
