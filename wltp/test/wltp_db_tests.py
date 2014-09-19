@@ -63,16 +63,33 @@ def _init_logging(loglevel = logging.DEBUG):
 log = _init_logging()
 
 
+## From http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
+#
+def memoize(f):
+    """ Memoization decorator for functions taking one or more arguments. """
+    class memodict(dict):
+        def __init__(self, f):
+            self.f = f
+        def __call__(self, *args):
+            return self[args]
+        def __missing__(self, key):
+            ret = self[key] = self.f(*key)
+            return ret
+    return memodict(f)
 
+
+
+@memoize
 def _read_vehicle_data():
     df = pd.read_csv(vehs_data_inp_fname, encoding = encoding, index_col = 0)
 
-    return df
+    return df.copy()
 
+@memoize
 def _read_wots():
     df = pd.read_csv('wot_samples.csv', encoding = encoding, index_col = None)
 
-    return df
+    return df.copy()
 
 def _select_wot(wots, isDiesel):
     wots_labels = [ 'average Euro 6 Petrol', 'average Euro 6 Diesel']
@@ -92,20 +109,6 @@ def _make_heinz_fname(veh_num):
     return 'heinz-{:04}.csv'.format(veh_num)
 
 
-## From http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
-#
-def memoize(f):
-    """ Memoization decorator for functions taking one or more arguments. """
-    class memodict(dict):
-        def __init__(self, f):
-            self.f = f
-        def __call__(self, *args):
-            return self[args]
-        def __missing__(self, key):
-            ret = self[key] = self.f(*key)
-            return ret
-    return memodict(f)
-
 @memoize
 def _read_gened_file(inpfname):
     df = pd.read_csv(inpfname, header=0, index_col=0)
@@ -113,7 +116,7 @@ def _read_gened_file(inpfname):
     assert df.index.name == 'time', \
             df.index.name
 
-    return df
+    return df.copy()
 
 @memoize
 def _read_heinz_file(veh_num):
@@ -127,7 +130,7 @@ def _read_heinz_file(veh_num):
     assert not df.empty
     assert df.index.name == 't', df.index.name
 
-    return df
+    return df.copy()
 
 
 _sources_latest_date = None
@@ -157,7 +160,7 @@ def _file_pairs(fname_glob):
             pass
     """
 
-    all_gened = glob.glob(fname_glob)
+    all_gened = sorted(glob.glob(fname_glob))
     for g_fname in all_gened:
         m = re.match(gened_fname_regex, g_fname)
         veh_num = int(m.groups()[0])
@@ -426,10 +429,11 @@ class WltpDbTests(unittest.TestCase):
                                           (df_g['rpm'].mean(), df_h['n'].mean()))
 
         res.columns=['gened_mean_rpm', 'heinz_mean_rpm']
-        vehdata = vehdata.merge(res, left_index=True, right_index=True)
+        vehdata = vehdata.merge(res, how='inner', left_index=True, right_index=True).sort()
+        self.assertEqual(vehdata.shape[0], res.shape[0])
 
         df = vehdata.sort('pmr')[['gened_mean_rpm', 'heinz_mean_rpm']]
-        dfg = df.groupby(pd.cut(vehdata.pmr, 12))
+        dfg = df.groupby(pd.cut(vehdata.pmr, 12), )
         pmr_histogram = dfg.mean()
 
         dif = (pmr_histogram['heinz_mean_rpm'] - pmr_histogram['gened_mean_rpm']) / pmr_histogram.min(axis=1)
@@ -511,6 +515,21 @@ class WltpDbTests(unittest.TestCase):
             (142.594, 157.14]               NaN             NaN         NaN      0
             (157.14, 171.686]               NaN             NaN         NaN      0
             (171.686, 186.232]      1396.061758     1385.176569   -0.785834      1
+
+                     gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
+pmr
+(11.504, 26.225]        1964.182358     1974.737923    0.537403     28
+(26.225, 40.771]        1834.779719     1850.913706    0.879342     41
+(40.771, 55.317]        1909.057699     1927.785273    0.980985    119
+(55.317, 69.863]        1853.562093     1872.897398    1.043143    122
+(69.863, 84.409]        1914.372465     1948.386471    1.776771     29
+(84.409, 98.955]        1950.417169     1950.187257   -0.011789      4
+(98.955, 113.501]       1857.733646     1876.789167    1.025740     31
+(113.501, 128.0475]     1305.936646     1324.443365    1.417122      2
+(128.0475, 142.594]     2228.908061     2358.245974    5.802748      1
+(142.594, 157.14]               NaN             NaN         NaN      0
+(157.14, 171.686]               NaN             NaN         NaN      0
+(171.686, 186.232]      1372.541903     1388.903387    1.192057      1
 
         """
 

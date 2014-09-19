@@ -82,11 +82,12 @@ Notice that :option:`--pre` is required, since all realeased packages so far wer
 
 
 .. Tip::
-    The console-commands that are listed here to begin with ``$`` are for a *POSIX* environment
-    (*Linux*, *OS X*). They are simple enough and easy to translate into their *Windows* ``cmd.exe``
-    counterparts, but it would be worthwile to install `cygwin <https://www.cygwin.com/>`_ to get
-    the same environment on *Windows* machines.
+    The commands above beginning with ``$`` work on an *unix* like operating system with a *POSIX* shell
+    (*Linux*, *OS X*). If you're using *Windows*, you'll have to run their "windows counterparts".
+    The same is true for the rest of this documentation.
 
+    Although the commands are simple and easy to translate , it would be worthwile to install
+    `cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows* machines.
     If you choose to do that, make sure that in the *cygwin*'s installation wizard the following packages
     are also included::
 
