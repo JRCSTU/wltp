@@ -39,15 +39,21 @@ of the :term:`WLTC` cycle, and it then spits-out the gear-shifts of the vehicle,
 and any warnings.  It does not calculate any |CO2| emissions.
 
 
-An "execution" or a "run" of an experiment is depicted in the following diagram::
+An "execution" or a "run" of an experiment is the processing and augmentation of the :dfn:`input-model`
+to produce the :dfn:`output-model`.  The process is depicted in the following diagram::
 
-         ---------------    ________________         ------------------
-        ;  inp-model  ;    |   Experiment   |       ;   out-model    ;
-       ;-------------;     |________________|      ;----------------;
-      ; +--vehicle  ;  ==> |  ------------- | ==> ; +...           ;
-     ;  +--params  ;       | ; WLTC-data ;  |    ;  +--cycle_run  ;
-    ;             ;        | ------------   |   ;                ;
-    --------------         |________________|   -----------------
+               .---------------------.                        .----------------------------.
+              ;     input-model     ;                        ;      output-model          ;
+             ;---------------------;                        ;----------------------------;
+            ; +--vehicle          ;     ___________        ; +---...                    ;
+           ;  +--params          ;     |           |      ;  +--cycle_run:             ;
+          ;       +--wltc_data  ;  ==> | Processor | ==> ;      t   v_class  gear     ;
+         ;                     ;       |___________|    ;      ------------------    ;
+        ;                     ;                        ;       00       0.0     1   ;
+       ;                     ;                        ;        01       1.3     1  ;
+      ;                     ;                        ;         02       5.5     1 ;
+     ;                     ;                        ;          ...               ;
+    '---------------------'                        '----------------------------.
 
 
 

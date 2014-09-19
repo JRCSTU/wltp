@@ -42,18 +42,39 @@ Changelog
 
 v0.0.9-beta, XX-Aug-2014
 ------------------------
+This is practically the 2nd public-release, reworked in many parts, continuously tested and much better documented,
+BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and metrics
+can describe the evolution of the core.
+
+Some incompatilble changes in this release:
+
+* Code::
+
+    package wltc        --> wltp
+    class Experiment    --> Processor
+
+* Model changes::
+
+    /vehicle
+        +--mass --> (test_mass, unladen_mass)
+        +--cycle_run  ## If present, forces to override parts of the calculation.
+
+
+More specifically:
+
 * Backported to Python-2.7.
-* Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced
+* model, core: Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced
   by ``driver_mass`` = 75(kg)).
-* Calculate resistance-coefficients from a regression-curve.
-* Possible to overide WLTP-Class, Target-V & Slope, Gears if present in the ``cycle_run`` table.
-* data: Add NEDC cycle, for facilitating comparisons.
+* model, core: Calculate default resistance-coefficients from a regression-curve (the one found in Heinz-db).
+* model, core: Possible to overide WLTP-Class, Target-V & Slope, Gears if present in the ``cycle_run`` table.
+* model: Add NEDC cycle data, for facilitating comparisons.
 * tests: Include sample-vehicles along with the distribution.
 * tests: Speed-up tests by caching files to read and compare.
 * docs: Considerable improvements, validate code in comments and docs with *doctest*.
 * docs: Provide a http-link to the list of IPython front-ends in the project's wiki.
 * build: Use TravisCI as integration server, Coveralls.io as test-coverage service-providers.
 * build: Not possible anymore to distribute it as .EXE; need a proper python-3 envronment.
+
 
 v0.0.8-alpha, 04-Aug-2014
 -------------------------

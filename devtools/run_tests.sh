@@ -14,7 +14,7 @@ my_dir=`dirname "$0"`
 cd $my_dir/..
 
 if  python -c 'import sys; print(sys.version_info[0])'| grep -q '3'; then
-    echo "Python-3: Running ALL tests (doce, doctests, coverage)."
+    echo "Python-3: Running ALL tests (code-tests, doctests, coverage)."
     python setup.py test_all
 else
     echo "Python-2: Running ONLY code-tests."
