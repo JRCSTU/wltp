@@ -16,6 +16,7 @@ import unittest
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
+import numpy as np
 
 from .. import model
 from ..utils import assertRaisesRegex
@@ -82,7 +83,7 @@ class InstancesTest(unittest.TestCase):
 
         validator.validate(wltc)
 
-    def test_validate_class_parts(self):
+    def test_wltc_validate_class_parts(self):
         wltc = model.wltc_data()
 
         for cl, cd in wltc['classes'].items():
@@ -96,6 +97,15 @@ class InstancesTest(unittest.TestCase):
 
                 prev_high = high
             self.assertEqual(prev_high, len(cycle)-1)
+
+
+    def test_wltc_validate_checksums(self):
+        wltc = model.wltc_data()
+
+        for cl, cd in wltc['classes'].items():
+            numsum = np.array(cd['cycle']).sum()
+            checksum = cd['checksum']
+            self.assertAlmostEqual(numsum, checksum)
 
 
     def testModelBase_plainInvalid(self):

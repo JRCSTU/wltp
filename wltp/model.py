@@ -579,6 +579,7 @@ def wltc_schema():
                             },
                         }
                     },
+                    'checksum': { 'type': 'number'},
                     'cycle': {
                         'type': 'array',
                         'items': {'type': 'number',},

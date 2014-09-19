@@ -20,7 +20,11 @@ install:
 script:
     - /bin/bash ./devtools/run_tests.sh              ## A bash shell that runs doctests & coverage only on Python-3.
     - python setup.py build_sphinx                   ## Build html-docs.
-    - python setup.py --long-description | rst2html.py  --halt=warning            # Ensure README valid ReST for PyPI.
+
+    ## Ensure README valid ReST for PyPI.
+    ##  In case it fails, improve the filtering-code in ``setup.py``.
+    - python setup.py --long-description | rst2html.py  --halt=warning
+
     - python setup.py install
     - python setup.py sdist                         ## Create archives for PyPI repo.
 

@@ -30,6 +30,7 @@ def class_data_a():
                               [1.0, .65, -.65]],
             'v_max_split': 112,                     ## V (Km/h), >
         },
+        'checksum': 83496.9,
         'cycle': [
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 1.7, 5.4, 9.9,
             13.1, 16.9, 21.7, 26.0, 27.5, 28.1, 28.3, 28.8, 29.1, 30.8, 31.9, 34.1, 36.6, 39.1, 41.3, 42.5,
@@ -273,8 +274,11 @@ def class_data_b():
 
 
     data = class_data_a()
-    data['cycle'] = cycle
-    data['velocity_limits'] = [120, float('inf')]   ## Km/h [low, high)
+    data.update({
+        'checksum': 83758.6,
+        'cycle': cycle,
+        'velocity_limits': [120, float('inf')]   ## Km/h [low, high)
+    })
 
     return data
 
