@@ -98,6 +98,10 @@ def heinz_db_result_table_to_csv(heinz_results_glob, inp_vehs_df, cols_to_move, 
 
 
 def post_proc_heinz_results():
+    """
+    Moves columns with repeatitious data into a master-vehicles csv listing all vehicle-parameters.
+    """
+
     inp_vehs_xcls            = 'vehicle_info.xlsx'
     inp_vehs_fname          = 'wltp_db_vehicles.csv'
     inp_vehs_2_fname        = 'wltp_db_vehicles2.csv'

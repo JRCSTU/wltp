@@ -1,0 +1,7 @@
+## Created to force ReadTheDocs.org do its job (with polot directive)!
+six
+jsonschema
+jsonpointer
+pandas
+matplotlib
+
