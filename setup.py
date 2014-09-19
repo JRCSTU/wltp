@@ -176,7 +176,6 @@ setup(
         'sphinx>=1.2', # >=1.3
         'sphinx_rtd_theme',
         'coveralls',
-        'pandas', 'matplotlib', # for plot directive
     ],
     tests_require = [
         'nose',

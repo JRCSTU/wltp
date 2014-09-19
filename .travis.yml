@@ -18,7 +18,7 @@ install:
 
 # command to run tests
 script:
-    - ./devtools/run_tests.sh                        # Use bash shell to run doctests & coverage only on p3.
+    - /bin/bash -c ./devtools/run_tests.sh           # A bash shell that runs doctests & coverage only on Python-3.
     - python setup.py build_sphinx                   # Build html-docs.
     - python setup.py --long-description | rst2html.py  --halt=warning            # Ensure README valid ReST for PyPI.
     - python setup.py install

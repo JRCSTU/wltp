@@ -191,7 +191,6 @@ class InstancesTest(unittest.TestCase):
 
     def test_calc_default_resistance_coeffs_missing(self):
         mdl = goodVehicle()
-        del mdl['vehicle']['resistance_coeffs']
         mdl = model.merge(model.model_base(), mdl)
         self.checkModel_valid(mdl)
 
