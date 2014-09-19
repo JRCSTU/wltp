@@ -10,6 +10,7 @@ from __future__ import division, print_function, unicode_literals
 
 import logging
 import unittest
+from wltp import model
 
 import numpy as np
 import numpy.testing as npt
@@ -52,6 +53,35 @@ class experimentFuncs(unittest.TestCase):
         regex = b'\g1\g0|\g24\g66\g127'
 
         self.assertEqual(ex.gearsregex(regex).pattern,  b'\x81\x80|\x98\xc2\xff')
+
+    def test_calc_default_resistance_coeffs(self):
+        tm = 1000 # test_mass
+
+        identity = (1,0)
+        res = ex.calc_default_resistance_coeffs(tm, [identity]*3)
+        print(res)
+        self.assertEqual(res, (tm, tm, tm))
+
+        zero = (0,0)
+        res = ex.calc_default_resistance_coeffs(tm, [zero]*3)
+        print(res)
+        self.assertEqual(res, (0, 0, 0))
+
+        a_num = 123
+        replace = (0, a_num)
+        res = ex.calc_default_resistance_coeffs(tm, [replace]*3)
+        print(res)
+        self.assertEqual(res, (a_num, a_num, a_num))
+
+
+    def test_calc_default_resistance_coeffs_base_model(self):
+        tm = 1000 # test_mass
+
+        bm = model.model_base()
+        regression_curves = bm['params']['resistance_coeffs_regression_curves']
+        res = ex.calc_default_resistance_coeffs(tm, regression_curves)
+        print(res)
+        self.assertEqual(len(res), 3)
 
 
 if __name__ == "__main__":

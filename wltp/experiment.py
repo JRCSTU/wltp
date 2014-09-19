@@ -142,9 +142,15 @@ class Experiment(object):
         n_rated             = vehicle['n_rated']
         n_idle              = vehicle['n_idle']
         n_min_drive         = vehicle['n_min']
-        gear_ratios         = vehicle['gear_ratios']
-        (f0, f1, f2)        = vehicle['resistance_coeffs']
         v_max               = vehicle['v_max']
+        gear_ratios         = vehicle['gear_ratios']
+        res_coeffs          = vehicle.get('resistance_coeffs')
+        if res_coeffs:
+            (f0, f1, f2)        = res_coeffs
+        else:
+            (f0, f1, f2)        = calc_default_resistance_coeffs(test_mass, params['resistance_coeffs_regression_curves'])
+
+
         if (v_max is None):
             v_max = n_rated / gear_ratios[-1]
 
@@ -305,6 +311,15 @@ class Experiment(object):
 ##     testability!  ##
 #######################
 
+
+#    resistance_coeffs_regression_curves
+def calc_default_resistance_coeffs(test_mass, regression_curves):
+    a = regression_curves
+    f0 = a[0][0] * test_mass + a[0][1]
+    f1 = a[1][0] * test_mass + a[1][1]
+    f2 = a[2][0] * test_mass + a[2][1]
+
+    return (f0, f1, f2)
 
 def addDriveabilityMessage(time_step, msg, driveability_issues):
     old = driveability_issues[time_step]

@@ -20,7 +20,7 @@ Known deficiencies
 TODOs
 =====
 * Add cmd-line front-end.
-* Automatically calculate masses and road-load coefficients from H & L vehicles.
+* Automatically calculate masses from H & L vehicles, and regression-curves from categories.
 * wltp_db: Improve test-metrics with group-by classes/phases.
 * wltp_db: Add diagrams auto-generated from test-metrics into generated site (Getting Involved section).
 * wltp_db: Speed-up tests by caching files to read and compare.
@@ -45,6 +45,7 @@ v0.0.9-beta, XX-Aug-2014
 * Backported to Python-2.7.
 * Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced
   by ``driver_mass`` = 75(kg)).
+* Calculate resistance-coefficients from a regression-curve.
 * Possible to overide WLTP-Class, Target-V & Slope, Gears if present in the ``cycle_run`` table.
 * data: Add NEDC cycle, for facilitating comparisons.
 * tests: Include sample-vehicles along with the distribution.

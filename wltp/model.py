@@ -140,10 +140,14 @@ def model_base():
             "n_idle":   None,
             "n_min":    None,
             "gear_ratios":[],
-            "resistance_coeffs":[],
-            'full_load_curve': default_load_curve, # FIXME: Decide load_curtve by engine-type!
+            'full_load_curve': default_load_curve, # FIXME: Decide load_curve by engine-type!
         },
         'params': {
+            'resistance_coeffs_regression_curves': [
+                [1.40E-01, 7.86E-01],
+                [2.75E-05, -3.29E-02],
+                [1.11E-05, 2.03E-02]
+            ],
             'driver_mass':              75,         # kg
             'v_stopped_threshold':      1,          # km/h, <=
             'f_inertial':               1.1,
@@ -239,94 +243,104 @@ def model_schema(additional_properties=False, for_prevalidation=False):
             'vehicle': {
                 'title': 'vehicle model',
                 'type': 'object', 'additionalProperties': additional_properties,
-                'required': ['test_mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'resistance_coeffs', 'full_load_curve'],
+                'required': ['test_mass', 'v_max', 'p_rated', 'n_rated', 'n_idle', 'gear_ratios', 'full_load_curve'],
                 'description': 'The vehicle attributes required for generating the WLTC velocity-profile downscaling and gear-shifts.',
                 'properties': {
-                   'id': {
-                       'title': 'Any identifier for the object',
-                       'type': ['integer', 'string'],
-                   },
-                   'unladen_mass': {
-                       'title': 'vehicle unladen mass',
-                       'type': ['number', 'null'],
-                       'minimum': 0,
-                       'exclusiveMinimum': True,
-                       'description': dedent("""
-                           The mass (kg) of the vehicle without the driver, used to decide its class,
-                           as defined in Annex-4
+                    'id': {
+                        'title': 'Any identifier for the object',
+                        'type': ['integer', 'string'],
+                    },
+                    'unladen_mass': {
+                        'title': 'vehicle unladen mass',
+                        'type': ['number', 'null'],
+                        'minimum': 0,
+                        'exclusiveMinimum': True,
+                        'description': dedent("""
+                            The mass (kg) of the vehicle without the driver, used to decide its class,
+                            as defined in Annex-4
+                            """),
+                    },
+                    'test_mass': {
+                        'title': 'vehicle test mass',
+                        '$ref': '#/definitions/positiveNumber',
+                        'description': dedent("""
+                            The test mass of the vehicle used in all calculations (kg),
+                            as defined in Annex 4.2.1.3.1, pg 94.
                            """),
                     },
-                   'test_mass': {
-                       'title': 'vehicle test mass',
-                       '$ref': '#/definitions/positiveNumber',
-                       'description': dedent("""
-                           The test mass of the vehicle used in all calculations (kg),
-                           as defined in Annex 4.2.1.3.1, pg 94.
-                           """),
-                    },
-                   'v_max': {
-                       'title': 'maximum vehicle velocity',
-                       'type': ['integer', 'null'],
-                       'minimum': 0,
-                       'exclusiveMinimum': True,
-                       'description': dedent("""
-                           The maximum velocity as declared by the manufacturer.
-                           If ommited, calculated as::
+                    'v_max': {
+                        'title': 'maximum vehicle velocity',
+                        'type': ['integer', 'null'],
+                        'minimum': 0,
+                        'exclusiveMinimum': True,
+                        'description': dedent("""
+                            The maximum velocity as declared by the manufacturer.
+                            If ommited, calculated as::
 
-                               v_max = (n_rated * f_n_max (=1.2)) / gear_ratio[last]
-                       """),
-                   },
-                   'p_rated': {
-                       'title': 'maximum rated power',
-                       '$ref': '#/definitions/positiveNumber',
-                       'description': 'The maximum rated engine power as declared by the manufacturer.',
-                   },
-                   'n_rated': {
-                       'title': 'rated engine revolutions',
-                       '$ref': '#/definitions/positiveNumber',
-                       'description': dedent("""
-                           The rated engine revolutions at which an engine develops its maximum power.
-                           If the maximum power is developed over an engine revolutions range,
-                           it is determined by the mean of this range.
-                           This is called 's' in the specs.
-                       """),
+                                v_max = (n_rated * f_n_max (=1.2)) / gear_ratio[last]
+                        """),
                     },
-                   'n_idle': {
-                       'title': 'idling revolutions',
-                       '$ref': '#/definitions/positiveNumber',
-                       'description': 'The idling engine revolutions (Annex 1).',
+                    'p_rated': {
+                        'title': 'maximum rated power',
+                        '$ref': '#/definitions/positiveNumber',
+                        'description': 'The maximum rated engine power as declared by the manufacturer.',
                     },
-                   'n_min': {
-                       'title': 'minimum engine revolutions',
-                       'type': ['integer', 'null'],
-                       'description': dedent("""
+                    'n_rated': {
+                        'title': 'rated engine revolutions',
+                        '$ref': '#/definitions/positiveNumber',
+                        'description': dedent("""
+                            The rated engine revolutions at which an engine develops its maximum power.
+                            If the maximum power is developed over an engine revolutions range,
+                            it is determined by the mean of this range.
+                            This is called 's' in the specs.
+                        """),
+                    },
+                    'n_idle': {
+                        'title': 'idling revolutions',
+                        '$ref': '#/definitions/positiveNumber',
+                        'description': 'The idling engine revolutions (Annex 1).',
+                    },
+                    'n_min': {
+                        'title': 'minimum engine revolutions',
+                        'type': ['integer', 'null'],
+                        'description': dedent("""
                         minimum engine revolutions for gears > 2 when the vehicle is in motion. The minimum value
                         is determined by the following equation::
                             n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
                         Higher values may be used if requested by the manufacturer, by setting this one.
                        """),
                     },
-                   'gear_ratios': {
-                       'title': 'gear ratios',
-                       '$ref': '#/definitions/positiveNumbers',
-                       'maxItems': 24,
-                       'minItems': 3,
-                       'description':
-                       'An array with the gear-ratios obtained by dividing engine-revolutions (1/min) by vehicle-velocity (km/h).',
+                    'gear_ratios': {
+                        'title': 'gear ratios',
+                        '$ref': '#/definitions/positiveNumbers',
+                        'maxItems': 24,
+                        'minItems': 3,
+                        'description':
+                        'An array with the gear-ratios obtained by dividing engine-revolutions (1/min) by vehicle-velocity (km/h).',
                     },
-                   'resistance_coeffs': {
-                       'title': 'driving resistance coefficients',
-                       'type': 'array', 'items': {'type': 'number'},
-                       'minItems': 3,
-                       'maxItems': 3,
-                       'description': dedent("""
-                           The 3 driving resistance coefficients f0, f1, f2,
-                           in N, N/(km/h), and N/(km/h)² respectively (Annex 4).
+                    'resistance_coeffs': {
+                        'title': 'driving resistance coefficients',
+                        'type': ['null', 'array'],
+                        'items': {'type': 'number'},
+                        'minItems': 3,
+                        'maxItems': 3,
+                        'description': dedent("""
+                            The 3 driving resistance coefficients f0, f1, f2,
+                            in N, N/(km/h), and N/(km/h)² respectively (Annex 4).
+
+                            If not specified, they are determined based on ``test_mass`` from
+                            a pre-calculated regression curve:
+
+                                f0 = a00 * test_mass + a01,
+                                f1 = a10 * test_mass + a11,
+                                f2 = a20 * test_mass + a21,
+
+                            where ``a00, ..., a22`` specified in ``/params``.
                         """),
                     },
-                   'full_load_curve': {
-                       'title': 'full load power curve',
-                       'description': dedent("""
+                    'full_load_curve': {
+                        'title': 'full load power curve',
+                        'description': dedent("""
                             An array holding the full load power curve in (at least) 2 columns
                             Example::
 
@@ -341,8 +355,8 @@ def model_schema(additional_properties=False, for_prevalidation=False):
 
                             * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
                               within [0, 1]: :math:`p_norm = p / p_rated`
-                       """),
-                       'type': [ 'object', 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
+                        """),
+                        'type': [ 'object', 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
                     },
                     'pmr': {
                         'description': 'Power_To_unladen-Mass ratio (kg).',
@@ -358,6 +372,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                 'title': 'experiment parameters',
                 'type': 'object', 'additionalProperties': additional_properties,
                 'required': [
+                    'resistance_coeffs_regression_curves',
                     'driver_mass',
                     'v_stopped_threshold',
                     'f_inertial',
@@ -368,6 +383,18 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                     'f_n_clutch_gear2',
                 ],
                 'properties': {
+                    'resistance_coeffs_regression_curves': {
+                        'description': "Regression curve factors for calculating vehicle's ``resistance_coeffs`` when missing.",
+                        'type': 'array',
+                        'minItems': 3,
+                        'maxItems': 3,
+                        'items': {
+                            'type': 'array',
+                            'minItems': 2,
+                            'maxItems': 2,
+                            'items': {'type': 'number'},
+                        },
+                    },
                     'driver_mass': {
                         'title': "Driver's mass (kg)",
                         'description': "The mass (kg) of the vehicle's driver, where: Unladen_mass = (Test_mass - driver_mass) (Annex 1-3.2.6, p9).",

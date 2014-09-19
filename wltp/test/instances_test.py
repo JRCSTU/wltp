@@ -189,6 +189,20 @@ class InstancesTest(unittest.TestCase):
             mdl['vehicle']['full_load_curve'] = c
             self.checkModel_invalid(mdl, ex=ValidationError)
 
+    def test_calc_default_resistance_coeffs_missing(self):
+        mdl = goodVehicle()
+        del mdl['vehicle']['resistance_coeffs']
+        mdl = model.merge(model.model_base(), mdl)
+        self.checkModel_valid(mdl)
+
+    def test_calc_default_resistance_coeffs_None(self):
+        mdl = goodVehicle()
+        mdl['vehicle']['resistance_coeffs'] = None
+        mdl = model.merge(model.model_base(), mdl)
+        self.checkModel_valid(mdl)
+
+
+
 
 
 if __name__ == "__main__":
