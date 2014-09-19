@@ -23,8 +23,10 @@ import re
 import sys
 from textwrap import dedent
 
+from argparse import ArgumentTypeError
 import argparse
 from pandas.core.generic import NDFrame
+import six
 
 import jsonpointer as jsonp
 import jsonschema as jsons
@@ -244,7 +246,7 @@ def parse_key_value_pair(arg):
             try:
                 value   = _value_parsers[type_sym](value)
             except Exception as ex:
-                raise argparse.ArgumentTypeError("Failed parsing key(%s)%s=VALUE(%s) due to: %s" %(key, type_sym, value, ex)) from ex
+                raise six.reraise(ArgumentTypeError, ("Failed parsing key(%s)%s=VALUE(%s) due to: %s" %(key, type_sym, value, ex)), ex.__traceback__) ## Python-2 :-(
 
         return [key, value]
     else:
@@ -407,13 +409,13 @@ def load_model_part(mdl, filespec):
 
 def assemble_model(infiles, model_overrides):
 
-    mdl = model.base_model()
+    mdl = model.model_base()
 
     for filespec in infiles:
         try:
             mdl = load_model_part(mdl, filespec)
         except Exception as ex:
-            raise Exception("Failed reading %s due to: %s" %(filespec, ex)) from ex
+            raise six.reraise(Exception, ("Failed reading %s due to: %s" %(filespec, ex)), ex.__traceback__) ## Python-2 :-(
 
     if (model_overrides):
         model_overrides = functools.reduce(lambda x,y: x+y, model_overrides) # join all -m
@@ -423,7 +425,7 @@ def assemble_model(infiles, model_overrides):
                     json_path = _default_model_overridde_path + json_path
                 jsonp.set_pointer(mdl, json_path, value)
             except Exception as ex:
-                raise Exception("Failed setting model-value(%s) due to: %s" %(json_path, value, ex)) from ex
+                raise six.reraise(Exception, ("Failed setting model-value(%s) due to: %s" %(json_path, value, ex)), ex.__traceback__) ## Python-2 :-(
 
     return mdl
 
@@ -455,7 +457,7 @@ def store_model_parts(mdl, outfiles):
             else:
                 store_part_as_df(filespec, part)
         except Exception as ex:
-            raise Exception("Failed storing %s due to: %s" %(filespec, ex)) from ex
+            raise six.reraise(Exception, ("Failed storing %s due to: %s" %(filespec, ex)), ex.__traceback__) ## Python-2 :-(
 
 class RawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
     """Help message formatter which retains formatting of all help text.

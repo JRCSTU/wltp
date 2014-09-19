@@ -23,6 +23,19 @@ try:
 except:
     assertRaisesRegex = unittest.TestCase.assertRaisesRegexp
 
+## Python-2 compatibility
+#
+try:
+    FileNotFoundError
+except NameError:
+    FileNotFoundError = IOError  # @ReservedAssignment
+else:
+    FileNotFoundError = FileNotFoundError  # @ReservedAssignment
+
+def raise_ex_from(ex_class, chained_ex, *args, **kwds):
+ from six import reraise
+
+
 ##############
 #  Utilities
 #

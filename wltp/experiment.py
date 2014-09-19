@@ -612,8 +612,7 @@ def gearsregex(gearspattern):
                             \g124|\g7 --> unicode(128+124=252)|unicode(128+7=135)
     '''
 
-    assert          isinstance(gearspattern, bytes), 'Not bytes: %s' % gearspattern
-    #gearspattern = str(gearspattern) # For python-2 to work with __future__.unicode_literals.
+    assert          isinstance(gearspattern, bytes), 'Not bytes: %s' % gearspattern # For python-2 to work with __future__.unicode_literals.
 
     regex           = _regex_gears2regex.sub(dec_byte_repl, gearspattern)
     return          re.compile(regex)

@@ -9,7 +9,7 @@ To check for remaining errors, install ``sphinx`` and run::
 
 """
 
-from __future__ import print_function, unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 import re
 import sys, io

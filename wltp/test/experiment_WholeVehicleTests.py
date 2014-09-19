@@ -21,14 +21,9 @@ import numpy as np
 import numpy.testing as npt
 
 from ..experiment import Experiment
+from ..utils import FileNotFoundError
 from .goodvehicle import goodVehicle
 
-## Python-2 compatibility
-#
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError  # @ReservedAssignment
 
 log = logging.getLogger(__name__)
 

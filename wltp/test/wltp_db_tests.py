@@ -21,8 +21,6 @@ import os
 import re
 import unittest
 from unittest.case import skip
-from wltp.experiment import Experiment
-from wltp.test.goodvehicle import goodVehicle
 
 from six import string_types
 
@@ -30,13 +28,10 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 
+from ..experiment import Experiment
+from ..utils import FileNotFoundError
+from .goodvehicle import goodVehicle
 
-## Python-2 compatibility
-#
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError  # @ReservedAssignment
 
 overwrite_old_results = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
 
@@ -793,7 +788,7 @@ def _compare_exp_results(tabular, outfname, run_comparison):
             #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
             # else:
             #     print('>> COMPARING(%s): OK'%fname)
-        except OSError as ex:  # @UnusedVariable
+        except FileNotFoundError:
             print('>> COMPARING(%s): No old-tabular found, 1st time to run' % outfname)
             run_comparison = False
 
