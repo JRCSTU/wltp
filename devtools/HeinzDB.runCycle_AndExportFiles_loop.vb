@@ -1,6 +1,6 @@
 1. REPLACE CLASS 1
 2. Add vehicle_ids i ...
-2. Execut:
+2. Execute:
     Private Sub JRC_save_all_vehicles()
         Dim wotIds(1 To 2) As Integer
         Dim engines(1 To 2)

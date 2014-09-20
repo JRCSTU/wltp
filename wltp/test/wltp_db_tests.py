@@ -680,9 +680,6 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
         veh['gear_ratios'] = list(row['ndv_1':'ndv_%s'%ngears]) #'ndv_1'
         veh['full_load_curve'] = _select_wot(wots, row['IDcat'] == 2)
 
-        ## Override always class-3.
-        veh['wltc_class'] = 'class3b'
-
         if (transplant_original_gears):
             log.warning(">>> Transplanting gears from Heinz's!")
             df_h = _read_heinz_file(veh_num)
