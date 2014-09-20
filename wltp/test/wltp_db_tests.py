@@ -33,10 +33,10 @@ from ..utils import FileNotFoundError
 from .goodvehicle import goodVehicle
 
 
-overwrite_old_results = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
+overwrite_old_results   = True # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
+force_rerun             = False
 
 mydir = os.path.dirname(__file__)
-force_rerun = False
 samples_dir = 'wltp_db'
 vehs_data_inp_fname = 'wltp_db_vehicles.csv'
 gened_fname_regex = r'.*wltp_db_vehicles-(\d+).csv'

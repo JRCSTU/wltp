@@ -36,8 +36,8 @@ TODOs
 .. todolist::
 
 
-Changelog
-=========
+Releases
+========
 
 
 v0.0.9-beta, XX-Aug-2014
@@ -46,21 +46,20 @@ This is practically the 2nd public-release, reworked in many parts, continuously
 BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and metrics
 can describe the evolution of the core.
 
-Some incompatilble changes in this release:
+Important/*incompatilble* changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * Code::
-
-    package wltc        --> wltp
-    class Experiment    --> Processor
+    * package ``wltc``  --> ``wltp``
+    * class ``Experiment``    --> ``Processor``
 
 * Model changes::
-
-    /vehicle
-        +--mass --> (test_mass, unladen_mass)
-        +--cycle_run  ## If present, forces to override parts of the calculation.
+    * ``/vehicle/mass`` --> (``test_mass`` and ``unladen_mass``)
+    * ``/cycle_run``: If present, (some of) its columns override the calculation.
 
 
-More specifically:
+Changelog
+^^^^^^^^^
 
 * Backported to Python-2.7.
 * model, core: Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced

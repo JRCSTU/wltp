@@ -148,6 +148,7 @@ def model_base():
                 [2.75E-05, -3.29E-02],
                 [1.11E-05, 2.03E-02]
             ],
+            'f_downscale_threshold':    0.01,
             'driver_mass':              75,         # kg
             'v_stopped_threshold':      1,          # km/h, <=
             'f_inertial':               1.1,
@@ -395,6 +396,12 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                             'maxItems': 2,
                             'items': {'type': 'number'},
                         },
+                    },
+                    'f_downscale_threshold': {
+                        'title': "Downscale-factor threshold",
+                        'description': "The limit for the calculated ``f_downscale``` below which no downscaling happens.",
+                        'type': [ 'number', 'null'],
+                        'default': 0.01,
                     },
                     'driver_mass': {
                         'title': "Driver's mass (kg)",
