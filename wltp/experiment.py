@@ -123,9 +123,9 @@ class Experiment(object):
         results             = model.get('cycle_run')
         if results is None:
             results             = pd.DataFrame()
-            log.info('Found forced `cycle-run` table(%ix%i).', results.shape[0], results.shape[1])
         else:
             results             = pd.DataFrame(results)
+            log.info('Found forced `cycle-run` table(%ix%i).', results.shape[0], results.shape[1])
         model['cycle_run']  = results
 
         ## Ensure Time-steps start from 0 (not 1!).
@@ -506,7 +506,7 @@ def possibleGears_byEngineRevs(V, A, _N_GEARS,
     #
     _GEARS_BAD = CLUTCH      = (~GEARS_YES_MIN).all(axis=0) ## TODO: Clutch on gear2 (f=will be fixed when add also CLUTCH_GEARS)
     GEARS_YES_MIN[0, _GEARS_BAD]                     = True # Revert to min-gear.
-    addDriveabilityProblems(_GEARS_BAD, 'g1: Revolutions too low!', driveability_issues)
+    #addDriveabilityProblems(_GEARS_BAD, 'g1: Revolutions too low!', driveability_issues)
 
     _GEARS_YES               = (GEARS_YES_MIN & GEARS_YES_MAX)
 
