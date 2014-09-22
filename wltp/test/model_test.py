@@ -42,18 +42,6 @@ class Test(unittest.TestCase):
         mdl = exp._model
         self.assertEqual(mdl['vehicle']['n_rated'], nval)
 
-    def testMultiErrors(self):
-        mdl = goodVehicle()
-        mdl['vehicle'].update({
-            "n_rated":-1,
-            "n_idle":-2,
-        })
-
-        exp = Experiment(mdl, skip_model_validation=True)
-        errors = list(exp.validate(iter_errors=True))
-        self.assertIsNotNone(errors)
-        self.assertEqual(len(errors), 2)
-
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

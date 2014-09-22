@@ -38,7 +38,7 @@ class ExperimentDownscale(unittest.TestCase):
         f_inertial  = 1.1 #constant
         ## Decide WLTC-class.
         #
-        wltc                    = model.wltc_data()
+        wltc                    = model._get_wltc_data()
         wltc_class              = decideClass(wltc, p_rated/mass, v_max)
         class_data              = wltc['classes'][wltc_class]
         cycle                   = np.asarray(class_data['cycle'], dtype=dtp)
@@ -65,7 +65,7 @@ class ExperimentDownscale(unittest.TestCase):
 
         dtp                     = np.float64
 
-        wltc    = model.wltc_data()
+        wltc    = model._get_wltc_data()
         wclasses = wltc['classes']
         for wclass in wclasses.keys():
             for f_downscale in np.arange(0, 4, 0.1):

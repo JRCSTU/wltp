@@ -90,7 +90,7 @@ def make_class_fig(class_name, class_data):
 if __name__ == '__main__':
     os.chdir(path.dirname(__file__))
 
-    wltc_data = model.wltc_data()
+    wltc_data = model._get_wltc_data()
     for (class_name, class_data) in wltc_data['classes'].items():
         fig = make_class_fig(class_name, class_data)
 

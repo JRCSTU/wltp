@@ -55,7 +55,7 @@ def json_dumps(obj, pd_method=None, **kwargs):
 def json_dump(obj, fp, pd_method=None, **kwargs):
     json.dump(obj, fp, default=make_json_defaulter(pd_method), **kwargs)
 
-def model_base():
+def _get_model_base():
     """The base model for running a WLTC experiment.
 
     It contains some default values for the experiment (ie the default 'full-load-curve' for the vehicles).
@@ -157,7 +157,7 @@ def model_base():
             'f_n_min_gear2':            0.9,
             'f_n_clutch_gear2':         [1.15, 0.03],
 
-            'wltc_data':                wltc_data(),
+            'wltc_data':                _get_wltc_data(),
         }
     }
 
@@ -165,7 +165,7 @@ def model_base():
 
 
 def default_vehicle():
-    return model_base()['vehicle']
+    return _get_model_base()['vehicle']
 
 def default_load_curve():
     return default_vehicle()['full_load_curve']
@@ -184,7 +184,7 @@ def results_base():
     return instance
 
 
-def wltc_data():
+def _get_wltc_data():
     """The WLTC-data required to run an experiment (the class-cycles and their attributes)..
 
     :return: a tree
@@ -232,7 +232,7 @@ def merge(a, b, path=[]):
 
 _url_model = 'http:/wltp.ankostis.io/model'
 _url_wltc = 'http:/wltp.ankostis.io/wltc'
-def model_schema(additional_properties=False, for_prevalidation=False):
+def _get_model_schema(additional_properties=False, for_prevalidation=False):
     """
     :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
     :return: The json-schema(dict) for input/output of the WLTC experiment.
@@ -485,7 +485,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
 
     return schema
 
-def wltc_schema():
+def _get_wltc_schema():
     """The json-schema for the WLTC-data required to run a WLTC experiment.
 
     :return :dict:
@@ -577,20 +577,16 @@ def wltc_schema():
     return schema
 
 
-def wltc_validator():
-    schema = wltc_schema()
-    return Draft4Validator(schema)
-
-
-def model_validator(additional_properties=False):
-    schema = model_schema(additional_properties)
-    resolver = RefResolver(_url_model, schema, store={_url_wltc: wltc_schema()})
+def model_validator(additional_properties=False, validate_wltc_data=False):
+    schema = _get_model_schema(additional_properties)
+    wltc_schema = _get_wltc_schema() if validate_wltc_data else {}
+    resolver = RefResolver(_url_model, schema, store={_url_wltc: wltc_schema})
     validator = Draft4Validator(schema, resolver=resolver)
     validator._types.update({"ndarray": np.ndarray, "DataFrame" : pd.DataFrame, 'Series':pd.Series})
 
     return validator
 
-def validate_model(mdl, additional_properties=False, iter_errors=False):
+def validate_model(mdl, additional_properties=False, iter_errors=False, validate_wltc_data=False):
     """
     :param bool iter_errors: does not fail, but returns a generator of ValidationErrors
 
@@ -599,13 +595,13 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
     jsonschema.exceptions.ValidationError: None is not of type 'object'
     ...
 
-    >>> mdl = model_base()
+    >>> mdl = _get_model_base()
     >>> err_generator = validate_model(mdl, iter_errors=True)
     >>> sorted(err_generator, key=hash)
     [<ValidationError:
     ...
 
-    >>> mdl = model_base()
+    >>> mdl = _get_model_base()
     >>> mdl["vehicle"].update({
     ...     "unladen_mass":1230,
     ...     "test_mass":   1300,
@@ -622,7 +618,7 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
     0
     """
 
-    validator = model_validator(additional_properties=additional_properties)
+    validator = model_validator(additional_properties=additional_properties, validate_wltc_data=validate_wltc_data)
     validators = [
         validator.iter_errors(mdl),
         yield_load_curve_errors(mdl),
@@ -712,6 +708,6 @@ def yield_forced_cycle_errors(mdl, additional_properties):
 
 
 if __name__ == '__main__':
-    print('Model: %s' % json.dumps([model_schema(), wltc_schema()], indent=1))
-    print('Model: %s' % json.dumps(model_base(), indent=1))
+    print('Model: %s' % json.dumps([_get_model_schema(), _get_wltc_schema()], indent=1))
+    print('Model: %s' % json.dumps(_get_model_base(), indent=1))
 
