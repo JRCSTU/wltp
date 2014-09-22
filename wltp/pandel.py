@@ -212,7 +212,7 @@ class PandelVisitor(ValidatorBase):
 
 
     ##################################
-    ######## Visiting and Rules ######
+    ############ Visiting ###########
     ##################################
 
     def _get_iprop(self, instance, prop):
@@ -237,6 +237,53 @@ class PandelVisitor(ValidatorBase):
     def _iter_iitems(self, instance):
         return instance
 
+
+
+    def iter_errors(self, instance, _schema=None):
+        if _schema is None:
+            _schema = self.schema
+
+        sid = _schema.get("id")
+        with self.resolver.in_scope(sid):
+            for err in self._iter_errors(instance, _schema):
+                yield err
+
+#         is_scope = sid and not sid == '#'
+#         if is_scope:
+#             with self.resolver.in_scope(sid):
+#                 self._iter_errors(instance, _schema)
+#         else:
+#             self._iter_errors(instance, _schema)
+
+    def _iter_errors(self, instance, _schema):
+        ref = _schema.get("$ref")
+        if ref is not None:
+            validators = [("$ref", ref)]
+        else:
+            validators = self._iter_iprop_pairs(_schema)
+
+        for k, v in validators:
+            validator = self.VALIDATORS.get(k)
+            if validator is None:
+                continue
+
+            errors = validator(self, v, instance, _schema) or ()
+            for error in errors:
+                # set details if not already set by the called fn
+                error._set(
+                    validator=k,
+                    validator_value=v,
+                    instance=instance,
+                    schema=_schema,
+                )
+                if k != "$ref":
+                    error.schema_path.appendleft(k)
+                yield error
+
+
+    ##################################
+    ############# Rules ##############
+    ##################################
 
     def _rule_properties_draft4(self, sprops, instance, schema):
         if not self.is_type(instance, "object"):

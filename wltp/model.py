@@ -18,8 +18,9 @@ import json
 import logging
 from textwrap import dedent
 from wltp.cycles import (class1, class2, class3)
+from wltp.pandel import PandelVisitor
 
-from jsonschema import (Draft4Validator, RefResolver, ValidationError)
+from jsonschema import (RefResolver, ValidationError)
 import jsonschema
 from numpy import ndarray
 from pandas.core.common import PandasError
@@ -361,7 +362,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                             * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
                               within [0, 1]: :math:`p_norm = p / p_rated`
                         """),
-                        'type': [ 'object', 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
+                        'type': [ 'object', 'array', 'null'],
                     },
                     'pmr': {
                         'description': 'Power_To_unladen-Mass ratio (kg).',
@@ -581,8 +582,7 @@ def model_validator(additional_properties=False, validate_wltc_data=False):
     schema = _get_model_schema(additional_properties)
     wltc_schema = _get_wltc_schema() if validate_wltc_data else {}
     resolver = RefResolver(_url_model, schema, store={_url_wltc: wltc_schema})
-    validator = Draft4Validator(schema, resolver=resolver)
-    validator._types.update({"ndarray": np.ndarray, "DataFrame" : pd.DataFrame, 'Series':pd.Series})
+    validator = PandelVisitor(schema, resolver=resolver)
 
     return validator
 
