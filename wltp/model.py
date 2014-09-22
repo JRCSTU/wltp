@@ -19,8 +19,7 @@ import logging
 from textwrap import dedent
 from wltp.cycles import (class1, class2, class3)
 
-from jsonschema import Draft4Validator
-from jsonschema import ValidationError
+from jsonschema import (Draft4Validator, RefResolver, ValidationError)
 import jsonschema
 from numpy import ndarray
 from pandas.core.common import PandasError
@@ -157,6 +156,8 @@ def model_base():
             'f_n_min':                  0.125,
             'f_n_min_gear2':            0.9,
             'f_n_clutch_gear2':         [1.15, 0.03],
+
+            'wltc_data':                wltc_data(),
         }
     }
 
@@ -229,7 +230,8 @@ def merge(a, b, path=[]):
 
 
 
-
+_url_model = 'http:/wltp.ankostis.io/model'
+_url_wltc = 'http:/wltp.ankostis.io/wltc'
 def model_schema(additional_properties=False, for_prevalidation=False):
     """
     :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
@@ -238,6 +240,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
 
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
+        'id': _url_model,
         'title': 'Json-schema describing the input for a WLTC experiment.',
         'type': 'object', 'additionalProperties': additional_properties,
         'required': ['vehicle'],
@@ -383,6 +386,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                     'f_n_min',
                     'f_n_min_gear2',
                     'f_n_clutch_gear2',
+                    'wltc_data',
                 ],
                 'properties': {
                     'resistance_coeffs_regression_curves': {
@@ -452,6 +456,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                         'description': 'The downscaling-factor as calculated by the experiment (Annex 1-7.3, p68).',
                         'type': 'number',
                     },
+                    'wltc_data': {'$ref': _url_wltc},
                 }
             },
             'cycle_run': {}, #TODO: results(cycle) model-schema.
@@ -475,34 +480,6 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                 'type': 'array',
                'items': { '$ref': '#/definitions/positiveNumber' },
             },
-            'mergeableArray': {
-                'type': 'object', '': False,
-                'required': ['$merge', '$list'],
-                'properties': {
-                    '$merge': {
-                        'enum': ['merge', 'replace', 'append_head', 'append_tail', 'overwrite_head', 'overwrite_tail'],
-                        'description': dedent("""
-                            merge       := appends any non-existent elements
-                            replace     := (default) all items replaced
-                        """),
-                    },
-                    '$list': {
-                        'type': 'array',
-                    }
-                },
-            },
-            'mergeableObject': {
-                'type': 'object',
-                'properties': {
-                    '$merge': {
-                        'type': 'boolean',
-                        'description': dedent("""
-                            true    := (default) merge properties
-                            false   := replace properties
-                        """),
-                    },
-                },
-            },
         }
     }
 
@@ -516,6 +493,7 @@ def wltc_schema():
 
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
+        'id': _url_wltc,
         'title': 'WLTC data',
         'type': 'object', 'additionalProperties': False,
         'required': ['classes'],
@@ -524,10 +502,10 @@ def wltc_schema():
                 'type': 'object', 'additionalProperties': False,
                 'required': ['class1', 'class2', 'class3a', 'class3b'],
                 'properties': {
-                    'class1': {'$ref': '#/definitions/class'},
-                    'class2': {'$ref': '#/definitions/class'},
-                    'class3a': {'$ref': '#/definitions/class'},
-                    'class3b': {'$ref': '#/definitions/class'},
+                    'class1': {'$ref': '#definitions/class'},
+                    'class2': {'$ref': '#definitions/class'},
+                    'class3a': {'$ref': '#definitions/class'},
+                    'class3b': {'$ref': '#definitions/class'},
                 }
             },
         },
@@ -563,9 +541,7 @@ def wltc_schema():
                         'properties': {
                             'phases': {
                                 'type': 'array', 'additionalItems': False,
-                                'items': {
-                                    'type': 'integer'
-                                },
+                                'items': {'$ref': 'model#definitions/positiveInteger'},
                                 'maxItems': 3, 'minItems': 3,
                             },
                             'decel_phase': {
@@ -608,7 +584,8 @@ def wltc_validator():
 
 def model_validator(additional_properties=False):
     schema = model_schema(additional_properties)
-    validator = Draft4Validator(schema)
+    resolver = RefResolver(_url_model, schema, store={_url_wltc: wltc_schema()})
+    validator = Draft4Validator(schema, resolver=resolver)
     validator._types.update({"ndarray": np.ndarray, "DataFrame" : pd.DataFrame, 'Series':pd.Series})
 
     return validator
