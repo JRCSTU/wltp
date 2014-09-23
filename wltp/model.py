@@ -15,17 +15,17 @@ from __future__ import division, print_function, unicode_literals
 
 from collections import Mapping
 import json
-import logging
-from textwrap import dedent
-from wltp.cycles import (class1, class2, class3)
-from wltp.pandel import PandelVisitor
-
 from jsonschema import (RefResolver, ValidationError)
 import jsonschema
+import logging
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
+from textwrap import dedent
+
+from wltp.cycles import (class1, class2, class3)
+from wltp.pandel import PandelVisitor
 
 import itertools as it
 import numpy as np
@@ -231,8 +231,8 @@ def merge(a, b, path=[]):
 
 
 
-_url_model = 'http:/wltp.ankostis.io/model'
-_url_wltc = 'http:/wltp.ankostis.io/wltc'
+_url_model = '/model'
+_url_wltc = '/wltc'
 def _get_model_schema(additional_properties=False, for_prevalidation=False):
     """
     :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
@@ -582,7 +582,7 @@ def model_validator(additional_properties=False, validate_wltc_data=False):
     schema = _get_model_schema(additional_properties)
     wltc_schema = _get_wltc_schema() if validate_wltc_data else {}
     resolver = RefResolver(_url_model, schema, store={_url_wltc: wltc_schema})
-    validator = PandelVisitor(schema, resolver=resolver)
+    validator = PandelVisitor(schema, resolver=resolver, skip_meta_validation=True)
 
     return validator
 

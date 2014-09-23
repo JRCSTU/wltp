@@ -14,14 +14,14 @@ import abc
 from collections import Mapping, Sequence
 from collections import OrderedDict, namedtuple
 import contextlib
-import numbers
-import re
-
 from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
 from jsonschema.exceptions import SchemaError
+import numbers
 from pandas.core.generic import NDFrame
+import re
 from six import string_types
+from urllib.parse import urljoin
 
 import numpy as np
 import pandas as pd
@@ -185,14 +185,6 @@ class PandelVisitor(ValidatorBase):
         #    with original validators (and not self)
         #    because this class inherits an empty (schema/rules) validator.
         validator_class = jsonschema.validators.validator_for(schema)  ## Falls back to 'Draft4' if no `$schema` exists.
-        ## Cannot use ``validator_class.check_schema()`` because
-        #    need to relay my args to ``validator_class.__init__()``.
-        #validator_class.check_schema(schema)
-        if not skip_meta_validation:
-            v = validator_class(validator_class.META_SCHEMA, types=types, resolver=resolver, format_checker=format_checker)
-            for error in v.iter_errors(schema):
-                raise SchemaError.create_from(error)
-
         self.VALIDATORS = validator_class.VALIDATORS.copy()
         self.META_SCHEMA = validator_class.META_SCHEMA
         self.VALIDATORS.update({
@@ -210,6 +202,14 @@ class PandelVisitor(ValidatorBase):
                 'required':             PandelVisitor._rule_required_draft4,
             })
 
+        self.old_scopes = []
+
+        ## Cannot use ``validator_class.check_schema()`` because
+        #    need to relay my args to ``validator_class.__init__()``.
+        # Even better use myself, that i'm fatser (kind of...).
+        if not skip_meta_validation:
+            for error in self.iter_errors(schema, validator_class.META_SCHEMA):
+                raise SchemaError.create_from(error)
 
     ##################################
     ############ Visiting ###########
@@ -243,19 +243,13 @@ class PandelVisitor(ValidatorBase):
         if _schema is None:
             _schema = self.schema
 
-        sid = _schema.get("id")
-        with self.resolver.in_scope(sid):
-            for err in self._iter_errors(instance, _schema):
-                yield err
+        scope = _schema.get("id")
+        has_scope = scope and scope != "#"
+        if has_scope:
+            old_scope = self.resolver.resolution_scope
+            self.old_scopes.append(old_scope)
+            self.resolver.resolution_scope = urljoin(old_scope, scope)
 
-#         is_scope = sid and not sid == '#'
-#         if is_scope:
-#             with self.resolver.in_scope(sid):
-#                 self._iter_errors(instance, _schema)
-#         else:
-#             self._iter_errors(instance, _schema)
-
-    def _iter_errors(self, instance, _schema):
         ref = _schema.get("$ref")
         if ref is not None:
             validators = [("$ref", ref)]
@@ -279,6 +273,9 @@ class PandelVisitor(ValidatorBase):
                 if k != "$ref":
                     error.schema_path.appendleft(k)
                 yield error
+
+        if has_scope:
+            self.resolver.resolution_scope = self.old_scopes.pop()
 
 
     ##################################

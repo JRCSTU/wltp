@@ -12,10 +12,11 @@ Testing of the pure-tree data (just dictionary & lists), without the Model/Exper
 from __future__ import division, print_function, unicode_literals
 
 import json
-import unittest
-
 import jsonschema
 from jsonschema.exceptions import ValidationError
+from timeit import timeit
+import unittest
+
 import numpy as np
 
 from .. import model
