@@ -663,26 +663,31 @@ class TestDraft4Validator(ValidatorTestMixin, unittest.TestCase):
 
 class TestSchemaIsChecked(unittest.TestCase):  ## Was: class TestValidate
     def test_draft3_validator_is_chosen(self):
+        pv = PandelVisitor({})
         schema = {"$schema" : "http://json-schema.org/draft-03/schema#"}
-        with mock.patch.object(Draft3Validator, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
-            validate({}, schema)
-            chk_schema.assert_called_once_with(schema)
+        with mock.patch.object(pv, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
+            pv.validate({}, schema)
+            chk_schema.assert_called_once_with({}, schema)
+
         # Make sure it works without the empty fragment
+        pv = PandelVisitor({})
         schema = {"$schema" : "http://json-schema.org/draft-03/schema"}
-        with mock.patch.object(Draft3Validator, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
-            validate({}, schema)
-            chk_schema.assert_called_once_with(schema)
+        with mock.patch.object(pv, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
+            pv.validate({}, schema)
+            chk_schema.assert_called_once_with({}, schema)
 
     def test_draft4_validator_is_chosen(self):
+        pv = PandelVisitor({})
         schema = {"$schema" : "http://json-schema.org/draft-04/schema#"}
-        with mock.patch.object(Draft4Validator, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
-            validate({}, schema)
-            chk_schema.assert_called_once_with(schema)
+        with mock.patch.object(pv, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
+            pv.validate({}, schema)
+            chk_schema.assert_called_once_with({}, schema)
 
     def test_draft4_validator_is_the_default(self):
-        with mock.patch.object(Draft4Validator, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
-            validate({}, {})
-            chk_schema.assert_called_once_with({})
+        pv = PandelVisitor({})
+        with mock.patch.object(pv, "iter_errors", return_value=()) as chk_schema:      # @UndefinedVariable
+            pv.validate({}, {})
+            chk_schema.assert_called_once_with({}, {})
 
 
 
