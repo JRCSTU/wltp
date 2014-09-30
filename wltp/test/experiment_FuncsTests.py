@@ -17,7 +17,7 @@ import numpy.testing as npt
 import wltp.experiment as ex
 
 from ..experiment import downscaleCycle
-from ..model import wltc_data
+from ..model import _get_wltc_data
 from ..utils import assertRaisesRegex
 
 
@@ -26,7 +26,7 @@ class experimentFuncs(unittest.TestCase):
         logging.basicConfig(level=logging.DEBUG)
 
     def testDownscaling(self):
-        wclasses = wltc_data()['classes']
+        wclasses = _get_wltc_data()['classes']
         test_data = [(np.array(wclass['cycle']), wclass['downscale']['phases'], f_downscale)
                     for wclass in wclasses.values()
                     for f_downscale in np.linspace(0.1, 1, 10)]
@@ -77,7 +77,7 @@ class experimentFuncs(unittest.TestCase):
     def test_calc_default_resistance_coeffs_base_model(self):
         tm = 1000 # test_mass
 
-        bm = model.model_base()
+        bm = model._get_model_base()
         regression_curves = bm['params']['resistance_coeffs_regression_curves']
         res = ex.calc_default_resistance_coeffs(tm, regression_curves)
         print(res)

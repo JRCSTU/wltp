@@ -40,11 +40,13 @@ Releases
 ========
 
 
-v0.0.9-beta, XX-Sep-2014
+v0.0.9-alpha1, 30-Sep-2014
 ------------------------
-This is practically the 2nd public-release, reworked in many parts, continuously tested and much better documented,
+This is practically the 2nd public-release, reworked in many parts, and much better documented and
+continuously tested and build using TravisCI,
 BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and metrics
-can describe the evolution of the core algorithm.
+still describe this core.
+
 
 Important/*incompatilble* changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

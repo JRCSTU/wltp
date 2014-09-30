@@ -81,29 +81,16 @@ class Experiment(object):
     '''
 
 
-    def __init__(self, model, skip_model_validation=False, validate_wltc=False):
+    def __init__(self, model, skip_model_validation=False, validate_wltc_data=False):
         """
         :param model:                 trees (formed by dicts & lists) holding the experiment data.
         :param skip_model_validation:  when true, does not validate the model.
         """
 
-        from wltp.model import wltc_data
-
         self.dtype = np.float64
-        self.set_model(model, skip_validation=skip_model_validation)
+        self._set_model(model, skip_validation=skip_model_validation, validate_wltc_data=validate_wltc_data)
 
-        self.wltc = wltc_data()
-        if (validate_wltc):
-            self.validateWltc()
-
-
-    def validateWltc(self, iter_errors=False):
-        from .model import wltc_validator
-
-        if iter_errors:
-            return wltc_validator().iter_errors(self.wltc)
-        else:
-            wltc_validator().validate(self.wltc)
+        self.wltc = self._model['params']['wltc_data']
 
 
 
@@ -202,18 +189,21 @@ class Experiment(object):
         if (not is_velocity_forced):
             ## Downscale velocity-profile.
             #
-            f_downscale_threshold = params.get('f_downscale_threshold', 0.01)
-            dsc_data            = class_data['downscale']
-            phases              = dsc_data['phases']
-            p_max_values        = dsc_data['p_max_values']
-            downsc_coeffs       = dsc_data['factor_coeffs']
-            dsc_v_split         = dsc_data.get('v_max_split', None)
-            f_downscale         = calcDownscaleFactor(P_REQ,
-                                                          p_max_values, downsc_coeffs, dsc_v_split,
-                                                          p_rated, v_max,
-                                                          f_downscale_threshold
-            )
-            params['f_downscale'] = f_downscale
+            f_downscale = params.get('f_downscale')
+            if not f_downscale:
+                f_downscale_threshold = params.get('f_downscale_threshold', 0.01)
+                dsc_data            = class_data['downscale']
+                phases              = dsc_data['phases']
+                p_max_values        = dsc_data['p_max_values']
+                downsc_coeffs       = dsc_data['factor_coeffs']
+                dsc_v_split         = dsc_data.get('v_max_split', None)
+                f_downscale         = calcDownscaleFactor(P_REQ,
+                                                              p_max_values, downsc_coeffs, dsc_v_split,
+                                                              p_rated, v_max,
+                                                              f_downscale_threshold
+                                                              )
+                params['f_downscale'] = f_downscale
+
             if (f_downscale > 0):
                 V               = downscaleCycle(V, f_downscale, phases)
             results['v_target'] = V
@@ -268,22 +258,18 @@ class Experiment(object):
 #######################
 
 
-    def set_model(self, model, skip_validation=False):
-        import functools
-        from wltp.model import model_base, merge
-
-        self._model = model_base()
-        functools.reduce(merge, [self._model, model])
-        if not skip_validation:
-            self.validate()
-
+    @property
     def model(self):
         return self._model
 
-    def validate(self, iter_errors=False):
-        ## TODO: Move-out model-validation from experiment
+    def _set_model(self, mdl, skip_validation=False, validate_wltc_data=False):
+        from wltp.model import _get_model_base, merge
 
-        return model.validate_model(self._model, iter_errors=iter_errors)
+        merged_model = _get_model_base()
+        merge(merged_model, mdl)
+        if not skip_validation:
+            model.validate_model(merged_model, validate_wltc_data=validate_wltc_data)
+        self._model = merged_model
 
 
     def driveability_report(self):

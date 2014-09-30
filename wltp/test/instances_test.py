@@ -12,10 +12,12 @@ Testing of the pure-tree data (just dictionary & lists), without the Model/Exper
 from __future__ import division, print_function, unicode_literals
 
 import json
+from timeit import timeit
 import unittest
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
+
 import numpy as np
 
 from .. import model
@@ -78,13 +80,14 @@ class InstancesTest(unittest.TestCase):
 
 
     def test_validate_wltc_data(self):
-        wltc = model.wltc_data()
-        validator = model.wltc_validator()
+        mdl = model._get_model_base()
+        mdl = model.merge(mdl, goodVehicle())
+        validator = model.model_validator(validate_wltc_data=True, validate_schema=True)
 
-        validator.validate(wltc)
+        validator.validate(mdl)
 
     def test_wltc_validate_class_parts(self):
-        wltc = model.wltc_data()
+        wltc = model._get_wltc_data()
 
         for cl, cd in wltc['classes'].items():
             cycle = cd['cycle']
@@ -100,7 +103,7 @@ class InstancesTest(unittest.TestCase):
 
 
     def test_wltc_validate_checksums(self):
-        wltc = model.wltc_data()
+        wltc = model._get_wltc_data()
 
         for cl, cd in wltc['classes'].items():
             numsum = np.array(cd['cycle']).sum()
@@ -109,12 +112,12 @@ class InstancesTest(unittest.TestCase):
 
 
     def testModelBase_plainInvalid(self):
-        mdl = model.model_base()
+        mdl = model._get_model_base()
 
         self.checkModel_invalid(mdl)
 
     def testModelBase_fullValid(self):
-        bmdl = model.model_base()
+        bmdl = model._get_model_base()
         json_txt = self.goodVehicle_jsonTxt % ('')
         mdl = json.loads(json_txt)
         bmdl['vehicle'].update(goodVehicle()['vehicle'])
@@ -171,7 +174,7 @@ class InstancesTest(unittest.TestCase):
 
         for c in cases:
             mdl = goodVehicle()
-            mdl = model.merge(model.model_base(), mdl)
+            mdl = model.merge(model._get_model_base(), mdl)
             mdl['vehicle']['full_load_curve'] = c
             self.checkModel_valid(mdl)
 
@@ -193,21 +196,21 @@ class InstancesTest(unittest.TestCase):
         ]
 
         for c in cases:
-            mdl = model.model_base()
-            mdl = model.merge(model.model_base(), mdl)
+            mdl = model._get_model_base()
+            mdl = model.merge(model._get_model_base(), mdl)
             del mdl['vehicle']['full_load_curve']
             mdl['vehicle']['full_load_curve'] = c
             self.checkModel_invalid(mdl, ex=ValidationError)
 
     def test_calc_default_resistance_coeffs_missing(self):
         mdl = goodVehicle()
-        mdl = model.merge(model.model_base(), mdl)
+        mdl = model.merge(model._get_model_base(), mdl)
         self.checkModel_valid(mdl)
 
     def test_calc_default_resistance_coeffs_None(self):
         mdl = goodVehicle()
         mdl['vehicle']['resistance_coeffs'] = None
-        mdl = model.merge(model.model_base(), mdl)
+        mdl = model.merge(model._get_model_base(), mdl)
         self.checkModel_valid(mdl)
 
 

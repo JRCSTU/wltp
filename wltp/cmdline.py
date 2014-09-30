@@ -409,7 +409,7 @@ def load_model_part(mdl, filespec):
 
 def assemble_model(infiles, model_overrides):
 
-    mdl = model.model_base()
+    mdl = model._get_model_base()
 
     for filespec in infiles:
         try:

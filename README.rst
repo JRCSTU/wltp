@@ -23,9 +23,9 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
 .. Attention:: This project is still in *alpha* stage.  Its results are not
     considered "correct", and official approval procedures should not rely on them.
     Some of the known deficiencies are described in :doc:`CHANGES`.
-    Its result are automatically comparared with those from Heinz-db in each build, and are imprinted
-    in the :mod:`~wltp.test.wltp_db_tests` test-case
-    (currently, mean rpm differ from Heinz-db < 1.3% and gears diff < 6% for a 1800-step class-3 cycle).
+    On each build the calculations of this tool are automatically comparared with a pre-determined set
+    of vehicles from Heinz-db, and the results are imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case
+    (currently, mean rpm differ from Heinz-db < 0.5% and gears diff < 5% for a 1800-step class-3 cycle).
 
 
 
@@ -234,7 +234,7 @@ before running the experiment:
 
 .. doctest::
 
-    >>> mdl = processor.model()             ## Returns the validated model with filled-in defaults.
+    >>> mdl = processor.model               ## Returns the validated model with filled-in defaults.
     >>> sorted(mdl)                         ## The "defaulted" model now includes the `params` branch.
     ['params', 'vehicle']
     >>> 'full_load_curve' in mdl['vehicle'] ## A default wot was also provided in the `vehicle`.
@@ -398,10 +398,11 @@ To get involved with development, first you need to download the latest sources:
 
     Within the sources it is included a :file:`.project` file for the comprehensive
     `LiClipse <https://brainwy.github.io/liclipse/>`_, an **eclipse** IDE pre-configured with the
-    excellent **PyDev** environment.  If you also choose to use it, you have to add a new PyDev python-intepreter
-    under :menuselection:`&Windows --> &Preferences --> PyDev --> Interpreters --> Python Interpreter`
-    named ``wltp.venv``, since this is the name already specified in the :file:`.project`.
-    You may change this name by :guilabel:`Right-clicking` on the Project and navigating
+    excellent **PyDev** environment.  If you also choose to use it, you may have to reorder 
+    the 1st python interpreter known to eclipse under 
+    :menuselection:`&Windows --> &Preferences --> PyDev --> Interpreters --> Python Interpreter`, 
+    since that is is the *default* interpreter, which is specified in the :file:`.project`.
+    You may change this choice of interpreter by :guilabel:`Right-clicking` on the Project and navigating
     to :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`,
     but you have to remember not commit this change in :file:`.project`.
 
@@ -457,6 +458,8 @@ that the sources are in good shape:
 
 Development procedure
 ---------------------
+For submitting code, use ``UTF-8`` everywhere, unix-eol(``LF``) and set ``git --config core.autocrlf = input``.
+
 The typical development procedure is like this:
 
 1. Modify the sources in small, isolated and well-defined changes, i.e.

@@ -27,6 +27,13 @@ import numpy as np
 import pandas as pd
 
 
+try:
+    from urllib.parse import urljoin
+except ImportError:
+    from urlparse import urljoin
+
+
+
 class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
     """
     Customization functions for travesring, I/O, and converting self-or-descedant branch (sub)model values.
@@ -185,14 +192,6 @@ class PandelVisitor(ValidatorBase):
         #    with original validators (and not self)
         #    because this class inherits an empty (schema/rules) validator.
         validator_class = jsonschema.validators.validator_for(schema)  ## Falls back to 'Draft4' if no `$schema` exists.
-        ## Cannot use ``validator_class.check_schema()`` because
-        #    need to relay my args to ``validator_class.__init__()``.
-        #validator_class.check_schema(schema)
-        if not skip_meta_validation:
-            v = validator_class(validator_class.META_SCHEMA, types=types, resolver=resolver, format_checker=format_checker)
-            for error in v.iter_errors(schema):
-                raise SchemaError.create_from(error)
-
         self.VALIDATORS = validator_class.VALIDATORS.copy()
         self.META_SCHEMA = validator_class.META_SCHEMA
         self.VALIDATORS.update({
@@ -210,9 +209,17 @@ class PandelVisitor(ValidatorBase):
                 'required':             PandelVisitor._rule_required_draft4,
             })
 
+        self.old_scopes = []
+
+        ## Cannot use ``validator_class.check_schema()`` because
+        #    need to relay my args to ``validator_class.__init__()``.
+        # Even better use myself, that i'm fatser (kind of...).
+        if not skip_meta_validation:
+            for error in self.iter_errors(schema, validator_class.META_SCHEMA):
+                raise SchemaError.create_from(error)
 
     ##################################
-    ######## Visiting and Rules ######
+    ############ Visiting ###########
     ##################################
 
     def _get_iprop(self, instance, prop):
@@ -237,6 +244,50 @@ class PandelVisitor(ValidatorBase):
     def _iter_iitems(self, instance):
         return instance
 
+
+
+    def iter_errors(self, instance, _schema=None):
+        if _schema is None:
+            _schema = self.schema
+
+        scope = _schema.get("id")
+        has_scope = scope
+        if has_scope:
+            old_scope = self.resolver.resolution_scope
+            self.old_scopes.append(old_scope)
+            self.resolver.resolution_scope = urljoin(old_scope, scope)
+
+        ref = _schema.get("$ref")
+        if ref is not None:
+            validators = [("$ref", ref)]
+        else:
+            validators = self._iter_iprop_pairs(_schema)
+
+        for k, v in validators:
+            validator = self.VALIDATORS.get(k)
+            if validator is None:
+                continue
+
+            errors = validator(self, v, instance, _schema) or ()
+            for error in errors:
+                # set details if not already set by the called fn
+                error._set(
+                    validator=k,
+                    validator_value=v,
+                    instance=instance,
+                    schema=_schema,
+                )
+                if k != "$ref":
+                    error.schema_path.appendleft(k)
+                yield error
+
+        if has_scope:
+            self.resolver.resolution_scope = self.old_scopes.pop()
+
+
+    ##################################
+    ############# Rules ##############
+    ##################################
 
     def _rule_properties_draft4(self, sprops, instance, schema):
         if not self.is_type(instance, "object"):

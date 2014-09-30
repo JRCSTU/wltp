@@ -18,9 +18,9 @@ import json
 import logging
 from textwrap import dedent
 from wltp.cycles import (class1, class2, class3)
+from wltp.pandel import PandelVisitor
 
-from jsonschema import Draft4Validator
-from jsonschema import ValidationError
+from jsonschema import (RefResolver, ValidationError)
 import jsonschema
 from numpy import ndarray
 from pandas.core.common import PandasError
@@ -56,7 +56,7 @@ def json_dumps(obj, pd_method=None, **kwargs):
 def json_dump(obj, fp, pd_method=None, **kwargs):
     json.dump(obj, fp, default=make_json_defaulter(pd_method), **kwargs)
 
-def model_base():
+def _get_model_base():
     """The base model for running a WLTC experiment.
 
     It contains some default values for the experiment (ie the default 'full-load-curve' for the vehicles).
@@ -157,6 +157,8 @@ def model_base():
             'f_n_min':                  0.125,
             'f_n_min_gear2':            0.9,
             'f_n_clutch_gear2':         [1.15, 0.03],
+
+            'wltc_data':                _get_wltc_data(),
         }
     }
 
@@ -164,26 +166,13 @@ def model_base():
 
 
 def default_vehicle():
-    return model_base()['vehicle']
+    return _get_model_base()['vehicle']
 
 def default_load_curve():
     return default_vehicle()['full_load_curve']
 
 
-def results_base():
-    instance = {
-        'wltc_class': None,
-        'v_target': [],
-        'gears': [],
-        'v_real': [],
-        'downscale_factor': None,
-        'driveability': None,
-    }
-
-    return instance
-
-
-def wltc_data():
+def _get_wltc_data():
     """The WLTC-data required to run an experiment (the class-cycles and their attributes)..
 
     :return: a tree
@@ -229,8 +218,9 @@ def merge(a, b, path=[]):
 
 
 
-
-def model_schema(additional_properties=False, for_prevalidation=False):
+_url_model = '/model'
+_url_wltc = '/wltc'
+def _get_model_schema(additional_properties=False, for_prevalidation=False):
     """
     :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
     :return: The json-schema(dict) for input/output of the WLTC experiment.
@@ -238,6 +228,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
 
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
+        'id': _url_model,
         'title': 'Json-schema describing the input for a WLTC experiment.',
         'type': 'object', 'additionalProperties': additional_properties,
         'required': ['vehicle'],
@@ -358,7 +349,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                             * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
                               within [0, 1]: :math:`p_norm = p / p_rated`
                         """),
-                        'type': [ 'object', 'array', 'ndarray', 'null', 'DataFrame', 'Series'],
+                        'type': [ 'object', 'array', 'null'],
                     },
                     'pmr': {
                         'description': 'Power_To_unladen-Mass ratio (kg).',
@@ -367,6 +358,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                     'wltc_class': {
                         'description': 'The name of the WLTC-class (found within WLTC-data/classes) as selected by the experiment.',
                         'type': 'string',
+                        'enum': ['class1', 'class2', 'class3a', 'class3b'],
                     },
                 }  #veh-props
             }, # veh
@@ -383,6 +375,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                     'f_n_min',
                     'f_n_min_gear2',
                     'f_n_clutch_gear2',
+                    'wltc_data',
                 ],
                 'properties': {
                     'resistance_coeffs_regression_curves': {
@@ -452,6 +445,7 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                         'description': 'The downscaling-factor as calculated by the experiment (Annex 1-7.3, p68).',
                         'type': 'number',
                     },
+                    'wltc_data': {'$ref': _url_wltc},
                 }
             },
             'cycle_run': {}, #TODO: results(cycle) model-schema.
@@ -475,40 +469,12 @@ def model_schema(additional_properties=False, for_prevalidation=False):
                 'type': 'array',
                'items': { '$ref': '#/definitions/positiveNumber' },
             },
-            'mergeableArray': {
-                'type': 'object', '': False,
-                'required': ['$merge', '$list'],
-                'properties': {
-                    '$merge': {
-                        'enum': ['merge', 'replace', 'append_head', 'append_tail', 'overwrite_head', 'overwrite_tail'],
-                        'description': dedent("""
-                            merge       := appends any non-existent elements
-                            replace     := (default) all items replaced
-                        """),
-                    },
-                    '$list': {
-                        'type': 'array',
-                    }
-                },
-            },
-            'mergeableObject': {
-                'type': 'object',
-                'properties': {
-                    '$merge': {
-                        'type': 'boolean',
-                        'description': dedent("""
-                            true    := (default) merge properties
-                            false   := replace properties
-                        """),
-                    },
-                },
-            },
         }
     }
 
     return schema
 
-def wltc_schema():
+def _get_wltc_schema():
     """The json-schema for the WLTC-data required to run a WLTC experiment.
 
     :return :dict:
@@ -516,6 +482,7 @@ def wltc_schema():
 
     schema = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
+        'id': _url_wltc,
         'title': 'WLTC data',
         'type': 'object', 'additionalProperties': False,
         'required': ['classes'],
@@ -524,10 +491,10 @@ def wltc_schema():
                 'type': 'object', 'additionalProperties': False,
                 'required': ['class1', 'class2', 'class3a', 'class3b'],
                 'properties': {
-                    'class1': {'$ref': '#/definitions/class'},
-                    'class2': {'$ref': '#/definitions/class'},
-                    'class3a': {'$ref': '#/definitions/class'},
-                    'class3b': {'$ref': '#/definitions/class'},
+                    'class1': {'$ref': '#definitions/class'},
+                    'class2': {'$ref': '#definitions/class'},
+                    'class3a': {'$ref': '#definitions/class'},
+                    'class3b': {'$ref': '#definitions/class'},
                 }
             },
         },
@@ -563,9 +530,7 @@ def wltc_schema():
                         'properties': {
                             'phases': {
                                 'type': 'array', 'additionalItems': False,
-                                'items': {
-                                    'type': 'integer'
-                                },
+                                'items': {'$ref': 'model#definitions/positiveInteger'},
                                 'maxItems': 3, 'minItems': 3,
                             },
                             'decel_phase': {
@@ -601,19 +566,15 @@ def wltc_schema():
     return schema
 
 
-def wltc_validator():
-    schema = wltc_schema()
-    return Draft4Validator(schema)
-
-
-def model_validator(additional_properties=False):
-    schema = model_schema(additional_properties)
-    validator = Draft4Validator(schema)
-    validator._types.update({"ndarray": np.ndarray, "DataFrame" : pd.DataFrame, 'Series':pd.Series})
+def model_validator(additional_properties=False, validate_wltc_data=False, validate_schema=False):
+    schema = _get_model_schema(additional_properties)
+    wltc_schema = _get_wltc_schema() if validate_wltc_data else {} ## Do not supply wltc schema, for speedup.
+    resolver = RefResolver(_url_model, schema, store={_url_wltc: wltc_schema})
+    validator = PandelVisitor(schema, resolver=resolver, skip_meta_validation=not validate_schema)
 
     return validator
 
-def validate_model(mdl, additional_properties=False, iter_errors=False):
+def validate_model(mdl, additional_properties=False, iter_errors=False, validate_wltc_data=False, validate_schema=False):
     """
     :param bool iter_errors: does not fail, but returns a generator of ValidationErrors
 
@@ -622,13 +583,13 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
     jsonschema.exceptions.ValidationError: None is not of type 'object'
     ...
 
-    >>> mdl = model_base()
+    >>> mdl = _get_model_base()
     >>> err_generator = validate_model(mdl, iter_errors=True)
     >>> sorted(err_generator, key=hash)
     [<ValidationError:
     ...
 
-    >>> mdl = model_base()
+    >>> mdl = _get_model_base()
     >>> mdl["vehicle"].update({
     ...     "unladen_mass":1230,
     ...     "test_mass":   1300,
@@ -645,7 +606,7 @@ def validate_model(mdl, additional_properties=False, iter_errors=False):
     0
     """
 
-    validator = model_validator(additional_properties=additional_properties)
+    validator = model_validator(additional_properties=additional_properties, validate_wltc_data=validate_wltc_data)
     validators = [
         validator.iter_errors(mdl),
         yield_load_curve_errors(mdl),
@@ -735,6 +696,6 @@ def yield_forced_cycle_errors(mdl, additional_properties):
 
 
 if __name__ == '__main__':
-    print('Model: %s' % json.dumps([model_schema(), wltc_schema()], indent=1))
-    print('Model: %s' % json.dumps(model_base(), indent=1))
+    print('Model: %s' % json.dumps([_get_model_schema(), _get_wltc_schema()], indent=1))
+    print('Model: %s' % json.dumps(_get_model_base(), indent=1))
 
