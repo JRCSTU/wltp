@@ -154,7 +154,7 @@ an *experiment*.  First run :command:`python` and try to import the project to c
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '0.0.9-alpha'
+    '0.0.9-alpha.1'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...
