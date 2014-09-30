@@ -14,17 +14,24 @@ import abc
 from collections import Mapping, Sequence
 from collections import OrderedDict, namedtuple
 import contextlib
+import numbers
+import re
+
 from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
 from jsonschema.exceptions import SchemaError
-import numbers
 from pandas.core.generic import NDFrame
-import re
 from six import string_types
-from urllib.parse import urljoin
 
 import numpy as np
 import pandas as pd
+
+
+try:
+    from urllib.parse import urljoin
+except ImportError:
+    from urlparse import urljoin
+
 
 
 class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
@@ -244,7 +251,7 @@ class PandelVisitor(ValidatorBase):
             _schema = self.schema
 
         scope = _schema.get("id")
-        has_scope = scope and scope != "#"
+        has_scope = scope
         if has_scope:
             old_scope = self.resolver.resolution_scope
             self.old_scopes.append(old_scope)
