@@ -189,18 +189,21 @@ class Experiment(object):
         if (not is_velocity_forced):
             ## Downscale velocity-profile.
             #
-            f_downscale_threshold = params.get('f_downscale_threshold', 0.01)
-            dsc_data            = class_data['downscale']
-            phases              = dsc_data['phases']
-            p_max_values        = dsc_data['p_max_values']
-            downsc_coeffs       = dsc_data['factor_coeffs']
-            dsc_v_split         = dsc_data.get('v_max_split', None)
-            f_downscale         = calcDownscaleFactor(P_REQ,
-                                                          p_max_values, downsc_coeffs, dsc_v_split,
-                                                          p_rated, v_max,
-                                                          f_downscale_threshold
-            )
-            params['f_downscale'] = f_downscale
+            f_downscale = params.get('f_downscale')
+            if not f_downscale:
+                f_downscale_threshold = params.get('f_downscale_threshold', 0.01)
+                dsc_data            = class_data['downscale']
+                phases              = dsc_data['phases']
+                p_max_values        = dsc_data['p_max_values']
+                downsc_coeffs       = dsc_data['factor_coeffs']
+                dsc_v_split         = dsc_data.get('v_max_split', None)
+                f_downscale         = calcDownscaleFactor(P_REQ,
+                                                              p_max_values, downsc_coeffs, dsc_v_split,
+                                                              p_rated, v_max,
+                                                              f_downscale_threshold
+                                                              )
+                params['f_downscale'] = f_downscale
+
             if (f_downscale > 0):
                 V               = downscaleCycle(V, f_downscale, phases)
             results['v_target'] = V

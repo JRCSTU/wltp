@@ -12,10 +12,11 @@ Testing of the pure-tree data (just dictionary & lists), without the Model/Exper
 from __future__ import division, print_function, unicode_literals
 
 import json
-import jsonschema
-from jsonschema.exceptions import ValidationError
 from timeit import timeit
 import unittest
+
+import jsonschema
+from jsonschema.exceptions import ValidationError
 
 import numpy as np
 
@@ -79,11 +80,11 @@ class InstancesTest(unittest.TestCase):
 
 
     def test_validate_wltc_data(self):
-        wltc = model._get_model_base()
-        wltc = model.merge(wltc, goodVehicle())
-        validator = model.model_validator(validate_wltc_data=True)
+        mdl = model._get_model_base()
+        mdl = model.merge(mdl, goodVehicle())
+        validator = model.model_validator(validate_wltc_data=True, validate_schema=True)
 
-        validator.validate(wltc)
+        validator.validate(mdl)
 
     def test_wltc_validate_class_parts(self):
         wltc = model._get_wltc_data()

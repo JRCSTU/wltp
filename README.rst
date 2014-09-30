@@ -457,6 +457,8 @@ that the sources are in good shape:
 
 Development procedure
 ---------------------
+For submitting code, use ``UTF-8`` everywhere, unix-eol(``LF``) and set ``git --config core.autocrlf = input``.
+
 The typical development procedure is like this:
 
 1. Modify the sources in small, isolated and well-defined changes, i.e.

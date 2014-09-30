@@ -40,11 +40,12 @@ Releases
 ========
 
 
-v0.0.9-beta, XX-Aug-2014
+v0.0.9-alpha1, 30-Sep-2014
 ------------------------
-This is practically the 2nd public-release, reworked in many parts, continuously tested and much better documented,
+This is practically the 2nd public-release, reworked in many parts, and much better documented and
+continuously tested and build using TravisCI,
 BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and metrics
-can describe the evolution of the core.
+still describe this core.
 
 Important/*incompatilble* changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -82,6 +83,8 @@ v0.0.8-alpha, 04-Aug-2014
 
 v0.0.7-alpha, 31-Jul-2014: 1st *public*
 ---------------------------------------
+Although it has already been used in various exercises, never made it out of *Alpha* state.
+
 * Rename project to 'wltp'.
 * Switch license from AGPL --> EUPL (the same license assumed *retrospectively* for older version)
 * Add wltp_db files.

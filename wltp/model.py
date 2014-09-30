@@ -172,19 +172,6 @@ def default_load_curve():
     return default_vehicle()['full_load_curve']
 
 
-def results_base():
-    instance = {
-        'wltc_class': None,
-        'v_target': [],
-        'gears': [],
-        'v_real': [],
-        'downscale_factor': None,
-        'driveability': None,
-    }
-
-    return instance
-
-
 def _get_wltc_data():
     """The WLTC-data required to run an experiment (the class-cycles and their attributes)..
 
@@ -371,6 +358,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     'wltc_class': {
                         'description': 'The name of the WLTC-class (found within WLTC-data/classes) as selected by the experiment.',
                         'type': 'string',
+                        'enum': ['class1', 'class2', 'class3a', 'class3b'],
                     },
                 }  #veh-props
             }, # veh
