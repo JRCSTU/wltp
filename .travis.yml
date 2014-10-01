@@ -35,10 +35,3 @@ branches:
   only:
     - master
 
-deploy:
-  provider: pypi
-  user: ankostis
-  password: UbMQVn6/QVmwoxQTs5Xl8Kna9S0KkCT0utEwiS4sBPYRq5I/c8SkkOi8IWHJ73z/art81fU8FNqB8yaWhINk29ho7ZsNy52Rh6FxkGx9ZnAtDuh7XfdIcZoimhAVbQipDfv2N4OgfkH8uk9X4eN72FJyQWb/YtFEIrR389Oc3gs=
-  on:
-    branch: master
-    tags: true
