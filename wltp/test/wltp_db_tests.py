@@ -19,10 +19,9 @@ import logging
 import math
 import os
 import re
+from six import string_types
 import unittest
 from unittest.case import skip
-
-from six import string_types
 
 import numpy as np
 import numpy.testing as npt
@@ -760,11 +759,11 @@ class WltpDbTests(unittest.TestCase):
 def _run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="UTF-8"):
     # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
     # 0                                                            5                                10                                                    15                        19
-    df = _read_vehicle_data()
+    inp_df = _read_vehicle_data()
     wots = _read_wots()
 
     failed_vehicles = 0
-    for (ix, row) in df.iterrows():
+    for (ix, row) in inp_df.iterrows():
         veh_num = ix
         heinz_fname = _make_heinz_fname(veh_num)
         outfname = _make_gened_fname(transplant_original_gears, veh_num)
@@ -809,18 +808,19 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
 
             # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
             # heinz:         't', 'km_h', 'stg', 'gear'
-            df = pd.DataFrame(model['cycle_run'])
+            out_df = pd.DataFrame(model['cycle_run'])
 
-            _compare_exp_results(df, outfname, compare_results)
-            df.to_csv(outfname, index_label='time')
+            _compare_exp_results(out_df, outfname, compare_results)
+            out_df.to_csv(outfname, index_label='time')
     fail_limit_prcnt = 0.1
-    assert failed_vehicles < fail_limit_prcnt * df.shape[0], \
-            'TOO MANY(>%f) vehicles have Failed(%i out of %i)!'% (fail_limit_prcnt, failed_vehicles, df.shape[0])
+    assert failed_vehicles < fail_limit_prcnt * inp_df.shape[0], \
+            'TOO MANY(>%f) vehicles have Failed(%i out of %i)!'% (fail_limit_prcnt, failed_vehicles, inp_df.shape[0])
 
+    return inp_df
 
 #     vehfpath = os.path.join(samples_dir, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
 #     inpfname = glob.glob(vehfpath)[0]
-#     df = pd.read_csv(inpfname, encoding='latin-1')
+#     out_df = pd.read_csv(inpfname, encoding='latin-1')
 
 
 ###################
