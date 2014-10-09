@@ -14,11 +14,10 @@ The model-instance is managed by :class:`pandel.Pandel`.
 from __future__ import division, print_function, unicode_literals
 
 from collections import Mapping
+import functools
 import json
 import logging
 from textwrap import dedent
-from wltp.cycles import (class1, class2, class3)
-from wltp.pandel import PandelVisitor
 
 from jsonschema import (RefResolver, ValidationError)
 import jsonschema
@@ -26,6 +25,8 @@ from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
+from wltp.cycles import (class1, class2, class3)
+from wltp.pandel import PandelVisitor
 
 import itertools as it
 import numpy as np
@@ -192,32 +193,6 @@ def _get_wltc_data():
     return wltc_data
 
 
-def merge(a, b, path=[]):
-    """'merges b into a"""
-
-    for key in b:
-        bv = b[key]
-        if key in a:
-            av = a[key]
-            if isinstance(av, Mapping) != isinstance(bv, Mapping):
-#                 log.debug("Dict-values conflict at '%s'! a(%s) != b(%s)",
-#                                 '/'.join(path + [str(key)]), type(av), type(bv))
-                pass
-            elif av is bv:
-                continue # same leaf value
-            elif isinstance(av, Mapping):
-                merge(av, bv, path + [str(key)])
-                continue
-        a[key] = bv
-    return a
-
-# works
-# print(merge({1:{"a":"A"},2:{"b":"B"}}, {2:{"c":"C"},3:{"d":"D"}}))
-# # has conflict
-# merge({1:{"a":"A"},2:{"b":"B"}}, {1:{"a":"A"},2:{"b":"C"}})
-
-
-
 _url_model = '/model'
 _url_wltc = '/wltc'
 def _get_model_schema(additional_properties=False, for_prevalidation=False):
@@ -276,7 +251,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     'p_rated': {
                         'title': 'maximum rated power',
                         '$ref': '#/definitions/positiveNumber',
-                        'description': 'The maximum rated engine power as declared by the manufacturer.',
+                        'description': 'The maximum rated engine power (kW) as declared by the manufacturer.',
                     },
                     'n_rated': {
                         'title': 'rated engine revolutions',
@@ -334,7 +309,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     'full_load_curve': {
                         'title': 'full load power curve',
                         'description': dedent("""
-                            An array holding the full load power curve in (at least) 2 columns
+                            An array/dict/dataframe holding the full load power curve in (at least) 2 columns
                             Example::
 
                                 np.array([
@@ -352,7 +327,8 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'type': [ 'object', 'array', 'null'],
                     },
                     'pmr': {
-                        'description': 'Power_To_unladen-Mass ratio (kg).',
+                        'title': 'Power to Unladen-Mass',
+                        'description': 'Power/unladen-Mass ratio (W/kg).',
                         'type': 'number',
                     },
                     'wltc_class': {
@@ -564,6 +540,70 @@ def _get_wltc_schema():
     }
 
     return schema
+
+
+def get_class_parts_limits(cls, mdl=None):
+    """
+    Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
+    
+    :param str cls: one of 'class1', ..., 'class3b'
+    :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`_get_wltc_data()`
+    :return: a list with the part-limits, ie for class-3a these are 3 numbers 
+    """
+    if mdl:
+        wltc_data = mdl['wltc_data']
+    else:
+        wltc_data = _get_wltc_data()
+        
+    cls = wltc_data['classes'][cls]
+    part_limits = [end+0.5 for (start, end) in cls['parts'][:-1]]
+    
+    return part_limits
+
+
+def get_class_pmr_limits(mdl=None):
+    """
+    Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
+    
+    :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`_get_wltc_data()`
+    :return: a list with the pmr-limits (2 numbers) 
+    """
+    if mdl:
+        wltc_data = mdl['wltc_data']
+    else:
+        wltc_data = _get_wltc_data()
+        
+    pmr_limits_pairs = [cls['pmr_limits'] for cls in wltc_data['classes'].values()]
+    pmr_limits = functools.reduce(lambda a,b:a+b, pmr_limits_pairs)
+    pmr_limits = sorted(list(set(pmr_limits)))[1:-1]    ## Exclude 0 and inf
+    
+    return pmr_limits
+
+
+def merge(a, b, path=[]):
+    """'merges b into a"""
+
+    for key in b:
+        bv = b[key]
+        if key in a:
+            av = a[key]
+            if isinstance(av, Mapping) != isinstance(bv, Mapping):
+#                 log.debug("Dict-values conflict at '%s'! a(%s) != b(%s)",
+#                                 '/'.join(path + [str(key)]), type(av), type(bv))
+                pass
+            elif av is bv:
+                continue # same leaf value
+            elif isinstance(av, Mapping):
+                merge(av, bv, path + [str(key)])
+                continue
+        a[key] = bv
+    return a
+
+# works
+# print(merge({1:{"a":"A"},2:{"b":"B"}}, {2:{"c":"C"},3:{"d":"D"}}))
+# # has conflict
+# merge({1:{"a":"A"},2:{"b":"B"}}, {1:{"a":"A"},2:{"b":"C"}})
+
 
 
 def model_validator(additional_properties=False, validate_wltc_data=False, validate_schema=False):

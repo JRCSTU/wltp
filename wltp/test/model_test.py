@@ -42,6 +42,21 @@ class Test(unittest.TestCase):
         mdl = exp._model
         self.assertEqual(mdl['vehicle']['n_rated'], nval)
 
+    def test_get_class_parts_limits(self):
+        l = model.get_class_parts_limits('class1')
+        self.assertSequenceEqual(l, [589.5])
+        
+        l = model.get_class_parts_limits('class2')
+        self.assertSequenceEqual(l, [589.5, 1022.5, 1477.5])
+        
+        l = model.get_class_parts_limits('class3a')
+        self.assertSequenceEqual(l, [589.5, 1022.5, 1477.5])
+        l = model.get_class_parts_limits('class3b')
+        self.assertSequenceEqual(l, [589.5, 1022.5, 1477.5])
+
+    def test_get_class_pmr_limits(self):
+        l = model.get_class_pmr_limits()
+        self.assertSequenceEqual(l, [22, 34])
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

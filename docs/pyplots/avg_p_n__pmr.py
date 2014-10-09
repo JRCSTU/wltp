@@ -1,10 +1,11 @@
-from matplotlib import pyplot as plt
 import os
 
+from matplotlib import pyplot as plt
+from wltp import model
 from wltp.test import wltp_db_tests as wltpdb
 
 
-def plot():
+def plot(axis, quantity, gened_column, heinz_column):
     font_size = 8
     tick_size = 6.5
 
@@ -14,36 +15,56 @@ def plot():
 
     res = wltpdb._vehicles_applicator(wltpdb.gened_fname_glob,
             lambda _, df_g, df_h: (
-                df_g['rpm'].mean(), df_g['p_available'].mean(), df_h['n'].mean(), df_h['P_max'].mean())
+                df_g[gened_column].mean(), df_h[heinz_column].mean())
             )
-    res.columns=['gened_mean_rpm', 'gened_mean_p', 'heinz_mean_rpm', 'heinz_mean_p']
+    res.columns=['gened_mean', 'heinz_mean']
     vehdata = vehdata.merge(res, how='inner', left_index=True, right_index=True).sort()
 
-    ax1 = plt.subplot(111)
-    ax1.set_xlabel(r'$PMR [\frac{hp}{km/h}]$')
 
-    ax1.set_ylabel(r'$\Delta EnginePower (heinz-gened) [hp]$', color='g')
-    for tl in ax1.get_yticklabels():
-        tl.set_color('g')
+    axis.set_xlabel(r'$PMR [W/kg]$')
 
-    ax2 = ax1.twinx()
-    ax2.set_ylabel(r'$\Delta EngineSpeed (heinz-gened) [rpm]$', color='b')
+    axis.set_ylabel(r'$%s$' % quantity)
+#     for tl in axis.get_yticklabels():
+#         tl.set_color('g')
+
+    ax2 = axis.twinx()
+    ax2.set_ylabel(r'$\Delta %s$' % quantity, color='r')
     for tl in ax2.get_yticklabels():
-        tl.set_color('b')
+        tl.set_color('r')
 
+    ## Plot class-Limits
+    #
+    class_limits = model.get_class_pmr_limits()
+    for limit in class_limits:
+        l = plt.axvline(limit, color='y', linewidth=2)
+        
+    l_gened, = axis.plot(vehdata.pmr, vehdata.gened_mean, 'ob', fillstyle='none')
+    l_heinz, = axis.plot(vehdata.pmr, vehdata.heinz_mean, '+g')
+    l_dp = ax2.plot(vehdata.pmr, vehdata.gened_mean - vehdata.heinz_mean, '.r')
 
-    l_dn = ax1.plot(vehdata.pmr, vehdata.gened_mean_p - vehdata.heinz_mean_p, 'og')
-    l_dp = ax2.plot(vehdata.pmr, vehdata.gened_mean_rpm - vehdata.heinz_mean_rpm, '.b')
-
-    plt.title("Difrences of Means with Heinz's 2sec upshift rule")
-
-    ax1.xaxis.grid = True
-    ax1.yaxis.grid = True
+    plt.legend([l_gened, l_heinz], ['Python', 'Heinz'])
+    plt.title("Means of %s compared with Heinz's 2sec upshift rule" % quantity)
+    
+    axis.xaxis.grid = True
+    axis.yaxis.grid = True
     ax2.yaxis.grid = True
-
-    plt.show()
 
 
 if __name__ == '__main__':
     os.chdir(os.path.join(wltpdb.mydir, wltpdb.samples_dir))
-    plot()
+    plot(
+        axis=plt.subplot(211), 
+        quantity='EngineSpeed [rpm]', 
+        gened_column='rpm', 
+        heinz_column='n'
+    )
+    plot(
+        axis=plt.subplot(212), 
+        quantity='EnginePower [kW]', 
+        gened_column='p_available', 
+        heinz_column='P_max'
+    )
+
+    plt.subplots_adjust(hspace=0.4)    
+    plt.show()
+    

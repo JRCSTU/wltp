@@ -19,7 +19,7 @@ import re
 
 from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
-from jsonschema.exceptions import SchemaError
+from jsonschema.exceptions import SchemaError, RefResolutionError
 from pandas.core.generic import NDFrame
 from six import string_types
 
@@ -952,5 +952,100 @@ class Pandel(object):
 
         return self.model
 
+
+def jsonpointer_parts(jsonpointer):
+    """
+    Iterates over the ``jsonpointer`` parts.
+
+    :param str jsonpointer: a jsonpointer to resolve within document
+    :return: a generator over the parts of the json-pointer
+
+    :author: Julian Berman, ankostis
+    """
+
+    jsonpointer = jsonpointer.lstrip(u"/")
+    parts = jsonpointer.split(u"/") if jsonpointer else []
+
+    for part in parts:
+        part = part.replace(u"~1", u"/").replace(u"~0", u"~")
+
+        yield part
+
+def resolve_jsonpointer(doc, jsonpointer):
+    """
+    Resolve a ``jsonpointer`` within the referenced ``doc``.
+    
+    :param doc: the referrant document
+    :param str jsonpointer: a jsonpointer to resolve within document
+    :return: the resolved doc-item or raises :class:`RefResolutionError` 
+
+    :author: Julian Berman, ankostis
+    """
+    for part in jsonpointer_parts(jsonpointer):
+        if isinstance(doc, Sequence):
+            # Array indexes should be turned into integers
+            try:
+                part = int(part)
+            except ValueError:
+                pass
+        try:
+            doc = doc[part]
+        except (TypeError, LookupError):
+            raise RefResolutionError(
+                "Unresolvable JSON pointer(%r)@(%s)" % (jsonpointer, part)
+            )
+        
+    return doc
+
+        
+def set_jsonpointer(doc, jsonpointer, value):
+    """
+    Resolve a ``jsonpointer`` within the referenced ``doc``.
+    
+    :param doc: the referrant document
+    :param str jsonpointer: a jsonpointer to the node to modify 
+    :raises: RefResolutionError (if jsonpointer empty, missing, invalid-contet)
+    """
+    
+    
+    parts = list(jsonpointer_parts(jsonpointer))
+    if not parts:
+        return 
+    
+    parent_doc = doc
+    parent_part = '' #??
+    for part in parts:
+        if isinstance(doc, Sequence):
+            # Array indexes should be turned into integers
+            try:
+                part = int(part)
+            except ValueError:
+                pass
+        
+        ## Set value
+        #
+        try:
+            doc[part] = value
+        except (IndexError, TypeError) as ex:
+            if isinstance(ex, IndexError) or 'list indices must be integers' in str(ex):
+                raise RefResolutionError("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
+            else:
+                doc = {}
+                parent_doc[parent_part] = doc 
+                doc[part] = value 
+
+        parent_doc = doc
+        parent_part = part
+    
+        ## Extend branch
+        #
+        try:
+            doc = doc[part]
+        except (TypeError, LookupError):
+            temp_doc, doc = doc, {} 
+            temp_doc[part] = doc 
+    
+
+        
 if __name__ == '__main__':
     raise "Not runnable!"

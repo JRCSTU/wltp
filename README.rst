@@ -84,7 +84,7 @@ Notice that :option:`--pre` is required, since all realeased packages so far wer
 
     $ pip install wltp --pre -U                 ## Use `pip3` if both python-2 & 3 installed.
     $ wltp.py --version                         ## Check which version installed.
-    wltp.py 0.0.9-alpha
+    wltp.py 0.0.9-alpha.2
 
 
 .. Tip::
@@ -154,7 +154,7 @@ an *experiment*.  First run :command:`python` and try to import the project to c
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '0.0.9-alpha.1'
+    '0.0.9-alpha.2'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...
