@@ -12,19 +12,32 @@ from matplotlib import pyplot as plt
 from wltp import plots
 from wltp.test import wltp_db_tests as wltpdb
 
+
+def prepare_data(gened_column, heinz_column):
+    gened_column='rpm' 
+    heinz_column='n'
+    vehdata = wltpdb.aggregate_single_columns_means(gened_column, heinz_column)
+    vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
+
+    return vehdata.pmr, vehdata.gened, vehdata.heinz
+
+
 if __name__ == '__main__':
     os.chdir(os.path.join(wltpdb.mydir, wltpdb.samples_dir))
     
+    (X, Y, Y_REF) = prepare_data(gened_column='rpm', heinz_column='n')
+
     bottom = 0.1
     height = 0.8
-    axis = plt.axes([0.1, bottom, 0.75, height])
-    axis_cbar = plt.axes([0.9, bottom, 0.1, height])
+    axis = plt.axes([0.1, bottom, 0.90, height])
+    axis_cbar = plt.axes([0.90, bottom, 0.12, height])
     
-    plots.pmr_n_arrows(
-        axis, axis_cbar,
-        quantity='EngineSpeed [rpm]', 
-        gened_column='rpm', 
-        heinz_column='n'
+    plots.pmr_xy_diffs_arrows(
+        X, Y, Y_REF, 
+        quantity_name='EngineSpeed', 
+        quantity_units='rpm', 
+        title="Python vs Access-db(2sec rule)",
+        axis=plt.subplot(111), axis_cbar=axis_cbar
     )
     plt.show()
     

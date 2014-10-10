@@ -19,9 +19,10 @@ import logging
 import math
 import os
 import re
-from six import string_types
 import unittest
 from unittest.case import skip
+
+from six import string_types
 
 import numpy as np
 import numpy.testing as npt
@@ -171,7 +172,7 @@ def _file_pairs(fname_glob):
 
         yield (veh_num, df_g, df_h)
 
-def _vehicles_applicator(fname_glob, pair_func):
+def vehicles_applicator(fname_glob, pair_func):
     """
     Applies the fun onto a pair of (generated, heinz) files for each tested-vehicle in the glob and
     appends results to list, preffixed by veh_num.
@@ -190,6 +191,20 @@ def _vehicles_applicator(fname_glob, pair_func):
     df = pd.DataFrame(ares[:, 1:], index=ares[:, 0])
 
     return df
+
+
+def aggregate_single_columns_means(gened_column, heinz_column):
+    """
+    Runs experiments and aggregates mean-values from one column of each (gened, heinz) file-sets.
+    """
+    vehdata = _run_the_experiments(transplant_original_gears=False, compare_results=False)
+
+
+    res = vehicles_applicator(gened_fname_glob, lambda _, df_g, df_h:(
+            df_g[gened_column].mean(), df_h[heinz_column].mean()))
+    res.columns = ['gened', 'heinz']
+    vehdata = vehdata.merge(res, how='inner', left_index=True, right_index=True).sort()
+    return vehdata
 
 
 
@@ -246,7 +261,7 @@ class WltpDbTests(unittest.TestCase):
 
         pcrnt_limit = 0.09
 
-        res = _vehicles_applicator(gened_fname_glob, lambda _, df_g, df_h:
+        res = vehicles_applicator(gened_fname_glob, lambda _, df_g, df_h:
                                           (df_g['v_target'].mean(), df_h['v'].mean()))
         res.columns = ['python', 'heinz']
 
@@ -279,7 +294,7 @@ class WltpDbTests(unittest.TestCase):
 
             return (ndiff_gears, ndiff_gears_accel, ndiff_gears_orig)
 
-        res = _vehicles_applicator(fname_glob, read_and_compare_experiment)
+        res = vehicles_applicator(fname_glob, read_and_compare_experiment)
         res.columns = ['diff_gears', 'diff_accel', 'diff_orig']
 
         res_totals = res.describe()
@@ -382,7 +397,7 @@ class WltpDbTests(unittest.TestCase):
 
 
     def _check_n_mean(self, fname_glob):
-        res = _vehicles_applicator(fname_glob, lambda _, df_g, df_h:
+        res = vehicles_applicator(fname_glob, lambda _, df_g, df_h:
                                           (df_g['rpm'].mean(), df_h['n'].mean()))
         res.columns = ['python', 'heinz']
 
@@ -482,7 +497,7 @@ class WltpDbTests(unittest.TestCase):
         vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
         np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
 
-        res = _vehicles_applicator(fname_glob, lambda _, df_g, df_h:
+        res = vehicles_applicator(fname_glob, lambda _, df_g, df_h:
                                           (df_g['rpm'].mean(), df_h['n'].mean()))
 
         res.columns=['gened_mean_rpm', 'heinz_mean_rpm']

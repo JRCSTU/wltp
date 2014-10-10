@@ -13,13 +13,26 @@ from wltp import plots
 from wltp.test import wltp_db_tests as wltpdb
 
 
+def prepare_data(gened_column, heinz_column):
+    gened_column='rpm' 
+    heinz_column='n'
+    vehdata = wltpdb.aggregate_single_columns_means(gened_column, heinz_column)
+    vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
+
+    return vehdata.pmr, vehdata.gened, vehdata.heinz
+
+
 if __name__ == '__main__':
     os.chdir(os.path.join(wltpdb.mydir, wltpdb.samples_dir))
-    plots.pmr_n_scatter(
+    
+    (X, Y, Y_REF) = prepare_data(gened_column='rpm', heinz_column='n')
+
+    plots.pmr_xy_diffs_scatter(
+        X, Y, Y_REF, 
+        quantity_name='EngineSpeed', 
+        quantity_units='rpm', 
+        title="Python vs Access-db(2sec rule)",
         axis=plt.subplot(111), 
-        quantity='EngineSpeed [rpm]', 
-        gened_column='rpm', 
-        heinz_column='n'
     )
     plt.show()
     
