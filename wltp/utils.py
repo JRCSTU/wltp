@@ -8,9 +8,8 @@
 
 from __future__ import division, unicode_literals
 
-import unittest
-
 import argparse
+import unittest
 
 import pandas as pd
 

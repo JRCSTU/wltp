@@ -507,10 +507,13 @@ to setup a series of test-case and metrics to check the sanity of the results
 and to compare them with the Heinz-db tool or other datasets.
 These tests can be found in the :file:`wltp/test/` folders.
 
-Code for generating diagrams for the metrics below are located
-in the :file:`docs/pyplot/` folder.
+Below are are some representative diagrams that track the behavior and conformance of the project.
+The code for generating diagrams these metrics is located in :file:`docs/pyplot/` folder.
 
-.. plot:: pyplots/avg_p_n__pmr.py
+Mean Engine-speed / PMR
+^^^^^^^^^^^^^^^^^^^^^^^
+.. plot:: pyplots/pmr_n_scatter.py
+.. plot:: pyplots/pmr_n_arrows.py
 
 
 
