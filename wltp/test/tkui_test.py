@@ -32,9 +32,8 @@ class TkUiTest(unittest.TestCase):
 
     @SkipTest
     def test_smoke_test_with_event_loop(self):
-        root = tk.Tk()
-        TkWltp(root)
-        root.mainloop()
+        app = TkWltp()
+        app.mainloop()
             
 
 if __name__ == "__main__":

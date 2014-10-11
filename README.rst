@@ -80,14 +80,20 @@ Requires Python-2.7+ or Python-3.3+ (preferred).
 
 
 You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
-with :command:`pip`.
-Notice that :option:`--pre` is required, since all realeased packages so far were *pre*-release (``-alpha``) versions:
+by typing :command:`pip` in the console:
 
 .. code-block:: console
 
     $ pip install wltp --pre -U                 ## Use `pip3` if both python-2 & 3 installed.
-    $ wltp.py --version                         ## Check which version installed.
-    wltp.py 0.0.9-alpha.2
+
+
+Notice that :option:`--pre` is required, since all realeased packages so far were *pre*-release (``-alpha``) versions:
+
+If install has been succesfful, the :cmd:`wltpcmd.py` script must have been installed somewhere 
+in your :envvar:`PATH`.  Type this to check it: 
+
+    $ wltpcmd.py --version                      ## Check which version installed.
+    wltpcmd.py 0.0.9-alpha.2
 
 
 .. Tip::
@@ -147,6 +153,15 @@ on your system (or virtualenv), enter:
     pip install -r requirements.txt
 
 
+
+
+GUI usage
+---------
+This is a quick-'n-dirty method to run the program and explore the structure of the model.
+
+.. code-block:: console
+
+    wltpcmd.py --gui
 
 
 
@@ -318,7 +333,7 @@ The comand-line usage below still requires the Python environment to be installe
 executing an experiment directly from the OS's shell (i.e. :program:`cmd` in windows or :program:`bash` in POSIX),
 and in a *single* command.
 
-The entry-point script is called :program:`wltp.py`, and it must have been placed in your :envvar:`PATH`
+The entry-point script is called :program:`wltpcmd.py`, and it must have been placed in your :envvar:`PATH`
 during installation.  This script can construct a *model* by reading input-data
 from multiple files and/or overriding specific single-value items. Conversely,
 it can output multiple parts of the resulting-model into files.
@@ -327,8 +342,8 @@ To get help for this script, use the following commands:
 
 .. code-block:: console
 
-    $ wltp.py --help          ## to get generic help for cmd-line syntax
-    $ wltp.py -M /vehicle     ## to get help for specific model-paths
+    $ wltpcmd.py --help       ## to get generic help for cmd-line syntax
+    $ wltcmdp.py -M /vehicle  ## to get help for specific model-paths
 
 
 and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
@@ -336,7 +351,7 @@ for which you want to override the ``n_idle`` only, run the following:
 
 .. code-block:: console
 
-    $ wltp.py -v \
+    $ wltpcmd.py -v \
         -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
         -m /vehicle/n_idle:=850 \
         -O cycle.csv model_path=/cycle_run
