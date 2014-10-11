@@ -19,8 +19,7 @@ import numpy as np
 #
 class MidPointNorm(Normalize):
     """
-    A Normilaze that makes a "diverging" or "bipolar" Colormap, where its center point is important and
-    so that the values go over or under it.
+    A "diverging" or "bipolar" Normalize for Colormaps on a central-point, with values going up or down.
 
     Example:
 
@@ -119,7 +118,7 @@ def plot_class_limits(axis, y):
 ### PLOTS ###
 
 
-def pmr_xy_diffs_scatter(X, Y, Y_REF, quantity_name, quantity_units, title, axis):
+def pmr_xy_diffs_scatter(X, Y, Y_REF, quantity_name, quantity_units, title, x_label, axis):
     color_diff = 'r'
     alpha = 0.8
 
@@ -128,7 +127,7 @@ def pmr_xy_diffs_scatter(X, Y, Y_REF, quantity_name, quantity_units, title, axis
 
     ## Prepare axis
     #
-    axis.set_xlabel(r'$PMR [W/kg]$')
+    axis.set_xlabel(x_label)
     axis.set_ylabel(r'$%s [%s]s$' % (quantity_name, quantity_units))
 #     for tl in axis.get_yticklabels():
 #         tl.set_color('g')
@@ -150,12 +149,12 @@ def pmr_xy_diffs_scatter(X, Y, Y_REF, quantity_name, quantity_units, title, axis
     l_regress, = ax2.plot(line_points, polyval(regress_poly, line_points), '-',
         color=color_diff, alpha=alpha/2)
 
-    plt.legend([l_gened, l_heinz, l_regress], ['Python', 'Access-db', 'Diffrences'])
+    plt.legend([l_gened, l_heinz, l_regress], ['Python', 'Access-db', 'Differences'])
 
 
 
 
-def pmr_xy_diffs_arrows(X, Y, Y_REF, quantity_name, quantity_units, title, axis, axis_cbar):
+def pmr_xy_diffs_arrows(X, Y, Y_REF, quantity_name, quantity_units, title, x_label, axis, axis_cbar):
     color_diff = 'r'
     alpha = 0.9
     colormap = cm.PiYG  # @UndefinedVariable
@@ -166,7 +165,7 @@ def pmr_xy_diffs_arrows(X, Y, Y_REF, quantity_name, quantity_units, title, axis,
 
     ## Prepare axes
     #
-    axis.set_xlabel(r'$PMR [W/kg]$')
+    axis.set_xlabel(x_label)
     axis.set_ylabel(r'$%s [%s]$' % (quantity_name, quantity_units))
     axis.xaxis.grid(True)
     axis.yaxis.grid(True)
@@ -193,7 +192,7 @@ def pmr_xy_diffs_arrows(X, Y, Y_REF, quantity_name, quantity_units, title, axis,
     l_regress, = ax2.plot(line_points, polyval(regress_poly, line_points), '-', 
         color=color_diff, alpha=alpha/2)
 
-    plt.legend([l_gened, l_regress, ], ['Python', 'Diffrences'])
+    plt.legend([l_gened, l_regress, ], ['Python', 'Differences'])
     
     ## Colormap legend
     #

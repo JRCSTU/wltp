@@ -11,11 +11,11 @@ wltc module: WLTC gear-shift calculator
 
 from __future__ import division, unicode_literals
 
-from ._version import __version__
+from ._version import (__version__, __updated__)
 
 
-__copyright     = "Copyright (C) 2013-2014 European Commission (JRC)"
-__license__     = "EUPL 1.1+"
+__copyright__     = "Copyright (C) 2013-2014 European Commission (JRC)"
+__license__       = "EUPL 1.1+"
 
-__all__ = ['Experiment', 'model']
+__all__ = ['experiment.Experiment', 'model']
 

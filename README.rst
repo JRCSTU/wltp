@@ -22,11 +22,14 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
 
 .. Attention:: This project is still in *alpha* stage.  Its results are not
     considered "correct", and official approval procedures should not rely on them.
-    Some of the known deficiencies are described in :doc:`CHANGES`.
-    On each build the calculations of this tool are automatically comparared with a pre-determined set
-    of vehicles from Heinz-db, and the results are imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case
-    (currently, mean rpm differ from Heinz-db < 0.5% and gears diff < 5% for a 1800-step class-3 cycle).
-
+    Some of the known deficiencies are described in these places:
+    
+    * In the :doc:`CHANGES`.
+    * Presented in the diagrams of the :ref:`metrics` section. 
+    * Imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case 
+      (automatically comparared with a pre-determined set of vehicles from Heinz-db on each build)
+      Currently, mean rpm differ from Heinz-db < 0.5% and gears diff < 5% for a 1800-step class-3 cycle.
+    
 
 
 .. _begin-intro:
@@ -47,11 +50,11 @@ to produce the :dfn:`output-model`.  The process is depicted in the following di
              ;---------------------;                        ;----------------------------;
             ; +--vehicle          ;     ___________        ; +---...                    ;
            ;  +--params          ;     |           |      ;  +--cycle_run:             ;
-          ;       +--wltc_data  ;  ==> | Processor | ==> ;      t   v_class  gear     ;
-         ;                     ;       |___________|    ;      ------------------    ;
-        ;                     ;                        ;       00       0.0     1   ;
-       ;                     ;                        ;        01       1.3     1  ;
-      ;                     ;                        ;         02       5.5     1 ;
+          ;       +--wltc_data  ;  ==> | Processor | ==> ;      t  v_class gear ...   ;
+         ;                     ;       |___________|    ;      --------------------  ;
+        ;                     ;                        ;       00      0.0    1     ;
+       ;                     ;                        ;        01      1.3    1    ;
+      ;                     ;                        ;         02      5.5    1   ;
      ;                     ;                        ;          ...               ;
     '---------------------'                        '----------------------------.
 
@@ -123,9 +126,12 @@ That way you get the complete source-tree of the project, ready for development
     |   +--test/        ## (package) Test-cases and the wltp_db
     |   +--model        ## (module) Describes the data for the calculation
     |   +--experiment   ## (module) The calculator
+    |   +--plots        ## (module) Code and utilities for plotting diagrams
     +--docs/            ## Documentation folder
-    +--devtools/        ## Scripts for preprocessing WLTC data and the wltp_db
-    +--wltp.py          ## (script) The cmd-line entry-point script for the calculator
+    |   +--pyplots/     ## (scripts) Plot the metric diagrams embeded in the README
+    +--devtools/        ## (scripts) Preprocessing of WLTC data on GTR and the wltp_db
+    |   +--run_tests.sh ## (script) Executes all TestCases
+    +--wltpcmd.py          ## (script) The cmd-line entry-point script for the calculator
     +--setup.py         ## (script) The entry point for `setuptools`, installing, testing, etc
     +--requirements.txt ## The installation dependencies.
     +--README.rst
@@ -499,6 +505,8 @@ The typical development procedure is like this:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
 
+
+.. _metrics:
 
 Tests & Metrics
 ---------------

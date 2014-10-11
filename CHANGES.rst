@@ -22,7 +22,6 @@ TODOs
 * Add cmd-line front-end.
 * Automatically calculate masses from H & L vehicles, and regression-curves from categories.
 * wltp_db: Improve test-metrics with group-by classes/phases.
-* wltp_db: Add diagrams auto-generated from test-metrics into generated site (Getting Involved section).
 * wltp_db: Speed-up tests by caching files to read and compare.
 * model: Enhance model-preprocessing by interleaving "octapus" merging stacked-models
   between validation stages.
@@ -31,7 +30,7 @@ TODOs
 * core: Move calculations as class-methods to provide for overriding certain parts of the algorithm.
 * core: Support to provide and override arbitrary model-data, and ask for arbitrary output-ones
   by topologically sorting the  graphs of the calculation-dependencies.
-
+* build: Separate wltpdb tests as a separate, optional, plugin of this project (~650Mb size).
 
 .. todolist::
 
@@ -40,9 +39,9 @@ Releases
 ========
 
 
-v0.0.9-alpha1, 30-Sep-2014
-------------------------
-This is practically the 2nd public-release, reworked in many parts, and much better documented and
+v0.0.9-alpha.1 & alpha.2 (1 & X Oct-2014)
+-----------------------------------------
+This is practically the 2nd public releases, reworked in many parts, and much better documented and
 continuously tested and build using TravisCI,
 BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and metrics
 still describe this core.
@@ -51,11 +50,11 @@ still describe this core.
 Important/*incompatilble* changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Code::
+* Code:
     * package ``wltc``  --> ``wltp``
     * class ``Experiment``    --> ``Processor``
 
-* Model changes::
+* Model changes:
     * ``/vehicle/mass`` --> (``test_mass`` and ``unladen_mass``)
     * ``/cycle_run``: If present, (some of) its columns override the calculation.
 
@@ -71,6 +70,7 @@ Changelog
 * model: Add NEDC cycle data, for facilitating comparisons.
 * tests: Include sample-vehicles along with the distribution.
 * tests: Speed-up tests by caching files to read and compare.
+* metrics: Add diagrams auto-generated from test-metrics into generated site (at "Getting Involved" section).
 * docs: Considerable improvements, validate code in comments and docs with *doctest*.
 * docs: Provide a http-link to the list of IPython front-ends in the project's wiki.
 * build: Use TravisCI as integration server, Coveralls.io as test-coverage service-providers.
