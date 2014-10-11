@@ -23,13 +23,13 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
 .. Attention:: This project is still in *alpha* stage.  Its results are not
     considered "correct", and official approval procedures should not rely on them.
     Some of the known deficiencies are described in these places:
-    
+
     * In the :doc:`CHANGES`.
-    * Presented in the diagrams of the :ref:`metrics` section. 
-    * Imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case 
+    * Presented in the diagrams of the :ref:`metrics` section.
+    * Imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case
       (automatically comparared with a pre-determined set of vehicles from Heinz-db on each build)
       Currently, mean rpm differ from Heinz-db < 0.5% and gears diff < 5% for a 1800-step class-3 cycle.
-    
+
 
 
 .. _begin-intro:
@@ -87,10 +87,10 @@ by typing :command:`pip` in the console:
     $ pip install wltp --pre -U                 ## Use `pip3` if both python-2 & 3 installed.
 
 
-Notice that :option:`--pre` is required, since all realeased packages so far were *pre*-release (``-alpha``) versions:
+Notice that :option:`--pre` is required, since all released packages so far were *pre*-release (``-alpha``) versions:
 
-If install has been succesfful, the :cmd:`wltpcmd.py` script must have been installed somewhere 
-in your :envvar:`PATH`.  Type this to check it: 
+If install has been successful, the :cmd:`wltpcmd.py` script must have been installed somewhere
+in your :envvar:`PATH`.  Type this to check it:
 
     $ wltpcmd.py --version                      ## Check which version installed.
     wltpcmd.py 0.0.9-alpha.2
@@ -132,7 +132,7 @@ That way you get the complete source-tree of the project, ready for development
     |   +--test/        ## (package) Test-cases and the wltp_db
     |   +--model        ## (module) Describes the data for the calculation
     |   +--experiment   ## (module) The calculator
-    |   +--plots        ## (module) Code and utilities for plotting diagrams
+    |   +--plots        ## (module) Diagram-plotting code and utilities
     +--docs/            ## Documentation folder
     |   +--pyplots/     ## (scripts) Plot the metric diagrams embeded in the README
     +--devtools/        ## (scripts) Preprocessing of WLTC data on GTR and the wltp_db
@@ -155,9 +155,48 @@ on your system (or virtualenv), enter:
 
 
 
+Cmd-line usage
+--------------
+.. Note:: Not implemented in yet.
+
+The command-line usage below requires the Python environment to be installed, and provides for
+executing an experiment directly from the OS's shell (i.e. :program:`cmd` in windows or :program:`bash` in POSIX),
+and in a *single* command.  To have precise control over the inputs and outputs
+(i.e. experiments in a "batch" and/or in a design of experiments)
+you have to run the experiments using the API python, as explained below.
+
+
+The entry-point script is called :program:`wltpcmd.py`, and it must have been placed in your :envvar:`PATH`
+during installation.  This script can construct a *model* by reading input-data
+from multiple files and/or overriding specific single-value items. Conversely,
+it can output multiple parts of the resulting-model into files.
+
+To get help for this script, use the following commands:
+
+.. code-block:: console
+
+    $ wltpcmd.py --help                         ## to get generic help for cmd-line syntax
+    $ wltcmdp.py -M vehicle/full_load_curve     ## to get help for specific model-paths
+
+
+and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
+for which you want to override the ``n_idle`` only, run the following:
+
+.. code-block:: console
+
+    $ wltpcmd.py -v \
+        -I vehicle.csv file_frmt=SERIES model_path=params header@=None \
+        -m vehicle/n_idle:=850 \
+        -O cycle.csv model_path=cycle_run
+
+
+
+
+
 GUI usage
----------
-This is a quick-'n-dirty method to run the program and explore the structure of the model.
+^^^^^^^^^
+For a quick-'n-dirty method to explore the structure of the model-tree and run an experiment,
+just run:
 
 .. code-block:: console
 
@@ -320,42 +359,6 @@ You can export the cycle-run results in a CSV-file with the following pandas com
 
 For more examples, download the sources and check the test-cases
 found under the :file:`/wltp/test/` folder.
-
-
-
-Cmd-line usage
---------------
-.. Note:: Not implemented in yet.
-
-The examples presented so far required to execute multiple commands interactively inside
-the Python interpreter (REPL).
-The comand-line usage below still requires the Python environment to be installed, but provides for
-executing an experiment directly from the OS's shell (i.e. :program:`cmd` in windows or :program:`bash` in POSIX),
-and in a *single* command.
-
-The entry-point script is called :program:`wltpcmd.py`, and it must have been placed in your :envvar:`PATH`
-during installation.  This script can construct a *model* by reading input-data
-from multiple files and/or overriding specific single-value items. Conversely,
-it can output multiple parts of the resulting-model into files.
-
-To get help for this script, use the following commands:
-
-.. code-block:: console
-
-    $ wltpcmd.py --help       ## to get generic help for cmd-line syntax
-    $ wltcmdp.py -M /vehicle  ## to get help for specific model-paths
-
-
-and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
-for which you want to override the ``n_idle`` only, run the following:
-
-.. code-block:: console
-
-    $ wltpcmd.py -v \
-        -I vehicle.csv file_frmt=SERIES model_path=/params header@=None \
-        -m /vehicle/n_idle:=850 \
-        -O cycle.csv model_path=/cycle_run
-
 
 
 
@@ -527,16 +530,38 @@ Tests & Metrics
 ---------------
 In order to maintain the algorithm stable, a lot of effort has been put
 to setup a series of test-case and metrics to check the sanity of the results
-and to compare them with the Heinz-db tool or other datasets.
+and to compare them with the Heinz-db tool or other datasets included in the project.
 These tests can be found in the :file:`wltp/test/` folders.
 
 Below are are some representative diagrams that track the behavior and conformance of the project.
-The code for generating diagrams these metrics is located in :file:`docs/pyplot/` folder.
+The actual code for generating diagrams for these metrics is in :class:`wltp.plots` and it is invoked
+by scripts in the :file:`docs/pyplot/` folder.
 
 Mean Engine-speed / PMR
 ^^^^^^^^^^^^^^^^^^^^^^^
+First the mean engine-speed of vehicles are compared with access-db tool, grouped by PMRs:
+
 .. plot:: pyplots/pmr_n_scatter.py
+
+
+Both tools generate the same rough engine speeds.  There is though a trend for this project
+to produce lower rpm's as the PMR of the vehicle increases.
+But it is difficult to tell what each vehicle does isolated.
+
+The same information is presented again but now each vehicle difference is drawn with an arrow:
+
 .. plot:: pyplots/pmr_n_arrows.py
+
+It can be seen now that this project's calculates lower engine-speeds for classes 1 & 3 but
+the trend is reversed for class 2.
+
+Below the mean-engine-speeds of each class are drawn against the mean gear used,
+grouped by class-parts (so that, for instance, a class3 vehicle corresponds to 3 points on the diagram):
+
+
+.. plot:: pyplots/gears_n_arrows_class_1.py
+.. plot:: pyplots/gears_n_arrows_class_2.py
+.. plot:: pyplots/gears_n_arrows_class_3.py
 
 
 
@@ -557,7 +582,7 @@ The WLTC-profiles for the various classes in the :file:`devtools/data/cycles/` f
 of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
-Then use the :file:`devtools/buildwltcclass.py` to contruct the respective python-vars into the
+Then use the :file:`devtools/buildwltcclass.py` to construct the respective python-vars into the
 :mod:`wltp/model.py` sources.
 
 

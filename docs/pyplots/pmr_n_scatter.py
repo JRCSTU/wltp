@@ -27,7 +27,7 @@ if __name__ == '__main__':
     
     (X, Y, Y_REF) = prepare_data(gened_column='rpm', heinz_column='n')
 
-    plots.pmr_xy_diffs_scatter(
+    plots.plot_xy_diffs_scatter(
         X, Y, X, Y_REF, 
         quantity_name='EngineSpeed [rpm]', 
         title="Python vs Access-db(2sec rule)",
