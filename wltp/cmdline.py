@@ -11,8 +11,10 @@
     :func:`main()`
 """
 
-from __future__ import division, unicode_literals
+from __future__ import division,unicode_literals
 
+from argparse import ArgumentTypeError
+import argparse
 import ast
 import collections
 import functools
@@ -23,10 +25,9 @@ import re
 import sys
 from textwrap import dedent
 
-from argparse import ArgumentTypeError
-import argparse
 from pandas.core.generic import NDFrame
 import six
+from wltp import tkui
 
 import jsonpointer as jsonp
 import jsonschema as jsons
@@ -36,8 +37,8 @@ import pandas as pd
 from . import experiment
 from . import model
 from ._version import __version__  # @UnusedImport
-from .model import json_dump, json_dumps, validate_model
-from .utils import str2bool, Lazy
+from .model import json_dump,json_dumps,validate_model
+from .utils import str2bool,Lazy
 
 
 DEBUG   = False
@@ -147,6 +148,11 @@ def main(argv=None):
 
         log.debug("Args: %s\n  +--Opts: %s", argv, opts)
 
+        if opts.gui:
+            app = tkui.TkWltp()
+            app.mainloop()
+            return
+        
         opts = validate_file_opts(opts)
 
         infiles     = parse_many_file_args(opts.I, 'r', opts.irenames)
@@ -505,7 +511,7 @@ def build_args_parser(program_name, version, desc, epilog):
               must either match them, be 1 (meaning, use them for all files), or be totally absent
               (meaning, use defaults for all files).
             * see REMARKS at the bottom regarding the parsing of KEY-VAULE pairs. """),
-                        action='append', nargs='+', required=True,
+                        action='append', nargs='+', required=False,
                         #default=[('- file_frmt=%s model_path=%s'%('CSV', _default_df_dest)).split()],
                         metavar='ARG')
     grp_io.add_argument('-c', '--icolumns', help=dedent("""\
@@ -589,7 +595,7 @@ def build_args_parser(program_name, version, desc, epilog):
 
 
     grp_various = parser.add_argument_group('Various', 'Options controlling various other aspects.')
-    #parser.add_argument('--gui', help='start in GUI mode', action='store_true')
+    parser.add_argument('--gui', help='start in GUI mode', action='store_true')
     grp_various.add_argument('-d', "--debug", action="store_true", help=dedent("""\
             set debug-mode with various checks and error-traces
             Suggested combining with --verbose counter-flag.
