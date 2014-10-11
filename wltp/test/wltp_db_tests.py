@@ -11,7 +11,7 @@
 * Run it as cmd-line to compare with Heinz's results.
 '''
 
-from __future__ import division, print_function, unicode_literals
+from __future__ import division,print_function,unicode_literals
 
 from collections import OrderedDict
 import glob
@@ -23,6 +23,7 @@ import unittest
 from unittest.case import skip
 
 from six import string_types
+from wltp.utils import memoize
 
 import numpy as np
 import numpy.testing as npt
@@ -56,22 +57,6 @@ def _init_logging(loglevel = logging.DEBUG):
 
     return log
 log = _init_logging()
-
-
-## From http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
-#
-def memoize(f):
-    """ Memoization decorator for functions taking one or more arguments. """
-    class memodict(dict):
-        def __init__(self, f):
-            self.f = f
-        def __call__(self, *args):
-            return self[args]
-        def __missing__(self, key):
-            ret = self[key] = self.f(*key)
-            return ret
-    return memodict(f)
-
 
 
 @memoize

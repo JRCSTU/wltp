@@ -113,12 +113,37 @@ def plot_class_limits(axis, y):
         bbox=bbox, horizontalalignment='left', verticalalignment='top', alpha=0.8)
 
 
+#def plot_class_parts_limits(axis, cls, y):
+#    class_limits = model.get_class_parts_limits(cls)
+#    for limit in class_limits:
+#        plt.axvline(limit, color='y', linewidth=2)
+
+#    ## Plot part-Limits
+#    #
+#    for limit in part_limits:
+#        l = plt.axvline(limit, color='r', linewidth=2)
+#
+#        ## Add part-labels.
+#        #
+#        v_pos = 129.5 # trial'n error
+#        if class_name == 'class1': # Acceleration scale changes!!
+#            v_pos /= 2
+#        bbox={'facecolor':'red', 'alpha':0.5, 'pad':4, 'linewidth':0}
+#        txts = [ 'Low', 'Medium', 'High', 'Extra-high']
+#        txts_pos = [0] + part_limits #[0.40, 0.67, 0.85]
+#    
+#        for (txt, h_pos) in zip(txts, txts_pos):
+#            ax1.text(h_pos + 8, v_pos, txt, style='italic',
+#                bbox=bbox, size=8)
+
+
 
 #############
 ### PLOTS ###
 
 
-def pmr_xy_diffs_scatter(X, Y, Y_REF, quantity_name, quantity_units, title, x_label, axis):
+def pmr_xy_diffs_scatter(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis, 
+            mark_sections='classes'):
     color_diff = 'r'
     alpha = 0.8
 
@@ -128,21 +153,24 @@ def pmr_xy_diffs_scatter(X, Y, Y_REF, quantity_name, quantity_units, title, x_la
     ## Prepare axis
     #
     axis.set_xlabel(x_label)
-    axis.set_ylabel(r'$%s [%s]s$' % (quantity_name, quantity_units))
-#     for tl in axis.get_yticklabels():
-#         tl.set_color('g')
-    ax2 = axis.twinx()
-    ax2.set_ylabel(r'$\Delta %s [%s]$' % (quantity_name, quantity_units), color=color_diff)
-    ax2.tick_params(axis='y', colors=color_diff)
+    axis.set_ylabel(r'$%s$' % quantity_name)
     axis.xaxis.grid(True)
     axis.yaxis.grid(True)
 
-    plot_class_limits(axis, Y.min())
+    ax2 = axis.twinx()
+    ax2.set_ylabel(r'$\Delta %s$' % quantity_name, color=color_diff)
+    ax2.tick_params(axis='y', colors=color_diff)
+    ax2.yaxis.grid(True, color=color_diff)
+
+    if mark_sections == 'classes':
+        plot_class_limits(axis, Y.min())
+    elif mark_sections == 'parts':
+        raise NotImplementedError()
 
     ## Plot data
     #
-    l_gened, = axis.plot(X, Y, 'ob', fillstyle='none', alpha=alpha)
-    l_heinz, = axis.plot(X, Y_REF, '+g', markersize=8)
+    l_heinz, = axis.plot(X_REF, Y_REF, 'og', fillstyle='none', alpha=alpha)
+    l_gened, = axis.plot(X, Y, '+k', markersize=8)
 
     l_dp = ax2.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
     line_points, regress_poly = fit_straight_line(X, DIFF)
@@ -154,7 +182,8 @@ def pmr_xy_diffs_scatter(X, Y, Y_REF, quantity_name, quantity_units, title, x_la
 
 
 
-def pmr_xy_diffs_arrows(X, Y, Y_REF, quantity_name, quantity_units, title, x_label, axis, axis_cbar):
+def pmr_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis, axis_cbar,
+            mark_sections='classes'):
     color_diff = 'r'
     alpha = 0.9
     colormap = cm.PiYG  # @UndefinedVariable
@@ -166,20 +195,23 @@ def pmr_xy_diffs_arrows(X, Y, Y_REF, quantity_name, quantity_units, title, x_lab
     ## Prepare axes
     #
     axis.set_xlabel(x_label)
-    axis.set_ylabel(r'$%s [%s]$' % (quantity_name, quantity_units))
+    axis.set_ylabel(r'$%s$' % quantity_name)
     axis.xaxis.grid(True)
     axis.yaxis.grid(True)
 
     ax2 = axis.twinx()
-    ax2.set_ylabel(r'$\Delta %s [%s]$' % (quantity_name, quantity_units), color=color_diff, labelpad=0)
+    ax2.set_ylabel(r'$\Delta %s$' % quantity_name, color=color_diff, labelpad=0)
     ax2.tick_params(axis='y', colors=color_diff)
     ax2.yaxis.grid(True, color=color_diff)
 
-    plot_class_limits(axis, Y.min())
+    if mark_sections == 'classes':
+        plot_class_limits(axis, Y.min())
+    elif mark_sections == 'parts':
+        raise NotImplementedError()
 
     ## Plot data
     #
-    q_heinz = axis.quiver(X, Y_REF, 0, DIFF,
+    q_heinz = axis.quiver(X_REF, Y_REF, 0, DIFF,
         DIFF, cmap=colormap, norm=cm_norm,
         units='inches', width=0.04, alpha=alpha,
         pivot='tip'
