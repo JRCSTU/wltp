@@ -1,0 +1,37 @@
+## TravisCI config:
+#   Created on 4 Aug 2014
+#
+language: python
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+before_install:
+    - sudo apt-get install python3-setuptools
+    - pip install setuptools pip -U
+    - pip install coveralls
+    - pip install sphinx
+
+install:
+    - python setup.py build_py
+    - python setup.py develop
+
+# command to run tests
+script:
+    - /bin/bash ./devtools/run_tests.sh              ## A bash shell that runs doctests & coverage only on Python-3.
+    - python setup.py build_sphinx                   ## Build html-docs.
+
+    ## Ensure README valid ReST for PyPI.
+    ##  In case it fails, improve the filtering-code in ``setup.py``.
+    - python setup.py --long-description | rst2html.py  --halt=warning -q
+
+    - python setup.py install
+    - python setup.py sdist                         ## Create archives for PyPI repo.
+
+after_success:
+    coveralls
+
+branches:
+  only:
+    - master
+

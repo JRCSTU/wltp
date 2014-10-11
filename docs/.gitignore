@@ -1,0 +1,6 @@
+/~$.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx
+/_build/
+/docs/*
+
+# From doctest.
+cycle_run.csv
