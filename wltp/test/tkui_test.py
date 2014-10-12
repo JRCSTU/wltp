@@ -29,14 +29,21 @@ class TkUiTest(unittest.TestCase):
         root = tk.Tk()
         try:
             app = TkWltp(root)
-            app.do_quit()
+            app.master.quit()
         finally:
             root.destroy()
 
     @skipIf(utils.is_travis(), "TravisCI has no XServer!")
     def test_smoke_test_with_event_loop(self):
-        app = TkWltp()
-        app.mainloop()
+        root = tk.Tk()
+        try:
+            app = TkWltp(root)
+            app.master.after_idle(app.do_about)
+            app.master.after_idle(app.do_reset)
+            app.master.after_idle(app.master.quit)
+            app.mainloop()
+        finally:
+            root.destroy()
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ def get_class_parts(class_num):
     cls = classes[class_num-1]
     return wltc_data['classes'][cls]['parts']
 
-def prepare_data(cls_num, gened_column, heinz_column):
+def data_meanN_gears(cls_num, gened_column, heinz_column):
 
     vehdata = wltpdb._run_the_experiments(transplant_original_gears=False, compare_results=False)
     vehdata = vehdata[vehdata['class'] == cls_num]    ## Filter only the  Class.
@@ -49,7 +49,7 @@ def prepare_data(cls_num, gened_column, heinz_column):
 def plot(cls_num):
     os.chdir(os.path.join(wltpdb.mydir, wltpdb.samples_dir))
 
-    data = prepare_data(cls_num, gened_column='rpm', heinz_column='n')
+    data = data_meanN_gears(cls_num, gened_column='rpm', heinz_column='n')
 
     bottom = 0.1
     height = 0.8

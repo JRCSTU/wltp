@@ -3,7 +3,26 @@
 #######
 Changes
 #######
+
 .. contents::
+
+
+.. _gtr_ver_matrix:
+
+GTR version matrix
+==================
+Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
+The following matrix shows these correspondences:
+
++---------+-----------------------------+
+| Release |           GTR ver           |
+| train   |                             |
++=========+=============================+
+| 0.x.x   | Till Aug 2014               |
++---------+-----------------------------+
+|1.x.x    | After Nov 2014, phase 2b    |
++---------+-----------------------------+
+
 
 Known deficiencies
 ==================
@@ -62,7 +81,8 @@ Important/*incompatilble* changes
 Changelog
 ^^^^^^^^^
 
-* Backported to Python-2.7.
+* Backported also to Python-2.7.
+* ui: Added desktop-UI proof-of-concept (:class:`wltp.tkui`).
 * model, core: Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced
   by ``driver_mass`` = 75(kg)).
 * model, core: Calculate default resistance-coefficients from a regression-curve (the one found in Heinz-db).

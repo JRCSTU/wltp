@@ -11,7 +11,7 @@
 * Run it as cmd-line to compare with Heinz's results.
 '''
 
-from __future__ import division,print_function,unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 from collections import OrderedDict
 import glob
@@ -19,15 +19,14 @@ import logging
 import math
 import os
 import re
+from six import string_types
 import unittest
 from unittest.case import skip
-
-from six import string_types
-from wltp.utils import memoize
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+from wltp.utils import memoize
 
 from ..experiment import Experiment
 from ..utils import FileNotFoundError
@@ -40,6 +39,7 @@ force_rerun             = False
 mydir = os.path.dirname(__file__)
 samples_dir = 'wltp_db'
 vehs_data_inp_fname = 'wltp_db_vehicles.csv'
+vehs_data_out_fname = 'wltp_db_vehicles_out.csv'
 gened_fname_regex = r'.*wltp_db_vehicles-(\d+).csv'
 heinz_fname_regex = r'.*heinz-(\d+).csv'
 gened_fname_glob = 'wltp_db_vehicles-*.csv'
@@ -60,14 +60,27 @@ log = _init_logging()
 
 
 @memoize
-def _read_vehicle_data():
-    df = pd.read_csv(vehs_data_inp_fname, encoding = encoding, index_col = 0)
+def _read_vehicles_inp():
+    df = pd.read_csv(vehs_data_inp_fname, encoding=encoding, index_col = 0)
 
     return df.copy()
 
+def _read_vehicles_out():
+    try:
+        df = pd.read_csv(vehs_data_out_fname, encoding=encoding, index_col = 0)
+        return df
+    except Exception:
+        ## File corrupts if run interrupted.
+        return None
+
+    return df.copy()
+
+def _write_vehicle_data(df):
+    df = df.to_csv(vehs_data_out_fname, encoding=encoding)
+
 @memoize
 def _read_wots():
-    df = pd.read_csv('wot_samples.csv', encoding = encoding, index_col = None)
+    df = pd.read_csv('wot_samples.csv', encoding=encoding, index_col = None)
 
     return df.copy()
 
@@ -116,9 +129,10 @@ def _read_heinz_file(veh_num):
 _sources_latest_date = None
 def _is_file_up_to_date(result_file, other_dependency_files = ()):
 
-    if force_rerun or not os.path.exists(result_file):
+    result_fnames = [result_file, vehs_data_out_fname]
+    if force_rerun or not all(os.path.exists(f) for f in result_fnames):
         return False
-    result_date = os.path.getmtime(result_file)
+    results_date = max([os.path.getmtime(file) for file in result_fnames])
 
     if _sources_latest_date is None:
         source_fnames = [__file__, '../../model.py', '../../experiment.py', vehs_data_inp_fname]
@@ -127,7 +141,7 @@ def _is_file_up_to_date(result_file, other_dependency_files = ()):
     latest_dep_date = max([os.path.getmtime(file) for file in other_dependency_files])
     latest_dep_date = max(latest_dep_date, _sources_latest_dep_date)
 
-    return result_date > latest_dep_date
+    return results_date > latest_dep_date
 
 
 def _file_pairs(fname_glob):
@@ -478,7 +492,7 @@ class WltpDbTests(unittest.TestCase):
 
 
     def _check_n_mean__pmr(self, fname_glob):
-        vehdata = _read_vehicle_data()
+        vehdata = _read_vehicles_inp()
         vehdata['pmr'] = 1000.0 * vehdata['rated_power'] / vehdata['kerb_mass']
         np.testing.assert_allclose(vehdata.pmr_km, vehdata.pmr)
 
@@ -757,9 +771,20 @@ class WltpDbTests(unittest.TestCase):
 
 
 def _run_the_experiments(transplant_original_gears=False, plot_results=False, compare_results=False, encoding="UTF-8"):
-    # rated_power,kerb_mass,rated_speed,idling_speed,test_mass,no_of_gears,ndv_1,ndv_2,ndv_3,ndv_4,ndv_5,ndv_6,ndv_7,ID_cat,user_def_driv_res_coeff,user_def_power_curve,f0,f1,f2,Comment
-    # 0                                                            5                                10                                                    15                        19
-    inp_df = _read_vehicle_data()
+    
+    ## If file existent, it contains also calculated fields 
+    #    from the previous experiment run.
+    # 
+    out_df = _read_vehicles_out()
+    
+    inp_df = _read_vehicles_inp()
+    ## Reconstruct the columns only presetn in the out_df.
+    #
+    inp_df['pmr'] = np.NAN
+    inp_df['wltc_class'] = ''
+    inp_df['f_downscale'] = np.NAN
+    
+    
     wots = _read_wots()
 
     failed_vehicles = 0
@@ -768,7 +793,8 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
         heinz_fname = _make_heinz_fname(veh_num)
         outfname = _make_gened_fname(transplant_original_gears, veh_num)
 
-        if _is_file_up_to_date(outfname, [heinz_fname]):
+        if not out_df is None and _is_file_up_to_date(outfname, [heinz_fname]):
+            inp_df.loc[ix] = out_df.loc[ix]
             continue
 
         model = goodVehicle()
@@ -799,23 +825,27 @@ def _run_the_experiments(transplant_original_gears=False, plot_results=False, co
             failed_vehicles += 1
             continue
         else:
-            params = model['params']
+            params  = model['params']
+            veh     = model['vehicle']
 
-            f_downscale = params['f_downscale']
-            if (f_downscale > 0):
-                log.warning('>> DOWNSCALE %s', f_downscale)
-
-
+            inp_df.loc[ix, 'pmr'] = veh['pmr']
+            inp_df.loc[ix, 'wltc_class'] = veh['wltc_class']
+            inp_df.loc[ix, 'f_downscale'] = params['f_downscale']
+            
             # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
             # heinz:         't', 'km_h', 'stg', 'gear'
-            out_df = pd.DataFrame(model['cycle_run'])
+            cycle_df = pd.DataFrame(model['cycle_run'])
 
-            _compare_exp_results(out_df, outfname, compare_results)
-            out_df.to_csv(outfname, index_label='time')
+            _compare_exp_results(cycle_df, outfname, compare_results)
+            
+            cycle_df.to_csv(outfname, index_label='time')
     fail_limit_prcnt = 0.1
     assert failed_vehicles < fail_limit_prcnt * inp_df.shape[0], \
             'TOO MANY(>%f) vehicles have Failed(%i out of %i)!'% (fail_limit_prcnt, failed_vehicles, inp_df.shape[0])
 
+    if not transplant_original_gears:
+        _write_vehicle_data(inp_df)
+        
     return inp_df
 
 #     vehfpath = os.path.join(samples_dir, 'heinz_Petrol_veh{:05}.dri'.format(veh_num))
@@ -847,6 +877,8 @@ def _compare_exp_results(tabular, outfname, run_comparison):
 
 
 
+## TODO: Move into wltp/plots
+#
 def _plotResults(veh_fname, df_g, df_h,  res, ax, plot_diffs_gears_only=True, plot_original_gears = False):
     if (plot_original_gears):
         my_gear_col = 'gears_orig'

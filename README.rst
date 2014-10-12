@@ -64,7 +64,7 @@ to produce the :dfn:`output-model`.  The process is depicted in the following di
 
 Install
 -------
-Requires Python-2.7+ or Python-3.3+ (preferred).
+The current version |version| requires Python-2.7+ or Python-3.3+ (preferred).
 
 .. Tip:: To install *python*, you can try the free (as in beer) distribution
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ for *Windows* and *OS X*, or
@@ -92,6 +92,8 @@ Notice that :option:`--pre` is required, since all released packages so far were
 If install has been successful, the :cmd:`wltpcmd.py` script must have been installed somewhere
 in your :envvar:`PATH`.  Type this to check it:
 
+.. code-block:: console
+
     $ wltpcmd.py --version                      ## Check which version installed.
     wltpcmd.py 0.0.9-alpha.2
 
@@ -111,6 +113,9 @@ in your :envvar:`PATH`.  Type this to check it:
         * openssh, curl, wget
 
 
+
+Installing from sources
+^^^^^^^^^^^^^^^^^^^^^^^
 Alternatively you can build the latest version of the project from the sources,
 (assuming you have a working installation of `git <http://git-scm.com/>`_)
 and install it in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
@@ -152,6 +157,26 @@ on your system (or virtualenv), enter:
 
     pip install -r requirements.txt
 
+
+
+Older versions
+^^^^^^^^^^^^^^
+An additional purpose of the versioning schema of the project is to track which specific version
+of the GTR it implements.
+Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
+See the :ref:`gtr_ver_matrix` section in :doc:`CHANGES` for the mapping of MAJOR-numbers to GTR versions.
+
+To install an older version issue the console command:
+
+.. code-block:: console
+
+    $ pip install wltp=1.1.1                    ## Use `--pre` if neccessary.
+
+If you have another version already installed, you have to use :option:`--ignore-installed`.
+For using the specific version, check this (untested)
+`stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
+
+Of course it is better to install each version in a separate `virtualenv` and shy away from all this.
 
 
 
@@ -451,7 +476,7 @@ Then you can install all project's dependencies in *`development mode* using the
     $ python setup.py build                             ## Check that the project indeed builds ok.
 
 
-You should now run the test-cases (see `Tests & Metrics`_, below) to check
+You should now run the test-cases (see ref:`metrics`, below) to check
 that the sources are in good shape:
 
 .. code-block:: console
@@ -526,16 +551,21 @@ The typical development procedure is like this:
 
 .. _metrics:
 
-Tests & Metrics
----------------
+Tests, Metrics & Reports
+------------------------
 In order to maintain the algorithm stable, a lot of effort has been put
 to setup a series of test-case and metrics to check the sanity of the results
 and to compare them with the Heinz-db tool or other datasets included in the project.
 These tests can be found in the :file:`wltp/test/` folders.
 
-Below are are some representative diagrams that track the behavior and conformance of the project.
+Additionally, below are *auto-generated* representative diagrams with the purpose
+to track the behavior and the evolution of this project.
+
+You can reuse the plotting code here for building nice ipython-notebooks reports,
+and (optionally) link them in the wiki of the project (see section above).
 The actual code for generating diagrams for these metrics is in :class:`wltp.plots` and it is invoked
 by scripts in the :file:`docs/pyplot/` folder.
+
 
 Mean Engine-speed / PMR
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -555,8 +585,8 @@ The same information is presented again but now each vehicle difference is drawn
 It can be seen now that this project's calculates lower engine-speeds for classes 1 & 3 but
 the trend is reversed for class 2.
 
-Below the mean-engine-speeds of each class are drawn against the mean gear used,
-grouped by class-parts (so that, for instance, a class3 vehicle corresponds to 3 points on the diagram):
+Below the mean-engine-speeds are drawn against the mean gear used, grouped by classes and class-parts
+(so that, for instance, a class3 vehicle corresponds to 3 points on the diagram):
 
 
 .. plot:: pyplots/gears_n_arrows_class_1.py

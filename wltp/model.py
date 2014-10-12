@@ -16,22 +16,21 @@ from __future__ import division, print_function, unicode_literals
 from collections import Mapping
 import functools
 import json
-import logging
-from textwrap import dedent
-
 from jsonschema import (RefResolver, ValidationError)
 import jsonschema
+import logging
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
-from wltp.cycles import (class1, class2, class3)
-from wltp.pandel import PandelVisitor
+from textwrap import dedent
 
 import itertools as it
 import numpy as np
 import operator as ops
 import pandas as pd
+from wltp.cycles import (class1, class2, class3)
+from wltp.pandel import PandelVisitor
 
 
 log = logging.getLogger(__name__)
