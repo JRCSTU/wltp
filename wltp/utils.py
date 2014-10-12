@@ -9,6 +9,7 @@
 from __future__ import division, unicode_literals
 
 import argparse
+import os
 import unittest
 
 import pandas as pd
@@ -102,3 +103,7 @@ class Lazy(object):
         self.func=func
     def __str__(self):
         return self.func()
+
+
+def is_travis():
+    return 'TRAVIS' in os.environ

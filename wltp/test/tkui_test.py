@@ -9,7 +9,9 @@
 from __future__ import division, unicode_literals
 
 import unittest
-from unittest.case import SkipTest
+from unittest.case import skipIf
+
+from wltp import utils
 from wltp.tkui import TkWltp
 
 
@@ -22,19 +24,27 @@ except ImportError:
 class TkUiTest(unittest.TestCase):
 
 
+    @skipIf(utils.is_travis(), "TravisCI has no XServer!")
     def test_smoke_test_no_event_loop(self):
         root = tk.Tk()
         try:
             app = TkWltp(root)
-            app.do_quit()
+            app.master.quit()
         finally:
             root.destroy()
 
-    @SkipTest
+    @skipIf(utils.is_travis(), "TravisCI has no XServer!")
     def test_smoke_test_with_event_loop(self):
-        app = TkWltp()
-        app.mainloop()
-            
+        root = tk.Tk()
+        try:
+            app = TkWltp(root)
+            app.master.after_idle(app.do_about)
+            app.master.after_idle(app.do_reset)
+            app.master.after_idle(app.master.quit)
+            app.mainloop()
+        finally:
+            root.destroy()
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

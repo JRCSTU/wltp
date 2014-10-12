@@ -10,9 +10,9 @@ from matplotlib import cbook, cm, pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib.mlab import ma
 from numpy import polyfit, polyval
-from wltp import model
 
 import numpy as np
+from wltp import model
 
 
 ## From http://stackoverflow.com/questions/7404116/defining-the-midpoint-of-a-colormap-in-matplotlib
@@ -131,58 +131,77 @@ def plot_class_limits(axis, y):
 #        bbox={'facecolor':'red', 'alpha':0.5, 'pad':4, 'linewidth':0}
 #        txts = [ 'Low', 'Medium', 'High', 'Extra-high']
 #        txts_pos = [0] + part_limits #[0.40, 0.67, 0.85]
-#    
+#
 #        for (txt, h_pos) in zip(txts, txts_pos):
 #            ax1.text(h_pos + 8, v_pos, txt, style='italic',
 #                bbox=bbox, size=8)
 
+
+def calc_2D_diff_on_Y(X1, Y1, X2, Y2):
+    """
+    Given 2 sets of 2D-points calcs the euclidean distance from 2nd to 1st with sign  based on the Y axis.
+    """
+    U = X2 - X1
+    V = Y2 - Y1
+    DIFF = np.sqrt(U ** 2 + V ** 2)
+    DIFF[V < 0] = -DIFF[V < 0]
+    return U, V, DIFF
 
 
 #############
 ### PLOTS ###
 
 
-def pmr_xy_diffs_scatter(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis, 
+def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=None,
+            data_fmt="+k", data_kws={}, ref_fmt='.g', ref_kws={},
+            title=None, x_label=None, y_label=None, axes=None,
             mark_sections='classes'):
     color_diff = 'r'
     alpha = 0.8
 
-    plt.title(title)
-    DIFF = Y - Y_REF
+    _, _, DIFF = calc_2D_diff_on_Y(X_REF, Y_REF, X, Y)
+    if not axes:
+        axes = plt.subplot(111)
 
-    ## Prepare axis
-    #
-    axis.set_xlabel(x_label)
-    axis.set_ylabel(r'$%s$' % quantity_name)
-    axis.xaxis.grid(True)
-    axis.yaxis.grid(True)
+        plt.title(title)
 
-    ax2 = axis.twinx()
-    ax2.set_ylabel(r'$\Delta %s$' % quantity_name, color=color_diff)
-    ax2.tick_params(axis='y', colors=color_diff)
-    ax2.yaxis.grid(True, color=color_diff)
+        ## Prepare axes
+        #
+        axes.set_xlabel(x_label)
+        axes.set_ylabel(y_label)
+        axes.xaxis.grid(True)
+        axes.yaxis.grid(True)
 
-    if mark_sections == 'classes':
-        plot_class_limits(axis, Y.min())
-    elif mark_sections == 'parts':
-        raise NotImplementedError()
+        twin_axis = axes.twinx()
+        twin_axis.set_ylabel(r'$\Delta %s$' % y_label.replace('$',''), color=color_diff)
+        twin_axis.tick_params(axis='y', colors=color_diff)
+        twin_axis.yaxis.grid(True, color=color_diff)
+
+        if mark_sections == 'classes':
+            plot_class_limits(axes, Y.min())
+        elif mark_sections == 'parts':
+            raise NotImplementedError()
+
+    else:
+        (axes, twin_axis) = axes
 
     ## Plot data
     #
-    l_heinz, = axis.plot(X_REF, Y_REF, 'og', fillstyle='none', alpha=alpha)
-    l_gened, = axis.plot(X, Y, '+k', markersize=8)
+    l_ref = axes.plot(X_REF, Y_REF, ref_fmt, label=ref_label,
+        alpha=alpha, **ref_kws)
+    l_data = axes.plot(X, Y, data_fmt, label=data_label, **data_kws)
 
-    l_dp = ax2.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
+    twin_axis.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
     line_points, regress_poly = fit_straight_line(X, DIFF)
-    l_regress, = ax2.plot(line_points, polyval(regress_poly, line_points), '-',
-        color=color_diff, alpha=alpha/2)
+    l_diff = twin_axis.plot(line_points, polyval(regress_poly, line_points), '-',
+        color=color_diff, alpha=alpha/2, label=diff_label)
 
-    plt.legend([l_gened, l_heinz, l_regress], ['Python', 'Access-db', 'Differences'])
-
-
+    return (axes, twin_axis), (l_data, l_ref, l_diff)
 
 
-def pmr_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis, axis_cbar,
+
+
+def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis, axis_cbar,
             mark_sections='classes'):
     color_diff = 'r'
     alpha = 0.9
@@ -190,12 +209,12 @@ def pmr_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis,
     cm_norm = MidPointNorm()
 
     plt.title(title)
-    DIFF = Y - Y_REF
+    U, V, DIFF = calc_2D_diff_on_Y(X_REF, Y_REF, X, Y)
 
     ## Prepare axes
     #
     axis.set_xlabel(x_label)
-    axis.set_ylabel(r'$%s$' % quantity_name)
+    axis.set_ylabel(r'%s$' % quantity_name)
     axis.xaxis.grid(True)
     axis.yaxis.grid(True)
 
@@ -211,7 +230,7 @@ def pmr_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis,
 
     ## Plot data
     #
-    q_heinz = axis.quiver(X_REF, Y_REF, 0, DIFF,
+    q_heinz = axis.quiver(X, Y, U, V,
         DIFF, cmap=colormap, norm=cm_norm,
         units='inches', width=0.04, alpha=alpha,
         pivot='tip'
@@ -221,11 +240,11 @@ def pmr_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis,
 
     ax2.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
     line_points, regress_poly = fit_straight_line(X, DIFF)
-    l_regress, = ax2.plot(line_points, polyval(regress_poly, line_points), '-', 
+    l_regress, = ax2.plot(line_points, polyval(regress_poly, line_points), '-',
         color=color_diff, alpha=alpha/2)
 
     plt.legend([l_gened, l_regress, ], ['Python', 'Differences'])
-    
+
     ## Colormap legend
     #
     min_DIFF = DIFF.min()
@@ -233,7 +252,8 @@ def pmr_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis,
     nsamples = 20
     m = np.linspace(min_DIFF, max_DIFF, nsamples)
     m.resize((nsamples, 1))
-    axis_cbar.imshow(m, cmap=colormap, norm=cm_norm, aspect=2, origin="lower", 
+    extent = max_DIFF - min_DIFF
+    axis_cbar.imshow(m, cmap=colormap, norm=cm_norm, aspect=600/extent, origin="lower",
         extent=[0, 12, min_DIFF, max_DIFF])
     axis_cbar.xaxis.set_visible(False)
     axis_cbar.yaxis.set_ticks_position('left')

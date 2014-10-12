@@ -32,7 +32,7 @@ if __name__ == '__main__':
     axis = plt.axes([0.1, bottom, 0.90, height])
     axis_cbar = plt.axes([0.90, bottom, 0.12, height])
     
-    plots.pmr_xy_diffs_arrows(
+    plots.plot_xy_diffs_arrows(
         X, Y, X, Y_REF, 
         quantity_name='EngineSpeed [rpm]', 
         title="Python vs Access-db(2sec rule)",
