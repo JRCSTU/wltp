@@ -164,7 +164,7 @@ Older versions
 An additional purpose of the versioning schema of the project is to track which specific version
 of the GTR it implements.
 Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
-See the :ref:`gtr_ver_matrix` section in :doc:`CHANGES` for the mapping of MAJOR-numbers to GTR versions.
+See the "GTR version matrix" section in :doc:`CHANGES` for the mapping of MAJOR-numbers to GTR versions.
 
 To install an older version issue the console command:
 

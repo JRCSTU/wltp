@@ -18,9 +18,13 @@ The following matrix shows these correspondences:
 | Release |           GTR ver           |
 | train   |                             |
 +=========+=============================+
-| 0.x.x   | Till Aug 2014               |
+| 0.x.x   | Till Aug 2014, Not very     |
+|         | Not very Precise with the   |
+|         | till-that-day standard.     |
+|         | (diffs explained below)     |
 +---------+-----------------------------+
 |1.x.x    | After Nov 2014, phase 2b    |
+|         | (TBD)                       |
 +---------+-----------------------------+
 
 
