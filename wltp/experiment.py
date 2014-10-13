@@ -128,7 +128,7 @@ class Experiment(object):
         p_rated             = vehicle['p_rated']
         n_rated             = vehicle['n_rated']
         n_idle              = vehicle['n_idle']
-        n_min_drive         = vehicle['n_min']
+        n_min_drive         = vehicle['gear_n_mins']
         v_max               = vehicle['v_max']
         gear_ratios         = vehicle['gear_ratios']
         res_coeffs          = vehicle.get('resistance_coeffs')
@@ -480,13 +480,15 @@ def possibleGears_byEngineRevs(V, A, _N_GEARS,
     #
     ## TODO: Construct a matrix of n_min_drive for all gears, including exceptions for gears 1 & 2.
     #
+    assert len(n_min_drive) == _N_GEARS.shape[0], (len(n_min_drive), _N_GEARS.shape[0]) 
+    n_min_drive = np.tile(n_min_drive, (_N_GEARS.shape[1], 1)).T
     GEARS_YES_MIN           = (_N_GEARS >= n_min_drive)
     GEARS_YES_MIN[0, :]     = (_N_GEARS[0, :] >= n_idle) | (V <= v_stopped_threshold) # FIXME: move V==0 into own gear.
 
-    ## NOTE: "interpratation" of specs for Gear-2
-    #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Decelerating.".
-    N_GEARS2                = _N_GEARS[1, :]
-    GEARS_YES_MIN[1, :]     = ((N_GEARS2 >= n_min_gear2) & (A <= 0)) | ((N_GEARS2 >= n_min_gear2) & (A > 0))
+#    ## NOTE: "interpratation" of specs for Gear-2
+#    #        and FIXME: NOVATIVE rule: "Clutching gear-2 only when Decelerating.".
+#    N_GEARS2                = _N_GEARS[1, :]
+#    GEARS_YES_MIN[1, :]     = ((N_GEARS2 >= n_min_gear2) & (A <= 0)) | ((N_GEARS2 >= n_min_gear2) & (A > 0))
 
     ## Revert impossibles to min-gear, n_min & clutched.
     #

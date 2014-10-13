@@ -16,7 +16,7 @@ def goodVehicle():
             "p_rated":  100,
             "n_rated":  5450,
             "n_idle":   950,
-            #"n_min":   None,    # Can be overriden by manufacturer.
+            "gear_n_mins":   [700, 900, 1000, 1100, 1200, 1300],
             "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
         }
     }

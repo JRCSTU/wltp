@@ -11,26 +11,27 @@ Defines the schema, defaults and validation operations for the data consumed and
 The model-instance is managed by :class:`pandel.Pandel`.
 """
 
-from __future__ import division, print_function, unicode_literals
+from __future__ import division,print_function,unicode_literals
 
 from collections import Mapping
 import functools
 import json
-from jsonschema import (RefResolver, ValidationError)
-import jsonschema
 import logging
+from textwrap import dedent
+
+from jsonschema import (RefResolver,ValidationError)
+import jsonschema
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
-from textwrap import dedent
+from wltp.cycles import (class1,class2,class3)
+from wltp.pandel import PandelVisitor
 
 import itertools as it
 import numpy as np
 import operator as ops
 import pandas as pd
-from wltp.cycles import (class1, class2, class3)
-from wltp.pandel import PandelVisitor
 
 
 log = logging.getLogger(__name__)
@@ -138,7 +139,7 @@ def _get_model_base():
             "p_rated":  None,
             "n_rated":  None,
             "n_idle":   None,
-            "n_min":    None,
+            "gear_n_mins":    None,
             "gear_ratios":[],
             'full_load_curve': default_load_curve, # FIXME: Decide load_curve by engine-type!
         },
@@ -267,14 +268,12 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         '$ref': '#/definitions/positiveNumber',
                         'description': 'The idling engine revolutions (Annex 1).',
                     },
-                    'n_min': {
-                        'title': 'minimum engine revolutions',
-                        'type': ['integer', 'null'],
+                    'gear_n_mins': {
+                        'title': 'minimum engine revolutions for each gear',
+                        'type': ['array'],
+                        'items': {'type': 'number'},
                         'description': dedent("""
-                        minimum engine revolutions for gears > 2 when the vehicle is in motion. The minimum value
-                        is determined by the following equation::
-                            n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
-                        Higher values may be used if requested by the manufacturer, by setting this one.
+                        Must have length equal to gears
                        """),
                     },
                     'gear_ratios': {
@@ -649,6 +648,7 @@ def validate_model(mdl, additional_properties=False, iter_errors=False, validate
     validators = [
         validator.iter_errors(mdl),
         yield_load_curve_errors(mdl),
+        yield_gear_n_mins_errors(mdl),
         yield_forced_cycle_errors(mdl, additional_properties)
     ]
     errors = it.chain(*[v for v in validators if not v is None])
@@ -707,6 +707,15 @@ def yield_load_curve_errors(mdl):
         vehicle['full_load_curve'] = wot
     except (KeyError, PandasError) as ex:
         yield ValidationError('Invalid Full-load-curve, due to: %s' % ex, cause= ex)
+
+def yield_gear_n_mins_errors(mdl):
+    vehicle = mdl['vehicle']
+    try:
+        if len(vehicle['gear_ratios']) != len(vehicle['gear_n_mins']):
+            yield ValidationError("Length mismatch of gear_ratios(%i) != gear_n_mins"% (len(vehicle['gear_ratios']), len(vehicle['gear_n_mins'])))
+    except PandasError as ex:
+        yield ValidationError("Invalid 'gear_n_mins', due to: %s" % ex, cause= ex)
+
 
 def yield_forced_cycle_errors(mdl, additional_properties):
     params = mdl['params']
