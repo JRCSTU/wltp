@@ -11,26 +11,27 @@ Defines the schema, defaults and validation operations for the data consumed and
 The model-instance is managed by :class:`pandel.Pandel`.
 """
 
-from __future__ import division, print_function, unicode_literals
+from __future__ import division,print_function,unicode_literals
 
 from collections import Mapping
 import functools
 import json
-from jsonschema import (RefResolver, ValidationError)
-import jsonschema
 import logging
+from textwrap import dedent
+
+from jsonschema import (RefResolver,ValidationError)
+import jsonschema
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
-from textwrap import dedent
+from wltp.cycles import (class1,class2,class3)
+from wltp.pandel import PandelVisitor
 
 import itertools as it
 import numpy as np
 import operator as ops
 import pandas as pd
-from wltp.cycles import (class1, class2, class3)
-from wltp.pandel import PandelVisitor
 
 
 log = logging.getLogger(__name__)
@@ -733,6 +734,7 @@ def yield_forced_cycle_errors(mdl, additional_properties):
         except PandasError as ex:
             yield ValidationError('Invalid forced_cycle, due to: %s' % ex, cause= ex)
 
+get_model_schema = _get_model_schema
 
 if __name__ == '__main__':
     print('Model: %s' % json.dumps([_get_model_schema(), _get_wltc_schema()], indent=1))
