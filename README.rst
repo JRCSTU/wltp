@@ -4,7 +4,7 @@
 
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
-:Version:       |version|
+:Release:       |version|
 :Home:          https://github.com/ankostis/wltp
 :Documentation: https://wltp.readthedocs.org/
 :PyPI:          https://pypi.python.org/pypi/wltp
