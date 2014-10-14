@@ -124,10 +124,11 @@ install_deps = [
     'six',
     'jsonschema>=2.4',
     'jsonpointer',
-#     'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
+    #'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
     'numpy',
     'pandas', #'openpyxl', 'xlrd',
     'matplotlib', #>=1.4', ## Let it mature some time more...
+    'Pillow',          # For About boxes
 ]
 if PY2:
     install_deps += ['mock']
