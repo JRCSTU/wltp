@@ -12,19 +12,20 @@ import unittest
 from unittest.case import skipIf
 
 from wltp import utils
-from wltp.tkui import TkWltp
+import six
 
 
 try:
+    from wltp.tkui import TkWltp
     import tkinter as tk
 except ImportError:
-    import Tkinter as tk
+    pass
 
 
 class TkUiTest(unittest.TestCase):
 
 
-    @skipIf(utils.is_travis(), "TravisCI has no XServer!")
+    @skipIf(utils.is_travis() or six.PY2, "TravisCI has no XServer!")
     def test_smoke_test_no_event_loop(self):
         root = tk.Tk()
         try:
@@ -33,7 +34,7 @@ class TkUiTest(unittest.TestCase):
         finally:
             root.destroy()
 
-    @skipIf(utils.is_travis(), "TravisCI has no XServer!")
+    @skipIf(utils.is_travis() or six.PY2, "TravisCI has no XServer!")
     def test_smoke_test_with_event_loop(self):
         root = tk.Tk()
         try:

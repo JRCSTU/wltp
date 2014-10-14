@@ -64,7 +64,9 @@ to produce the :dfn:`output-model`.  The process is depicted in the following di
 
 Install
 -------
-The current version |version| requires Python-2.7+ or Python-3.3+ (preferred).
+The current version |version| requires Python-2.7+ or Python-3.3+ 
+Version 3.3+ is preferred, i.e, the desktop UI does not work in Python 2.
+
 
 .. Tip:: To install *python*, you can try the free (as in beer) distribution
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ for *Windows* and *OS X*, or
@@ -226,6 +228,8 @@ just run:
 .. code-block:: console
 
     wltpcmd.py --gui
+
+.. Warning:: The desktop UI DOES NOT run under Python 2!
 
 
 
