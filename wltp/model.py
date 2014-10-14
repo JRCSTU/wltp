@@ -18,6 +18,8 @@ import functools
 import json
 import logging
 from textwrap import dedent
+from wltp.cycles import (class1,class2,class3)
+from wltp.pandel import PandelVisitor
 
 from jsonschema import (RefResolver,ValidationError)
 import jsonschema
@@ -25,8 +27,6 @@ from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
-from wltp.cycles import (class1,class2,class3)
-from wltp.pandel import PandelVisitor
 
 import itertools as it
 import numpy as np
@@ -384,7 +384,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'default': 1,
                     },
                     'f_inertial': {
-                        'description': 'Inertial factor used for calculating required-power (Annex 2-3.1, p71).',
+                        'description': "This is the 'kr' inertial-factor used in the 2nd part of the formula for calculating required-power (Annex 2-3.1, p71).",
                         'type': [ 'number', 'null'],
                         'default': 1.1,
                     },

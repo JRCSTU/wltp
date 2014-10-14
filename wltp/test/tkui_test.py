@@ -38,12 +38,15 @@ class TkUiTest(unittest.TestCase):
         root = tk.Tk()
         try:
             app = TkWltp(root)
-            app.master.after_idle(app.do_about)
-            app.master.after_idle(app.do_reset)
-            app.master.after_idle(app.master.quit)
+            root.after_idle(app._do_about)
+            root.after_idle(app._do_reset)
+            root.after(3000, root.quit)
             app.mainloop()
         finally:
-            root.destroy()
+            try:
+                root.destroy()
+            except tk.TclError:
+                pass
 
 
 if __name__ == "__main__":
