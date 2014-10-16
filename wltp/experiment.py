@@ -240,7 +240,7 @@ class Experiment(object):
         N_NORM                      = _N_NORMS[GEARS - 1, range(len(V))]
         RPM                         = _N_GEARS[GEARS - 1, range(len(V))]
         V_REAL                      = RPM / _GEAR_RATIOS[GEARS - 1, range(len(V))]
-
+        RPM[RPM < n_idle] = 0
 
         results['gears']        = GEARS
         results['v_real']       = V_REAL
