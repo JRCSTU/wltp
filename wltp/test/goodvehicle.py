@@ -18,6 +18,10 @@ def goodVehicle():
             "n_idle":   950,
             "gear_n_mins":   [700, 900, 1000, 1100, 1200, 1300],
             "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
+        },
+        "params": {
+            "f_safety_margin": [0.9] * 6,
         }
+        
     }
     return goodVehicle

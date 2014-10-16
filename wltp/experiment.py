@@ -542,7 +542,8 @@ def calcPower_available(_N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety
 #     from scipy.interpolate import interp1d
 #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
 #     P_WOT           = intrerp_f(_N_NORMS)
-    _P_AVAILS        = _P_WOTS * p_rated * p_safety_margin
+    safety_margins   = np.tile(p_safety_margin, (_N_GEARS.shape[1], 1)).T
+    _P_AVAILS        = _P_WOTS * safety_margins * p_rated
 
     return (_P_AVAILS, _N_NORMS)
 

@@ -11,22 +11,22 @@ Defines the schema, defaults and validation operations for the data consumed and
 The model-instance is managed by :class:`pandel.Pandel`.
 """
 
-from __future__ import division,print_function,unicode_literals
+from __future__ import division, print_function, unicode_literals
 
-from collections import Mapping
+from collections import Mapping, Sized
 import functools
 import json
 import logging
 from textwrap import dedent
+from wltp.cycles import (class1, class2, class3)
+from wltp.pandel import PandelVisitor
 
-from jsonschema import (RefResolver,ValidationError)
+from jsonschema import (RefResolver, ValidationError)
 import jsonschema
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
-from wltp.cycles import (class1,class2,class3)
-from wltp.pandel import PandelVisitor
 
 import itertools as it
 import numpy as np
@@ -387,8 +387,11 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'default': 1.1,
                     },
                     'f_safety_margin': {
-                        'description': 'Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).',
-                        'type': [ 'number', 'null'],
+                        'description': dedent("""
+                            Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).
+                            If array, its length must match those of the `gear_ratios`.
+                        """),
+                        'type': [ 'array', 'number', 'null'],
                         'default': 0.9,
                     },
                     'f_n_max': {
@@ -649,6 +652,7 @@ def validate_model(mdl, additional_properties=False, iter_errors=False, validate
         validator.iter_errors(mdl),
         yield_load_curve_errors(mdl),
         yield_gear_n_mins_errors(mdl),
+        yield_safety_margin_errors(mdl),
         yield_forced_cycle_errors(mdl, additional_properties)
     ]
     errors = it.chain(*[v for v in validators if not v is None])
@@ -710,9 +714,23 @@ def yield_load_curve_errors(mdl):
 
 def yield_gear_n_mins_errors(mdl):
     vehicle = mdl['vehicle']
+    ngears = len(vehicle['gear_n_mins'])
     try:
-        if len(vehicle['gear_ratios']) != len(vehicle['gear_n_mins']):
-            yield ValidationError("Length mismatch of gear_ratios(%i) != gear_n_mins"% (len(vehicle['gear_ratios']), len(vehicle['gear_n_mins'])))
+        if len(vehicle['gear_ratios']) != ngears:
+            yield ValidationError("Length mismatch of gear_ratios(%i) != gear_n_mins"% (len(vehicle['gear_ratios']), ngears))
+    except PandasError as ex:
+        yield ValidationError("Invalid 'gear_n_mins', due to: %s" % ex, cause= ex)
+
+def yield_safety_margin_errors(mdl):
+    params = mdl['params']
+    f_safety_margin = params['f_safety_margin']
+    ngears = len(mdl['vehicle']['gear_ratios'])
+    try:
+        if isinstance(f_safety_margin, Sized):
+            if len(f_safety_margin) != ngears:
+                yield ValidationError("Length mismatch of gear_ratios(%i) != f_safety_margin"% (ngears, len(f_safety_margin)))
+        else:
+            params['f_safety_margin'] = [f_safety_margin] * ngears
     except PandasError as ex:
         yield ValidationError("Invalid 'gear_n_mins', due to: %s" % ex, cause= ex)
 
