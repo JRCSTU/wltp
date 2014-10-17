@@ -137,7 +137,7 @@ That way you get the complete source-tree of the project, ready for development
     +--wltp/            ## (package) The python-code of the calculator
     |   +--cycles/      ## (package) The python-code for the WLTC data
     |   +--test/        ## (package) Test-cases and the wltp_db
-    |   +--model        ## (module) Describes the data for the calculation
+    |   +--model        ## (module) Describes the data and their schema for the calculation
     |   +--experiment   ## (module) The calculator
     |   +--plots        ## (module) Diagram-plotting code and utilities
     +--docs/            ## Documentation folder
@@ -419,7 +419,7 @@ Enjoy!
 
 Getting Involved
 ================
-This project is hosted in **github**.
+This project is hosted in **github**. 
 To provide feedback about bugs and errors or questions and requests for enhancements,
 use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
 
@@ -427,7 +427,10 @@ use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
 
 Sources & Dependencies
 ----------------------
-To get involved with development, first you need to download the latest sources:
+To get involved with development, you need a POSIX environment to fully build it
+(*Linux*, *OSX* or *Cygwin* on *Windows*). 
+
+First you need to download the latest sources:
 
 .. code-block:: console
 
@@ -435,12 +438,12 @@ To get involved with development, first you need to download the latest sources:
     $ cd wltp.git
 
 
-.. Admonition:: Virtualenv & Liclipse IDE
+.. Admonition:: Virtualenv
     :class: note
 
     You may choose to work in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_,
     to install dependency libraries isolated from system's ones, and/or without *admin-rights*
-    (recommended for *Linux*/*Mac OS*).
+    (this is recommended for *Linux*/*Mac OS*).
 
     .. Attention::
         If you decide to reuse stystem-installed packages using  :option:`--system-site-packages`
@@ -448,6 +451,9 @@ To get involved with development, first you need to download the latest sources:
         (to avoid, for instance, having to reinstall *numpy* and *pandas* that require native-libraries)
         you may be bitten by `bug #461 <https://github.com/pypa/virtualenv/issues/461>`_ which
         prevents you from upgrading any of the pre-installed packages with :command:`pip`.
+
+.. Admonition:: Liclipse IDE
+    :class: note
 
     Within the sources it is included a :file:`.project` file for the comprehensive
     `LiClipse <https://brainwy.github.io/liclipse/>`_, an **eclipse** IDE pre-configured with the
@@ -458,6 +464,11 @@ To get involved with development, first you need to download the latest sources:
     You may change this choice of interpreter by :guilabel:`Right-clicking` on the Project and navigating
     to :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`,
     but you have to remember not commit this change in :file:`.project`.
+    
+    Another issue is caused due to the fact that LiClipse contains its own implementation of *Git*, *EGit*,
+    which badly interacts with unix *symbolic-links*, such as the :file:`docs/docs`, and it detects
+    working-directory changes even after a fresh checkout.  To workaround this, Right-click on the above file
+    :menuselection:`Properties --> Team --> Advanced --> Assume Unchanged` 
 
 
 Then you can install all project's dependencies in *`development mode* using the :file:`setup.py` script:
