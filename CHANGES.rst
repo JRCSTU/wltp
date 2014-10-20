@@ -81,12 +81,20 @@ Important/*incompatilble* changes
     * ``/vehicle/mass`` --> (``test_mass`` and ``unladen_mass``)
     * ``/cycle_run``: If present, (some of) its columns override the calculation.
 
+* Added tkUI and Excel front-ends.
 
 Changelog
 ^^^^^^^^^
 
-* Backported also to Python-2.7.
+v0.0.9-alpha.2 
+~~~~~~~~~~~~~~
+* ui: Added Excel frontend.
 * ui: Added desktop-UI proof-of-concept (:class:`wltp.tkui`).
+* metrics: Add diagrams auto-generated from test-metrics into generated site (at "Getting Involved" section).
+
+v0.0.9-alpha.1 
+~~~~~~~~~~~~~~
+* Backported also to Python-2.7.
 * model, core: Discriminate between :term:`Test mass` from :term:`Unladen mass` (optionally auto-calced
   by ``driver_mass`` = 75(kg)).
 * model, core: Calculate default resistance-coefficients from a regression-curve (the one found in Heinz-db).
@@ -94,11 +102,10 @@ Changelog
 * model: Add NEDC cycle data, for facilitating comparisons.
 * tests: Include sample-vehicles along with the distribution.
 * tests: Speed-up tests by caching files to read and compare.
-* metrics: Add diagrams auto-generated from test-metrics into generated site (at "Getting Involved" section).
 * docs: Considerable improvements, validate code in comments and docs with *doctest*.
 * docs: Provide a http-link to the list of IPython front-ends in the project's wiki.
 * build: Use TravisCI as integration server, Coveralls.io as test-coverage service-providers.
-* build: Not possible anymore to distribute it as .EXE; need a proper python-3 envronment.
+* build: Not possible anymore to distribute it as .EXE; need a proper python-3 environment.
 
 
 v0.0.8-alpha, 04-Aug-2014

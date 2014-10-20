@@ -59,6 +59,14 @@ to produce the :dfn:`output-model`.  The process is depicted in the following di
     '---------------------'                        '----------------------------.
 
 
+For a quick-start, and assuming a working python-environment, open a normal "console" and type:
+
+#. Install: ``pip install wltp --pre -U``
+#. Check version: ``wltpcmd.py --version``  
+#. Run with the TkUI: ``wltpcmd.py --gui``
+#. (*Windows* or *OS X*) Create and open an Excel file in your working-folder: ``wltpcmd.py --excel``
+
+
 
 .. _wltp_install:
 
@@ -86,13 +94,15 @@ by typing :command:`pip` in the console:
 
 .. code-block:: console
 
-    $ pip install wltp --pre -U                 ## Use `pip3` if both python-2 & 3 installed.
+    $ pip install wltp --pre --upgrade          ## Use `pip3` if both python-2 & 3 installed.
 
 
-Notice that :option:`--pre` is required, since all released packages so far were *pre*-release (``-alpha``) versions:
+Notice that :option:`--pre` is required, since all released packages so far were *pre*-release (``-alpha``) versions.
+Also :option:`--upgrade` (or `-U`) is only required if you already have an old installation of wltp 
+and need to upgrade it.
 
-If install has been successful, the :cmd:`wltpcmd.py` script must have been installed somewhere
-in your :envvar:`PATH`.  Type this to check it:
+To check whether the installation has been successful, check that the :command:`wltpcmd.py` script works,
+which must have been installed somewhere in your :envvar:`PATH`:
 
 .. code-block:: console
 
@@ -116,6 +126,26 @@ in your :envvar:`PATH`.  Type this to check it:
 
 
 
+Older versions
+^^^^^^^^^^^^^^
+An additional purpose of the versioning schema of the project is to track which specific version
+of the GTR it implements.
+Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
+See the "GTR version matrix" section in :doc:`CHANGES` for the mapping of MAJOR-numbers to GTR versions.
+
+To install an older version issue the console command:
+
+.. code-block:: console
+
+    $ pip install wltp=1.1.1                    ## Use `--pre` if neccessary.
+
+If you have another version already installed, you have to use :option:`--ignore-installed` (or `-I`).
+For using the specific version, check this (untested)
+`stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
+
+Of course it is better to install each version in a separate `virtualenv` and shy away from all this.
+
+
 Installing from sources
 ^^^^^^^^^^^^^^^^^^^^^^^
 Alternatively you can build the latest version of the project from the sources,
@@ -131,8 +161,17 @@ with the following series of commands:
 
 
 
-That way you get the complete source-tree of the project, ready for development
-(see :doc:`contribute` section, below)::
+The previous command installed also any *dependencies* inside the project-folder.  If you wish to install them
+on your system (or virtualenv), enter:
+
+.. code-block:: console
+
+    $ pip install -r requirements.txt
+
+
+Project files and folders
+-------------------------
+The files and folders of the project are listed below::
 
     +--wltp/            ## (package) The python-code of the calculator
     |   +--cycles/      ## (package) The python-code for the WLTC data
@@ -151,34 +190,6 @@ That way you get the complete source-tree of the project, ready for development
     +--CHANGES.rst
     +--LICENSE.txt
 
-
-The previous command installed also any *dependencies* inside the project-folder.  If you wish to install them
-on your system (or virtualenv), enter:
-
-.. code-block:: console
-
-    pip install -r requirements.txt
-
-
-
-Older versions
-^^^^^^^^^^^^^^
-An additional purpose of the versioning schema of the project is to track which specific version
-of the GTR it implements.
-Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
-See the "GTR version matrix" section in :doc:`CHANGES` for the mapping of MAJOR-numbers to GTR versions.
-
-To install an older version issue the console command:
-
-.. code-block:: console
-
-    $ pip install wltp=1.1.1                    ## Use `--pre` if neccessary.
-
-If you have another version already installed, you have to use :option:`--ignore-installed`.
-For using the specific version, check this (untested)
-`stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
-
-Of course it is better to install each version in a separate `virtualenv` and shy away from all this.
 
 
 
@@ -218,18 +229,90 @@ for which you want to override the ``n_idle`` only, run the following:
 
 
 
-
-
 GUI usage
-^^^^^^^^^
+---------
+.. Attention:: Desktop UI requires Python 3!
+
 For a quick-'n-dirty method to explore the structure of the model-tree and run an experiment,
 just run:
 
 .. code-block:: console
 
-    wltpcmd.py --gui
+    $ wltpcmd.py --gui
 
-.. Warning:: The desktop UI DOES NOT run under Python 2!
+
+
+
+Excel usage
+-----------
+.. Attention:: Excel-integration requires Python 3!
+
+In *Windows* and *OS X* you may utilize the excellent `xlwings <http://xlwings.org/quickstart/>`_ library 
+to provide input and output to wltp from Excel files.
+
+To create a sample excel file in your current-directory by entering:
+
+.. code-block:: console
+
+     $ wltpcmd.py --excel
+     
+The above command creates two files:
+
+:file:`wltp_runner.xlsm`
+    The python-enabled xls-file (with *VBA* code) where input and output data are written.
+    
+:file:`wltp_runner.py`   
+    Utility python functions used by the above xls-file.  You can edit it, to fit your needs.
+
+You may type instead :samp:`wltpcmd.py --excel {xls_file_path}` to specify a  different filename/path.
+
+The xls-file contains the appropriate *VBA* modules and macros allowing you to invoke *Python code* 
+present in *selected cells* with a click of a button, as seen in the screenshot below.
+
+.. image:: docs/xlwings_screenshot.png
+    :scale: 50%
+    :alt: Screenshot of the `wltp_runner.xlsm` file.
+
+
+The particular code already loaded in the demo-workbook reads multiple vehicles from tables with various 
+vehicle characteristics and experiment data and generates new worksheets with the cycle-run tables 
+for each vehicle.  
+
+If you need to add/remove fields (see `Python usage`_ below) 
+it should be pretty obvious that you need to change the *json-pointers* in the header of the table.
+
+
+Some general notes regarding the python-code in excel-cells:
+
+* The *VBA* `xlwings` module contains the code from the respective library; do not edit, but you may replace it 
+  with a latest version. 
+* You can read & modify the *VBA* `xlwings_ext` module with code that will run on each invocation 
+  to import libraries such as 'numpy' and 'pandas', or pre-define utility python functions.
+* Double-quotes(") do not work for denoting python-strings in the cells; use single-quotes(') instead.
+* You cannot enter multiline or indentated python-code such as functions and/or  ```if-then-else`` expressions; 
+  move such code into the python-file. 
+* There are two pre-defined python variables on each cell, `cr` and `cc`, refering to "cell_row" and 
+  "cell_column" coordinates of the cell, respectively.  For instance, to use the right-side column as 
+  a poor-man's debugging aid, you may use this statement in a cell:
+
+  .. code-block:: python
+    
+    Range((cr, cc+1)).value = 'Some string or number'
+
+* On errors, the log-file is written in :file:`{userdir}/AppData/Roaming/Microsoft/Excel/XLSTART/xlwings_log.txt` 
+  for as long as **the message-box is visible, and it is deleted automatically after you click 'ok'!**
+* Read http://docs.xlwings.org/quickstart.html
+
+    
+.. Tip:: 
+    You can permanently enable your Excel installation to support *xlwings* by copying
+    the *VBA* modules of the demo-excel file ``xlwings`` and ``xlwings-ext`` into 
+    your :file:`PERSONAL.XLSB` workbook, as explaine here: 
+    http://office.microsoft.com/en-001/excel-help/copy-your-macros-to-a-personal-macro-workbook-HA102174076.aspx.
+
+    You can even `add a new Ribbon-button <http://msdn.microsoft.com/en-us/library/bb386104.aspx>`_ 
+    to execute the selected cells as python-code.  Set this new button to invoke the ``RunSelectionAsPython()``
+    *VBA* function.
 
 
 
