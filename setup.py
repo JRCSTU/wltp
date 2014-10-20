@@ -128,7 +128,8 @@ install_deps = [
     'numpy',
     'pandas', #'openpyxl', 'xlrd',
     'matplotlib', #>=1.4', ## Let it mature some time more...
-    'Pillow',          # For About boxes
+    'Pillow',           # For About boxes
+    'xlwings>=0.2.3',   # For Excel integration
 ]
 if PY2:
     install_deps += ['mock']

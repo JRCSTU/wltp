@@ -1,5 +1,9 @@
 include LICENSE.txt
 include CHANGES.rst
+
+include wltp/excel/wltp_runner.xlsm
+include wltp/excel/wltp_runner.py
+
 recursive-include docs *.docx
 
 recursive-include wltp/test/samples_db heinz*.csv
