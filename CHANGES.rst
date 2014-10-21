@@ -45,7 +45,6 @@ TODOs
 * Add cmd-line front-end.
 * Automatically calculate masses from H & L vehicles, and regression-curves from categories.
 * wltp_db: Improve test-metrics with group-by classes/phases.
-* wltp_db: Speed-up tests by caching files to read and compare.
 * model: Enhance model-preprocessing by interleaving "octapus" merging stacked-models
   between validation stages.
 * model: finalize data-schema (renaming columns and adding ``name`` fields in major blocks).

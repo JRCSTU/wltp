@@ -63,8 +63,8 @@ For a quick-start, and assuming a working python-environment, open a normal "con
 
 #. Install: ``pip install wltp --pre -U``
 #. Check version: ``wltpcmd.py --version``  
-#. Run with the TkUI: ``wltpcmd.py --gui``
-#. (*Windows* or *OS X*) Create and open an Excel file in your working-folder: ``wltpcmd.py --excel``
+#. Run with the TkUI and explore model: ``wltpcmd.py --gui``
+#. (*Windows* or *OS X*) Create Excel file in your current-working folder: ``wltpcmd.py --excel -v``
 
 
 
@@ -195,7 +195,7 @@ The files and folders of the project are listed below::
 
 Cmd-line usage
 --------------
-.. Note:: Not implemented in yet.
+.. Warning:: Not implemented in yet.
 
 The command-line usage below requires the Python environment to be installed, and provides for
 executing an experiment directly from the OS's shell (i.e. :program:`cmd` in windows or :program:`bash` in POSIX),
@@ -245,12 +245,12 @@ just run:
 
 Excel usage
 -----------
-.. Attention:: Excel-integration requires Python 3!
+.. Attention:: Excel-integration requires Python 3 and *Windows* or *OS X*!
 
 In *Windows* and *OS X* you may utilize the excellent `xlwings <http://xlwings.org/quickstart/>`_ library 
 to provide input and output to wltp from Excel files.
 
-To create a sample excel file in your current-directory by entering:
+To create the necessary sample files in your current-directory by entering:
 
 .. code-block:: console
 
@@ -259,10 +259,13 @@ To create a sample excel file in your current-directory by entering:
 The above command creates two files:
 
 :file:`wltp_runner.xlsm`
-    The python-enabled xls-file (with *VBA* code) where input and output data are written.
+    The python-enabled excel-file (macro-enabled and with *VBA* code) where input and output data are written.
+    It invokes python-functions declared in the python-script, below.
     
 :file:`wltp_runner.py`   
-    Utility python functions used by the above xls-file.  You can edit it, to fit your needs.
+    Utility python functions used by the above xls-file.  
+    The functions included provide for running a batch of experiments, but you can edit it to 
+    fit your needs.
 
 You may type instead :samp:`wltpcmd.py --excel {xls_file_path}` to specify a  different filename/path.
 

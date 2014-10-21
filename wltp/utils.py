@@ -107,3 +107,12 @@ class Lazy(object):
 
 def is_travis():
     return 'TRAVIS' in os.environ
+
+def generate_filenames(filename):
+    f, e = os.path.splitext(filename)
+    yield filename
+    i = 1
+    while True:
+        yield '%s.%i%s' % (f, i, e)
+        i += 1
+    

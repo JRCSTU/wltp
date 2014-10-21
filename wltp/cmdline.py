@@ -11,7 +11,7 @@
     :func:`main()`
 """
 
-from __future__ import division,unicode_literals
+from __future__ import division, unicode_literals
 
 from argparse import ArgumentTypeError
 import argparse
@@ -22,23 +22,23 @@ import json
 import logging
 import os
 import re
+import shutil
 import sys
 from textwrap import dedent
+from wltp import experiment
+from wltp import model
+from wltp import tkui
+from wltp._version import __version__  # @UnusedImport
+from wltp.model import json_dump, json_dumps, validate_model
+from wltp.utils import str2bool, Lazy, generate_filenames
 
 from pandas.core.generic import NDFrame
 import six
-from wltp import tkui
 
 import jsonpointer as jsonp
 import jsonschema as jsons
 import operator as ops
 import pandas as pd
-
-from . import experiment
-from . import model
-from ._version import __version__  # @UnusedImport
-from .model import json_dump,json_dumps,validate_model
-from .utils import str2bool,Lazy
 
 
 DEBUG   = False
@@ -153,6 +153,10 @@ def main(argv=None):
             app.mainloop()
             return
         
+        if opts.excel:
+            copy_excel_template_files(opts.excel)
+            return
+        
         opts = validate_file_opts(opts)
 
         infiles     = parse_many_file_args(opts.I, 'r', opts.irenames)
@@ -191,6 +195,27 @@ def main(argv=None):
         indent = len(program_name) * " "
         parser.exit(4, "%s: Model operation failed due to: %s\n%s\n"%(program_name, ex, indent))
 
+
+def copy_excel_template_files(dest_dir):
+            import pkg_resources as pkg
+            
+            if dest_dir == '<CWD>':
+                dest_dir = os.getcwd()
+            else:
+                dest_dir = os.path.abspath(dest_dir)
+
+            files_to_copy = ['excel\wltp_runner.xlsm', 'excel\wltp_runner.py']
+            files_to_copy = [pkg.resource_filename('wltp', f) for f in files_to_copy] #@UndefinedVariable
+            for src_fname in files_to_copy:
+                dest_fname = os.path.basename(src_fname)
+                fname_genor = generate_filenames(os.path.join(dest_dir, dest_fname))
+                dest_fname = next(fname_genor)
+                while os.path.exists(dest_fname):
+                    dest_fname = next(fname_genor)
+                    
+                log.info('Copying `xlwings` template-file: %s --> %s', src_fname, dest_fname)
+                shutil.copy(src_fname, dest_fname)
+    
 
 
 
@@ -596,6 +621,8 @@ def build_args_parser(program_name, version, desc, epilog):
 
     grp_various = parser.add_argument_group('Various', 'Options controlling various other aspects.')
     parser.add_argument('--gui', help='start in GUI mode', action='store_true')
+    parser.add_argument('--excel', help='Copy `xlwings` excel & python template files into DESTPATH or current-working dir', 
+        nargs='?', const='<CWD>', metavar='DESTPATH')
     grp_various.add_argument('-d', "--debug", action="store_true", help=dedent("""\
             set debug-mode with various checks and error-traces
             Suggested combining with --verbose counter-flag.
@@ -610,3 +637,5 @@ def build_args_parser(program_name, version, desc, epilog):
 
 
 
+if __name__ == "__main__":
+    main()
