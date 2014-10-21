@@ -319,15 +319,32 @@ class Test(unittest.TestCase):
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
 
-    def test_set_jsonpointer_sequence_out_of_bounds(self):
-        doc = [1,2]
+    def test_set_jsonpointer_sequence_insert_end(self):
+        doc = [0, 1]
         path = '2'
+        value = 'value'
+        pandel.set_jsonpointer(doc, path, value)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '0'), 0)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '1'), 1)
+
+        doc = [0, 1]
+        path = '-'
+        value = 'value'
+        pandel.set_jsonpointer(doc, path, value)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '2'), value)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '0'), 0)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '1'), 1)
+
+    def test_set_jsonpointer_sequence_out_of_bounds(self):
+        doc = [0, 1]
+        path = '3'
         value = 'value'
         with self.assertRaises(RefResolutionError):
             pandel.set_jsonpointer(doc, path, value)
 
     def test_set_jsonpointer_sequence_with_str_screams(self):
-        doc = [1,2]
+        doc = [0, 1]
         path = 'str'
         value = 'value'
         with self.assertRaises(RefResolutionError):

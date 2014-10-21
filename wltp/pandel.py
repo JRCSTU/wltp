@@ -998,7 +998,7 @@ def resolve_jsonpointer(doc, jsonpointer):
     return doc
 
         
-def set_jsonpointer(doc, jsonpointer, value):
+def set_jsonpointer(doc, jsonpointer, value, object_factory=dict):
     """
     Resolve a ``jsonpointer`` within the referenced ``doc``.
     
@@ -1009,42 +1009,61 @@ def set_jsonpointer(doc, jsonpointer, value):
     
     
     parts = list(jsonpointer_parts(jsonpointer))
-    if not parts:
-        return 
-    
-    parent_doc = doc
-    parent_part = '' #??
-    for part in parts:
-        if isinstance(doc, Sequence):
-            # Array indexes should be turned into integers
-            try:
-                part = int(part)
-            except ValueError:
-                pass
         
-        ## Set value
-        #
-        try:
-            doc[part] = value
-        except (IndexError, TypeError) as ex:
-            if isinstance(ex, IndexError) or 'list indices must be integers' in str(ex):
-                raise RefResolutionError("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
+    ## Will scream if used on 1st iteration.
+    #
+    pdoc = None
+    ppart = None
+    for i, part in enumerate(parts):
+        if isinstance(doc, Sequence) and not isinstance(doc, str):
+            ## Array indexes should be turned into integers
+            #
+            doclen = len(doc)
+            if part == '-':
+                part = doclen
             else:
-                doc = {}
-                parent_doc[parent_part] = doc 
-                doc[part] = value 
-
-        parent_doc = doc
-        parent_part = part
-    
-        ## Extend branch
-        #
+                try:
+                    part = int(part)
+                except ValueError:
+                    raise RefResolutionError("Expected numeric index(%s) for sequence at (%r)[%i]" % (part, jsonpointer, i))
+                else:
+                    if part > doclen:
+                        raise RefResolutionError("Index(%s) out of bounds(%i) of (%r)[%i]" % (part, doclen, jsonpointer, i))
         try:
-            doc = doc[part]
-        except (TypeError, LookupError):
-            temp_doc, doc = doc, {} 
-            temp_doc[part] = doc 
+            ndoc = doc[part]
+        except (LookupError):
+            break  ## Branch-extension needed.
+        except (TypeError): # Maybe indexing a string...
+            ndoc = object_factory()
+            pdoc[ppart] = ndoc
+            doc = ndoc
+            break  ## Branch-extension needed.
     
+        doc, pdoc, ppart = ndoc, doc, part 
+    else:
+        doc = pdoc # If loop exhuasted, cancel last assignment.
+
+    ## Build branch with value-leaf.
+    #
+    nbranch = value
+    for part2 in reversed(parts[i+1:]):
+        ndoc = object_factory()
+        ndoc[part2] = nbranch
+        nbranch = ndoc
+        
+    ## Attach new-branch. 
+    try:
+        doc[part] = nbranch
+    except IndexError: # Inserting last sequence-element raises IndexError("list assignment index out of range")
+        doc.append(nbranch)
+    
+#    except (IndexError, TypeError) as ex:
+#        #if isinstance(ex, IndexError) or 'list indices must be integers' in str(ex):
+#        raise RefResolutionError("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
+#        else:
+#            doc = {}
+#            parent_doc[parent_part] = doc 
+#            doc[part] = value 
 
         
 if __name__ == '__main__':
