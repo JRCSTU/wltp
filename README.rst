@@ -64,7 +64,9 @@ For a quick-start, and assuming a working python-environment, open a normal "con
 #. Install: ``pip install wltp --pre -U``
 #. Check version: ``wltpcmd.py --version``  
 #. Run with the TkUI and explore model: ``wltpcmd.py --gui``
-#. (*Windows* or *OS X*) Create Excel file in your current-working folder: ``wltpcmd.py --excel -v``
+#. (*Windows* or *OS X*) Create a sample Excel file in your current-working folder: ``wltpcmd.py --excel -v``
+   Open the excel, (enable macros and) select the python-code at the left and click 
+   the :menuselection:`Run Selection as Pyhon` button; one sheet per vehicle will be created.
 
 
 
@@ -169,6 +171,14 @@ on your system (or virtualenv), enter:
     $ pip install -r requirements.txt
 
 
+Particularly for the latest *WinPython* environments you can install dependencies with: 
+
+.. code-block:: console
+
+    $ pip install -r WinPython_requirements.txt
+
+
+
 Project files and folders
 -------------------------
 The files and folders of the project are listed below::
@@ -250,40 +260,43 @@ Excel usage
 In *Windows* and *OS X* you may utilize the excellent `xlwings <http://xlwings.org/quickstart/>`_ library 
 to provide input and output to wltp from Excel files.
 
-To create the necessary sample files in your current-directory by entering:
+To create the necessary template-files in your current-directory you should enter:
 
 .. code-block:: console
 
      $ wltpcmd.py --excel
      
+
+You could type instead :samp:`wltpcmd.py --excel {xls_file_path}` to specify a  different filename/path.
+
 The above command creates two files:
 
-:file:`wltp_runner.xlsm`
-    The python-enabled excel-file (macro-enabled and with *VBA* code) where input and output data are written.
-    It invokes python-functions declared in the python-script, below.
+:file:`wltp_excel_runner.xlsm`
+    The python-enabled excel-file where input and output data are written, as seen in the screenshot below:
     
-:file:`wltp_runner.py`   
-    Utility python functions used by the above xls-file.  
-    The functions included provide for running a batch of experiments, but you can edit it to 
-    fit your needs.
+    .. image:: docs/xlwings_screenshot.png
+        :scale: 50%
+        :alt: Screenshot of the `wltp_excel_runner.xlsm` file.
+        
+    The excel-file contains additionally appropriate *VBA* modules allowing you to invoke *Python code* 
+    present in *selected cells* with a click of a button, and python-functions declared in the python-script, below,
+    using the `mypy` namespace. 
+    
+    To add more input-columns, you need to set as column *Headers* the *json-pointers* path of the desired 
+    model item (see `Python usage`_ below,).
 
-You may type instead :samp:`wltpcmd.py --excel {xls_file_path}` to specify a  different filename/path.
+:file:`wltp_excel_runner.py`   
+    Utility python functions used by the above xls-file for running a batch of experiments.  
+     
+    The particular functions included reads multiple vehicles from the input table with various  
+    vehicle characteristics and/or experiment parameters, and then it adds a new worksheet containing 
+    the cycle-run of each vehicle . 
+    Of course you can edit it to further fit your needs.
 
-The xls-file contains the appropriate *VBA* modules and macros allowing you to invoke *Python code* 
-present in *selected cells* with a click of a button, as seen in the screenshot below.
 
-.. image:: docs/xlwings_screenshot.png
-    :scale: 50%
-    :alt: Screenshot of the `wltp_runner.xlsm` file.
-
-
-The particular code already loaded in the demo-workbook reads multiple vehicles from tables with various 
-vehicle characteristics and experiment data and generates new worksheets with the cycle-run tables 
-for each vehicle.  
-
-If you need to add/remove fields (see `Python usage`_ below) 
-it should be pretty obvious that you need to change the *json-pointers* in the header of the table.
-
+.. Note:: You may reverse the procedure described above and run the python-script instead.
+    The script will open the excel-file, run the experiments and add the new sheets, but in case any errors occur, 
+    this time you can debug them, if you had executed the script through *LiClipse*, or *IPython*! 
 
 Some general notes regarding the python-code in excel-cells:
 
@@ -291,6 +304,9 @@ Some general notes regarding the python-code in excel-cells:
   with a latest version. 
 * You can read & modify the *VBA* `xlwings_ext` module with code that will run on each invocation 
   to import libraries such as 'numpy' and 'pandas', or pre-define utility python functions.
+* The name of the python-module to import is automatically calculated from the name of the Excel-file,
+  and it must be valid as a python module-name.  Therefore do not use non-alphanumeric characters such as 
+  spaces(` `), dashes(`-`) and dots(`.`) on the Excel-file.
 * Double-quotes(") do not work for denoting python-strings in the cells; use single-quotes(') instead.
 * You cannot enter multiline or indentated python-code such as functions and/or  ```if-then-else`` expressions; 
   move such code into the python-file. 
@@ -312,11 +328,13 @@ Some general notes regarding the python-code in excel-cells:
     the *VBA* modules of the demo-excel file ``xlwings`` and ``xlwings-ext`` into 
     your :file:`PERSONAL.XLSB` workbook, as explaine here: 
     http://office.microsoft.com/en-001/excel-help/copy-your-macros-to-a-personal-macro-workbook-HA102174076.aspx.
-
+    
     You can even `add a new Ribbon-button <http://msdn.microsoft.com/en-us/library/bb386104.aspx>`_ 
     to execute the selected cells as python-code.  Set this new button to invoke the ``RunSelectionAsPython()``
     *VBA* function.
 
+    If you do the above, remember that *VBA*-code in your personal-workbook takes precedance over any code
+    present in your currently open workbook.
 
 
 Python usage

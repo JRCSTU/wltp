@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -170,7 +170,7 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    scripts = ['wltpcmd.py'],
+    scripts = ['wltpcmd.py', 'postinstall.py'],
     install_requires = install_deps,
     setup_requires = [
         'setuptools>=3.4.4',
@@ -185,6 +185,11 @@ setup(
     ],
     include_package_data = True,
     zip_safe=True,
+    options={
+        'bdist_wininst': {
+            'install_script': "postinstall.py",
+        },
+    }
 )
 
 

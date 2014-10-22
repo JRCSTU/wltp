@@ -1,0 +1,9 @@
+six
+jsonschema>=2.4,
+jsonpointer
+#prefixtree
+numpy
+pandas #openpyxl, xlrd,
+matplotlib
+Pillow
+xlwings>=0.2.3

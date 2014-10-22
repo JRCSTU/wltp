@@ -1,8 +1,8 @@
 include LICENSE.txt
 include CHANGES.rst
 
-include wltp/excel/wltp_runner.xlsm
-include wltp/excel/wltp_runner.py
+include wltp/excel/wltp_excel_runner.xlsm
+include wltp/excel/wltp_excel_runner.py
 
 recursive-include docs *.docx
 

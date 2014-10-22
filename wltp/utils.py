@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -113,6 +113,6 @@ def generate_filenames(filename):
     yield filename
     i = 1
     while True:
-        yield '%s.%i%s' % (f, i, e)
+        yield '%s%i%s' % (f, i, e)
         i += 1
     

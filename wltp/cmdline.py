@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -157,6 +157,24 @@ def main(argv=None):
             copy_excel_template_files(opts.excel)
             return
         
+        if opts.excelrun:
+            from os.path import expanduser
+            destdir = expanduser("~")
+            files_copied = copy_excel_template_files(destdir)          #@UnusedVariable
+            xls_file = files_copied[0]
+            
+            ## From http://stackoverflow.com/questions/434597/open-document-with-default-application-in-python
+            #     and http://www.dwheeler.com/essays/open-files-urls.html
+            import subprocess
+            try:
+                os.startfile(xls_file)
+            except AttributeError:
+                if sys.platform.startswith('darwin'):
+                    subprocess.call(('open', xls_file))
+                elif os.name == 'posix':
+                    subprocess.call(('xdg-open', xls_file))
+            return
+        
         opts = validate_file_opts(opts)
 
         infiles     = parse_many_file_args(opts.I, 'r', opts.irenames)
@@ -197,26 +215,28 @@ def main(argv=None):
 
 
 def copy_excel_template_files(dest_dir):
-            import pkg_resources as pkg
-            
-            if dest_dir == '<CWD>':
-                dest_dir = os.getcwd()
-            else:
-                dest_dir = os.path.abspath(dest_dir)
-
-            files_to_copy = ['excel\wltp_runner.xlsm', 'excel\wltp_runner.py']
-            files_to_copy = [pkg.resource_filename('wltp', f) for f in files_to_copy] #@UndefinedVariable
-            for src_fname in files_to_copy:
-                dest_fname = os.path.basename(src_fname)
-                fname_genor = generate_filenames(os.path.join(dest_dir, dest_fname))
-                dest_fname = next(fname_genor)
-                while os.path.exists(dest_fname):
-                    dest_fname = next(fname_genor)
-                    
-                log.info('Copying `xlwings` template-file: %s --> %s', src_fname, dest_fname)
-                shutil.copy(src_fname, dest_fname)
+    import pkg_resources as pkg
     
+    if dest_dir == '<CWD>':
+        dest_dir = os.getcwd()
+    else:
+        dest_dir = os.path.abspath(dest_dir)
 
+    files_to_copy = ['excel\wltp_excel_runner.xlsm', 'excel\wltp_excel_runner.py']
+    files_to_copy = [pkg.resource_filename('wltp', f) for f in files_to_copy] #@UndefinedVariable
+    files_copied = []
+    for src_fname in files_to_copy:
+        dest_fname = os.path.basename(src_fname)
+        fname_genor = generate_filenames(os.path.join(dest_dir, dest_fname))
+        dest_fname = next(fname_genor)
+        while os.path.exists(dest_fname):
+            dest_fname = next(fname_genor)
+            
+        log.info('Copying `xlwings` template-file: %s --> %s', src_fname, dest_fname)
+        shutil.copy(src_fname, dest_fname)
+        files_copied.append(dest_fname)
+    
+    return files_copied
 
 
 ## The value of file_frmt=VALUE to decide which
@@ -619,10 +639,13 @@ def build_args_parser(program_name, version, desc, epilog):
                         metavar='ARG')
 
 
-    grp_various = parser.add_argument_group('Various', 'Options controlling various other aspects.')
-    parser.add_argument('--gui', help='start in GUI mode', action='store_true')
-    parser.add_argument('--excel', help='Copy `xlwings` excel & python template files into DESTPATH or current-working dir', 
+    xlusive_group = parser.add_mutually_exclusive_group()
+    xlusive_group.add_argument('--gui', help='start GUI to run a single experiment', action='store_true')
+    xlusive_group.add_argument('--excel', help="copy `xlwings` excel & python template files into DESTPATH or current-working dir, to run a batch of experiments", 
         nargs='?', const='<CWD>', metavar='DESTPATH')
+    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments", action='store_true')
+    
+    grp_various = parser.add_argument_group('Various', 'Options controlling various other aspects.')
     grp_various.add_argument('-d', "--debug", action="store_true", help=dedent("""\
             set debug-mode with various checks and error-traces
             Suggested combining with --verbose counter-flag.
