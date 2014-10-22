@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -36,7 +36,7 @@ except ImportError:
 
 class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
     """
-    Customization functions for travesring, I/O, and converting self-or-descedant branch (sub)model values.
+    Customization functions for traversing, I/O, and converting self-or-descendant branch (sub)model values.
     """
     def __new__(cls, inp=None, out=None, conv=None):
         """

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! python3
 # -*- coding: utf-8 -*-
 #
 # wltp documentation build configuration file, created by
