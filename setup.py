@@ -141,6 +141,9 @@ setup(
     name = projname,
     packages = ['wltp', 'wltp.cycles', 'wltp.test', ],
 #     package_data= {'projname': ['data/*.csv']},
+    extras_require = {
+        'wltpdb':  [],
+    },
     version=proj_ver,
     test_suite='nose.collector',
     description=description,
@@ -170,7 +173,12 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    scripts = ['wltpcmd.py', 'postinstall.py'],
+    scripts = ['postinstall.py'],
+    entry_points={
+        'console_scripts': [
+            'wltpcmd = wltp.cmdline:main',
+        ],
+    }, 
     install_requires = install_deps,
     setup_requires = [
         'setuptools>=3.4.4',
@@ -186,8 +194,10 @@ setup(
     include_package_data = True,
     zip_safe=True,
     options={
+        ## DO NOT WORK ...YET :-(
         'bdist_wininst': {
             'install_script': "postinstall.py",
+            'user_access_control': "auto",
         },
     }
 )

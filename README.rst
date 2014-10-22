@@ -62,9 +62,9 @@ to produce the :dfn:`output-model`.  The process is depicted in the following di
 For a quick-start, and assuming a working python-environment, open a normal "console" and type:
 
 #. Install: ``pip install wltp --pre -U``
-#. Check version: ``wltpcmd.py --version``  
-#. Run with the TkUI and explore model: ``wltpcmd.py --gui``
-#. (*Windows* or *OS X*) Create a sample Excel file in your current-working folder: ``wltpcmd.py --excel -v``
+#. Check version: ``wltpcmd --version``  
+#. Run with the TkUI and explore model: ``wltpcmd --gui``
+#. (*Windows* or *OS X*) Create a sample Excel file in your current-working folder: ``wltpcmd --excelrun``
    Open the excel, (enable macros and) select the python-code at the left and click 
    the :menuselection:`Run Selection as Pyhon` button; one sheet per vehicle will be created.
 
@@ -89,6 +89,10 @@ Version 3.3+ is preferred, i.e, the desktop UI does not work in Python 2.
       yet it still remains a higly active project, that can even compile native libraries using
       installation of *Visual Studio*, if any
       (required when upgrading ``numpy/scipy``,``pandas`` or ``matplotlib`` with :command:`pip`).
+      
+      Remember also to *Register you WinPython installtion* from 
+      :menuselection:`Start menu --> All Programs --> WinPython --> WinPython ControlPanel` and then
+      :menuselection:`Options --> Register Ditribution`.
 
 
 You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
@@ -103,13 +107,13 @@ Notice that :option:`--pre` is required, since all released packages so far were
 Also :option:`--upgrade` (or `-U`) is only required if you already have an old installation of wltp 
 and need to upgrade it.
 
-To check whether the installation has been successful, check that the :command:`wltpcmd.py` script works,
+To check whether the installation has been successful, check that the :command:`wltpcmd` script works,
 which must have been installed somewhere in your :envvar:`PATH`:
 
 .. code-block:: console
 
-    $ wltpcmd.py --version                      ## Check which version installed.
-    wltpcmd.py 0.0.9-alpha.2
+    $ wltpcmd --version                      ## Check which version installed.
+    wltpcmd 0.0.9-alpha.2
 
 
 .. Tip::
@@ -193,7 +197,7 @@ The files and folders of the project are listed below::
     |   +--pyplots/     ## (scripts) Plot the metric diagrams embeded in the README
     +--devtools/        ## (scripts) Preprocessing of WLTC data on GTR and the wltp_db
     |   +--run_tests.sh ## (script) Executes all TestCases
-    +--wltpcmd.py          ## (script) The cmd-line entry-point script for the calculator
+    +--wltpcmd          ## (script) The cmd-line entry-point script for the calculator
     +--setup.py         ## (script) The entry point for `setuptools`, installing, testing, etc
     +--requirements.txt ## The installation dependencies.
     +--README.rst
@@ -214,7 +218,7 @@ and in a *single* command.  To have precise control over the inputs and outputs
 you have to run the experiments using the API python, as explained below.
 
 
-The entry-point script is called :program:`wltpcmd.py`, and it must have been placed in your :envvar:`PATH`
+The entry-point script is called :program:`wltpcmd`, and it must have been placed in your :envvar:`PATH`
 during installation.  This script can construct a *model* by reading input-data
 from multiple files and/or overriding specific single-value items. Conversely,
 it can output multiple parts of the resulting-model into files.
@@ -223,7 +227,7 @@ To get help for this script, use the following commands:
 
 .. code-block:: console
 
-    $ wltpcmd.py --help                         ## to get generic help for cmd-line syntax
+    $ wltpcmd --help                         ## to get generic help for cmd-line syntax
     $ wltcmdp.py -M vehicle/full_load_curve     ## to get help for specific model-paths
 
 
@@ -232,7 +236,7 @@ for which you want to override the ``n_idle`` only, run the following:
 
 .. code-block:: console
 
-    $ wltpcmd.py -v \
+    $ wltpcmd -v \
         -I vehicle.csv file_frmt=SERIES model_path=params header@=None \
         -m vehicle/n_idle:=850 \
         -O cycle.csv model_path=cycle_run
@@ -248,7 +252,7 @@ just run:
 
 .. code-block:: console
 
-    $ wltpcmd.py --gui
+    $ wltpcmd --gui
 
 
 
@@ -264,12 +268,15 @@ To create the necessary template-files in your current-directory you should ente
 
 .. code-block:: console
 
-     $ wltpcmd.py --excel
+     $ wltpcmd --excel
      
 
-You could type instead :samp:`wltpcmd.py --excel {xls_file_path}` to specify a  different filename/path.
+You could type instead :samp:`wltpcmd --excel {xls_file_path}` to specify a  different path.
 
-The above command creates two files:
+In *windows*/*OS X* you can type :samp:`wltpcmd --excelrun` and the files will be created in your home-directory 
+and the excel will open them in one-shot.
+
+All the above commands creates two files:
 
 :file:`wltp_excel_runner.xlsm`
     The python-enabled excel-file where input and output data are written, as seen in the screenshot below:

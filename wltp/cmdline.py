@@ -43,8 +43,12 @@ import pandas as pd
 
 DEBUG   = False
 
-logging.basicConfig(level=logging.DEBUG)
-log     = logging.getLogger(__file__)
+def _init_logging(loglevel):
+    logging.basicConfig(level=loglevel)
+    logging.getLogger().setLevel(level=loglevel)
+
+_init_logging(logging.INFO)
+log = logging.getLogger(__name__)
 
 def main(argv=None):
     """Calculates an engine-map by fitting data-points vectors, use --help for gettting help.
@@ -222,6 +226,12 @@ def copy_excel_template_files(dest_dir):
     else:
         dest_dir = os.path.abspath(dest_dir)
 
+    try:
+        os.mkdir(dest_dir)
+        log.info('Created destination-directory(%s).', dest_dir)
+    except:
+        pass ## Might already exist
+    
     files_to_copy = ['excel\wltp_excel_runner.xlsm', 'excel\wltp_excel_runner.py']
     files_to_copy = [pkg.resource_filename('wltp', f) for f in files_to_copy] #@UndefinedVariable
     files_copied = []
