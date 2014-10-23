@@ -15,7 +15,12 @@ install:
 
 # command to run tests
 script:
-    - /bin/bash ./devtools/run_tests.sh              ## A bash shell that runs doctests & coverage only on Python-3.
+    - if [[ $TRAVIS_PYTHON_VERSION = '3.4' ]]; then python setup.py doctest_docs; fi
+    - if [[ $TRAVIS_PYTHON_VERSION = '3.4' ]]; then python setup.py doctest_code; fi
+    - |
+        if [[ $TRAVIS_PYTHON_VERSION = '2.7' ]]; then python setup.py test_code; fi
+        if [[ $TRAVIS_PYTHON_VERSION = '3.3' ]]; then python setup.py test_code; fi
+        if [[ $TRAVIS_PYTHON_VERSION = '3.4' ]]; then python setup.py test_code_cover; fi
     - python setup.py build_sphinx                   ## Build html-docs.
 
     ## Ensure README valid ReST for PyPI.
