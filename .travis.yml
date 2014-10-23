@@ -7,14 +7,11 @@ python:
   - "3.3"
   - "3.4"
 before_install:
-    - sudo apt-get install python3-setuptools python3-tk  
-    - pip install setuptools pip -U
-    - pip install coveralls
-    - pip install sphinx
+    - sudo apt-get install python3-setuptools
 
 install:
-    - python setup.py build_py
-    - python setup.py install
+    - pip install -r dev_requirements.txt
+    - pip install .
 
 # command to run tests
 script:

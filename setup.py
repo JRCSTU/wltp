@@ -181,7 +181,7 @@ setup(
     }, 
     install_requires = install_deps,
     setup_requires = [
-        'setuptools>=3.4.4',
+        'setuptools',#>=3.4.4',
         'sphinx>=1.2', # >=1.3
         'sphinx_rtd_theme',
         'matplotlib',
