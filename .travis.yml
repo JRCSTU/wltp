@@ -7,14 +7,14 @@ python:
   - "3.3"
   - "3.4"
 before_install:
-    - sudo apt-get install python3-setuptools python3-tk python3-pil
+    - sudo apt-get install python3-setuptools python3-tk  
     - pip install setuptools pip -U
     - pip install coveralls
     - pip install sphinx
 
 install:
     - python setup.py build_py
-    - python setup.py develop
+    - python setup.py install
 
 # command to run tests
 script:
@@ -25,7 +25,6 @@ script:
     ##  In case it fails, improve the filtering-code in ``setup.py``.
     - python setup.py --long-description | rst2html.py  --halt=warning > /dev/null
 
-    - python setup.py install
     - python setup.py sdist                         ## Create archives for PyPI repo.
 
 after_success:
