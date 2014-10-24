@@ -45,55 +45,76 @@ and any warnings.  It does not calculate any |CO2| emissions.
 An "execution" or a "run" of an experiment is the processing and augmentation of the :dfn:`input-model`
 to produce the :dfn:`output-model`.  The process is depicted in the following diagram::
 
-               .---------------------.                        .----------------------------.
-              ;     input-model     ;                        ;      output-model          ;
-             ;---------------------;                        ;----------------------------;
-            ; +--vehicle          ;     ___________        ; +---...                    ;
-           ;  +--params          ;     |           |      ;  +--cycle_run:             ;
-          ;       +--wltc_data  ;  ==> | Processor | ==> ;      t  v_class gear ...   ;
-         ;                     ;       |___________|    ;      --------------------  ;
-        ;                     ;                        ;       00      0.0    1     ;
-       ;                     ;                        ;        01      1.3    1    ;
-      ;                     ;                        ;         02      5.5    1   ;
-     ;                     ;                        ;          ...               ;
-    '---------------------'                        '----------------------------.
+               .---------------------.                         .----------------------------.
+              ;     input-model     ;                         ;      output-model          ;
+             ;---------------------;                         ;----------------------------;
+            ; +--vehicle          ;     ____________        ; +---...                    ;
+           ;  +--params          ;     |            |      ;  +--cycle_run:             ;
+          ;       +--wltc_data  ;  ==> | Experiment | ==> ;      t  v_class gear ...   ;
+         ;                     ;       |____________|    ;      --------------------  ;
+        ;                     ;                         ;       00      0.0    1     ;
+       ;                     ;                         ;        01      1.3    1    ;
+      ;                     ;                         ;         02      5.5    1   ;
+     ;                     ;                         ;          ...               ;
+    '---------------------'                         '----------------------------.
 
 
-For a quick-start, and assuming a working python-environment, open a normal "console" and type:
+Quick-start
+-----------
+Assuming a working python-environment, you can use the following commands:
 
-#. Install: ``pip install wltp --pre -U``
-#. Check version: ``wltpcmd --version``  
-#. Run with the TkUI and explore model: ``wltpcmd --gui``
-#. (*Windows* or *OS X*) Create a sample Excel file in your current-working folder: ``wltpcmd --excelrun``
-   Open the excel, (enable macros and) select the python-code at the left and click 
-   the :menuselection:`Run Selection as Pyhon` button; one sheet per vehicle will be created.
-
-
-
-.. _wltp_install:
-
-Install
--------
-The current version |version| requires Python-2.7+ or Python-3.3+ 
-Version 3.3+ is preferred, i.e, the desktop UI does not work in Python 2.
+:Installation: ``$ pip install wltp --pre -U``
+:Cmd-line: ``$ wltpcmd --help`` 
+:GUI: ``$ wltpcmd --gui`` (use it to explore model)
+:Excel: ``$ wltpcmd --excelrun`` (*Windows*/*OS X* only)
+:Python-code:
+    .. code-block:: python
+    
+        from wltp.experiment import Experiment
+    
+        input_model = { ... }
+        exp = Experiment(input_model)
+        output_model = exp.run()
 
 
 .. Tip:: To install *python*, you can try the free (as in beer) distribution
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ for *Windows* and *OS X*, or
-    the totally free `WinPython <http://winpython.sourceforge.net/>`_ distribution, but for *Windows* only:
+    the totally free `WinPython <http://winpython.sourceforge.net/>`_ distribution, but only for *Windows*:
 
     * For *Anaconda* you may need to install project's dependencies manually (see :file:`setup.py`)
       using :command:`conda`.
-    * The most recent version of *WinPython* (python-3.4) is in the process of
-      `changing maintainer <http://sourceforge.net/projects/stonebig.u/files/>`_,
-      yet it still remains a higly active project, that can even compile native libraries using
-      installation of *Visual Studio*, if any
-      (required when upgrading ``numpy/scipy``,``pandas`` or ``matplotlib`` with :command:`pip`).
+    * The most recent version of *WinPython* (python-3.4) although it has just 
+      `changed maintainer  <http://sourceforge.net/projects/stonebig.u/files/>`_,
+      it remains a higly active project, and it can even compile native libraries using an installations of 
+      *Visual Studio*, if available
+      (required for instance when upgrading ``numpy/scipy``, ``pandas`` or ``matplotlib`` with :command:`pip`).
       
-      Remember also to *Register you WinPython installtion* from 
-      :menuselection:`Start menu --> All Programs --> WinPython --> WinPython ControlPanel` and then
+      Remember also to *Register your WinPython installation* from 
+      :menuselection:`Start menu --> All Programs --> WinPython --> WinPython ControlPanel`, and then
       :menuselection:`Options --> Register Ditribution`.
+      
+.. Tip::
+    The commands above beginning with ``$`` work on an *unix* like operating system with a *POSIX* shell
+    (*Linux*, *OS X*). If you're using *Windows*, you'll have to run their *windows command shell* counterparts.
+    The same is true for the rest of this documentation.
 
+    Although the commands are simple and easy to translate , it would be worthwile to install
+    `cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows* machines.
+    If you choose to do that, make sure that in the *cygwin*'s installation wizard the following packages
+    are also included::
+
+        * git, git-completion
+        * make
+        * openssh, curl, wget
+
+
+
+.. _wltp-install:
+
+Install
+=======
+The current version, |version|, runs on Python-2.7+ and Python-3.3+ but 3.3+ is the preferred one, 
+i.e, the desktop UI runs only with it.
 
 You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
 by typing :command:`pip` in the console:
@@ -112,28 +133,13 @@ which must have been installed somewhere in your :envvar:`PATH`:
 
 .. code-block:: console
 
-    $ wltpcmd --version                      ## Check which version installed.
+    $ wltpcmd --version                      ## Check which version is installed.
     wltpcmd 0.0.9-alpha.2
-
-
-.. Tip::
-    The commands above beginning with ``$`` work on an *unix* like operating system with a *POSIX* shell
-    (*Linux*, *OS X*). If you're using *Windows*, you'll have to run their "windows counterparts".
-    The same is true for the rest of this documentation.
-
-    Although the commands are simple and easy to translate , it would be worthwile to install
-    `cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows* machines.
-    If you choose to do that, make sure that in the *cygwin*'s installation wizard the following packages
-    are also included::
-
-        * git, git-completion
-        * make
-        * openssh, curl, wget
 
 
 
 Older versions
-^^^^^^^^^^^^^^
+--------------
 An additional purpose of the versioning schema of the project is to track which specific version
 of the GTR it implements.
 Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
@@ -153,7 +159,7 @@ Of course it is better to install each version in a separate `virtualenv` and sh
 
 
 Installing from sources
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 Alternatively you can build the latest version of the project from the sources,
 (assuming you have a working installation of `git <http://git-scm.com/>`_)
 and install it in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
@@ -206,7 +212,10 @@ The files and folders of the project are listed below::
 
 
 
+.. _wltp-usage:
 
+Usage
+=====
 Cmd-line usage
 --------------
 .. Warning:: Not implemented in yet.
@@ -271,7 +280,7 @@ To create the necessary template-files in your current-directory you should ente
      $ wltpcmd --excel
      
 
-You could type instead :samp:`wltpcmd --excel {xls_file_path}` to specify a  different path.
+You could type instead :samp:`wltpcmd --excel {file_path}` to specify a different destination path.
 
 In *windows*/*OS X* you can type :samp:`wltpcmd --excelrun` and the files will be created in your home-directory 
 and the excel will open them in one-shot.
@@ -285,6 +294,9 @@ All the above commands creates two files:
         :scale: 50%
         :alt: Screenshot of the `wltp_excel_runner.xlsm` file.
         
+    After opening it the first tie, enable the macros on the workbook, select the python-code at the left and click 
+    the :menuselection:`Run Selection as Pyhon` button; one sheet per vehicle should be created.
+
     The excel-file contains additionally appropriate *VBA* modules allowing you to invoke *Python code* 
     present in *selected cells* with a click of a button, and python-functions declared in the python-script, below,
     using the `mypy` namespace. 
@@ -512,8 +524,9 @@ Requirements
 ^^^^^^^^^^^^
 In order to run them interactively, ensure that the following requirements are satisfied:
 
-a. A `ipython-notebook server <http://ipython.org/notebook.html>`_ >= v2.x.x is installed, up and running.
-b. The *wltp* is installed on your *python-3* of your system (see `wltp_install`_ above).
+a. A `ipython-notebook server <http://ipython.org/notebook.html>`_ >= v2.x.x is installed for  *python-3*, 
+   it is up, and running.
+b. The *wltp* is installed on your system (see `wltp-install`_ above).
 
 Instructions
 ^^^^^^^^^^^^

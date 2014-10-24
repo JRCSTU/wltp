@@ -10,6 +10,8 @@
     :numbered:
 
     intro
+    install
+    usage
     contribute
     faq
     code
