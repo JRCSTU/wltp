@@ -25,17 +25,17 @@ import re
 import shutil
 import sys
 from textwrap import dedent
+
+from pandas.core.generic import NDFrame
+import six
 from wltp import experiment
 from wltp import model
 from wltp import tkui
 from wltp._version import __version__  # @UnusedImport
 from wltp.model import json_dump, json_dumps, validate_model
+from wltp.pandel import JsonPointerException, resolve_jsonpointer, set_jsonpointer
 from wltp.utils import str2bool, Lazy, generate_filenames
 
-from pandas.core.generic import NDFrame
-import six
-
-import jsonpointer as jsonp
 import jsonschema as jsons
 import operator as ops
 import pandas as pd
@@ -211,7 +211,7 @@ def main(argv=None):
         indent = len(program_name) * " "
         parser.exit(4, "%s: Model validation failed due to: %s\n%s\n"%(program_name, ex, indent))
 
-    except jsonp.JsonPointerException as ex:
+    except JsonPointerException as ex:
         if DEBUG:
             log.exception('Invalid model operation!')
         indent = len(program_name) * " "
@@ -462,7 +462,7 @@ def load_model_part(mdl, filespec):
     dfin = load_file_as_df(filespec)
     log.debug("  +-input-file(%s):\n%s", filespec.fname, dfin.head())
     if filespec.path:
-        jsonp.set_pointer(mdl, filespec.path, dfin)
+        set_jsonpointer(mdl, filespec.path, dfin)
     else:
         mdl = dfin
     return mdl
@@ -484,7 +484,7 @@ def assemble_model(infiles, model_overrides):
             try:
                 if (not json_path.startswith('/')):
                     json_path = _default_model_overridde_path + json_path
-                jsonp.set_pointer(mdl, json_path, value)
+                set_jsonpointer(mdl, json_path, value)
             except Exception as ex:
                 raise six.reraise(Exception, ("Failed setting model-value(%s) due to: %s" %(json_path, value, ex)), ex.__traceback__) ## Python-2 :-(
 
@@ -512,8 +512,9 @@ def store_part_as_df(filespec, part):
 def store_model_parts(mdl, outfiles):
     for filespec in outfiles:
         try:
-            part = jsonp.resolve_pointer(mdl, filespec.path)
-            if part is jsonp._nothing:
+            try:
+                part = resolve_jsonpointer(mdl, filespec.path)
+            except JsonPointerException:
                 log.warning('Nothing found at model(%s) to write to file(%s).', filespec.path, filespec.fname)
             else:
                 store_part_as_df(filespec, part)

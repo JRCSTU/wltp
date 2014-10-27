@@ -19,7 +19,7 @@ import re
 
 from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
-from jsonschema.exceptions import SchemaError, RefResolutionError
+from jsonschema.exceptions import SchemaError
 from pandas.core.generic import NDFrame
 from six import string_types
 
@@ -953,6 +953,9 @@ class Pandel(object):
         return self.model
 
 
+class JsonPointerException(Exception):
+    pass
+
 def jsonpointer_parts(jsonpointer):
     """
     Iterates over the ``jsonpointer`` parts.
@@ -963,15 +966,18 @@ def jsonpointer_parts(jsonpointer):
     :author: Julian Berman, ankostis
     """
 
-    jsonpointer = jsonpointer.lstrip(u"/")
-    parts = jsonpointer.split(u"/") if jsonpointer else []
+    if jsonpointer:
+        parts = jsonpointer.split(u"/")
+        if parts.pop(0) != '':
+            raise JsonPointerException('Location must starts with /')
+    
+        for part in parts:
+            part = part.replace(u"~1", u"/").replace(u"~0", u"~")
+    
+            yield part
 
-    for part in parts:
-        part = part.replace(u"~1", u"/").replace(u"~0", u"~")
-
-        yield part
-
-def resolve_jsonpointer(doc, jsonpointer):
+_scream = object()
+def resolve_jsonpointer(doc, jsonpointer, default=_scream):
     """
     Resolve a ``jsonpointer`` within the referenced ``doc``.
     
@@ -991,9 +997,10 @@ def resolve_jsonpointer(doc, jsonpointer):
         try:
             doc = doc[part]
         except (TypeError, LookupError):
-            raise RefResolutionError(
-                "Unresolvable JSON pointer(%r)@(%s)" % (jsonpointer, part)
-            )
+            if default is _scream:
+                raise JsonPointerException("Unresolvable JSON pointer(%r)@(%s)" % (jsonpointer, part))
+            else:
+                return default
         
     return doc
 
@@ -1004,7 +1011,7 @@ def set_jsonpointer(doc, jsonpointer, value, object_factory=dict):
     
     :param doc: the referrant document
     :param str jsonpointer: a jsonpointer to the node to modify 
-    :raises: RefResolutionError (if jsonpointer empty, missing, invalid-contet)
+    :raises: JsonPointerException (if jsonpointer empty, missing, invalid-contet)
     """
     
     
@@ -1025,10 +1032,10 @@ def set_jsonpointer(doc, jsonpointer, value, object_factory=dict):
                 try:
                     part = int(part)
                 except ValueError:
-                    raise RefResolutionError("Expected numeric index(%s) for sequence at (%r)[%i]" % (part, jsonpointer, i))
+                    raise JsonPointerException("Expected numeric index(%s) for sequence at (%r)[%i]" % (part, jsonpointer, i))
                 else:
                     if part > doclen:
-                        raise RefResolutionError("Index(%s) out of bounds(%i) of (%r)[%i]" % (part, doclen, jsonpointer, i))
+                        raise JsonPointerException("Index(%s) out of bounds(%i) of (%r)[%i]" % (part, doclen, jsonpointer, i))
         try:
             ndoc = doc[part]
         except (LookupError):
@@ -1059,7 +1066,7 @@ def set_jsonpointer(doc, jsonpointer, value, object_factory=dict):
     
 #    except (IndexError, TypeError) as ex:
 #        #if isinstance(ex, IndexError) or 'list indices must be integers' in str(ex):
-#        raise RefResolutionError("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
+#        raise JsonPointerException("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
 #        else:
 #            doc = {}
 #            parent_doc[parent_part] = doc 

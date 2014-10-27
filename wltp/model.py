@@ -11,22 +11,22 @@ Defines the schema, defaults and validation operations for the data consumed and
 The model-instance is managed by :class:`pandel.Pandel`.
 """
 
-from __future__ import division,print_function,unicode_literals
+from __future__ import division, print_function, unicode_literals
 
 from collections import Mapping
 import functools
 import json
 import logging
 from textwrap import dedent
-from wltp.cycles import (class1,class2,class3)
-from wltp.pandel import PandelVisitor
 
-from jsonschema import (RefResolver,ValidationError)
+from jsonschema import (RefResolver, ValidationError)
 import jsonschema
 from numpy import ndarray
 from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
+from wltp.cycles import (class1, class2, class3)
+from wltp.pandel import PandelVisitor
 
 import itertools as it
 import numpy as np
@@ -243,7 +243,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'exclusiveMinimum': True,
                         'description': dedent("""
                             The maximum velocity as declared by the manufacturer.
-                            If ommited, calculated as::
+                            If ommited, calculated as:
 
                                 v_max = (n_rated * f_n_max (=1.2)) / gear_ratio[last]
                         """),
@@ -273,7 +273,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'type': ['integer', 'null'],
                         'description': dedent("""
                         minimum engine revolutions for gears > 2 when the vehicle is in motion. The minimum value
-                        is determined by the following equation::
+                        is determined by the following equation:
                             n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
                         Higher values may be used if requested by the manufacturer, by setting this one.
                        """),
@@ -310,14 +310,14 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'title': 'full load power curve',
                         'description': dedent("""
                             An array/dict/dataframe holding the full load power curve in (at least) 2 columns
-                            Example::
+                            Example:
 
                                 np.array([
                                     [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120 ],
                                     [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
                                 ]).T
 
-                            * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 0.15]::
+                            * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 0.15]:
 
                                         n_norm = (n - n_idle) / (n_rated  - n_idle)
 
@@ -410,7 +410,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     },
                     'f_n_clutch_gear2': {
                         'description': dedent("""
-                            A 2-value number-array(f1, f2) controlling when to clutch gear-2::
+                            A 2-value number-array(f1, f2) controlling when to clutch gear-2:
                                 N < n_clutch_gear2 := max(f1 * n_idle, f2 * n_range + n_idle),
                             unless "clutched"...
                         """),

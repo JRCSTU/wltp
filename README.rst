@@ -72,12 +72,14 @@ Assuming a working python-environment, you can use the following commands:
     
         from wltp.experiment import Experiment
     
-        input_model = { ... }
+        input_model = { ... }           ## See also "Python Usage" for model contents.
         exp = Experiment(input_model)
         output_model = exp.run()
+        print('Results: \n%s' % output_model['cycle_run'])
 
 
-.. Tip:: To install *python*, you can try the free (as in beer) distribution
+.. Tip:: 
+    To install *python*, you can try the free (as in beer) distribution
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ for *Windows* and *OS X*, or
     the totally free `WinPython <http://winpython.sourceforge.net/>`_ distribution, but only for *Windows*:
 
@@ -113,7 +115,7 @@ Assuming a working python-environment, you can use the following commands:
 
 Install
 =======
-The current version, |version|, runs on Python-2.7+ and Python-3.3+ but 3.3+ is the preferred one, 
+Current |version| runs on Python-2.7+ and Python-3.3+ but 3.3+ is the preferred one, 
 i.e, the desktop UI runs only with it.
 
 You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
@@ -155,37 +157,50 @@ If you have another version already installed, you have to use :option:`--ignore
 For using the specific version, check this (untested)
 `stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
 
-Of course it is better to install each version in a separate `virtualenv` and shy away from all this.
+Of course it is better to install each version in a separate |virtualenv|_ and shy away from all this.
 
 
 Installing from sources
 -----------------------
-Alternatively you can build the latest version of the project from the sources,
-(assuming you have a working installation of `git <http://git-scm.com/>`_)
-and install it in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
-with the following series of commands:
+If you download the sources you have more options for installation.
+
+Assuming you have a working installation of `git <http://git-scm.com/>`_)
+you can fetch and install the latest version of the project with the following series of commands:
 
 .. code-block:: console
 
     $ git clone "https://github.com/ankostis/wltp.git" wltp.git
     $ cd wltp.git
-    $ python setup.py develop                   ## Use `python3` if you have installed both python-2 & 3.
+    $ pip install .                                 ## Use `pip3` if both python-2 & 3 installed.
 
 
+To install for different Python versions, repeat step 3 for every required version.
 
-The previous command installed also any *dependencies* inside the project-folder.  If you wish to install them
-on your system (or virtualenv), enter:
-
-.. code-block:: console
-
-    $ pip install -r requirements.txt
-
-
-Particularly for the latest *WinPython* environments you can install dependencies with: 
+Particularly for the latest *WinPython* environments (*Windows* / *OS X*) you can install dependencies with: 
 
 .. code-block:: console
 
-    $ pip install -r WinPython_requirements.txt
+    $ pip install -r WinPython_requirements.txt .
+
+
+The previous command install dependencies in the system's folders.
+If you want to avoid that (because, for instance, you do not have *admin-rights*), but 
+you do not want to use a |virtualenv|_, you can install dependencies inside the project-folder 
+with this command:
+
+.. code-block:: console
+
+    $ python setup.py install                       ## Use `python3` if you have installed both python-2 & 3.
+    
+
+The previous command installs just the latest version of the project.
+If you wish to link the project's sources with your python environment, install the project 
+in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_:
+
+.. code-block:: console
+
+    $ python setup.py develop
+
 
 
 
@@ -271,7 +286,7 @@ Excel usage
 .. Attention:: Excel-integration requires Python 3 and *Windows* or *OS X*!
 
 In *Windows* and *OS X* you may utilize the excellent `xlwings <http://xlwings.org/quickstart/>`_ library 
-to provide input and output to wltp from Excel files.
+to use Excel files for providing input and output to the experiment.
 
 To create the necessary template-files in your current-directory you should enter:
 
@@ -565,7 +580,7 @@ First you need to download the latest sources:
 .. Admonition:: Virtualenv
     :class: note
 
-    You may choose to work in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_,
+    You may choose to work in a |virtualenv|_,
     to install dependency libraries isolated from system's ones, and/or without *admin-rights*
     (this is recommended for *Linux*/*Mac OS*).
 
@@ -846,6 +861,9 @@ Glossary
 .. _begin-replacements:
 
 .. |CO2| replace:: CO\ :sub:`2`
+
+.. |virtualenv| replace:: Python, *the* best language around
+.. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
 .. |build-status| image:: https://travis-ci.org/ankostis/wltp.svg
     :alt: Integration-build status

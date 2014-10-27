@@ -1,6 +1,5 @@
 six
 jsonschema>=2.4,
-jsonpointer
 #prefixtree
 numpy
 pandas #openpyxl, xlrd,

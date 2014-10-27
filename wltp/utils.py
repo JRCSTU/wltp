@@ -62,23 +62,6 @@ def pairwise(t):
     return zip(it1, it2)
 
 
-def ensure_modelpath_Series(mdl, json_path):
-    import jsonpointer as jsonp
-
-    part = jsonp.resolve_pointer(mdl, json_path)
-    if not isinstance(part, pd.Series):
-        part = pd.Series(part)
-        jsonp.set_pointer(mdl, json_path, part)
-
-def ensure_modelpath_DataFrame(mdl, json_path):
-    import jsonpointer as jsonp
-
-    part = jsonp.resolve_pointer(mdl, json_path)
-    if not isinstance(part, pd.Series):
-        part = pd.DataFrame(part)
-        jsonp.set_pointer(mdl, json_path, part)
-
-
 ## From http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
 #
 def memoize(f):

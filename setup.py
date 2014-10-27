@@ -123,7 +123,6 @@ long_desc = ''.join(yield_sphinx_only_markup(readme_lines))
 install_deps = [
     'six',
     'jsonschema>=2.4',
-    'jsonpointer',
     #'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
     'numpy',
     'pandas', #'openpyxl', 'xlrd',
