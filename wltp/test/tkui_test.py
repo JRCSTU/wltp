@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -11,14 +11,14 @@ from __future__ import division, unicode_literals
 import unittest
 from unittest.case import skipIf
 
-from wltp import utils
 import six
+from wltp import utils
 
 
 try:
     from wltp.tkui import TkWltp
     import tkinter as tk
-except ImportError:
+except (ImportError, NotImplementedError):
     pass
 
 

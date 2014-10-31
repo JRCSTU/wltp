@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -6,13 +6,15 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-from matplotlib import pyplot as plt
 import os
 import sys
-
-import numpy as np
 from wltp import (plots, model)
 from wltp.test import wltp_db_tests as wltpdb
+
+from matplotlib import pyplot as plt
+
+import numpy as np
+import pandas as pd
 
 
 classes = ['class1', 'class2', 'class3b']
@@ -21,7 +23,7 @@ def get_class_parts(class_num):
     cls = classes[class_num-1]
     return wltc_data['classes'][cls]['parts']
 
-def data_meanN_gears(cls_num, gened_column, heinz_column):
+def data_meanN_gears(cls_num):
 
     vehdata = wltpdb._run_the_experiments(transplant_original_gears=False, compare_results=False)
     vehdata = vehdata[vehdata['class'] == cls_num]    ## Filter only the  Class.
@@ -41,7 +43,7 @@ def data_meanN_gears(cls_num, gened_column, heinz_column):
                 df_h.ix[part_slice, 'n'].mean(),
             ])
 
-    data = np.array(data)
+    data = pd.DataFrame(np.array(data).T, columns=['gened_gear', 'gened_rpm', 'heinz_gear', 'heinz_rpm'])
 
     return data
 
@@ -49,20 +51,35 @@ def data_meanN_gears(cls_num, gened_column, heinz_column):
 def plot(cls_num):
     os.chdir(os.path.join(wltpdb.mydir, wltpdb.samples_dir))
 
-    data = data_meanN_gears(cls_num, gened_column='rpm', heinz_column='n')
+    cls_name = classes[cls_num-1]
 
+    parts = model.get_class_parts_limits(cls_name)
+    
+    parts_kws = []
+    for part in enumerate(parts):[
+        ['class1',  dict(data_fmt='1k', data_kws=dict(fillstyle='none'), ref_fmt='1g', ref_kws=dict(fillstyle='none'))],  
+        ['class2',  dict(data_fmt='2k', data_kws=dict(fillstyle='none'), ref_fmt='2g', ref_kws=dict(fillstyle='none'))],  
+        ['class3a', dict(data_fmt='ok', data_kws=dict(fillstyle='none'), ref_fmt='og', ref_kws=dict(fillstyle='none'))], 
+        ['class3b', dict(data_fmt='4k', data_kws=dict(fillstyle='none'), ref_fmt='4g', ref_kws=dict(fillstyle='none'), diff_label='Differences')], 
+    ]
+    data = data_meanN_gears(cls_num)
+    (X, Y, X_REF, Y_REF) = list(data.items())
+    
     bottom = 0.1
     height = 0.8
     axis = plt.axes([0.1, bottom, 0.90, height])
-    axis_cbar = plt.axes([0.90, bottom, 0.12, height])
+    axis_cbar = plt.subplot(111) #plt.axes([0.90, bottom, 0.12, height])
+    axes = (axis, axis_cbar) 
 
-    plots.plot_xy_diffs_arrows(
-        *data.T,
-        quantity_name='Mean EngineSpeed [rpm]',
-        title="Python vs Access-db(2sec rule), %s" % classes[cls_num-1],
-        x_label='Mean Gear',
-        axis=plt.subplot(111), axis_cbar=axis_cbar,
-        mark_sections=None
+    axes, artists = plots.plot_xy_diffs_arrows(
+        X, Y, X_REF, Y_REF,
+        ref_label='Access-db %s'%cls_name, data_label='Python %s'%cls_name,
+        title="Python vs Access-db(2sec rule), %s" % cls_name,
+        x_label=r'Mean Gear',
+        y_label='$Mean EngineSpeed [rpm]$',
+        axes=axes,
+        mark_sections=None,
+        **kws
     )
 
 if __name__ == '__main__':

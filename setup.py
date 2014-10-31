@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -38,8 +38,9 @@ if py_verinfo[0] == 2 and py_sver < StrictVersion("2.7"):
     exit("Sorry, only Python >= 2.7 is supported!")
 if py_verinfo[0] == 3 and py_sver < StrictVersion("3.3"):
     exit("Sorry, only Python >= 3.3 is supported!")
-PY2 = py_verinfo[0] < 3
-
+if sys.argv[-1] == 'setup.py':
+    exit("To install, run 'python setup.py install'")
+    
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
 
@@ -120,29 +121,9 @@ readme_lines = read_text_lines('README.rst')
 description = readme_lines[1]
 long_desc = ''.join(yield_sphinx_only_markup(readme_lines))
 
-install_deps = [
-    'six',
-    'jsonschema>=2.4',
-    'jsonpointer',
-    #'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
-    'numpy',
-    'pandas', #'openpyxl', 'xlrd',
-    'matplotlib', #>=1.4', ## Let it mature some time more...
-    'Pillow',           # For About boxes
-    'xlwings>=0.2.3',   # For Excel integration
-]
-if PY2:
-    install_deps += ['mock']
-
-
-
-
 setup(
     name = projname,
-    packages = ['wltp', 'wltp.cycles', 'wltp.test', ],
-#     package_data= {'projname': ['data/*.csv']},
     version=proj_ver,
-    test_suite='nose.collector',
     description=description,
     long_description=long_desc,
     author="Kostis Anagnostopoulos @ European Commission (JRC)",
@@ -154,27 +135,42 @@ setup(
         "simulation", "simulator", "driving", "engine", "wltc", "UNECE", "standard",
     ],
     classifiers = [
-        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
-        "Development Status :: 3 - Alpha",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Development Status :: 4 - Beta",
         'Natural Language :: English',
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Manufacturing",
         "License :: OSI Approved :: European Union Public Licence 1.1 (EUPL 1.1)",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX",
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    scripts = ['wltpcmd.py'],
-    install_requires = install_deps,
+    packages = ['wltp', 'wltp.cycles', 'wltp.test', 'wltp.excel'],
+#     package_data= {'projname': ['data/*.csv']},
+    include_package_data = True,
+    install_requires = [
+        'six',
+        'jsonschema>=2.4',
+        #'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
+        'numpy',
+        'pandas', #'openpyxl', 'xlrd',
+        'matplotlib', #>=1.4', ## Let it mature some time more...
+        'Pillow',           # For About boxes
+        'xlwings >= 0.2.3',   # For Excel integration
+    ],
     setup_requires = [
-        'setuptools>=3.4.4',
-        'sphinx>=1.2', # >=1.3
+        'setuptools',#>=3.4.4',
+        'sphinx >= 1.2', # >=1.3
         'sphinx_rtd_theme',
         'matplotlib',
         'coveralls',
@@ -183,8 +179,31 @@ setup(
         'nose',
         'coverage',
     ],
-    include_package_data = True,
+    extras_require = {
+        'wltpdb':  [],
+        ':python_version == "2.7"': ['mock'],
+    },
+    test_suite='nose.collector',
+    scripts = ['postinstall.py'],
+    entry_points={
+        'console_scripts': [
+            'wltpcmd = wltp.__main__:main',
+        ],
+        'gui_scripts': [
+            'wltpui = wltp.tkui:main',
+        ]
+    }, 
     zip_safe=True,
+    options={
+        ## DO NOT WORK ...YET :-(
+        'bdist_wininst': {
+            'install_script': "postinstall.py",
+            'user_access_control': "auto",
+        },
+        'build_sphinx' :{
+            'build_dir': 'docs/_build',
+        }
+    }
 )
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -19,7 +19,7 @@ import re
 
 from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
-from jsonschema.exceptions import SchemaError, RefResolutionError
+from jsonschema.exceptions import SchemaError
 from pandas.core.generic import NDFrame
 from six import string_types
 
@@ -36,7 +36,7 @@ except ImportError:
 
 class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
     """
-    Customization functions for travesring, I/O, and converting self-or-descedant branch (sub)model values.
+    Customization functions for traversing, I/O, and converting self-or-descendant branch (sub)model values.
     """
     def __new__(cls, inp=None, out=None, conv=None):
         """
@@ -953,6 +953,9 @@ class Pandel(object):
         return self.model
 
 
+class JsonPointerException(Exception):
+    pass
+
 def jsonpointer_parts(jsonpointer):
     """
     Iterates over the ``jsonpointer`` parts.
@@ -963,15 +966,18 @@ def jsonpointer_parts(jsonpointer):
     :author: Julian Berman, ankostis
     """
 
-    jsonpointer = jsonpointer.lstrip(u"/")
-    parts = jsonpointer.split(u"/") if jsonpointer else []
+    if jsonpointer:
+        parts = jsonpointer.split(u"/")
+        if parts.pop(0) != '':
+            raise JsonPointerException('Location must starts with /')
+    
+        for part in parts:
+            part = part.replace(u"~1", u"/").replace(u"~0", u"~")
+    
+            yield part
 
-    for part in parts:
-        part = part.replace(u"~1", u"/").replace(u"~0", u"~")
-
-        yield part
-
-def resolve_jsonpointer(doc, jsonpointer):
+_scream = object()
+def resolve_jsonpointer(doc, jsonpointer, default=_scream):
     """
     Resolve a ``jsonpointer`` within the referenced ``doc``.
     
@@ -991,60 +997,80 @@ def resolve_jsonpointer(doc, jsonpointer):
         try:
             doc = doc[part]
         except (TypeError, LookupError):
-            raise RefResolutionError(
-                "Unresolvable JSON pointer(%r)@(%s)" % (jsonpointer, part)
-            )
+            if default is _scream:
+                raise JsonPointerException("Unresolvable JSON pointer(%r)@(%s)" % (jsonpointer, part))
+            else:
+                return default
         
     return doc
 
         
-def set_jsonpointer(doc, jsonpointer, value):
+def set_jsonpointer(doc, jsonpointer, value, object_factory=dict):
     """
     Resolve a ``jsonpointer`` within the referenced ``doc``.
     
     :param doc: the referrant document
     :param str jsonpointer: a jsonpointer to the node to modify 
-    :raises: RefResolutionError (if jsonpointer empty, missing, invalid-contet)
+    :raises: JsonPointerException (if jsonpointer empty, missing, invalid-contet)
     """
     
     
     parts = list(jsonpointer_parts(jsonpointer))
-    if not parts:
-        return 
-    
-    parent_doc = doc
-    parent_part = '' #??
-    for part in parts:
-        if isinstance(doc, Sequence):
-            # Array indexes should be turned into integers
-            try:
-                part = int(part)
-            except ValueError:
-                pass
         
-        ## Set value
-        #
-        try:
-            doc[part] = value
-        except (IndexError, TypeError) as ex:
-            if isinstance(ex, IndexError) or 'list indices must be integers' in str(ex):
-                raise RefResolutionError("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
+    ## Will scream if used on 1st iteration.
+    #
+    pdoc = None
+    ppart = None
+    for i, part in enumerate(parts):
+        if isinstance(doc, Sequence) and not isinstance(doc, str):
+            ## Array indexes should be turned into integers
+            #
+            doclen = len(doc)
+            if part == '-':
+                part = doclen
             else:
-                doc = {}
-                parent_doc[parent_part] = doc 
-                doc[part] = value 
-
-        parent_doc = doc
-        parent_part = part
-    
-        ## Extend branch
-        #
+                try:
+                    part = int(part)
+                except ValueError:
+                    raise JsonPointerException("Expected numeric index(%s) for sequence at (%r)[%i]" % (part, jsonpointer, i))
+                else:
+                    if part > doclen:
+                        raise JsonPointerException("Index(%s) out of bounds(%i) of (%r)[%i]" % (part, doclen, jsonpointer, i))
         try:
-            doc = doc[part]
-        except (TypeError, LookupError):
-            temp_doc, doc = doc, {} 
-            temp_doc[part] = doc 
+            ndoc = doc[part]
+        except (LookupError):
+            break  ## Branch-extension needed.
+        except (TypeError): # Maybe indexing a string...
+            ndoc = object_factory()
+            pdoc[ppart] = ndoc
+            doc = ndoc
+            break  ## Branch-extension needed.
     
+        doc, pdoc, ppart = ndoc, doc, part 
+    else:
+        doc = pdoc # If loop exhuasted, cancel last assignment.
+
+    ## Build branch with value-leaf.
+    #
+    nbranch = value
+    for part2 in reversed(parts[i+1:]):
+        ndoc = object_factory()
+        ndoc[part2] = nbranch
+        nbranch = ndoc
+        
+    ## Attach new-branch. 
+    try:
+        doc[part] = nbranch
+    except IndexError: # Inserting last sequence-element raises IndexError("list assignment index out of range")
+        doc.append(nbranch)
+    
+#    except (IndexError, TypeError) as ex:
+#        #if isinstance(ex, IndexError) or 'list indices must be integers' in str(ex):
+#        raise JsonPointerException("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
+#        else:
+#            doc = {}
+#            parent_doc[parent_part] = doc 
+#            doc[part] = value 
 
         
 if __name__ == '__main__':

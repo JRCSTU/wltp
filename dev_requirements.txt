@@ -1,0 +1,7 @@
+## For TravisCI
+setuptools#>=3.4.4
+sphinx>=1.2
+sphinx_rtd_theme
+matplotlib
+coveralls
+

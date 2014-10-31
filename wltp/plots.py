@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -12,9 +12,9 @@ from matplotlib import cbook, cm, pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib.mlab import ma
 from numpy import polyfit, polyval
+from wltp import model
 
 import numpy as np
-from wltp import model
 
 
 ## From http://stackoverflow.com/questions/7404116/defining-the-midpoint-of-a-colormap-in-matplotlib
@@ -204,7 +204,7 @@ def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=
 
 
 def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis, axis_cbar,
-            mark_sections='classes'):
+            mark_sections=None):
     color_diff = 'r'
     alpha = 0.9
     colormap = cm.PiYG  # @UndefinedVariable

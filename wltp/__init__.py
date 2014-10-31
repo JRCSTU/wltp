@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -19,3 +19,7 @@ __license__       = "EUPL 1.1+"
 
 __all__ = ['experiment.Experiment', 'model']
 
+
+if __name__ == "__main__":
+from wltp import __main__
+    __main__.main()

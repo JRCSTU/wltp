@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -9,10 +9,10 @@
 from __future__ import division, unicode_literals
 
 import unittest
-from wltp import pandel
-from wltp.pandel import PandelVisitor
 
-from jsonschema.exceptions import ValidationError, RefResolutionError
+from jsonschema.exceptions import ValidationError
+from wltp import pandel
+from wltp.pandel import PandelVisitor, JsonPointerException
 
 import numpy.testing as npt
 import pandas as pd
@@ -190,34 +190,34 @@ class Test(unittest.TestCase):
             'bar': [11,{'a':222}]
         }
         
-        path = 'foo'
+        path = '/foo'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 1)
         
-        path = 'bar/0'
+        path = '/bar/0'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 11)
         
-        path = 'bar/1/a'
+        path = '/bar/1/a'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 222)
 
     def test_resolve_jsonpointer_sequence(self):
         doc = [1, [22, 33]]
         
-        path = '0'
+        path = '/0'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 1)
         
-        path = '1'
+        path = '/1'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), [22, 33])
         
-        path = '1/0'
+        path = '/1/0'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 22)
-        path = '1/1'
+        path = '/1/1'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 33)
 
     def test_resolve_jsonpointer_missing_screams(self):
         doc = {}
         
-        path = 'foo'
-        with self.assertRaises(RefResolutionError):
+        path = '/foo'
+        with self.assertRaises(JsonPointerException):
             pandel.resolve_jsonpointer(doc, path)
 
     def test_resolve_jsonpointer_empty_path(self):
@@ -228,37 +228,85 @@ class Test(unittest.TestCase):
         doc = {'foo':1}
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), doc)
 
+    def test_resolve_jsonpointer_examples_from_spec(self):
+        def _doc():
+            return {
+              r"foo": ["bar", r"baz"],
+              r"": 0,
+              r"a/b": 1,
+              r"c%d": 2,
+              r"e^f": 3,
+              r"g|h": 4,
+              r"i\\j": 5,
+              r"k\"l": 6,
+              r" ": 7,
+              r"m~n": 8
+           }
+        cases = [
+            (r"",            _doc()),
+            (r"/foo",        ["bar", "baz"]),
+            (r"/foo/0",      "bar"),
+            (r"/",           0),
+            (r"/a~1b",       1),
+            (r"/c%d",      2),
+            (r"/e^f",      3),
+            (r"/g|h",      4),
+            (r"/i\\j",      5),
+            (r"/k\"l",      6),
+            (r"/ ",        7),
+            (r"/m~0n",       8),
+        ]
+        for path, exp in cases:
+            doc = _doc()
+            self.assertEqual(pandel.resolve_jsonpointer(doc, path), exp)
 
-    def test_set_jsonpointer_empty(self):
+
+
+
+    def test_set_jsonpointer_empty_doc(self):
         doc = {}
-        path = 'foo'
+        path = '/foo'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
 
         doc = {}
-        path = 'foo/bar'
+        path = '/foo/bar'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
+
+    def test_resolve_jsonpointer_root_path_only(self):
+        doc = {}
+        path = '/'
+        with self.assertRaises(JsonPointerException):
+            self.assertEqual(pandel.resolve_jsonpointer(doc, path), doc)
+        
+        doc = {'foo':1}
+        with self.assertRaises(JsonPointerException):
+            self.assertEqual(pandel.resolve_jsonpointer(doc, path), doc)
+
+        doc = {'':1}
+        self.assertEqual(pandel.resolve_jsonpointer(doc, path), doc[''])
+
 
     def test_set_jsonpointer_replace_value(self):
         doc = {'foo': 'bar', 1:2}
-        path = 'foo'
+        path = '/foo'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
         self.assertEqual(doc[1], 2)
 
         doc = {'foo': 1, 1:2}
-        path = 'foo'
+        path = '/foo'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
         self.assertEqual(doc[1], 2)
 
         doc = {'foo': {'bar': 1}, 1:2}
-        path = 'foo'
+        path = '/foo'
         value = 2
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
@@ -266,14 +314,14 @@ class Test(unittest.TestCase):
 
     def test_set_jsonpointer_append_path(self):
         doc = {'foo': 'bar', 1:2}
-        path = 'foo/bar'
+        path = '/foo/bar'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
         self.assertEqual(doc[1], 2)
 
         doc = {'foo': 'bar', 1:2}
-        path = 'foo/bar/some/other'
+        path = '/foo/bar/some/other'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
@@ -281,25 +329,25 @@ class Test(unittest.TestCase):
 
     def test_set_jsonpointer_append_path_preserves_intermediate(self):
         doc = {'foo': {'bar': 1}, 1:2}
-        path = 'foo/foo2'
+        path = '/foo/foo2'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         print(doc)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
         self.assertEqual(doc[1], 2)
-        self.assertEqual(pandel.resolve_jsonpointer(doc, 'foo/bar'), 1)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '/foo/bar'), 1)
 
 
     def test_set_jsonpointer_missing(self):
         doc = {'foo': 1, 1:2}
-        path = 'foo/bar'
+        path = '/foo/bar'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
         self.assertEqual(doc[1], 2)
 
         doc = {'foo': 1, 1:2}
-        path = 'foo/bar/some/other'
+        path = '/foo/bar/some/other'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
@@ -308,29 +356,46 @@ class Test(unittest.TestCase):
 
     def test_set_jsonpointer_sequence(self):
         doc = [1,2]
-        path = '1'
+        path = '/1'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
 
         doc = [1,2]
-        path = '1/foo/bar'
+        path = '/1/foo/bar'
         value = 'value'
         pandel.set_jsonpointer(doc, path, value)
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
+
+    def test_set_jsonpointer_sequence_insert_end(self):
+        doc = [0, 1]
+        path = '/2'
+        value = 'value'
+        pandel.set_jsonpointer(doc, path, value)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, path), value)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '/0'), 0)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '/1'), 1)
+
+        doc = [0, 1]
+        path = '/-'
+        value = 'value'
+        pandel.set_jsonpointer(doc, path, value)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '/2'), value)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '/0'), 0)
+        self.assertEqual(pandel.resolve_jsonpointer(doc, '/1'), 1)
 
     def test_set_jsonpointer_sequence_out_of_bounds(self):
-        doc = [1,2]
-        path = '2'
+        doc = [0, 1]
+        path = '/3'
         value = 'value'
-        with self.assertRaises(RefResolutionError):
+        with self.assertRaises(JsonPointerException):
             pandel.set_jsonpointer(doc, path, value)
 
     def test_set_jsonpointer_sequence_with_str_screams(self):
-        doc = [1,2]
-        path = 'str'
+        doc = [0, 1]
+        path = '/str'
         value = 'value'
-        with self.assertRaises(RefResolutionError):
+        with self.assertRaises(JsonPointerException):
             pandel.set_jsonpointer(doc, path, value)
 
 

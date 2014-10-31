@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -9,10 +9,8 @@
 from __future__ import division, unicode_literals
 
 import argparse
-import os
+import sys, os
 import unittest
-
-import pandas as pd
 
 
 ##############
@@ -62,23 +60,6 @@ def pairwise(t):
     return zip(it1, it2)
 
 
-def ensure_modelpath_Series(mdl, json_path):
-    import jsonpointer as jsonp
-
-    part = jsonp.resolve_pointer(mdl, json_path)
-    if not isinstance(part, pd.Series):
-        part = pd.Series(part)
-        jsonp.set_pointer(mdl, json_path, part)
-
-def ensure_modelpath_DataFrame(mdl, json_path):
-    import jsonpointer as jsonp
-
-    part = jsonp.resolve_pointer(mdl, json_path)
-    if not isinstance(part, pd.Series):
-        part = pd.DataFrame(part)
-        jsonp.set_pointer(mdl, json_path, part)
-
-
 ## From http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
 #
 def memoize(f):
@@ -107,3 +88,25 @@ class Lazy(object):
 
 def is_travis():
     return 'TRAVIS' in os.environ
+
+def generate_filenames(filename):
+    f, e = os.path.splitext(filename)
+    yield filename
+    i = 1
+    while True:
+        yield '%s%i%s' % (f, i, e)
+        i += 1
+
+
+def open_file_with_os(fpath):
+    ## From http://stackoverflow.com/questions/434597/open-document-with-default-application-in-python
+    #     and http://www.dwheeler.com/essays/open-files-urls.html
+    import subprocess
+    try:
+        os.startfile(fpath)
+    except AttributeError:
+        if sys.platform.startswith('darwin'):
+            subprocess.call(('open', fpath))
+        elif os.name == 'posix':
+            subprocess.call(('xdg-open', fpath))
+    return

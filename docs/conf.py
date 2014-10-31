@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! python3
 # -*- coding: utf-8 -*-
 #
 # wltp documentation build configuration file, created by
@@ -366,7 +366,6 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('http://docs.python.org/3.4', None),
     'jsonschema': ('http://python-jsonschema.readthedocs.org/en/latest/', None),
-    'jsonpointer': ('http://python-json-pointer.readthedocs.org/en/latest/', None),
     'pandas': ('http://pandas.pydata.org/pandas-docs/dev', None),
     'pandas': ('http://pandas.pydata.org/pandas-docs/dev', None),
 }

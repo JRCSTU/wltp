@@ -1,6 +1,6 @@
-===============================
+=============================
 *wltp* gear-shifts calculator
-===============================
+=============================
 
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
@@ -11,7 +11,7 @@
 :Copyright:     2013-2014 European Commission (`JRC-IET <http://iet.jrc.ec.europa.eu/>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
-Calculates the *gear-shifts* of Light-duty vehicles running the :term:`WLTP`
+The *wltp* is a python package that calculates the *gear-shifts* of Light-duty vehicles running the :term:`WLTP`
 driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regulation)` draft.
 
 .. figure:: docs/wltc_class3b.png
@@ -37,57 +37,97 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
 Introduction
 ============
 
+Overview
+--------
 The calculator accepts as input the vehicle's technical data, along with parameters for modifying the execution
 of the :term:`WLTC` cycle, and it then spits-out the gear-shifts of the vehicle, the attained speed-profile,
 and any warnings.  It does not calculate any |CO2| emissions.
 
 
-An "execution" or a "run" of an experiment is the processing and augmentation of the :dfn:`input-model`
-to produce the :dfn:`output-model`.  The process is depicted in the following diagram::
+An "execution" or a "run" of an experiment is depicted in the following diagram::
 
-               .---------------------.                        .----------------------------.
-              ;     input-model     ;                        ;      output-model          ;
-             ;---------------------;                        ;----------------------------;
-            ; +--vehicle          ;     ___________        ; +---...                    ;
-           ;  +--params          ;     |           |      ;  +--cycle_run:             ;
-          ;       +--wltc_data  ;  ==> | Processor | ==> ;      t  v_class gear ...   ;
-         ;                     ;       |___________|    ;      --------------------  ;
-        ;                     ;                        ;       00      0.0    1     ;
-       ;                     ;                        ;        01      1.3    1    ;
-      ;                     ;                        ;         02      5.5    1   ;
-     ;                     ;                        ;          ...               ;
-    '---------------------'                        '----------------------------.
+               .---------------------.                         .----------------------------.
+              ;     Input-Model     ;                         ;        Output-Model        ;
+             ;---------------------;                         ;----------------------------;
+            ; +--vehicle          ;     ____________        ; +---...                    ;
+           ;  +--params          ;     |            |      ;  +--cycle_run:             ;
+          ;       +--wltc_data  ;  ==> | Experiment | ==> ;      t  v_class gear ...   ;
+         ;                     ;       |____________|    ;      --------------------  ;
+        ;                     ;                         ;       00      0.0    1     ;
+       ;                     ;                         ;        01      1.3    1    ;
+      ;                     ;                         ;         02      5.5    1   ;
+     ;                     ;                         ;          ...               ;
+    '---------------------'                         '----------------------------.
 
+The *Input & Output Data* are instances of :dfn:`pandas-model`, trees of strings and numbers, assembled with:
 
-For a quick-start, and assuming a working python-environment, open a normal "console" and type:
-
-#. Install: ``pip install wltp --pre -U``
-#. Check version: ``wltpcmd.py --version``  
-#. Run with the TkUI: ``wltpcmd.py --gui``
-#. (*Windows* or *OS X*) Create and open an Excel file in your working-folder: ``wltpcmd.py --excel``
-
+* sequences,
+* dictionaries,
+* :class:`pandas.DataFrame`,
+* :class:`pandas.Series`, and
+* URI-references to other model-trees.
 
 
-.. _wltp_install:
+Quick-start
+-----------
+Assuming a working python-environment, open a *command-shell*  
+(ie in *Windows* use :program:`cmd.exe` BUT with with Python in its :envvar:`PATH`)
+and try the following commands 
 
-Install
--------
-The current version |version| requires Python-2.7+ or Python-3.3+ 
-Version 3.3+ is preferred, i.e, the desktop UI does not work in Python 2.
+:Installation: ``$ pip install wltp --pre -U``
+:Cmd-line: ``$ wltpcmd --help`` 
+:GUI: ``$ wltpcmd --gui`` (use it to explore model)
+:Excel: ``$ wltpcmd --excelrun`` (*Windows*/*OS X* only)
+:Python-code:
+    .. code-block:: python
+    
+        from wltp.experiment import Experiment
+    
+        input_model = { ... }           ## See also "Python Usage" for model contents.
+        exp = Experiment(input_model)
+        output_model = exp.run()
+        print('Results: \n%s' % output_model['cycle_run'])
 
 
-.. Tip:: To install *python*, you can try the free (as in beer) distribution
+.. Tip:: 
+    To install *python*, you can try the free (as in beer) distribution
     `Anaconda <http://docs.continuum.io/anaconda/pkg-docs.html>`_ for *Windows* and *OS X*, or
-    the totally free `WinPython <http://winpython.sourceforge.net/>`_ distribution, but for *Windows* only:
+    the totally free `WinPython <http://winpython.sourceforge.net/>`_ distribution, but only for *Windows*:
 
     * For *Anaconda* you may need to install project's dependencies manually (see :file:`setup.py`)
       using :command:`conda`.
-    * The most recent version of *WinPython* (python-3.4) is in the process of
-      `changing maintainer <http://sourceforge.net/projects/stonebig.u/files/>`_,
-      yet it still remains a higly active project, that can even compile native libraries using
-      installation of *Visual Studio*, if any
-      (required when upgrading ``numpy/scipy``,``pandas`` or ``matplotlib`` with :command:`pip`).
+    * The most recent version of *WinPython* (python-3.4) although it has just 
+      `changed maintainer  <http://sourceforge.net/projects/stonebig.u/files/>`_,
+      it remains a higly active project, and it can even compile native libraries using an installations of 
+      *Visual Studio*, if available
+      (required for instance when upgrading ``numpy/scipy``, ``pandas`` or ``matplotlib`` with :command:`pip`).
+      
+      Remember also to *Register your WinPython installation* from 
+      :menuselection:`Start menu --> All Programs --> WinPython --> WinPython ControlPanel`, and then
+      :menuselection:`Options --> Register Ditribution`.
+      
+.. Tip::
+    The commands above beginning with ``$`` imply a *unix* like operating system with a *POSIX* shell
+    (*Linux*, *OS X*). If you're using *Windows*, you'll have to run their counterparts
+    in the *windows command shell* :program:`cmd.exe`.
 
+    Although the commands are simple and easy to translate , it would be worthwile to install
+    `cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows* machines.
+    If you choose to do that, make sure that in the *cygwin*'s installation wizard the following packages
+    are also included::
+
+        * git, git-completion
+        * make, zip, unzip, bzip2
+        * openssh, curl, wget
+
+
+
+.. _wltp-install:
+
+Install
+=======
+Current |version| runs on Python-2.7+ and Python-3.3+ but 3.3+ is the preferred one, 
+i.e, the desktop UI runs only with it.
 
 You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
 by typing :command:`pip` in the console:
@@ -96,38 +136,29 @@ by typing :command:`pip` in the console:
 
     $ pip install wltp --pre --upgrade          ## Use `pip3` if both python-2 & 3 installed.
 
+.. Tip:
+    To debug the installation, you can export a non-empty :envvar:`DISTUTILS_DEBUG` 
+    and *distutils* will print detailed information about what it is doing and/or 
+    print the whole command line when an external program (like a C compiler) fails.
+    
 
 Notice that :option:`--pre` is required, since all released packages so far were *pre*-release (``-alpha``) versions.
 Also :option:`--upgrade` (or `-U`) is only required if you already have an old installation of wltp 
 and need to upgrade it.
 
-To check whether the installation has been successful, check that the :command:`wltpcmd.py` script works,
+To check whether the installation has been successful, check that the :command:`wltpcmd` script works,
 which must have been installed somewhere in your :envvar:`PATH`:
 
 .. code-block:: console
 
-    $ wltpcmd.py --version                      ## Check which version installed.
-    wltpcmd.py 0.0.9-alpha.2
+    $ wltpcmd --version                      ## Check which version is installed.
+    0.0.9-alpha.2
 
-
-.. Tip::
-    The commands above beginning with ``$`` work on an *unix* like operating system with a *POSIX* shell
-    (*Linux*, *OS X*). If you're using *Windows*, you'll have to run their "windows counterparts".
-    The same is true for the rest of this documentation.
-
-    Although the commands are simple and easy to translate , it would be worthwile to install
-    `cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows* machines.
-    If you choose to do that, make sure that in the *cygwin*'s installation wizard the following packages
-    are also included::
-
-        * git, git-completion
-        * make
-        * openssh, curl, wget
 
 
 
 Older versions
-^^^^^^^^^^^^^^
+--------------
 An additional purpose of the versioning schema of the project is to track which specific version
 of the GTR it implements.
 Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
@@ -143,30 +174,51 @@ If you have another version already installed, you have to use :option:`--ignore
 For using the specific version, check this (untested)
 `stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
 
-Of course it is better to install each version in a separate `virtualenv` and shy away from all this.
+Of course it is better to install each version in a separate |virtualenv|_ and shy away from all this.
 
 
 Installing from sources
-^^^^^^^^^^^^^^^^^^^^^^^
-Alternatively you can build the latest version of the project from the sources,
-(assuming you have a working installation of `git <http://git-scm.com/>`_)
-and install it in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_
-with the following series of commands:
+-----------------------
+If you download the sources you have more options for installation.
+
+Assuming you have a working installation of `git <http://git-scm.com/>`_)
+you can fetch and install the latest version of the project with the following series of commands:
 
 .. code-block:: console
 
     $ git clone "https://github.com/ankostis/wltp.git" wltp.git
     $ cd wltp.git
-    $ python setup.py develop                   ## Use `python3` if you have installed both python-2 & 3.
+    $ pip install .                                 ## Use `pip3` if both python-2 & 3 installed.
 
 
+To install for different Python versions, repeat step 3 for every required version.
 
-The previous command installed also any *dependencies* inside the project-folder.  If you wish to install them
-on your system (or virtualenv), enter:
+Particularly for the latest *WinPython* environments (*Windows* / *OS X*) you can install dependencies with: 
 
 .. code-block:: console
 
-    $ pip install -r requirements.txt
+    $ pip install -r WinPython_requirements.txt .
+
+
+The previous command install dependencies in the system's folders.
+If you want to avoid that (because, for instance, you do not have *admin-rights*), but 
+you do not want to use a |virtualenv|_, you can install dependencies inside the project-folder 
+with this command:
+
+.. code-block:: console
+
+    $ python setup.py install                       ## Use `python3` if you have installed both python-2 & 3.
+    
+
+The previous command installs just the latest version of the project.
+If you wish to link the project's sources with your python environment, install the project 
+in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_:
+
+.. code-block:: console
+
+    $ python setup.py develop
+
+
 
 
 Project files and folders
@@ -183,7 +235,7 @@ The files and folders of the project are listed below::
     |   +--pyplots/     ## (scripts) Plot the metric diagrams embeded in the README
     +--devtools/        ## (scripts) Preprocessing of WLTC data on GTR and the wltp_db
     |   +--run_tests.sh ## (script) Executes all TestCases
-    +--wltpcmd.py          ## (script) The cmd-line entry-point script for the calculator
+    +--wltpcmd          ## (script) The cmd-line entry-point script for the calculator
     +--setup.py         ## (script) The entry point for `setuptools`, installing, testing, etc
     +--requirements.txt ## The installation dependencies.
     +--README.rst
@@ -192,10 +244,13 @@ The files and folders of the project are listed below::
 
 
 
+.. _wltp-usage:
 
+Usage
+=====
 Cmd-line usage
 --------------
-.. Note:: Not implemented in yet.
+.. Warning:: Not implemented in yet.
 
 The command-line usage below requires the Python environment to be installed, and provides for
 executing an experiment directly from the OS's shell (i.e. :program:`cmd` in windows or :program:`bash` in POSIX),
@@ -204,7 +259,7 @@ and in a *single* command.  To have precise control over the inputs and outputs
 you have to run the experiments using the API python, as explained below.
 
 
-The entry-point script is called :program:`wltpcmd.py`, and it must have been placed in your :envvar:`PATH`
+The entry-point script is called :program:`wltpcmd`, and it must have been placed in your :envvar:`PATH`
 during installation.  This script can construct a *model* by reading input-data
 from multiple files and/or overriding specific single-value items. Conversely,
 it can output multiple parts of the resulting-model into files.
@@ -213,7 +268,7 @@ To get help for this script, use the following commands:
 
 .. code-block:: console
 
-    $ wltpcmd.py --help                         ## to get generic help for cmd-line syntax
+    $ wltpcmd --help                         ## to get generic help for cmd-line syntax
     $ wltcmdp.py -M vehicle/full_load_curve     ## to get help for specific model-paths
 
 
@@ -222,7 +277,7 @@ for which you want to override the ``n_idle`` only, run the following:
 
 .. code-block:: console
 
-    $ wltpcmd.py -v \
+    $ wltpcmd -v \
         -I vehicle.csv file_frmt=SERIES model_path=params header@=None \
         -m vehicle/n_idle:=850 \
         -O cycle.csv model_path=cycle_run
@@ -238,49 +293,61 @@ just run:
 
 .. code-block:: console
 
-    $ wltpcmd.py --gui
+    $ wltpcmd --gui
 
 
 
 
 Excel usage
 -----------
-.. Attention:: Excel-integration requires Python 3!
+.. Attention:: Excel-integration requires Python 3 and *Windows* or *OS X*!
 
 In *Windows* and *OS X* you may utilize the excellent `xlwings <http://xlwings.org/quickstart/>`_ library 
-to provide input and output to wltp from Excel files.
+to use Excel files for providing input and output to the experiment.
 
-To create a sample excel file in your current-directory by entering:
+To create the necessary template-files in your current-directory you should enter:
 
 .. code-block:: console
 
-     $ wltpcmd.py --excel
+     $ wltpcmd --excel
      
-The above command creates two files:
 
-:file:`wltp_runner.xlsm`
-    The python-enabled xls-file (with *VBA* code) where input and output data are written.
+You could type instead :samp:`wltpcmd --excel {file_path}` to specify a different destination path.
+
+In *windows*/*OS X* you can type :samp:`wltpcmd --excelrun` and the files will be created in your home-directory 
+and the excel will open them in one-shot.
+
+All the above commands creates two files:
+
+:file:`wltp_excel_runner.xlsm`
+    The python-enabled excel-file where input and output data are written, as seen in the screenshot below:
     
-:file:`wltp_runner.py`   
-    Utility python functions used by the above xls-file.  You can edit it, to fit your needs.
+    .. image:: docs/xlwings_screenshot.png
+        :scale: 50%
+        :alt: Screenshot of the `wltp_excel_runner.xlsm` file.
+        
+    After opening it the first tie, enable the macros on the workbook, select the python-code at the left and click 
+    the :menuselection:`Run Selection as Pyhon` button; one sheet per vehicle should be created.
 
-You may type instead :samp:`wltpcmd.py --excel {xls_file_path}` to specify a  different filename/path.
+    The excel-file contains additionally appropriate *VBA* modules allowing you to invoke *Python code* 
+    present in *selected cells* with a click of a button, and python-functions declared in the python-script, below,
+    using the `mypy` namespace. 
+    
+    To add more input-columns, you need to set as column *Headers* the *json-pointers* path of the desired 
+    model item (see `Python usage`_ below,).
 
-The xls-file contains the appropriate *VBA* modules and macros allowing you to invoke *Python code* 
-present in *selected cells* with a click of a button, as seen in the screenshot below.
+:file:`wltp_excel_runner.py`   
+    Utility python functions used by the above xls-file for running a batch of experiments.  
+     
+    The particular functions included reads multiple vehicles from the input table with various  
+    vehicle characteristics and/or experiment parameters, and then it adds a new worksheet containing 
+    the cycle-run of each vehicle . 
+    Of course you can edit it to further fit your needs.
 
-.. image:: docs/xlwings_screenshot.png
-    :scale: 50%
-    :alt: Screenshot of the `wltp_runner.xlsm` file.
 
-
-The particular code already loaded in the demo-workbook reads multiple vehicles from tables with various 
-vehicle characteristics and experiment data and generates new worksheets with the cycle-run tables 
-for each vehicle.  
-
-If you need to add/remove fields (see `Python usage`_ below) 
-it should be pretty obvious that you need to change the *json-pointers* in the header of the table.
-
+.. Note:: You may reverse the procedure described above and run the python-script instead.
+    The script will open the excel-file, run the experiments and add the new sheets, but in case any errors occur, 
+    this time you can debug them, if you had executed the script through *LiClipse*, or *IPython*! 
 
 Some general notes regarding the python-code in excel-cells:
 
@@ -288,6 +355,9 @@ Some general notes regarding the python-code in excel-cells:
   with a latest version. 
 * You can read & modify the *VBA* `xlwings_ext` module with code that will run on each invocation 
   to import libraries such as 'numpy' and 'pandas', or pre-define utility python functions.
+* The name of the python-module to import is automatically calculated from the name of the Excel-file,
+  and it must be valid as a python module-name.  Therefore do not use non-alphanumeric characters such as 
+  spaces(` `), dashes(`-`) and dots(`.`) on the Excel-file.
 * Double-quotes(") do not work for denoting python-strings in the cells; use single-quotes(') instead.
 * You cannot enter multiline or indentated python-code such as functions and/or  ```if-then-else`` expressions; 
   move such code into the python-file. 
@@ -309,11 +379,13 @@ Some general notes regarding the python-code in excel-cells:
     the *VBA* modules of the demo-excel file ``xlwings`` and ``xlwings-ext`` into 
     your :file:`PERSONAL.XLSB` workbook, as explaine here: 
     http://office.microsoft.com/en-001/excel-help/copy-your-macros-to-a-personal-macro-workbook-HA102174076.aspx.
-
+    
     You can even `add a new Ribbon-button <http://msdn.microsoft.com/en-us/library/bb386104.aspx>`_ 
     to execute the selected cells as python-code.  Set this new button to invoke the ``RunSelectionAsPython()``
     *VBA* function.
 
+    If you do the above, remember that *VBA*-code in your personal-workbook takes precedance over any code
+    present in your currently open workbook.
 
 
 Python usage
@@ -484,8 +556,9 @@ Requirements
 ^^^^^^^^^^^^
 In order to run them interactively, ensure that the following requirements are satisfied:
 
-a. A `ipython-notebook server <http://ipython.org/notebook.html>`_ >= v2.x.x is installed, up and running.
-b. The *wltp* is installed on your *python-3* of your system (see `wltp_install`_ above).
+a. A `ipython-notebook server <http://ipython.org/notebook.html>`_ >= v2.x.x is installed for  *python-3*, 
+   it is up, and running.
+b. The *wltp* is installed on your system (see `wltp-install`_ above).
 
 Instructions
 ^^^^^^^^^^^^
@@ -524,7 +597,7 @@ First you need to download the latest sources:
 .. Admonition:: Virtualenv
     :class: note
 
-    You may choose to work in a `virtual-environment <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_,
+    You may choose to work in a |virtualenv|_,
     to install dependency libraries isolated from system's ones, and/or without *admin-rights*
     (this is recommended for *Linux*/*Mac OS*).
 
@@ -805,6 +878,9 @@ Glossary
 .. _begin-replacements:
 
 .. |CO2| replace:: CO\ :sub:`2`
+
+.. |virtualenv| replace:: Python, *the* best language around
+.. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
 .. |build-status| image:: https://travis-ci.org/ankostis/wltp.svg
     :alt: Integration-build status
