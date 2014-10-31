@@ -37,7 +37,8 @@ if __name__ == '__main__':
         quantity_name='EngineSpeed [rpm]', 
         title="Python vs Access-db(2sec rule)",
         x_label=r'$PMR [W/kg]$',
-        axis=plt.subplot(111), axis_cbar=axis_cbar
+        axis=plt.subplot(111), axis_cbar=axis_cbar,
+        mark_sections='classes'
     )
     plt.show()
     

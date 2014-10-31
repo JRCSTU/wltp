@@ -5,26 +5,26 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-#! python
-# -*- coding: utf-8 -*-
 
 from __future__ import division, unicode_literals
 
 import logging
 from os.path import expanduser
 import sys, os
-from unittest.mock import MagicMock
+import tempfile
+
 
 def _init_logging(loglevel):
     logging.basicConfig(level=loglevel)
-    logging.getLogger().setLevel(level=loglevel)
+    rlog = logging.getLogger()
+    rlog.setLevel(level=loglevel)
+    h = os.path.join(tempfile.gettempdir(), 'wltp.log')
+    h = logging.FileHandler(h)
+    rlog.addHandler(h)
 
 _init_logging(logging.INFO)
 log = logging.getLogger(__name__)
 
-
-directory_create = MagicMock() 
-file_created = MagicMock()
 
 PROG_GROUP='PythonWltp'
 SCRIPT_PATH = os.path.join(sys.prefix, "Scripts", "wltpcmd")

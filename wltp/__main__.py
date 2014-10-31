@@ -25,16 +25,12 @@ import re
 import shutil
 import sys
 from textwrap import dedent
+from wltp import (model, pandel, tkui, utils)
+from wltp._version import __version__  # @UnusedImport
+from wltp.pandel import JsonPointerException
 
 from pandas.core.generic import NDFrame
 import six
-from wltp import experiment
-from wltp import model
-from wltp import tkui
-from wltp._version import __version__  # @UnusedImport
-from wltp.model import json_dump, json_dumps, validate_model
-from wltp.pandel import JsonPointerException, resolve_jsonpointer, set_jsonpointer
-from wltp.utils import str2bool, Lazy, generate_filenames
 
 import jsonschema as jsons
 import operator as ops
@@ -162,21 +158,10 @@ def main(argv=None):
             return
         
         if opts.excelrun:
-            from os.path import expanduser
-            destdir = expanduser("~")
-            files_copied = copy_excel_template_files(destdir)          #@UnusedVariable
+            files_copied = copy_excel_template_files(opts.excelrun)          #@UnusedVariable
             xls_file = files_copied[0]
             
-            ## From http://stackoverflow.com/questions/434597/open-document-with-default-application-in-python
-            #     and http://www.dwheeler.com/essays/open-files-urls.html
-            import subprocess
-            try:
-                os.startfile(xls_file)
-            except AttributeError:
-                if sys.platform.startswith('darwin'):
-                    subprocess.call(('open', xls_file))
-                elif os.name == 'posix':
-                    subprocess.call(('xdg-open', xls_file))
+            utils.open_file_with_os(xls_file)
             return
         
         opts = validate_file_opts(opts)
@@ -198,8 +183,8 @@ def main(argv=None):
     try:
         additional_props = not opts.strict
         mdl = assemble_model(infiles, opts.m)
-        log.info("Input Model(strict: %s): %s", opts.strict, Lazy(lambda: json_dumps(mdl, 'to_string')))
-        mdl = validate_model(mdl, additional_props)
+        log.info("Input Model(strict: %s): %s", opts.strict, utils.Lazy(lambda: model.json_dumps(mdl, 'to_string')))
+        mdl = model.validate_model(mdl, additional_props)
 
         mdl = processor.run(opts, mdl)
 
@@ -218,10 +203,11 @@ def main(argv=None):
         parser.exit(4, "%s: Model operation failed due to: %s\n%s\n"%(program_name, ex, indent))
 
 
-def copy_excel_template_files(dest_dir):
+
+def copy_excel_template_files(dest_dir=None):
     import pkg_resources as pkg
     
-    if dest_dir == '<CWD>':
+    if not dest_dir == None:
         dest_dir = os.getcwd()
     else:
         dest_dir = os.path.abspath(dest_dir)
@@ -237,7 +223,7 @@ def copy_excel_template_files(dest_dir):
     files_copied = []
     for src_fname in files_to_copy:
         dest_fname = os.path.basename(src_fname)
-        fname_genor = generate_filenames(os.path.join(dest_dir, dest_fname))
+        fname_genor = utils.generate_filenames(os.path.join(dest_dir, dest_fname))
         dest_fname = next(fname_genor)
         while os.path.exists(dest_fname):
             dest_fname = next(fname_genor)
@@ -289,7 +275,7 @@ _default_model_overridde_path = '/engine/'
 _value_parsers = {
     '+': int,
     '*': float,
-    '?': str2bool,
+    '?': utils.str2bool,
     ':': json.loads,
     '@': eval,
     #'@': ast.literal_eval ## best-effort security: http://stackoverflow.com/questions/3513292/python-make-eval-safe
@@ -317,7 +303,7 @@ def parse_key_value_pair(arg):
 _column_specifier_regex = re.compile(r'''^\s*
                                         (?P<name>[^([]+?)   # column-name
                                         \s*
-                                        (?P<units>          # start parenthezied-units optional-group
+                                        (?P<units>          # start parenthesized-units optional-group
                                             \[              # units enclosed in []
                                                 [^\]]*
                                             \]
@@ -413,7 +399,7 @@ def parse_many_file_args(many_file_args, filemode, col_renames=None):
 
         try:
             append = pandas_kws.pop('file_append')
-            append = str2bool(append)
+            append = utils.str2bool(append)
         except KeyError:
             pass
 
@@ -462,7 +448,7 @@ def load_model_part(mdl, filespec):
     dfin = load_file_as_df(filespec)
     log.debug("  +-input-file(%s):\n%s", filespec.fname, dfin.head())
     if filespec.path:
-        set_jsonpointer(mdl, filespec.path, dfin)
+        pandel.set_jsonpointer(mdl, filespec.path, dfin)
     else:
         mdl = dfin
     return mdl
@@ -484,7 +470,7 @@ def assemble_model(infiles, model_overrides):
             try:
                 if (not json_path.startswith('/')):
                     json_path = _default_model_overridde_path + json_path
-                set_jsonpointer(mdl, json_path, value)
+                pandel.set_jsonpointer(mdl, json_path, value)
             except Exception as ex:
                 raise six.reraise(Exception, ("Failed setting model-value(%s) due to: %s" %(json_path, value, ex)), ex.__traceback__) ## Python-2 :-(
 
@@ -506,14 +492,14 @@ def store_part_as_df(filespec, part):
             method = ops.methodcaller(filespec.io_method, filespec.file, **filespec.kws)
         method(part)
     else:
-        json_dump(part, filespec.file, pd_method=None, **filespec.kws)
+        model.json_dump(part, filespec.file, pd_method=None, **filespec.kws)
 
 
 def store_model_parts(mdl, outfiles):
     for filespec in outfiles:
         try:
             try:
-                part = resolve_jsonpointer(mdl, filespec.path)
+                part = pandel.resolve_jsonpointer(mdl, filespec.path)
             except JsonPointerException:
                 log.warning('Nothing found at model(%s) to write to file(%s).', filespec.path, filespec.fname)
             else:
@@ -533,7 +519,7 @@ class RawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
 
 
 def build_args_parser(program_name, version, desc, epilog):
-    version_string  = '%(prog)s ' + str(version)
+    version_string  = '%s' % version
 
     parser = argparse.ArgumentParser(prog=program_name, description=desc, epilog=epilog, add_help=False,
                                      formatter_class=RawTextHelpFormatter)
@@ -567,7 +553,7 @@ def build_args_parser(program_name, version, desc, epilog):
               must either match them, be 1 (meaning, use them for all files), or be totally absent
               (meaning, use defaults for all files).
             * see REMARKS at the bottom regarding the parsing of KEY-VAULE pairs. """),
-                        action='append', nargs='+', required=False,
+                        action='append', nargs='+', 
                         #default=[('- file_frmt=%s model_path=%s'%('CSV', _default_df_dest)).split()],
                         metavar='ARG')
     grp_io.add_argument('-c', '--icolumns', help=dedent("""\
@@ -628,7 +614,7 @@ def build_args_parser(program_name, version, desc, epilog):
     grp_io.add_argument('--strict', help=dedent("""\
             validate model more strictly, ie no additional-properties allowed.
             [default: %(default)s]"""),
-            default=False, type=str2bool,
+            default=False, type=utils.str2bool,
             metavar='[TRUE | FALSE]')
     grp_io.add_argument('-M', help=dedent("""\
             get help description for the specfied model path.
@@ -653,8 +639,9 @@ def build_args_parser(program_name, version, desc, epilog):
     xlusive_group = parser.add_mutually_exclusive_group()
     xlusive_group.add_argument('--gui', help='start GUI to run a single experiment', action='store_true')
     xlusive_group.add_argument('--excel', help="copy `xlwings` excel & python template files into DESTPATH or current-working dir, to run a batch of experiments", 
-        nargs='?', const='<CWD>', metavar='DESTPATH')
-    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments", action='store_true')
+        nargs='?', const=None, metavar='DESTPATH')
+    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments", 
+        nargs='?', const=None, metavar='DESTPATH')
     
     grp_various = parser.add_argument_group('Various', 'Options controlling various other aspects.')
     grp_various.add_argument('-d', "--debug", action="store_true", help=dedent("""\

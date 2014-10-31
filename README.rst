@@ -1,6 +1,6 @@
-===============================
+=============================
 *wltp* gear-shifts calculator
-===============================
+=============================
 
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
@@ -11,7 +11,7 @@
 :Copyright:     2013-2014 European Commission (`JRC-IET <http://iet.jrc.ec.europa.eu/>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
-Calculates the *gear-shifts* of Light-duty vehicles running the :term:`WLTP`
+The *wltp* is a python package that calculates the *gear-shifts* of Light-duty vehicles running the :term:`WLTP`
 driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regulation)` draft.
 
 .. figure:: docs/wltc_class3b.png
@@ -37,16 +37,17 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
 Introduction
 ============
 
+Overview
+--------
 The calculator accepts as input the vehicle's technical data, along with parameters for modifying the execution
 of the :term:`WLTC` cycle, and it then spits-out the gear-shifts of the vehicle, the attained speed-profile,
 and any warnings.  It does not calculate any |CO2| emissions.
 
 
-An "execution" or a "run" of an experiment is the processing and augmentation of the :dfn:`input-model`
-to produce the :dfn:`output-model`.  The process is depicted in the following diagram::
+An "execution" or a "run" of an experiment is depicted in the following diagram::
 
                .---------------------.                         .----------------------------.
-              ;     input-model     ;                         ;      output-model          ;
+              ;     Input-Model     ;                         ;        Output-Model        ;
              ;---------------------;                         ;----------------------------;
             ; +--vehicle          ;     ____________        ; +---...                    ;
            ;  +--params          ;     |            |      ;  +--cycle_run:             ;
@@ -58,10 +59,20 @@ to produce the :dfn:`output-model`.  The process is depicted in the following di
      ;                     ;                         ;          ...               ;
     '---------------------'                         '----------------------------.
 
+The *Input & Output Data* are instances of :dfn:`pandas-model`, trees of strings and numbers, assembled with:
+
+* sequences,
+* dictionaries,
+* :class:`pandas.DataFrame`,
+* :class:`pandas.Series`, and
+* URI-references to other model-trees.
+
 
 Quick-start
 -----------
-Assuming a working python-environment, you can use the following commands:
+Assuming a working python-environment, open a *command-shell*  
+(ie in *Windows* use :program:`cmd.exe` BUT with with Python in its :envvar:`PATH`)
+and try the following commands 
 
 :Installation: ``$ pip install wltp --pre -U``
 :Cmd-line: ``$ wltpcmd --help`` 
@@ -96,9 +107,9 @@ Assuming a working python-environment, you can use the following commands:
       :menuselection:`Options --> Register Ditribution`.
       
 .. Tip::
-    The commands above beginning with ``$`` work on an *unix* like operating system with a *POSIX* shell
-    (*Linux*, *OS X*). If you're using *Windows*, you'll have to run their *windows command shell* counterparts.
-    The same is true for the rest of this documentation.
+    The commands above beginning with ``$`` imply a *unix* like operating system with a *POSIX* shell
+    (*Linux*, *OS X*). If you're using *Windows*, you'll have to run their counterparts
+    in the *windows command shell* :program:`cmd.exe`.
 
     Although the commands are simple and easy to translate , it would be worthwile to install
     `cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows* machines.
@@ -106,7 +117,7 @@ Assuming a working python-environment, you can use the following commands:
     are also included::
 
         * git, git-completion
-        * make
+        * make, zip, unzip, bzip2
         * openssh, curl, wget
 
 
@@ -125,6 +136,11 @@ by typing :command:`pip` in the console:
 
     $ pip install wltp --pre --upgrade          ## Use `pip3` if both python-2 & 3 installed.
 
+.. Tip:
+    To debug the installation, you can export a non-empty :envvar:`DISTUTILS_DEBUG` 
+    and *distutils* will print detailed information about what it is doing and/or 
+    print the whole command line when an external program (like a C compiler) fails.
+    
 
 Notice that :option:`--pre` is required, since all released packages so far were *pre*-release (``-alpha``) versions.
 Also :option:`--upgrade` (or `-U`) is only required if you already have an old installation of wltp 
@@ -136,7 +152,8 @@ which must have been installed somewhere in your :envvar:`PATH`:
 .. code-block:: console
 
     $ wltpcmd --version                      ## Check which version is installed.
-    wltpcmd 0.0.9-alpha.2
+    0.0.9-alpha.2
+
 
 
 

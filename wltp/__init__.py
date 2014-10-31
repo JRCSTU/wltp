@@ -21,5 +21,5 @@ __all__ = ['experiment.Experiment', 'model']
 
 
 if __name__ == "__main__":
-    from . import cmdline
-    cmdline.main()
+from wltp import __main__
+    __main__.main()
