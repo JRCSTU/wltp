@@ -1048,7 +1048,7 @@ def set_jsonpointer(doc, jsonpointer, value, object_factory=dict):
     
         doc, pdoc, ppart = ndoc, doc, part 
     else:
-        doc = pdoc # If loop exhuasted, cancel last assignment.
+        doc = pdoc # If loop exhausted, cancel last assignment.
 
     ## Build branch with value-leaf.
     #

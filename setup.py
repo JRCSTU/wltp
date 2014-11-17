@@ -7,8 +7,10 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 ''''Setuptools script for *wltp*, the WLTC gear-shift calculator.
 
+
 Install:
 ========
+Tested with Python 3.4.
 
 To install it, assuming you have download the sources,
 do the usual::
@@ -17,7 +19,7 @@ do the usual::
 
 Or get it directly from the PIP repository::
 
-    pip3 install wltp
+    pip install wltp
 '''
 ## Got ideas for project-setup from many places, among others:
 #    http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
@@ -39,9 +41,9 @@ if py_verinfo[0] == 2 and py_sver < StrictVersion("2.7"):
 if py_verinfo[0] == 3 and py_sver < StrictVersion("3.3"):
     exit("Sorry, only Python >= 3.3 is supported!")
 if sys.argv[-1] == 'setup.py':
-    exit("To install, run 'python setup.py install'")
+    exit("To install, run `python setup.py install`")
     
-projname = 'wltp'
+proj_name = 'wltp'
 mydir = os.path.dirname(__file__)
 
 
@@ -51,7 +53,7 @@ mydir = os.path.dirname(__file__)
 ##
 def read_project_version():
     fglobals = {}
-    with io.open(os.path.join(mydir, projname, '_version.py')) as fd:
+    with io.open(os.path.join(mydir, proj_name, '_version.py')) as fd:
         exec(fd.read(), fglobals)  # To read __version__
     return fglobals['__version__']
 
@@ -90,6 +92,7 @@ def yield_sphinx_only_markup(lines):
         (r'\.\. seealso',           r'info'),
         (r'\.\. glossary',          r'rubric'),
         (r'\.\. figure::',          r'.. '),
+        (r'\.\. image::',          r'.. '),
 
 
         ## Other
@@ -120,15 +123,18 @@ proj_ver = read_project_version()
 readme_lines = read_text_lines('README.rst')
 description = readme_lines[1]
 long_desc = ''.join(yield_sphinx_only_markup(readme_lines))
+## Trick from: http://peterdowns.com/posts/first-time-with-pypi.html
+download_url = 'https://github.com/ankostis/%s/tarball/v%s' %(proj_name, proj_ver)
 
 setup(
-    name = projname,
+    name = proj_name,
     version=proj_ver,
     description=description,
     long_description=long_desc,
     author="Kostis Anagnostopoulos @ European Commission (JRC)",
     author_email="ankostis@gmail.com",
     url = "https://github.com/ankostis/wltp",
+    download_url=download_url,
     license = "European Union Public Licence 1.1 or later (EUPL 1.1+)",
     keywords = [
          "automotive", "vehicle", "vehicles", "car", "cars", "fuel", "consumption", "gears", "gearshifs",
@@ -156,7 +162,10 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     packages = ['wltp', 'wltp.cycles', 'wltp.test', 'wltp.excel'],
-#     package_data= {'projname': ['data/*.csv']},
+#     package_data= {'proj_name': ['data/*.csv']},
+    package_data={
+        'wltp.excel': ['*.ico'],
+    },
     include_package_data = True,
     install_requires = [
         'six',
@@ -165,15 +174,17 @@ setup(
         'numpy',
         'pandas', #'openpyxl', 'xlrd',
         'matplotlib', #>=1.4', ## Let it mature some time more...
-        'Pillow',           # For About boxes
+        'Pillow',           # For UI About boxes
         'xlwings >= 0.2.3',   # For Excel integration
     ],
     setup_requires = [
-        'setuptools',#>=3.4.4',
+        'setuptools',#>=3.4.4',  ## Just to enforce version.
+        'setuptools-git >= 0.3', ## Gather package-data from all files in git.
         'sphinx >= 1.2', # >=1.3
         'sphinx_rtd_theme',
         'matplotlib',
         'coveralls',
+        'wheel',
     ],
     tests_require = [
         'nose',
@@ -195,14 +206,12 @@ setup(
     }, 
     zip_safe=True,
     options={
-        ## DO NOT WORK ...YET :-(
-        'bdist_wininst': {
-            'install_script': "postinstall.py",
-            'user_access_control': "auto",
-        },
         'build_sphinx' :{
             'build_dir': 'docs/_build',
-        }
+        },
+        'bdist_wheel' :{
+            'universal': True,
+        },
     }
 )
 

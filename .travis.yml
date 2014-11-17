@@ -1,5 +1,4 @@
-## TravisCI config:
-#   Created on 4 Aug 2014
+## TravisCI config
 #
 language: python
 python:
@@ -7,11 +6,26 @@ python:
   - "3.3"
   - "3.4"
 before_install:
-    - sudo apt-get install python3-setuptools
+    ## From: http://conda.pydata.org/docs/travis.htm
+    ## Another one: https://gist.github.com/dan-blanchard/7045057
+    #- sudo apt-get update
+    - wget http://repo.continuum.io/miniconda/Miniconda3-3.7.0-Linux-x86_64.sh -O miniconda.sh
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a	## Useful for debugging any conda issues
+  
+    - deps="`grep -v \# miniconda_requirements.txt`"
+    - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
+    - source activate test-environment
+
+    - pip install nose -IU   ## Conda's nose is rotten, and `python setup.py nosetests` fails!
+    - pip install lmfit      ## Workaround #149 or `setup.py install` violates sandbox!
 
 install:
-    - pip install -r dev_requirements.txt
-    - pip install .
+  - python setup.py install
 
 # command to run tests
 script:
@@ -21,13 +35,12 @@ script:
         if [[ $TRAVIS_PYTHON_VERSION = '2.7' ]]; then python setup.py test_code; fi
         if [[ $TRAVIS_PYTHON_VERSION = '3.3' ]]; then python setup.py test_code; fi
         if [[ $TRAVIS_PYTHON_VERSION = '3.4' ]]; then python setup.py test_code_cover; fi
-    - python setup.py build_sphinx                   ## Build html-docs.
+    - python setup.py build_sphinx                  ## Build html-docs.
+    - python setup.py sdist bdist_wheel             ## Create archives for PyPI repo.
 
     ## Ensure README valid ReST for PyPI.
     ##  In case it fails, improve the filtering-code in ``setup.py``.
     - python setup.py --long-description | rst2html.py  --halt=warning > /dev/null
-
-    - python setup.py sdist                         ## Create archives for PyPI repo.
 
 after_success:
     coveralls
@@ -35,4 +48,14 @@ after_success:
 branches:
   only:
     - master
+
+deploy:
+    provider: pypi
+    user: ankostis
+    password:
+        secure: AFaWbL5FIQHTAKxmFnOId1rApOsHxjpWGP3RVXTKjw65SJnRDoExne6Zd+M5ATRryBh2ud2ea3JK96mOl/CAZpr7fTpMHMnRruhyyQvJNKmOrXKBASmDF0yXoxuEaDNGO8BJ9sa0+S7sdoRiR/AzuDzRPHPzFR5J5DQiGCMHqmU=
+    distributions: "sdist bdist_wheel"
+    on:
+        tags: true
+        all_branches: true
 
