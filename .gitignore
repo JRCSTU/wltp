@@ -17,6 +17,7 @@ var
 sdist
 /MANIFEST
 develop-eggs
+*.eggs/
 .installed.cfg
 lib
 lib64

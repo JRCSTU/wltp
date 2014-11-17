@@ -25,7 +25,7 @@ What is the roadmap for this project?
   this projects acts as repository for diagrams and technical reports on those algorithms.
 
 
-Can i copy/extend it?  What is its License, in practical terms?
+Can I copy/extend it?  What is its License, in practical terms?
 ---------------------------------------------------------------
 I'm not a lawyer, but in a broad view, the core algorithm of the project is "copylefted" with
 the *EUPL-1.1+ license*, and it includes files from other "non-copyleft" open source licenses like
@@ -47,6 +47,28 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
   and those starting with ``>>>`` into the *python-interpreter*
   (but don't include the previous symbols and/or the *output* of the commands).
 
+
+* Is **python contained in your PATH** ?
+
+  To check it, type `python` in your console/command-shell prompt and press :kbd:`[Enter]`.
+  If nothing happens, you have to inspect :envvar:`PATH` and modify it accordingly to include your 
+  python-installation. 
+  
+  * Under *Windows* type ``path`` in your command-shell prompt.
+    To change it, run :program:`regedit.exe` and  modify (or add if not already there) the `PATH` string-value 
+    inside the following *registry-setting*::
+    
+      HKEY_CURRENT_USER\Environment\
+    
+    You need to logoff and logon to see the changes.
+
+    Note that *WinPython* **does not modify your path!** if you have registed it, so you definetely have to 
+    perform the the above procedure yourself.
+  
+    
+  * Under *Unix* type ``echo $PATH$`` in your console. 
+    To change it, modify your "rc' files, ie: :file:`~/.bashrc` or :file:`~/.profile`.
+  
 
 * Is the correct **version of python** running?
 
