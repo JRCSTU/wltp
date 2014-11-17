@@ -5,7 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""The command-line entry-point for using all functionality of fuefit tool.
+"""The command-line entry-point for using all functionality of wltp tool.
 
 .. Seealso::
     :func:`main()`
@@ -13,20 +13,17 @@
 
 from __future__ import division, unicode_literals
 
+import os, sys, collections, functools, re, glob, shutil, logging
 from argparse import ArgumentTypeError
+from collections import OrderedDict
 import argparse
+import pkg_resources as pkg
 import ast
-import collections
-import functools
+from distutils.spawn import find_executable
 import json
-import logging
-import os
-import re
-import shutil
-import sys
 from textwrap import dedent
-from wltp import (model, pandel, tkui, utils)
-from wltp._version import __version__  # @UnusedImport
+from wltp import model, pandel, tkui, utils
+from . import __version__ as prog_ver
 from wltp.pandel import JsonPointerException
 
 from pandas.core.generic import NDFrame
@@ -38,13 +35,24 @@ import pandas as pd
 
 
 DEBUG   = False
+PROG    = 'wltp'
 
-def _init_logging(loglevel):
+DEFAULT_LOG_LEVEL   = logging.INFO
+def _init_logging(loglevel, name='%s-cmd'%PROG, skip_root_level=False):
     logging.basicConfig(level=loglevel)
-    logging.getLogger().setLevel(level=loglevel)
+    
+    rlog = logging.getLogger()
+    if not skip_root_level:
+        ## Force root-level, in case already configured otherwise.
+        rlog.setLevel(loglevel)
 
-_init_logging(logging.INFO)
-log = logging.getLogger(__name__)
+    log = logging.getLogger(name)
+    log.trace = lambda *args, **kws: log.log(0, *args, **kws)
+    
+    return log
+
+    
+log = _init_logging(DEFAULT_LOG_LEVEL)
 
 def main(argv=None):
     """Calculates an engine-map by fitting data-points vectors, use --help for gettting help.
@@ -131,7 +139,7 @@ def main(argv=None):
     doc_lines       = main.__doc__.splitlines()
     desc            = doc_lines[0]
     epilog          = dedent('\n'.join(doc_lines[1:]))
-    parser = build_args_parser(program_name, __version__, desc, epilog)
+    parser = build_args_parser(program_name, prog_ver, desc, epilog)
 
     opts = parser.parse_args(argv)
 
@@ -141,10 +149,13 @@ def main(argv=None):
         if (DEBUG or opts.verbose > 1):
             opts.strict = True
 
-        if opts.verbose == 1:
-            log.setLevel(logging.INFO)
+        if opts.verbose >= 2:
+            level = 0
+        elif opts.verbose >= 1:
+            level = logging.DEBUG
         else:
-            log.setLevel(logging.WARNING)
+            level = DEFAULT_LOG_LEVEL
+        _init_logging(level, name=program_name)
 
         log.debug("Args: %s\n  +--Opts: %s", argv, opts)
 
@@ -162,6 +173,10 @@ def main(argv=None):
             xls_file = files_copied[0]
             
             utils.open_file_with_os(xls_file)
+            return
+        
+        if opts.winmenus:
+            add_windows_shortcuts_to_start_menu('winmenus')
             return
         
         opts = validate_file_opts(opts)
@@ -218,7 +233,7 @@ def copy_excel_template_files(dest_dir=None):
     except:
         pass ## Might already exist
     
-    files_to_copy = ['excel\wltp_excel_runner.xlsm', 'excel\wltp_excel_runner.py']
+    files_to_copy = ['excel\WltpExcelRunner.xlsm', 'excel\WltpExcelRunner.py']
     files_to_copy = [pkg.resource_filename('wltp', f) for f in files_to_copy] #@UndefinedVariable
     files_copied = []
     for src_fname in files_to_copy:
@@ -233,6 +248,87 @@ def copy_excel_template_files(dest_dir=None):
         files_copied.append(dest_fname)
     
     return files_copied
+
+
+def add_windows_shortcuts_to_start_menu(my_option):
+    if sys.platform != 'win32':
+        exit('This options can run only under *Windows*!')
+    my_cmd_name = PROG
+    my_cmd_path = find_executable(my_cmd_name)
+    if not my_cmd_path:
+        exit("Please properly install the project before running the `--%s` command-option!" % my_option)
+        
+    win_menu_group = 'Python Wltp Calculator'
+    
+    wshell = utils.win_wshell()
+    startMenu_dir   = utils.win_folder(wshell, "StartMenu")
+    myDocs_dir      = utils.win_folder(wshell, "MyDocuments")
+    docs_url        = 'http://wltp.readthedocs.org/'
+    prog_dir        = os.path.join(myDocs_dir, '%s_%s'%(PROG, prog_ver))
+    shcuts = OrderedDict([
+        ("Create new Wltp ExcelRunner files.lnk", {
+            'target_path':  'cmd',
+            'target_args':  '/K wltp --excelrun',
+            'wdir':         prog_dir,
+            'desc':         'Copy `xlwings` excel & python template files into `MyDocuments` and open the Excel-file, so you can run a batch of experiments.',
+            'icon_path':    pkg.resource_filename('wltp.excel', 'ExcelPython.ico'),        #@UndefinedVariable
+        }),
+        ("Wltp Documentation site.url", {
+            'target_path':  docs_url,
+        }),
+    ])
+
+
+    try:
+        os.makedirs(prog_dir, exist_ok=True)
+    except Exception as ex:
+        log.exception('Failed creating Program-folder(%s) due to: %s', prog_dir, ex)
+        exit(-5)
+    
+    ## Copy Demos.
+    #
+    demo_dir = pkg.resource_filename('wltp', 'test')                     #@UndefinedVariable
+    demo_files =['*.csv', '*.xls?', '*.bat', 'engine.py', 'cmdline_test.py']
+    for g in demo_files:
+        for src_f in glob.glob(os.path.join(demo_dir, g)):
+            f = os.path.basename(src_f)
+            dest_f = os.path.join(prog_dir, f)
+            if os.path.exists(dest_f):
+                log.trace('Removing previous entry(%s) from existing Program-folder(%s).', f, prog_dir)
+                try:
+                    os.unlink(dest_f)
+                except Exception as ex:
+                    log.error('Cannot clear existing item(%s) from Program-folder(%s) due to: %s', dest_f, prog_dir, ex)
+                    
+            try:
+                shutil.copy(src_f, dest_f)
+            except Exception as ex:
+                log.exception('Failed copying item(%s) in program folder(%s): %s', src_f, prog_dir, ex)
+
+    ## Create a fresh-new Menu-group.
+    #
+    group_path = os.path.join(startMenu_dir, win_menu_group)
+    if os.path.exists(group_path):
+        log.trace('Removing all entries from existing StartMenu-group(%s).', win_menu_group)
+        for f in glob.glob(os.path.join(group_path, '*')):
+            try:
+                os.unlink(f)
+            except Exception as ex:
+                log.warning('Minor failure while removing previous StartMenu-item(%s): %s', f, ex)
+
+    try:
+        os.makedirs(group_path, exist_ok=True)
+    except Exception as ex:
+        log.exception('Failed creating StarMenu-group(%s) due to: %s', group_path, ex)
+        exit(-6)
+    
+    for name, shcut in shcuts.items():
+        path = os.path.join(group_path, name)
+        log.info('Creating StartMenu-item: %s', path)
+        try:
+            utils.win_create_shortcut(wshell, path, **shcut)
+        except Exception as ex:
+            log.exception('Failed creating item(%s) in StartMenu-group(%s): %s', path, win_menu_group , ex)
 
 
 ## The value of file_frmt=VALUE to decide which
@@ -641,7 +737,8 @@ def build_args_parser(program_name, version, desc, epilog):
     xlusive_group.add_argument('--excel', help="copy `xlwings` excel & python template files into DESTPATH or current-working dir, to run a batch of experiments", 
         nargs='?', const=None, metavar='DESTPATH')
     xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments", 
-        nargs='?', const=None, metavar='DESTPATH')
+        nargs='?', const=os.getcwd(), metavar='DESTPATH')
+    xlusive_group.add_argument('--winmenus', help="Adds shortcuts into Windows StartMenu.", action='store_true')
     
     grp_various = parser.add_argument_group('Various', 'Options controlling various other aspects.')
     grp_various.add_argument('-d', "--debug", action="store_true", help=dedent("""\

@@ -163,10 +163,10 @@ setup(
     ],
     packages = ['wltp', 'wltp.cycles', 'wltp.test', 'wltp.excel'],
 #     package_data= {'proj_name': ['data/*.csv']},
-    package_data={
-        'wltp.excel': ['*.ico'],
-    },
     include_package_data = True,
+    package_data={
+        'wltp.excel': ['*.xlsm', '*.ico'],
+    },
     install_requires = [
         'six',
         'jsonschema>=2.4',
@@ -195,10 +195,9 @@ setup(
         ':python_version == "2.7"': ['mock'],
     },
     test_suite='nose.collector',
-    scripts = ['postinstall.py'],
     entry_points={
         'console_scripts': [
-            'wltpcmd = wltp.__main__:main',
+            'wltp = wltp.__main__:main',
         ],
         'gui_scripts': [
             'wltpui = wltp.tkui:main',

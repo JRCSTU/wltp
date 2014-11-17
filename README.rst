@@ -71,13 +71,13 @@ The *Input & Output Data* are instances of :dfn:`pandas-model`, trees of strings
 Quick-start
 -----------
 Assuming a working python-environment, open a *command-shell*  
-(ie in *Windows* use :program:`cmd.exe` BUT with with Python in its :envvar:`PATH`)
+(ie in *Windows* use :program:`cmd.exe` BUT ensure :program:`python.exe` is in its :envvar:`PATH`),
 and try the following commands 
 
 :Installation: ``$ pip install wltp --pre -U``
-:Cmd-line: ``$ wltpcmd --help`` 
-:GUI: ``$ wltpcmd --gui`` (use it to explore model)
-:Excel: ``$ wltpcmd --excelrun`` (*Windows*/*OS X* only)
+:Cmd-line: ``$ wltp --help`` 
+:GUI: ``$ wltp --gui`` (use it to explore model)
+:Excel: ``$ wltp --excelrun`` (*Windows*/*OS X* only)
 :Python-code:
     .. code-block:: python
     
@@ -88,6 +88,16 @@ and try the following commands
         output_model = exp.run()
         print('Results: \n%s' % output_model['cycle_run'])
 
+
+.. Tip::
+    The commands beginning with ``$``, above, imply a *Unix* like operating system with a *POSIX* shell
+    (*Linux*, *OS X*). Although the commands are simple and easy to translate , it would be worthwile to install
+    `Cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows*.
+    If you choose to do that, include also the following packages in the *Cygwin*'s installation wizard::
+
+        * git, git-completion
+        * make, zip, unzip, bzip2
+        * openssh, curl, wget
 
 .. Tip:: 
     To install *python*, you can try the free (as in beer) distribution
@@ -102,24 +112,12 @@ and try the following commands
       *Visual Studio*, if available
       (required for instance when upgrading ``numpy/scipy``, ``pandas`` or ``matplotlib`` with :command:`pip`).
       
-      Remember also to *Register your WinPython installation* from 
-      :menuselection:`Start menu --> All Programs --> WinPython --> WinPython ControlPanel`, and then
-      :menuselection:`Options --> Register Ditribution`.
+      You must also **Register your WinPython installation** and 
+      **add your installation into** :envvar:`PATH` (see :doc:`faq`).
+      To register it, go to :menuselection:`Start menu --> All Programs --> WinPython --> WinPython ControlPanel`, and then
+      :menuselection:`Options --> Register Distribution` .
       
-.. Tip::
-    The commands above beginning with ``$`` imply a *unix* like operating system with a *POSIX* shell
-    (*Linux*, *OS X*). If you're using *Windows*, you'll have to run their counterparts
-    in the *windows command shell* :program:`cmd.exe`.
-
-    Although the commands are simple and easy to translate , it would be worthwile to install
-    `cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows* machines.
-    If you choose to do that, make sure that in the *cygwin*'s installation wizard the following packages
-    are also included::
-
-        * git, git-completion
-        * make, zip, unzip, bzip2
-        * openssh, curl, wget
-
+For more elaborate instructions, read the next sections.
 
 
 .. _wltp-install:
@@ -128,32 +126,49 @@ Install
 =======
 Current |version| runs on Python-2.7+ and Python-3.3+ but 3.3+ is the preferred one, 
 i.e, the desktop UI runs only with it.
+It is distributed on `Wheels <https://pypi.python.org/pypi/wheel>`_.
 
-You can install (or upgrade) the project directly from the `PyPI <https://pypi.python.org/pypi>`_ repository
-by typing :command:`pip` in the console:
+Before installing it, make sure that there are no older versions left over.  
+So run this command until you cannot find any project installed:
 
 .. code-block:: console
 
-    $ pip install wltp --pre --upgrade          ## Use `pip3` if both python-2 & 3 installed.
-
-.. Tip:
-    To debug the installation, you can export a non-empty :envvar:`DISTUTILS_DEBUG` 
-    and *distutils* will print detailed information about what it is doing and/or 
-    print the whole command line when an external program (like a C compiler) fails.
+    $ pip uninstall wltp                        ## Use `pip3` if both python-2 & 3 are in PATH.
     
 
-Notice that :option:`--pre` is required, since all released packages so far were *pre*-release (``-alpha``) versions.
-Also :option:`--upgrade` (or `-U`) is only required if you already have an old installation of wltp 
-and need to upgrade it.
-
-To check whether the installation has been successful, check that the :command:`wltpcmd` script works,
-which must have been installed somewhere in your :envvar:`PATH`:
+You can install the project directly from the |pypi|_ the "standard" way, 
+by typing the :command:`pip` in the console:
 
 .. code-block:: console
 
-    $ wltpcmd --version                      ## Check which version is installed.
+    $ pip install wltp
+
+* If you want to install a *pre-release* version (the version-string is not plain numbers, but 
+  ends with ``alpha``, ``beta.2`` or something else), use additionally :option:`--pre`.
+
+* If you want to upgrade an existing instalation along with all its dependencies, 
+  add also :option:`--upgrade` (or :option:`-U` equivalently), but then the build might take some 
+  considerable time to finish.  Also there is the possibility the upgraded libraries might break 
+  existing programs(!) so use it with caution, or from within a |virtualenv|_. 
+
+* To install it for different Python environments, repeat the procedure using 
+  the appropriate :program:`python.exe` interpreter for each environment.
+
+* .. Tip::
+    To debug installation problems, you can export a non-empty :envvar:`DISTUTILS_DEBUG` 
+    and *distutils* will print detailed information about what it is doing and/or 
+    print the whole command line when an external program (like a C compiler) fails.
+
+
+After installation, it is important that you check which version is visible in your :envvar:`PATH`:
+
+.. code-block:: console
+
+    $ wltp --version
     0.0.9-alpha.2
 
+
+To install for different Python versions, repeat the procedure for every required version.
 
 
 
@@ -168,9 +183,9 @@ To install an older version issue the console command:
 
 .. code-block:: console
 
-    $ pip install wltp=1.1.1                    ## Use `--pre` if neccessary.
+    $ pip install wltp=1.1.1                    ## Use `--pre` if version-string has a build-suffix.
 
-If you have another version already installed, you have to use :option:`--ignore-installed` (or `-I`).
+If you have another version already installed, you have to use :option:`--ignore-installed` (or :option:`-I`).
 For using the specific version, check this (untested)
 `stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
 
@@ -180,37 +195,32 @@ Of course it is better to install each version in a separate |virtualenv|_ and s
 Installing from sources
 -----------------------
 If you download the sources you have more options for installation.
+There are various methods to get hold of them:
 
-Assuming you have a working installation of `git <http://git-scm.com/>`_)
-you can fetch and install the latest version of the project with the following series of commands:
+* Download the *source* distribution from |pypi|_.
+* Download a `release-snapshot from github <https://github.com/ankostis/wltp/releases>`_
+* Clone the *git-repository* at *github*.
 
-.. code-block:: console
+  Assuming you have a working installation of `git <http://git-scm.com/>`_
+  you can fetch and install the latest version of the project with the following series of commands:
+  
+  .. code-block:: console
+  
+      $ git clone "https://github.com/ankostis/wltp.git" wltp.git
+      $ cd wltp.git
+      $ python setup.py install                                 ## Use `python3` if both python-2 & 3 installed.
+  
 
-    $ git clone "https://github.com/ankostis/wltp.git" wltp.git
-    $ cd wltp.git
-    $ pip install .                                 ## Use `pip3` if both python-2 & 3 installed.
-
-
-To install for different Python versions, repeat step 3 for every required version.
-
-Particularly for the latest *WinPython* environments (*Windows* / *OS X*) you can install dependencies with: 
+When working with sources, you need to have installed all libraries that the project depends on. 
+Particularly for the latest *WinPython* environments (*Windows* / *OS X*) you can install  
+the necessary dependencies with: 
 
 .. code-block:: console
 
     $ pip install -r WinPython_requirements.txt .
 
 
-The previous command install dependencies in the system's folders.
-If you want to avoid that (because, for instance, you do not have *admin-rights*), but 
-you do not want to use a |virtualenv|_, you can install dependencies inside the project-folder 
-with this command:
-
-.. code-block:: console
-
-    $ python setup.py install                       ## Use `python3` if you have installed both python-2 & 3.
-    
-
-The previous command installs just the latest version of the project.
+The previous command installs a "snapshot" of the project as it is found in the sources.
 If you wish to link the project's sources with your python environment, install the project 
 in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_:
 
@@ -218,6 +228,8 @@ in `development mode <http://pythonhosted.org/setuptools/setuptools.html#develop
 
     $ python setup.py develop
 
+
+.. Note:: This last command installs any missing dependencies inside the project-folder.
 
 
 
@@ -235,7 +247,7 @@ The files and folders of the project are listed below::
     |   +--pyplots/     ## (scripts) Plot the metric diagrams embeded in the README
     +--devtools/        ## (scripts) Preprocessing of WLTC data on GTR and the wltp_db
     |   +--run_tests.sh ## (script) Executes all TestCases
-    +--wltpcmd          ## (script) The cmd-line entry-point script for the calculator
+    +--wltp             ## (script) The cmd-line entry-point script for the calculator
     +--setup.py         ## (script) The entry point for `setuptools`, installing, testing, etc
     +--requirements.txt ## The installation dependencies.
     +--README.rst
@@ -259,7 +271,7 @@ and in a *single* command.  To have precise control over the inputs and outputs
 you have to run the experiments using the API python, as explained below.
 
 
-The entry-point script is called :program:`wltpcmd`, and it must have been placed in your :envvar:`PATH`
+The entry-point script is called :program:`wltp`, and it must have been placed in your :envvar:`PATH`
 during installation.  This script can construct a *model* by reading input-data
 from multiple files and/or overriding specific single-value items. Conversely,
 it can output multiple parts of the resulting-model into files.
@@ -268,7 +280,7 @@ To get help for this script, use the following commands:
 
 .. code-block:: console
 
-    $ wltpcmd --help                         ## to get generic help for cmd-line syntax
+    $ wltp --help                               ## to get generic help for cmd-line syntax
     $ wltcmdp.py -M vehicle/full_load_curve     ## to get help for specific model-paths
 
 
@@ -277,7 +289,7 @@ for which you want to override the ``n_idle`` only, run the following:
 
 .. code-block:: console
 
-    $ wltpcmd -v \
+    $ wltp -v \
         -I vehicle.csv file_frmt=SERIES model_path=params header@=None \
         -m vehicle/n_idle:=850 \
         -O cycle.csv model_path=cycle_run
@@ -293,7 +305,7 @@ just run:
 
 .. code-block:: console
 
-    $ wltpcmd --gui
+    $ wltp --gui
 
 
 
@@ -309,12 +321,12 @@ To create the necessary template-files in your current-directory you should ente
 
 .. code-block:: console
 
-     $ wltpcmd --excel
+     $ wltp --excel
      
 
-You could type instead :samp:`wltpcmd --excel {file_path}` to specify a different destination path.
+You could type instead :samp:`wltp --excel {file_path}` to specify a different destination path.
 
-In *windows*/*OS X* you can type :samp:`wltpcmd --excelrun` and the files will be created in your home-directory 
+In *windows*/*OS X* you can type :samp:`wltp --excelrun` and the files will be created in your home-directory 
 and the excel will open them in one-shot.
 
 All the above commands creates two files:
@@ -349,49 +361,27 @@ All the above commands creates two files:
     The script will open the excel-file, run the experiments and add the new sheets, but in case any errors occur, 
     this time you can debug them, if you had executed the script through *LiClipse*, or *IPython*! 
 
-Some general notes regarding the python-code in excel-cells:
+Some general notes regarding the python-code from excel-cells:
 
-* The *VBA* `xlwings` module contains the code from the respective library; do not edit, but you may replace it 
-  with a latest version. 
-* You can read & modify the *VBA* `xlwings_ext` module with code that will run on each invocation 
-  to import libraries such as 'numpy' and 'pandas', or pre-define utility python functions.
-* The name of the python-module to import is automatically calculated from the name of the Excel-file,
+* On each invocation, the predefined VBA module `pandalon` executes a dynamically generated python-script file
+  in the same folder where the excel-file resides, which, among others, imports the "sister" python-script file.
+  You can read & modify the sister python-script to import libraries such as 'numpy' and 'pandas', 
+  or pre-define utility python functions.
+* The name of the sister python-script is automatically calculated from the name of the Excel-file,
   and it must be valid as a python module-name.  Therefore do not use non-alphanumeric characters such as 
   spaces(` `), dashes(`-`) and dots(`.`) on the Excel-file.
-* Double-quotes(") do not work for denoting python-strings in the cells; use single-quotes(') instead.
-* You cannot enter multiline or indentated python-code such as functions and/or  ```if-then-else`` expressions; 
-  move such code into the python-file. 
-* There are two pre-defined python variables on each cell, `cr` and `cc`, refering to "cell_row" and 
-  "cell_column" coordinates of the cell, respectively.  For instance, to use the right-side column as 
-  a poor-man's debugging aid, you may use this statement in a cell:
-
-  .. code-block:: python
-    
-    Range((cr, cc+1)).value = 'Some string or number'
-
-* On errors, the log-file is written in :file:`{userdir}/AppData/Roaming/Microsoft/Excel/XLSTART/xlwings_log.txt` 
+* On errors, a log-file is written in the same folder where the excel-file resides, 
   for as long as **the message-box is visible, and it is deleted automatically after you click 'ok'!**
 * Read http://docs.xlwings.org/quickstart.html
 
-    
-.. Tip:: 
-    You can permanently enable your Excel installation to support *xlwings* by copying
-    the *VBA* modules of the demo-excel file ``xlwings`` and ``xlwings-ext`` into 
-    your :file:`PERSONAL.XLSB` workbook, as explaine here: 
-    http://office.microsoft.com/en-001/excel-help/copy-your-macros-to-a-personal-macro-workbook-HA102174076.aspx.
-    
-    You can even `add a new Ribbon-button <http://msdn.microsoft.com/en-us/library/bb386104.aspx>`_ 
-    to execute the selected cells as python-code.  Set this new button to invoke the ``RunSelectionAsPython()``
-    *VBA* function.
-
-    If you do the above, remember that *VBA*-code in your personal-workbook takes precedance over any code
-    present in your currently open workbook.
 
 
 Python usage
 ------------
-Here is a quick-start python :abbr:`REPL (Read-Eval-Print Loop)`-example to setup and run
-an *experiment*.  First run :command:`python` and try to import the project to check its version:
+Example python :abbr:`REPL (Read-Eval-Print Loop)` example-commands  are given below 
+that setup and run an *experiment*.
+  
+First run :command:`python` or :command:`ipython` and try to import the project to check its version:
 
 .. doctest::
 
@@ -404,9 +394,14 @@ an *experiment*.  First run :command:`python` and try to import the project to c
     /usr/local/lib/site-package/wltp-...
 
 
-.. Tip::
-    You can copy the the python commands starting with ``>>>`` and ``...`` and copy paste them directly
-    into the python interpreter; it will remove these prefixes.
+.. Tip:
+    The use :command:`ipython` is preffered over :command:`python` since it offers various user-friendly 
+    facilities, such as pressing :kbd:`Tab` for completions, or allowing you to suffix commands with `?` or `??` 
+    to get help and read their source-code.
+    
+    Additionally you can <b>copy any python commands starting with ``>>>`` and ``...``</b> and copy paste them directly
+    into the ipython interpreter; it will remove these prefixes.  
+    But in :command:`python` you have to remove it youself.
 
 If everything works, create the :term:`pandas-model` that will hold the input-data (strings and numbers)
 of the experiment.  You can assemble the model-tree by the use of:
@@ -794,13 +789,13 @@ with the  :file:`devtools/preprocheinz.py` script.
 Cycles
 ^^^^^^
 
-.. figure:: docs/wltc_class1.png
+.. image:: docs/wltc_class1.png
     :align: center
-.. figure:: docs/wltc_class2.png
+.. image:: docs/wltc_class2.png
     :align: center
-.. figure:: docs/wltc_class3a.png
+.. image:: docs/wltc_class3a.png
     :align: center
-.. figure:: docs/wltc_class3b.png
+.. image:: docs/wltc_class3b.png
     :align: center
 
 
@@ -879,8 +874,11 @@ Glossary
 
 .. |CO2| replace:: CO\ :sub:`2`
 
-.. |virtualenv| replace:: Python, *the* best language around
+.. |virtualenv| replace::  *virtualenv* (isolated Python environment)
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
+
+.. |pypi| replace:: *PyPi* repo
+.. _pypi: https://pypi.python.org/pypi/wltp
 
 .. |build-status| image:: https://travis-ci.org/ankostis/wltp.svg
     :alt: Integration-build status
@@ -888,7 +886,7 @@ Glossary
     :target: https://travis-ci.org/ankostis/wltp/builds
 
 .. |cover-status| image:: https://coveralls.io/repos/ankostis/wltp/badge.png?branch=master
-        :target: https://coveralls.io/r/ankostis/wltp?branch=master
+    :target: https://coveralls.io/r/ankostis/wltp?branch=master
 
 .. |docs-status| image:: https://readthedocs.org/projects/wltp/badge/
     :alt: Documentation status
