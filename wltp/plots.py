@@ -156,13 +156,15 @@ def calc_2D_diff_on_Y(X1, Y1, X2, Y2):
 
 def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=None,
             data_fmt="+k", data_kws={}, ref_fmt='.g', ref_kws={},
-            title=None, x_label=None, y_label=None, axes=None,
+            title=None, x_label=None, y_label=None, axes_tuple=None,
             mark_sections='classes'):
     color_diff = 'r'
     alpha = 0.8
 
     _, _, DIFF = calc_2D_diff_on_Y(X_REF, Y_REF, X, Y)
-    if not axes:
+    if axes_tuple:
+        (axes, twin_axis) = axes_tuple
+    else:
         axes = plt.subplot(111)
 
         plt.title(title)
@@ -184,9 +186,6 @@ def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=
         elif mark_sections == 'parts':
             raise NotImplementedError()
 
-    else:
-        (axes, twin_axis) = axes
-
     ## Plot data
     #
     l_ref = axes.plot(X_REF, Y_REF, ref_fmt, label=ref_label,
@@ -203,49 +202,62 @@ def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=
 
 
 
-def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis, axis_cbar,
+def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=None,
+            data_fmt="+k", data_kws={}, ref_fmt='.g', ref_kws={},
+            title=None, x_label=None, y_label=None, 
+            axes_tuple=None,
             mark_sections=None):
     color_diff = 'r'
     alpha = 0.9
     colormap = cm.PiYG  # @UndefinedVariable
     cm_norm = MidPointNorm()
 
-    plt.title(title)
     U, V, DIFF = calc_2D_diff_on_Y(X_REF, Y_REF, X, Y)
 
-    ## Prepare axes
-    #
-    axis.set_xlabel(x_label)
-    axis.set_ylabel(r'%s$' % quantity_name)
-    axis.xaxis.grid(True)
-    axis.yaxis.grid(True)
+    if axes_tuple:
+        (axes, twin_axis, cbar_axes) = axes_tuple
+    else:
+        bottom = 0.1
+        height = 0.8
+        axes = plt.axes([0.1, bottom, 0.80, height])
+        cbar_axes = plt.axes([0.90, bottom, 0.12, height])
+        
+        ## Prepare axes
+        #
+        axes.set_xlabel(x_label)
+        axes.set_ylabel(r'%s$' % y_label)
+        axes.xaxis.grid(True)
+        axes.yaxis.grid(True)
+    
+        twin_axis = axes.twinx()
+        twin_axis.set_ylabel(r'$\Delta %s$' % y_label.replace('$',''), color=color_diff, labelpad=0)
+        twin_axis.tick_params(axis='y', colors=color_diff)
+        twin_axis.yaxis.grid(True, color=color_diff)
 
-    ax2 = axis.twinx()
-    ax2.set_ylabel(r'$\Delta %s$' % quantity_name, color=color_diff, labelpad=0)
-    ax2.tick_params(axis='y', colors=color_diff)
-    ax2.yaxis.grid(True, color=color_diff)
-
+        axes_tuple = (axes, twin_axis, cbar_axes)
+        
+    plt.title(title, axes=axes)
     if mark_sections == 'classes':
-        plot_class_limits(axis, Y.min())
+        plot_class_limits(axes, Y.min())
     elif mark_sections == 'parts':
         raise NotImplementedError()
 
     ## Plot data
     #
-    q_heinz = axis.quiver(X, Y, U, V,
+    l_ref = axes.quiver(X, Y, U, V,
         DIFF, cmap=colormap, norm=cm_norm,
         units='inches', width=0.04, alpha=alpha,
         pivot='tip'
     )
 
-    l_gened, = axis.plot(X, Y, '+k', markersize=3, alpha=alpha)
+    l_data, = axes.plot(X, Y, '+k', markersize=3, alpha=alpha)
 
-    ax2.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
+    l_diff = twin_axis.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
     line_points, regress_poly = fit_straight_line(X, DIFF)
-    l_regress, = ax2.plot(line_points, polyval(regress_poly, line_points), '-',
+    l_regress, = twin_axis.plot(line_points, polyval(regress_poly, line_points), '-',
         color=color_diff, alpha=alpha/2)
 
-    plt.legend([l_gened, l_regress, ], ['Python', 'Differences'])
+    plt.legend([l_data, l_regress, ], ['Python', 'Differences'])
 
     ## Colormap legend
     #
@@ -255,12 +267,15 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, quantity_name, title, x_label, axis
     m = np.linspace(min_DIFF, max_DIFF, nsamples)
     m.resize((nsamples, 1))
     extent = max_DIFF - min_DIFF
-    axis_cbar.imshow(m, cmap=colormap, norm=cm_norm, aspect=600/extent, origin="lower",
+    cbar_axes.imshow(m, cmap=colormap, norm=cm_norm, aspect=600/extent, origin="lower",
         extent=[0, 12, min_DIFF, max_DIFF])
-    axis_cbar.xaxis.set_visible(False)
-    axis_cbar.yaxis.set_ticks_position('left')
-    axis_cbar.tick_params(axis='y', colors=color_diff, direction='inout', pad=0, labelsize=10)
+    cbar_axes.xaxis.set_visible(False)
+    cbar_axes.yaxis.set_ticks_position('left')
+    cbar_axes.tick_params(axis='y', colors=color_diff, direction='inout', pad=0, labelsize=10)
 
-    ax2.set_ylim([min_DIFF, max_DIFF])      ## Sync diff axes.
-    ###ax2.set_axis_off()                   ## NOTE: Hiding exis, hides grids!
-    ax2.yaxis.set_ticklabels([])            ## NOTE: Turn it on, to check axes are indeed synced
+    twin_axis.set_ylim([min_DIFF, max_DIFF])      ## Sync diff axes.
+    ###twin_axis.set_axis_off()                   ## NOTE: Hiding exis, hides grids!
+    twin_axis.yaxis.set_ticklabels([])            ## NOTE: Turn it on, to check axes are indeed synced
+
+    return axes_tuple, (l_data, l_ref, l_diff)
+

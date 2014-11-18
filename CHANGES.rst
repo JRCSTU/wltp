@@ -18,7 +18,7 @@ The following matrix shows these correspondences:
 | Release |           GTR ver           |
 | train   |                             |
 +=========+=============================+
-| 0.x.x   | Till Aug 2014, Not very     |
+| 0.x.x   | Till Aug 2014,              |
 |         | Not very Precise with the   |
 |         | till-that-day standard.     |
 |         | (diffs explained below)     |
@@ -61,8 +61,8 @@ Releases
 ========
 
 
-v0.0.9-alpha.1 & alpha.2 (1 & X Oct-2014)
------------------------------------------
+v0.0.9-alpha.1, alpha.3 (1 Oct, X Noe 2014
+------------------------------------------
 This is practically the 2nd public releases, reworked in many parts, and much better documented and
 continuously tested and build using TravisCI,
 BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and metrics
@@ -84,6 +84,13 @@ Important/*incompatilble* changes
 
 Changelog
 ^^^^^^^^^
+
+v0.0.9-alpha.3 
+~~~~~~~~~~~~~~
+Shared with LAT.
+* Use CONDA for running no TravisCI.
+* Improve ExcelRunner.
+* docs and metrics improvments.
 
 v0.0.9-alpha.2 
 ~~~~~~~~~~~~~~

@@ -70,14 +70,49 @@ The *Input & Output Data* are instances of :dfn:`pandas-model`, trees of strings
 
 Quick-start
 -----------
-Assuming a working python-environment, open a *command-shell*  
-(ie in *Windows* use :program:`cmd.exe` BUT ensure :program:`python.exe` is in its :envvar:`PATH`),
-and try the following commands 
+On *Windows*/*OS X*, it is recommended to use one of the following "scientific" python-distributions, 
+as they already include the native libraries and can install without administrative priviledges: 
 
-:Installation: ``$ pip install wltp --pre -U``
-:Cmd-line: ``$ wltp --help`` 
-:GUI: ``$ wltp --gui`` (use it to explore model)
-:Excel: ``$ wltp --excelrun`` (*Windows*/*OS X* only)
+* `WinPython <http://winpython.github.io/>`__ (*Windows* only),
+* `Anaconda <http://docs.continuum.io/anaconda/>`__,
+* `Canopy <https://www.enthought.com/products/canopy/>`_,
+
+
+Assuming you have a working python-environment, open a *command-shell*, 
+(in *Windows* use :program:`cmd.exe` BUT ensure :program:`python.exe` is in its :envvar:`PATH`), 
+you can try the following commands: 
+
+:Install:
+    .. code-block:: console
+
+        $ pip install wltp
+        $ wltp --winmenus                       ## Adds StartMenu-items, Windows only.
+
+    See: :doc:`install`
+
+:Cmd-line:
+    .. code-block:: console
+
+        $ wltp --version
+        0.0.9-alpha.3
+        
+        $ wltp --help
+        ...
+
+    See: :ref:`cmd-line-usage`
+
+:GUI:
+    .. code-block:: console
+
+        $ wltp --gui`                           ## For exploring model, but not ready yet.
+
+:Excel:
+    .. code-block:: console
+
+        $ wltp --excelrun                       ## Windows & OS X only
+    
+    See: :ref:`excel-usage`
+    
 :Python-code:
     .. code-block:: python
     
@@ -88,16 +123,19 @@ and try the following commands
         output_model = exp.run()
         print('Results: \n%s' % output_model['cycle_run'])
 
+    See: :ref:`python-usage`
 
 .. Tip::
     The commands beginning with ``$``, above, imply a *Unix* like operating system with a *POSIX* shell
-    (*Linux*, *OS X*). Although the commands are simple and easy to translate , it would be worthwile to install
-    `Cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows*.
+    (*Linux*, *OS X*). Although the commands are simple and easy to translate in its *Windows* counterparts, 
+    it would be worthwile to install `Cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows*.
     If you choose to do that, include also the following packages in the *Cygwin*'s installation wizard::
 
         * git, git-completion
         * make, zip, unzip, bzip2
         * openssh, curl, wget
+
+    But do not install/rely on cygwin's outdated python environment.
 
 .. Tip:: 
     To install *python*, you can try the free (as in beer) distribution
@@ -117,7 +155,6 @@ and try the following commands
       To register it, go to :menuselection:`Start menu --> All Programs --> WinPython --> WinPython ControlPanel`, and then
       :menuselection:`Options --> Register Distribution` .
       
-For more elaborate instructions, read the next sections.
 
 
 .. _wltp-install:
@@ -165,7 +202,7 @@ After installation, it is important that you check which version is visible in y
 .. code-block:: console
 
     $ wltp --version
-    0.0.9-alpha.2
+    0.0.9-alpha.3
 
 
 To install for different Python versions, repeat the procedure for every required version.
@@ -260,6 +297,8 @@ The files and folders of the project are listed below::
 
 Usage
 =====
+.. _cmd-line-usage:
+
 Cmd-line usage
 --------------
 .. Warning:: Not implemented in yet.
@@ -309,6 +348,7 @@ just run:
 
 
 
+.. _excel-usage:
 
 Excel usage
 -----------
@@ -346,7 +386,7 @@ All the above commands creates two files:
     using the `mypy` namespace. 
     
     To add more input-columns, you need to set as column *Headers* the *json-pointers* path of the desired 
-    model item (see `Python usage`_ below,).
+    model item (see :ref:`python-usage` below,).
 
 :file:`wltp_excel_runner.py`   
     Utility python functions used by the above xls-file for running a batch of experiments.  
@@ -375,6 +415,7 @@ Some general notes regarding the python-code from excel-cells:
 * Read http://docs.xlwings.org/quickstart.html
 
 
+.. _python-usage:
 
 Python usage
 ------------
@@ -388,7 +429,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '0.0.9-alpha.2'
+    '0.0.9-alpha.3'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...
@@ -553,7 +594,7 @@ In order to run them interactively, ensure that the following requirements are s
 
 a. A `ipython-notebook server <http://ipython.org/notebook.html>`_ >= v2.x.x is installed for  *python-3*, 
    it is up, and running.
-b. The *wltp* is installed on your system (see `wltp-install`_ above).
+b. The *wltp* is installed on your system (see :doc:`install` above).
 
 Instructions
 ^^^^^^^^^^^^
@@ -606,15 +647,14 @@ First you need to download the latest sources:
 .. Admonition:: Liclipse IDE
     :class: note
 
-    Within the sources it is included a :file:`.project` file for the comprehensive
-    `LiClipse <https://brainwy.github.io/liclipse/>`_, an **eclipse** IDE pre-configured with the
-    excellent **PyDev** environment.  If you also choose to use it, you may have to reorder
-    the 1st python interpreter known to eclipse under
-    :menuselection:`&Windows --> &Preferences --> PyDev --> Interpreters --> Python Interpreter`,
-    since that is is the *default* interpreter, which is specified in the :file:`.project`.
-    You may change this choice of interpreter by :guilabel:`Right-clicking` on the Project and navigating
-    to :menuselection:`Properties --> PyDev - Interpreter/Grammar --> Interpreter`,
-    but you have to remember not commit this change in :file:`.project`.
+    Within the sources there are two sample files for the comprehensive
+    `LiClipse IDE <https://brainwy.github.io/liclipse/>`_:
+    
+    * :file:`eclipse.project` 
+    * :file:`eclipse.pydevproject` 
+    
+    Remove the `eclipse` prefix, (but leave the dot(`.`)) and import it as "existing project" from 
+    Eclipse's `File` menu.
     
     Another issue is caused due to the fact that LiClipse contains its own implementation of *Git*, *EGit*,
     which badly interacts with unix *symbolic-links*, such as the :file:`docs/docs`, and it detects
@@ -733,8 +773,8 @@ The actual code for generating diagrams for these metrics is in :class:`wltp.plo
 by scripts in the :file:`docs/pyplot/` folder.
 
 
-Mean Engine-speed / PMR
-^^^^^^^^^^^^^^^^^^^^^^^
+*Mean Engine-speed* vs *PMR*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 First the mean engine-speed of vehicles are compared with access-db tool, grouped by PMRs:
 
 .. plot:: pyplots/pmr_n_scatter.py
@@ -751,6 +791,8 @@ The same information is presented again but now each vehicle difference is drawn
 It can be seen now that this project's calculates lower engine-speeds for classes 1 & 3 but
 the trend is reversed for class 2.
 
+*Mean Engine-speed* vs *Gears*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Below the mean-engine-speeds are drawn against the mean gear used, grouped by classes and class-parts
 (so that, for instance, a class3 vehicle corresponds to 3 points on the diagram):
 

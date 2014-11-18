@@ -27,18 +27,16 @@ if __name__ == '__main__':
     
     (X, Y, Y_REF) = prepare_data(gened_column='rpm', heinz_column='n')
 
-    bottom = 0.1
-    height = 0.8
-    axis = plt.axes([0.1, bottom, 0.90, height])
-    axis_cbar = plt.axes([0.90, bottom, 0.12, height])
     
+    kws = dict(data_fmt='ok', data_kws=dict(fillstyle='none'), ref_fmt='og', ref_kws=dict(fillstyle='none'))
     plots.plot_xy_diffs_arrows(
         X, Y, X, Y_REF, 
-        quantity_name='EngineSpeed [rpm]', 
         title="Python vs Access-db(2sec rule)",
         x_label=r'$PMR [W/kg]$',
-        axis=plt.subplot(111), axis_cbar=axis_cbar,
-        mark_sections='classes'
+        y_label='EngineSpeed [rpm]', 
+        ref_label='Access-db', data_label='Python',
+        mark_sections='classes',
+        **kws
     )
     plt.show()
     
