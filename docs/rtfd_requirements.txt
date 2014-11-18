@@ -1,6 +1,6 @@
 ## Created to force ReadTheDocs.org do its job (with plot directive)!
 six
 jsonschema
-pandas
-matplotlib
-
+numpy
+pandas>=0.14.1
+matplotlib>=1.4.0
