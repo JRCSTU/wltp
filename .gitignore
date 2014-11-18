@@ -76,3 +76,7 @@ cycle_run.csv
 coverage.xml
 cover/
 /.noseids
+/*.eggs/
+/.project
+/.pydevproject
+
