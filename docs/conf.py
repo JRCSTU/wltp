@@ -41,6 +41,7 @@ sys.path.insert(0, os.path.abspath('../'))
 ## Mock C-libraries (numpy/pandas, etc) so that `autodoc` sphinx-extension
 #    can import sources.
 #     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
+#     Also tried but fails: http://blog.rtwilson.com/how-to-make-your-sphinx-documentation-compile-with-readthedocs-when-youre-using-numpy-and-scipy/
 #
 if on_rtd:
     from unittest.mock import MagicMock
@@ -57,8 +58,13 @@ if on_rtd:
             else:
                 return Mock()
 
-    MOCK_MODULES = ['xlwings']
-    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+    MOCK_MODULES =  [
+        'numpy', 'scipy', 'scipy.interpolate',
+        'matplotlib', 'matplotlib.pyplot', 'matplotlib.sphinxext', 'matplotlib.sphinxext.plot_directive',
+        'xlwings'
+    ]
+    for mod_name in MOCK_MODULES:
+        sys.modules[mod_name] = Mock()
 
 ## Trick from https://github.com/rjw57/dtcwt/blob/0.9.0/docs/conf.py
 # On read the docs we need to use a different CDN URL for MathJax which loads

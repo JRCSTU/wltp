@@ -31,6 +31,7 @@ The following matrix shows these correspondences:
 Known deficiencies
 ==================
 * (!) Driveability-rules not ordered as defined in the latest task-force meeting.
+* (!) The driveability-rules when speeding down to a halt is broken, and human-drivers should improvise.  
 * (!) The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
   along with other recent updates.
 * (!) The ``n_max`` is calculated for ALL GEARS, resulting in "clipped" velocity-profiles,
@@ -61,8 +62,8 @@ Releases
 ========
 
 
-v0.0.9-alpha.1, alpha.3 (1 Oct, X Noe 2014
-------------------------------------------
+v0.0.9-alpha.1, alpha.3 (1 Oct, X Noe 2014)
+-------------------------------------------
 This is practically the 2nd public releases, reworked in many parts, and much better documented and
 continuously tested and build using TravisCI,
 BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and metrics

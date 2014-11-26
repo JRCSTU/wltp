@@ -1,13 +1,14 @@
-=============================
+#############################
 *wltp* gear-shifts calculator
-=============================
-
+#############################
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
 :Release:       |version|
-:Home:          https://github.com/ankostis/wltp
 :Documentation: https://wltp.readthedocs.org/
-:PyPI:          https://pypi.python.org/pypi/wltp
+:Source:        https://github.com/ankostis/wltp
+:PyPI repo:     https://pypi.python.org/pypi/wltp
+:Keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifs, 
+                rpm, simulation, simulator, standard, vehicle, vehicles, wltc
 :Copyright:     2013-2014 European Commission (`JRC-IET <http://iet.jrc.ec.europa.eu/>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
@@ -83,7 +84,7 @@ Assuming you have a working python-environment, open a *command-shell*,
 you can try the following commands: 
 
 :Install:
-    .. code-block:: console
+    .. code-block:: bash
 
         $ pip install wltp
         $ wltp --winmenus                       ## Adds StartMenu-items, Windows only.
@@ -91,7 +92,7 @@ you can try the following commands:
     See: :doc:`install`
 
 :Cmd-line:
-    .. code-block:: console
+    .. code-block:: bash
 
         $ wltp --version
         0.0.9-alpha.3
@@ -102,12 +103,12 @@ you can try the following commands:
     See: :ref:`cmd-line-usage`
 
 :GUI:
-    .. code-block:: console
+    .. code-block:: bash
 
         $ wltp --gui`                           ## For exploring model, but not ready yet.
 
 :Excel:
-    .. code-block:: console
+    .. code-block:: bash
 
         $ wltp --excelrun                       ## Windows & OS X only
     
@@ -168,7 +169,7 @@ It is distributed on `Wheels <https://pypi.python.org/pypi/wheel>`_.
 Before installing it, make sure that there are no older versions left over.  
 So run this command until you cannot find any project installed:
 
-.. code-block:: console
+.. code-block:: bash
 
     $ pip uninstall wltp                        ## Use `pip3` if both python-2 & 3 are in PATH.
     
@@ -176,7 +177,7 @@ So run this command until you cannot find any project installed:
 You can install the project directly from the |pypi|_ the "standard" way, 
 by typing the :command:`pip` in the console:
 
-.. code-block:: console
+.. code-block:: bash
 
     $ pip install wltp
 
@@ -199,7 +200,7 @@ by typing the :command:`pip` in the console:
 
 After installation, it is important that you check which version is visible in your :envvar:`PATH`:
 
-.. code-block:: console
+.. code-block:: bash
 
     $ wltp --version
     0.0.9-alpha.3
@@ -218,7 +219,7 @@ See the "GTR version matrix" section in :doc:`CHANGES` for the mapping of MAJOR-
 
 To install an older version issue the console command:
 
-.. code-block:: console
+.. code-block:: bash
 
     $ pip install wltp=1.1.1                    ## Use `--pre` if version-string has a build-suffix.
 
@@ -241,7 +242,7 @@ There are various methods to get hold of them:
   Assuming you have a working installation of `git <http://git-scm.com/>`_
   you can fetch and install the latest version of the project with the following series of commands:
   
-  .. code-block:: console
+  .. code-block:: bash
   
       $ git clone "https://github.com/ankostis/wltp.git" wltp.git
       $ cd wltp.git
@@ -252,7 +253,7 @@ When working with sources, you need to have installed all libraries that the pro
 Particularly for the latest *WinPython* environments (*Windows* / *OS X*) you can install  
 the necessary dependencies with: 
 
-.. code-block:: console
+.. code-block:: bash
 
     $ pip install -r WinPython_requirements.txt .
 
@@ -261,7 +262,7 @@ The previous command installs a "snapshot" of the project as it is found in the 
 If you wish to link the project's sources with your python environment, install the project 
 in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_:
 
-.. code-block:: console
+.. code-block:: bash
 
     $ python setup.py develop
 
@@ -317,7 +318,7 @@ it can output multiple parts of the resulting-model into files.
 
 To get help for this script, use the following commands:
 
-.. code-block:: console
+.. code-block:: bash
 
     $ wltp --help                               ## to get generic help for cmd-line syntax
     $ wltcmdp.py -M vehicle/full_load_curve     ## to get help for specific model-paths
@@ -326,7 +327,7 @@ To get help for this script, use the following commands:
 and then, assuming ``vehicle.csv`` is a CSV file with the vehicle parameters
 for which you want to override the ``n_idle`` only, run the following:
 
-.. code-block:: console
+.. code-block:: bash
 
     $ wltp -v \
         -I vehicle.csv file_frmt=SERIES model_path=params header@=None \
@@ -342,7 +343,7 @@ GUI usage
 For a quick-'n-dirty method to explore the structure of the model-tree and run an experiment,
 just run:
 
-.. code-block:: console
+.. code-block:: bash
 
     $ wltp --gui
 

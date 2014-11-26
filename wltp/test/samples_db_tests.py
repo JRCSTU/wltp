@@ -29,7 +29,6 @@ import numpy.testing as npt
 import pandas as pd
 
 from ..experiment import Experiment
-from ..experiment import applyDriveabilityRules
 from ..utils import FileNotFoundError
 from .goodvehicle import goodVehicle
 
