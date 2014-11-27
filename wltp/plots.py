@@ -225,7 +225,7 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=N
         ## Prepare axes
         #
         axes.set_xlabel(x_label)
-        axes.set_ylabel(r'%s$' % y_label)
+        axes.set_ylabel(r'$%s$' % y_label.replace('$',''))
         axes.xaxis.grid(True)
         axes.yaxis.grid(True)
     
@@ -234,9 +234,10 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=N
         twin_axis.tick_params(axis='y', colors=color_diff)
         twin_axis.yaxis.grid(True, color=color_diff)
 
+        plt.title(title, axes=axes)
         axes_tuple = (axes, twin_axis, cbar_axes)
+
         
-    plt.title(title, axes=axes)
     if mark_sections == 'classes':
         plot_class_limits(axes, Y.min())
     elif mark_sections == 'parts':
@@ -250,14 +251,12 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=N
         pivot='tip'
     )
 
-    l_data, = axes.plot(X, Y, '+k', markersize=3, alpha=alpha)
+    l_data, = axes.plot(X, Y, ref_fmt, label=data_label,markersize=4, **ref_kws)
 
     l_diff = twin_axis.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
     line_points, regress_poly = fit_straight_line(X, DIFF)
     l_regress, = twin_axis.plot(line_points, polyval(regress_poly, line_points), '-',
         color=color_diff, alpha=alpha/2)
-
-    plt.legend([l_data, l_regress, ], ['Python', 'Differences'])
 
     ## Colormap legend
     #

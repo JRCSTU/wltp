@@ -14,7 +14,6 @@ The model-instance is managed by :class:`pandel.Pandel`.
 from __future__ import division, print_function, unicode_literals
 
 from collections import Mapping
-import functools
 import json
 import logging
 from textwrap import dedent
@@ -61,7 +60,7 @@ def _get_model_base():
     """The base model for running a WLTC experiment.
 
     It contains some default values for the experiment (ie the default 'full-load-curve' for the vehicles).
-    But note that it this model is not valid - you need to iverride its attributes.
+    But note that it this model is not valid - you need to override its attributes.
 
     :return: a tree with the default values for the experiment.
     """
@@ -175,6 +174,8 @@ def default_load_curve():
 
 def _get_wltc_data():
     """The WLTC-data required to run an experiment (the class-cycles and their attributes)..
+
+    Prefer to access wltc-data through :samp:`{model}['wltc_data']`.
 
     :return: a tree
     """
@@ -542,12 +543,27 @@ def _get_wltc_schema():
     return schema
 
 
-def get_class_parts_limits(cls, mdl=None):
+
+def get_class_part_names(cls_name=None):
+    """
+    :param str cls_name: one of 'class1', ..., 'class3b', if missing, returns all 4 part-names
+    """
+    part_names = ['Low', 'Medium', 'High', 'ExtraHigh']
+    
+    if cls_name:
+        wltc_data = _get_wltc_data()
+        cls = wltc_data['classes'][cls_name]
+        part_names = part_names[:len(cls['parts'])]
+        
+    return part_names
+
+def get_class_parts_limits(cls_name, mdl=None, edges=False):
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
     
-    :param str cls: one of 'class1', ..., 'class3b'
+    :param str cls_name: one of 'class1', ..., 'class3b'
     :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`_get_wltc_data()`
+    :param edges: when `True`, embeds internal limits into (0, len)
     :return: a list with the part-limits, ie for class-3a these are 3 numbers 
     """
     if mdl:
@@ -555,17 +571,22 @@ def get_class_parts_limits(cls, mdl=None):
     else:
         wltc_data = _get_wltc_data()
         
-    cls = wltc_data['classes'][cls]
-    part_limits = [end+0.5 for (start, end) in cls['parts'][:-1]]
-    
+    cls = wltc_data['classes'][cls_name]
+    parts = cls['parts']
+    parts = parts if edges else parts[:-1]
+    part_limits = [end+0.5 for (start, end) in parts]
+    if edges:
+        part_limits.insert(0, 0)
+         
     return part_limits
 
 
-def get_class_pmr_limits(mdl=None):
+def get_class_pmr_limits(mdl=None, edges=False):
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
     
-    :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`_get_wltc_data()`
+    :param mdl: the mdl to parse wltc_data from, if omitted, parses the results of :func:`_get_wltc_data()`
+    :param edges: when `True`, embeds internal limits into (0, len)
     :return: a list with the pmr-limits (2 numbers) 
     """
     if mdl:
@@ -574,8 +595,9 @@ def get_class_pmr_limits(mdl=None):
         wltc_data = _get_wltc_data()
         
     pmr_limits_pairs = [cls['pmr_limits'] for cls in wltc_data['classes'].values()]
-    pmr_limits = functools.reduce(lambda a,b:a+b, pmr_limits_pairs)
-    pmr_limits = sorted(list(set(pmr_limits)))[1:-1]    ## Exclude 0 and inf
+    pmr_limits = sorted(set(it.chain(*pmr_limits_pairs)))
+    if not edges:
+        pmr_limits = pmr_limits[1:-1]    ## Exclude 0 and inf
     
     return pmr_limits
 

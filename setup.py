@@ -182,6 +182,7 @@ setup(
         'setuptools-git >= 0.3', ## Gather package-data from all files in git.
         'sphinx >= 1.2', # >=1.3
         'sphinx_rtd_theme',
+        'jsonschema>=2.4',
         'matplotlib',
         'coveralls',
         'wheel',

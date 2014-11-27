@@ -8,6 +8,7 @@
 
 import os
 import sys
+import itertools as it
 from wltp import (plots, model)
 from wltp.test import wltp_db_tests as wltpdb
 
@@ -18,56 +19,98 @@ import pandas as pd
 
 
 classes = ['class1', 'class2', 'class3b']
-wltc_data = model._get_wltc_data()
-def get_class_parts(class_num):
-    cls = classes[class_num-1]
-    return wltc_data['classes'][cls]['parts']
+part_names = model.get_class_part_names()
+def class_name_from_num(cls_num):
+    return classes[cls_num-1]
 
 def data_meanN_gears(cls_num):
+    """
+    Constructs meanN vs gears, hierarchically grouped by: vehicle, python/heinz, class_part
+    
+    :return: df like that::
+                
+                                  python                  heinz             
+                                    gear            n      gear            n
+                1154 Low        2.020374  1078.312480  2.039049  1105.891341
+                     Medium     3.577367  1364.552656  3.618938  1353.300231
+                     High       4.028571  1694.902241  4.160440  1618.457143
+                     ExtraHigh  4.266254  2532.802858  4.424149  2514.894737
 
+    1155 ...
+    """
+    def means_by_parts(df, cols_in, cols_out):
+        df = df.ix[:, cols_in]
+        data = df.groupby(pd.cut(df_g.index, bins=parts)).mean()
+        data.index = part_names[:len(data.index)]
+        data.columns = cols_out
+        
+        return data
+
+    cls_name = class_name_from_num(cls_num)
+    
     vehdata = wltpdb._run_the_experiments(transplant_original_gears=False, compare_results=False)
     vehdata = vehdata[vehdata['class'] == cls_num]    ## Filter only the  Class.
-
-    data =[]
+    
+    cols_out = ['gear', 'n']
+    data = {}
     for (veh_num, df_g, df_h) in wltpdb._file_pairs(wltpdb.gened_fname_glob):
         try:
             class_num = vehdata.loc[veh_num, 'class']
         except KeyError:
             continue
-        for part in get_class_parts(class_num):
-            part_slice = slice(*part)
-            data.append([
-                df_g.ix[part_slice, 'gears'].mean(),
-                df_g.ix[part_slice, 'rpm'].mean(),
-                df_h.ix[part_slice, 'gear'].mean(),
-                df_h.ix[part_slice, 'n'].mean(),
-            ])
+        parts = model.get_class_parts_limits(cls_name, edges=True)
+        
+        g_data = means_by_parts(df_g, ['gears', 'rpm'], cols_out)
+        h_data = means_by_parts(df_h, ['gear', 'n'], cols_out)
+        
+        veh_data = pd.concat( (g_data, h_data), axis=1, keys=['python', 'heinz'])
+        data[veh_num] = veh_data
 
-    data = pd.DataFrame(np.array(data), columns=['gened_gear', 'gened_rpm', 'heinz_gear', 'heinz_rpm'])
+    df = pd.concat(list(data.values()), axis=0, keys=data.keys())
 
-    return data
+    return df
 
 
 def plot(cls_num):
     os.chdir(os.path.join(wltpdb.mydir, wltpdb.samples_dir))
 
-    cls_name = classes[cls_num-1]
+    cls_name = class_name_from_num(cls_num)
 
     data = data_meanN_gears(cls_num)
-    (X, Y, X_REF, Y_REF) = (data.gened_gear, data.gened_rpm, data.heinz_gear, data.heinz_rpm)
     
-    kws = dict(data_fmt='ok', data_kws=dict(fillstyle='none'), ref_fmt='og', ref_kws=dict(fillstyle='none'))
-    axes_tuple, artists = plots.plot_xy_diffs_arrows(
-        X, Y, X_REF, Y_REF,
-        ref_label='Access-db %s'%cls_name, data_label='Python %s'%cls_name,
-        title="Python vs Access-db(2sec rule), %s" % cls_name,
-        x_label=r'Mean Gear',
-        y_label='$Mean EngineSpeed [rpm]$',
-        axes_tuple=None,
-        mark_sections=None,
-        **kws
-    )
+    cols = data.keys()
+    assert len(cols) == 4, cols
+    
+    parts = zip(model.get_class_part_names(), [
+        dict(data_fmt='1k', data_kws=dict(fillstyle='none'), ref_fmt='+g', ref_kws=dict(fillstyle='none')),  
+        dict(data_fmt='4k', data_kws=dict(fillstyle='none'), ref_fmt='^g', ref_kws=dict(fillstyle='none')),  
+        dict(data_fmt='ok', data_kws=dict(fillstyle='none'), ref_fmt='og', ref_kws=dict(fillstyle='none')), 
+        dict(data_fmt='+k', data_kws=dict(fillstyle='none'), ref_fmt='_g', ref_kws=dict(fillstyle='none')), 
+    ])
+    
+    axes_tuple = None
+    for (part, kws) in parts:
+        try:
+                        ## veh         part   N/gear/Py/Heinz
+            X = data.loc[(slice(None), part), cols[0]]
+            Y = data.loc[(slice(None), part), cols[1]]
+            X_REF = data.loc[(slice(None), part), cols[2]]
+            Y_REF = data.loc[(slice(None), part), cols[3]]
+        except KeyError:
+            continue
+        axes_tuple, artists = plots.plot_xy_diffs_arrows(
+            X, Y, X_REF, Y_REF,
+            ref_label='Access-db', data_label='Python, %s'%part,
+            title="Python vs Access-db(2sec rule), %s" % cls_name,
+            x_label=r'Mean Gear',
+            y_label='$Mean EngineSpeed [rpm]$',
+            axes_tuple=axes_tuple,
+            **kws
+        )
 
+    axes_tuple[1].legend(loc=4, fancybox=True, framealpha=0.5)
+    axes_tuple[0].legend(loc=1, fancybox=True, framealpha=0.5)
+    
 if __name__ == '__main__':
     cls_num = int(sys.argv[1]) if len(sys.argv) > 1 else 3
     plot(cls_num)

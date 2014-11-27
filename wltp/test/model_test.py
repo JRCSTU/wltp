@@ -54,9 +54,31 @@ class Test(unittest.TestCase):
         l = model.get_class_parts_limits('class3b')
         self.assertSequenceEqual(l, [589.5, 1022.5, 1477.5])
 
+    def test_get_class_parts_limits_sorted(self):
+        classes = model._get_wltc_data()['classes']
+        class_limits = {cls: model.get_class_parts_limits(cls, edges=True) for cls in classes.keys()}  
+        for (cls,  l) in class_limits.items():
+            self.assertSequenceEqual(l, sorted(l), 'Class(%s): Unsorted!'%cls)
+
+    def test_get_class_parts_limits_with_edges(self):
+        classes = model._get_wltc_data()['classes']
+        class_limits = {cls: model.get_class_parts_limits(cls, edges=True) for cls in classes.keys()}  
+        for (cls,  l) in class_limits.items():
+            self.assertEqual(l[0], 0, 'Class(%s): Left-edge not 0!'%cls)
+        for (cls,  l) in class_limits.items():
+            self.assertEqual(l[-1], len(classes[cls]['cycle'])-0.5, 'Class(%s): Section Right-edge not len(cycle)!'%cls)
+
+
     def test_get_class_pmr_limits(self):
         l = model.get_class_pmr_limits()
         self.assertSequenceEqual(l, [22, 34])
+
+
+    def test_get_class_pmr_limits_with_edges(self):
+        pmr_limits = model.get_class_pmr_limits(edges=True)  
+        self.assertEqual(pmr_limits[0], 0, 'Left-edge not 0!')
+        self.assertEqual(pmr_limits[-1], float('inf'), 'PMR-limit: Right-edge not INF!')
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

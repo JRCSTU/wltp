@@ -70,7 +70,7 @@ def make_class_fig(class_name, class_data):
     if class_name == 'class1': # Acceleration scale changes!!
         v_pos /= 2
     bbox={'facecolor':'red', 'alpha':0.5, 'pad':4, 'linewidth':0}
-    txts = [ 'Low', 'Medium', 'High', 'Extra-high']
+    txts = ['Low', 'Medium', 'High', 'ExtraHigh']
     txts_pos = [0] + part_limits #[0.40, 0.67, 0.85]
 
     for (txt, h_pos) in zip(txts, txts_pos):
