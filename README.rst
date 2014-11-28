@@ -756,6 +756,44 @@ The typical development procedure is like this:
 
 
 
+Specs & Algorithm
+-----------------
+This program was implemented from scratch based on
+this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
+(included in the :file:`docs/` folder).  The latest version of this GTR, along
+with other related documents can be found at UNECE's site:
+
+* http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
+* https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
+* Probably a more comprehensible but older spec is this one:
+  https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
+
+The WLTC-profiles for the various classes in the :file:`devtools/data/cycles/` folder were generated from the tables
+of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it still requires
+an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
+
+Then use the :file:`devtools/buildwltcclass.py` to construct the respective python-vars into the
+:mod:`wltp/model.py` sources.
+
+
+Data-files generated from Steven Heinz's ms-access ``vehicle info`` db-table can be processed
+with the  :file:`devtools/preprocheinz.py` script.
+
+
+Cycles
+^^^^^^
+
+.. image:: docs/wltc_class1.png
+    :align: center
+.. image:: docs/wltc_class2.png
+    :align: center
+.. image:: docs/wltc_class3a.png
+    :align: center
+.. image:: docs/wltc_class3b.png
+    :align: center
+
+
+
 .. _metrics:
 
 Tests, Metrics & Reports
@@ -802,44 +840,6 @@ Below the mean-engine-speeds are drawn against the mean gear used, grouped by cl
 .. plot:: pyplots/gears_n_arrows_class_2.py
 .. plot:: pyplots/gears_n_arrows_class_3.py
 
-
-
-
-Specs & Algorithm
------------------
-This program was implemented from scratch based on
-this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
-(included in the :file:`docs/` folder).  The latest version of this GTR, along
-with other related documents can be found at UNECE's site:
-
-* http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
-* https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
-* Probably a more comprehensible but older spec is this one:
-  https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
-
-The WLTC-profiles for the various classes in the :file:`devtools/data/cycles/` folder were generated from the tables
-of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it still requires
-an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
-
-Then use the :file:`devtools/buildwltcclass.py` to construct the respective python-vars into the
-:mod:`wltp/model.py` sources.
-
-
-Data-files generated from Steven Heinz's ms-access ``vehicle info`` db-table can be processed
-with the  :file:`devtools/preprocheinz.py` script.
-
-
-Cycles
-^^^^^^
-
-.. image:: docs/wltc_class1.png
-    :align: center
-.. image:: docs/wltc_class2.png
-    :align: center
-.. image:: docs/wltc_class3a.png
-    :align: center
-.. image:: docs/wltc_class3b.png
-    :align: center
 
 
 .. _dev-team:

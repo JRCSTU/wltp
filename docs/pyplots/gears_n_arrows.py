@@ -8,13 +8,11 @@
 
 import os
 import sys
-import itertools as it
 from wltp import (plots, model)
 from wltp.test import wltp_db_tests as wltpdb
 
 from matplotlib import pyplot as plt
 
-import numpy as np
 import pandas as pd
 
 
@@ -77,15 +75,23 @@ def plot(cls_num):
     cls_name = class_name_from_num(cls_num)
 
     data = data_meanN_gears(cls_num)
-    
+
     cols = data.keys()
     assert len(cols) == 4, cols
     
     parts = zip(model.get_class_part_names(), [
-        dict(data_fmt='1k', data_kws=dict(fillstyle='none'), ref_fmt='+g', ref_kws=dict(fillstyle='none')),  
-        dict(data_fmt='4k', data_kws=dict(fillstyle='none'), ref_fmt='^g', ref_kws=dict(fillstyle='none')),  
-        dict(data_fmt='ok', data_kws=dict(fillstyle='none'), ref_fmt='og', ref_kws=dict(fillstyle='none')), 
-        dict(data_fmt='+k', data_kws=dict(fillstyle='none'), ref_fmt='_g', ref_kws=dict(fillstyle='none')), 
+        dict(data_fmt='1', data_kws=dict(color='#0000ff'), 
+            diff_kws=dict(linestyle=':', linewidth=4)
+        ),  
+        dict(data_fmt='_', data_kws=dict(color='#0033cc', fillstyle='none'), 
+            diff_kws=dict(linestyle='-.',linewidth=4)
+        ),  
+        dict(data_fmt='o', data_kws=dict(color='#006699', fillstyle='none'), 
+            diff_kws=dict(linestyle='-',linewidth=4)
+        ), 
+        dict(data_fmt='+', data_kws=dict(color='#009966', fillstyle='none'), 
+            diff_kws=dict(linestyle='--', linewidth=4)
+        ), 
     ])
     
     axes_tuple = None
@@ -98,21 +104,37 @@ def plot(cls_num):
             Y_REF = data.loc[(slice(None), part), cols[3]]
         except KeyError:
             continue
-        axes_tuple, artists = plots.plot_xy_diffs_arrows(
+        axes_tuple, artist_tuple = plots.plot_xy_diffs_arrows(
             X, Y, X_REF, Y_REF,
-            ref_label='Access-db', data_label='Python, %s'%part,
-            title="Python vs Access-db(2sec rule), %s" % cls_name,
+            data_label='Python, %s'%part, diff_label='Diffs %s'%part,
+            title="Python compared to Access-db(2sec rule), %s" % cls_name,
             x_label=r'Mean Gear',
             y_label='$Mean EngineSpeed [rpm]$',
             axes_tuple=axes_tuple,
             **kws
         )
 
-    axes_tuple[1].legend(loc=4, fancybox=True, framealpha=0.5)
     axes_tuple[0].legend(loc=1, fancybox=True, framealpha=0.5)
-    
+    axes_tuple[1].legend(loc=2, fancybox=True, framealpha=0.5)
+
+    return data, axes_tuple
+
+
 if __name__ == '__main__':
-    cls_num = int(sys.argv[1]) if len(sys.argv) > 1 else 3
-    plot(cls_num)
+    cls_num = int(sys.argv[1]) if len(sys.argv) > 1 else 2
+    data, axes_tuple = plot(cls_num)
+    
+    ## Add Pick-cursor
+    #
+    main_axes = axes_tuple[0]
+    # Workaround Matplotlib#815: pick_event works only on z-top-axes.
+    for ax in axes_tuple[1:]: ax.set_zorder(0.1); main_axes.set_zorder(1)
+    fig = main_axes.get_figure()
+    cursor = plots.DataCursor(
+                              ax=main_axes, 
+                              annotations=list(data.index.levels[0]),
+                              text_template='Vehicle: {txt}')
+    fig.canvas.mpl_connect('pick_event', cursor)
+
     plt.show()
 

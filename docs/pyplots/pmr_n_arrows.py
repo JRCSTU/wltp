@@ -28,7 +28,7 @@ if __name__ == '__main__':
     (X, Y, Y_REF) = prepare_data(gened_column='rpm', heinz_column='n')
 
     
-    kws = dict(data_fmt='ok', data_kws=dict(fillstyle='none'), ref_fmt='og', ref_kws=dict(fillstyle='none'))
+    kws = dict(data_fmt='ok', data_kws=dict(fillstyle='none'), )
     plots.plot_xy_diffs_arrows(
         X, Y, X, Y_REF, 
         title="Python vs Access-db(2sec rule)",

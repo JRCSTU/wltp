@@ -141,7 +141,7 @@ def plot_class_limits(axis, y):
 
 def calc_2D_diff_on_Y(X1, Y1, X2, Y2):
     """
-    Given 2 sets of 2D-points calcs the euclidean distance from 2nd to 1st with sign  based on the Y axis.
+    Given 2 sets of 2D-points calcs the euclidean distance from 2nd to 1st with sign based on the Y axis.
     """
     U = X2 - X1
     V = Y2 - Y1
@@ -202,18 +202,19 @@ def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=
 
 
 
-def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=None,
-            data_fmt="+k", data_kws={}, ref_fmt='.g', ref_kws={},
+def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
+            data_fmt="+k", data_kws={},
+            diff_label=None, diff_fmt="-r", diff_kws={},
             title=None, x_label=None, y_label=None, 
             axes_tuple=None,
             mark_sections=None):
     color_diff = 'r'
     alpha = 0.9
-    colormap = cm.PiYG  # @UndefinedVariable
+    colormap = cm.cool#PiYG  # @UndefinedVariable
     cm_norm = MidPointNorm()
 
     U, V, DIFF = calc_2D_diff_on_Y(X_REF, Y_REF, X, Y)
-
+    
     if axes_tuple:
         (axes, twin_axis, cbar_axes) = axes_tuple
     else:
@@ -247,16 +248,18 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=N
     #
     l_ref = axes.quiver(X, Y, U, V,
         DIFF, cmap=colormap, norm=cm_norm,
-        units='inches', width=0.04, alpha=alpha,
+        scale_units='xy', angles='xy', scale=1, 
+        width=0.004, alpha=alpha,
         pivot='tip'
     )
-
-    l_data, = axes.plot(X, Y, ref_fmt, label=data_label,markersize=4, **ref_kws)
-
-    l_diff = twin_axis.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
+    
+    l_data, = axes.plot(X, Y, data_fmt, label=data_label,markersize=4, **data_kws)
+    l_data.set_picker(3)
+    
+    l_diff = twin_axis.plot(X, DIFF, '.', color=color_diff, markersize=0.7)
     line_points, regress_poly = fit_straight_line(X, DIFF)
-    l_regress, = twin_axis.plot(line_points, polyval(regress_poly, line_points), '-',
-        color=color_diff, alpha=alpha/2)
+    l_diff_fitted, = twin_axis.plot(line_points, polyval(regress_poly, line_points), diff_fmt, 
+        label=diff_label, **diff_kws)
 
     ## Colormap legend
     #
@@ -273,8 +276,48 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=N
     cbar_axes.tick_params(axis='y', colors=color_diff, direction='inout', pad=0, labelsize=10)
 
     twin_axis.set_ylim([min_DIFF, max_DIFF])      ## Sync diff axes.
-    ###twin_axis.set_axis_off()                   ## NOTE: Hiding exis, hides grids!
+    ###twin_axis.set_axis_off()                   ## NOTE: Hiding axis, hides grids!
     twin_axis.yaxis.set_ticklabels([])            ## NOTE: Turn it on, to check axes are indeed synced
 
-    return axes_tuple, (l_data, l_ref, l_diff)
+    return axes_tuple, (l_data, l_ref, l_diff, l_diff_fitted)
 
+## http://stackoverflow.com/questions/13306519/get-data-from-plot-with-matplotlib
+class DataCursor(object):
+    """
+    Use::
+    
+        fig.canvas.mpl_connect('pick_event', DataCursor(plt.gca()))
+    """
+    x, y = 0.0, 0.0
+    xoffset, yoffset = -20, 20
+
+    def __init__(self, ax=None, 
+                 text_template='x: {x:0.2f}\ny: {y:0.2f}\n{txt}', 
+                 annotations=None):
+        self.ax = ax or plt.gca()
+        self.text_template = text_template
+        self.annotations = annotations or []
+        self.annotation = ax.annotate(self.text_template, 
+                xy=(self.x, self.y), xytext=(self.xoffset, self.yoffset), 
+                textcoords='offset points', ha='right', va='bottom',
+                bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5),
+                arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0')
+                )
+        self.annotation.set_visible(False)
+
+    def __call__(self, event):
+        if event.mouseevent.xdata is not None:
+            try:
+                ind = event.ind[0] if isinstance(event.ind, np.ndarray) else event.ind
+                x = event.artist.get_xdata()[ind]
+                y = event.artist.get_ydata()[ind]
+                try:
+                    annotation = self.annotations[ind]
+                except:
+                    annotation = ''
+                self.annotation.xy = (event.mouseevent.xdata, event.mouseevent.ydata)
+                self.annotation.set_text(self.text_template.format(x=x, y=y, txt=annotation))
+                self.annotation.set_visible(True)
+                event.canvas.draw()
+            except:
+                pass

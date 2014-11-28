@@ -49,28 +49,22 @@ if on_rtd:
     class Mock(MagicMock):
         @classmethod
         def __getattr__(cls, name):
-            if name in ('__file__', '__path__'):
-                return '/dev/null'
-            elif name[0] == name[0].upper():
-                mockType = type(name, (), {})
-                mockType.__module__ = __name__
-                return mockType
-            else:
-                return Mock()
+            return Mock()
 
     MOCK_MODULES =  [
-        'numpy', 'scipy', 'scipy.interpolate',
-        'matplotlib', 'matplotlib.pyplot', 'matplotlib.sphinxext', 'matplotlib.sphinxext.plot_directive',
+#         'numpy', 'scipy', 'scipy.interpolate',
+#         'matplotlib', 'matplotlib.pyplot', 'matplotlib.sphinxext', 
+        'matplotlib.sphinxext.plot_directive', # NO PLOT_DIRECTIVE :-(, but RTD fails without it!
         'xlwings'
     ]
     for mod_name in MOCK_MODULES:
         sys.modules[mod_name] = Mock()
 
-## Trick from https://github.com/rjw57/dtcwt/blob/0.9.0/docs/conf.py
+## Trick from https://github.com/rtfd/readthedocs.org/issues/283
 # On read the docs we need to use a different CDN URL for MathJax which loads
 # over HTTPS.
 if on_rtd:
-    mathjax_path = 'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
+    mathjax_path = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
 ## Make autodoc always includes constructors.
 #    From http://stackoverflow.com/a/5599712/548792

@@ -25,7 +25,6 @@ Or get it directly from the PIP repository::
 #    http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
 #    http://python-packaging-user-guide.readthedocs.org/en/latest/current.html
 
-from distutils.version import StrictVersion
 import os, sys, io
 import re
 
@@ -34,11 +33,10 @@ from setuptools import setup
 
 ## Fail early in ancient python-versions
 #
-py_verinfo = sys.version_info
-py_sver = StrictVersion("%s.%s.%s" % py_verinfo[:3])
-if py_verinfo[0] == 2 and py_sver < StrictVersion("2.7"):
+py_ver = sys.version
+if py_ver < "2.7":
     exit("Sorry, only Python >= 2.7 is supported!")
-if py_verinfo[0] == 3 and py_sver < StrictVersion("3.3"):
+if py_ver < "3.3":
     exit("Sorry, only Python >= 3.3 is supported!")
 if sys.argv[-1] == 'setup.py':
     exit("To install, run `python setup.py install`")
@@ -170,20 +168,19 @@ setup(
     install_requires = [
         'six',
         'jsonschema>=2.4',
-        #'prefixtree', ## NOT INSTALLABLE in python 3.4: https://github.com/provoke-vagueness/prefixtree/issues/2
         'numpy',
         'pandas', #'openpyxl', 'xlrd',
-        'matplotlib', #>=1.4', ## Let it mature some time more...
-        'Pillow',           # For UI About boxes
-        'xlwings == 0.2.3',   # For Excel integration
+        'matplotlib', #>=1.4',  ## Let it mature some time more...
+        'Pillow',               # For UI About boxes
+        'xlwings == 0.2.3',     # For Excel integration
     ],
     setup_requires = [
         'setuptools',#>=3.4.4',  ## Just to enforce version.
         'setuptools-git >= 0.3', ## Gather package-data from all files in git.
-        'sphinx >= 1.2', # >=1.3
+        #'sphinx >= 1.2', # >=1.3
         'sphinx_rtd_theme',
-        'jsonschema>=2.4',
-        'matplotlib',
+        'jsonschema >= 2.4',
+        #'matplotlib',
         'coveralls',
         'wheel',
     ],
