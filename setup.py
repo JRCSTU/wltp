@@ -25,7 +25,7 @@ Or get it directly from the PIP repository::
 from setuptools import setup
 #from cx_Freeze import Executable
 #from cx_Freeze import setup
-import os
+import os, re
 
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
