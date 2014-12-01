@@ -1,0 +1,19 @@
+## Dependencies for the *conda* package-manager.
+## Use this command to install them::
+##
+##      conda install `cat minconda_requirements.txt`
+##
+## To install the rest deps of the project use the "standard"::
+##
+##      pip install -r requirements/execution.txt
+##
+
+pip
+setuptools
+#nose ## Use `pip install nose` or else `python setup.py nosetests` fails!
+sphinx
+numpy
+scipy
+pandas>=0.15
+matplotlib
+networkx

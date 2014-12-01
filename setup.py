@@ -35,9 +35,9 @@ from setuptools import setup
 #
 py_ver = sys.version
 if py_ver < "2.7":
-    exit("Sorry, only Python >= 2.7 is supported!")
-if py_ver < "3.3":
-    exit("Sorry, only Python >= 3.3 is supported!")
+    exit("Sorry, Python2 >= 2.7 is supported!")
+if py_ver.startswith('3') and py_ver < "3.3":
+    exit("Sorry, Python3 >= 3.3 is supported!")
 if sys.argv[-1] == 'setup.py':
     exit("To install, run `python setup.py install`")
     

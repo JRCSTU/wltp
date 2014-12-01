@@ -52,10 +52,7 @@ if on_rtd:
             return Mock()
 
     MOCK_MODULES =  [
-#         'numpy', 'scipy', 'scipy.interpolate',
-#         'matplotlib', 'matplotlib.pyplot', 'matplotlib.sphinxext', 
-        'matplotlib.sphinxext.plot_directive', # NO PLOT_DIRECTIVE :-(, but RTD fails without it!
-        'xlwings'
+        'xlwings' ## Mock-out because it depends on win32.
     ]
     for mod_name in MOCK_MODULES:
         sys.modules[mod_name] = Mock()

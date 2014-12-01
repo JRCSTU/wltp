@@ -195,7 +195,7 @@ def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=
     twin_axis.plot(X, DIFF, '.', color=color_diff, markersize=1.5)
     line_points, regress_poly = fit_straight_line(X, DIFF)
     l_diff = twin_axis.plot(line_points, polyval(regress_poly, line_points), '-',
-        color=color_diff, alpha=alpha/2, label=diff_label)
+        color=color_diff, label=diff_label)
 
     return (axes, twin_axis), (l_data, l_ref, l_diff)
 
@@ -204,13 +204,12 @@ def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=
 
 def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
             data_fmt="+k", data_kws={},
-            diff_label=None, diff_fmt="-r", diff_kws={},
+            diff_label=None, diff_fmt="-r", diff_cmap=cm.PiYG, diff_kws={}, #@UndefinedVariable
             title=None, x_label=None, y_label=None, 
             axes_tuple=None,
             mark_sections=None):
     color_diff = 'r'
     alpha = 0.9
-    colormap = cm.cool#PiYG  # @UndefinedVariable
     cm_norm = MidPointNorm()
 
     U, V, DIFF = calc_2D_diff_on_Y(X_REF, Y_REF, X, Y)
@@ -247,13 +246,13 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
     ## Plot data
     #
     l_ref = axes.quiver(X, Y, U, V,
-        DIFF, cmap=colormap, norm=cm_norm,
+        DIFF, cmap=diff_cmap, norm=cm_norm,
         scale_units='xy', angles='xy', scale=1, 
         width=0.004, alpha=alpha,
         pivot='tip'
     )
     
-    l_data, = axes.plot(X, Y, data_fmt, label=data_label,markersize=4, **data_kws)
+    l_data, = axes.plot(X, Y, data_fmt, label=data_label, **data_kws)
     l_data.set_picker(3)
     
     l_diff = twin_axis.plot(X, DIFF, '.', color=color_diff, markersize=0.7)
@@ -269,7 +268,7 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
     m = np.linspace(min_DIFF, max_DIFF, nsamples)
     m.resize((nsamples, 1))
     extent = max_DIFF - min_DIFF
-    cbar_axes.imshow(m, cmap=colormap, norm=cm_norm, aspect=600/extent, origin="lower",
+    cbar_axes.imshow(m, cmap=diff_cmap, norm=cm_norm, aspect=600/extent, origin="lower",
         extent=[0, 12, min_DIFF, max_DIFF])
     cbar_axes.xaxis.set_visible(False)
     cbar_axes.yaxis.set_ticks_position('left')

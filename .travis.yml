@@ -17,7 +17,7 @@ before_install:
     - conda update -q conda
     - conda info -a	## Useful for debugging any conda issues
   
-    - deps="`grep -v \# miniconda_requirements.txt`"
+    - deps="`grep -v \# requirements/miniconda.txt`"
     - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION $deps
     - source activate test-environment
 

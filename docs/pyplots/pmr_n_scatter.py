@@ -25,10 +25,10 @@ if __name__ == '__main__':
     os.chdir(os.path.join(wltpdb.mydir, wltpdb.samples_dir))
 
     classes = [
-        ['class1',  dict(data_fmt='1k', data_kws=dict(fillstyle='none'), ref_fmt='1g', ref_kws=dict(fillstyle='none'))],  
-        ['class2',  dict(data_fmt='2k', data_kws=dict(fillstyle='none'), ref_fmt='2g', ref_kws=dict(fillstyle='none'))],  
+        ['class1',  dict(data_fmt='4k', data_kws=dict(fillstyle='none'), ref_fmt='4g', ref_kws=dict(fillstyle='none'))],  
+        ['class2',  dict(data_fmt='_k', data_kws=dict(fillstyle='none'), ref_fmt='_g', ref_kws=dict(fillstyle='none'))],  
         ['class3a', dict(data_fmt='ok', data_kws=dict(fillstyle='none'), ref_fmt='og', ref_kws=dict(fillstyle='none'))], 
-        ['class3b', dict(data_fmt='4k', data_kws=dict(fillstyle='none'), ref_fmt='4g', ref_kws=dict(fillstyle='none'), diff_label='Differences')], 
+        ['class3b', dict(data_fmt='+k', data_kws=dict(fillstyle='none'), ref_fmt='+g', ref_kws=dict(fillstyle='none'), diff_label='Differences')], 
     ]
     
     vehdata = data_meanN_pmr(gened_column='rpm', heinz_column='n')

@@ -86,7 +86,7 @@ you can try the following commands:
 :Install:
     .. code-block:: bash
 
-        $ pip install wltp
+        $ pip install wltp --pre
         $ wltp --winmenus                       ## Adds StartMenu-items, Windows only.
 
     See: :doc:`install`
@@ -179,7 +179,7 @@ by typing the :command:`pip` in the console:
 
 .. code-block:: bash
 
-    $ pip install wltp
+    $ pip install wltp  --pre
 
 * If you want to install a *pre-release* version (the version-string is not plain numbers, but 
   ends with ``alpha``, ``beta.2`` or something else), use additionally :option:`--pre`.
@@ -249,13 +249,11 @@ There are various methods to get hold of them:
       $ python setup.py install                                 ## Use `python3` if both python-2 & 3 installed.
   
 
-When working with sources, you need to have installed all libraries that the project depends on. 
-Particularly for the latest *WinPython* environments (*Windows* / *OS X*) you can install  
-the necessary dependencies with: 
+When working with sources, you need to have installed all libraries that the project depends on: 
 
 .. code-block:: bash
 
-    $ pip install -r WinPython_requirements.txt .
+    $ pip install -r requirements/execution.txt .
 
 
 The previous command installs a "snapshot" of the project as it is found in the sources.
@@ -287,7 +285,7 @@ The files and folders of the project are listed below::
     |   +--run_tests.sh ## (script) Executes all TestCases
     +--wltp             ## (script) The cmd-line entry-point script for the calculator
     +--setup.py         ## (script) The entry point for `setuptools`, installing, testing, etc
-    +--requirements.txt ## The installation dependencies.
+    +--requirements/    ## (txt-files) Various pip-dependencies for tools.
     +--README.rst
     +--CHANGES.rst
     +--LICENSE.txt

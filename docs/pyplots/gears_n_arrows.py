@@ -11,7 +11,7 @@ import sys
 from wltp import (plots, model)
 from wltp.test import wltp_db_tests as wltpdb
 
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, cm
 
 import pandas as pd
 
@@ -80,16 +80,16 @@ def plot(cls_num):
     assert len(cols) == 4, cols
     
     parts = zip(model.get_class_part_names(), [
-        dict(data_fmt='1', data_kws=dict(color='#0000ff'), 
+        dict(data_fmt='1', data_kws=dict(color='#0000ff', markersize=4.8, ), 
             diff_kws=dict(linestyle=':', linewidth=4)
         ),  
-        dict(data_fmt='_', data_kws=dict(color='#0033cc', fillstyle='none'), 
+        dict(data_fmt='_', data_kws=dict(color='#0033cc', markersize=4.8, fillstyle='none'), 
             diff_kws=dict(linestyle='-.',linewidth=4)
         ),  
-        dict(data_fmt='o', data_kws=dict(color='#006699', fillstyle='none'), 
+        dict(data_fmt='o', data_kws=dict(color='#006699', markersize=4.8, fillstyle='none'), 
             diff_kws=dict(linestyle='-',linewidth=4)
         ), 
-        dict(data_fmt='+', data_kws=dict(color='#009966', fillstyle='none'), 
+        dict(data_fmt='+', data_kws=dict(color='#009966', markersize=4.8, fillstyle='none'), 
             diff_kws=dict(linestyle='--', linewidth=4)
         ), 
     ])
@@ -107,7 +107,8 @@ def plot(cls_num):
         axes_tuple, artist_tuple = plots.plot_xy_diffs_arrows(
             X, Y, X_REF, Y_REF,
             data_label='Python, %s'%part, diff_label='Diffs %s'%part,
-            title="Python compared to Access-db(2sec rule), %s" % cls_name,
+            diff_cmap=cm.cool, #@UndefinedVariable
+            title="%s: Python(arrow-heads) compared to AccessDb-2secAccel (arrow-tails)" % cls_name,
             x_label=r'Mean Gear',
             y_label='$Mean EngineSpeed [rpm]$',
             axes_tuple=axes_tuple,

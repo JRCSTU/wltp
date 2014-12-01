@@ -1,8 +1,0 @@
-six
-jsonschema >= 2.4,
-#prefixtree
-numpy
-pandas #openpyxl, xlrd,
-matplotlib
-Pillow
-xlwings >= 0.2.3
