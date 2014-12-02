@@ -21,8 +21,9 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
 
 
-.. Attention:: This project is still in *alpha* stage.  Its results are not
-    considered "correct", and official approval procedures should not rely on them.
+.. Attention:: This *wltp* python project is still in *alpha* stage.  Its results are not
+    considered "correct", and no experimental procedures should rely currently on them.
+    
     Some of the known deficiencies are described in these places:
 
     * In the :doc:`CHANGES`.
@@ -86,7 +87,7 @@ you can try the following commands:
 :Install:
     .. code-block:: bash
 
-        $ pip install wltp --pre
+        $ pip install wltp                      ## Use `--pre` if version-string has a build-suffix.
         $ wltp --winmenus                       ## Adds StartMenu-items, Windows only.
 
     See: :doc:`install`
@@ -95,7 +96,7 @@ you can try the following commands:
     .. code-block:: bash
 
         $ wltp --version
-        0.0.9-alpha.3
+        0.0.9-alpha.4
         
         $ wltp --help
         ...
@@ -156,6 +157,7 @@ you can try the following commands:
       To register it, go to :menuselection:`Start menu --> All Programs --> WinPython --> WinPython ControlPanel`, and then
       :menuselection:`Options --> Register Distribution` .
       
+    See :doc:`install` for more details
 
 
 .. _wltp-install:
@@ -179,7 +181,7 @@ by typing the :command:`pip` in the console:
 
 .. code-block:: bash
 
-    $ pip install wltp  --pre
+    $ pip install wltp                          ## Use `--pre` if version-string has a build-suffix.
 
 * If you want to install a *pre-release* version (the version-string is not plain numbers, but 
   ends with ``alpha``, ``beta.2`` or something else), use additionally :option:`--pre`.
@@ -203,7 +205,7 @@ After installation, it is important that you check which version is visible in y
 .. code-block:: bash
 
     $ wltp --version
-    0.0.9-alpha.3
+    0.0.9-alpha.4
 
 
 To install for different Python versions, repeat the procedure for every required version.
@@ -428,7 +430,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '0.0.9-alpha.3'
+    '0.0.9-alpha.4'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...

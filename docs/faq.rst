@@ -5,16 +5,17 @@ Frequently Asked Questions
 General
 =======
 
-Who is behind this?  Who to contact?
+Who is behind this?  How to contact the authors?
 ------------------------------------
 The immediate involved persons is described in the :ref:`dev-team` section.
 The author is a participating member in the :term:`GS Task-Force` on behalf of the EU Commission (JRC).
-The contact-emails to use are ...[TBD]
+
+To contact the authors, use the DISQUS conversation, below, or create an issue.
 
 
 What is the status of the project? Is it "official"?
 ----------------------------------------------------
-[TBD]
+It is a work-in-progress.  It is aimed to become "official".
 
 
 What is the roadmap for this project?
@@ -27,7 +28,7 @@ What is the roadmap for this project?
 
 Can I copy/extend it?  What is its License, in practical terms?
 ---------------------------------------------------------------
-I'm not a lawyer, but in a broad view, the core algorithm of the project is "copylefted" with
+In a broad view, the core algorithm of the project is "copylefted" with
 the *EUPL-1.1+ license*, and it includes files from other "non-copyleft" open source licenses like
 *MIT MIT License* and *Apache License*, appropriately marked as such.  So in an nutshell, you can study it,
 copy it, modify or extend it, and distrbute it, as long as you always distribute the sources of your changes.
@@ -88,7 +89,7 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
 
 * Did you **ask google** for an answer??
 
-* If the above suggestions still do not work, feel free to **open a new issue** and ask for help.
+* If the above suggestions still do not work, feel free to **open a new issue** and ask for help here.
   Write down your platform (Windows, OS X, Linux), your exact python distribution
   and version, and include the *print-out of the failed command along with its error-message.*
 
@@ -97,10 +98,12 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
 
 I do not have python / cannot install it.  Is it possible to try a *demo*?
 --------------------------------------------------------------------------
-[TBD]
+Create an account into `Wakari <https://wakari.io/>`_ and post a Disqus-comment below
+requesting JRC's shared IPython notebook.
+
 
 Discussion
-----------
+==========
 .. raw:: html
 
     <div id="disqus_thread"></div>

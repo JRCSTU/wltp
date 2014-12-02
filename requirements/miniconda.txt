@@ -1,7 +1,7 @@
 ## Dependencies for the *conda* package-manager.
 ## Use this command to install them::
 ##
-##      conda install `cat minconda_requirements.txt`
+##      conda install `cat requirements/minconda.txt`
 ##
 ## To install the rest deps of the project use the "standard"::
 ##
@@ -16,4 +16,3 @@ numpy
 scipy
 pandas>=0.15
 matplotlib
-networkx

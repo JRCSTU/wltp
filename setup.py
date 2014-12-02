@@ -146,7 +146,7 @@ setup(
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: Implementation :: CPython",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 3 - Alpha",
         'Natural Language :: English',
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
