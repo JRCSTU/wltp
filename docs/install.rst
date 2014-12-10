@@ -9,9 +9,9 @@ Discussion
     <div id="disqus_thread"></div>
     <script type="text/javascript">
         /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-        var disqus_shortname = 'wltp'; // required: replace example with your forum shortname
+        var disqus_shortname = 'wltp';
         var disqus_identifier = 'site.install';
-        var disqus_title = 'Frequently Asked Questions';
+        var disqus_title = 'wltp: Install';
 
         /* * * DON'T EDIT BELOW THIS LINE * * */
         (function() {
