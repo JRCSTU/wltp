@@ -28,7 +28,7 @@ class Test(unittest.TestCase):
         self.assertTrue(pd.DataFrame(mdl['vehicle']['full_load_curve']).equals(pd.DataFrame(model.default_load_curve())))
 
 
-    @skip("Cascade-models disabled") ##TODO: Re-enabl;e when pandel works.
+    @skip("Cascade-models disabled") ##TODO: Re-enable when pandel works.
     def testOverlayOnInit(self):
         mdl = goodVehicle()
         nval = 6000

@@ -8,6 +8,7 @@ The core of the simulator is composed from the following modules:
     pandel
     model
     experiment
+    idgears
 
 Among the various tests, those running on 'sample' databases for comparing differences
 with existing tool are the following:
