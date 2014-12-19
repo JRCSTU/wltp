@@ -50,7 +50,6 @@ def _outliers_filter_df(df, cols):
 def _filter_cycle(df, filter_outliers=None):
     ## Filter-data
     #
-    df['R1'] = (df.N / df.V)## SpeedToVelocity
     df['R2'] = (df.V / df.N) # Work with R2 because evenly spaced (not log), and 0 < R2 < 1
     df0 = df[(df.V > 2) & (df.R2 > 0)]
     df1 = _outliers_filter_df(df0, ['R2']) if filter_outliers else df0 # PROBLEMATIC!!
@@ -203,8 +202,11 @@ def _gather_final_Detekts(ngears, cycle_df, guessed_gears):
 
 def run_gear_ratios_detections_on_cycle_data(ngears, cycle_df):
     """
+    Invoke this one if you want to draw the results.
+    
+    :param pd.DataFrame cycle_df: it must contain (at least) `N` and `V` columns (units: [rpm] and [km/h] respectively)
     :return: a list of all :class:`Detekt` tuples sorted with the most probable ones at the the head,
-                        needed, besides its 1st element, for plotting.
+                        needed.  Its 1st element is the solution
     """
     filtered_df     = _filter_cycle(cycle_df)
     guessed_detekts = _gather_guessed_Detekts(ngears, filtered_df)
@@ -212,42 +214,56 @@ def run_gear_ratios_detections_on_cycle_data(ngears, cycle_df):
 
     return final_detekts
 
-def detekt_gear_ratios_from_cycle_data(ngears, cycle_df):
+def detect_gear_ratios_from_cycle_data(ngears, cycle_df):
     """
+    Use a 2 step procedure if you want to plot the results, by invoking
+    `run_gear_ratios_detections_on_cycle_data()` and `plot_idgears_results()` separately.
+    
     :return: a :class:`ndarray` with the detected gear-ratios (for the STVs, inverse them) 
     """
     detekts = run_gear_ratios_detections_on_cycle_data(ngears, cycle_df)
-    if detekts[0].final:
-        return detekts[0].final
+    if not detekts[0].final is None:
+        return detekts[0].final, detekts[0].distort
     else:
         raise Exception('Detection failed to estimate any gear-ratios!\n  All-Detekts(%s)' % detekts)
 
-def identify_gears(detekts, gear_ratios):
+
+def identify_gears(cycle_ratios, gear_ratios):
     """
-    :return: the 
-    """
-    best_gears = detekts[0]
+    Return arrays will miss NaNs!
     
-    gears, _ = _norm1_1d_vq(gear_ratios, best_gears.final)
+    :param ndarray cycle_ratios: a single column array/list/ndarray  of ratios (STVs or inverse).
+    :param ndarray gear_ratios: this list/ndarray of gear-ratios with len equal to the #gears
+    :return: a 2-tuple, where [0] is the 0-based identified-gears, and 
+                        [1] the distortion for each cycle-point.
+    """
+    cycle_ratios = np.asarray(cycle_ratios).flatten()
+    nums = np.isfinite(cycle_ratios)
+    gears, distort = _norm1_1d_vq(cycle_ratios[nums], np.asarray(gear_ratios).flatten())
 
-    return gears+1, detekts
+    return gears, distort
 
 
-def plot_idgears_results(ngears, cycle_df, detekt):
+def plot_idgears_results(cycle_df, detekt, fig=None, axes=None):
     """
     :param detekt: A Detekt-namedtuple with the data to plot
     """
-    fig = plt.figure(figsize=(18,5))
-    fig.suptitle('Detekt: %s, Accuracy: %s (wltp-good: ~< 1e-3)'%(detekt.final, detekt.distort*ndetekt))
+    if not fig:
+        fig = plt.figure(figsize=(18,5))
+        fig.suptitle('Detekt: %s, Accuracy: %s (wltp-good: ~< 1e-3)'%(detekt.final, detekt.distort))
     
+    if axes:
+        ax1, ax2, ax3 = axes
+    else:
+        ax1 = plt.subplot(1,3,1)
+        ax2 = plt.subplot(1,3,2)
+        ax3 = plt.subplot(1,3,3)
+
     peaks_stv = (1/detekt.guess)
-    print("peaks_stv: %s"% peaks_stv)
     kmeans_stv = (1/detekt.final)
-    print("kmeans_stv: %s"% kmeans_stv)
-    
+
     ## Plot engine-points
     ##
-    ax1 = plt.subplot(1,3,1)
     ax1.plot(cycle_df.V, cycle_df.N, 'g+', markersize=4)
     for r in peaks_stv:
         ax1.plot([0, cycle_df.V.max()], [0, cycle_df.V.max()*r], 'b-', alpha=0.5)
@@ -259,7 +275,6 @@ def plot_idgears_results(ngears, cycle_df, detekt):
     
     ## Plot ratios's Histogram
     #
-    ax2 = plt.subplot(1,3,2)
     ax2.plot(detekt.hist_Y, detekt.hist_X)
     ax2.plot(detekt.all_peaks_df.ratio, detekt.all_peaks_df.population, 'ob', markersize=8, fillstyle='none')
     #ax2.plot(peaks_df.ratio, peaks_df.population, 'ob', markersize=8, fillstyle='full') ## Annotate top-#detekt
@@ -267,10 +282,9 @@ def plot_idgears_results(ngears, cycle_df, detekt):
     
     ## Scatter-plot Ratios
     ##
-    ax3 = plt.subplot(1,3,3)
     R = cycle_df.R2
     ax3.plot(R, 'g.', markersize=1)
-    for r in detekt.all_peaks_cycle_df.ratio:
+    for r in detekt.all_peaks_df.ratio:
         plt.hlines(r, 0, R.shape[0], 'b', linestyle=':')
     for r in detekt.final:
         plt.hlines(r, 0, R.shape[0], 'b', linestyle='-.')
@@ -278,8 +292,4 @@ def plot_idgears_results(ngears, cycle_df, detekt):
         plt.hlines(r, 0, R.shape[0], 'r', linestyle='--')
     plt.ylim(R.min(), R.max())
     plt.xlim(0, R.shape[0])
-    
-    
-    plt.show()
-
 
