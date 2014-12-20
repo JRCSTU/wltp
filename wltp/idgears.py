@@ -27,6 +27,8 @@ the absolute-difference of its cycle-ratio with its nearest estimated gear-ratio
 
 .. Note: The inverse of STVs are used throughout the calculations here because they are usually equally spaced.
 '''
+## TODO: Rename columns N, V.
+## TODO: Classify code.
 
 from collections import namedtuple
 import math
@@ -47,7 +49,7 @@ def _outliers_filter_df(df, cols):
     
     return df
 
-def _filter_cycle(df, filter_outliers=None):
+def _filter_cycle_and_derive_ratios(df, filter_outliers=None):
     ## Filter-data
     #
     df['R2'] = (df.V / df.N) # Work with R2 because evenly spaced (not log), and 0 < R2 < 1
@@ -208,7 +210,7 @@ def run_gear_ratios_detections_on_cycle_data(ngears, cycle_df):
     :return: a list of all :class:`Detekt` tuples sorted with the most probable ones at the the head,
                         needed.  Its 1st element is the solution
     """
-    filtered_df     = _filter_cycle(cycle_df)
+    filtered_df     = _filter_cycle_and_derive_ratios(cycle_df)
     guessed_detekts = _gather_guessed_Detekts(ngears, filtered_df)
     final_detekts   = _gather_final_Detekts(ngears, filtered_df, guessed_detekts)
 
@@ -228,7 +230,19 @@ def detect_gear_ratios_from_cycle_data(ngears, cycle_df):
         raise Exception('Detection failed to estimate any gear-ratios!\n  All-Detekts(%s)' % detekts)
 
 
-def identify_gears(cycle_ratios, gear_ratios):
+def identify_gears_from_cycle_data(cycle_df, gear_ratios):
+    """
+    Like :meth:`identify_gears_from_ratios()` but with more sane filtering (ie v above 1 km/h).
+     
+    :param pd.DataFrame cycle_df: it must contain (at least) `N` and `V` columns (units: [rpm] and [km/h] respectively)
+    :param ndarray gear_ratios: the same as :meth:`identify_gears_from_ratios()`
+    :return: the same as :meth:`identify_gears_from_ratios()`
+    """
+    df = _filter_cycle_and_derive_ratios(cycle_df)
+    return identify_gears_from_ratios(df.R2, gear_ratios)
+
+
+def identify_gears_from_ratios(cycle_ratios, gear_ratios):
     """
     Return arrays will miss NaNs!
     
