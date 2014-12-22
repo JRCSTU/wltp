@@ -297,7 +297,8 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'wltp.tex', 'wltp Documentation',
-   'Kostis Anagnostopoulos', 'manual'),
+   "Authors: see '4.5 Development Team' section", 
+   'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

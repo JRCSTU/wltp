@@ -6,7 +6,7 @@ General
 =======
 
 Who is behind this?  How to contact the authors?
-------------------------------------
+------------------------------------------------
 The immediate involved persons is described in the :ref:`dev-team` section.
 The author is a participating member in the :term:`GS Task-Force` on behalf of the EU Commission (JRC).
 
