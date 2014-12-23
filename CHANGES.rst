@@ -21,7 +21,7 @@ The following matrix shows these correspondences:
 | 0.0.9   | Un-precise phase-1a         |
 |         | (diffs explained below)     |
 +---------+-----------------------------+
-|1.x.x    | phase 2b [TDB]              |
+| 1.x.x   | phase 2b [TDB]              |
 +---------+-----------------------------+
 
 
@@ -55,17 +55,22 @@ TODOs
 .. todolist::
 
 
-Releases
-========
+Changelog
+=========
 
-
-v0.0.9: alpha, 1st public
--------------------------
+v0.0.9-alpha.3 (1-Dec-2014) 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is practically the 1st public releases, reworked in many parts, much better documented,
 continuously tested and build using TravisCI, with on-the-fly generated diagrams as metrics,
 BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and 
 metrics still describe that version, for future comparison.
 
+* Use CONDA for running on TravisCI.
+* Improve ExcelRunner.
+* docs and metrics improvements.
+* ui: Added Excel frontend.
+* ui: Added desktop-UI proof-of-concept (:class:`wltp.tkui`).
+* metrics: Add diagrams auto-generated from test-metrics into generated site (at "Getting Involved" section).
 
 Noteworthy or *incompatilble* changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -82,17 +87,6 @@ Noteworthy or *incompatilble* changes
   remove the `eclipse` prefix before importing project into Eclipse/Liclipse.
 
 
-Changelog
-^^^^^^^^^
-
-v0.0.9-alpha.3 (1-Dec-2014) 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-* Use CONDA for running on TravisCI.
-* Improve ExcelRunner.
-* docs and metrics improvements.
-* ui: Added Excel frontend.
-* ui: Added desktop-UI proof-of-concept (:class:`wltp.tkui`).
-* metrics: Add diagrams auto-generated from test-metrics into generated site (at "Getting Involved" section).
 
 v0.0.9-alpha.1 (1-Oct-2014)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
