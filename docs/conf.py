@@ -16,7 +16,40 @@
 import re
 import sys, os, io
 
-
+print("python exec: %s"% sys.executable)
+print("sys.path: %s"%sys.path)
+try:
+    import numpy
+    print("numpy: %s, %s" % (numpy.__version__, numpy.__file__))
+except ImportError:
+    print("no numpy")
+try:
+    import scipy
+    print("scipy: %s, %s" % (scipy.__version__, scipy.__file__))
+except ImportError:
+    print("no scipy")
+try:
+    import pandas
+    print("pandas: %s, %s" % (pandas.__version__, pandas.__file__))
+except ImportError:
+    print("no pandas")
+try:
+    import matplotlib
+    print("matplotlib: %s, %s" % (matplotlib.__version__, matplotlib.__file__))
+except ImportError:
+    print("no matplotlib")
+try:
+    import IPython
+    print("ipython: %s, %s" % (IPython.__version__, IPython.__file__))
+except ImportError:
+    print("no ipython")
+try:
+    import mock
+    print("mock: %s, %s" % (mock.__version__, mock.__file__))
+except ImportError:
+    print("no mock")
+    
+    
 projname = 'wltp'
 mydir = os.path.dirname(__file__)
 
@@ -44,7 +77,10 @@ sys.path.insert(0, os.path.abspath('../'))
 #     Also tried but fails: http://blog.rtwilson.com/how-to-make-your-sphinx-documentation-compile-with-readthedocs-when-youre-using-numpy-and-scipy/
 #
 if on_rtd:
-    from unittest.mock import MagicMock
+    try:
+        from unittest.mock import MagicMock
+    except ImportError:
+        from mock import Mock as MagicMock
 
     class Mock(MagicMock):
         @classmethod

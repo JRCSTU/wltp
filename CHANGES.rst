@@ -59,7 +59,7 @@ Changelog
 =========
 
 v0.0.9-alpha.3 (1-Dec-2014) 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 This is practically the 1st public releases, reworked in many parts, much better documented,
 continuously tested and build using TravisCI, with on-the-fly generated diagrams as metrics,
 BUT the arithmetic results produced are still identical to v0.0.7, so that the test-cases and 
@@ -89,7 +89,7 @@ Noteworthy or *incompatilble* changes
 
 
 v0.0.9-alpha.1 (1-Oct-2014)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 * Backported also to Python-2.7.
 * model, core: Discriminate between :term:`Test mass` from :term:`Unladen mass` 
   (optionally auto-calced by ``driver_mass`` = 75(kg)).
