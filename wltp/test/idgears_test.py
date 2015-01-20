@@ -19,6 +19,7 @@ from wltp import idgears as idg
 import os
 
 def read_all_cycle_data(cycle_run_file, start_col_index=0):
+    cycle_run_file = os.path.join(os.path.dirname(__file__), cycle_run_file)
     df = pd.read_table(cycle_run_file, sep=',', index_col=None, comment='#', skiprows=5, header=None)
     df = df.iloc[:, start_col_index:start_col_index+2]
     df = df.convert_objects(convert_numeric=True).dropna()
@@ -96,7 +97,7 @@ class IdgearsTest(unittest.TestCase):
             self.assertAlmostEqual(distort, result[3])
 
 
-    @skipIf(not os.environ['UI'], "No GUI demanded in env-var $UI.")
+    @skipIf(not 'UI' in os.environ, "No GUI! (demanded in env-var $UI)")
     def test_detect_ratios_and_plot(self):
         from matplotlib import pyplot as plt
         fig = plt.figure()

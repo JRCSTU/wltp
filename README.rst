@@ -27,7 +27,7 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
     Some of the known deficiencies are described in these places:
 
     * In the :doc:`CHANGES`.
-    * Presented in the diagrams of the :ref:`metrics` section.
+    * Presented in the diagrams of the :doc:`metrics` section.
     * Imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case
       (automatically comparared with a pre-determined set of vehicles from Heinz-db on each build)
       Currently, mean rpm differ from Heinz-db < 0.5% and gears diff < 5% for a 1800-step class-3 cycle.
@@ -542,7 +542,7 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     >>> df.columns
     Index(['v_class', 'v_target', 'clutch', 'gears_orig', 'gears', 'v_real', 'p_available', 'p_required', 'rpm', 'rpm_norm', 'driveability'], dtype='object')
     >>> 'Mean engine_speed: %s' % df.rpm.mean()
-    'Mean engine_speed: 1917.0407829'
+    'Mean engine_speed: 1940.72109939'
     >>> df.describe()
                v_class     v_target     clutch   gears_orig        gears  \
     count  1801.000000  1801.000000       1801  1801.000000  1801.000000
@@ -552,8 +552,8 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     <BLANKLINE>
                 v_real  p_available   p_required          rpm     rpm_norm
     count  1801.000000  1801.000000  1801.000000  1801.000000  1801.000000
-    mean     50.356222    28.846639     4.991915  1917.040783     0.214898
-    std      32.336908    15.833262    12.139823   878.139758     0.195142
+    mean     50.356222    28.846639     4.991915  1940.721099     0.214898
+    std      32.336908    15.833262    12.139823   840.959339     0.195142
     ...
 
     >>> processor.driveability_report()                                             # doctest: +SKIP
@@ -683,7 +683,7 @@ Then you can install all project's dependencies in *`development mode* using the
     $ python setup.py build                             ## Check that the project indeed builds ok.
 
 
-You should now run the test-cases (see ref:`metrics`, below) to check
+You should now run the test-cases (see :doc:`metrics`) to check
 that the sources are in good shape:
 
 .. code-block:: console
@@ -791,55 +791,6 @@ Cycles
     :align: center
 .. image:: docs/wltc_class3b.png
     :align: center
-
-
-
-.. _metrics:
-
-Tests, Metrics & Reports
-------------------------
-In order to maintain the algorithm stable, a lot of effort has been put
-to setup a series of test-case and metrics to check the sanity of the results
-and to compare them with the Heinz-db tool or other datasets included in the project.
-These tests can be found in the :file:`wltp/test/` folders.
-
-Additionally, below are *auto-generated* representative diagrams with the purpose
-to track the behavior and the evolution of this project.
-
-You can reuse the plotting code here for building nice ipython-notebooks reports,
-and (optionally) link them in the wiki of the project (see section above).
-The actual code for generating diagrams for these metrics is in :class:`wltp.plots` and it is invoked
-by scripts in the :file:`docs/pyplot/` folder.
-
-
-*Mean Engine-speed* vs *PMR*
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-First the mean engine-speed of vehicles are compared with access-db tool, grouped by PMRs:
-
-.. plot:: pyplots/pmr_n_scatter.py
-
-
-Both tools generate the same rough engine speeds.  There is though a trend for this project
-to produce lower rpm's as the PMR of the vehicle increases.
-But it is difficult to tell what each vehicle does isolated.
-
-The same information is presented again but now each vehicle difference is drawn with an arrow:
-
-.. plot:: pyplots/pmr_n_arrows.py
-
-It can be seen now that this project's calculates lower engine-speeds for classes 1 & 3 but
-the trend is reversed for class 2.
-
-*Mean Engine-speed* vs *Gears*
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Below the mean-engine-speeds are drawn against the mean gear used, grouped by classes and class-parts
-(so that, for instance, a class3 vehicle corresponds to 3 points on the diagram):
-
-
-.. plot:: pyplots/gears_n_arrows_class_1.py
-.. plot:: pyplots/gears_n_arrows_class_2.py
-.. plot:: pyplots/gears_n_arrows_class_3.py
-
 
 
 .. _dev-team:

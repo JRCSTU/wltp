@@ -58,6 +58,17 @@ TODOs
 Changelog
 =========
 
+v0.0.9-alpha.4 (XX-Jan-2015) 
+----------------------------
+Same algo as `alpha.3` but with corrected engine-speed for idle.
+It is used for reports and simulation run by JRC to build the CO\ :sub:`2`\MPAS model,  
+but still not driveable due to downshifting to 1st-gear when stopping to standstill.
+
+* core, model: Possible to define different `n_min_drive` & `f_safety_margins` per gear.
+* core: Add function to identify gear-ratios from experimental engine-runs.
+* excel, tests: Add ExcelRunner TCs.
+
+
 v0.0.9-alpha.3 (1-Dec-2014) 
 ---------------------------
 This is practically the 1st public releases, reworked in many parts, much better documented,

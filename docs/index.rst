@@ -8,6 +8,7 @@
     install
     usage
     contribute
+    metrics
     faq
     code
     CHANGES
