@@ -59,9 +59,8 @@ class InstancesTest(unittest.TestCase):
             print('Model failed: ', mdl)
             raise
 
-    def checkModel_invalid(self, mdl, ex=None):
-        if not ex:
-            ex = jsonschema.ValidationError
+    def checkModel_invalid(self, mdl):
+        ex = jsonschema.ValidationError
         try:
             self.assertRaises(ex, model.validate_model, mdl, iter_errors=False)
             errs = list(model.validate_model(mdl, iter_errors=True))
@@ -200,18 +199,42 @@ class InstancesTest(unittest.TestCase):
             mdl = model.merge(model._get_model_base(), mdl)
             del mdl['vehicle']['full_load_curve']
             mdl['vehicle']['full_load_curve'] = c
-            self.checkModel_invalid(mdl, ex=ValidationError)
+            self.checkModel_invalid(mdl)
 
-    def test_calc_default_resistance_coeffs_missing(self):
+    def test_default_resistance_coeffs_missing(self):
         mdl = goodVehicle()
         mdl = model.merge(model._get_model_base(), mdl)
         self.checkModel_valid(mdl)
 
-    def test_calc_default_resistance_coeffs_None(self):
+    def test_default_resistance_coeffs_None(self):
         mdl = goodVehicle()
         mdl['vehicle']['resistance_coeffs'] = None
         mdl = model.merge(model._get_model_base(), mdl)
         self.checkModel_valid(mdl)
+
+    def test_fields_array_or_single_like_gears_SingleNumber(self):
+        from ..pandel import set_jsonpointer
+        mdl = goodVehicle()
+        ngears = len(mdl['vehicle']['gear_ratios'])
+        fields_array_or_single_like_gears = [
+            # JsonPath                   Values,                    AllowNone
+            ('/vehicle/n_min',           [300, [350] * ngears],     True),
+            ('/params/f_safety_margin',  [3.14, [5.0] * ngears],    False),
+        ]
+        for (field, values, allowNone) in fields_array_or_single_like_gears:
+            for value in (values if not allowNone else values + [None]):
+                mdl = goodVehicle()
+                set_jsonpointer(mdl, field, value)
+                mdl = model.merge(model._get_model_base(), mdl)
+                self.checkModel_valid(mdl)
+                
+            ## Check len(gear) mismatch
+            #
+            mdl = goodVehicle()
+            set_jsonpointer(mdl, field, [0.354] * (ngears + 1))
+            mdl = model.merge(model._get_model_base(), mdl)
+            self.checkModel_invalid(mdl)
+            
 
 
 

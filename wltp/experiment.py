@@ -240,7 +240,7 @@ class Experiment(object):
         N_NORM                      = _N_NORMS[GEARS - 1, range(len(V))]
         RPM                         = _N_GEARS[GEARS - 1, range(len(V))]
         V_REAL                      = RPM / _GEAR_RATIOS[GEARS - 1, range(len(V))]
-
+        RPM[RPM < n_idle] = n_idle
 
         results['gears']        = GEARS
         results['v_real']       = V_REAL
@@ -467,7 +467,7 @@ def possibleGears_byEngineRevs(V, A, _N_GEARS,
     ## Identify impossible-gears by n_MAX.
     #
     GEARS_YES_MAX                           = (_N_GEARS <= n_max)
-    _GEARS_BAD                               = (~GEARS_YES_MAX).all(axis=0)
+    _GEARS_BAD                              = (~GEARS_YES_MAX).all(axis=0)
     addDriveabilityProblems(_GEARS_BAD, 'g%i: Revolutions too high!' % ngears, driveability_issues)
 
     ## Replace impossibles with max-gear & revs.
@@ -540,7 +540,8 @@ def calcPower_available(_N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety
 #     from scipy.interpolate import interp1d
 #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
 #     P_WOT           = intrerp_f(_N_NORMS)
-    _P_AVAILS        = _P_WOTS * p_rated * p_safety_margin
+    safety_margins   = np.tile(p_safety_margin, (_N_GEARS.shape[1], 1)).T
+    _P_AVAILS        = _P_WOTS * safety_margins * p_rated
 
     return (_P_AVAILS, _N_NORMS)
 

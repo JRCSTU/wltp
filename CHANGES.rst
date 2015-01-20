@@ -18,10 +18,13 @@ The following matrix shows these correspondences:
 | Release |           GTR ver           |
 | train   |                             |
 +=========+=============================+
-| 0.0.9   | Un-precise phase-1a         |
+| 0.0.9   | Un-precise GTR phase-1a     |
 |         | (diffs explained below)     |
 +---------+-----------------------------+
-| 1.x.x   | phase 2b [TDB]              |
+| 0.1.x   | GTR phase-1a                |
+|         | (TODO)                      |
++---------+-----------------------------+
+| 1.x.x   | GTR phase 1b [TDB]          |
 +---------+-----------------------------+
 
 

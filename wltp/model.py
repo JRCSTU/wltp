@@ -13,7 +13,7 @@ The model-instance is managed by :class:`pandel.Pandel`.
 
 from __future__ import division, print_function, unicode_literals
 
-from collections import Mapping
+from collections import Mapping, Sized
 import json
 import logging
 from textwrap import dedent
@@ -271,10 +271,12 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     },
                     'n_min': {
                         'title': 'minimum engine revolutions',
-                        'type': ['integer', 'null'],
+                        'type': ['array', 'integer', 'null'],
                         'description': dedent("""
-                        minimum engine revolutions for gears > 2 when the vehicle is in motion. The minimum value
-                        is determined by the following equation:
+                        Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
+                        or an array with the exact `n_min` for each gear (array must have length equal to gears).
+                        
+                        If unspecified, the minimum `n` for gears > 2 is determined by the following equation:
                             n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
                         Higher values may be used if requested by the manufacturer, by setting this one.
                        """),
@@ -390,8 +392,11 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'default': 1.1,
                     },
                     'f_safety_margin': {
-                        'description': 'Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).',
-                        'type': [ 'number', 'null'],
+                        'description': dedent("""
+                            Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).
+                            If array, its length must match those of the `gear_ratios`.
+                        """),
+                        'type': [ 'array', 'number', 'null'],
                         'default': 0.9,
                     },
                     'f_n_max': {
@@ -672,6 +677,8 @@ def validate_model(mdl, additional_properties=False, iter_errors=False, validate
     validators = [
         validator.iter_errors(mdl),
         yield_load_curve_errors(mdl),
+        yield_n_min_errors(mdl),
+        yield_safety_margin_errors(mdl),
         yield_forced_cycle_errors(mdl, additional_properties)
     ]
     errors = it.chain(*[v for v in validators if not v is None])
@@ -730,6 +737,34 @@ def yield_load_curve_errors(mdl):
         vehicle['full_load_curve'] = wot
     except (KeyError, PandasError) as ex:
         yield ValidationError('Invalid Full-load-curve, due to: %s' % ex, cause= ex)
+
+def yield_n_min_errors(mdl):
+    vehicle = mdl['vehicle']
+    ngears = len(vehicle['gear_ratios'])
+    n_min = vehicle.get('n_min')
+    if not n_min is None:
+        try:
+                if isinstance(n_min, Sized):
+                    if len(n_min) != ngears:
+                        yield ValidationError("Length mismatch of n_min(%s) != gear_ratios(%s)!"% (len(n_min), ngears))
+                else:
+                    vehicle['n_min'] = [n_min] * ngears
+        except PandasError as ex:
+            yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause= ex)
+
+def yield_safety_margin_errors(mdl):
+    params = mdl['params']
+    f_safety_margin = params['f_safety_margin']
+    ngears = len(mdl['vehicle']['gear_ratios'])
+    try:
+        if isinstance(f_safety_margin, Sized):
+            if len(f_safety_margin) != ngears:
+                yield ValidationError("Length mismatch of f_safety_margin(%s) != gear_ratios(%s)!"% (len(f_safety_margin), ngears))
+        else:
+            params['f_safety_margin'] = [f_safety_margin] * ngears
+    except PandasError as ex:
+        yield ValidationError("Invalid 'gear_n_min', due to: %s" % ex, cause= ex)
+
 
 def yield_forced_cycle_errors(mdl, additional_properties):
     params = mdl['params']
