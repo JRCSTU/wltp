@@ -44,7 +44,10 @@ sys.path.insert(0, os.path.abspath('../'))
 #     Also tried but fails: http://blog.rtwilson.com/how-to-make-your-sphinx-documentation-compile-with-readthedocs-when-youre-using-numpy-and-scipy/
 #
 if on_rtd:
-    from unittest.mock import MagicMock
+    try:
+        from unittest.mock import MagicMock
+    except ImportError:
+        from mock import Mock as MagicMock
 
     class Mock(MagicMock):
         @classmethod
@@ -232,7 +235,7 @@ html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-#html_last_updated_fmt = '%b %d, %Y'
+html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
