@@ -444,6 +444,7 @@ class WltpDbTests(unittest.TestCase):
             max    3741.849187  3750.927263    0.242609
         
         Keeping idle engine revs::
+        
                         python        heinz  diff_prcnt
             count   382.000000   382.000000    0.000000
             mean   1852.183403  1827.572965   -1.346619

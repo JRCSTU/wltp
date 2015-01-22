@@ -467,14 +467,13 @@ def possibleGears_byEngineRevs(V, A, _N_GEARS,
     ## Identify impossible-gears by n_MAX.
     #
     GEARS_YES_MAX                           = (_N_GEARS <= n_max)
+    GEARS_YES_MAX[-1, :]                    = True                          ## Exclude last gear from max-rule.
     _GEARS_BAD                              = (~GEARS_YES_MAX).all(axis=0)
     addDriveabilityProblems(_GEARS_BAD, 'g%i: Revolutions too high!' % ngears, driveability_issues)
 
-    ## Replace impossibles with max-gear & revs.
+    ## Replace impossibles with max-gear.
     #
     GEARS_YES_MAX[ngears - 1, _GEARS_BAD]    = True
-    _N_GEARS[ngears - 1, _GEARS_BAD]          = n_max
-
 
     ## Identify impossible-gears by n_MIN.
     #
