@@ -569,7 +569,7 @@ def get_class_parts_limits(cls_name, mdl=None, edges=False):
     :param str cls_name: one of 'class1', ..., 'class3b'
     :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`_get_wltc_data()`
     :param edges: when `True`, embeds internal limits into (0, len)
-    :return: a list with the part-limits, ie for class-3a these are 3 numbers 
+    :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers 
     """
     if mdl:
         wltc_data = mdl['wltc_data']
@@ -584,6 +584,21 @@ def get_class_parts_limits(cls_name, mdl=None, edges=False):
         part_limits.insert(0, 0)
          
     return part_limits
+
+def get_class_parts_index(cls_name, index=None, mdl=None):
+    """
+    Returns an array equally sized as `index` with zero-based ints denoting the part each second of the cycle belong to.
+    
+    :param str cls_name: one of 'class1', ..., 'class3b'
+    :param list/array index: (Optional) the index to "segment" into parts, defaults to 1Hz class's index  
+    :return: a numpy-array of integers with length equal to `index`, or if not given, 
+                        the default length of the requested class otherwise  
+    """
+    limits = get_class_parts_limits(cls_name, mdl=mdl, edges=True)
+    limits = np.array(limits).astype(np.int)
+    
+    if index:
+        index = np.asarray(index)
 
 
 def get_class_pmr_limits(mdl=None, edges=False):

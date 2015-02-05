@@ -33,7 +33,7 @@ def read_all_cycle_data(cycle_run_file, start_col_index=0):
             df.columns = cols if m.iloc[0] > m.iloc[1] else reversed(cols) # Assume RPMs are bigger numbers.
     return df
 
-file_results = [                                                                # R2-DISTORT           DISTORT1           1/DISTORT
+file_results = [                                                                # VoverN-DISTORT       DISTORT1           1/DISTORT
     ([ 0.00862961, 0.01414138, 0.02040305, 0.02705056, 0.03361355, 0.03913649], 0.000776115495842, 0.00102891505859 , 0.000623132178672),
     ([ 0.0077537 , 0.01430799, 0.02039729, 0.02715475, 0.03377971, 0.03948467], 0.000182951571423, 0.000319414911246, 0.993806101491),
     ([ 0.00773553, 0.01428506, 0.02039676, 0.02713253, 0.03377312, 0.03950773], 0.00034170109883 , 0.000618105921847, 0.370373235935),

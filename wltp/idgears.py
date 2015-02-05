@@ -8,11 +8,25 @@
 '''
 Detects vehile's gear-ratios from cycle-data and reconstructs the gears-profile by identifying the actual gears used.
 
-A "gear-ratio" is the inverse of the "engine-speed-to-velocity (STV)", which is 
-the number of engine revolutions required, in RPM, in order for the the vehicle to travel with 1 km/h.
+The following terms and arguments are used throughout this module:
 
-The "cycle-data" is a :class:`pd.DataFrame` containing (at least) `N` and `V` columns 
-with [rpm] and [km/h] as units respectively.
+gear-ratio(s): 
+    the "NoverV", which is the inverse of the "engine-speed-to-velocity" ("STV"). 
+    Conceptually it is the number of engine revolutions required, in RPM, 
+    in order for the the vehicle to travel with 1 km/h.
+    
+    .. Note: The inverse of STVs ("VoverN") are used throughout the calculations because 
+            they are practically between (0, 1), and more equally spaced.
+
+cycle-ratios: 
+    The actual or detected NoverV-ratio on each cycle-point.
+
+cycle-gears:
+    The actual or identified gear used on each cycle-point.
+    
+cycle-data
+    a :class:`pd.DataFrame` containing (at the begining) `N` and `V` columns 
+    with [rpm] and [km/h] as units respectively.
 
 The detection of the gear-ratios happens in a 3 steps, approximation or guessing, estimation and selection:
 
@@ -20,24 +34,27 @@ The detection of the gear-ratios happens in a 3 steps, approximation or guessing
    by producing histograms of the ratios with different combinations of bins, and then 
    taking the first #gears of peaks.
 2. Feed these "guessed" sets of gear-ratios into a robust (with median) kmeans clustering algorithm, and
-3. pick the set which has the minimum distortion.
+3. pick the gear-ratios with the minimum distortion.
 
-The identification of the actual gear on each cycle-data point (reconstructing the gear-profile) is based on 
-the absolute-difference of its cycle-ratio with its nearest estimated gear-ratio, above.
+The identification of the actual gear on each cycle-data point (reconstructing the gear-profile) 
+happens in 2 steps:
 
-.. Note: The inverse of STVs are used throughout the calculations here because they are usually equally spaced.
+1. On each cycle-point select the Gear with smallest absolute-difference with the respective identified ratio;
+2. Reconstruct engine-speed by dividing velocity-profile with identified gear-ratio on each cycle-point.
+
 '''
 ## TODO: Rename columns N, V.
 ## TODO: Classify code.
 
 from collections import namedtuple
+import functools as ft
 import math
 import numpy as np, pandas as pd
 from scipy import signal
 from matplotlib import pyplot as plt
 
 
-def _outliers_filter_df(df, cols):
+def _outliers_filter_df2(df, cols):
     for col in cols:
         mean = df[col].median()
         #std  = np.subtract(*np.percentile(df[col], [75, 25]))
@@ -49,14 +66,37 @@ def _outliers_filter_df(df, cols):
     
     return df
 
-def _filter_cycle_and_derive_ratios(df, filter_outliers=None):
-    ## Filter-data
-    #
-    df['R2'] = (df.V / df.N) # Work with R2 because evenly spaced (not log), and 0 < R2 < 1
-    df0 = df[(df.V > 2) & (df.R2 > 0)]
-    df1 = _outliers_filter_df(df0, ['R2']) if filter_outliers else df0 # PROBLEMATIC!!
+def _outliers_filter_df(df, cols):
+    def filter_col(col):
+        
+        mean = df[col].median()
+        #std  = np.subtract(*np.percentile(df[col], [75, 25]))
+        std  = df[col].mad()
+        return np.abs(df[col] - mean) <= 2 * std
+    
+    return ft.reduce((filter_col(col) for col in cols), np.bitwise_and)
 
+def _transient_filter_df(df, col, std_threshold=0.5):
+    grad = np.gradient(df[col])
+    df1 = df[np.abs(grad) < (std_threshold * grad.std())]
+    
     return df1
+
+def _n_idle_filter_df(df, col, std_threshold=0.5):
+    df1 = df
+    
+    return df1
+    
+    
+def _filter_cycle_and_derive_ratios(df, filter_outliers=None, filter_transient=True):
+    df['VoverN'] = (df.V / df.N) # Work with VoverN because evenly spaced (not log), and 0 < VoverN < 1
+    df0 = df[(df.V > 2) & (df.VoverN > 0)]
+    df1 = _n_idle_filter_df(df0, 'N')
+    df2 = _transient_filter_df(df1, 'N')
+#     valids = _outliers_filter_df(df2, ['VoverN']) if filter_outliers else df2 # PROBLEMATIC!!
+#     df3 = df2[valids]
+
+    return df2
 
 
 def _approximate_ratios_by_binning(ratios, bins, ngears):
@@ -100,9 +140,16 @@ def _approximate_ratios_by_binning(ratios, bins, ngears):
     return peaks0, peaks1, peaks3, h_points, h_centers
 
 
-def _norm1_1d_vq(obs, guess):
+def _norm1_1d_vq(obs, guess, is_robust=False):
     """Simplified from scipy.cluster.vq.py_vq2()"""
     dist = np.abs(obs[np.newaxis, :] - guess[:, np.newaxis])
+    if is_robust: ## Does not make a difference!
+        robust_prcntile = 4.685     ##  Bisquare M-estimator with 95% efficiency under the Gaussian model.
+        R_deleved   = dist / (robust_prcntile * 1.4826 * np.median(dist))  ## * sqrt(1 - hat_vector))
+        ## Calc the robust bisquared-residuals excluding outliers.
+        R_weights   = (R_deleved < 1) * (1 - R_deleved**2)**2
+        dist = R_weights * dist
+    
     code = np.argmin(dist, 0)
     min_dist = np.minimum.reduce(dist, 0)
     
@@ -152,8 +199,9 @@ def _estimate_ratios_by_kmeans(obs, guess, **kmeans_kws):
 #
 Detekt = namedtuple('Detekt', [
     'distort', 
-    'guess', 'final', 
-    'all_peaks_df', 'hist_X', 'hist_Y'
+    'guess', 'final',        ## 
+    'all_peaks_df', 
+    'hist_X', 'hist_Y'
 ])
 def _new_Detekt_approximation(guess_ratios, all_peaks_df, hist_X, hist_Y):
     return Detekt(None, guess_ratios, None, all_peaks_df, hist_X, hist_Y)
@@ -175,14 +223,14 @@ def _gather_guessed_Detekts(ngears, cycle_df):
             math.sqrt(cycle_df.shape[0]),
     ]
     for bins in bins_cases:
-        all_peaks_df, peaks_df1, peaks_df2, hist_X, hist_Y = _approximate_ratios_by_binning(cycle_df.R2, bins=bins, ngears=ngears)
+        all_peaks_df, peaks_df1, peaks_df2, hist_X, hist_Y = _approximate_ratios_by_binning(cycle_df.VoverN, bins=bins, ngears=ngears)
     
         _append_aproximate_Detekt(ngears, guessed_detekts, peaks_df1.ratio.values, all_peaks_df, hist_X, hist_Y)
         _append_aproximate_Detekt(ngears, guessed_detekts, peaks_df2.ratio.values, all_peaks_df, hist_X, hist_Y)
         
     ## Add linspace for the complete ratio-range 
     #    using the 1st Detekt as template.
-    guessed_detekts.append(guessed_detekts[0]._replace(guess=np.linspace(cycle_df.R2.min(), cycle_df.R2.max(), ngears)))
+    guessed_detekts.append(guessed_detekts[0]._replace(guess=np.linspace(cycle_df.VoverN.min(), cycle_df.VoverN.max(), ngears)))
     
     return guessed_detekts
 
@@ -194,7 +242,7 @@ def _gather_final_Detekts(ngears, cycle_df, guessed_gears):
     """
     final_detekts = []
     for gears in guessed_gears:
-        ratios, distort = _estimate_ratios_by_kmeans(cycle_df.R2.values, gears.guess)
+        ratios, distort = _estimate_ratios_by_kmeans(cycle_df.VoverN.values, gears.guess)
         if ratios.size == ngears:
             final_detekts.append(_set_Detekt_final(gears, ratios, distort))
     final_detekts = sorted(final_detekts, key=lambda x: x.distort)
@@ -207,7 +255,7 @@ def run_gear_ratios_detections_on_cycle_data(ngears, cycle_df):
     Invoke this one if you want to draw the results.
     
     :param pd.DataFrame cycle_df: it must contain (at least) `N` and `V` columns (units: [rpm] and [km/h] respectively)
-    :return: a list of all :class:`Detekt` tuples sorted with the most probable ones at the the head,
+    :return: a list of all :class:`Detekt` tuples sorted with the most probable one at the the head,
                         needed.  Its 1st element is the solution
     """
     filtered_df     = _filter_cycle_and_derive_ratios(cycle_df)
@@ -239,7 +287,7 @@ def identify_gears_from_cycle_data(cycle_df, gear_ratios):
     :return: the same as :meth:`identify_gears_from_ratios()`
     """
     df = _filter_cycle_and_derive_ratios(cycle_df)
-    return identify_gears_from_ratios(df.R2, gear_ratios)
+    return identify_gears_from_ratios(df.VoverN, gear_ratios)
 
 
 def identify_gears_from_ratios(cycle_ratios, gear_ratios):
@@ -256,6 +304,19 @@ def identify_gears_from_ratios(cycle_ratios, gear_ratios):
     gears, distort = _norm1_1d_vq(cycle_ratios[nums], np.asarray(gear_ratios).flatten())
 
     return gears, distort
+
+def reconstruct_engine_speed(cycle_df, gear_ratios):
+    """
+    Adds
+    
+    :param ndarray gear_ratios: this list/ndarray of gear-ratios with len equal to the #gears
+    
+    TODO: Class-method
+    """
+    cycle_df['GEARS_detekted'] = identify_gears_from_ratios(cycle_df['VoverN'], gear_ratios) + 1
+    cycle_df['VoverN_reconstructed'] = cycle_df['V'] / cycle_df['VoverN'] 
+    cycle_df['N_reconstructed'] = cycle_df['V'] / cycle_df['VoverN'] 
+
 
 
 def plot_idgears_results(cycle_df, detekt, fig=None, axes=None):
@@ -296,7 +357,7 @@ def plot_idgears_results(cycle_df, detekt, fig=None, axes=None):
     
     ## Scatter-plot Ratios
     ##
-    R = cycle_df.R2
+    R = cycle_df.VoverN
     ax3.plot(R, 'g.', markersize=1)
     for r in detekt.all_peaks_df.ratio:
         plt.hlines(r, 0, R.shape[0], 'b', linestyle=':')

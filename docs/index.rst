@@ -8,6 +8,7 @@
     install
     usage
     contribute
+    annex-2
     metrics
     faq
     code

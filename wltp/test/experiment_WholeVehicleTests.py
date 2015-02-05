@@ -116,13 +116,14 @@ class ExperimentWholeVehs(unittest.TestCase):
         self._compare_exp_results(model['cycle_run'], 'unpower1', self.run_comparison)
 
 
+        model = goodVehicle()
         veh = model['vehicle']
         veh['test_mass']    =  1000
         veh['unladen_mass'] =  veh['test_mass'] - driver_weight
         veh['p_rated']      =  80
         veh['v_max']        =  120
         veh['gear_ratios']  = [120.5, 95, 72, 52]
-        del model['cycle_run']
+
 
         experiment = Experiment(model)
         model = experiment.run()
