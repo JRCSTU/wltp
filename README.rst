@@ -100,6 +100,12 @@ you can try the following commands:
 
         $ pip install wltp                      ## Use `--pre` if version-string has a build-suffix.
         $ wltp --winmenus                       ## Adds StartMenu-items, Windows only.
+    
+    Or in case you need the very latest from `master` branch :
+    
+    .. code-block:: bash
+
+        $ pip install git+git://github.com/ankostis/wltp.git@master --pre
 
     See: :doc:`install`
 
@@ -238,12 +244,22 @@ To cleanly uninstall it, run this command until you cannot find any project inst
 You can install the project directly from the |pypi|_ the "standard" way, 
 by typing the :command:`pip` in the console:
 
-.. code-block:: bash
+  .. code-block:: bash
 
-    $ pip install wltp                          ## Use `--pre` if version-string has a build-suffix.
+      $ pip install wltp
 
 - If you want to install a *pre-release* version (the version-string is not plain numbers, but 
   ends with ``alpha``, ``beta.2`` or something else), use additionally :option:`--pre`.
+
+.. code-block:: bash
+
+    $ pip install wltp
+
+- Also you can install the very latest version straight from the sources:
+
+  .. code-block:: bash
+
+      $ pip install git+git://github.com/ankostis/wltp.git  --pre
 
 - If you want to upgrade an existing instalation along with all its dependencies, 
   add also :option:`--upgrade` (or :option:`-U` equivalently), but then the build might take some 
@@ -278,17 +294,28 @@ of the GTR it implements.
 Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
 See the "GTR version matrix" section in :doc:`CHANGES` for the mapping of MAJOR-numbers to GTR versions.
 
-To install an older version issue the console command:
+To install an older released version issue the console command:
 
 .. code-block:: bash
 
     $ pip install wltp=1.1.1                    ## Use `--pre` if version-string has a build-suffix.
 
-If you have another version already installed, you have to use :option:`--ignore-installed` (or :option:`-I`).
-For using the specific version, check this (untested)
-`stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
+or alternatively straight from the sources:
 
-Of course it is better to install each version in a separate |virtualenv|_ and shy away from all this.
+  .. code-block:: bash
+
+      $ pip install git+git://github.com/ankostis/wltp.git@v0.0.9-alpha.3.1  --pre
+  
+Ofcourse you can substitute `v0.0.9-alpha.3.1` with any slug from "commits", "branches" or "releases" 
+that you will find on project's `github-repo <https://github.com/ankostis/wltp>`_).
+
+.. Note::
+    If you have another version already installed, you have to use :option:`--ignore-installed` (or :option:`-I`).
+    For using the specific version, check this (untested)
+    `stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
+
+    You can install each version in a separate |virtualenv|_ and shy away from all this.
+    Check 
 
 
 Installing from sources

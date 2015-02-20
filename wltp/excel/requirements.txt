@@ -1,0 +1,3 @@
+## Dependencies to import/update Excel-Workbook's VBA-code.
+xlwings
+easygui

@@ -6,6 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 from unittest.case import skipIf
+import tempfile
 '''Check xlwings excel functionality.
 '''
 
@@ -50,6 +51,20 @@ def close_workbook(wb):
 
 @skipIf(not ('darwin' in sys.platform or 'win32' in sys.platform), "Cannot test xlwings in Linux")
 class TestExcel(unittest.TestCase):
+
+    def test_build_excel(self):
+        from ..excel import xlutils 
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            wb_inp_fname    = from_my_path('..', 'excel', 'WltpExcelRunner.xlsm')
+            wb_out_fname    = from_my_path(tmpdir, 'WltpExcelRunner.xlsm')
+            vba_wildcard    = from_my_path('..', 'excel', '*.vba')
+            try:
+                wb = xlutils.import_files_into_excel_workbook(vba_wildcard, wb_inp_fname, wb_out_fname)
+            finally:
+                if wb:
+                    close_workbook(wb)
+
 
 
     def test_xlwings_smoketest(self):
