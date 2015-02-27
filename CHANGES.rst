@@ -44,6 +44,7 @@ Known deficiencies
 TODOs
 =====
 * Add cmd-line and UI front-ends.
+* Use a model-explorer to autocomplete excel-cells.
 * Automatically calculate masses from H & L vehicles, and regression-curves from categories.
 * wltp_db: Improve test-metrics with group-by classes/phases.
 * model: Enhance model-preprocessing by interleaving "octapus" merging stacked-models

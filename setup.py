@@ -160,11 +160,11 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     packages = ['wltp', 'wltp.cycles', 'wltp.test', 'wltp.excel'],
-#     package_data= {'proj_name': ['data/*.csv']},
     include_package_data = True,
-    package_data = {
-        'wltp.excel': ['*.xlsm', '*.ico'],
-    },
+#     package_data= {'proj_name': ['data/*.csv']},
+#    package_data = {
+#        'wltp.excel': ['*.xlsm', '*.ico'],
+#    },
     install_requires = [
         'six',
         'jsonschema>=2.4',

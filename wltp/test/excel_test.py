@@ -53,14 +53,14 @@ def close_workbook(wb):
 class TestExcel(unittest.TestCase):
 
     def test_build_excel(self):
-        from ..excel import xlutils 
+        from ..excel import xlsutils 
         
         with tempfile.TemporaryDirectory() as tmpdir:
             wb_inp_fname    = from_my_path('..', 'excel', 'WltpExcelRunner.xlsm')
             wb_out_fname    = from_my_path(tmpdir, 'WltpExcelRunner.xlsm')
             vba_wildcard    = from_my_path('..', 'excel', '*.vba')
             try:
-                wb = xlutils.import_files_into_excel_workbook(vba_wildcard, wb_inp_fname, wb_out_fname)
+                wb = xlsutils.import_files_into_excel_workbook(vba_wildcard, wb_inp_fname, wb_out_fname)
             finally:
                 if wb:
                     close_workbook(wb)
