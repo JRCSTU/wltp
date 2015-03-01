@@ -399,6 +399,15 @@ class Test(unittest.TestCase):
             pandel.set_jsonpointer(doc, path, value)
 
 
+    def test_build_all_jsonpaths(self):
+        from wltp import model
+        schema = model.get_model_schema(True, False)
+        paths = pandel.build_all_jsonpaths(schema)
+        print('\n'.join(paths))
+        self.assertIn('/params/wltc_data', paths)
+        self.assertIn('/params/wltc_data', paths) #TODO: build_all_paths support $ref 
+
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

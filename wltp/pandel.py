@@ -12,7 +12,7 @@ from __future__ import division, unicode_literals
 
 import abc
 from collections import Mapping, Sequence
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict, namedtuple, defaultdict
 import contextlib
 import numbers
 import re
@@ -22,6 +22,10 @@ import jsonschema
 from jsonschema.exceptions import SchemaError
 from pandas.core.generic import NDFrame
 from six import string_types
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 import numpy as np
 import pandas as pd
@@ -752,6 +756,7 @@ class Pandel(object):
         :return: a json schema, more loose when `prevalidation` for each case
         :rtype: dictionary
         """
+        ## TODO: Make it a factory o 
         pass
 
     def _rule_AdditionalProperties(self, validator, aP, required, instance, schema):
@@ -1072,6 +1077,28 @@ def set_jsonpointer(doc, jsonpointer, value, object_factory=dict):
 #            parent_doc[parent_part] = doc 
 #            doc[part] = value 
 
-        
+
+def build_all_jsonpaths(schema):
+    ## Totally quick an dirty, TODO: Use json-validator to build all json-paths.
+    forks = ['oneOf', 'anyOf', 'allOf']
+    def _visit(schema, path, paths):
+        for f in forks:
+            objlist = schema.get(f)
+            if objlist:
+                for obj in schema.get(f):
+                    _visit(obj, path, paths)
+
+        props = schema.get('properties')
+        if props:
+            for p, obj in props.items():
+                _visit(obj, path + '/' +p, paths)
+        else:
+            paths.append(path)
+    
+    paths = []
+    _visit(schema, '', paths)
+    
+    return paths
+
 if __name__ == '__main__':
     raise "Not runnable!"
