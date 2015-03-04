@@ -54,6 +54,63 @@ from scipy import signal
 from matplotlib import pyplot as plt
 
 
+def dequantize_unstabbleMean(df, method='linear'):
+    """
+    :param str method: see :method:`pd.DataFrame.interpolate()` that is used to fill-in column-values that are held constant
+    """
+    edges       = df.diff()
+    
+    df_1        = df.where(edges != 0)              ## Points after change.
+    df_0        = df.where((edges.shift(-1) != 0))  ## Points before change
+    
+    df_21       = 2 * (df_0.shift(1) + df_1) / 3    ## 2/3 * sum located after change
+    df_12       = df_21.shift(-1) / 2               ## 1/3 * sum located before change
+    df2         = df_21 + df_12
+    
+    df2.iloc[[0, -1], :] = df.iloc[[0, -1], :] ## Pin start-end values to originals.
+
+    df2.interpolate(method=method, inplace=True)
+
+    return df2
+
+
+def dequantize(df, method='linear'):
+    """
+    Tries to undo results of a non-constant sampling rate (ie due to undeterministic buffering).
+    
+    :param str method: see :method:`pd.DataFrame.interpolate()` that is used to fill-in column-values that are held constant
+    
+    .. Note::
+        The results wil never have a flat section, so checking for some value (ie 0) 
+        must always apply for some margin (ie (-e-4, e-4).
+    """
+    df1 = df.where(df.diff() != 0)
+    df1.iloc[[0, -1], :] = df.iloc[[0, -1], :] ## Pin start-end values to originals.
+
+    df1.interpolate(method=method, inplace=True)
+
+    return df1
+
+
+def identify_n_idle(N):
+    ## Estimate n_idel as the peak-N on the lower-half.
+    #
+    N = N[N < N.median()]
+    peaks, _, _ = find_histogram_peaks(N, math.sqrt(len(N)))
+    
+    n_idle_0 = peaks.iloc[0, -1]
+    #print(n_idle_0)
+    
+    ## Rebin-smoothly around 1-stdev of estimated n_idle,
+    #    to increase accuracy.
+    #
+    jog = N.std() / 2
+    N = N[(n_idle_0 - jog < N) & (N < n_idle_0 + jog)]
+    peaks, _, _ = find_histogram_peaks(N, math.sqrt(len(N)), 3)
+     
+    return peaks.iloc[0, -1]
+
+
 def _outliers_filter_df2(df, cols):
     for col in cols:
         mean = df[col].median()
@@ -76,14 +133,17 @@ def _outliers_filter_df(df, cols):
     
     return ft.reduce((filter_col(col) for col in cols), np.bitwise_and)
 
-def _transient_filter_df(df, col, std_threshold=0.5):
+def _transient_filter_df(df, col, std_threshold=0.2):
     grad = np.gradient(df[col])
-    df1 = df[np.abs(grad) < (std_threshold * grad.std())]
+    thres = std_threshold * grad.std()
+    df1 = df.ix[(grad.mean() - thres < grad) & (grad < grad.mean() + thres), :]
     
     return df1
 
-def _n_idle_filter_df(df, col, std_threshold=0.5):
-    df1 = df
+def _n_idle_filter_df(df, col, n_idle_threshold=1.05):
+    n_idle = identify_n_idle(df[col])
+    
+    df1 = df[df[col] > n_idle_threshold * n_idle]
     
     return df1
     
@@ -92,11 +152,35 @@ def _filter_cycle_and_derive_ratios(df, filter_outliers=None, filter_transient=T
     df['VoverN'] = (df.V / df.N) # Work with VoverN because evenly spaced (not log), and 0 < VoverN < 1
     df0 = df[(df.V > 2) & (df.VoverN > 0)]
     df1 = _n_idle_filter_df(df0, 'N')
-    df2 = _transient_filter_df(df1, 'N')
+    df2 = _transient_filter_df(df1, 'VoverN')
 #     valids = _outliers_filter_df(df2, ['VoverN']) if filter_outliers else df2 # PROBLEMATIC!!
 #     df3 = df2[valids]
 
     return df2
+
+
+def moving_average(x, window):
+    """
+    :param int window: odd windows preserve phase
+    
+    From http://nbviewer.ipython.org/github/demotu/BMC/blob/master/notebooks/DataFiltering.ipynb
+    """
+    return np.convolve(x, np.ones(window)/window, 'same')
+
+
+def find_histogram_peaks(df, bins, smooth_window=None):
+    h_points, bin_edges = np.histogram(df, bins=bins, density=True)
+    h_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    if smooth_window:
+        h_points = moving_average(h_points, smooth_window)
+    peak_bins = signal.argrelmax(h_points, mode='clip')
+    peak_bins = peak_bins[0]
+
+    peaks = pd.DataFrame({'bin': peak_bins, 'value': h_centers[peak_bins], 'population': h_points[peak_bins]})
+    peaks = peaks.sort(['population'], ascending=False)
+
+    return peaks, h_centers, h_points
 
 
 def _approximate_ratios_by_binning(ratios, bins, ngears):
@@ -106,35 +190,23 @@ def _approximate_ratios_by_binning(ratios, bins, ngears):
                 2. the first #gears peaks 
                 3. the first #gears peaks detected by binning the space between the previous #gears identified  
     """
-    def find_peaks(df):
-        h_points , bin_edges = np.histogram(df, bins=bins, density=True)
-        h_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-        peak_bins = signal.argrelmax(h_points, mode='clip')
-        peak_bins = peak_bins[0]
-
-        peaks = pd.DataFrame({'bin': peak_bins, 'ratio': h_centers[peak_bins], 'population': h_points[peak_bins]})
-        peaks = peaks.sort(['population'], ascending=False)
-
-        return peaks, h_points, h_centers
-
-    peaks0, _, _ = find_peaks(ratios)
+    peaks0, _, _ = find_histogram_peaks(ratios, bins)
     #display(peaks0)
     
-    peaks1 = peaks0[:ngears].sort(['ratio'], ascending=True) ## Keep #<gears> of most-populated bins.
+    peaks1 = peaks0[:ngears].sort(['value'], ascending=True) ## Keep #<gears> of most-populated bins.
     #display(peaks1)
     
     ## Re-bin with narrower X-to-bin.
     #
-    r_min = peaks1['ratio'].min()
-    r_max = peaks1['ratio'].max()
+    r_min = peaks1['value'].min()
+    r_max = peaks1['value'].max()
     gear_distance = (r_max - r_min) / ngears
     r_min -= gear_distance
     r_max += gear_distance
-    peaks2, h_points, h_centers = find_peaks(ratios[(ratios >= r_min) & (ratios <= r_max)])
+    peaks2, h_centers, h_points = find_histogram_peaks(ratios[(ratios >= r_min) & (ratios <= r_max)], bins)
     #display(peaks2)
     
-    peaks3 = peaks2[:ngears].sort(['ratio'], ascending=True) ## Keep #<gears> of most-populated bins.
+    peaks3 = peaks2[:ngears].sort(['value'], ascending=True) ## Keep #<gears> of most-populated bins.
     #display(peaks3)
 
     return peaks0, peaks1, peaks3, h_points, h_centers
@@ -225,8 +297,8 @@ def _gather_guessed_Detekts(ngears, cycle_df):
     for bins in bins_cases:
         all_peaks_df, peaks_df1, peaks_df2, hist_X, hist_Y = _approximate_ratios_by_binning(cycle_df.VoverN, bins=bins, ngears=ngears)
     
-        _append_aproximate_Detekt(ngears, guessed_detekts, peaks_df1.ratio.values, all_peaks_df, hist_X, hist_Y)
-        _append_aproximate_Detekt(ngears, guessed_detekts, peaks_df2.ratio.values, all_peaks_df, hist_X, hist_Y)
+        _append_aproximate_Detekt(ngears, guessed_detekts, peaks_df1.value.values, all_peaks_df, hist_X, hist_Y)
+        _append_aproximate_Detekt(ngears, guessed_detekts, peaks_df2.value.values, all_peaks_df, hist_X, hist_Y)
         
     ## Add linspace for the complete ratio-range 
     #    using the 1st Detekt as template.
@@ -319,52 +391,61 @@ def reconstruct_engine_speed(cycle_df, gear_ratios):
 
 
 
-def plot_idgears_results(cycle_df, detekt, fig=None, axes=None):
+def plot_idgears_results(cycle_df, detekt, fig=None, axes=None, original_points=None):
     """
     :param detekt: A Detekt-namedtuple with the data to plot
     """
     if not fig:
-        fig = plt.figure(figsize=(18,5))
+        fig = plt.figure(figsize=(18,10))
         fig.suptitle('Detekt: %s, Accuracy: %s (wltp-good: ~< 1e-3)'%(detekt.final, detekt.distort))
     
     if axes:
         ax1, ax2, ax3 = axes
     else:
-        ax1 = plt.subplot(1,3,1)
-        ax2 = plt.subplot(1,3,2)
-        ax3 = plt.subplot(1,3,3)
+        ax1 = plt.subplot(2,2,1)
+        ax2 = plt.subplot(2,2,2)
+        ax3 = plt.subplot(2,1,2)
+        ax31 = ax3.twinx()
+        ax32 = ax31.twinx()
 
     peaks_stv = (1/detekt.guess)
     kmeans_stv = (1/detekt.final)
 
     ## Plot engine-points
     ##
-    ax1.plot(cycle_df.V, cycle_df.N, 'g+', markersize=4)
+    if not original_points is None:
+        ax1.plot(original_points.V, original_points.N, 'k.', markersize=1)
+    ax1.plot(cycle_df.V, cycle_df.N, 'g+', markersize=5)
     for r in peaks_stv:
-        ax1.plot([0, cycle_df.V.max()], [0, cycle_df.V.max()*r], 'b-', alpha=0.5)
+        ax1.plot([0, cycle_df.V.max()], [0, cycle_df.V.max()*r], 'c-', alpha=0.5)
     for r in kmeans_stv:
         ax1.plot([0, cycle_df.V.max()], [0, cycle_df.V.max()*r], 'r-', alpha=0.5)
-    plt.ylim(0, cycle_df.N.median() + 2*cycle_df.N.mad())
-    plt.xlim(cycle_df.V.median() - 2*cycle_df.V.mad(), cycle_df.V.median() + 2*cycle_df.V.mad())
+    ax1.set_ylim(0, cycle_df.N.median() + 2*cycle_df.N.mad())
+    ax1.set_xlim(cycle_df.V.median() - 2*cycle_df.V.mad(), cycle_df.V.median() + 2*cycle_df.V.mad())
     
     
     ## Plot ratios's Histogram
     #
     ax2.plot(detekt.hist_Y, detekt.hist_X)
-    ax2.plot(detekt.all_peaks_df.ratio, detekt.all_peaks_df.population, 'ob', markersize=8, fillstyle='none')
-    #ax2.plot(peaks_df.ratio, peaks_df.population, 'ob', markersize=8, fillstyle='full') ## Annotate top-#detekt
+    ax2.plot(detekt.all_peaks_df.value, detekt.all_peaks_df.population, 'ob', markersize=8, fillstyle='none')
+    #ax2.plot(peaks_df.value, peaks_df.population, 'ob', markersize=8, fillstyle='full') ## Annotate top-#detekt
     # plt.hlines(detekt.all_peaks_df.population.mean() - detekt.all_peaks_df.population.mad(), 0, detekt.hist_Y.max(), 'g', linestyle='-')
     
     ## Scatter-plot Ratios
     ##
     R = cycle_df.VoverN
-    ax3.plot(R, 'g.', markersize=1)
-    for r in detekt.all_peaks_df.ratio:
-        plt.hlines(r, 0, R.shape[0], 'b', linestyle=':')
+#     ax31.plot(cycle_df.N, 'm-', lw=0.5, markersize=2)
+    ax31.plot(cycle_df.V, 'b-', lw=0.5, markersize=2)
+    ax3.plot(R, 'g.-', lw=0.5, markersize=2)
+    if not original_points is None:
+        ax3.plot(original_points.V / original_points.N, 'k.', markersize=1)
+    for r in detekt.all_peaks_df.value:
+        plt.hlines(r, 0, R.shape[0], 'c', linestyle=':')
     for r in detekt.final:
-        plt.hlines(r, 0, R.shape[0], 'b', linestyle='-.')
+        plt.hlines(r, 0, R.shape[0], 'c', linestyle='-.')
     for r in detekt.final:
         plt.hlines(r, 0, R.shape[0], 'r', linestyle='--')
     plt.ylim(R.min(), R.max())
     plt.xlim(0, R.shape[0])
+
 

@@ -42,6 +42,30 @@ file_results = [                                                                
 
 class IdgearsTest(unittest.TestCase):
 
+    def test_dequantize(self):
+        df = pd.DataFrame([
+                           [1,3],
+                           [1,3],
+                           [2,3],
+                           [2,4],
+                           [2,4],
+                           ])
+        ddf = idg.dequantize(df)
+        exp = pd.DataFrame([
+                           [1,      3],
+                           [1.5,    3.333],
+                           [2,      3.666],
+                           [2,      4],
+                           [2,      4],
+                           ])
+        npt.assert_almost_equal(ddf.values, exp.values, 3)
+
+
+    def test_dequantize_mean_is_stable(self):
+        df = pd.DataFrame(np.random.randn(100).cumsum())
+        ddf = idg.dequantize(df)
+        self.assertAlmostEqual(df.values.mean(), ddf.values.mean())
+
 
     def test_detect_gear_ratios_from_cycle_data(self):
         for start_col_index, result in zip(range(0, 7, 2), file_results):

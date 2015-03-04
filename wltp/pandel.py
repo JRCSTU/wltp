@@ -37,6 +37,36 @@ except ImportError:
     from urlparse import urljoin
 
 
+_value_with_units_regex = re.compile(r'''^\s*
+                                        (?P<name>[^([]+?)   # column-name
+                                        \s*
+                                        (?P<units>          # start parenthesized-units optional-group
+                                            \[              # units enclosed in []
+                                                [^\]]*
+                                            \]
+                                            |
+                                            \(              # units enclosed in ()
+                                                [^)]*
+                                            \)
+                                        )?                  # end parenthesized-units
+                                        \s*$''', re.X)
+_units_cleaner_regex = re.compile(r'^[[(]|[\])]$')
+
+def parse_value_with_units(arg):
+    """
+    Something like `value [units]` or `foo (bar/krow).
+    
+    :return: dict(name, units) or None if unparseable as column-suntax
+    """
+
+    m = _value_with_units_regex.match(arg)
+    res = m.groupdict()
+    units = res['units']
+    if units:
+        res['units'] = _units_cleaner_regex.sub('', units)
+    return res
+
+
 
 class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
     """

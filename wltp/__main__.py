@@ -22,10 +22,8 @@ import ast
 from distutils.spawn import find_executable
 import json
 from textwrap import dedent
-from wltp import model, pandel, tkui, utils
-from . import __version__ as prog_ver
-from wltp.pandel import JsonPointerException
-
+from . import model, pandel, tkui, utils, __version__ as prog_ver
+from .pandel import JsonPointerException,column_specifier_regex
 from pandas.core.generic import NDFrame
 import six
 
@@ -396,32 +394,14 @@ def parse_key_value_pair(arg):
         raise argparse.ArgumentTypeError("Not a KEY=VALUE syntax: %s"%arg)
 
 
-_column_specifier_regex = re.compile(r'''^\s*
-                                        (?P<name>[^([]+?)   # column-name
-                                        \s*
-                                        (?P<units>          # start parenthesized-units optional-group
-                                            \[              # units enclosed in []
-                                                [^\]]*
-                                            \]
-                                            |
-                                            \(              # units enclosed in ()
-                                                [^)]*
-                                            \)
-                                        )?                  # end parenthesized-units
-                                        \s*$''', re.X)
-_units_cleaner_regex = re.compile(r'^[[(]|[\])]$')
 def parse_column_specifier(arg):
     """Argument-type for --icolumns, syntaxed like: COL_NAME [(UNITS)]."""
 
-    m = _column_specifier_regex.match(arg)
-    if m:
-        res = m.groupdict()
-        units = res['units']
-        if units:
-            res['units'] = _units_cleaner_regex.sub('', units)
+    res = pandel.parse_value_with_units(arg)
+    if res:
         return res
-    else:
-        raise argparse.ArgumentTypeError("Not a COLUMN_SPEC syntax: %s"%arg)
+    
+    raise argparse.ArgumentTypeError("Not a COLUMN_SPEC syntax: %s"%arg)
 
 
 def validate_file_opts(opts):
