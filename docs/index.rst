@@ -1,5 +1,5 @@
 .. include:: ../README.rst
-    :end-before: _begin-intro:
+    :end-before: _end-opening:
 
 .. toctree::
     :numbered:

@@ -32,8 +32,9 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
       (automatically comparared with a pre-determined set of vehicles from Heinz-db on each build)
       Currently, mean rpm differ from Heinz-db < 0.5% and gears diff < 5% for a 1800-step class-3 cycle.
 
-
-
+.. _end-opening:
+.. contents:: Table of Contents
+  :backlinks: top
 .. _begin-intro:
 
 Introduction
@@ -49,19 +50,19 @@ and any warnings.  It does not calculate any |CO2| emissions.
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
                .---------------------.                         .----------------------------.
-              ;     Input-Model     ;                         ;        Output-Model        ;
+              ;   Input-DataModel   ;                         ;      Output-DataModel       ;
              ;---------------------;                         ;----------------------------;
             ; +--vehicle          ;     ____________        ; +---...                    ;
            ;  +--params          ;     |            |      ;  +--cycle_run:             ;
-          ;       +--wltc_data  ;  ==> | Experiment | ==> ;      t  v_class gear ...   ;
-         ;                     ;       |____________|    ;      --------------------  ;
-        ;                     ;                         ;       00      0.0    1     ;
+          ;       +--wltc_data  ;  ==> |   Cycle    | ==> ;      t  v_class gear ...   ;
+         ;                     ;       | Generator  |    ;      --------------------  ;
+        ;                     ;        |____________|   ;       00      0.0    1     ;
        ;                     ;                         ;        01      1.3    1    ;
       ;                     ;                         ;         02      5.5    1   ;
      ;                     ;                         ;          ...               ;
     '---------------------'                         '----------------------------.
 
-The *Input & Output Data* are instances of :dfn:`pandas-model`, trees of strings and numbers, assembled with:
+The *Input & Output DataModels* are instances of :dfn:`pandas-model`, trees of strings and numbers, assembled with:
 
 - sequences,
 - dictionaries,
@@ -190,36 +191,32 @@ Below is a matrix of the two suggested self-wrapped python distributions for run
 +-----------------+-------------------------------------------+-------------------------------------------+
 | *Ease of*       | Fair                                      | - *Anaconda:* Easy                        |
 |                 |                                           | - *MiniConda:* Moderate                   |
-|                 | (requires fiddling with the               |                                           |
-|                 | envvar `PATH`                             |                                           |
-| *Installation*  |                                           |                                           |
-|                 | and the Registry after install)           |                                           |
+|                 | Currently (March-2015) it                 |                                           |
+|                 | requires fiddling with the                |                                           |
+| *Installation*  | :envvar:`PATH` after install.             |                                           |
+|                 |                                           |                                           |
 |                 |                                           |                                           |
 +-----------------+-------------------------------------------+-------------------------------------------+
 | *Ease of Use*   | Easy                                      | Moderate                                  |
 |                 |                                           |                                           |
-|                 |                                           | (should use command `conda` and/or        |
-|                 |                                           | command `pip`                             |
-|                 |                                           |                                           |
+|                 |                                           | Should use :command:`conda` and/or        |
+|                 |                                           | :command:`pip`                            |
 |                 |                                           | depending on whether a package            |
-|                 |                                           |                                           |
 |                 |                                           | contains native libraries                 |
 |                 |                                           |                                           |
 +-----------------+-------------------------------------------+-------------------------------------------+
-| *# of Packages* | Only what's included                      | Many 3rd-party packages                   |
+| *# of Packages* | Only what's included in the               | Many 3rd-party packages                   |
+|                 | downloaded-archive                        | uploaded by users                         |
 |                 |                                           |                                           |
-|                 | in the downloaded-archive                 | uploaded by users                         |
 |                 |                                           |                                           |
 +-----------------+-------------------------------------------+-------------------------------------------+
 | *Notes*         | After installation, see `faq` for:        | - Check also the lighter `miniconda       |
 |                 |                                           |   <http://conda.pydata.org/               |
 |                 | - Registering WinPython installation      |   miniconda.html>`_.                      |
 |                 | - Adding your installation in             | - For installing native-dependencies      |
-|                 |   envvar `PATH`                           |                                           |
-|                 |                                           |   with command `conda` see files:         |
-|                 |                                           |                                           |
-|                 |                                           |   - file `requirements/miniconda.txt`     |
-|                 |                                           |   - file `.travis.yaml`                   |
+|                 |   :envvar:`PATH`                          |   with :command:`conda` see files:        |
+|                 |                                           |   - :file:`requirements/miniconda.txt`    |
+|                 |                                           |   - :file:`.travis.yaml`                  |
 |                 |                                           |                                           |
 +-----------------+-------------------------------------------+-------------------------------------------+
 |                 | Check also installation instructions from `the  pandas site                           |
@@ -302,9 +299,9 @@ To install an older released version issue the console command:
 
 or alternatively straight from the sources:
 
-  .. code-block:: bash
+.. code-block:: bash
 
-      $ pip install git+git://github.com/ankostis/wltp.git@v0.0.9-alpha.3.1  --pre
+    $ pip install git+git://github.com/ankostis/wltp.git@v0.0.9-alpha.3.1  --pre
   
 Ofcourse you can substitute `v0.0.9-alpha.3.1` with any slug from "commits", "branches" or "releases" 
 that you will find on project's `github-repo <https://github.com/ankostis/wltp>`_).
@@ -810,25 +807,24 @@ The typical development procedure is like this:
 3. Rerun all test-cases to ensure that you didn't break anything,
    and check their *coverage* remain above 80%:
 
-    .. code-block:: console
+   .. code-block:: console
 
         $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
 
 
-    .. Tip:: You can enter just: ``python setup.py test_all`` instead of the above cmd-line
-        since it has been *aliased* in the :file:`setup.cfg` file.
-        Check this file for more example commands to use during development.
+   .. Tip:: You can enter just: ``python setup.py test_all`` instead of the above cmd-line
+       since it has been *aliased* in the :file:`setup.cfg` file.
+       Check this file for more example commands to use during development.
 
 
 4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
    other documents (i.e. README.rst).  To see the rendered results of the documents,
    issue the following commands and read the result html at :file:`build/sphinx/html/index.html`:
 
-    .. code-block:: console
+   .. code-block:: console
 
         $ python setup.py build_sphinx                  # Builds html docs
         $ python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
-
 
 5. If there are no problems, commit your changes with a descriptive message.
 
@@ -837,7 +833,7 @@ The typical development procedure is like this:
    You can check whether your merge-request indeed passed the tests by checking
    its build-status |build-status| on the integration-server's site (TravisCI).
 
-    .. Hint:: Skim through the small IPython developer's documentantion on the matter:
+   .. Hint:: Skim through the small IPython developer's documentantion on the matter:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
 

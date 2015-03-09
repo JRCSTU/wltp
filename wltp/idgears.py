@@ -76,7 +76,7 @@ def dequantize_unstabbleMean(df, method='linear'):
 
 def dequantize(df, method='linear'):
     """
-    Tries to undo results of a non-constant sampling rate (ie due to undeterministic buffering).
+    Tries to undo results of a non-constant sampling rate (ie due to indeterministic buffering).
     
     :param str method: see :method:`pd.DataFrame.interpolate()` that is used to fill-in column-values that are held constant
     
@@ -85,7 +85,7 @@ def dequantize(df, method='linear'):
         must always apply for some margin (ie (-e-4, e-4).
     """
     df1 = df.where(df.diff() != 0)
-    df1.iloc[[0, -1], :] = df.iloc[[0, -1], :] ## Pin start-end values to originals.
+    df1.iloc[[0, -1]] = df.iloc[[0, -1]] ## Pin start-end values to originals.
 
     df1.interpolate(method=method, inplace=True)
 
@@ -105,7 +105,7 @@ def identify_n_idle(N):
     #    to increase accuracy.
     #
     jog = N.std() / 2
-    N = N[(n_idle_0 - jog < N) & (N < n_idle_0 + jog)]
+    N = N[(N > (n_idle_0 - jog)) & (N < (n_idle_0 + jog))]
     peaks, _, _ = find_histogram_peaks(N, math.sqrt(len(N)), 3)
      
     return peaks.iloc[0, -1]
@@ -133,10 +133,16 @@ def _outliers_filter_df(df, cols):
     
     return ft.reduce((filter_col(col) for col in cols), np.bitwise_and)
 
-def _transient_filter_df(df, col, std_threshold=0.2):
+def _transient_filter_df(df, col, std_threshold=0.2, apply_dequantize=True):
+    if apply_dequantize:
+        df[col] = dequantize(df[col])
     grad = np.gradient(df[col])
-    thres = std_threshold * grad.std()
-    df1 = df.ix[(grad.mean() - thres < grad) & (grad < grad.mean() + thres), :]
+    grad_mean, grad_std = grad.mean(), grad.std()
+    thres = (
+        grad_mean - std_threshold * grad_std, 
+        grad_mean + std_threshold * grad_std
+    )
+    df1 = df.ix[(thres[0] < grad) & (grad < thres[1]), :]
     
     return df1
 
@@ -413,9 +419,9 @@ def plot_idgears_results(cycle_df, detekt, fig=None, axes=None, original_points=
 
     ## Plot engine-points
     ##
+    ax1.plot(cycle_df.V, cycle_df.N, 'g+', markersize=5)
     if not original_points is None:
         ax1.plot(original_points.V, original_points.N, 'k.', markersize=1)
-    ax1.plot(cycle_df.V, cycle_df.N, 'g+', markersize=5)
     for r in peaks_stv:
         ax1.plot([0, cycle_df.V.max()], [0, cycle_df.V.max()*r], 'c-', alpha=0.5)
     for r in kmeans_stv:
