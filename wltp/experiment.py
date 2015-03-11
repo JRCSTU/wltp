@@ -132,6 +132,8 @@ class Experiment(object):
         v_max               = vehicle['v_max']
         gear_ratios         = vehicle['gear_ratios']
         res_coeffs          = vehicle.get('resistance_coeffs')
+        p_m_ratio           = (1000 * p_rated / unladen_mass)
+        vehicle['pmr']      = p_m_ratio
         if res_coeffs:
             (f0, f1, f2)        = res_coeffs
         else:
@@ -159,9 +161,6 @@ class Experiment(object):
             #
             wltc_class = vehicle.get('wltc_class')
             if wltc_class is None:
-                p_m_ratio               = (1000 * p_rated / unladen_mass)
-                vehicle['pmr']          = p_m_ratio
-
                 wltc_class              = decideClass(self.wltc, p_m_ratio, v_max)
                 vehicle['wltc_class']   = wltc_class
             else:
@@ -184,7 +183,10 @@ class Experiment(object):
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial          = params.get('f_inertial', 1.1)
-        P_REQ               = calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial)
+        accmargin_params  = params.get('accmargin_params', None)
+        P_REQ               = calcPower_required(V, A, SLOPE, test_mass, 
+                                                f0, f1, f2, f_inertial, 
+                                                p_m_ratio, accmargin_params)
 
         if (not is_velocity_forced):
             ## Downscale velocity-profile.
@@ -501,34 +503,102 @@ def possibleGears_byEngineRevs(V, A, _N_GEARS,
     return (_GEARS_YES, CLUTCH)
 
 
-def calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial):
-    '''
+def calc_accmargin_a0(V, f_accmargin_v0_vmax_ratio, f_accmargin_a0_poly_coeffs, p_m_ratio):
+    """
+    :param pm_ratio: poly-evaluated as kW/kg
+    :param list poly_coeffs: dimensionless (1st element, highest poly-power)
+    :return: m/s^2
+    """
+    v0 = V.max() * f_accmargin_v0_vmax_ratio
+    a0 = np.polyval(f_accmargin_a0_poly_coeffs, p_m_ratio / 1000.0) ## kW/kg
+    
+    return v0, a0
 
+def calc_accmargin_p0(v0, a0, mass, f0, f1, f2, f_inertial):
+    """
+    :param np.array V: km/h
+    :return: P(V) in W
+    """
+
+    p0 = (
+            f0 + 
+            f1 * v0 + 
+            f2 * v0 * v0 + 
+            a0 * f_inertial * mass
+        ) * v0/3.6 ## kmh-->m/s
+    
+    return p0 
+
+def calc_accmargin_P(V, f0, f1, f2, p0):
+    """
+    :param np.array V: km/h
+    """
+    #A_req = (
+    #            f0*(v0-V) + 
+    #            f1*(v0**2-V**2) + 
+    #            f2*(v0**3-V**3) + 
+    #            a0*kr*mass*v0
+    #        ) / (kr * mass * V)  ## Originally: (mass * V) 
+    
+    P_req = p0 - (
+                f0 + 
+                f1 * V + 
+                f2 * V * V
+            ) * V/3.6
+    
+    return P_req
+
+def calcPower_required_accmargin(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial, p_m_ratio, accmargin_params):
+    v0_vmax_ratio   = accmargin_params.get('v0_vmax_ratio', 1.0/6)
+    a0_poly_coeffs  = accmargin_params.get('a0_poly_coeffs', [40, 20, 0.4])
+    v0, a0          = calc_accmargin_a0(V, p_m_ratio, v0_vmax_ratio, a0_poly_coeffs)
+    p0              = calc_accmargin_p0(v0, a0, test_mass, f0, f1, f2, f_inertial)
+    P_req_accmargin = calc_accmargin_P(V, f0, f1, f2, p0)
+    
+    return P_req_accmargin
+
+
+def calcPower_required_cycle(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial):
+    '''
+    :param V: km/h
+    :param A: m/sec
+    :return: P(V) in kW
+    
     @see: Annex 2-3.1, p 71
     '''
 
     gee = 9.81
 
-    VV      = V * V
-    VVV     = VV * V
-    assert  V.shape == VV.shape == VVV.shape == A.shape, _shapes(V, VV, VVV, A)
+    assert  V.shape == A.shape, _shapes(V, A)
 
     if SLOPE is None:
-        P_REQ   = (
-            f0 * V + f1 * VV + f2 * VVV +
-            f_inertial * A * V * test_mass
-        ) / 3600.0
+        SLOPE = 0
     else:
         assert  V.shape == SLOPE.shape, _shapes(V, SLOPE)
-        P_REQ   = (
-            f0 * V * np.cos(SLOPE) + f1 * VV + f2 * VVV +
-            f_inertial * A * V * test_mass +
-            test_mass * np.sin(SLOPE) * gee * V
-        ) / 3600.0
-    assert  V.shape == P_REQ.shape, _shapes(V, P_REQ)
 
-    return P_REQ
+    P_REQ   = (
+        f0 * np.cos(SLOPE) + 
+        f1 * V + 
+        f2 * V * V +
+        f_inertial * A * test_mass +
+        np.sin(SLOPE) * test_mass * gee 
+    ) * V/3.6 ## m/s
 
+    return P_REQ/1000.0 # W-->kW
+
+
+def calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial, p_m_ratio, accmargin_params):
+    P_req_cycle = calcPower_required_cycle(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial)
+    
+    if accmargin_params:
+        P_req_accmargin = calcPower_required_accmargin(V, A, SLOPE, test_mass, f0, f1, f2, 
+                                                       f_inertial, p_m_ratio, accmargin_params)
+        
+        P_req = np.max(np.concatenate((P_req_cycle, P_req_accmargin), axis=1), axis=1) 
+    else:
+        P_req = P_req_cycle
+
+    return P_req
 
 
 def calcPower_available(_N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_margin):

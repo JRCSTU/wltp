@@ -29,7 +29,7 @@ class TestForcedCycle(unittest.TestCase):
     def test_badCycle(self):
         mdl = goodVehicle()
 
-        mdl['params'] = params = {}
+        mdl['params'] = {}
         mdl['cycle_run'] = 1
 
         with assertRaisesRegex(self, PandasError, 'DataFrame constructor not properly called'):

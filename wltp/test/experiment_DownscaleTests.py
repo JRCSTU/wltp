@@ -10,7 +10,8 @@ from __future__ import division, print_function, unicode_literals
 
 import logging
 import unittest
-from wltp.experiment import (decideClass, calcPower_required, calcDownscaleFactor, downscaleCycle)
+from wltp.experiment import (decideClass, calcPower_required, calcDownscaleFactor, downscaleCycle,
+    calcPower_required_cycle)
 
 import numpy as np
 
@@ -46,7 +47,7 @@ class ExperimentDownscale(unittest.TestCase):
         A       = np.diff(cycle)
         A       = np.append(A, 0) # Restore element lost by diff().
         A       = A / 3.6
-        P_REQ   = calcPower_required(cycle, A, None, mass, f0, f1, f2, f_inertial)
+        P_REQ   = calcPower_required_cycle(cycle, A, None, mass, f0, f1, f2, f_inertial)
 
         f_downscale_threshold = 0.01
         dsc_data            = class_data['downscale']

@@ -414,9 +414,33 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                             A 2-value number-array(f1, f2) controlling when to clutch gear-2::
                                 N < n_clutch_gear2 := max(f1 * n_idle, f2 * n_range + n_idle),
                             unless "clutched"...
-                        """),
+                            """),
                         'type': [ 'array', 'null'],
                         'default': [1.15, 0.03],
+                    },
+                    'accmargin_params': {
+                        'description': 'An optional dictionary with parameters for `P_required_acceleration_margin`.',
+                        'type': 'object', 'additionalProperties': additional_properties,
+                        #'required': [
+                        #    #'v0_vmax_ratio',
+                        #    #'a0_poly_coeffs',
+                        #],
+                        'properties': {
+                            'v0_vmax_ratio' :{
+                                'description': 'The ``max(V_cycle)`` gets divide by this to derive the `v0` for the `a0`.',
+                                '$ref': '#/definitions/positiveNumbers', 
+                                'default': 1.0/6,
+                            },
+                            'a0_poly_coeffs' : {
+                                'description': dedent("""
+                                    Polynomial-coefficients deriving `a0` from `p_m_ratio`; 
+                                    the 1st element, is the highest power.
+                                    """
+                                ),
+                                '$ref': '#/definitions/numbers', 
+                                'default': [40, 20, 0.4],
+                            },
+                        },
                     },
                     'f_downscale': {
                         'description': 'The downscaling-factor as calculated by the experiment (Annex 1-7.3, p68).',
@@ -445,6 +469,10 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
             'positiveNumbers': {
                 'type': 'array',
                'items': { '$ref': '#/definitions/positiveNumber' },
+            },
+            'numbers': {
+                'type': 'array',
+               'items': { 'type': 'number' },
             },
         }
     }
