@@ -742,7 +742,10 @@ def yield_load_curve_errors(mdl):
 
 def yield_gear_n_mins_errors(mdl):
     vehicle = mdl['vehicle']
-    ngears = len(vehicle['gear_n_mins'])
+    ngears_min = vehicle.get('gear_n_mins', None)
+    if ngears_min is None:
+        return
+    ngears = len(ngears_min)
     try:
         if len(vehicle['gear_ratios']) != ngears:
             yield ValidationError("Length mismatch of gear_ratios(%i) != gear_n_mins"% (len(vehicle['gear_ratios']), ngears))
