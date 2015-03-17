@@ -215,12 +215,14 @@ class Experiment(object):
         #    and (optionally) gearshifts.
         #
         load_curve                  = vehicle['full_load_curve']
+        p_avail_cold_reduce         = vehicle.get('p_avail_cold_reduce', None)
         (GEARS_ORIG, CLUTCH,
             _GEAR_RATIOS, _N_GEARS,
             _P_AVAILS, _N_NORMS,
             driveability_issues)    = run_cycle(V, A, P_REQ, gear_ratios,
                                                n_idle, n_min_drive, n_rated,
-                                               p_rated, load_curve, params)
+                                               p_rated, load_curve, p_avail_cold_reduce, 
+                                               params)
         results['clutch']       = CLUTCH    # TODO: Allow overridde clutch, etc.
         if ('gears_orig' in results):
             forced_gears = results['gears_orig'].values
@@ -600,32 +602,47 @@ def calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial, p_m_ratio
 
     return P_req
 
+def calcPower_available_power_margins(t, gear_safety_margins, p_avail_cold_reduce):
+    ##HACK
+    safety_margins  = np.tile(gear_safety_margins, (len(t), 1))
+    if not p_avail_cold_reduce is None:
+        ##HACK
+        cm              = p_avail_cold_reduce['f_cold_margin']
+        hr              = p_avail_cold_reduce['f_heating_rate']
+        p_t_redux       = cm * np.exp(-hr * t)
+        safety_margins  = safety_margins - p_t_redux[None, :].T 
+    
+    safety_margins  = safety_margins.T ## TODO: Transpose GEARS
+    return safety_margins
 
-def calcPower_available(_N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_margin):
+def calcPower_available(_N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_margin, p_avail_cold_reduce):
     '''
 
     @see: Annex 2-3.2, p 72
     '''
 
-    _N_NORMS         = (_N_GEARS - n_idle) / (n_rated - n_idle)
-    _P_WOTS          = np.interp(_N_NORMS, load_curve['n_norm'], load_curve['p_norm']) # When outside of load_curve, accept max-min gear.
+    _N_NORMS        = (_N_GEARS - n_idle) / (n_rated - n_idle)
+    _P_WOTS         = np.interp(_N_NORMS, load_curve['n_norm'], load_curve['p_norm']) # When outside of load_curve, accept max-min gear.
 #     from scipy.interpolate import interp1d
 #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
 #     P_WOT           = intrerp_f(_N_NORMS)
-    safety_margins   = np.tile(p_safety_margin, (_N_GEARS.shape[1], 1)).T
-    _P_AVAILS        = _P_WOTS * safety_margins * p_rated
+    t               = np.arange(_N_GEARS.shape[1])
+    power_margins  = calcPower_available_power_margins(t, p_safety_margin, p_avail_cold_reduce)
+    
+    _P_AVAILS        = _P_WOTS * power_margins * p_rated
 
     return (_P_AVAILS, _N_NORMS)
 
 def possibleGears_byPower(_N_GEARS, P_REQ,
-                          n_idle, n_rated, p_rated, load_curve, p_safety_margin,
+                          n_idle, n_rated, p_rated, load_curve, p_safety_margin, p_avail_cold_reduce,
                           driveability_issues):
     '''
 
     @see: Annex 2-3.1 & 3.3, p 71 & 72
     '''
 
-    (_P_AVAILS, _N_NORMS)      = calcPower_available(_N_GEARS, n_idle, n_rated, p_rated, load_curve, p_safety_margin)
+    (_P_AVAILS, _N_NORMS)      = calcPower_available(_N_GEARS, n_idle, n_rated, p_rated, load_curve, 
+                                                    p_safety_margin, p_avail_cold_reduce)
     assert      _N_GEARS.shape == _P_AVAILS.shape, \
                                 _shapes(P_REQ, _N_GEARS, _P_AVAILS)
 
@@ -899,7 +916,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
 
 def run_cycle(V, A, P_REQ, gear_ratios,
                    n_idle, n_min_drive, n_rated,
-                   p_rated, load_curve,
+                   p_rated, load_curve, p_avail_cold_reduce,
                    params):
     '''Calculates gears, clutch and actual-velocity for the cycle (V).
     Initial calculations happen on engine_revs for all gears, for all time-steps of the cycle (_N_GEARS array).
@@ -950,7 +967,7 @@ def run_cycle(V, A, P_REQ, gear_ratios,
                                                 driveability_issues)
 
     (_G_BY_P, _P_AVAILS, _N_NORMS) = possibleGears_byPower(_N_GEARS, P_REQ,
-                                                n_idle, n_rated, p_rated, load_curve, p_safety_margin,
+                                                n_idle, n_rated, p_rated, load_curve, p_safety_margin, p_avail_cold_reduce,
                                                 driveability_issues)
 
     assert _GEAR_RATIOS.shape == _N_GEARS.shape == _P_AVAILS.shape == _N_NORMS.shape, \

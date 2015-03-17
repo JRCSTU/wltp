@@ -334,6 +334,46 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'type': 'string',
                         'enum': ['class1', 'class2', 'class3a', 'class3b'],
                     },
+                    'p_avail_cold_reduce': { ## XXX: HACK
+                        'type': 'object', 'additionalProperties': additional_properties,
+                        'description': dedent("""
+                            Parameters for reducing `P_available` on the initial seconds of the cycle.
+                            If section is missing, no reduction applied.  
+                            """),
+                        'required': [
+                            'f_cold_margin', 'f_heating_rate',
+                        ],
+                        'properties': {
+                            'f_cold_margin': {
+                                'description': dedent("""
+                                    The ratio (cm) to subtract from P_available when starting from cold, 
+                                    according to the formula::
+                                    
+                                    .. math::
+                                    
+                                        P_{avail} = P_{gear} \times (pm - cm \times e^{-hr \times t})
+                                         
+                                    For instance:
+                                     
+                                        if set to 0.3,  
+                                        the cold-start power-margin(pm) would be 0.9 - 0.3 = 0.6 
+                                    """),
+                                'type': [ 'number' ],
+                            },
+                            'f_heating_rate': {
+                                'description': dedent("""
+                                    Rate of heating(hr) for t(sec) according to the formula:: 
+                                        
+                                    .. math::
+                                    
+                                        P_{avail} = P_{gear} \times (pm - cm \times e^{-hr \times t})
+                                    
+                                    I.e. hr ~= 0.01 achieves 90% hotness in ~450sec. 
+                                """),
+                                'type': [ 'number' ],
+                            },
+                        },
+                    },
                 }  #veh-props
             }, # veh
             'params': {
@@ -386,7 +426,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'type': [ 'number', 'null'],
                         'default': 1.1,
                     },
-                    'f_safety_margin': {
+                    'f_safety_margin': { ## XXX: HACK
                         'description': dedent("""
                             Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).
                             If array, its length must match those of the `gear_ratios`.
