@@ -505,7 +505,7 @@ def possibleGears_byEngineRevs(V, A, _N_GEARS,
     return (_GEARS_YES, CLUTCH)
 
 
-def calc_accmargin_a0(V, f_accmargin_v0_vmax_ratio, f_accmargin_a0_poly_coeffs, p_m_ratio):
+def calc_accmargin_a0(V, p_m_ratio, f_accmargin_v0_vmax_ratio, f_accmargin_a0_poly_coeffs):
     """
     :param pm_ratio: poly-evaluated as kW/kg
     :param list poly_coeffs: dimensionless (1st element, highest poly-power)
@@ -596,7 +596,7 @@ def calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial, p_m_ratio
         P_req_accmargin = calcPower_required_accmargin(V, A, SLOPE, test_mass, f0, f1, f2, 
                                                        f_inertial, p_m_ratio, accmargin_params)
         
-        P_req = np.max(np.concatenate((P_req_cycle, P_req_accmargin), axis=1), axis=1) 
+        P_req = np.max(np.concatenate((P_req_cycle[None, :], P_req_accmargin[None, :])), axis=0) 
     else:
         P_req = P_req_cycle
 

@@ -721,7 +721,6 @@ def validate_model(mdl, additional_properties=False, iter_errors=False, validate
         yield_load_curve_errors(mdl),
         yield_gear_n_mins_errors(mdl),
         yield_safety_margin_errors(mdl),
-        yield_forced_cycle_errors(mdl, additional_properties)
     ]
     errors = it.chain(*[v for v in validators if not v is None])
 
@@ -804,32 +803,6 @@ def yield_safety_margin_errors(mdl):
             params['f_safety_margin'] = [f_safety_margin] * ngears
     except PandasError as ex:
         yield ValidationError("Invalid 'gear_n_mins', due to: %s" % ex, cause= ex)
-
-
-def yield_forced_cycle_errors(mdl, additional_properties):
-    params = mdl['params']
-    forced_cycle = params.get('forced_cycle')
-    if not forced_cycle is None:
-        try:
-            if not isinstance(forced_cycle, pd.DataFrame):
-                forced_cycle = pd.DataFrame(forced_cycle)
-                if forced_cycle.shape[0] == forced_cycle.shape[1]:
-                    yield ValidationError('The full_load_curve is a square matrix(%s), cannot decide orientation!' % (forced_cycle.shape, ))
-            if forced_cycle.shape[0] < forced_cycle.shape[1]:
-                forced_cycle = forced_cycle.T
-            cols = forced_cycle.columns
-
-            # if not additional_properties and not set(cols) <= set(['v','slide']):
-            #     yield ValidationError('Unexpected columns!')
-
-            if forced_cycle.shape[1] == 1:
-                if cols[0] == 1:
-                    log.warning("Assuming the unamed single-column to be the velocity_profile(v).", cols[0])
-                    forced_cycle.columns = ['v']
-
-            params['forced_cycle'] = forced_cycle
-        except PandasError as ex:
-            yield ValidationError('Invalid forced_cycle, due to: %s' % ex, cause= ex)
 
 
 if __name__ == '__main__':
