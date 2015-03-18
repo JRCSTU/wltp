@@ -787,7 +787,7 @@ def yield_gear_n_mins_errors(mdl):
     ngears = len(ngears_min)
     try:
         if len(vehicle['gear_ratios']) != ngears:
-            yield ValidationError("Length mismatch of gear_ratios(%i) != gear_n_mins"% (len(vehicle['gear_ratios']), ngears))
+            yield ValidationError("Length mismatch of gear_ratios(%i) != gear_n_mins(%s)"% (len(vehicle['gear_ratios']), ngears))
     except PandasError as ex:
         yield ValidationError("Invalid 'gear_n_mins', due to: %s" % ex, cause= ex)
 
@@ -798,7 +798,7 @@ def yield_safety_margin_errors(mdl):
     try:
         if isinstance(f_safety_margin, Sized):
             if len(f_safety_margin) != ngears:
-                yield ValidationError("Length mismatch of gear_ratios(%i) != f_safety_margin"% (ngears, len(f_safety_margin)))
+                yield ValidationError("Length mismatch of gear_ratios(%i) != f_safety_margin(%s)"% (ngears, len(f_safety_margin)))
         else:
             params['f_safety_margin'] = [f_safety_margin] * ngears
     except PandasError as ex:
