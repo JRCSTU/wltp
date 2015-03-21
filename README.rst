@@ -191,15 +191,15 @@ Below is a matrix of the two suggested self-wrapped python distributions for run
 | *Ease of*       | Fair                                      | - *Anaconda:* Easy                        |
 |                 |                                           | - *MiniConda:* Moderate                   |
 |                 | (requires fiddling with the               |                                           |
-|                 | :envvar:`PATH`                            |                                           |
+|                 | envvar `PATH`                             |                                           |
 | *Installation*  |                                           |                                           |
 |                 | and the Registry after install)           |                                           |
 |                 |                                           |                                           |
 +-----------------+-------------------------------------------+-------------------------------------------+
 | *Ease of Use*   | Easy                                      | Moderate                                  |
 |                 |                                           |                                           |
-|                 |                                           | (should use :command:`conda` and/or       |
-|                 |                                           | :command:`pip`                            |
+|                 |                                           | (should use command `conda` and/or        |
+|                 |                                           | command `pip`                             |
 |                 |                                           |                                           |
 |                 |                                           | depending on whether a package            |
 |                 |                                           |                                           |
@@ -211,15 +211,15 @@ Below is a matrix of the two suggested self-wrapped python distributions for run
 |                 | in the downloaded-archive                 | uploaded by users                         |
 |                 |                                           |                                           |
 +-----------------+-------------------------------------------+-------------------------------------------+
-| *Notes*         | After installation, see :doc:`faq` for:   | - Check also the lighter `miniconda       |
+| *Notes*         | After installation, see `faq` for:        | - Check also the lighter `miniconda       |
 |                 |                                           |   <http://conda.pydata.org/               |
 |                 | - Registering WinPython installation      |   miniconda.html>`_.                      |
 |                 | - Adding your installation in             | - For installing native-dependencies      |
-|                 |   :envvar:`PATH`                          |                                           |
-|                 |                                           |   with :command:`conda` see files:        |
+|                 |   envvar `PATH`                           |                                           |
+|                 |                                           |   with command `conda` see files:         |
 |                 |                                           |                                           |
-|                 |                                           |   - :file:`requirements/miniconda.txt`    |
-|                 |                                           |   - :file:`.travis.yaml`                  |
+|                 |                                           |   - file `requirements/miniconda.txt`     |
+|                 |                                           |   - file `.travis.yaml`                   |
 |                 |                                           |                                           |
 +-----------------+-------------------------------------------+-------------------------------------------+
 |                 | Check also installation instructions from `the  pandas site                           |

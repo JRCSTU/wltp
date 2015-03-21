@@ -26,6 +26,7 @@ before_install:
 
 install:
   - python setup.py install
+  - pip install coveralls
 
 # command to run tests
 script:
