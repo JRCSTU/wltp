@@ -1,0 +1,2 @@
+recursive-exclude docs docs
+prune docs/docs
