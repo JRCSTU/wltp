@@ -66,24 +66,24 @@ def yield_sphinx_only_markup(lines):
 
     """
     substs = [
-        ## Selected Sphinx-only Roles.
+        # Selected Sphinx-only Roles.
         #
         (r':abbr:`([^`]+)`',        r'\1'),
-        (r':ref:`([^`]+)`',         r'`\1`_'),
+        (r':ref:`([^`]+)`',         r'ref:`\1`_'),
         (r':term:`([^`]+)`',        r'**\1**'),
         (r':dfn:`([^`]+)`',         r'**\1**'),
         (r':(samp|guilabel|menuselection):`([^`]+)`',        r'``\2``'),
 
 
-        ## Sphinx-only roles:
+        # Sphinx-only roles:
         #        :foo:`bar`   --> foo(``bar``)
         #        :a:foo:`bar` XXX afoo(``bar``)
         #
         #(r'(:(\w+))?:(\w+):`([^`]*)`', r'\2\3(``\4``)'),
-        (r':(\w+):`([^`]*)`', r'\1(``\2``)'),
+        (r':(\w+):`([^`]*)`', r'\1(`\2`)'),
 
 
-        ## Sphinx-only Directives.
+        # Sphinx-only Directives.
         #
         (r'\.\. doctest',           r'code-block'),
         (r'\.\. plot::',            r'.. '),
@@ -93,7 +93,7 @@ def yield_sphinx_only_markup(lines):
         (r'\.\. image::',          r'.. '),
 
 
-        ## Other
+        # Other
         #
         (r'\|version\|',              r'x.x.x'),
     ]
