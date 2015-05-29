@@ -8,14 +8,29 @@
 
 from __future__ import division, print_function, unicode_literals
 
+import doctest
+import sys
 import unittest
 from unittest.case import skip
-from wltp import model
 
 import pandas as pd
+from wltp import model
+import wltp
 
 from ..experiment import Experiment
 from .goodvehicle import goodVehicle
+
+
+@unittest.skipIf(sys.version_info < (3, 4), "Doctests are made for py >= 3.3")
+class TestDoctest(unittest.TestCase):
+
+    def test_doctests(self):
+        failure_count, test_count = doctest.testmod(
+            wltp.model,
+            optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS)
+        self.assertGreater(test_count, 0, (failure_count, test_count))
+        self.assertEquals(failure_count, 0, (failure_count, test_count))
+
 
 
 class Test(unittest.TestCase):

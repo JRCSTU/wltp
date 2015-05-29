@@ -9,6 +9,15 @@
 Defines the schema, defaults and validation operations for the data consumed and produced by the :class:`~wltp.experiment.Experiment`.
 
 The model-instance is managed by :class:`pandel.Pandel`.
+
+Example-code to get WLTP-data::
+
+    from wltp.model  import _get_wltc_data
+    cycle_data = _get_wltc_data()
+    
+    for cls, value in cycle_data['classes'].items():
+        cycle = np.array(value['cycle'])
+        print('%s: \n%s' % (cls, cycle))
 """
 
 from __future__ import division, print_function, unicode_literals
@@ -592,7 +601,27 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
     :param str cls_name: one of 'class1', ..., 'class3b'
     :param list/array index: (Optional) the index to "segment" into parts, defaults to 1Hz class's index  
     :return: a numpy-array of integers with length equal to `index`, or if not given, 
-                        the default length of the requested class otherwise  
+                        the default length of the requested class otherwise
+
+    Get class-checksums example::
+    
+        >>> from wltp import model
+        >>> import pandas as pd
+        
+        >>> cls = 'class2'
+        >>> part_limits = model.get_class_parts_index(cls)
+        >>> part_limits
+        array([   0,  589, 1022, 1477, 1800])
+
+        >>> cls_data = model._get_wltc_data()['classes'][cls]
+        >>> cycle = pd.DataFrame(cls_data['cycle'])
+        >>> cycle.groupby(pd.cut(cycle.index, part_limits)).sum()
+                            0
+        (0, 589]      11162.2
+        (589, 1022]   17054.3
+        (1022, 1477]  24450.6
+        (1477, 1800]  28869.8
+        
     """
     limits = get_class_parts_limits(cls_name, mdl=mdl, edges=True)
     limits = np.array(limits).astype(np.int)
@@ -600,6 +629,7 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
     if index:
         index = np.asarray(index)
 
+    return limits
 
 def get_class_pmr_limits(mdl=None, edges=False):
     """
