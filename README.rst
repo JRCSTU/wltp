@@ -7,8 +7,8 @@
 :Documentation: https://wltp.readthedocs.org/
 :Source:        https://github.com/ankostis/wltp
 :PyPI repo:     https://pypi.python.org/pypi/wltp
-:Keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifs, 
-                rpm, simulation, simulator, standard, vehicle, vehicles, wltc
+:Keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifts, 
+                rpm, simulation, simulator, standard, vehicle, vehicles, wltc, nedc
 :Copyright:     2013-2014 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
@@ -368,7 +368,6 @@ The files and folders of the project are listed below::
     |   +--pyplots/     ## (scripts) Plot the metric diagrams embeded in the README
     +--devtools/        ## (scripts) Preprocessing of WLTC data on GTR and the wltp_db
     |   +--run_tests.sh ## (script) Executes all TestCases
-    +--wltp             ## (script) The cmd-line entry-point script for the calculator
     +--setup.py         ## (script) The entry point for `setuptools`, installing, testing, etc
     +--requirements/    ## (txt-files) Various pip-dependencies for tools.
     +--README.rst
