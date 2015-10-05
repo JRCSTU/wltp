@@ -40,7 +40,7 @@ if py_ver.startswith('3') and py_ver < "3.3":
     exit("Sorry, Python3 >= 3.3 is supported!")
 if sys.argv[-1] == 'setup.py':
     exit("To install, run `python setup.py install`")
-    
+
 proj_name = 'wltp'
 mydir = os.path.dirname(__file__)
 
@@ -167,7 +167,7 @@ setup(
 #    },
     install_requires = [
         'six',
-        'jsonschema>=2.4',
+        'jsonschema>=2.5',
         'numpy',
         'pandas', #'openpyxl', 'xlrd',
         'matplotlib', #>=1.4',  ## Let it mature some time more...
@@ -200,7 +200,7 @@ setup(
         'gui_scripts': [
             'wltpui = wltp.tkui:main',
         ]
-    }, 
+    },
     zip_safe=True,
     options={
         'build_sphinx' :{

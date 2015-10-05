@@ -1,6 +1,7 @@
 ###################
 Contributing
 ###################
+
 For submitting code, use ``UTF-8`` everywhere, unix-eol(``LF``) and set ``git --config core.autocrlf = input``.
 
 The typical development procedure is like this:
