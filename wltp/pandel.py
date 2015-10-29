@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! python
 #-*- coding: utf-8 -*-
 #
 # Copyright 2013-2014 European Commission (JRC);
@@ -12,16 +12,20 @@ from __future__ import division, unicode_literals
 
 import abc
 from collections import Mapping, Sequence
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict, namedtuple, defaultdict
 import contextlib
 import numbers
 import re
 
 from jsonschema import Draft3Validator, Draft4Validator, ValidationError
 import jsonschema
-from jsonschema.exceptions import SchemaError, RefResolutionError
+from jsonschema.exceptions import SchemaError
 from pandas.core.generic import NDFrame
 from six import string_types
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 import numpy as np
 import pandas as pd
@@ -33,10 +37,40 @@ except ImportError:
     from urlparse import urljoin
 
 
+_value_with_units_regex = re.compile(r'''^\s*
+                                        (?P<name>[^([]+?)   # column-name
+                                        \s*
+                                        (?P<units>          # start parenthesized-units optional-group
+                                            \[              # units enclosed in []
+                                                [^\]]*
+                                            \]
+                                            |
+                                            \(              # units enclosed in ()
+                                                [^)]*
+                                            \)
+                                        )?                  # end parenthesized-units
+                                        \s*$''', re.X)
+_units_cleaner_regex = re.compile(r'^[[(]|[\])]$')
+
+def parse_value_with_units(arg):
+    """
+    Something like `value [units]` or `foo (bar/krow).
+
+    :return: dict(name, units) or None if unparseable as column-suntax
+    """
+
+    m = _value_with_units_regex.match(arg)
+    res = m.groupdict()
+    units = res['units']
+    if units:
+        res['units'] = _units_cleaner_regex.sub('', units)
+    return res
+
+
 
 class ModelOperations(namedtuple('ModelOperations', 'inp out conv')):
     """
-    Customization functions for travesring, I/O, and converting self-or-descedant branch (sub)model values.
+    Customization functions for traversing, I/O, and converting self-or-descendant branch (sub)model values.
     """
     def __new__(cls, inp=None, out=None, conv=None):
         """
@@ -251,11 +285,8 @@ class PandelVisitor(ValidatorBase):
             _schema = self.schema
 
         scope = _schema.get("id")
-        has_scope = scope
-        if has_scope:
-            old_scope = self.resolver.resolution_scope
-            self.old_scopes.append(old_scope)
-            self.resolver.resolution_scope = urljoin(old_scope, scope)
+        if scope:
+            self.resolver.push_scope(scope)
 
         ref = _schema.get("$ref")
         if ref is not None:
@@ -281,8 +312,8 @@ class PandelVisitor(ValidatorBase):
                     error.schema_path.appendleft(k)
                 yield error
 
-        if has_scope:
-            self.resolver.resolution_scope = self.old_scopes.pop()
+        if scope:
+            self.resolver.pop_scope()
 
 
     ##################################
@@ -752,6 +783,7 @@ class Pandel(object):
         :return: a json schema, more loose when `prevalidation` for each case
         :rtype: dictionary
         """
+        ## TODO: Make it a factory o
         pass
 
     def _rule_AdditionalProperties(self, validator, aP, required, instance, schema):
@@ -953,6 +985,9 @@ class Pandel(object):
         return self.model
 
 
+class JsonPointerException(Exception):
+    pass
+
 def jsonpointer_parts(jsonpointer):
     """
     Iterates over the ``jsonpointer`` parts.
@@ -963,21 +998,24 @@ def jsonpointer_parts(jsonpointer):
     :author: Julian Berman, ankostis
     """
 
-    jsonpointer = jsonpointer.lstrip(u"/")
-    parts = jsonpointer.split(u"/") if jsonpointer else []
+    if jsonpointer:
+        parts = jsonpointer.split(u"/")
+        if parts.pop(0) != '':
+            raise JsonPointerException('Location must starts with /')
 
-    for part in parts:
-        part = part.replace(u"~1", u"/").replace(u"~0", u"~")
+        for part in parts:
+            part = part.replace(u"~1", u"/").replace(u"~0", u"~")
 
-        yield part
+            yield part
 
-def resolve_jsonpointer(doc, jsonpointer):
+_scream = object()
+def resolve_jsonpointer(doc, jsonpointer, default=_scream):
     """
     Resolve a ``jsonpointer`` within the referenced ``doc``.
-    
+
     :param doc: the referrant document
     :param str jsonpointer: a jsonpointer to resolve within document
-    :return: the resolved doc-item or raises :class:`RefResolutionError` 
+    :return: the resolved doc-item or raises :class:`RefResolutionError`
 
     :author: Julian Berman, ankostis
     """
@@ -991,61 +1029,103 @@ def resolve_jsonpointer(doc, jsonpointer):
         try:
             doc = doc[part]
         except (TypeError, LookupError):
-            raise RefResolutionError(
-                "Unresolvable JSON pointer(%r)@(%s)" % (jsonpointer, part)
-            )
-        
+            if default is _scream:
+                raise JsonPointerException("Unresolvable JSON pointer(%r)@(%s)" % (jsonpointer, part))
+            else:
+                return default
+
     return doc
 
-        
-def set_jsonpointer(doc, jsonpointer, value):
+
+def set_jsonpointer(doc, jsonpointer, value, object_factory=dict):
     """
     Resolve a ``jsonpointer`` within the referenced ``doc``.
-    
+
     :param doc: the referrant document
-    :param str jsonpointer: a jsonpointer to the node to modify 
-    :raises: RefResolutionError (if jsonpointer empty, missing, invalid-contet)
+    :param str jsonpointer: a jsonpointer to the node to modify
+    :raises: JsonPointerException (if jsonpointer empty, missing, invalid-contet)
     """
-    
-    
+
+
     parts = list(jsonpointer_parts(jsonpointer))
-    if not parts:
-        return 
-    
-    parent_doc = doc
-    parent_part = '' #??
-    for part in parts:
-        if isinstance(doc, Sequence):
-            # Array indexes should be turned into integers
-            try:
-                part = int(part)
-            except ValueError:
-                pass
-        
-        ## Set value
-        #
-        try:
-            doc[part] = value
-        except (IndexError, TypeError) as ex:
-            if isinstance(ex, IndexError) or 'list indices must be integers' in str(ex):
-                raise RefResolutionError("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
+
+    ## Will scream if used on 1st iteration.
+    #
+    pdoc = None
+    ppart = None
+    for i, part in enumerate(parts):
+        if isinstance(doc, Sequence) and not isinstance(doc, str):
+            ## Array indexes should be turned into integers
+            #
+            doclen = len(doc)
+            if part == '-':
+                part = doclen
             else:
-                doc = {}
-                parent_doc[parent_part] = doc 
-                doc[part] = value 
-
-        parent_doc = doc
-        parent_part = part
-    
-        ## Extend branch
-        #
+                try:
+                    part = int(part)
+                except ValueError:
+                    raise JsonPointerException("Expected numeric index(%s) for sequence at (%r)[%i]" % (part, jsonpointer, i))
+                else:
+                    if part > doclen:
+                        raise JsonPointerException("Index(%s) out of bounds(%i) of (%r)[%i]" % (part, doclen, jsonpointer, i))
         try:
-            doc = doc[part]
-        except (TypeError, LookupError):
-            temp_doc, doc = doc, {} 
-            temp_doc[part] = doc 
-    
+            ndoc = doc[part]
+        except (LookupError):
+            break  ## Branch-extension needed.
+        except (TypeError): # Maybe indexing a string...
+            ndoc = object_factory()
+            pdoc[ppart] = ndoc
+            doc = ndoc
+            break  ## Branch-extension needed.
 
-        
+        doc, pdoc, ppart = ndoc, doc, part
+    else:
+        doc = pdoc # If loop exhausted, cancel last assignment.
+
+    ## Build branch with value-leaf.
+    #
+    nbranch = value
+    for part2 in reversed(parts[i+1:]):
+        ndoc = object_factory()
+        ndoc[part2] = nbranch
+        nbranch = ndoc
+
+    ## Attach new-branch.
+    try:
+        doc[part] = nbranch
+    except IndexError: # Inserting last sequence-element raises IndexError("list assignment index out of range")
+        doc.append(nbranch)
+
+#    except (IndexError, TypeError) as ex:
+#        #if isinstance(ex, IndexError) or 'list indices must be integers' in str(ex):
+#        raise JsonPointerException("Incompatible content of JSON pointer(%r)@(%s)" % (jsonpointer, part))
+#        else:
+#            doc = {}
+#            parent_doc[parent_part] = doc
+#            doc[part] = value
+
+
+def build_all_jsonpaths(schema):
+    ## Totally quick an dirty, TODO: Use json-validator to build all json-paths.
+    forks = ['oneOf', 'anyOf', 'allOf']
+    def _visit(schema, path, paths):
+        for f in forks:
+            objlist = schema.get(f)
+            if objlist:
+                for obj in schema.get(f):
+                    _visit(obj, path, paths)
+
+        props = schema.get('properties')
+        if props:
+            for p, obj in props.items():
+                _visit(obj, path + '/' +p, paths)
+        else:
+            paths.append(path)
+
+    paths = []
+    _visit(schema, '', paths)
+
+    return paths
+
 if __name__ == '__main__':
     raise "Not runnable!"
