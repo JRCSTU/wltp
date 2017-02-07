@@ -172,7 +172,7 @@ setup(
         'pandas', #'openpyxl', 'xlrd',
         'matplotlib', #>=1.4',  ## Let it mature some time more...
         'Pillow',               # For UI About boxes
-        'xlwings == 0.2.3',     # For Excel integration
+        'xlwings',     # For Excel integration
     ],
     setup_requires = [
         'setuptools',#>=3.4.4',  ## Just to enforce version.

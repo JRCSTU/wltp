@@ -62,6 +62,11 @@ TODOs
 Changelog
 =========
 
+v0.0.9-alpha.5 (7-Feb-2017)
+----------------------------
+- Just unpin `xlwings=0.2.3`.
+
+
 v0.0.9-alpha.4 (5-Oct-2015)
 ----------------------------
 Same algo as `alpha.3` but with corrected engine-speed for idle.
