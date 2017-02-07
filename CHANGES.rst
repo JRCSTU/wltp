@@ -64,6 +64,7 @@ Changelog
 
 v0.0.9-alpha.5 (7-Feb-2017)
 ----------------------------
+- DELETE Wltp-DB files to light-weight wheels.
 - Just unpin `xlwings=0.2.3`.
 
 
