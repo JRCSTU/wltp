@@ -92,7 +92,7 @@ you can try the following commands:
     If you choose to do that, include also the following packages in the *Cygwin*'s installation wizard::
 
         * git, git-completion
-        * make, zip, unzip, bzip2
+        * make, zip, unzip, bzip2, dos2unix
         * openssh, curl, wget
 
     But do not install/rely on cygwin's outdated python environment.
