@@ -175,7 +175,6 @@ setup(
         'numpy',
         'pandas',  # 'openpyxl', 'xlrd',
         'matplotlib',  # >=1.4',  ## Let it mature some time more...
-        'Pillow',               # For UI About boxes
         'xlwings; platform_system=="Windows"',     # For Excel integration
     ],
     setup_requires=[
