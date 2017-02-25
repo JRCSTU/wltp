@@ -3,9 +3,9 @@
 #############################
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
-:release:       0.0.9-alpha.5
-:date:          2017-02-07 05:04:11
-:documentation: https://wltp.readthedocs.org/
+:release:       0.1.0-alpha.0
+:date:          2017-02-26 15:30:47
+:documentation: https://wltp.readthedocs.org/ (build-date: |today|)
 :source:        https://github.com/ankostis/wltp
 :pypi-repo:     https://pypi.python.org/pypi/wltp
 :keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifts,
@@ -115,7 +115,7 @@ you can try the following commands:
     .. code-block:: bash
 
         $ wltp --version
-        0.0.9-alpha.5
+        0.1.0-alpha.0
 
         $ wltp --help
         ...
@@ -278,7 +278,7 @@ After installation, it is important that you check which version is visible in y
 .. code-block:: bash
 
     $ wltp --version
-    0.0.9-alpha.5
+    0.1.0-alpha.0
 
 
 To install for different Python versions, repeat the procedure for every required version.
@@ -513,7 +513,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '0.0.9-alpha.5'
+    '0.1.0-alpha.0'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...

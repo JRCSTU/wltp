@@ -62,6 +62,13 @@ TODOs
 Changelog
 =========
 
+v0.1.0-alpha.0 (26-Feb-2017)
+----------------------------
+- feat(core): modify acceleration rule ``3s-->2s`` to assimilate more to *phase-1b*.
+- fix(build, #3): Use *xlwings* library only for Windows, Mac.
+- feat(ui): drop tkUI code and *Pillow* dependency.
+
+
 v0.0.9-alpha.5 (7-Feb-2017)
 ----------------------------
 - DELETE Wltp-DB files to light-weight wheels.
