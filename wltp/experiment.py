@@ -661,20 +661,15 @@ def step_rule_b1(t, pg, g, V, A, GEARS, driveability_issues):
 
 
 def step_rule_b2(t, pg, g, V, A, GEARS, driveability_issues):
-    """Rule (b2): Hold gears for at least 3sec when accelerating."""
+    """Rule (b2): Hold gears for at least 2sec when accelerating."""
 
-    if ((pg != GEARS[t-3:t-1]).any()):  # A[t-1] > 0):  NOTE: Not checking Accel on the final step of rule(b2)!
+    if pg != GEARS[t-2]:  # A[t-1] > 0):  NOTE: Not checking Accel on the final step A[t-1]!
         #assert g > pg, 'Rule e & g missed downshift(%i: %i-->%i) in acceleration!'%(t, pg, g)
         if (g < pg):
-            addDriveabilityMessage(t, 'Rule e or g missed downshift(%i: %i-->%i) in acceleration?'%(t, pg, g), driveability_issues)
-        hold = False
-        if (pg == GEARS[t-2] and (A[t-3:t-1] > 0).all()):
-            hold = True; n = 2
-        elif  (A[t-2] > 0):
-            hold = True; n = 1
-        if (hold):
-            GEARS[t]        = pg
-            addDriveabilityMessage(t, '(b2(%i): %i-->%i)' % (n, g, pg), driveability_issues)
+            addDriveabilityMessage(t, 'Rule e or g missed downshift(%i: %i-->%i) in acceleration?' %
+                                   (t, pg, g), driveability_issues)
+        if A[t-2] > 0:
+            addDriveabilityMessage(t, '(b2: %i-->%i)' % (g, pg), driveability_issues)
 
             return True
     return False
