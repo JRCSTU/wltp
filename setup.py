@@ -175,7 +175,6 @@ setup(
         'numpy',
         'pandas',  # 'openpyxl', 'xlrd',
         'matplotlib',  # >=1.4',  ## Let it mature some time more...
-        'xlwings; platform_system=="Windows"',     # For Excel integration
     ],
     setup_requires=[
         'setuptools',  # >=3.4.4',  ## Just to enforce version.
@@ -192,8 +191,10 @@ setup(
         'coverage',
     ],
     extras_require={
-        'wltpdb':  [],
+        'wltpdb': [],
         ':python_version == "2.7"': ['mock'],
+        ':platform_system=="Windows" or platform_system=="Darwin"':
+        ['xlwings'],     # For Excel integration
     },
     test_suite='nose.collector',
     entry_points={
