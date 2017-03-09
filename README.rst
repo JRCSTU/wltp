@@ -3,8 +3,8 @@
 #############################
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
-:release:       0.1.0-alpha.0
-:date:          2017-02-26 15:30:47
+:release:       0.1.0-alpha.1
+:date:          2017-03-09 12:39:18
 :documentation: https://wltp.readthedocs.org/ (build-date: |today|)
 :source:        https://github.com/ankostis/wltp
 :pypi-repo:     https://pypi.python.org/pypi/wltp
