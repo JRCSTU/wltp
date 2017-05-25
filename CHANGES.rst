@@ -62,6 +62,16 @@ TODOs
 Changelog
 =========
 
+v0.1.0-alpha.2 (25-May-2017)
+----------------------------
+- fix(deps): pandas-v0.20.1 dropped PandasError classs -
+  See https://github.com/pydata/pandas-datareader/issues/305
+- fix(main): regression in `v0.1.0-alpha.0`, main did not import due to
+  not fully deleted *tkui* launch code.
+- style(pep8): del spaces from python files.
+- chore(build): add ``./dib/bumpver.py`` script from post-`co2mpas-1.6.1.dev6`.
+
+
 v0.1.0-alpha.1 (9-Mar-2017)
 ----------------------------
 - fix(build, #3): Dependency *xlwings* broke builds on Linux in downstream packages.

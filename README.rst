@@ -3,8 +3,8 @@
 #############################
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
-:release:       0.1.0-alpha.1
-:date:          2017-03-09 12:39:18
+:release:       0.1.0-alpha.2
+:date:          2017-05-25 18:39:47
 :documentation: https://wltp.readthedocs.org/ (build-date: |today|)
 :source:        https://github.com/ankostis/wltp
 :pypi-repo:     https://pypi.python.org/pypi/wltp
@@ -115,7 +115,7 @@ you can try the following commands:
     .. code-block:: bash
 
         $ wltp --version
-        0.1.0-alpha.1
+        0.1.0-alpha.2
 
         $ wltp --help
         ...
@@ -278,7 +278,7 @@ After installation, it is important that you check which version is visible in y
 .. code-block:: bash
 
     $ wltp --version
-    0.1.0-alpha.1
+    0.1.0-alpha.2
 
 
 To install for different Python versions, repeat the procedure for every required version.
@@ -513,7 +513,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '0.1.0-alpha.1'
+    '0.1.0-alpha.2'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...
