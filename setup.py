@@ -177,14 +177,7 @@ setup(
         'matplotlib',  # >=1.4',  ## Let it mature some time more...
     ],
     setup_requires=[
-        'setuptools',  # >=3.4.4',  ## Just to enforce version.
         'setuptools-git >= 0.3',  # Gather package-data from all files in git.
-        # 'sphinx >= 1.2', # >=1.3
-        'sphinx_rtd_theme',
-        'jsonschema >= 2.4',
-        #'matplotlib',
-        'coveralls',
-        'wheel',
     ],
     tests_require=[
         'nose',
