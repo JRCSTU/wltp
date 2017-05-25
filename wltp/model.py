@@ -30,7 +30,6 @@ from textwrap import dedent
 from jsonschema import (RefResolver, ValidationError)
 import jsonschema
 from numpy import ndarray
-from pandas.core.common import PandasError
 from pandas.core.generic import NDFrame
 from six import string_types
 from wltp.cycles import (class1, class2, class3)
@@ -40,6 +39,13 @@ import itertools as it
 import numpy as np
 import operator as ops
 import pandas as pd
+
+try:
+    from pandas.core.common import PandasError
+except ImportError:
+    ## Pandas-0.20.1 dropped this classs.
+    #  See https://github.com/pydata/pandas-datareader/issues/305
+    PandasError = ValueError
 
 
 log = logging.getLogger(__name__)

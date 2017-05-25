@@ -13,13 +13,18 @@ import unittest
 from wltp.experiment import Experiment
 from wltp.test.goodvehicle import goodVehicle
 
-from pandas.core.common import PandasError
-
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
 
 from ..utils import assertRaisesRegex
+
+try:
+    from pandas.core.common import PandasError
+except ImportError:
+    ## Pandas-0.20.1 dropped this classs.
+    #  See https://github.com/pydata/pandas-datareader/issues/305
+    PandasError = ValueError
 
 
 class TestForcedCycle(unittest.TestCase):
