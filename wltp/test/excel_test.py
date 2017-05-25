@@ -26,7 +26,7 @@ def _init_logging(loglevel):
 
     log = logging.getLogger(__name__)
     log.trace = lambda *args, **kws: log.log(0, *args, **kws)
-    
+
     return log
 log = _init_logging(DEFAULT_LOG_LEVEL)
 
@@ -53,8 +53,8 @@ def close_workbook(wb):
 class TestExcel(unittest.TestCase):
 
     def test_build_excel(self):
-        from ..excel import xlsutils 
-        
+        from ..excel import xlsutils
+
         with tempfile.TemporaryDirectory() as tmpdir:
             wb_inp_fname    = from_my_path('..', 'excel', 'WltpExcelRunner.xlsm')
             wb_out_fname    = from_my_path(tmpdir, 'WltpExcelRunner.xlsm')
@@ -86,7 +86,7 @@ class TestExcel(unittest.TestCase):
         addr        ='d2'
         table       = pd.DataFrame({'a':[1,2,3], 'b':['s','t','u'], 'c':[True,False,True]})
         table.index.name = 'id'
-        
+
         cases = [
             ("@d2",                         'id'),
             ("@e2",                         'a'),
@@ -99,7 +99,7 @@ class TestExcel(unittest.TestCase):
             ("@{sheet}!E2:F2.table(strict=True, header=True)".format(sheet=sheetname),
                                             table),
         ]
-        
+
         errors = []
         wb = _make_sample_workbook(sheetname, addr, table)
         try:
@@ -128,7 +128,7 @@ class TestExcel(unittest.TestCase):
 
 
     def test_excel_runner_call_from_python(self):
-        from ..excel import WltpExcelRunner 
+        from ..excel import WltpExcelRunner
         wb = None
         try:
             wb = WltpExcelRunner.main()

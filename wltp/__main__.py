@@ -38,7 +38,7 @@ PROG    = 'wltp'
 DEFAULT_LOG_LEVEL   = logging.INFO
 def _init_logging(loglevel, name='%s-cmd'%PROG, skip_root_level=False):
     logging.basicConfig(level=loglevel)
-    
+
     rlog = logging.getLogger()
     if not skip_root_level:
         ## Force root-level, in case already configured otherwise.
@@ -46,10 +46,10 @@ def _init_logging(loglevel, name='%s-cmd'%PROG, skip_root_level=False):
 
     log = logging.getLogger(name)
     log.trace = lambda *args, **kws: log.log(0, *args, **kws)
-    
+
     return log
 
-    
+
 log = _init_logging(DEFAULT_LOG_LEVEL)
 
 def main(argv=None):
@@ -160,18 +160,18 @@ def main(argv=None):
         if opts.excel:
             copy_excel_template_files(opts.excel)
             return
-        
+
         if opts.excelrun:
             files_copied = copy_excel_template_files(opts.excelrun)          #@UnusedVariable
             xls_file = files_copied[0]
-            
+
             utils.open_file_with_os(xls_file)
             return
-        
+
         if opts.winmenus:
             add_windows_shortcuts_to_start_menu('winmenus')
             return
-        
+
         opts = validate_file_opts(opts)
 
         infiles     = parse_many_file_args(opts.I, 'r', opts.irenames)
@@ -214,7 +214,7 @@ def main(argv=None):
 
 def copy_excel_template_files(dest_dir=None):
     import pkg_resources as pkg
-    
+
     if not dest_dir == None:
         dest_dir = os.getcwd()
     else:
@@ -225,7 +225,7 @@ def copy_excel_template_files(dest_dir=None):
         log.info('Created destination-directory(%s).', dest_dir)
     except:
         pass ## Might already exist
-    
+
     files_to_copy = ['excel\WltpExcelRunner.xlsm', 'excel\WltpExcelRunner.py']
     files_to_copy = [pkg.resource_filename('wltp', f) for f in files_to_copy] #@UndefinedVariable
     files_copied = []
@@ -235,11 +235,11 @@ def copy_excel_template_files(dest_dir=None):
         dest_fname = next(fname_genor)
         while os.path.exists(dest_fname):
             dest_fname = next(fname_genor)
-            
+
         log.info('Copying `xlwings` template-file: %s --> %s', src_fname, dest_fname)
         shutil.copy(src_fname, dest_fname)
         files_copied.append(dest_fname)
-    
+
     return files_copied
 
 
@@ -250,9 +250,9 @@ def add_windows_shortcuts_to_start_menu(my_option):
     my_cmd_path = find_executable(my_cmd_name)
     if not my_cmd_path:
         exit("Please properly install the project before running the `--%s` command-option!" % my_option)
-        
+
     win_menu_group = 'Python Wltp Calculator'
-    
+
     wshell = utils.win_wshell()
     startMenu_dir   = utils.win_folder(wshell, "StartMenu")
     myDocs_dir      = utils.win_folder(wshell, "MyDocuments")
@@ -277,7 +277,7 @@ def add_windows_shortcuts_to_start_menu(my_option):
     except Exception as ex:
         log.exception('Failed creating Program-folder(%s) due to: %s', prog_dir, ex)
         exit(-5)
-    
+
     ## Copy Demos.
     #
     demo_dir = pkg.resource_filename('wltp', 'test')                     #@UndefinedVariable
@@ -292,7 +292,7 @@ def add_windows_shortcuts_to_start_menu(my_option):
                     os.unlink(dest_f)
                 except Exception as ex:
                     log.error('Cannot clear existing item(%s) from Program-folder(%s) due to: %s', dest_f, prog_dir, ex)
-                    
+
             try:
                 shutil.copy(src_f, dest_f)
             except Exception as ex:
@@ -314,7 +314,7 @@ def add_windows_shortcuts_to_start_menu(my_option):
     except Exception as ex:
         log.exception('Failed creating StarMenu-group(%s) due to: %s', group_path, ex)
         exit(-6)
-    
+
     for name, shcut in shcuts.items():
         path = os.path.join(group_path, name)
         log.info('Creating StartMenu-item: %s', path)
@@ -395,7 +395,7 @@ def parse_column_specifier(arg):
     res = pandel.parse_value_with_units(arg)
     if res:
         return res
-    
+
     raise argparse.ArgumentTypeError("Not a COLUMN_SPEC syntax: %s"%arg)
 
 
@@ -624,7 +624,7 @@ def build_args_parser(program_name, version, desc, epilog):
               must either match them, be 1 (meaning, use them for all files), or be totally absent
               (meaning, use defaults for all files).
             * see REMARKS at the bottom regarding the parsing of KEY-VAULE pairs. """),
-                        action='append', nargs='+', 
+                        action='append', nargs='+',
                         #default=[('- file_frmt=%s model_path=%s'%('CSV', _default_df_dest)).split()],
                         metavar='ARG')
     grp_io.add_argument('-c', '--icolumns', help=dedent("""\
@@ -708,12 +708,12 @@ def build_args_parser(program_name, version, desc, epilog):
 
 
     xlusive_group = parser.add_mutually_exclusive_group()
-    xlusive_group.add_argument('--excel', help="copy `xlwings` excel & python template files into DESTPATH or current-working dir, to run a batch of experiments", 
+    xlusive_group.add_argument('--excel', help="copy `xlwings` excel & python template files into DESTPATH or current-working dir, to run a batch of experiments",
         nargs='?', const=None, metavar='DESTPATH')
-#    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments", 
+#    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments",
 #        nargs='?', const=os.getcwd(), metavar='DESTPATH')
     xlusive_group.add_argument('--winmenus', help="Adds shortcuts into Windows StartMenu.", action='store_true')
-    
+
     grp_various = parser.add_argument_group('Various', 'Options controlling various other aspects.')
     grp_various.add_argument('-d', "--debug", action="store_true", help=dedent("""\
             set debug-mode with various checks and error-traces

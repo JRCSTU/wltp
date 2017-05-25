@@ -14,7 +14,7 @@ Example-code to get WLTP-data::
 
     from wltp.model  import _get_wltc_data
     cycle_data = _get_wltc_data()
-    
+
     for cls, value in cycle_data['classes'].items():
         cycle = np.array(value['cycle'])
         print('%s: \n%s' % (cls, cycle))
@@ -59,9 +59,9 @@ def make_json_defaulter(pd_method):
                 s = json.loads(pd.DataFrame.to_json(o))
             else:
                 method = ops.methodcaller(pd_method)
-                s = '%s:%s'%(type(o).__name__, method(o))
+                s = '%s:%s' % (type(o).__name__, method(o))
         else:
-            s =repr(o)
+            s = repr(o)
         return s
 
     return defaulter
@@ -82,58 +82,58 @@ def _get_model_base():
 
     ## Form Heinz-db
     petrol = [
-        0.1       ,  0.11100069,  0.12200138,  0.13300206,  0.14400275,
-        0.15500344,  0.16600413,  0.17700482,  0.1880055 ,  0.19900619,
-        0.21000688,  0.22100757,  0.23200826,  0.24300895,  0.25400963,
-        0.26501032,  0.27506528,  0.28512023,  0.29517519,  0.30523015,
-        0.3152851 ,  0.3231181 ,  0.3309511 ,  0.3387841 ,  0.3466171 ,
-        0.3544501 ,  0.3622831 ,  0.37011609,  0.37794909,  0.38578209,
-        0.39361509,  0.40268373,  0.41175238,  0.42082102,  0.42988967,
-        0.43895831,  0.44802696,  0.4570956 ,  0.46616424,  0.47523289,
-        0.48430153,  0.49385337,  0.5034052 ,  0.51295704,  0.52250887,
-        0.53206071,  0.54161255,  0.55116438,  0.56071622,  0.57026805,
-        0.57981989,  0.58873474,  0.59764959,  0.60656444,  0.61547929,
-        0.62439414,  0.633309  ,  0.64222385,  0.6511387 ,  0.66005355,
-        0.6689684 ,  0.67815415,  0.6873399 ,  0.69652565,  0.70571139,
-        0.71489714,  0.72408289,  0.73326864,  0.74245439,  0.75164013,
-        0.76082588,  0.77026954,  0.77971321,  0.78915687,  0.79860054,
-        0.8080442 ,  0.81748786,  0.82693153,  0.83637519,  0.84581885,
-        0.85526252,  0.86393898,  0.87261544,  0.8812919 ,  0.88996837,
-        0.89864483,  0.90732129,  0.91599775,  0.92467422,  0.93335068,
-        0.94202714,  0.94782443,  0.95362171,  0.959419  ,  0.96521628,
-        0.97101357,  0.97681086,  0.98260814,  0.98840543,  0.99420271,
-        1.        ,  0.99556631,  0.99113261,  0.98669892,  0.98226523,
-        0.97783154,  0.97339784,  0.96896415,  0.96453046,  0.96009677,
-        0.95566307,  0.94509677,  0.93453046,  0.92396415,  0.91339784,
-        0.90283154,  0.89226523,  0.88169892,  0.87113261,  0.86056631,
+        0.1       , 0.11100069, 0.12200138, 0.13300206, 0.14400275,
+        0.15500344, 0.16600413, 0.17700482, 0.1880055 , 0.19900619,
+        0.21000688, 0.22100757, 0.23200826, 0.24300895, 0.25400963,
+        0.26501032, 0.27506528, 0.28512023, 0.29517519, 0.30523015,
+        0.3152851 , 0.3231181 , 0.3309511 , 0.3387841 , 0.3466171 ,
+        0.3544501 , 0.3622831 , 0.37011609, 0.37794909, 0.38578209,
+        0.39361509, 0.40268373, 0.41175238, 0.42082102, 0.42988967,
+        0.43895831, 0.44802696, 0.4570956 , 0.46616424, 0.47523289,
+        0.48430153, 0.49385337, 0.5034052 , 0.51295704, 0.52250887,
+        0.53206071, 0.54161255, 0.55116438, 0.56071622, 0.57026805,
+        0.57981989, 0.58873474, 0.59764959, 0.60656444, 0.61547929,
+        0.62439414, 0.633309  , 0.64222385, 0.6511387 , 0.66005355,
+        0.6689684 , 0.67815415, 0.6873399 , 0.69652565, 0.70571139,
+        0.71489714, 0.72408289, 0.73326864, 0.74245439, 0.75164013,
+        0.76082588, 0.77026954, 0.77971321, 0.78915687, 0.79860054,
+        0.8080442 , 0.81748786, 0.82693153, 0.83637519, 0.84581885,
+        0.85526252, 0.86393898, 0.87261544, 0.8812919 , 0.88996837,
+        0.89864483, 0.90732129, 0.91599775, 0.92467422, 0.93335068,
+        0.94202714, 0.94782443, 0.95362171, 0.959419  , 0.96521628,
+        0.97101357, 0.97681086, 0.98260814, 0.98840543, 0.99420271,
+        1.        , 0.99556631, 0.99113261, 0.98669892, 0.98226523,
+        0.97783154, 0.97339784, 0.96896415, 0.96453046, 0.96009677,
+        0.95566307, 0.94509677, 0.93453046, 0.92396415, 0.91339784,
+        0.90283154, 0.89226523, 0.88169892, 0.87113261, 0.86056631,
         0.85
     ]
     ## Form Heinz-db
     diesel = [
-        0.1       ,  0.11632768,  0.13265536,  0.14898304,  0.16531072,
-        0.1816384 ,  0.19796609,  0.21429377,  0.23062145,  0.24694913,
-        0.26327681,  0.27956221,  0.29584762,  0.31213302,  0.32841843,
-        0.34470383,  0.36098924,  0.37727464,  0.39356004,  0.40984545,
-        0.42613085,  0.44289144,  0.45965203,  0.47641262,  0.49317321,
-        0.5099338 ,  0.52669439,  0.54345498,  0.56021557,  0.57697616,
-        0.59373675,  0.60775731,  0.62177786,  0.63579841,  0.64981897,
-        0.66383952,  0.67786007,  0.69188063,  0.70590118,  0.71992173,
-        0.73394229,  0.74334518,  0.75274808,  0.76215098,  0.77155387,
-        0.78095677,  0.79035967,  0.79976256,  0.80916546,  0.81856836,
-        0.82797126,  0.83355082,  0.83913039,  0.84470996,  0.85028953,
-        0.8558691 ,  0.86144867,  0.86702823,  0.8726078 ,  0.87818737,
-        0.88376694,  0.88861739,  0.89346785,  0.8983183 ,  0.90316876,
-        0.90801921,  0.91286967,  0.91772013,  0.92257058,  0.92742104,
-        0.93227149,  0.93551314,  0.93875479,  0.94199644,  0.94523809,
-        0.94847974,  0.95172139,  0.95496304,  0.95820469,  0.96144634,
-        0.96468798,  0.96645067,  0.96821335,  0.96997604,  0.97173872,
-        0.97350141,  0.97526409,  0.97702678,  0.97878946,  0.98055215,
-        0.98231483,  0.98408335,  0.98585187,  0.98762038,  0.9893889 ,
-        0.99115742,  0.99292593,  0.99469445,  0.99646297,  0.99823148,
-        1.        ,  0.98871106,  0.97742212,  0.96613319,  0.95484425,
-        0.94355531,  0.93226637,  0.92097743,  0.9096885 ,  0.89839956,
-        0.88711062,  0.88339956,  0.8796885 ,  0.87597743,  0.87226637,
-        0.86855531,  0.86484425,  0.86113319,  0.85742212,  0.85371106,
+        0.1       , 0.11632768, 0.13265536, 0.14898304, 0.16531072,
+        0.1816384 , 0.19796609, 0.21429377, 0.23062145, 0.24694913,
+        0.26327681, 0.27956221, 0.29584762, 0.31213302, 0.32841843,
+        0.34470383, 0.36098924, 0.37727464, 0.39356004, 0.40984545,
+        0.42613085, 0.44289144, 0.45965203, 0.47641262, 0.49317321,
+        0.5099338 , 0.52669439, 0.54345498, 0.56021557, 0.57697616,
+        0.59373675, 0.60775731, 0.62177786, 0.63579841, 0.64981897,
+        0.66383952, 0.67786007, 0.69188063, 0.70590118, 0.71992173,
+        0.73394229, 0.74334518, 0.75274808, 0.76215098, 0.77155387,
+        0.78095677, 0.79035967, 0.79976256, 0.80916546, 0.81856836,
+        0.82797126, 0.83355082, 0.83913039, 0.84470996, 0.85028953,
+        0.8558691 , 0.86144867, 0.86702823, 0.8726078 , 0.87818737,
+        0.88376694, 0.88861739, 0.89346785, 0.8983183 , 0.90316876,
+        0.90801921, 0.91286967, 0.91772013, 0.92257058, 0.92742104,
+        0.93227149, 0.93551314, 0.93875479, 0.94199644, 0.94523809,
+        0.94847974, 0.95172139, 0.95496304, 0.95820469, 0.96144634,
+        0.96468798, 0.96645067, 0.96821335, 0.96997604, 0.97173872,
+        0.97350141, 0.97526409, 0.97702678, 0.97878946, 0.98055215,
+        0.98231483, 0.98408335, 0.98585187, 0.98762038, 0.9893889 ,
+        0.99115742, 0.99292593, 0.99469445, 0.99646297, 0.99823148,
+        1.        , 0.98871106, 0.97742212, 0.96613319, 0.95484425,
+        0.94355531, 0.93226637, 0.92097743, 0.9096885 , 0.89839956,
+        0.88711062, 0.88339956, 0.8796885 , 0.87597743, 0.87226637,
+        0.86855531, 0.86484425, 0.86113319, 0.85742212, 0.85371106,
         0.85
     ]
 
@@ -290,7 +290,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                         'description': dedent("""
                         Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
                         or an array with the exact `n_min` for each gear (array must have length equal to gears).
-                        
+
                         If unspecified, the minimum `n` for gears > 2 is determined by the following equation:
                             n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
                         Higher values may be used if requested by the manufacturer, by setting this one.
@@ -517,7 +517,7 @@ def _get_wltc_schema():
                     'parts': {
                         'type': 'array', 'items': {
                             'type': 'array',
-                            'items': {'type': 'integer',},
+                            'items': {'type': 'integer', },
                             'minItems': 2, 'maxItems': 2,
                         }
                     },
@@ -552,7 +552,7 @@ def _get_wltc_schema():
                     'checksum': { 'type': 'number'},
                     'cycle': {
                         'type': 'array',
-                        'items': {'type': 'number',},
+                        'items': {'type': 'number', },
                         'minItems': 906, # class1's length
                     }
                 },
@@ -569,51 +569,51 @@ def get_class_part_names(cls_name=None):
     :param str cls_name: one of 'class1', ..., 'class3b', if missing, returns all 4 part-names
     """
     part_names = ['Low', 'Medium', 'High', 'ExtraHigh']
-    
+
     if cls_name:
         wltc_data = _get_wltc_data()
         cls = wltc_data['classes'][cls_name]
         part_names = part_names[:len(cls['parts'])]
-        
+
     return part_names
 
 def get_class_parts_limits(cls_name, mdl=None, edges=False):
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
-    
+
     :param str cls_name: one of 'class1', ..., 'class3b'
     :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`_get_wltc_data()`
     :param edges: when `True`, embeds internal limits into (0, len)
-    :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers 
+    :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers
     """
     if mdl:
         wltc_data = mdl['wltc_data']
     else:
         wltc_data = _get_wltc_data()
-        
+
     cls = wltc_data['classes'][cls_name]
     parts = cls['parts']
     parts = parts if edges else parts[:-1]
-    part_limits = [end+0.5 for (start, end) in parts]
+    part_limits = [end + 0.5 for (start, end) in parts]
     if edges:
         part_limits.insert(0, 0)
-         
+
     return part_limits
 
 def get_class_parts_index(cls_name, index=None, mdl=None):
     """
     Returns an array equally sized as `index` with zero-based ints denoting the part each second of the cycle belong to.
-    
+
     :param str cls_name: one of 'class1', ..., 'class3b'
-    :param list/array index: (Optional) the index to "segment" into parts, defaults to 1Hz class's index  
-    :return: a numpy-array of integers with length equal to `index`, or if not given, 
+    :param list/array index: (Optional) the index to "segment" into parts, defaults to 1Hz class's index
+    :return: a numpy-array of integers with length equal to `index`, or if not given,
                         the default length of the requested class otherwise
 
     Get class-checksums example::
-    
+
         >>> from wltp import model
         >>> import pandas as pd
-        
+
         >>> cls = 'class2'
         >>> part_limits = model.get_class_parts_index(cls)
         >>> part_limits
@@ -627,11 +627,11 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
         (589, 1022]   17054.3
         (1022, 1477]  24450.6
         (1477, 1800]  28869.8
-        
+
     """
     limits = get_class_parts_limits(cls_name, mdl=mdl, edges=True)
     limits = np.array(limits).astype(np.int)
-    
+
     if index:
         index = np.asarray(index)
 
@@ -640,21 +640,21 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
 def get_class_pmr_limits(mdl=None, edges=False):
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
-    
+
     :param mdl: the mdl to parse wltc_data from, if omitted, parses the results of :func:`_get_wltc_data()`
     :param edges: when `True`, embeds internal limits into (0, len)
-    :return: a list with the pmr-limits (2 numbers) 
+    :return: a list with the pmr-limits (2 numbers)
     """
     if mdl:
         wltc_data = mdl['wltc_data']
     else:
         wltc_data = _get_wltc_data()
-        
+
     pmr_limits_pairs = [cls['pmr_limits'] for cls in wltc_data['classes'].values()]
     pmr_limits = sorted(set(it.chain(*pmr_limits_pairs)))
     if not edges:
         pmr_limits = pmr_limits[1:-1]    ## Exclude 0 and inf
-    
+
     return pmr_limits
 
 
@@ -787,7 +787,7 @@ def yield_load_curve_errors(mdl):
 
         vehicle['full_load_curve'] = wot
     except (KeyError, PandasError) as ex:
-        yield ValidationError('Invalid Full-load-curve, due to: %s' % ex, cause= ex)
+        yield ValidationError('Invalid Full-load-curve, due to: %s' % ex, cause=ex)
 
 def yield_n_min_errors(mdl):
     vehicle = mdl['vehicle']
@@ -797,11 +797,11 @@ def yield_n_min_errors(mdl):
         try:
                 if isinstance(n_min, Sized):
                     if len(n_min) != ngears:
-                        yield ValidationError("Length mismatch of n_min(%s) != gear_ratios(%s)!"% (len(n_min), ngears))
+                        yield ValidationError("Length mismatch of n_min(%s) != gear_ratios(%s)!" % (len(n_min), ngears))
                 else:
                     vehicle['n_min'] = [n_min] * ngears
         except PandasError as ex:
-            yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause= ex)
+            yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause=ex)
 
 def yield_safety_margin_errors(mdl):
     params = mdl['params']
@@ -810,11 +810,11 @@ def yield_safety_margin_errors(mdl):
     try:
         if isinstance(f_safety_margin, Sized):
             if len(f_safety_margin) != ngears:
-                yield ValidationError("Length mismatch of f_safety_margin(%s) != gear_ratios(%s)!"% (len(f_safety_margin), ngears))
+                yield ValidationError("Length mismatch of f_safety_margin(%s) != gear_ratios(%s)!" % (len(f_safety_margin), ngears))
         else:
             params['f_safety_margin'] = [f_safety_margin] * ngears
     except PandasError as ex:
-        yield ValidationError("Invalid 'gear_n_min', due to: %s" % ex, cause= ex)
+        yield ValidationError("Invalid 'gear_n_min', due to: %s" % ex, cause=ex)
 
 
 def yield_forced_cycle_errors(mdl, additional_properties):
@@ -825,7 +825,7 @@ def yield_forced_cycle_errors(mdl, additional_properties):
             if not isinstance(forced_cycle, pd.DataFrame):
                 forced_cycle = pd.DataFrame(forced_cycle)
                 if forced_cycle.shape[0] == forced_cycle.shape[1]:
-                    yield ValidationError('The full_load_curve is a square matrix(%s), cannot decide orientation!' % (forced_cycle.shape, ))
+                    yield ValidationError('The full_load_curve is a square matrix(%s), cannot decide orientation!' % (forced_cycle.shape,))
             if forced_cycle.shape[0] < forced_cycle.shape[1]:
                 forced_cycle = forced_cycle.T
             cols = forced_cycle.columns
@@ -840,7 +840,7 @@ def yield_forced_cycle_errors(mdl, additional_properties):
 
             params['forced_cycle'] = forced_cycle
         except PandasError as ex:
-            yield ValidationError('Invalid forced_cycle, due to: %s' % ex, cause= ex)
+            yield ValidationError('Invalid forced_cycle, due to: %s' % ex, cause=ex)
 
 get_model_schema = _get_model_schema
 

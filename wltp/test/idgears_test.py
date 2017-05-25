@@ -23,7 +23,7 @@ def read_all_cycle_data(cycle_run_file, start_col_index=0):
     df = pd.read_table(cycle_run_file, sep=',', index_col=None, comment='#', skiprows=5, header=None)
     df = df.iloc[:, start_col_index:start_col_index+2]
     df = df.convert_objects(convert_numeric=True).dropna()
-    
+
     cols = list('NV')
     if len(set(cols) - set(df.columns)) != 0:
         if df.shape[1] != 2:
@@ -71,12 +71,12 @@ class IdgearsTest(unittest.TestCase):
         for start_col_index, result in zip(range(0, 7, 2), file_results):
             ngears = 6
             cycle_df = read_all_cycle_data('VNreal.csv', start_col_index)
-            
+
             ratios, distort = idg.detect_gear_ratios_from_cycle_data(ngears, cycle_df)
             #print("ratios: %s, distort: %s"%(ratios, distort))
             self.assertEqual(ratios.size, ngears)
             self.assertLessEqual(distort, 8e-4)
-            
+
             ## Require exact equality on file_results.
             #
             self.assertAlmostEqual(distort, result[1])
@@ -86,7 +86,7 @@ class IdgearsTest(unittest.TestCase):
         for start_col_index, result in zip(range(0, 7, 2), file_results):
             ngears = 6
             cycle_df = read_all_cycle_data('VNreal.csv', start_col_index)
-            
+
             gears, distorts = idg.identify_gears_from_cycle_data(cycle_df, result[0])
             self.assertEqual(gears.dtype, np.int64)
             distort = distorts.mean()
@@ -101,7 +101,7 @@ class IdgearsTest(unittest.TestCase):
         for start_col_index, result in zip(range(0, 7, 2), file_results):
             ngears = 6
             cycle_df = read_all_cycle_data('VNreal.csv', start_col_index)
-            
+
             gears, distorts = idg.identify_gears_from_ratios(cycle_df['V']/cycle_df['N'], result[0])
             self.assertEqual(gears.dtype, np.int64)
             distort = distorts.mean()
@@ -125,17 +125,17 @@ class IdgearsTest(unittest.TestCase):
     def test_detect_ratios_and_plot(self):
         from matplotlib import pyplot as plt
         fig = plt.figure()
-        
+
         for i, start_col_index in enumerate(range(0, 7, 2)):
             ngears = 6
             cycle_df = read_all_cycle_data('VNreal.csv', start_col_index)
-            
+
             detekts = idg.run_gear_ratios_detections_on_cycle_data(ngears, cycle_df)
             best_detekt = detekts[0]
             if os.environ['UI']:
                 axes = [plt.subplot(4,3,3*i+1), plt.subplot(4,3,3*i+2), plt.subplot(4,3,3*i+3)]
                 idg.plot_idgears_results(cycle_df, best_detekt, fig=fig, axes=axes)
-                
+
         if os.environ['UI']:
             plt.show()
 

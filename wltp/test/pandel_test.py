@@ -186,28 +186,28 @@ class Test(unittest.TestCase):
 
     def test_resolve_jsonpointer_existing(self):
         doc = {
-            'foo': 1, 
+            'foo': 1,
             'bar': [11,{'a':222}]
         }
-        
+
         path = '/foo'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 1)
-        
+
         path = '/bar/0'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 11)
-        
+
         path = '/bar/1/a'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 222)
 
     def test_resolve_jsonpointer_sequence(self):
         doc = [1, [22, 33]]
-        
+
         path = '/0'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 1)
-        
+
         path = '/1'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), [22, 33])
-        
+
         path = '/1/0'
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), 22)
         path = '/1/1'
@@ -215,7 +215,7 @@ class Test(unittest.TestCase):
 
     def test_resolve_jsonpointer_missing_screams(self):
         doc = {}
-        
+
         path = '/foo'
         with self.assertRaises(JsonPointerException):
             pandel.resolve_jsonpointer(doc, path)
@@ -224,7 +224,7 @@ class Test(unittest.TestCase):
         doc = {}
         path = ''
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), doc)
-        
+
         doc = {'foo':1}
         self.assertEqual(pandel.resolve_jsonpointer(doc, path), doc)
 
@@ -281,7 +281,7 @@ class Test(unittest.TestCase):
         path = '/'
         with self.assertRaises(JsonPointerException):
             self.assertEqual(pandel.resolve_jsonpointer(doc, path), doc)
-        
+
         doc = {'foo':1}
         with self.assertRaises(JsonPointerException):
             self.assertEqual(pandel.resolve_jsonpointer(doc, path), doc)
@@ -405,7 +405,7 @@ class Test(unittest.TestCase):
         paths = pandel.build_all_jsonpaths(schema)
         print('\n'.join(paths))
         self.assertIn('/params/wltc_data', paths)
-        self.assertIn('/params/wltc_data', paths) #TODO: build_all_paths support $ref 
+        self.assertIn('/params/wltc_data', paths) #TODO: build_all_paths support $ref
 
 
 

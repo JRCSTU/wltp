@@ -227,14 +227,14 @@ class InstancesTest(unittest.TestCase):
                 set_jsonpointer(mdl, field, value)
                 mdl = model.merge(model._get_model_base(), mdl)
                 self.checkModel_valid(mdl)
-                
+
             ## Check len(gear) mismatch
             #
             mdl = goodVehicle()
             set_jsonpointer(mdl, field, [0.354] * (ngears + 1))
             mdl = model.merge(model._get_model_base(), mdl)
             self.checkModel_invalid(mdl)
-            
+
 
 
 

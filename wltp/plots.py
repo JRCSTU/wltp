@@ -212,7 +212,7 @@ def plot_xy_diffs_scatter(X, Y, X_REF, Y_REF, ref_label, data_label, diff_label=
 def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
             data_fmt="+k", data_kws={},
             diff_label=None, diff_fmt="-r", diff_cmap=cm.hsv, diff_kws={}, #@UndefinedVariable cm.PiYG
-            title=None, x_label=None, y_label=None, 
+            title=None, x_label=None, y_label=None,
             axes_tuple=None,
             mark_sections=None):
     color_diff = 'r'
@@ -220,21 +220,21 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
     cm_norm = MidPointNorm()
 
     U, V, DIFF, ANGLE = cartesians_to_polarDiffs(X_REF, Y_REF, X, Y)
-    
+
     if axes_tuple:
         (axes, twin_axis) = axes_tuple
     else:
         bottom = 0.1
         height = 0.8
         axes = plt.axes([0.1, bottom, 0.80, height])
-        
+
         ## Prepare axes
         #
         axes.set_xlabel(x_label)
         axes.set_ylabel(r'$%s$' % y_label.replace('$',''))
         axes.xaxis.grid(True)
         axes.yaxis.grid(True)
-    
+
         twin_axis = axes.twinx()
         twin_axis.set_ylabel(r'$\Delta %s$' % y_label.replace('$',''), color=color_diff, labelpad=0)
         twin_axis.tick_params(axis='y', colors=color_diff)
@@ -243,7 +243,7 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
         plt.title(title, axes=axes)
         axes_tuple = (axes, twin_axis)
 
-        
+
     if mark_sections == 'classes':
         plot_class_limits(axes, Y.min())
     elif mark_sections == 'parts':
@@ -253,17 +253,17 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
     #
     l_ref = axes.quiver(X, Y, U, V,
         ANGLE, cmap=diff_cmap, norm=cm_norm,
-        scale_units='xy', angles='xy', scale=1, 
+        scale_units='xy', angles='xy', scale=1,
         width=0.004, alpha=alpha,
         pivot='tip'
     )
-    
+
     l_data, = axes.plot(X, Y, data_fmt, label=data_label, **data_kws)
     l_data.set_picker(3)
-    
+
     l_diff = twin_axis.plot(X, V, '.', color=color_diff, markersize=0.7)
     line_points, regress_poly = fit_straight_line(X, V)
-    l_diff_fitted, = twin_axis.plot(line_points, polyval(regress_poly, line_points), diff_fmt, 
+    l_diff_fitted, = twin_axis.plot(line_points, polyval(regress_poly, line_points), diff_fmt,
         label=diff_label, **diff_kws)
 
     return axes_tuple, (l_data, l_ref, l_diff, l_diff_fitted)
@@ -272,20 +272,20 @@ def plot_xy_diffs_arrows(X, Y, X_REF, Y_REF, data_label, ref_label=None,
 class DataCursor(object):
     """
     Use::
-    
+
         fig.canvas.mpl_connect('pick_event', DataCursor(plt.gca()))
     """
     x, y = 0.0, 0.0
     xoffset, yoffset = -20, 20
 
-    def __init__(self, ax=None, 
-                 text_template='x: {x:0.2f}\ny: {y:0.2f}\n{txt}', 
+    def __init__(self, ax=None,
+                 text_template='x: {x:0.2f}\ny: {y:0.2f}\n{txt}',
                  annotations=None):
         self.ax = ax or plt.gca()
         self.text_template = text_template
         self.annotations = annotations or []
-        self.annotation = ax.annotate(self.text_template, 
-                xy=(self.x, self.y), xytext=(self.xoffset, self.yoffset), 
+        self.annotation = ax.annotate(self.text_template,
+                xy=(self.x, self.y), xytext=(self.xoffset, self.yoffset),
                 textcoords='offset points', ha='right', va='bottom',
                 bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5),
                 arrowprops=dict(arrowstyle='->', connectionstyle='arc3,rad=0')

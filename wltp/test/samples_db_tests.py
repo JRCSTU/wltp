@@ -90,7 +90,7 @@ class ExperimentSampleVehs(unittest.TestCase):
             diff_prcnt     0.008256    0.010170     0.004995     0.001403
 
         Keeping idle engine revs::
-        
+
                                mean         std          min          max
             python      1898.453462  146.889032  1674.151741  2239.621701
             heinz       1892.048584  148.248303  1660.710716  2223.772904
@@ -156,9 +156,9 @@ class ExperimentSampleVehs(unittest.TestCase):
             (140.616, 149.684]     1895.125082     1907.872848    0.006727      1
 
         Keeping idle engine revs::
-        
+
                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
-            pmr                                                                  
+            pmr
             (40.759, 49.936]       2079.060852     2071.114936   -0.003837      4
             (49.936, 59.00401]     1915.715680     1911.017351   -0.002459      4
             (59.00401, 68.072]     1941.701195     1930.170461   -0.005974      3
