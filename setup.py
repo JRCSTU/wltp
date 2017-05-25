@@ -99,6 +99,7 @@ def yield_sphinx_only_markup(lines):
         # Other
         #
         (r'\|version\|',              r'x.x.x'),
+        (r'\|today\|',                r'YYYY-MM-DD'),
     ]
 
     regex_subs = [(re.compile(regex, re.IGNORECASE), sub)
