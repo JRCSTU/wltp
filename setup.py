@@ -201,9 +201,6 @@ setup(
         'console_scripts': [
             'wltp = wltp.__main__:main',
         ],
-        'gui_scripts': [
-            'wltpui = wltp.tkui:main',
-        ]
     },
     zip_safe=True,
     options={

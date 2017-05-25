@@ -22,7 +22,7 @@ import ast
 from distutils.spawn import find_executable
 import json
 from textwrap import dedent
-from wltp import model, pandel, tkui, utils, __version__ as prog_ver
+from wltp import model, pandel, utils, __version__ as prog_ver
 from wltp.pandel import JsonPointerException
 from pandas.core.generic import NDFrame
 import six
@@ -157,11 +157,6 @@ def main(argv=None):
 
         log.debug("Args: %s\n  +--Opts: %s", argv, opts)
 
-        if opts.gui:
-            app = tkui.TkWltp()
-            app.mainloop()
-            return
-        
         if opts.excel:
             copy_excel_template_files(opts.excel)
             return
@@ -713,7 +708,6 @@ def build_args_parser(program_name, version, desc, epilog):
 
 
     xlusive_group = parser.add_mutually_exclusive_group()
-    xlusive_group.add_argument('--gui', help='start GUI to run a single experiment', action='store_true')
     xlusive_group.add_argument('--excel', help="copy `xlwings` excel & python template files into DESTPATH or current-working dir, to run a batch of experiments", 
         nargs='?', const=None, metavar='DESTPATH')
 #    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments", 
