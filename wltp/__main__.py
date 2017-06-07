@@ -690,8 +690,7 @@ def build_args_parser(program_name, version, desc, epilog):
     grp_io.add_argument('-M', help=dedent("""\
             get help description for the specfied model path.
             If no path specified, gets the default model-base. """),
-                        action='append', nargs='*',
-                        type=parse_key_value_pair, metavar='MODEL_PATH')
+                        action='append', nargs='*', metavar='MODEL_PATH')
 
 
     grp_io.add_argument('-O', help=dedent("""\
