@@ -122,11 +122,6 @@ you can try the following commands:
 
     See: :ref:`cmd-line-usage`
 
-:GUI:
-    .. code-block:: bash
-
-        $ wltp --gui`                           ## For exploring model, but not ready yet.
-
 :Excel:
     .. code-block:: bash
 
@@ -416,20 +411,6 @@ for which you want to override the ``n_idle`` only, run the following:
         -I vehicle.csv file_frmt=SERIES model_path=params header@=None \
         -m vehicle/n_idle:=850 \
         -O cycle.csv model_path=cycle_run
-
-
-
-GUI usage
----------
-.. Attention:: Desktop UI requires Python 3!
-
-For a quick-'n-dirty method to explore the structure of the model-tree and run an experiment,
-just run:
-
-.. code-block:: bash
-
-    $ wltp --gui
-
 
 
 .. _excel-usage:
