@@ -11,12 +11,7 @@ except ImportError:
     from pip import pip
     pip.main('install xlwings==0.2.3'.split())
     import xlwings as xw
-try:
-    import easygui
-except ImportError:
-    from pip import pip
-    pip.main('install easygui'.split())
-    import easygui
+
 
 __version__ = '0.0.1'
 
@@ -71,13 +66,12 @@ def _get_xl_vb_project(xl_wb):
     """
     def show_unlock_msg(msg):
         text = dedent(_get_xl_vb_project.__doc__)
-#        try:
-#            from tkinter import messagebox as msgbox
-#        except ImportError:
-#            import tkMessageBox as msgbox
-#        msgbox.showinfo(title="Excel Permission Denied!", message=msg)
-        easygui.textbox(title="Excel Permission Denied!", msg=msg, text=text)
-        return msg
+        try:
+            from tkinter import messagebox as msgbox
+        except ImportError:
+            import tkMessageBox as msgbox
+        msg = '%s\n%s' % (msg, text)
+        msgbox.showinfo(title="Excel Permission Denied!", message=msg)
 
     try:
         xl_vbp = xl_wb.VBProject
