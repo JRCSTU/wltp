@@ -62,6 +62,18 @@ TODOs
 Changelog
 =========
 
+v0.1.0a3  (23-Aug-2018)
+-----------------------
+Quick'n Dirty release to remove ``matplotlib`` from dependencies.
+
+- fix(main): ``--gui``and ``--excelrun`` were preventing cmd-line launches,
+  the ``-M`` option did not work due to bad argument type-parsing.
+- Dependencies:
+  - drop *easygui* dependency.
+  - BREAK: move ``matplotlib`` to extras ``[plot]``, so ``co2mpas`` docker-image
+    does not load Qt and other heavy graphical stuff.
+
+
 v0.1.0-alpha.2 (25-May-2017)
 ----------------------------
 - fix(deps): pandas-v0.20.1 dropped PandasError classs -
