@@ -161,12 +161,12 @@ def main(argv=None):
             copy_excel_template_files(opts.excel)
             return
 
-        if opts.excelrun:
-            files_copied = copy_excel_template_files(opts.excelrun)          #@UnusedVariable
-            xls_file = files_copied[0]
-
-            utils.open_file_with_os(xls_file)
-            return
+#        if opts.excelrun:
+#            files_copied = copy_excel_template_files(opts.excelrun)          #@UnusedVariable
+#            xls_file = files_copied[0]
+#
+#            utils.open_file_with_os(xls_file)
+#            return
 
         if opts.winmenus:
             add_windows_shortcuts_to_start_menu('winmenus')
