@@ -335,7 +335,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                                     [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
                                 ]).T
 
-                            * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 0.15]:
+                            * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 1.20]:
 
                                         n_norm = (n - n_idle) / (n_rated  - n_idle)
 
