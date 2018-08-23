@@ -1,6 +1,6 @@
-#############################
-*wltp* gear-shifts calculator
-#############################
+################################################################
+wltp: generate WLTC gear-shifts based on vehicle characteristics
+################################################################
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
 
 :release:       0.1.0-alpha.2

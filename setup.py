@@ -152,8 +152,9 @@ setup(
     download_url=download_url,
     license="European Union Public Licence 1.1 or later (EUPL 1.1+)",
     keywords=[
-        "automotive", "vehicle", "vehicles", "car", "cars", "fuel", "consumption", "gears", "gearshifs",
-        "simulation", "simulator", "driving", "engine", "wltc", "UNECE", "standard",
+        "automotive", "vehicle", "vehicles", "car", "cars", "fuel", "gears", "gearshifs",
+        "simulation", "simulator", "consumption", "driving", "engine", "wltc",
+        "UNECE", "standard",
     ],
     classifiers=[
         "Programming Language :: Python",
