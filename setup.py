@@ -185,6 +185,7 @@ setup(
     ],
     extras_require={
         'plot': ['matplotlib'],  # need for docs to build & to run tests
+        'excel': ['xlwings'],
         'wltpdb': [],
         ':python_version == "2.7"': ['mock'],
         ':platform_system=="Windows" or platform_system=="Darwin"':
