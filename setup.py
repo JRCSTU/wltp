@@ -175,7 +175,6 @@ setup(
         'jsonschema>=2.5',
         'numpy',
         'pandas',  # 'openpyxl', 'xlrd',
-        'matplotlib',  # >=1.4',  ## Let it mature some time more...
     ],
     setup_requires=[
         'setuptools-git >= 0.3',  # Gather package-data from all files in git.
@@ -185,6 +184,7 @@ setup(
         'coverage',
     ],
     extras_require={
+        'plot': ['matplotlib'],  # need for docs to build & to run tests
         'wltpdb': [],
         ':python_version == "2.7"': ['mock'],
         ':platform_system=="Windows" or platform_system=="Darwin"':

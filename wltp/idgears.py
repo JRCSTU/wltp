@@ -51,7 +51,6 @@ import functools as ft
 import math
 import numpy as np, pandas as pd
 from scipy import signal
-from matplotlib import pyplot as plt
 
 
 def dequantize_unstabbleMean(df, method='linear'):
@@ -401,6 +400,8 @@ def plot_idgears_results(cycle_df, detekt, fig=None, axes=None, original_points=
     """
     :param detekt: A Detekt-namedtuple with the data to plot
     """
+    from matplotlib import pyplot as plt
+
     if not fig:
         fig = plt.figure(figsize=(18,10))
         fig.suptitle('Detekt: %s, Accuracy: %s (wltp-good: ~< 1e-3)'%(detekt.final, detekt.distort))
