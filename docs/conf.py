@@ -71,27 +71,15 @@ sys.path.insert(0, os.path.abspath('../'))
 #sys.path.insert(0, os.path.abspath('../devtools')) # Does not work for scripts :-(
 
 
-## Mock C-libraries (numpy/pandas, etc) so that `autodoc` sphinx-extension
-#    can import sources.
-#     From http://read-the-docs.readthedocs.org/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
-#     Also tried but fails: http://blog.rtwilson.com/how-to-make-your-sphinx-documentation-compile-with-readthedocs-when-youre-using-numpy-and-scipy/
 #
 if on_rtd:
-    try:
-        from unittest.mock import MagicMock
-    except ImportError:
-        from mock import Mock as MagicMock
-
-    class Mock(MagicMock):
-        @classmethod
-        def __getattr__(cls, name):
-            return Mock()
+    from unittest.mock import MagicMock
 
     MOCK_MODULES =  [
         'xlwings' ## Mock-out because it depends on win32.
     ]
     for mod_name in MOCK_MODULES:
-        sys.modules[mod_name] = Mock()
+        sys.modules[mod_name] = MagicMock()
 
 ## Trick from https://github.com/rtfd/readthedocs.org/issues/283
 # On read the docs we need to use a different CDN URL for MathJax which loads
