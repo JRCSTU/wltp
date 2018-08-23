@@ -148,7 +148,7 @@ setup(
     long_description=long_desc,
     author="Kostis Anagnostopoulos @ European Commission (JRC)",
     author_email="ankostis@gmail.com",
-    url="https://github.com/ankostis/wltp",
+    url="https://github.com/JRCSTU/wltp",
     download_url=download_url,
     license="European Union Public Licence 1.1 or later (EUPL 1.1+)",
     keywords=[

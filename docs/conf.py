@@ -175,7 +175,7 @@ version = proj_ver
 release = proj_ver
 
 extlinks = {
-    'issue': ('https://github.com/ankostis/wltp/issues/%s','issue')
+    'issue': ('https://github.com/JRCSTU/wltp/issues/%s','issue')
 }
 todo_include_todos = True
 

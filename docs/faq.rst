@@ -83,7 +83,7 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
   Check the :doc:`CHANGES` for point that you have to be aware of when upgrading.
 
 
-- Did you `search <https://github.com/ankostis/wltp/issues>`_ whether **a similar issue** has already been reported?
+- Did you `search <https://github.com/JRCSTU/wltp/issues>`_ whether **a similar issue** has already been reported?
 
 - Did you **ask google** for an answer??
 

@@ -6,7 +6,7 @@
 :release:       0.1.0-alpha.2
 :date:          2017-05-25 18:39:47
 :documentation: https://wltp.readthedocs.org/ (build-date: |today|)
-:source:        https://github.com/ankostis/wltp
+:source:        https://github.com/JRCSTU/wltp
 :pypi-repo:     https://pypi.python.org/pypi/wltp
 :keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifts,
                 rpm, simulation, simulator, standard, vehicle, vehicles, wltc, nedc
@@ -300,7 +300,7 @@ or alternatively straight from the sources:
     $ pip install git+git://github.com/ankostis/wltp.git@v0.0.9-alpha.3.1  --pre
 
 Ofcourse you can substitute `v0.0.9-alpha.3.1` with any slug from "commits", "branches" or "releases"
-that you will find on project's `github-repo <https://github.com/ankostis/wltp>`_).
+that you will find on project's `github-repo <https://github.com/JRCSTU/wltp>`_).
 
 .. Note::
     If you have another version already installed, you have to use :option:`--ignore-installed` (or :option:`-I`).
@@ -317,7 +317,7 @@ If you download the sources you have more options for installation.
 There are various methods to get hold of them:
 
 * Download the *source* distribution from |pypi|_.
-* Download a `release-snapshot from github <https://github.com/ankostis/wltp/releases>`_
+* Download a `release-snapshot from github <https://github.com/JRCSTU/wltp/releases>`_
 * Clone the *git-repository* at *github*.
 
   Assuming you have a working installation of `git <http://git-scm.com/>`_
@@ -325,7 +325,7 @@ There are various methods to get hold of them:
 
   .. code-block:: bash
 
-      $ git clone "https://github.com/ankostis/wltp.git" wltp.git
+      $ git clone "https://github.com/JRCSTU/wltp.git" wltp.git
       $ cd wltp.git
       $ python setup.py install                                 ## Use `python3` if both python-2 & 3 installed.
 
@@ -650,7 +650,7 @@ found under the :file:`/wltp/test/` folder.
 
 IPython notebook usage
 ----------------------
-The list of *IPython notebooks* for wltp is maintained at the `wiki <https://github.com/ankostis/wltp/wiki>`_
+The list of *IPython notebooks* for wltp is maintained at the `wiki <https://github.com/JRCSTU/wltp/wiki>`_
 of the project.
 
 Requirements
@@ -678,7 +678,7 @@ Getting Involved
 ================
 This project is hosted in **github**.
 To provide feedback about bugs and errors or questions and requests for enhancements,
-use `github's Issue-tracker <https://github.com/ankostis/wltp/issues>`_.
+use `github's Issue-tracker <https://github.com/JRCSTU/wltp/issues>`_.
 
 
 
@@ -691,7 +691,7 @@ First you need to download the latest sources:
 
 .. code-block:: console
 
-    $ git clone https://github.com/ankostis/wltp.git wltp.git
+    $ git clone https://github.com/JRCSTU/wltp.git wltp.git
     $ cd wltp.git
 
 
@@ -973,5 +973,5 @@ Glossary
     :alt: Downloads
 
 .. |github-issues| image:: http://img.shields.io/github/issues/ankostis/wltp.svg
-    :target: https://github.com/ankostis/wltp/issues
+    :target: https://github.com/JRCSTU/wltp/issues
     :alt: Issues count
