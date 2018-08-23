@@ -1,2 +1,3 @@
 recursive-exclude docs docs
 prune docs/docs
+prune wltp/test

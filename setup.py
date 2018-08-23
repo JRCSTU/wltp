@@ -30,7 +30,7 @@ import sys
 import io
 import re
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 # Fail early in ancient python-versions
@@ -164,7 +164,7 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    packages=['wltp', 'wltp.cycles', 'wltp.test', 'wltp.excel'],
+    packages=find_packages(exclude=["wltp.test", "wltp.test.*"]),  # Wy need prune then??
     include_package_data=True,
     #     package_data= {'proj_name': ['data/*.csv']},
     #    package_data = {
