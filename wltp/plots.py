@@ -10,7 +10,7 @@ from __future__ import division, print_function, unicode_literals
 
 from matplotlib import cbook, cm, pyplot as plt
 from matplotlib.colors import Normalize
-from matplotlib.mlab import ma
+from numpy import ma
 from numpy import polyfit, polyval
 from wltp import model
 

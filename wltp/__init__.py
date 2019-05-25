@@ -19,5 +19,3 @@ __license__       = "EUPL 1.1+"                     # noqa
 __title__     = "wltp"                              # noqa
 __summary__   = __doc__.splitlines()[0]             # noqa
 __uri__       = "https://github.com/JRCSTU/wltp"  # noqa
-
-__all__ = ['experiment.Experiment', 'model']

@@ -22,7 +22,7 @@ Example-code to get WLTP-data::
 
 from __future__ import division, print_function, unicode_literals
 
-from collections import Mapping, Sized
+from collections.abc import Mapping, Sized
 import json
 import logging
 from textwrap import dedent
@@ -835,7 +835,7 @@ def yield_forced_cycle_errors(mdl, additional_properties):
 
             if forced_cycle.shape[1] == 1:
                 if cols[0] == 1:
-                    log.warning("Assuming the unamed single-column to be the velocity_profile(v).", cols[0])
+                    log.warning("Assuming the unamed single-column to be the velocity_profile(%s).", cols[0])
                     forced_cycle.columns = ['v']
 
             params['forced_cycle'] = forced_cycle

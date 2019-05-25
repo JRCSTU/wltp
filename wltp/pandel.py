@@ -11,7 +11,7 @@ URI-references, implemented by :class:`Pandel`. """
 from __future__ import division, unicode_literals
 
 import abc
-from collections import Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from collections import OrderedDict, namedtuple, defaultdict
 import contextlib
 import numbers
