@@ -126,7 +126,7 @@ proj_ver = read_project_version()
 
 
 readme_lines = read_text_lines("README.rst")
-description = readme_lines[1]
+description = readme_lines[1].strip()
 long_desc = "".join(yield_rst_only_markup(readme_lines))
 # Trick from: http://peterdowns.com/posts/first-time-with-pypi.html
 download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_ver)
