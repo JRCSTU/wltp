@@ -13,8 +13,8 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 :Copyright:     2013-2014 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
-The *wltp* is a python package that calculates the *gear-shifts* of Light-duty vehicles running the :term:`WLTP`
-driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regulation)` draft.
+A python package to generate the *gear-shifts* of Light-duty vehicles
+running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTRs`.
 
 .. figure:: docs/wltc_class3b.png
     :align: center
@@ -22,16 +22,21 @@ driving-cycles, according to :term:`UNECE`'s :abbr:`GTR (Global Technical Regula
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
 
 
-.. Attention:: This *wltp* python project is still in *alpha* stage.  Its results are not
-    considered "correct", and no experimental procedures should rely currently on them.
+.. Attention::
+    This *wltp* python project is still in *alpha* stage, in the send that
+    its results are not "correct" by the standard, and no WLTP dyno-tests should rely
+    currently on them.
 
     Some of the known deficiencies are described in these places:
 
     * In the :doc:`CHANGES`.
     * Presented in the diagrams of the :doc:`metrics` section.
     * Imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case
-      (automatically comparared with a pre-determined set of vehicles from Heinz-db on each build)
-      Currently, mean rpm differ from Heinz-db < 0.5% and gears diff < 5% for a 1800-step class-3 cycle.
+      which automatically compares, on each build, the mean RPMs & Gears of this program 
+      against Heinz's *phase-1a* (end of 2014) MSAccess, 
+      for a pre-determined set of *Heinz-db* vehicles.
+      Currently, genrated mean-RPMs differ from Heinz-db < 0.5% and 
+      gears < 5% for a 1800-step class-3 cycle.
 
 .. _end-opening:
 .. contents:: Table of Contents
@@ -103,7 +108,7 @@ you can try the following commands:
         $ pip install wltp                      ## Use `--pre` if version-string has a build-suffix.
         $ wltp --winmenus                       ## Adds StartMenu-items, Windows only.
 
-    Or in case you need the very latest from `master` branch :
+    Or in case you need the very latest from *master* branch :
 
     .. code-block:: bash
 
@@ -206,7 +211,7 @@ Below is a matrix of the two suggested self-wrapped python distributions for run
 |                 |                                           |                                           |
 |                 |                                           |                                           |
 +-----------------+-------------------------------------------+-------------------------------------------+
-| *Notes*         | After installation, see `faq` for:        | - Check also the lighter `miniconda       |
+| *Notes*         | After installation, see *faq* for:        | - Check also the lighter `miniconda       |
 |                 |                                           |   <http://conda.pydata.org/               |
 |                 | - Registering WinPython installation      |   miniconda.html>`_.                      |
 |                 | - Adding your installation in             | - For installing native-dependencies      |
@@ -299,7 +304,7 @@ or alternatively straight from the sources:
 
     $ pip install git+git://github.com/ankostis/wltp.git@v0.0.9-alpha.3.1  --pre
 
-Ofcourse you can substitute `v0.0.9-alpha.3.1` with any slug from "commits", "branches" or "releases"
+Ofcourse you can substitute ``v0.0.9-alpha.3.1`` with any slug from "commits", "branches" or "releases"
 that you will find on project's `github-repo <https://github.com/JRCSTU/wltp>`_).
 
 .. Note::
@@ -448,7 +453,7 @@ All the above commands creates two files:
 
     The excel-file contains additionally appropriate *VBA* modules allowing you to invoke *Python code*
     present in *selected cells* with a click of a button, and python-functions declared in the python-script, below,
-    using the `mypy` namespace.
+    using the ``mypy`` namespace.
 
     To add more input-columns, you need to set as column *Headers* the *json-pointers* path of the desired
     model item (see :ref:`python-usage` below,).
@@ -468,13 +473,13 @@ All the above commands creates two files:
 
 Some general notes regarding the python-code from excel-cells:
 
-* On each invocation, the predefined VBA module `pandalon` executes a dynamically generated python-script file
+* On each invocation, the predefined VBA module ``pandalon`` executes a dynamically generated python-script file
   in the same folder where the excel-file resides, which, among others, imports the "sister" python-script file.
   You can read & modify the sister python-script to import libraries such as 'numpy' and 'pandas',
   or pre-define utility python functions.
 * The name of the sister python-script is automatically calculated from the name of the Excel-file,
   and it must be valid as a python module-name.  Therefore do not use non-alphanumeric characters such as
-  spaces(` `), dashes(`-`) and dots(`.`) on the Excel-file.
+  spaces(`` ``), dashes(``-``) and dots(``.``) on the Excel-file.
 * On errors, a log-file is written in the same folder where the excel-file resides,
   for as long as **the message-box is visible, and it is deleted automatically after you click 'ok'!**
 * Read http://docs.xlwings.org/quickstart.html
@@ -502,7 +507,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
 
 .. Tip:
     The use :command:`ipython` is preffered over :command:`python` since it offers various user-friendly
-    facilities, such as pressing :kbd:`Tab` for completions, or allowing you to suffix commands with `?` or `??`
+    facilities, such as pressing :kbd:`Tab` for completions, or allowing you to suffix commands with ``?`` or ``??``
     to get help and read their source-code.
 
     Additionally you can <b>copy any python commands starting with ``>>>`` and ``...``</b> and copy paste them directly
@@ -718,8 +723,8 @@ First you need to download the latest sources:
     * :file:`eclipse.project`
     * :file:`eclipse.pydevproject`
 
-    Remove the `eclipse` prefix, (but leave the dot(`.`)) and import it as "existing project" from
-    Eclipse's `File` menu.
+    Remove the ``eclipse`` prefix, (but leave the dot(``.``)) and import it as "existing project" from
+    Eclipse's *File*`* menu.
 
     Another issue is caused due to the fact that LiClipse contains its own implementation of *Git*, *EGit*,
     which badly interacts with unix *symbolic-links*, such as the :file:`docs/docs`, and it detects
@@ -874,22 +879,27 @@ Development team
 
 Glossary
 ========
+
 .. glossary::
 
     WLTP
         The `Worldwide harmonised Light duty vehicles Test Procedure <https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179>`_,
-        a :term:`GRPE` informal working group
+        a `GRPE` informal working group
 
     UNECE
         The United Nations Economic Commission for Europe, which has assumed the steering role
-        on the :term:`WLTP`.
+        on the `WLTP`.
 
     GRPE
-        :term:`UNECE` Working party on Pollution and Energy - Transport Programme
+        `UNECE` Working party on Pollution and Energy - Transport Programme
+
+    GTR
+    GTRs
+        Any of the *Global Technical Regulation* documents of the `WLTP` .
 
     GS Task-Force
-        The Gear-shift Task-force of the :term:`GRPE`. It is the team of automotive experts drafting
-        the gear-shifting strategy for vehicles running the :term:`WLTP` cycles.
+        The Gear-shift Task-force of the `GRPE`. It is the team of automotive experts drafting
+        the gear-shifting strategy for vehicles running the `WLTP` cycles.
 
     WLTC
         The family of pre-defined *driving-cycles* corresponding to vehicles with different
@@ -909,7 +919,7 @@ Glossary
 
     pandas-model
         The *container* of data that the gear-shift calculator consumes and produces.
-        It is implemented by :class:`wltp.pandel.Pandel` as a mergeable stack of :term:`JSON-schema` abiding trees of
+        It is implemented by :class:`wltp.pandel.Pandel` as a mergeable stack of `JSON-schema` abiding trees of
         strings and numbers, formed with sequences, dictionaries, :mod:`pandas`-instances and URI-references.
 
     JSON-schema
