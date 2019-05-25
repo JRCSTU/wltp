@@ -62,6 +62,15 @@ TODOs
 Changelog
 =========
 
+v0.1.1a0  (25-May-2019): UNECE takeove
+--------------------------------------
+- Fix py36 "nested regex" warning on ``pandel`` module.
+- Pin ``jsonschema <3`` to fix validation, was also ``>2.5``, so now maximum ``2.6``.
+- Updates to `setup.py` and dependencies.
+- Minor documentation fixes.
+- VSCode files & dev plugins.
+
+
 v0.1.0a3  (23-Aug-2018)
 -----------------------
 Quick'n Dirty release to remove ``matplotlib`` from dependencies.
