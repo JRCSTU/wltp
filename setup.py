@@ -72,16 +72,17 @@ def yield_rst_only_markup(lines):
         # Selected Sphinx-only Roles.
         #
         (r":abbr:`([^`]+)`", r"\1"),
+        (r":envvar:`([^`]+)`", r"``env[$\1]``"),
         (r":ref:`([^`]+)`", r"ref: *\1*"),
         (r":term:`([^`]+)`", r"**\1**"),
         (r":dfn:`([^`]+)`", r"**\1**"),
-        (r":(samp|guilabel|menuselection|doc|file):`([^`]+)`", r"``\2``"),
+        (r":(samp|guilabel|menuselection|doc|file):`([^`]+)`", r"\1(`\2`)"),
         # Sphinx-only roles:
         #        :foo:`bar`   --> foo(``bar``)
         #        :a:foo:`bar` XXX afoo(``bar``)
         #
         # (r'(:(\w+))?:(\w+):`([^`]*)`', r'\2\3(``\4``)'),
-        # (r':(\w+):`([^`]*)`', r'\1(`\2`)'),
+        (r":(\w+):`([^`]*)`", r"\1(`\2`)"),
         # emphasis
         # literal
         # code
@@ -96,7 +97,7 @@ def yield_rst_only_markup(lines):
         #
         (r"\.\. doctest", r"code-block"),
         (r"\.\. module", r"code-block"),
-        (r"\.\. plot::", r".. "),
+        (r"\.\. currentmodule::", r"currentmodule:"),
         (r"\.\. seealso", r"info"),
         (r"\.\. glossary", r"rubric"),
         (r"\.\. figure::", r".. "),
