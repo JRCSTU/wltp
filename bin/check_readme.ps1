@@ -12,7 +12,5 @@
 # PyPi would fail parsing them, ending up with an ugly landing page,
 # when uploaded.
 
-$mydir=Split-Path $script:MyInvocation.MyCommand.Path
-$env:PYTHONPATH="../$mydir"
-$rst2html = &where.exe rst2html.py
-&python setup.py --long-description | &python "$rst2html" --halt=warning > $null
+&python setup.py bdist_wheel
+&twine check dist/*

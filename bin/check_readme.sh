@@ -12,30 +12,18 @@
 # PyPi would fail parsing them, ending up with an ugly landing page,
 # when uploaded.
 
-set +x
+set +x  # Set -x for debugging script.
 
 my_dir=`dirname "$0"`
+my_name=`basename "$0"`
 cd $my_dir/..
 
-py=""
-rst="rst2html"
-if [ ! -x "`which $rst 2>/dev/null`" ]; then
-    ## In WinPython, only a python-script exist in PATH,
-    #   so execute it with python-interpreter.
-    #
-    exe="`which rst2html.py 2> /dev/null`" 
-    if [ $? -eq 0 ]; then
-        py=python
-        rst="$exe"
-    else
-        echo -e "Cannot find 'rst2html'! \n Sphinx installed? `pip show sphinx`" && 
-        exit 1
-    fi
-    
-    if [ -x "`which cygpath`" ]; then
-        rst="`cygpath -w $rst`"
-    fi
-fi
+tmp_dir=$(mktemp -d -t wltp-$my_name-XXXXXXXXXX)
 
-export PYTHONPATH='$my_dir/..'
-python setup.py --long-description | $py "$rst"  --halt=warning > /dev/null && echo OK
+rm -rf "build/*" "dist/*"
+python setup.py -q bdist_wheel --dist-dir $tmp_dir && \
+twine check $tmp_dir/*.whl 
+
+exc=$?
+rm -rf $tmp_dir
+exit $exc
