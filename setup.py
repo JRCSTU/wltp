@@ -134,13 +134,22 @@ download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_v
 plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
 test_reqs = ["nose", "coverage", "matplotlib", "coveralls"]
-doc_reqs = ["sphinx>=1.2", "sphinx_rtd_theme", "matplotlib"]
+doc_reqs = ["sphinx>=1.2", "sphinx_rtd_theme", "matplotlib"]  # for comparisons
 dev_reqs = (
     test_reqs
     + doc_reqs
     + plot_reqs
     + excel_reqs
-    + ["wheel", "twine", "pylint", "black"]
+    + [
+        "wheel",
+        "twine",
+        "pylint",
+        # for VSCode autoformatting
+        "black",
+        # for VSCode RST linting
+        "doc8",
+        "sphinx-autobuild",
+    ]
 )
 
 setup(
@@ -148,6 +157,7 @@ setup(
     version=proj_ver,
     description=description,
     long_description=long_desc,
+    long_description_content_type="text/x-rst",
     author="JRC-SRU on behalf of UNECE's GearShifting TF",
     author_email="ankostis@gmail.com",
     url="https://github.com/JRCSTU/wltp",
