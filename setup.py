@@ -135,7 +135,13 @@ plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
 test_reqs = ["nose", "coverage", "matplotlib", "coveralls"]
 doc_reqs = ["sphinx>=1.2", "sphinx_rtd_theme", "matplotlib"]
-dev_reqs = test_reqs + doc_reqs + plot_reqs + excel_reqs + ["twine", "pylint", "black"]
+dev_reqs = (
+    test_reqs
+    + doc_reqs
+    + plot_reqs
+    + excel_reqs
+    + ["wheel", "twine", "pylint", "black"]
+)
 
 setup(
     name=proj_name,
@@ -147,9 +153,9 @@ setup(
     url="https://github.com/JRCSTU/wltp",
     download_url=download_url,
     project_urls={
-        'Documentation': 'https://wltp.readthedocs.io/',
-        'Sources': 'https://github.com/JRCSTU/wltp',
-        'Bug Tracker': 'https://github.com/JRCSTU/wltp/issues',
+        "Documentation": "https://wltp.readthedocs.io/",
+        "Sources": "https://github.com/JRCSTU/wltp",
+        "Bug Tracker": "https://github.com/JRCSTU/wltp/issues",
     },
     license="European Union Public Licence 1.1 or later (EUPL 1.1+)",
     keywords=[
