@@ -203,19 +203,15 @@ setup(
         "jsonschema>=2.5",
         "numpy",
         "pandas",  # 'openpyxl', 'xlrd',
+        'mock; python_version == "2.7"',
+        # For Excel integration
+        'xlwings; platform_system=="Windows" or platform_system=="Darwin"',
     ],
     setup_requires=[
         "setuptools-git >= 0.3"  # Gather package-data from all files in git.
     ],
     tests_require=test_reqs,
-    extras_require={
-        "plot": plot_reqs,
-        "excel": excel_reqs,
-        "dev": dev_reqs,
-        ':python_version == "2.7"': ["mock"],
-        # For Excel integration
-        ':platform_system=="Windows" or platform_system=="Darwin"': ["xlwings"],
-    },
+    extras_require={"plot": plot_reqs, "excel": excel_reqs, "dev": dev_reqs},
     test_suite="nose.collector",
     entry_points={"console_scripts": ["wltp = wltp.__main__:main"]},
     zip_safe=True,
