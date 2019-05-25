@@ -138,8 +138,13 @@ readme_lines = read_text_lines('README.rst')
 description = readme_lines[1]
 long_desc = ''.join(yield_rst_only_markup(readme_lines))
 # Trick from: http://peterdowns.com/posts/first-time-with-pypi.html
-download_url = 'https://github.com/ankostis/%s/tarball/v%s' % (
-    proj_name, proj_ver)
+download_url = 'https://github.com/ankostis/%s/tarball/v%s' % (proj_name, proj_ver)
+
+plot_reqs = ['matplotlib']
+excel_reqs = ["xlwings; sys_platform == 'win32'"]
+test_reqs = ['nose', 'coverage', 'matplotlib', 'coveralls']
+doc_reqs = ['sphinx>=1.2', 'sphinx_rtd_theme', 'matplotlib']
+dev_reqs = test_reqs + doc_reqs + plot_reqs + excel_reqs + ['pylint', 'black']
 
 setup(
     name=proj_name,
@@ -192,17 +197,14 @@ setup(
     setup_requires=[
         'setuptools-git >= 0.3',  # Gather package-data from all files in git.
     ],
-    tests_require=[
-        'nose',
-        'coverage',
-    ],
+    tests_require=test_reqs,
     extras_require={
-        'plot': ['matplotlib'],  # need for docs to build & to run tests
-        'excel': ['xlwings'],
-        'wltpdb': [],
+        'plot': plot_reqs,
+        'excel': excel_reqs,
+        'dev': dev_reqs,
         ':python_version == "2.7"': ['mock'],
-        ':platform_system=="Windows" or platform_system=="Darwin"':
-        ['xlwings'],     # For Excel integration
+        # For Excel integration
+        ':platform_system=="Windows" or platform_system=="Darwin"': ['xlwings'],     
     },
     test_suite='nose.collector',
     entry_points={
