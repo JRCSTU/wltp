@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python
 #
 """
 Script to bump, commit and tag new versions.

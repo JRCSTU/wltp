@@ -1,7 +1,6 @@
-#! python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python# -*- coding: utf-8 -*-
 #
-# Copyright 2013-2014 European Commission (JRC);
+# Copyright 2013\-2019 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
@@ -25,11 +24,7 @@ Or get it directly from the PIP repository::
 #    http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
 #    http://python-packaging-user-guide.readthedocs.org/en/latest/current.html
 
-import os
-import sys
-import io
-import re
-
+import os, sys, io, re
 from setuptools import setup, find_packages
 
 
@@ -98,6 +93,7 @@ def yield_rst_only_markup(lines):
         (r"\.\. doctest", r"code-block"),
         (r"\.\. module", r"code-block"),
         (r"\.\. currentmodule::", r"currentmodule:"),
+        (r"\.\. plot::", r".. plot:"),
         (r"\.\. seealso", r"info"),
         (r"\.\. glossary", r"rubric"),
         (r"\.\. figure::", r".. "),

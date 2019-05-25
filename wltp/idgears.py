@@ -1,4 +1,4 @@
-#!python
+#!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 #
 # Copyright 2014 European Commission (JRC);
