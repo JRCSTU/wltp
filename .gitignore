@@ -35,6 +35,13 @@ nosetests.xml
 # Mr Developer
 .mr.developer.cfg
 
+## VisualStudioCode ###
+# From https://stackoverflow.com/questions/51876769/should-you-commit-vscode-symbols-file-to-source-control
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
 ## Eclipse: https://github.com/github/gitignore/blob/master/Global/Eclipse.gitignore
 ##
@@ -78,3 +85,5 @@ cover/
 /wltp-*
 /.project
 /.pydevproject
+
+/*venv
