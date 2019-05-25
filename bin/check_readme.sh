@@ -16,7 +16,12 @@ set +x  # Set -x for debugging script.
 
 my_dir=`dirname "$0"`
 my_name=`basename "$0"`
-cd $my_dir/..
+my_dir="$(dirname "$0")"
+if [ -f "$my_dir/../setup.py" ]; then
+        cd "$my_dir/.."
+else
+        my_dir="$PWD"
+fi
 
 tmp_dir=$(mktemp -d -t wltp-$my_name-XXXXXXXXXX)
 
