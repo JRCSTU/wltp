@@ -50,7 +50,7 @@ _value_with_units_regex = re.compile(r'''^\s*
                                             \)
                                         )?                  # end parenthesized-units
                                         \s*$''', re.X)
-_units_cleaner_regex = re.compile(r'^[[(]|[\])]$')
+_units_cleaner_regex = re.compile(r'^[([]]|[\])]$')
 
 def parse_value_with_units(arg):
     """
