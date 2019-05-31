@@ -36,23 +36,6 @@ cars/
 ## Instructions, to run this notebook in your own jupyter-server
 ...read the `README.md`.
 
-## HDF5 API:
-
-```{python}
-from columnize import columnize
-from tables import File as _tables_File, Group as _tables_Group
-from pandas import HDFStore
-print('HDFStore:', 
-      columnize([f for f in dir(HDFStore) if not f.startswith('__')], displaywidth=160),
-      'tables.File (accessed by `<HDFStore-instance>._handle`):', 
-      columnize([f for f in dir(_tables_File) if not f.startswith('__')], displaywidth=160),
-      'tables.Group:', 
-      columnize([f for f in dir(_tables_Group) if not f.startswith('__')], displaywidth=160),
-      'AttributeSet:', 
-      columnize([f for f in dir(_tables_Group._AttributeSet) if not f.startswith('__')], displaywidth=160),
-     sep='\n')
-```
-
 ```{python}
 import functools as ftt
 import itertools as itt
@@ -72,43 +55,6 @@ from pandas import HDFStore
 
 idx = pd.IndexSlice
 log = logging.getLogger('CarsDB.ipynb')
-```
-
-```{python}
-# to get help on xleash:
-xleash?
-```
-
-## Code to extract data from MSAccess
-in case it is needed in the future
-...but cannot run in here, bc this server is Linux :-( 
-
-```python
-## Can run only on WINDOWS only!!
-#
-import pyodbc
-
-def mdb_connect(db_file, user='admin', password = '', old_driver=False):
-    """
-    :param db_file:
-        must be an absolute path
-    """
-    driver_ver = '*.mdb'
-    if not old_driver:
-        driver_ver += ', *.accdb'
-
-    odbc_conn_str = ('DRIVER={Microsoft Access Driver (%s)}'
-                     ';DBQ=%s;UID=%s;PWD=%s' %
-                     (driver_ver, db_file, user, password))
-
-    return pyodbc.connect(odbc_conn_str)
-
-fname='WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb'
-conn = mdb_connect(fname)
-crsr = conn.cursor()
-
-print([i.table_name for i in crsr.tables(tableType='TABLE')]
-print([i.column_name for i in crsr.columns('gearshift_table_all')]
 ```
 
 ```{python}
