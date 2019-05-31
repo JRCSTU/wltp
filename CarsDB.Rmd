@@ -20,15 +20,12 @@ cars/
     |   +--specs              (df) test-cars as delivered by Heinz on 13 May 2019 
     |   +--pwots              (df) full-load-curves for these cars
     |
-    +--out/
-    |   +--msaccess_ank/      results produced by ankostis running the MSAccess
-    |   +--.../               results from other sources
-    |   +--python/            results produced by python algo
-    |
     +--cooked/                preprocessed cars for python consumptio.
         +--veh001/
         |   +--spec           (df) all kv-pairs from specs + SM, ASM
         |   +--pwot           (df) a single-column df(wot) indexed by n
+        |   +--out1           (df) results produced by MSAccess
+        |   +--out2           (df) results produced by python
         |
         +--veh.../
 ```
@@ -41,6 +38,7 @@ import functools as ftt
 import itertools as itt
 import logging
 from pathlib import Path
+import re
 from typing import Tuple, Dict
 
 import numpy as np
@@ -58,9 +56,13 @@ log = logging.getLogger('CarsDB.ipynb')
 ```
 
 ```{python}
+## DEFINITIONS
+#
 h5fname = 'WltpCars.h5'
 # Test cars delivered by Heinz on 13 May 2019
+heinzdb_fpath="WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb"
 xlfname = Path("example vehicles for the prog code validation.xlsx")
+veh_group_fmt = "/cars/cooked/veh%0.3d"
 c_vehnum, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'n', 'Pwot', 'SM', 'ASM'
 ```
 
@@ -80,11 +82,15 @@ def openh5(h5fname):
 ```
 
 ```{python}
-## Print head & taiul of groups in h5db.
-#
-with openh5(h5fname) as h5db:
-    nodes = h5db.keys()
-    print('\n'.join(itt.chain(nodes[:7], ['...'], nodes[-7:])))
+def print_nodes(h5fname=h5fname):
+    from columnize import columnize
+
+    ## Print head & taiul of groups in h5db.
+    #
+    with openh5(h5fname) as h5db:
+        nodes = h5db.keys()
+        print(columnize(nodes, displaywidth=160))
+print_nodes()
 ```
 
 ```{python}
@@ -98,6 +104,7 @@ pwots = xleash.lasso('%s#wot power curves!::["df"]' % xlfname)
 import io, json, time, platform
 from datetime import datetime
 from ruamel.yaml import YAML
+from copy import deepcopy
 
 
 def _human_time(unixtime: int = None) -> str:
@@ -118,10 +125,11 @@ def _file_hashed(fpath, algo="md5") -> Tuple[str, str]:
             digester.update(b)
     return algo, digester.hexdigest()
 
+
 # file_hashed(xlfname)
 
 
-def _provenir_fpath(fpath, algos=('md5', 'sha256')) -> Dict[str, str]:
+def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
     s = {"fpath": str(fpath)}
 
     fpath = Path(fpath)
@@ -141,42 +149,55 @@ def _git_describe():
         log.info("Cannot git-describe due to: %s", ex)
 
 
-def provenance_info(*fpaths) -> Dict[str, str]:
-    info = {}
+def provenance_info(*fpaths, prov_info=None) -> Dict[str, str]:
+    """
+    :param prov_info:
+        if given, reused (cloned first), and any fpaths appended in it.
+    """
+    if prov_info:
+        info = deepcopy(prov_info)
 
-    gitver = _git_describe()
-    if gitver:
-        info["gitver"] = gitver
+        fps = info.get("fpaths")
+        if not isinstance(fpaths, list):
+            fps = info["fpaths"] = []
+        fps.extend(_provenir_fpath(f) for f in fpaths)
+    else:
+        info = {"ctime": _human_time(), "uname": dict(platform.uname()._asdict())}
+        
+        gitver = _git_describe()
+        if gitver:
+            info["gitver"] = gitver
 
-    if fpaths:
-        info["fpaths"] = [_provenir_fpath(f) for f in fpaths]
-
-    info["ctime"] = _human_time()
-    info["uname"] = dict(platform.uname()._asdict())
+        if fpaths:
+            info["fpaths"] = [_provenir_fpath(f) for f in fpaths]
 
     return info
 
 
-# _provenance_info(xlfname)
+#prov_info = _provenance_info(xlfname)
+#prov_info = provenance_info('sfdsfd', prov_info=prov_info)
+#provenance_info('ggg', prov_info=prov_info)
 
 
 def yaml_dumps(o) -> str:
     s = io.StringIO()
     yaml = YAML(typ="safe", pure=True)
     yaml.default_flow_style = False
-    #yaml.canonical = True
+    # yaml.canonical = True
     yaml.dump(prov_info, s)
     return s.getvalue()
-    
-    
-def provenir_hdf_node(node, title=None, *fpaths, prov_info=None):
+
+
+def provenir_hdf_node(h5db, node, title=None, *fpaths, prov_info=None):
+    h5file = h5db._handle
     if title:
-        node._f_setattr("TITLE", title)
+        h5file.set_node_attr(node, "TITLE", title)
     if prov_info is None:
         prov_info = provenance_info(*fpaths)
-    
+
     provenance = yaml_dumps(prov_info)
-    node._f_setattr("provenance", provenance)
+    h5file.set_node_attr(node, "provenance", provenance)
+
 ```
 
 ```{python}
@@ -187,18 +208,20 @@ display(qgrid.show_grid(pwots))
 ```
 
 ```{python}
-prov_info = provenance_info("WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb", xlfname)
+prov_info = provenance_info(heinzdb_fpath, xlfname)
 
 with openh5(h5fname) as h5db:
     h5db.put("/cars/input/specs", specs)
     provenir_hdf_node(
-        h5db.get_node("/cars/input/specs"),
+        h5db,
+        "/cars/input/specs",
         "Specs for 114 test-cars, as delivered by Heinz on 13 May 2019",
         prov_info=prov_info,
     )
     h5db.put("/cars/input/pwots", pwots)
     provenir_hdf_node(
-        h5db.get_node("/cars/input/pwots"),
+        h5db,
+        "/cars/input/pwots",
         "Full-load-curves for the 114 test-cars, as delivered by Heinz on 13 May 2019",
         prov_info=prov_info,
     )
@@ -236,7 +259,12 @@ def extract_SM_from_pwot(
 ```
 
 ```{python}
-def store_group_per_car(h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM):
+prov_info = provenance_info(heinzdb_fpath, xlfname)
+
+
+def store_group_per_car(
+    h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM, veh_group_fmt=veh_group_fmt
+):
     """
     Distribute vehicle-specs each on a single HDF5 node with 2 children::
     
@@ -248,25 +276,76 @@ def store_group_per_car(h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM):
     """
     for _, spec in specs.iterrows():
         vehnum = spec[c_vehnum]
-        vgroup = "cars/cooked/veh%0.3d" % vehnum
+        vgroup = veh_group_fmt % vehnum
+        spec_node = "%s/spec" % vgroup
+        pwot_node = "%s/pwot" % vgroup
 
         pwot = pwots.loc[pwots[c_vehnum] == vehnum, :]
         pwot, SM = extract_SM_from_pwot(pwot)
 
         spec[c_SM] = SM
 
-        h5db.put("%s/spec" % vgroup, spec)
-        h5db.put("%s/pwot" % vgroup, pwot)
+        h5db.put(spec_node, spec)
+        h5db.put(pwot_node, pwot)
+
+        provenir_hdf_node(
+            h5db,
+            spec_node,
+            "Specs of the test-car, as delivered by Heinz on 13 May 2019",
+            prov_info=prov_info,
+        )
+        provenir_hdf_node(
+            h5db,
+            pwot_node,
+            "Full-load-curve of the test-car, as delivered by Heinz on 13 May 2019",
+            prov_info=prov_info,
+        )
 
 
 with openh5(h5fname) as h5db:
     store_group_per_car(h5db, specs)
     provenir_hdf_node(
-        h5db.get_node("/cars/cooked"),
-        "preprocessed cars for python consumption",
-        prov_info=prov_info,
+        h5db, "/cars/cooked", title="preprocessed cars for python consumption"
     )
+```
 
+```{python}
+def fpath_to_vehnum(outfpath: Path) -> int:
+    import re
+
+    return int(re.match(r"V(\d+)\.xls", outfpath.name).group(1))
+
+
+prov_info = provenance_info(heinzdb_fpath)
+
+
+def store_results_per_car(
+    h5db, results_dir="VehResults", veh_group_fmt=veh_group_fmt, out_group="out1"
+):
+    """
+    Populate h5db with results collected from a folder full of (`V123.xls`, ...) exchel-files.
+    """
+
+    # A dir with one Excel-file per vehicle, as produced by MSAccess.
+    results_dir = Path(results_dir)
+    root_prov_info = provenance_info(heinzdb_fpath)
+    for outfpath in results_dir.glob("*.xls"):
+        vehnum = fpath_to_vehnum(outfpath)
+        vgroup = veh_group_fmt % vehnum
+        vgroup = "%s/%s" % (vgroup, out_group)
+        outdf = xleash.lasso('%s#::["df"]' % outfpath)
+        h5db.put(vgroup, outdf)
+        provenir_hdf_node(
+            h5db, vgroup, outfpath, prov_info=prov_info
+        )
+
+
+with openh5(h5fname) as h5db:
+    store_results_per_car(h5db)
+```
+
+```{python}
+print_nodes()
 ```
 
 ```{python}
@@ -277,4 +356,13 @@ with openh5(h5fname) as h5db:
 # !ptrepack WltpCars.h5 --complevel=9 --complib=blosc:blosclz -o WltpCars.1.h5
 # !mv WltpCars.1.h5 WltpCars.h5
 # !ls -lh WltpCars*
+```
+
+```{python}
+with openh5(h5fname) as h5db:
+    df = h5db.get('/cars/cooked/veh014/out1')
+```
+
+```{python}
+df.columns
 ```
