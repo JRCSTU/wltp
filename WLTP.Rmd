@@ -1,0 +1,65 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.1'
+      jupytext_version: 1.1.3
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+```{python}
+## To autoreload codein python files here.
+# %load_ext autoreload
+# %autoreload 2
+
+## Add %%black at the top of a cell, and re-evaluate it, 
+# to format it before git-commits, and ease diffs.
+# %load_ext blackcellmagic
+```
+
+```{python}
+from typing import Union
+import io
+from wltp.experiment import Experiment
+from ruamel.yaml import YAML
+
+import nbutils
+```
+
+```{python}
+## DEFINITIONS
+#
+h5fname = 'WltpCars.h5'
+```
+
+```{python}
+input_model = nbutils.yaml_loads("""
+vehicle:
+  gear_ratios:  [127, 79, 51, 40, 32, 27]
+  resistance_coeffs: [160, 0.68, 0.033]
+  p_rated:  221
+  unladen_mass: 1275
+  test_mass:    1500
+  n_rated:      6000
+  n_idle:       700
+  v_max:        239
+""")
+exp = Experiment(input_model)
+output_model = exp.run()
+display(output_model['cycle_run'])
+
+```
+
+```{python}
+with wltpbase.openh5(h5fname) as h5db:
+    h5db['/cars/cooked/veh014/out2'] =  output_model['cycle_run']
+```
+
+```{python}
+input_model
+```
