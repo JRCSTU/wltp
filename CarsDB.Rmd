@@ -37,6 +37,16 @@ vehicles/
 ...read instructions, on the `README.md`,
 
 ```{python}
+## To autoreload codein python files here.
+# %load_ext autoreload
+# %autoreload 2
+
+## Add %%black at the top of a cell, and re-evaluate it, 
+# to format it before git-commits, and ease diffs.
+# %load_ext blackcellmagic
+```
+
+```{python}
 import functools as ftt
 import itertools as itt
 import logging
@@ -50,9 +60,7 @@ import qgrid
 import pandas as pd
 from pandas import HDFStore
 
-# Add %%black at the top of a cell, and re-evaluate it, 
-# to format it before git-commits, and ease diffs.
-# %load_ext blackcellmagic
+import nbutils
 
 idx = pd.IndexSlice
 log = logging.getLogger('CarsDB.ipynb')
@@ -71,30 +79,12 @@ c_vehnum, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'n', 'Pwot', 'SM', 'ASM'
 ```
 
 ```{python}
-from pandas import HDFStore
-
-def openh5(h5fname):
-    return HDFStore(h5fname, 
-                    encoding='utf-8', 
-                    # Not the strongest one, *repack* it before git-commit.
-                    complevel=6, complib='blosc:blosclz')
-```
-
-```{python}
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
 # !rm {h5fname}
 ```
 
 ```{python}
-def print_nodes(h5fname=h5fname):
-    from columnize import columnize
-
-    ## Print head & taiul of groups in h5db.
-    #
-    with openh5(h5fname) as h5db:
-        nodes = h5db.keys()
-        print(columnize(nodes, displaywidth=160))
-print_nodes()
+nbutils.print_nodes(h5fname)
 ```
 
 ```{python}
@@ -105,129 +95,10 @@ pwots = xleash.lasso('%s#wot power curves!::["df"]' % xlfname)
 ```
 
 ```{python}
-import io, json, time, platform
-from datetime import datetime
-from ruamel.yaml import YAML
-from copy import deepcopy
-
-
-def _human_time(unixtime: int = None) -> str:
-    if unixtime is None:
-        tm = datetime.now()
-    else:
-        tm = datetime.utcfromtimestamp(unixtime)
-    return tm.strftime("%Y-%m-%d %H:%M:%S")
-
-
-def _file_hashed(fpath, algo="md5") -> Tuple[str, str]:
-    import hashlib
-    import io
-
-    digester = hashlib.new(algo)
-    with open(fpath, "rb") as f:
-        for b in iter(lambda: f.read(io.DEFAULT_BUFFER_SIZE), b""):
-            digester.update(b)
-    return algo, digester.hexdigest()
-
-
-# file_hashed(xlfname)
-
-
-def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
-    s = {"fpath": str(fpath)}
-
-    fpath = Path(fpath)
-    if fpath.exists():
-        s["hexsums"] = dict(_file_hashed(fpath, algo) for algo in algos)
-        s["ctime"] = _human_time(fpath.stat().st_ctime)
-
-    return s
-
-
-def _git_describe():
-    import subprocess as sbp
-
-    try:
-        return sbp.check_output("git describe --always".split()).trim()
-    except Exception as ex:
-        log.info("Cannot git-describe due to: %s", ex)
-
-
-def provenance_info(*fpaths, prov_info=None) -> Dict[str, str]:
-    """
-    :param prov_info:
-        if given, reused (cloned first), and any fpaths appended in it.
-    """
-    if prov_info:
-        info = deepcopy(prov_info)
-
-        fps = info.get("fpaths")
-        if not isinstance(fpaths, list):
-            fps = info["fpaths"] = []
-        fps.extend(_provenir_fpath(f) for f in fpaths)
-    else:
-        info = {"ctime": _human_time(), "uname": dict(platform.uname()._asdict())}
-        
-        gitver = _git_describe()
-        if gitver:
-            info["gitver"] = gitver
-
-        if fpaths:
-            info["fpaths"] = [_provenir_fpath(f) for f in fpaths]
-
-    return info
-
-
-#prov_info = _provenance_info(xlfname)
-#prov_info = provenance_info('sfdsfd', prov_info=prov_info)
-#provenance_info('ggg', prov_info=prov_info)
-
-
-def yaml_dumps(o) -> str:
-    s = io.StringIO()
-    yaml = YAML(typ="safe", pure=True)
-    yaml.default_flow_style = False
-    # yaml.canonical = True
-    yaml.dump(prov_info, s)
-    return s.getvalue()
-
-
-def provenir_h5node(h5db, node, *fpaths, title=None, prov_info=None):
-    h5file = h5db._handle
-    if title:
-        h5file.set_node_attr(node, "TITLE", title)
-    if prov_info is None:
-        prov_info = provenance_info(*fpaths)
-
-    provenance = yaml_dumps(prov_info)
-    h5file.set_node_attr(node, "provenance", provenance)
-
-```
-
-```{python}
 import qgrid
 
 display(qgrid.show_grid(specs))
 display(qgrid.show_grid(pwots))
-```
-
-```{python}
-def get_scalar_column(df, column):
-    """
-    Extract the single scalar value if column contains it.
-    """
-    col = df[column]
-    val = col.iloc[0]
-    
-    assert col.isnull().all() or (col == val).all(), (column, df)
-    
-    return val
-
-
-def drop_scalar_columns(df, scalar_columns) -> Tuple[pd.DataFrame, dict]:
-    values = [get_scalar_column(df, c) for c in scalar_columns]
-    scalars = dict(zip(scalar_columns, values))
-    return df.drop(scalar_columns, axis=1), scalars
 ```
 
 ```{python}
@@ -248,7 +119,7 @@ def extract_SM_from_pwot(
         wot(n: pwot, ASM), SM
         where `wot` is indexed by engine-speed(n)
     """
-    SM = get_scalar_column(pwot, c_SM)
+    SM = nbutils.get_scalar_column(pwot, c_SM)
     pwot = pwot.loc[:, [c_n, c_pwot, c_ASM]].set_index(c_n)
 
     return pwot, SM
@@ -259,9 +130,9 @@ def extract_SM_from_pwot(
 ```
 
 ```{python}
-## Store each a vehicle into a node with 2 nodes: props, pwot
+# Store each a vehicle into a node with 2 nodes: props, pwot
 #
-prov_info = provenance_info(heinzdb_fpath, xlfname)
+prov_info = nbutils.provenance_info(heinzdb_fpath, xlfname)
 
 def store_group_per_car(
     h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM, veh_group_fmt=veh_group_fmt
@@ -280,13 +151,13 @@ def store_group_per_car(
         h5db.put(spec_node, spec)
         h5db.put(pwot_node, pwot)
 
-        provenir_h5node(
+        nbutils.provenir_h5node(
             h5db,
             spec_node,
             title="Specs of the test-car, as delivered by Heinz on 13 May 2019",
             prov_info=prov_info,
         )
-        provenir_h5node(
+        nbutils.provenir_h5node(
             h5db,
             pwot_node,
             title="Full-load-curve of the test-car, as delivered by Heinz on 13 May 2019",
@@ -294,9 +165,9 @@ def store_group_per_car(
         )
 
 
-with openh5(h5fname) as h5db:
+with nbutils.openh5(h5fname) as h5db:
     store_group_per_car(h5db, specs)
-    provenir_h5node(
+    nbutils.provenir_h5node(
         h5db, vehs_node, title="preprocessed cars for python consumption"
     )
 ```
@@ -309,7 +180,7 @@ def fpath_to_vehnum(outfpath: Path) -> int:
     return int(re.match(r"V(\d+)\.xls", outfpath.name).group(1))
 
 
-prov_info = provenance_info(heinzdb_fpath)
+prov_info = nbutils.provenance_info(heinzdb_fpath)
 scalar_columns = [
     "Calculation date",
     "Time at calculation start",
@@ -366,17 +237,17 @@ def store_results_per_car(
 
     # A dir with one Excel-file per vehicle, as produced by MSAccess.
     results_dir = Path(results_dir)
-    root_prov_info = provenance_info(heinzdb_fpath)
+    root_prov_info = nbutils.provenance_info(heinzdb_fpath)
     for outfpath in results_dir.glob("*.xls"):
         vehnum = fpath_to_vehnum(outfpath)
         vgroup = veh_group_fmt % vehnum
 
         outdf = xleash.lasso('%s#::["df"]' % outfpath)
-        outdf, props = drop_scalar_columns(outdf, scalar_columns)
+        outdf, props = nbutils.drop_scalar_columns(outdf, scalar_columns)
 
         cycle_group = "%s/%s" % (vgroup, cycle_group_suffix)
         h5db.put(cycle_group, outdf)
-        provenir_h5node(
+        nbutils.provenir_h5node(
             h5db,
             cycle_group,
             outfpath,
@@ -386,7 +257,7 @@ def store_results_per_car(
 
         props_group = "%s/%s" % (vgroup, props_group_suffix)
         h5db.put(props_group, pd.Series(props))
-        provenir_h5node(
+        nbutils.provenir_h5node(
             h5db,
             props_group,
             outfpath,
@@ -395,12 +266,12 @@ def store_results_per_car(
         )
 
 
-with openh5(h5fname) as h5db:
+with nbutils.openh5(h5fname) as h5db:
     store_results_per_car(h5db)
 ```
 
 ```{python}
-print_nodes()
+nbutils.print_nodes(h5fname)
 ```
 
 ```{python}
