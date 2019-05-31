@@ -13,18 +13,65 @@ jupyter:
 ---
 
 # Parse excel files into a HDF5 file
-
-## instructions, in case you need to run it in your own jupyter
-run only once on the server:
-```bash
-conda install wltp pandalone qgrid
+It builds this tree inside a [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5):
 ```
-...and ensure `qgrid` is properly installed for *jupyter lab*,
-by following [the instructions](https://github.com/quantopian/qgrid#installation).
+cars/
+    +--inp/
+    |   +--specs              (df) test-cars as delivered by Heinz on 13 May 2019 
+    |   +--pwots              (df) full-load-curves for these cars
+    |
+    +--out/
+    |   +--msaccess_ank/      results produced by ankostis running the MSAccess
+    |   +--.../               results from other sources
+    |   +--python/            results produced by python algo
+    |
+    +--cooked/                preprocessed cars for python consumptio.
+        +--veh001/
+        |   +--spec           (df) all kv-pairs from specs + SM, ASM
+        |   +--pwot           (df) a single-column df(wot) indexed by n
+        |
+        +--veh.../
+```
+
+## Instructions, to run this notebook in your own jupyter-server
+...read the `README.md`.
+
+## HDF5 API:
 
 ```{python}
+from columnize import columnize
+from tables import File as _tables_File, Group as _tables_Group
+from pandas import HDFStore
+print('HDFStore:', 
+      columnize([f for f in dir(HDFStore) if not f.startswith('__')], displaywidth=160),
+      'tables.File (accessed by `<HDFStore-instance>._handle`):', 
+      columnize([f for f in dir(_tables_File) if not f.startswith('__')], displaywidth=160),
+      'tables.Group:', 
+      columnize([f for f in dir(_tables_Group) if not f.startswith('__')], displaywidth=160),
+      'AttributeSet:', 
+      columnize([f for f in dir(_tables_Group._AttributeSet) if not f.startswith('__')], displaywidth=160),
+     sep='\n')
+```
+
+```{python}
+import functools as ftt
+import itertools as itt
+import logging
+from pathlib import Path
+from typing import Tuple, Dict
+
+import numpy as np
 from pandalone import xleash
 import qgrid
+import pandas as pd
+from pandas import HDFStore
+
+# Add %%black at the top of a cell, and re-evaluate it, 
+# to format it before git-commits, and ease diffs.
+# %load_ext blackcellmagic
+
+idx = pd.IndexSlice
+log = logging.getLogger('CarsDB.ipynb')
 ```
 
 ```{python}
@@ -65,39 +112,156 @@ print([i.column_name for i in crsr.columns('gearshift_table_all')]
 ```
 
 ```{python}
-from pandas import HDFStore
-
 h5fname = 'WltpCars.h5'
 # Test cars delivered by Heinz on 13 May 2019
-xlfname = "example vehicles for the prog code validation.xlsx"
-c_vehnum = 'vehicle_no'
+xlfname = Path("example vehicles for the prog code validation.xlsx")
+c_vehnum, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'n', 'Pwot', 'SM', 'ASM'
 ```
 
 ```{python}
-with HDFStore(h5fname) as h5db:
-    print('\n'.join(h5db.keys()[:7]))
+from pandas import HDFStore
+
+def openh5(h5fname):
+    return HDFStore(h5fname, 
+                    encoding='utf-8', 
+                    # Not the strongest one, *repack* it before git-commit.
+                    complevel=6, complib='blosc:blosclz')
 ```
 
 ```{python}
+## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
+# #!rm {h5fname}
+```
+
+```{python}
+## Print head & taiul of groups in h5db.
+#
+with openh5(h5fname) as h5db:
+    nodes = h5db.keys()
+    print('\n'.join(itt.chain(nodes[:7], ['...'], nodes[-7:])))
+```
+
+```{python}
+from pandalone import xleash
+
 specs = xleash.lasso('%s#technical data!::["df"]' % xlfname)
 pwots = xleash.lasso('%s#wot power curves!::["df"]' % xlfname)
 ```
 
 ```{python}
+import io, json, time, platform
+from datetime import datetime
+from ruamel.yaml import YAML
+
+
+def _human_time(unixtime: int = None) -> str:
+    if unixtime is None:
+        tm = datetime.now()
+    else:
+        tm = datetime.utcfromtimestamp(unixtime)
+    return tm.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _file_hashed(fpath, algo="md5") -> Tuple[str, str]:
+    import hashlib
+    import io
+
+    digester = hashlib.new(algo)
+    with open(fpath, "rb") as f:
+        for b in iter(lambda: f.read(io.DEFAULT_BUFFER_SIZE), b""):
+            digester.update(b)
+    return algo, digester.hexdigest()
+
+# file_hashed(xlfname)
+
+
+def _provenir_fpath(fpath, algos=('md5', 'sha256')) -> Dict[str, str]:
+    s = {"fpath": str(fpath)}
+
+    fpath = Path(fpath)
+    if fpath.exists():
+        s["hexsums"] = dict(_file_hashed(fpath, algo) for algo in algos)
+        s["ctime"] = _human_time(fpath.stat().st_ctime)
+
+    return s
+
+
+def _git_describe():
+    import subprocess as sbp
+
+    try:
+        return sbp.check_output("git describe --always".split()).trim()
+    except Exception as ex:
+        log.info("Cannot git-describe due to: %s", ex)
+
+
+def provenance_info(*fpaths) -> Dict[str, str]:
+    info = {}
+
+    gitver = _git_describe()
+    if gitver:
+        info["gitver"] = gitver
+
+    if fpaths:
+        info["fpaths"] = [_provenir_fpath(f) for f in fpaths]
+
+    info["ctime"] = _human_time()
+    info["uname"] = dict(platform.uname()._asdict())
+
+    return info
+
+
+# _provenance_info(xlfname)
+
+
+def yaml_dumps(o) -> str:
+    s = io.StringIO()
+    yaml = YAML(typ="safe", pure=True)
+    yaml.default_flow_style = False
+    #yaml.canonical = True
+    yaml.dump(prov_info, s)
+    return s.getvalue()
+    
+    
+def provenir_hdf_node(node, title=None, *fpaths, prov_info=None):
+    if title:
+        node._f_setattr("TITLE", title)
+    if prov_info is None:
+        prov_info = provenance_info(*fpaths)
+    
+    provenance = yaml_dumps(prov_info)
+    node._f_setattr("provenance", provenance)
+```
+
+```{python}
+import qgrid
+
 display(qgrid.show_grid(specs))
 display(qgrid.show_grid(pwots))
 ```
 
 ```{python}
-with HDFStore(h5fname) as h5db:
-    h5db.put('/cars/input/specs', specs)
-    h5db.put('/cars/input/pwots', pwots)
+prov_info = provenance_info("WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb", xlfname)
+
+with openh5(h5fname) as h5db:
+    h5db.put("/cars/input/specs", specs)
+    provenir_hdf_node(
+        h5db.get_node("/cars/input/specs"),
+        "Specs for 114 test-cars, as delivered by Heinz on 13 May 2019",
+        prov_info=prov_info,
+    )
+    h5db.put("/cars/input/pwots", pwots)
+    provenir_hdf_node(
+        h5db.get_node("/cars/input/pwots"),
+        "Full-load-curves for the 114 test-cars, as delivered by Heinz on 13 May 2019",
+        prov_info=prov_info,
+    )
 ```
 
 ```{python}
-def extract_SM_from_pwot(pwot, 
-                         c_n='n', c_pwot = 'Pwot',
-                         c_SM='SM', c_ASM='ASM') -> "Tuple(pd.DataFrame, float)":
+def extract_SM_from_pwot(
+    pwot, c_n=c_n, c_pwot=c_pwot, c_SM=c_SM, c_ASM=c_ASM
+) -> "Tuple(pd.DataFrame, float)":
     """
     Keep just (n, Pwot, ASM) columns & extract SM column as scalar value.
     
@@ -109,59 +273,62 @@ def extract_SM_from_pwot(pwot,
             0	1			800	5.43	0.1	0.0
             0	1			900	9.01	0.1	0.0
     :return:
-        wot(n: pwot, ASM), ASM
+        wot(n: pwot, ASM), SM
         where `wot` is indexed by engine-speed(n)
     """
     pwot2 = pwot.loc[:, [c_n, c_pwot, c_ASM]].set_index(c_n)
     row1 = pwot.iloc[0, :]
-    
+
     SM = row1[c_SM]
     assert (pwot[c_SM] == SM).all(), pwot
 
     return pwot2, SM
+
 
 # ## TEST
 # extract_SM_from_pwot(pwots.loc[pwots[c_vehnum] == 3])
 ```
 
 ```{python}
-def store_group_per_car(h5db, specs,
-                        c_vehnum='vehicle_no',
-                        c_SM='SM', c_ASM='ASM'):
+def store_group_per_car(h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM):
     """
     Distribute vehicle-specs each on a single HDF5 node with 2 children::
     
-        cars/input/veh001
-            +--spec = all kv-pairs from matrix + SM, ASM
-            +--pwot = a single-column df(wot) indexed by n
+        cars/cooked/
+                +--veh001/
+                |   +--spec = all kv-pairs from matrix + SM, ASM
+                |   +--pwot = a single-column df(wot) indexed by n
+                +...
     """
     for _, spec in specs.iterrows():
         vehnum = spec[c_vehnum]
-        vgroup = 'cars/input/veh%0.3d' % vehnum 
-        
+        vgroup = "cars/cooked/veh%0.3d" % vehnum
+
         pwot = pwots.loc[pwots[c_vehnum] == vehnum, :]
         pwot, SM = extract_SM_from_pwot(pwot)
 
         spec[c_SM] = SM
 
-        h5db.put('%s/spec' % vgroup, spec)
-        h5db.put('%s/pwot' % vgroup, pwot)
+        h5db.put("%s/spec" % vgroup, spec)
+        h5db.put("%s/pwot" % vgroup, pwot)
 
 
-with HDFStore(h5fname) as h5db:
+with openh5(h5fname) as h5db:
     store_group_per_car(h5db, specs)
+    provenir_hdf_node(
+        h5db.get_node("/cars/cooked"),
+        "preprocessed cars for python consumption",
+        prov_info=prov_info,
+    )
+
 ```
 
 ```{python}
-## COMPRESS x100 HDF5: 122MB --> ~2MB.
+# %%time
+## COMPRESS x100 HDF5: 122MB --> ~3.1MB in 5.6s on my speedy laptop.
 #
 # !ls -lh WltpCars*
-# !ptrepack WltpCars.h5 --complevel=5 --complib=blosc:lz4hc -o WltpCars.1.h5
+# !ptrepack WltpCars.h5 --complevel=9 --complib=blosc:blosclz -o WltpCars.1.h5
 # !mv WltpCars.1.h5 WltpCars.h5
 # !ls -lh WltpCars*
-```
-
-```{python}
-with HDFStore(h5fname) as h5db:
-    print('\n'.join(h5db.keys()))
 ```
