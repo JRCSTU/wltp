@@ -73,9 +73,11 @@ h5fname = 'WltpCars.h5'
 # Test cars delivered by Heinz on 13 May 2019
 heinzdb_fpath="WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb"
 xlfname = Path("example vehicles for the prog code validation.xlsx")
-vehs_node = '/Vehicles'
-veh_group_fmt = vehs_node + "/v%0.3d"
+vehs_root = '/vehicles'
 c_vehnum, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'n', 'Pwot', 'SM', 'ASM'
+
+def vehnode(vehnum):
+    return vehs_root + "/v%0.3d" % int(vehnum)
 ```
 
 ```{python}
@@ -135,11 +137,11 @@ def extract_SM_from_pwot(
 prov_info = nbutils.provenance_info(heinzdb_fpath, xlfname)
 
 def store_group_per_car(
-    h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM, veh_group_fmt=veh_group_fmt
+    h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM
 ):
     for _, spec in specs.iterrows():
         vehnum = spec[c_vehnum]
-        vgroup = veh_group_fmt % vehnum
+        vgroup = vehnode(vehnum)
         spec_node = "%s/props" % vgroup
         pwot_node = "%s/pwot" % vgroup
 
@@ -168,7 +170,7 @@ def store_group_per_car(
 with nbutils.openh5(h5fname) as h5db:
     store_group_per_car(h5db, specs)
     nbutils.provenir_h5node(
-        h5db, vehs_node, title="preprocessed cars for python consumption"
+        h5db, vehs_root, title="preprocessed cars for python consumption"
     )
 ```
 
@@ -227,7 +229,6 @@ scalar_columns = [
 def store_results_per_car(
     h5db,
     results_dir="VehResults",
-    veh_group_fmt=veh_group_fmt,
     cycle_group_suffix="out1/cycle",
     props_group_suffix="out1/props",
 ):
@@ -240,7 +241,7 @@ def store_results_per_car(
     root_prov_info = nbutils.provenance_info(heinzdb_fpath)
     for outfpath in results_dir.glob("*.xls"):
         vehnum = fpath_to_vehnum(outfpath)
-        vgroup = veh_group_fmt % vehnum
+        vgroup = vehnode(vehnum)
 
         outdf = xleash.lasso('%s#::["df"]' % outfpath)
         outdf, props = nbutils.drop_scalar_columns(outdf, scalar_columns)
@@ -285,16 +286,12 @@ nbutils.print_nodes(h5fname)
 ```
 
 ```{python}
-with openh5(h5fname) as h5db:
-    outdf = h5db.get('/vehicles/v014/out1/cycle')
-    inpsr = h5db.get('/vehicles/v014/props')
-    outsr = h5db.get('/vehicles/v014/out1/props')
+with nbutils.openh5(h5fname) as h5db:
+    outdf = h5db.get(vehnode(14) + '/out1/cycle')
+    inpsr = h5db.get(vehnode(14) + '/props')
+    outsr = h5db.get(vehnode(14) + '/out1/props')
 ```
 
 ```{python}
-qgrid.show_grid(outdf, grid_options={'forceFitColumns': False})
-```
-
-```{python}
-display(inpsr, outsr, outdf.columns)
+display(inpsr, outsr, outdf.columns, qgrid.show_grid(outdf, grid_options={'forceFitColumns': False}))
 ```
