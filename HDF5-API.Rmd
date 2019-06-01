@@ -16,18 +16,22 @@ jupyter:
 utility calls to list usefull methods
 
 ```{python}
-from columnize import columnize
-from tables import File as _tables_File, Group as _tables_Group
-from pandas import HDFStore
-print('HDFStore:', 
-      columnize([f for f in dir(HDFStore) if not f.startswith('__')], displaywidth=160),
-      'tables.File (accessed by `<HDFStore-instance>._handle`):', 
-      columnize([f for f in dir(_tables_File) if not f.startswith('__')], displaywidth=160),
-      'tables.Group:', 
-      columnize([f for f in dir(_tables_Group) if not f.startswith('__')], displaywidth=160),
-      'AttributeSet:', 
-      columnize([f for f in dir(_tables_Group._AttributeSet) if not f.startswith('__')], displaywidth=160),
-     sep='\n')
+def print_h5API(displaywidth=160):
+    from columnize import columnize
+    from pandas import HDFStore
+    import nbutils as nbu
+
+    with nbu.openh5('WltpCars.h5') as h5db:
+        print('HDFStore:', 
+              columnize([f for f in dir(h5db) if not f.startswith('__')], displaywidth=displaywidth),
+              '%s (accessed by `<HDFStore-instance>._handle`):' % type(h5db._handle), 
+              columnize([f for f in dir(h5db._handle) if not f.startswith('__')], displaywidth=displaywidth),
+              '%s:' % type(h5db.root), 
+              columnize([f for f in dir(h5db.root) if not f.startswith('__')], displaywidth=displaywidth),
+              '%s:' % type(h5db.root._v_attrs), 
+              columnize([f for f in dir(h5db.root._v_attrs) if not f.startswith('__')], displaywidth=displaywidth),
+             sep='\n')
+print_h5API()
 ```
 
 # Help on extracting tables from excel:
