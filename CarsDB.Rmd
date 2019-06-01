@@ -77,6 +77,12 @@ c_vehnum, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'n', 'Pwot', 'SM', 'ASM'
 ```
 
 ```{python}
+## PROVENANCE: discover how it came to be, at a later time
+#  (might take 10'')
+root_prov_info = nbu.provenance_info(files=[heinzdb_fpath], repos=['.']) 
+```
+
+```{python}
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
 # !rm {h5fname}
 ```
@@ -130,11 +136,10 @@ def extract_SM_from_pwot(
 ```{python}
 # Store each a vehicle into a node with 2 nodes: props, pwot
 #
-prov_info = nbu.provenance_info(heinzdb_fpath, xlfname)
+prov_info = nbu.provenance_info(files=[xlfname], prov_info=root_prov_info)
 
-def store_group_per_car(
-    h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM
-):
+
+def store_group_per_car(h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM):
     for _, spec in specs.iterrows():
         vehnum = spec[c_vehnum]
         spec_node = nbu.vehnode(vehnum, "props")
@@ -165,7 +170,10 @@ def store_group_per_car(
 with nbu.openh5(h5fname) as h5db:
     store_group_per_car(h5db, specs)
     nbu.provenir_h5node(
-        h5db, nbu.vehnode(), title="preprocessed cars for python consumption"
+        h5db,
+        nbu.vehnode(),
+        title="preprocessed cars for python consumption",
+        prov_info=prov_info,
     )
 ```
 
@@ -177,7 +185,7 @@ def fpath_to_vehnum(outfpath: Path) -> int:
     return int(re.match(r"V(\d+)\.xls", outfpath.name).group(1))
 
 
-prov_info = nbu.provenance_info(heinzdb_fpath)
+prov_info = nbu.provenance_info(prov_info=root_prov_info)
 scalar_columns = [
     "Calculation date",
     "Time at calculation start",
@@ -233,7 +241,6 @@ def store_results_per_car(
 
     # A dir with one Excel-file per vehicle, as produced by MSAccess.
     results_dir = Path(results_dir)
-    root_prov_info = nbu.provenance_info(heinzdb_fpath)
     for outfpath in results_dir.glob("*.xls"):
         vehnum = fpath_to_vehnum(outfpath)
 
@@ -245,7 +252,7 @@ def store_results_per_car(
         nbu.provenir_h5node(
             h5db,
             cycle_group,
-            outfpath,
+            files=[outfpath],
             title="Cycle-run produced by Heinz's MSAccess db",
             prov_info=prov_info,
         )
@@ -255,7 +262,7 @@ def store_results_per_car(
         nbu.provenir_h5node(
             h5db,
             props_group,
-            outfpath,
+            files=[outfpath],
             title="Properties (in & out) produced by Heinz's MSAccess db",
             prov_info=prov_info,
         )
@@ -282,6 +289,6 @@ nbu.print_nodes(h5fname)
 ```{python}
 ## Printout all vehicle data
 #
-inpsr, outdf, outsr = load_vehicle(14, 'props', 'out1/cycle', 'out1/props')
+inpsr, outdf, outsr = nbu.load_vehicle(h5fname, 14, 'props', 'out1/cycle', 'out1/props')
 display(inpsr, outsr, outdf.columns, qgrid.show_grid(outdf, grid_options={'forceFitColumns': False}))
 ```

@@ -4,7 +4,11 @@ from datetime import datetime
 from ruamel.yaml import YAML
 from pathlib import Path, PurePosixPath
 from copy import deepcopy
-import logging 
+import logging
+import subprocess as sbp
+import os
+import shutil
+
 
 import pandas as pd
 from pandas import HDFStore
@@ -46,20 +50,48 @@ def _file_hashed(fpath, algo="md5") -> Tuple[str, str]:
         for b in iter(lambda: f.read(io.DEFAULT_BUFFER_SIZE), b""):
             digester.update(b)
     return algo, digester.hexdigest()
+
+
 # file_hashed(xlfname)
 
 
-def _git_describe():
-    import subprocess as sbp
-
+def _git_describe(basedir="."):
+    args = ["git", "-C", basedir, "describe", "--always"]
     try:
-        return sbp.check_output("git describe --always".split()).trim()
+        return sbp.check_output(args, universal_newlines=True).strip()
     except Exception as ex:
-        log.info("Cannot git-describe due to: %s", ex)
+        return "Cannot git-describe due to: %s" % ex
+
+
+def _python_describe():
+    info = {"path": shutil.which("python")}
+    condaenv = os.environ.get("CONDA_DEFAULT_ENV")
+    if condaenv:
+        info["type"] = "conda"
+
+        try:
+            info["env"] = yaml_loads(
+                sbp.check_output(
+                    ["conda", "env", "export", "-n", condaenv], universal_newlines=True
+                )
+            )
+        except Exception as ex:
+            raise ex
+            info["env"] = "Cannot conde-env-export due to: %s" % ex
+    else:
+        try:
+            info["env"] = sbp.check_output(
+                "pip list --format freeze".split(), universal_newlines=True
+            ).strip().split("\n")
+        except Exception as ex:
+            raise ex
+            info["env"] = "Cannot pip-list due to: %s" % ex
+
+    return info
 
 
 def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
-    s = {"fpath": str(fpath)}
+    s = {"path": str(str(Path(fpath).absolute()))}
 
     fpath = Path(fpath)
     if fpath.exists():
@@ -69,51 +101,56 @@ def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
     return s
 
 
-def provenance_info(*fpaths, prov_info=None) -> Dict[str, str]:
+def provenance_info(*, files=(), repos=(), prov_info=None) -> Dict[str, str]:
     """
     :param prov_info:
-        if given, reused (cloned first), and any fpaths appended in it.
+        if given, reused (cloned first), and any fpaths & git-repos appended in it.
     """
     if prov_info:
         info = deepcopy(prov_info)
 
-        fps = info.get("fpaths")
-        if not isinstance(fpaths, list):
-            fps = info["fpaths"] = []
-        fps.extend(_provenir_fpath(f) for f in fpaths)
     else:
-        info = {"ctime": _human_time(), "uname": dict(platform.uname()._asdict())}
+        info = {"uname": dict(platform.uname()._asdict()), "python": _python_describe()}
 
-        gitver = _git_describe()
-        if gitver:
-            info["gitver"] = gitver
+    info["ctime"] = _human_time()
 
-        if fpaths:
-            info["fpaths"] = [_provenir_fpath(f) for f in fpaths]
+    fps = info.get("files")
+    if not isinstance(fps, list):
+        fps = info["files"] = []
+    fps.extend(_provenir_fpath(f) for f in files)
+
+    gtr = info.get("repos")
+    if not isinstance(gtr, list):
+        gtr = info["repos"] = []
+    gtr.extend(
+        {"path": str(Path(g).absolute()), "type": "git", "version": _git_describe(g)}
+        for g in repos
+    )
 
     return info
 
 
-# prov_info = _provenance_info(xlfname)
-# prov_info = provenance_info('sfdsfd', prov_info=prov_info)
-# provenance_info('ggg', prov_info=prov_info)
-
+# prov_info = nbu.provenance_info(fpaths=[h5fname])
+# prov_info = nbu.provenance_info(fpaths=['sfdsfd'], prov_info=prov_info)
+# prov_info = nbu.provenance_info(fpaths=['ggg'], git_repos=['../wltp.git'], prov_info=prov_info)
+# print(nbu.yaml_dumps(prov_info))
 
 
 #########################
-## HDF5 
+## HDF5
+
 
 def openh5(h5: Union[str, HDFStore]):
     "open h5-fpath or reuse existing h5db instance"
-    
+
     h5db = None
-    
+
     if isinstance(h5, HDFStore):
         if h5.is_open:
             h5db = h5
         else:
             h5 = h5.filename
-    
+
     if h5db is None:
         h5db = HDFStore(
             h5,
@@ -122,7 +159,7 @@ def openh5(h5: Union[str, HDFStore]):
             complevel=6,
             complib="blosc:blosclz",
         )
-    
+
     return h5db
 
 
@@ -131,16 +168,17 @@ def print_nodes(h5: Union[str, HDFStore], displaywidth=160):
 
     with openh5(h5) as h5db:
         nodes = h5db.keys()
-    
+
     print(columnize(nodes, displaywidth=displaywidth))
 
 
-def provenir_h5node(h5db, node, *fpaths, title=None, prov_info=None):
+def provenir_h5node(
+    h5db, node, *, title=None, files=(), repos=(), prov_info=None
+):
     h5file = h5db._handle
     if title:
         h5file.set_node_attr(node, "TITLE", title)
-    if prov_info is None:
-        prov_info = provenance_info(*fpaths)
+    prov_info = provenance_info(files=files, repos=repos, prov_info=prov_info)
 
     provenance = yaml_dumps(prov_info)
     h5file.set_node_attr(node, "provenance", provenance)
@@ -164,23 +202,30 @@ def drop_scalar_columns(df, scalar_columns) -> Tuple[pd.DataFrame, dict]:
     return df.drop(scalar_columns, axis=1), scalars
 
 
-
 #########################
-## Vehicle-DB-specific 
+## Vehicle-DB-specific
 
-vehs_root = PurePosixPath('/vehicles')
+vehs_root = PurePosixPath("/vehicles")
+
 
 def vehnode(vehnum=None, *suffix):
     p = vehs_root
     if vehnum is not None:
         p = vehs_root / ("v%0.3d" % int(vehnum))
     return str(p.joinpath(*suffix))
+
+
 # assert vehnode(13) ==  '/vehicles/v013'
 # assert vehnode(3, 'props') ==  '/vehicles/v003/props'
 # assert vehnode(None, 'props') ==  '/vehicles/props'
 # assert vehnode() ==  '/vehicles'
 
+
 def load_vehicle(h5, vehnum, *subnodes) -> list:
+    "return vehicle's groups listed in `subnodes`"
+
     with openh5(h5) as h5db:
         return [h5db.get(vehnode(vehnum, sn)) for sn in subnodes]
 
+
+# props, pwot = load_vehicle(h5fname, vehnum, "props", "pwot")
