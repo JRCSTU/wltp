@@ -13,7 +13,7 @@ jupyter:
 ---
 
 # HDF5 API:
-utility calls to list usefull methods
+list usefull HDF5 methods
 
 ```{python}
 def print_h5API(displaywidth=160):

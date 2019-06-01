@@ -5,13 +5,24 @@ UNECE's WLTP reference implementation in Python
 
 ## Contents
 - Python code implementing the WLTP algorithm.
-- Notebooks to process the vehicle data, launch the algo, etc.
 - The original files of the algo (document & MSAccess db).
+- Notebooks to process the vehicle data, build HDF5-dbm launch the algo, etc::
+
+      CarsDB-inputs.ipynb     populate h5db with Heinz test-car input specs 
+      CarsDB-phase1a.ipynb    populate h5db with results from the old python code
+      HDF5-APIh-help.ipynb    list usefull HDF5 methods
+      nbutils.py              support code for the above notebooks
+      WltpCars.h5             the h5db where the data are stored
+      
+> **Note:**
+> It is the `.Rmd` files that are stored in the git-repo of this project;
+> these aresynced  automatically with `.ipynb` notebooks byt the *jupytext*
+> jupyter-lab extension.
 
 
 ## HDF5
 Heinz Steven has implemented the original reference algorithm in the [`WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb`](./WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb) *MSAccess* database.
-That database facilitated the development & execution of the algorithm 
+The MSAccess database facilitated the development & execution of the algorithm 
 by storing any and all data needed during those phases.
 
 To substitute those facilities i used the *pandas*+*HDF5* file-format to store data, 
@@ -47,7 +58,6 @@ This server runs on a *conda* environment.
 All installed dependencies are kept in the `./environment.yaml` file,
 
 > **Tip:**
-> 
 > Maintain the env-file by running this terminal command after any programm (un)install::
 >     
 >     conda env export -n jupyter > environment.yaml 
