@@ -167,7 +167,7 @@ def _get_model_base():
             'driver_mass':              75,         # kg
             'v_stopped_threshold':      1,          # km/h, <=
             'f_inertial':               1.1,
-            'f_safety_margin':          0.9,
+            'f_safety_margin':          0.9,  # TODO: this must change to 1-SM = 0.1
             'f_n_max':                  1.2,
             'f_n_min':                  0.125,
             'f_n_min_gear2':            0.9,
@@ -340,7 +340,9 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                                         n_norm = (n - n_idle) / (n_rated  - n_idle)
 
                             * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
-                              within [0, 1]: :math:`p_norm = p / p_rated`
+                              within [0, 1]: 
+                              
+                                        p_norm = p / p_rated
                         """),
                         'type': [ 'object', 'array', 'null'],
                     },
@@ -774,10 +776,10 @@ def yield_load_curve_errors(mdl):
 
         n_norm = wot['n_norm']
         if (min(n_norm) > 0.1):
-            yield ValidationError('The full_load_curve must begin at least from 0%%, not from %f%%!' % min(n_norm))
+            log.warning('The full_load_curve SHOULD begin at least from 0%%, not from %f%%!' % min(n_norm))
         max_x_limit = f_n_max
         if (max(n_norm) < max_x_limit):
-            yield ValidationError('The full_load_curve must finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(n_norm)))
+            log.warning('The full_load_curve SHOULD finish at least on f_n_max(%f%%), not on %f%%!' % (max_x_limit, max(n_norm)))
 
         p_norm = wot['p_norm']
         if (min(p_norm) < 0):
