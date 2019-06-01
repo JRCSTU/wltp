@@ -2,7 +2,7 @@ from typing import Tuple, Dict, Union
 import io, json, time, platform
 from datetime import datetime
 from ruamel.yaml import YAML
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from copy import deepcopy
 import logging 
 
@@ -46,29 +46,16 @@ def _file_hashed(fpath, algo="md5") -> Tuple[str, str]:
         for b in iter(lambda: f.read(io.DEFAULT_BUFFER_SIZE), b""):
             digester.update(b)
     return algo, digester.hexdigest()
-
-
 # file_hashed(xlfname)
 
 
-def openh5(h5fname):
-    return HDFStore(
-        h5fname,
-        encoding="utf-8",
-        # Not the strongest one, *repack* it before git-commit.
-        complevel=6,
-        complib="blosc:blosclz",
-    )
+def _git_describe():
+    import subprocess as sbp
 
-
-def print_nodes(h5fname):
-    from columnize import columnize
-
-    ## Print head & taiul of groups in h5db.
-    #
-    with openh5(h5fname) as h5db:
-        nodes = h5db.keys()
-        print(columnize(nodes, displaywidth=160))
+    try:
+        return sbp.check_output("git describe --always".split()).trim()
+    except Exception as ex:
+        log.info("Cannot git-describe due to: %s", ex)
 
 
 def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
@@ -80,15 +67,6 @@ def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
         s["ctime"] = _human_time(fpath.stat().st_ctime)
 
     return s
-
-
-def _git_describe():
-    import subprocess as sbp
-
-    try:
-        return sbp.check_output("git describe --always".split()).trim()
-    except Exception as ex:
-        log.info("Cannot git-describe due to: %s", ex)
 
 
 def provenance_info(*fpaths, prov_info=None) -> Dict[str, str]:
@@ -121,6 +99,42 @@ def provenance_info(*fpaths, prov_info=None) -> Dict[str, str]:
 # provenance_info('ggg', prov_info=prov_info)
 
 
+
+#########################
+## HDF5 
+
+def openh5(h5: Union[str, HDFStore]):
+    "open h5-fpath or reuse existing h5db instance"
+    
+    h5db = None
+    
+    if isinstance(h5, HDFStore):
+        if h5.is_open:
+            h5db = h5
+        else:
+            h5 = h5.filename
+    
+    if h5db is None:
+        h5db = HDFStore(
+            h5,
+            encoding="utf-8",
+            # Not the strongest one, *repack* it before git-commit.
+            complevel=6,
+            complib="blosc:blosclz",
+        )
+    
+    return h5db
+
+
+def print_nodes(h5: Union[str, HDFStore], displaywidth=160):
+    from columnize import columnize
+
+    with openh5(h5) as h5db:
+        nodes = h5db.keys()
+    
+    print(columnize(nodes, displaywidth=displaywidth))
+
+
 def provenir_h5node(h5db, node, *fpaths, title=None, prov_info=None):
     h5file = h5db._handle
     if title:
@@ -148,3 +162,25 @@ def drop_scalar_columns(df, scalar_columns) -> Tuple[pd.DataFrame, dict]:
     values = [get_scalar_column(df, c) for c in scalar_columns]
     scalars = dict(zip(scalar_columns, values))
     return df.drop(scalar_columns, axis=1), scalars
+
+
+
+#########################
+## Vehicle-DB-specific 
+
+vehs_root = PurePosixPath('/vehicles')
+
+def vehnode(vehnum=None, *suffix):
+    p = vehs_root
+    if vehnum is not None:
+        p = vehs_root / ("v%0.3d" % int(vehnum))
+    return str(p.joinpath(*suffix))
+# assert vehnode(13) ==  '/vehicles/v013'
+# assert vehnode(3, 'props') ==  '/vehicles/v003/props'
+# assert vehnode(None, 'props') ==  '/vehicles/props'
+# assert vehnode() ==  '/vehicles'
+
+def load_vehicle(h5, vehnum, *subnodes) -> list:
+    with openh5(h5) as h5db:
+        return [h5db.get(vehnode(vehnum, sn)) for sn in subnodes]
+

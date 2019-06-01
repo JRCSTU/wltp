@@ -25,41 +25,71 @@ jupyter:
 ```{python}
 from typing import Union
 import io
+from pathlib import PurePosixPath as P
+
+import pandas as pd
 from wltp.experiment import Experiment
 from ruamel.yaml import YAML
 
-import nbutils
+import nbutils as nbu
 ```
 
 ```{python}
 ## DEFINITIONS
 #
 h5fname = 'WltpCars.h5'
+c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 ```
 
 ```{python}
-input_model = nbutils.yaml_loads("""
-vehicle:
-  gear_ratios:  [127, 79, 51, 40, 32, 27]
-  resistance_coeffs: [160, 0.68, 0.033]
-  p_rated:  221
-  unladen_mass: 1275
-  test_mass:    1500
-  n_rated:      6000
-  n_idle:       700
-  v_max:        239
-""")
-exp = Experiment(input_model)
-output_model = exp.run()
-display(output_model['cycle_run'])
-
+props, pwot = nbu.load_vehicle(h5fname, vehnum, "props", "pwot")
+props.index, pwot.index
 ```
 
 ```{python}
-with wltpbase.openh5(h5fname) as h5db:
-    h5db['/cars/cooked/veh014/out2'] =  output_model['cycle_run']
+def run_old_wltp_on_db_vehice(vehnum):
+    props, pwot = nbu.load_vehicle(h5fname, vehnum, "props", "pwot")
+    
+    ndvs = [props["ndv_%i" % g] for g in range(1, props["no_of_gears"] + 1)]
+    norm_pwot = normalize_pwot(pwot, props.idling_speed, props.rated_speed, props.rated_power)
+    v_max = int(props.v_max_declared)
+    inverse_SM = 1.0 - props.SM 
+    
+    input_model = nbu.yaml_loads(
+        f"""
+        vehicle:
+          gear_ratios:  {ndvs}
+          resistance_coeffs:
+            - {props.f0} 
+            - {props.f1}
+            - {props.f2}
+          p_rated:      {props.rated_power}
+          unladen_mass: {props.kerb_mass}
+          test_mass:    {props.test_mass}
+          n_rated:      {props.rated_speed}
+          n_idle:       {props.idling_speed}
+          v_max:        {v_max}
+        params:
+          f_safety_margin: {inverse_SM}
+        """
+    )
+    input_model['vehicle']['full_load_curve'] = norm_pwot
+    
+    exp = Experiment(input_model)
+    output_model = exp.run()
+
+    return output_model
+# output_model = run_old_wltp_on_db_vehice(14)
+# display(output_model["cycle_run"])
 ```
 
 ```{python}
-input_model
+nbu.print_nodes(h5fname)
+```
+
+```{python}
+vehnum = 14
+with nbu.openh5(h5fname) as h5db:
+    h5db[vehnode(vehnum, 'out2', 'cycle')] =  output_model['cycle_run']
+    h5db[vehnode(vehnum, 'out2', 'props')] =  pd.Series(output_model['vehicle'])
 ```
