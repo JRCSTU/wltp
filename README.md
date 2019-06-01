@@ -85,3 +85,7 @@ crsr = conn.cursor()
 print([i.table_name for i in crsr.tables(tableType='TABLE')]
 print([i.column_name for i in crsr.columns('gearshift_table_all')]
 ```
+
+## Questions to Heinz
+- How to etrapolate PWot? 
+  eg. when `min(pwot[n]` > `n_idle`?
