@@ -1,4 +1,4 @@
-from typing import List, Tuple, Dict, Union, Callable, Any
+from typing import List, Tuple, Dict, Union, Callable, Any, Sequence as Seq
 import io, json, time, platform
 from datetime import datetime
 from ruamel.yaml import YAML
@@ -220,6 +220,9 @@ def collect_nodes(
 
 #########################
 ## Pandas etc
+
+from pandas.core.generic import NDFrame
+
 def get_scalar_column(df, column):
     """
     Extract the single scalar value if column contains it.
@@ -236,6 +239,91 @@ def drop_scalar_columns(df, scalar_columns) -> Tuple[pd.DataFrame, dict]:
     values = [get_scalar_column(df, c) for c in scalar_columns]
     scalars = dict(zip(scalar_columns, values))
     return df.drop(scalar_columns, axis=1), scalars
+
+
+class Comparator:
+    """Pick and concat side-by-side differently-named columns from multiple dataframe."""
+
+    def __init__(
+        self,
+        col_accesor: Callable[[NDFrame, str], NDFrame],
+        no_diff_prcnt=False,
+        diff_colname="diffs",
+    ):
+        """
+        :param col_accessor:
+            how to pick a column from an ndframe
+        :param no_diff_prcnt:
+            if this is falsy, and all equivalent columns are numerics,
+            result dataframe contains an extra *diff* column.
+        :param diff_colname`:
+            how to name the extra *diff* column (does nothing for when not generated)
+        """
+        for _k, _v in locals().items():
+            if not _k.startswith("_") or _k == "self":
+                vars(self)[_k] = _v
+
+    def _pick_n_diff_columns(
+        self, datasets: Seq[NDFrame], col_names: Seq[str], dataset_names: Seq[str]
+    ):
+        """
+        Pick and concatenate the respective `col_names` from each dataframe in `dfs`, 
+
+        and (optionally) diff against the 1st dataset. 
+
+        :param datasets:
+            a list of N x dataframes.
+            Each one must contain the respective column from `col_names`, 
+            when access by ``self.col_accesor( df[i], col_name[i] )`` ∀ i ∈ [0, N).
+        :param col_names:
+            a list o N x column-names
+        """
+        from pandas.api.types import is_numeric_dtype
+
+        picked_cols = [self.col_accesor(d, c) for d, c in zip(datasets, col_names)]
+        dataset_names = list(dataset_names)
+
+        if not self.no_diff_prcnt and all(is_numeric_dtype(d) for d in picked_cols):
+            d0, *drest = picked_cols
+
+            picked_cols = [d0]
+            for d in drest:
+                picked_cols.extend((d, 100 * (d0 - d).abs() / d0))
+
+            dataset_names = dataset_names + ["diffs[%]"]
+
+        return pd.concat(picked_cols, axis=1, keys=dataset_names)
+
+    def compare(
+        self, datasets: Seq, equiv_colnames: Seq[Seq[str]], dataset_names: Seq[str]
+    ):
+        """
+        List side-by-side same-kind columns (with different names) from many datasets,
+
+        optionally diffing them against the 1st dataset.
+
+        :param datasets:
+            a list of N x ndframes, each one containing the respective columns in `equiv_colnames`.
+        :param equiv_colnames:
+            a matrix of M x N column-names, like:
+            
+                [("p_downscale", "f_downscale"), ("cycle", "wltc_class"), ...]
+                
+            All columns in the N dimension must exist in the respective dataframe in `datasets` list.
+            The 1st columns in the M-dimension are used a axis-1, level-0 labels 
+            on the concatanated ndframe.
+        :param dataset_names:
+            used as hierarchical labels to distinuish from which dataset each column comes from
+        """
+        return pd.concat(
+            (
+                self._pick_n_diff_columns(datasets, cols, dataset_names)
+                for cols in equiv_colnames
+            ),
+            axis=1,
+            keys=list(zip(*equiv_colnames))[0],
+        )
+
 
 
 #########################
