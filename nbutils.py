@@ -222,6 +222,8 @@ def collect_nodes(
 ## Pandas etc
 
 from pandas.core.generic import NDFrame
+from pandas.api.types import is_numeric_dtype
+
 
 def get_scalar_column(df, column):
     """
@@ -249,6 +251,7 @@ class Comparator:
         col_accesor: Callable[[NDFrame, str], NDFrame],
         no_diff_prcnt=False,
         diff_colname="diffs",
+        diff_bar_kw={'align': 'mid', 'color': ['#d65f5f', '#5fba7d']},
     ):
         """
         :param col_accessor:
@@ -258,6 +261,10 @@ class Comparator:
             result dataframe contains an extra *diff* column.
         :param diff_colname`:
             how to name the extra *diff* column (does nothing for when not generated)
+        :param diff_bar_kw:
+            if given, apply styling bars at the `diff[%]` columns, 
+            with these as extra styling
+            (see https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html#Bar-charts)
         """
         for _k, _v in locals().items():
             if not _k.startswith("_") or _k == "self":
@@ -265,7 +272,7 @@ class Comparator:
 
     def _pick_n_diff_columns(
         self, datasets: Seq[NDFrame], col_names: Seq[str], dataset_names: Seq[str]
-    ):
+    ) -> NDFrame:
         """
         Pick and concatenate the respective `col_names` from each dataframe in `dfs`, 
 
@@ -277,9 +284,8 @@ class Comparator:
             when access by ``self.col_accesor( df[i], col_name[i] )`` ∀ i ∈ [0, N).
         :param col_names:
             a list o N x column-names
+        :return: 
         """
-        from pandas.api.types import is_numeric_dtype
-
         picked_cols = [self.col_accesor(d, c) for d, c in zip(datasets, col_names)]
         dataset_names = list(dataset_names)
 
@@ -288,7 +294,7 @@ class Comparator:
 
             picked_cols = [d0]
             for d in drest:
-                picked_cols.extend((d, 100 * (d0 - d).abs() / d0))
+                picked_cols.extend((d, 100 * (d0 - d) / d0))
 
             dataset_names = dataset_names + ["diffs[%]"]
 
@@ -315,15 +321,32 @@ class Comparator:
         :param dataset_names:
             used as hierarchical labels to distinuish from which dataset each column comes from
         """
-        return pd.concat(
+        col_level_0 = list(zip(*equiv_colnames))[0]
+        df = pd.concat(
             (
                 self._pick_n_diff_columns(datasets, cols, dataset_names)
                 for cols in equiv_colnames
             ),
             axis=1,
-            keys=list(zip(*equiv_colnames))[0],
+            keys=col_level_0,
         )
 
+        if self.diff_bar_kw:
+            df = self._styled_with_diff_bars(df, col_level_0)
+        return df
+
+    def _styled_with_diff_bars(self, df, col_level_0):
+        style = df.style
+        for c in col_level_0:
+            diff_idx = (c, 'diffs[%]')
+            try:
+                df[diff_idx]
+            except Exception:
+                "Ok, `diff[%]` column missing"
+            else:
+                style = style.bar(subset=[diff_idx], **self.diff_bar_kw) 
+        
+        return style
 
 
 #########################

@@ -32,6 +32,7 @@ from pathlib import PurePosixPath as P
 
 import pandas as pd
 from pandas import HDFStore
+from pandas.core.generic import NDFrame
 import qgrid
 from wltp.experiment import Experiment
 from ruamel.yaml import YAML
@@ -65,7 +66,7 @@ nbu.print_nodes(h5fname)
 #
 def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups, nodes_predicate) -> List[NDFrame]:
     def func(h5db):
-        veh_groups = collect_nodes(h5db, nodes_predicate)
+        veh_groups = nbu.collect_nodes(h5db, nodes_predicate)
         data_collected = list(
             zip(
                 *(
