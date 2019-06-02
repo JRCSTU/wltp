@@ -1,0 +1,211 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.1'
+      jupytext_version: 1.1.3
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+# Compare results in the DB
+
+```{python}
+## To autoreload codein python files here.
+# %load_ext autoreload
+# %autoreload 2
+
+## Add %%black at the top of a cell, and re-evaluate it, 
+# to format it before git-commits, and ease diffs.
+# %load_ext blackcellmagic
+```
+
+```{python}
+from typing import Union, List, Callable, Any, Sequence as Seq
+import io
+import logging
+from pathlib import PurePosixPath as P
+
+import pandas as pd
+from pandas import HDFStore
+from pandas.core.generic import NDFrame
+import qgrid
+from wltp.experiment import Experiment
+from ruamel.yaml import YAML
+
+import nbutils as nbu
+
+idx = pd.IndexSlice
+log = logging.getLogger('CarsDB-compare.ipynb')
+logging.basicConfig(level=logging.INFO)
+```
+
+```{python}
+## DEFINITIONS
+#
+h5fname = 'WltpCars.h5'
+c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
+```
+
+```{python}
+## PROVENANCE: discover how it came to be, at a later time
+#  (might take 10'')
+root_prov_info = nbu.provenance_info() 
+```
+
+```{python}
+nbu.print_nodes(h5fname)
+```
+
+```{python}
+## Merge vehicles into Indexed Pandas
+#
+def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups, nodes_predicate) -> List[NDFrame]:
+    def func(h5db):
+        veh_groups = collect_nodes(h5db, nodes_predicate)
+        data_collected = list(
+            zip(
+                *(
+                    tuple( 
+                        (vehg, h5db.get(str(P(vehg) / datag)))  # key: vehnum, value: subgroup-dfs
+                        for datag in data_subgroups
+                    )
+                    for vehg in veh_groups
+                )
+            )
+        )
+        
+        return data_collected
+    data_collected = nbu.do_h5(h5, func)
+
+
+    dicts_to_merge = [dict(d) for d in data_collected]
+    index_dfs = [pd.concat(d.values(), keys=d.keys()).sort_index() for d in dicts_to_merge]
+
+    return index_dfs
+ 
+def vehgroups_with_out1(g):
+    return g.endswith('out1') and str(P(g).parent)
+
+datags_to_collect = ("out1/props", "out1/cycle", "out2/props", "out2/cycle")
+
+p1, c1, p2, c2 = merge_veh_datasets(h5fname, datags_to_collect, vehgroups_with_out1)
+```
+
+```{python}
+class Comparator:
+    """Pick and concat side-by-side differently-named columns from multiple dataframe."""
+
+    def __init__(
+        self,
+        col_accesor: Callable[[NDFrame, str], NDFrame],
+        no_diff_prcnt=False,
+        diff_colname="diffs",
+    ):
+        """
+        :param col_accessor:
+            how to pick a column from an ndframe
+        :param no_diff_prcnt:
+            if this is falsy, and all equivalent columns are numerics,
+            result dataframe contains an extra *diff* column.
+        :param diff_colname`:
+            how to name the extra *diff* column (does nothing for when not generated)
+        """
+        for _k, _v in locals().items():
+            if not _k.startswith("_") or _k == "self":
+                vars(self)[_k] = _v
+
+    def _pick_n_diff_columns(
+        self, datasets: Seq[NDFrame], col_names: Seq[str], dataset_names: Seq[str]
+    ):
+        """
+        Pick and concatenate the respective `col_names` from each dataframe in `dfs`, 
+
+        and (optionally) diff against the 1st dataset. 
+
+        :param datasets:
+            a list of N x dataframes.
+            Each one must contain the respective column from `col_names`, 
+            when access by ``self.col_accesor( df[i], col_name[i] )`` ∀ i ∈ [0, N).
+        :param col_names:
+            a list o N x column-names
+        """
+        from pandas.api.types import is_numeric_dtype
+
+        picked_cols = [self.col_accesor(d, c) for d, c in zip(datasets, col_names)]
+        dataset_names = list(dataset_names)
+
+        if not self.no_diff_prcnt and all(is_numeric_dtype(d) for d in picked_cols):
+            d0, *drest = picked_cols
+
+            picked_cols = [d0]
+            for d in drest:
+                picked_cols.extend((d, 100 * (d0 - d).abs() / d0))
+
+            dataset_names = dataset_names + ["diffs[%]"]
+
+        return pd.concat(picked_cols, axis=1, keys=dataset_names)
+
+    def compare(
+        self, datasets: Seq, equiv_colnames: Seq[Seq[str]], dataset_names: Seq[str]
+    ):
+        """
+        List side-by-side same-kind columns (with different names) from many datasets,
+
+        optionally diffing them against the 1st dataset.
+
+        :param datasets:
+            a list of N x ndframes, each one containing the respective columns in `equiv_colnames`.
+        :param equiv_colnames:
+            a matrix of M x N column-names, like:
+            
+                [("p_downscale", "f_downscale"), ("cycle", "wltc_class"), ...]
+                
+            All columns in the N dimension must exist in the respective dataframe in `datasets` list.
+            The 1st columns in the M-dimension are used a axis-1, level-0 labels 
+            on the concatanated ndframe.
+        :param dataset_names:
+            used as hierarchical labels to distinuish from which dataset each column comes from
+        """
+        return pd.concat(
+            (
+                self._pick_n_diff_columns(datasets, cols, dataset_names)
+                for cols in equiv_colnames
+            ),
+            axis=1,
+            keys=list(zip(*equiv_colnames))[0],
+        )
+
+
+## Report PROP differences
+#
+dataset_names = "Heinz Phase1a".split()
+equivalent_columns = [("p_downscale", "f_downscale"), ("cycle", "wltc_class")]
+cmpr = Comparator(lambda d, c: d.loc[idx[:, c]])
+
+display(
+    cmpr.compare((p1, p2), equivalent_columns, dataset_names),
+    qgrid.show_grid(p1),
+    qgrid.show_grid(p2),
+)
+```
+
+```{python}
+## Report CYCLE-MEAN differences
+#
+cols1 = ["v_orig", "v in km/h", "gear", "g_min", "P_res in kW", "Pavailable in kW", "n in min-1"]
+cols2 = ["v_class", "v_target", "gears_orig", "gears", "p_required", "p_available", "rpm"]
+cc1 = c1[cols1].mean(level=0)
+cc2 = c2[cols2].mean(level=0)
+
+equivalent_columns = list(zip(cols1, cols2))
+display(
+    cmpr.compare((cc1, cc2), equivalent_columns, dataset_names),
+    qgrid.show_grid(cc1), 
+    qgrid.show_grid(cc2),
+)
+```
