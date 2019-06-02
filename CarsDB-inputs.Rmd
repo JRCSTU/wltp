@@ -50,6 +50,7 @@ import nbutils as nbu
 
 idx = pd.IndexSlice
 log = logging.getLogger('CarsDB-inputs.ipynb')
+logging.basicConfig(level=logging.INFO)
 ```
 
 ```{python}

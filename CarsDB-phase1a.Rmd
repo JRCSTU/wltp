@@ -37,6 +37,7 @@ from ruamel.yaml import YAML
 import nbutils as nbu
 
 log = logging.getLogger('CarsDB-phase1a.ipynb')
+logging.basicConfig(level=logging.INFO)
 ```
 
 ```{python}
@@ -83,7 +84,6 @@ def run_old_wltp_on_db_vehice(h5, vehnum):
     norm_pwot = normalize_pwot(
         pwot, props.idling_speed, props.rated_speed, props.rated_power
     )
-    v_max = int(props.v_max_declared)
     inverse_SM = 1.0 - props.SM
 
     input_model = nbu.yaml_loads(
@@ -99,7 +99,7 @@ def run_old_wltp_on_db_vehice(h5, vehnum):
           test_mass:    {props.test_mass}
           n_rated:      {props.rated_speed}
           n_idle:       {props.idling_speed}
-          v_max:        {v_max}
+          v_max:        {props.v_max_declared}
         params:
           f_safety_margin: {inverse_SM}
         """
@@ -109,8 +109,11 @@ def run_old_wltp_on_db_vehice(h5, vehnum):
     exp = Experiment(input_model)
     output_model = exp.run()
 
+    veh = output_model['vehicle']
     ## Include also the only out-value in params.
-    output_model['vehicle']['f_downscale'] = output_model['params']['f_downscale']
+    veh['f_downscale'] = output_model['params']['f_downscale']
+    ## Drop these arrays not to burden HDF data-model, exist also in inputs.
+    del veh['resistance_coeffs'], veh['gear_ratios']
     
     return output_model
 # output_model = run_old_wltp_on_db_vehice(14)
@@ -154,6 +157,7 @@ def store_phase1A_results(h5):
                 )
 
     return nbu.do_h5(h5, func)
+
 store_phase1A_results(h5fname)
 ```
 
