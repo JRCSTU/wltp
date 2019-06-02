@@ -13,10 +13,11 @@ jupyter:
 ---
 
 # Parse excel files into a HDF5 file
-It builds this *inputs* parts (`props`, `pwot`) of the following tree 
-as a [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5)
-(see `README.py`).
+It builds an an [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5) 
+with the the *vehicle inputs (`props`, `pwot`) & *outputs* from Heinz MSAccess DB.
 
+## To see the full tree
+...check the `README.py`,
 ## to run this notebook in your own jupyter-server
 ...read instructions on the `README.md`,
 ## to inspect and get help on the HDF5 file
@@ -283,10 +284,10 @@ nbu.print_nodes(h5fname)
 # %%time
 ## COMPRESS x100 HDF5: 122MB --> ~3.1MB in 5.6s on my speedy laptop.
 #
-# !ls -lh WltpCars*
+# !ls -lh WltpCars.h5
 # !ptrepack WltpCars.h5 --complevel=9 --complib=blosc:blosclz -o WltpCars.1.h5
 # !mv WltpCars.1.h5 WltpCars.h5
-# !ls -lh WltpCars*
+# !ls -lh WltpCars.h5
 ```
 
 ```{python}
