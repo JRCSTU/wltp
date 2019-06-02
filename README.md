@@ -8,11 +8,12 @@ UNECE's WLTP reference implementation in Python
 - The original files of the algo (document & MSAccess db).
 - Notebooks to process the vehicle data, build HDF5-dbm launch the algo, etc::
 
-      CarsDB-inputs.ipynb     populate h5db with Heinz test-car input specs 
+      CarsDB-msaccess.ipynb   populate h5db with Heinz test-car input & output 
       CarsDB-phase1a.ipynb    populate h5db with results from the old python code
+      CarsDB-compare.ipynb    print comparison results for cars in the h5db
       HDF5-APIh-help.ipynb    list usefull HDF5 methods
       nbutils.py              support code for the above notebooks
-      WltpCars.h5             the h5db where the data are stored
+      WltpCars.h5             the h5db where all data are stored
       
 > **Note:**
 > It is the `.Rmd` files that are stored in the git-repo of this project;
