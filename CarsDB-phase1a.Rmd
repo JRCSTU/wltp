@@ -36,7 +36,7 @@ from ruamel.yaml import YAML
 
 import nbutils as nbu
 
-log = logging.getLogger('CarsDB.ipynb')
+log = logging.getLogger('CarsDB-phase1a.ipynb')
 ```
 
 ```{python}
@@ -74,10 +74,10 @@ def normalize_pwot(
 ```
 
 ```{python}
-def run_old_wltp_on_db_vehice(vehnum):
+def run_old_wltp_on_db_vehice(h5, vehnum):
     "Quick'n dirty way to invoke old Phase-1a python-algo."
     
-    props, pwot = nbu.load_vehicle(h5fname, vehnum, "props", "pwot")
+    props, pwot = nbu.load_vehicle(h5, vehnum, "props", "pwot")
 
     ndvs = [props["ndv_%i" % g] for g in range(1, props["no_of_gears"] + 1)]
     norm_pwot = normalize_pwot(
@@ -109,6 +109,9 @@ def run_old_wltp_on_db_vehice(vehnum):
     exp = Experiment(input_model)
     output_model = exp.run()
 
+    ## Include also the only out-value in params.
+    output_model['vehicle']['f_downscale'] = output_model['params']['f_downscale']
+    
     return output_model
 # output_model = run_old_wltp_on_db_vehice(14)
 # display(output_model["cycle_run"])
