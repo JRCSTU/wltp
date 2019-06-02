@@ -254,7 +254,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     },
                     'v_max': {
                         'title': 'maximum vehicle velocity',
-                        'type': ['integer', 'null'],
+                        'type': ['number', 'null'],
                         'minimum': 0,
                         'exclusiveMinimum': True,
                         'description': dedent("""
