@@ -169,11 +169,20 @@ def openh5(h5: Union[str, HDFStore]):
     return h5db
 
 
+def do_h5(h5: Union[str, HDFStore], func: callable, *args, **kw):
+    if isinstance(h5, HDFStore) and h5.is_open:
+        out = func(h5, *args, **kw)
+    else:
+        with openh5(h5) as h5db:
+            out = func(h5db, *args, **kw)
+
+    return out
+
+
 def print_nodes(h5: Union[str, HDFStore], displaywidth=160):
     from columnize import columnize
 
-    with openh5(h5) as h5db:
-        nodes = h5db.keys()
+    nodes = do_h5(h5, lambda h5db: h5db.keys())
 
     print(columnize(nodes, displaywidth=displaywidth))
 
@@ -185,7 +194,7 @@ def provenir_h5node(
     
     For its API, see :func:`provenance_info`. 
     """
-    with openh5(h5) as h5db:
+    def func(h5db):
         h5file = h5db._handle
         if title:
             h5file.set_node_attr(node, "TITLE", title)
@@ -194,20 +203,20 @@ def provenir_h5node(
         provenance = yaml_dumps(prov_info)
         h5file.set_node_attr(node, "provenance", provenance)
 
+    return do_h5(h5, func)
+
 
 def collect_nodes(
-    h5: Union[str, HDFStore], 
-    predicate: Callable[[str], Any],
-    start_in='/'
+    h5: Union[str, HDFStore], predicate: Callable[[str], Any], start_in="/"
 ) -> List[str]:
     """
     feed all groups into predicate and collect its truthy output
     """
-    with nbu.openh5(h5fname) as h5db:
+    def func(h5db):
         out = [predicate(g._v_pathname) for g in h5db._handle.walk_groups(start_in)]
         return [i for i in out if bool(i)]
-
-
+    return do_h5(h5, func)
+    
 
 #########################
 ## Pandas etc
@@ -251,8 +260,8 @@ def vehnode(vehnum=None, *suffix):
 def load_vehicle(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
     "return vehicle's groups listed in `subnodes`"
 
-    with openh5(h5) as h5db:
+    def func(h5db):
         return [h5db.get(vehnode(vehnum, sn)) for sn in subnodes]
-
+    return do_h5(h5, func)
 
 # props, pwot = load_vehicle(h5fname, vehnum, "props", "pwot")
