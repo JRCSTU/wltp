@@ -49,7 +49,7 @@ from pandas import HDFStore
 import nbutils as nbu
 
 idx = pd.IndexSlice
-log = logging.getLogger('CarsDB.ipynb')
+log = logging.getLogger('CarsDB-inputs.ipynb')
 ```
 
 ```{python}
@@ -122,7 +122,7 @@ def extract_SM_from_pwot(
 ```{python}
 # Store each a vehicle into a node with 2 nodes: props, pwot
 #
-prov_info = nbu.provenance_info(files=[xlfname], prov_info=root_prov_info)
+base = nbu.provenance_info(files=[xlfname], base=root_prov_info)
 
 
 def store_group_per_car(h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM):
@@ -143,13 +143,13 @@ def store_group_per_car(h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM):
             h5db,
             spec_node,
             title="Specs of the test-car, as delivered by Heinz on 13 May 2019",
-            prov_info=prov_info,
+            base=base,
         )
         nbu.provenir_h5node(
             h5db,
             pwot_node,
             title="Full-load-curve of the test-car, as delivered by Heinz on 13 May 2019",
-            prov_info=prov_info,
+            base=base,
         )
 
 
@@ -159,7 +159,7 @@ with nbu.openh5(h5fname) as h5db:
         h5db,
         nbu.vehnode(),
         title="preprocessed cars for python consumption",
-        prov_info=prov_info,
+        base=base,
     )
 ```
 
@@ -178,7 +178,7 @@ def fpath_to_vehnum(outfpath: Path) -> int:
     return int(re.match(r"V(\d+)\.xls", outfpath.name).group(1))
 
 
-prov_info = nbu.provenance_info(prov_info=root_prov_info)
+base = nbu.provenance_info(base=root_prov_info)
 scalar_columns = [
     "Calculation date",
     "Time at calculation start",
@@ -256,7 +256,7 @@ def store_results_per_car(
             cycle_group,
             files=[outfpath],
             title="Cycle-run produced by Heinz's MSAccess db",
-            prov_info=prov_info,
+            base=base,
         )
 
         props_group = nbu.vehnode(vehnum, props_group_suffix)
@@ -266,7 +266,7 @@ def store_results_per_car(
             props_group,
             files=[outfpath],
             title="Properties (in & out) produced by Heinz's MSAccess db",
-            prov_info=prov_info,
+            base=base,
         )
 
 

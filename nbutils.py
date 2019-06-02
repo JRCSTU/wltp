@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, Union
+from typing import List, Tuple, Dict, Union, Callable, Any
 import io, json, time, platform
 from datetime import datetime
 from ruamel.yaml import YAML
@@ -66,6 +66,7 @@ def _git_describe(basedir="."):
 def _python_describe():
     info = {"path": shutil.which("python")}
     condaenv = os.environ.get("CONDA_DEFAULT_ENV")
+    log.info(f"Asking conda-env({condaenv}) or `pip`.")
     if condaenv:
         info["type"] = "conda"
 
@@ -80,9 +81,13 @@ def _python_describe():
             info["env"] = "Cannot conde-env-export due to: %s" % ex
     else:
         try:
-            info["env"] = sbp.check_output(
-                "pip list --format freeze".split(), universal_newlines=True
-            ).strip().split("\n")
+            info["env"] = (
+                sbp.check_output(
+                    "pip list --format freeze".split(), universal_newlines=True
+                )
+                .strip()
+                .split("\n")
+            )
         except Exception as ex:
             raise ex
             info["env"] = "Cannot pip-list due to: %s" % ex
@@ -101,13 +106,14 @@ def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
     return s
 
 
-def provenance_info(*, files=(), repos=(), prov_info=None) -> Dict[str, str]:
-    """
-    :param prov_info:
+def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
+    """Build a provenance record, examining environment if no `base` given.
+    
+    :param base:
         if given, reused (cloned first), and any fpaths & git-repos appended in it.
     """
-    if prov_info:
-        info = deepcopy(prov_info)
+    if base:
+        info = deepcopy(base)
 
     else:
         info = {"uname": dict(platform.uname()._asdict()), "python": _python_describe()}
@@ -131,8 +137,8 @@ def provenance_info(*, files=(), repos=(), prov_info=None) -> Dict[str, str]:
 
 
 # prov_info = nbu.provenance_info(fpaths=[h5fname])
-# prov_info = nbu.provenance_info(fpaths=['sfdsfd'], prov_info=prov_info)
-# prov_info = nbu.provenance_info(fpaths=['ggg'], git_repos=['../wltp.git'], prov_info=prov_info)
+# prov_info = nbu.provenance_info(fpaths=['sfdsfd'], base=prov_info)
+# prov_info = nbu.provenance_info(fpaths=['ggg'], git_repos=['../wltp.git'], base=prov_info)
 # print(nbu.yaml_dumps(prov_info))
 
 
@@ -141,7 +147,7 @@ def provenance_info(*, files=(), repos=(), prov_info=None) -> Dict[str, str]:
 
 
 def openh5(h5: Union[str, HDFStore]):
-    "open h5-fpath or reuse existing h5db instance"
+    """Open h5-fpath or reuse existing h5db instance."""
 
     h5db = None
 
@@ -173,17 +179,38 @@ def print_nodes(h5: Union[str, HDFStore], displaywidth=160):
 
 
 def provenir_h5node(
-    h5db, node, *, title=None, files=(), repos=(), prov_info=None
+    h5: Union[str, HDFStore], node, *, title=None, files=(), repos=(), base=None
 ):
-    h5file = h5db._handle
-    if title:
-        h5file.set_node_attr(node, "TITLE", title)
-    prov_info = provenance_info(files=files, repos=repos, prov_info=prov_info)
+    """Add provenance-infos to some existing H5 node.
+    
+    For its API, see :func:`provenance_info`. 
+    """
+    with openh5(h5) as h5db:
+        h5file = h5db._handle
+        if title:
+            h5file.set_node_attr(node, "TITLE", title)
+        prov_info = provenance_info(files=files, repos=repos, base=base)
 
-    provenance = yaml_dumps(prov_info)
-    h5file.set_node_attr(node, "provenance", provenance)
+        provenance = yaml_dumps(prov_info)
+        h5file.set_node_attr(node, "provenance", provenance)
 
 
+def collect_nodes(
+    h5: Union[str, HDFStore], 
+    predicate: Callable[[str], Any],
+    start_in='/'
+) -> List[str]:
+    """
+    feed all groups into predicate and collect its truthy output
+    """
+    with nbu.openh5(h5fname) as h5db:
+        out = [predicate(g._v_pathname) for g in h5db._handle.walk_groups(start_in)]
+        return [i for i in out if bool(i)]
+
+
+
+#########################
+## Pandas etc
 def get_scalar_column(df, column):
     """
     Extract the single scalar value if column contains it.
@@ -221,7 +248,7 @@ def vehnode(vehnum=None, *suffix):
 # assert vehnode() ==  '/vehicles'
 
 
-def load_vehicle(h5, vehnum, *subnodes) -> list:
+def load_vehicle(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
     "return vehicle's groups listed in `subnodes`"
 
     with openh5(h5) as h5db:

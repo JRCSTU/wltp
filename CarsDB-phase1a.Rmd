@@ -148,7 +148,7 @@ with nbu.openh5(h5fname) as h5db:
                 h5db,
                 nbu.vehnode(vehnum, 'out2'),
                 title="Wltp-run generated old phase-1a python",
-                prov_info=root_prov_info,
+                base=root_prov_info,
             )
 ```
 
