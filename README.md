@@ -54,39 +54,55 @@ vehicles/
         ...
 ```
 
-## Recreate this Jupyter server
-This server runs on a *conda* environment.  
-All installed dependencies are kept in the `./environment.yaml` file,
+## Recreate this Jupyter-lab server
+This server runs on a full *Anaconda* environment.  
+All installed dependencies are kept in the `./environment.yaml` file.
 
-> **Tip:**
+> **Note:**
 > Maintain the env-file by running this terminal command after any programm (un)install::
 >     
 >     conda env export -n jupyter > environment.yaml 
 
 To reproduce this server:
 
-1. recreate the conda-env::
+0. Install *miniconda3* or the full *Anaconda* distribution (as this server has done).
+   Instructions vary for your Operating System.
+   
+1. Recreate the conda-env::
 
-  ```bash
-  $ conda env create -f environment.yaml
-  ```
+   ```bash
+   $ conda env create -f environment.yaml
+   ```
 
-2. then ensure `qgrid` is properly installed for *jupyter lab*,
-  by following [the instructions](https://github.com/quantopian/qgrid#installation)
+   > **Tip:**
+   > The really necessary packages are these::
+   > 
+   >     conda install \
+   >         black blackcellmagic columnize ipympl jsonschema==2.6.0 jupytext \
+   >         matplotlib nodejs pandalone xonsh qgrid ruamel.yaml tables wltp xlrd
+
+2. then follow the instructions in each linked site below to install 
+   these jupyer-lab extensions (working `nodejs`* & `npm` commands are needed):
+
+   - [`qgrid`](https://github.com/quantopian/qgrid#installation)
+   - [`jupyter-matplotlib`](https://github.com/matplotlib/jupyter-matplotlib)
+   - [`jupytext`](https://github.com/mwouts/jupytext): optional, if you want 
+     to commit changes into this project's git-repo.
+
+3. finally launch it with:
   
-  Optionally [install `jupytext`](https://github.com/mwouts/jupytext) if you want 
-  to commit changes into this project's git-repo.
+   ```bash
+   $ jupyter lab
+   ```
 
-3. Finally launch it with:
-
-  ```bash
-  $ jupyter lab
-  ```
+   > **Tip:**
+   > You don't need to restart the server after installing lab extensions - restarting 
+   > just the the kernel is enough.
 
 
 ## Code to extract data from MSAccess
 
-in case it is needed in the future
+In case it's needed in the future
 ...but cannot run in this server bc `pyodbc` lib cannot runs on *Linux* :-( 
 
 ```python
@@ -118,4 +134,6 @@ print([i.column_name for i in crsr.columns('gearshift_table_all')]
 ```
 
 ## Questions to Heinz
-- How to etrapolate PWot?  eg. when `min(pwot[n]` > `n_idle`?
+- Running a car in the MSAccess needs just selecting its `vehicle_num`?
+  (no other setting touched?)
+- How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
