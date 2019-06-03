@@ -97,6 +97,14 @@ p1, c1, p2, c2 = merge_veh_datasets(h5fname, datags_to_collect, vehgroups_with_o
 ```
 
 ```{python}
+## Find VEHICLES without RESULT
+#
+hasv: List[int] = [int(n[len('/vehicles/v'):]) for n in nbu.collect_nodes(h5fname, vehgroups_with_out1)]
+misv: List[int] = sorted(set(range(1, 116)) - set(hasv))
+print(', '.join('%s' % i for i in misv))
+```
+
+```{python}
 ## Report PROP differences
 #
 dataset_names = "Heinz Phase1a".split()

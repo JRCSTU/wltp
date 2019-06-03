@@ -169,8 +169,8 @@ nbu.print_nodes(h5fname)
 # %%time
 ## COMPRESS x100 HDF5: 122MB --> ~3.1MB in 5.6s on my speedy laptop.
 #
-# !ls -lh WltpCars*
-# !ptrepack WltpCars.h5 --complevel=9 --complib=blosc:blosclz -o WltpCars.1.h5
-# !mv WltpCars.1.h5 WltpCars.h5
-# !ls -lh WltpCars*
+# !ls -lh {h5fname}
+# !ptrepack  {h5fname}  --complevel=9 --complib=blosc:blosclz -o {h5fname}.tmp
+# !mv  {h5fname}.tmp {h5fname}
+# !ls -lh {h5fname}
 ```

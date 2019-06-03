@@ -182,7 +182,7 @@ def do_h5(h5: Union[str, HDFStore], func: callable, *args, **kw):
 def print_nodes(h5: Union[str, HDFStore], displaywidth=160):
     from columnize import columnize
 
-    nodes = do_h5(h5, lambda h5db: h5db.keys())
+    nodes = do_h5(h5, lambda h5db: sorted(h5db.keys()))
 
     print(columnize(nodes, displaywidth=displaywidth))
 
@@ -214,7 +214,7 @@ def collect_nodes(
     """
     def func(h5db):
         out = [predicate(g._v_pathname) for g in h5db._handle.walk_groups(start_in)]
-        return [i for i in out if bool(i)]
+        return sorted(set(i for i in out if bool(i)))
     return do_h5(h5, func)
     
 
