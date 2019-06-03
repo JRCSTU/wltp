@@ -66,7 +66,7 @@ def _git_describe(basedir="."):
 def _python_describe():
     info = {"path": shutil.which("python")}
     condaenv = os.environ.get("CONDA_DEFAULT_ENV")
-    log.info(f"Asking conda-env({condaenv}) or `pip`.")
+    log.info(f"Asking conda-env({condaenv}) or `pip`, might take some time...")
     if condaenv:
         info["type"] = "conda"
 
@@ -106,17 +106,23 @@ def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
     return s
 
 
+#: Lazily instanciated
+_root_provenance = None
+
 def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
     """Build a provenance record, examining environment if no `base` given.
     
     :param base:
         if given, reused (cloned first), and any fpaths & git-repos appended in it.
     """
+    global _root_provenance
+    
+    if _root_provenance is None:
+        _root_provenance = {"uname": dict(platform.uname()._asdict()), "python": _python_describe()}
+    info = deepcopy(_root_provenance)
+    
     if base:
-        info = deepcopy(base)
-
-    else:
-        info = {"uname": dict(platform.uname()._asdict()), "python": _python_describe()}
+        info.update(base)
 
     info["ctime"] = _human_time()
 
@@ -135,10 +141,9 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
 
     return info
 
-
-# prov_info = nbu.provenance_info(fpaths=[h5fname])
-# prov_info = nbu.provenance_info(fpaths=['sfdsfd'], base=prov_info)
-# prov_info = nbu.provenance_info(fpaths=['ggg'], git_repos=['../wltp.git'], base=prov_info)
+# prov_info = nbu.provenance_info(files=[h5fname])
+# prov_info = nbu.provenance_info(files=['sfdsfd'], base=prov_info)
+# prov_info = nbu.provenance_info(files=['ggg'], repos=['../wltp.git'], base=prov_info)
 # print(nbu.yaml_dumps(prov_info))
 
 
@@ -252,6 +257,7 @@ class Comparator:
         no_diff_prcnt=False,
         diff_colname="diffs",
         diff_bar_kw={'align': 'mid', 'color': ['#d65f5f', '#5fba7d']},
+        no_styling=False,
     ):
         """
         :param col_accessor:
@@ -331,7 +337,7 @@ class Comparator:
             keys=col_level_0,
         )
 
-        if self.diff_bar_kw:
+        if self.diff_bar_kw and not self.no_styling:
             df = self._styled_with_diff_bars(df, col_level_0)
         return df
 

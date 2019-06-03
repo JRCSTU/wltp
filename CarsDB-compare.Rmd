@@ -30,9 +30,12 @@ import io
 import logging
 from pathlib import PurePosixPath as P
 
+
+import numpy as np
 import pandas as pd
 from pandas import HDFStore
 from pandas.core.generic import NDFrame
+from matplotlib import pyplot as plt
 import qgrid
 from wltp.experiment import Experiment
 from ruamel.yaml import YAML
@@ -52,13 +55,21 @@ c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 ```
 
 ```{python}
-## PROVENANCE: discover how it came to be, at a later time
-#  (might take 10'')
-root_prov_info = nbu.provenance_info() 
+a=nbu.print_nodes(h5fname);
 ```
 
 ```{python}
-nbu.print_nodes(h5fname)
+def vehgroups_with_out1(g):
+    return g.endswith('out1') and str(P(g).parent)
+
+## Find VEHICLES without RESULT
+#
+hasv: List[int] = [int(n[len('/vehicles/v'):]) for n in nbu.collect_nodes(h5fname, vehgroups_with_out1)]
+misv: List[int] = sorted(set(range(1, 116)) - set(hasv))
+print(', '.join('%s' % i for i in misv))
+
+# import random
+# random.choices(misv, k=9)
 ```
 
 ```{python}
@@ -88,28 +99,20 @@ def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups, nodes_predicate
 
     return index_dfs
  
-def vehgroups_with_out1(g):
-    return g.endswith('out1') and str(P(g).parent)
-
 datags_to_collect = ("out1/props", "out1/cycle", "out2/props", "out2/cycle")
 
 p1, c1, p2, c2 = merge_veh_datasets(h5fname, datags_to_collect, vehgroups_with_out1)
 ```
 
 ```{python}
-## Find VEHICLES without RESULT
-#
-hasv: List[int] = [int(n[len('/vehicles/v'):]) for n in nbu.collect_nodes(h5fname, vehgroups_with_out1)]
-misv: List[int] = sorted(set(range(1, 116)) - set(hasv))
-print(', '.join('%s' % i for i in misv))
+cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
+dataset_names = "Heinz Phase1a".split()
 ```
 
 ```{python}
 ## Report PROP differences
 #
-dataset_names = "Heinz Phase1a".split()
 equivalent_columns = [("p_downscale", "f_downscale"), ("cycle", "wltc_class")]
-cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
 
 display(
     cmpr.compare((p1, p2), equivalent_columns, dataset_names),
