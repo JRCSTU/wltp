@@ -134,7 +134,7 @@ download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_v
 plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
 test_reqs = ["nose", "coverage", "matplotlib", "coveralls"]
-doc_reqs = ["sphinx>=1.2", "sphinx_rtd_theme", "matplotlib"]  # for comparisons
+doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
 dev_reqs = (
     test_reqs
     + doc_reqs
