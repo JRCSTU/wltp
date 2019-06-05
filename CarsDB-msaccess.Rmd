@@ -51,17 +51,21 @@ import nbutils as nbu
 
 idx = pd.IndexSlice
 log = logging.getLogger('CarsDB-inputs.ipynb')
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s|%(levelname)s|%(module)s:[%(funcName)s]:%(message)s', 
+    datefmt='%Y-%m-%d,%H:%M:%S',
+)
 ```
 
 ```{python}
 ## DEFINITIONS
 #
-h5fname = 'WltpCars.h5'
-# Test cars delivered by Heinz on 13 May 2019
-heinzdb_fpath="WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb"
-xlfname = Path("example vehicles for the prog code validation.xlsx")
-c_vehnum, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'n', 'Pwot', 'SM', 'ASM'
+h5fname = 'VehData/WltpCars.h5'
+# Test cars delivered by Heinz to ank on 4 Jun 2019
+heinzdb_fpath="VehData/WLTP_GS_calculation_28052019-116cars.accdb"
+xlfname = Path("VehData/vehicle_info-116.xlsx")
+c_vehnum, c_engno, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'no_engine', 'n', 'Pwot', 'SM', 'ASM'
 ```
 
 ```{python}
@@ -72,7 +76,7 @@ root_prov_info = nbu.provenance_info(files=[heinzdb_fpath], repos=['.'])
 
 ```{python}
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
-# !rm {h5fname}
+# !rm -f {h5fname}
 ```
 
 ```{python}
@@ -82,15 +86,19 @@ nbu.print_nodes(h5fname)
 ```{python}
 from pandalone import xleash
 
-specs = xleash.lasso('%s#technical data!::["df"]' % xlfname)
-pwots = xleash.lasso('%s#wot power curves!::["df"]' % xlfname)
+specs = xleash.lasso('%s#vehicle_info!::["df"]' % xlfname)
+pwots = xleash.lasso('%s#TB_Pwot!::["df"]' % xlfname)
 ```
 
 ```{python}
 import qgrid
 
-display(qgrid.show_grid(specs))
-display(qgrid.show_grid(pwots))
+display(
+    qgrid.show_grid(specs),
+    qgrid.show_grid(pwots),
+    specs.columns, 
+    pwots.columns
+)
 ```
 
 ```{python}
@@ -101,24 +109,22 @@ def extract_SM_from_pwot(
     Keep just (n, Pwot, ASM) columns & extract SM column as scalar value.
     
     :param pwot:
-        the wot-curve for a single vehicle, a df like::
+        the wot-curve dataframe for a single vehicle, with columns::
         
-            IX	vehicle_no	n	Pwot	SM	ASM
-            -----------------------
-            0	1			800	5.43	0.1	0.0
-            0	1			900	9.01	0.1	0.0
+            IX	no_engine	n	Pwot	Twot	Pwot_norm	Twot_norm	SM	ASM	Pavai
+
     :return:
-        wot(n: pwot, ASM), SM
+        wot(without SM), SM
         where `wot` is indexed by engine-speed(n)
     """
     SM = nbu.get_scalar_column(pwot, c_SM)
-    pwot = pwot.loc[:, [c_n, c_pwot, c_ASM]].set_index(c_n)
+    pwot = pwot.set_index(c_n).drop(c_SM, axis=1)
 
     return pwot, SM
 
 
 # ## TEST
-# extract_SM_from_pwot(pwots.loc[pwots[c_vehnum] == 3])
+#extract_SM_from_pwot(pwots.loc[pwots[c_engno] == 3])
 ```
 
 ```{python}
@@ -127,13 +133,13 @@ def extract_SM_from_pwot(
 base = nbu.provenance_info(files=[xlfname], base=root_prov_info)
 
 
-def store_group_per_car(h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM):
+def store_inputs_per_car(h5db, specs, c_vehnum=c_vehnum,  c_engno=c_engno,  c_SM=c_SM, c_ASM=c_ASM):
     for _, spec in specs.iterrows():
         vehnum = spec[c_vehnum]
         spec_node = nbu.vehnode(vehnum, "props")
         pwot_node = nbu.vehnode(vehnum, "pwot")
 
-        pwot = pwots.loc[pwots[c_vehnum] == vehnum, :]
+        pwot = pwots.loc[pwots[c_engno] == vehnum, :]
         pwot, SM = extract_SM_from_pwot(pwot)
 
         spec[c_SM] = SM
@@ -156,7 +162,7 @@ def store_group_per_car(h5db, specs, c_vehnum=c_vehnum, c_SM=c_SM, c_ASM=c_ASM):
 
 
 with nbu.openh5(h5fname) as h5db:
-    store_group_per_car(h5db, specs)
+    store_inputs_per_car(h5db, specs)
     nbu.provenir_h5node(
         h5db,
         nbu.vehnode(),
@@ -166,69 +172,15 @@ with nbu.openh5(h5fname) as h5db:
 ```
 
 ```{python}
-def fpath_to_vehnum(outfpath: Path) -> int:
-    """
-    Parse the folder-path containing the HeinzDb result excel files
-    
-        vehicles/
-            +--v001/
-            |   +--props          ADD: (series) all kv-pairs from input/specs + SM, ASM
-            |   +--pwot           ADD: (df) a single-column df(wot) indexed by n
-    """
-    import re
-
-    return int(re.match(r"V(\d+)\.xls", outfpath.name).group(1))
-
-
-base = nbu.provenance_info(base=root_prov_info)
-scalar_columns = [
-    "Calculation date",
-    "Time at calculation start",
-    "Version",
-    "cycle_type",
-    "cycle",
-    "cycle_chosen_by_user",
-    "vehicle_no",
-    "vehicle",
-    "vehicle_class",
-    "kerb_mass in kg",
-    "test_mass in kg",
-    "rated power in kW",
-    "rated_speed in min-1",
-    "idling_speed in min-1",
-    "n_min_drive_set",
-    "n_min_drive_up",
-    "n_min_drive_up_modified",
-    "n_min_drive_down",
-    "n_min_drive_down_modified",
-    "n_min_drive_start_up",
-    "n_min_drive_start_down",
-    "t_end_start_phase",
-    "n_min_drive_start_applied",
-    "no_of_gears",
-    "gear_v_max",
-    "v_max_declared",
-    "v_max_calculated",
-    "f0",
-    "f1",
-    "f2",
-    "speed cap in km/h",
-    "p_downscale",
-    "downscaling",
-    "suppress gear 0 during downshifts",
-    "n_max1",
-    "n_max2",
-    "n95_low",
-    "n95_high",
-    "average_gear",
-]
+scalar_columns = ["Description", "case_no", "case_no2", "vehicle_no", "IDclass"]
 
 
 def store_results_per_car(
     h5db,
-    results_dir="VehResults",
+    results_dir="VehData",
     cycle_group_suffix="out1/cycle",
     props_group_suffix="out1/props",
+    c_vehnum=c_vehnum,
 ):
     """
     Populate h5db with results collected from a folder full of (`V123.xls`, ...) exchel-files.
@@ -245,31 +197,35 @@ def store_results_per_car(
 
     # A dir with one Excel-file per vehicle, as produced by MSAccess.
     results_dir = Path(results_dir)
-    for outfpath in results_dir.glob("*.xls"):
-        vehnum = fpath_to_vehnum(outfpath)
+    for outfpath in results_dir.glob("gearshift_table_all.7.113-116.xlsx"):
+        batchdf = xleash.lasso('%s#::["df"]' % outfpath)
+        vehnums = batchdf[c_vehnum].unique()
+        log.info("Found %s vehicles in file %s: %s", len(vehnums), outfpath, vehnums)
 
-        outdf = xleash.lasso('%s#::["df"]' % outfpath)
-        outdf, props = nbu.drop_scalar_columns(outdf, scalar_columns)
+        base = nbu.provenance_info(base=root_prov_info, files=[outfpath])
+        for vehnum, outdf in batchdf.groupby(c_vehnum):
+            try:
+                outdf, props = nbu.drop_scalar_columns(outdf, scalar_columns)
+            except Exception:
+                display(qgrid.show_grid(outdf))
+                raise
+            cycle_group = nbu.vehnode(vehnum, cycle_group_suffix)
+            h5db.put(cycle_group, outdf)
+            nbu.provenir_h5node(
+                h5db,
+                cycle_group,
+                title="Cycle-run produced by Heinz's MSAccess db",
+                base=base,
+            )
 
-        cycle_group = nbu.vehnode(vehnum, cycle_group_suffix)
-        h5db.put(cycle_group, outdf)
-        nbu.provenir_h5node(
-            h5db,
-            cycle_group,
-            files=[outfpath],
-            title="Cycle-run produced by Heinz's MSAccess db",
-            base=base,
-        )
-
-        props_group = nbu.vehnode(vehnum, props_group_suffix)
-        h5db.put(props_group, pd.Series(props))
-        nbu.provenir_h5node(
-            h5db,
-            props_group,
-            files=[outfpath],
-            title="Properties (in & out) produced by Heinz's MSAccess db",
-            base=base,
-        )
+            props_group = nbu.vehnode(vehnum, props_group_suffix)
+            h5db.put(props_group, pd.Series(props))
+            nbu.provenir_h5node(
+                h5db,
+                props_group,
+                title="Properties (in & out) produced by Heinz's MSAccess db",
+                base=base,
+            )
 
 
 with nbu.openh5(h5fname) as h5db:
@@ -282,7 +238,7 @@ nbu.print_nodes(h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x100 HDF5: 122MB --> ~3.1MB in 5.6s on my speedy laptop.
+## COMPRESS x100 HDF5: 431Mb --> ~83Mb in 20s.
 #
 # !ls -lh {h5fname}
 # !ptrepack  {h5fname}  --complevel=9 --complib=blosc:blosclz -o {h5fname}.tmp
@@ -291,8 +247,9 @@ nbu.print_nodes(h5fname)
 ```
 
 ```{python}
-## Printout all vehicle data
+## SAMPLE: extract data for a specific vehicle. 
 #
-inpsr, outdf, outsr = nbu.load_vehicle(h5fname, 14, 'props', 'out1/cycle', 'out1/props')
+vehnum = 14
+inpsr, outdf, outsr = nbu.load_vehicle(h5fname, vehnum, 'props', 'out1/cycle', 'out1/props')
 display(inpsr, outsr, outdf.columns, qgrid.show_grid(outdf, grid_options={'forceFitColumns': False}))
 ```
