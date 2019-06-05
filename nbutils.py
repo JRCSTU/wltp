@@ -8,6 +8,7 @@ import logging
 import subprocess as sbp
 import os
 import shutil
+import sys
 
 
 import pandas as pd
@@ -55,10 +56,13 @@ def _file_hashed(fpath, algo="md5") -> Tuple[str, str]:
 # file_hashed(xlfname)
 
 
+def _cmd(*args):
+    return sbp.check_output(args, universal_newlines=True, shell=sys.platform=='win32')
+
+
 def _git_describe(basedir="."):
-    args = ["git", "-C", basedir, "describe", "--always"]
     try:
-        return sbp.check_output(args, universal_newlines=True).strip()
+        return _cmd("git", "-C", basedir, "describe", "--always").strip()
     except Exception as ex:
         return "Cannot git-describe due to: %s" % ex
 
@@ -71,23 +75,13 @@ def _python_describe():
         info["type"] = "conda"
 
         try:
-            info["env"] = yaml_loads(
-                sbp.check_output(
-                    ["conda", "env", "export", "-n", condaenv], universal_newlines=True
-                )
-            )
+            info["env"] = yaml_loads(_cmd("conda", "env", "export", "-n", condaenv))
         except Exception as ex:
             raise ex
             info["env"] = "Cannot conde-env-export due to: %s" % ex
     else:
         try:
-            info["env"] = (
-                sbp.check_output(
-                    "pip list --format freeze".split(), universal_newlines=True
-                )
-                .strip()
-                .split("\n")
-            )
+            info["env"] = _cmd(*"pip list --format freeze".split()).strip().split("\n")
         except Exception as ex:
             raise ex
             info["env"] = "Cannot pip-list due to: %s" % ex
