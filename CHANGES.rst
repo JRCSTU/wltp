@@ -62,8 +62,20 @@ TODOs
 Changelog
 =========
 
-v0.1.1a0  (25-May-2019): UNECE takeove
---------------------------------------
+v0.1.2a0  (5-Jun-2019): Relax checks
+------------------------------------
+- Relax some conditions on inputs:
+
+  - Just warn on Pwot-normalized > 1 or > n_idle or < 1.2 x n_rated
+    (BUT not extrapolate)
+  - allow float as `v_max`.
+- build: 
+  - drop `sphinx_rtd_theme` dependency -  provided by default these days.
+  - drop pip-installin of `xlwings` attrocity if missing.
+
+
+v0.1.1a0  (25-May-2019): UNECE takeover
+---------------------------------------
 - Fix py36 "nested regex" warning on ``pandel`` module.
 - Pin ``jsonschema <3`` to fix validation, was also ``>2.5``, so now maximum ``2.6``.
 - Updates to `setup.py` and dependencies.
