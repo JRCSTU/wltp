@@ -785,7 +785,7 @@ def yield_load_curve_errors(mdl):
         if (min(p_norm) < 0):
             yield ValidationError('The full_load_curve must not contain negative power(%f)!' % min(p_norm))
         if (max(p_norm) > 1):
-            yield ValidationError('The full_load_curve must not exceed 1, found %f!' % max(p_norm))
+            log.warning('The full_load_curve must not exceed 1, found %f!', max(p_norm))
 
         vehicle['full_load_curve'] = wot
     except (KeyError, PandasError) as ex:
