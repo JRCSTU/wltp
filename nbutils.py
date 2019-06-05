@@ -64,6 +64,7 @@ def _git_describe(basedir="."):
     try:
         return _cmd("git", "-C", basedir, "describe", "--always").strip()
     except Exception as ex:
+        log.warning("Cannot git-describe due to: %s", ex)
         return "Cannot git-describe due to: %s" % ex
 
 
@@ -77,13 +78,13 @@ def _python_describe():
         try:
             info["env"] = yaml_loads(_cmd("conda", "env", "export", "-n", condaenv))
         except Exception as ex:
-            raise ex
+            log.warning("Cannot conda-env-export due to: %s", ex)
             info["env"] = "Cannot conde-env-export due to: %s" % ex
     else:
         try:
             info["env"] = _cmd(*"pip list --format freeze".split()).strip().split("\n")
         except Exception as ex:
-            raise ex
+            log.warning("Cannot pip-list due to: %s", ex)
             info["env"] = "Cannot pip-list due to: %s" % ex
 
     return info
@@ -96,6 +97,8 @@ def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
     if fpath.exists():
         s["hexsums"] = dict(_file_hashed(fpath, algo) for algo in algos)
         s["ctime"] = _human_time(fpath.stat().st_ctime)
+    else:
+        log.warning("Provenance file %r does not exist!", fpath)
 
     return s
 
