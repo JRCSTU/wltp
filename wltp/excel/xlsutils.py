@@ -5,12 +5,7 @@ import logging
 import glob
 from textwrap import dedent
 from win32com.universal import com_error
-try:
-    import xlwings as xw
-except ImportError:
-    from pip import pip
-    pip.main('install xlwings==0.2.3'.split())
-    import xlwings as xw
+import xlwings as xw
 
 
 __version__ = '0.0.1'
