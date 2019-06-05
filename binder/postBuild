@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Install extensions for notebooks in this repo on plain JupyterNotebook 
+jupyter nbextension enable --py --sys-prefix widgetsnbextension
+jupyter nbextension install --py --symlink --sys-prefix qgrid
+jupyter nbextension install --py --symlink --sys-prefix ipympl
+jupyter nbextension enable --py --sys-prefix qgrid
+jupyter nbextension enable --py --sys-prefix ipympl
+
+## JUPYTER-LAB
+jupyter lab build  # maybe redandunt?
+
+# Install a JupyterLab extensions
+jupyter labextension install @jupyter-widgets/jupyterlab-manager
+jupyter labextension install qgrid jupyter-matplotlib
+
+# Convert Rmd files into Ipynbs
+jupytext --to ipynb *.Rmd
