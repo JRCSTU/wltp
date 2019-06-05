@@ -133,7 +133,7 @@ download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_v
 
 plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
-test_reqs = ["nose", "coverage", "matplotlib", "coveralls"]
+test_reqs = ["nose", "coverage", "matplotlib", "coveralls", "docopt"]
 doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
 dev_reqs = (
     test_reqs
@@ -221,8 +221,6 @@ setup(
         "numpy",
         "pandas",  # 'openpyxl', 'xlrd',
         'mock; python_version == "2.7"',
-        # For Excel integration
-        'xlwings; platform_system=="Windows" or platform_system=="Darwin"',
     ],
     setup_requires=[
         "setuptools-git >= 0.3"  # Gather package-data from all files in git.
