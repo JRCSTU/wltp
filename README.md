@@ -1,5 +1,5 @@
 # WLTP
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/JRCSTU/wltp/jupyter?filepath=CarsDB-msaccess.Rmd)
+[![JupyterLab for WLTP](https://mybinder.org/badge_logo.svg)][1]
 
 UNECE's WLTP reference implementation in Python
 
@@ -7,7 +7,7 @@ UNECE's WLTP reference implementation in Python
 [TOC]
 
 ## Contents
-- Python code implementing the WLTP algorithm.
+- Python code implementing the WLTP algorithm (CURRENTLY OLD PHASE1A in `master` branch).
 - The original files of the algo (document & MSAccess db).
 - Notebooks to process the vehicle data, build HDF5-dbm launch the algo, etc::
 
@@ -19,8 +19,8 @@ UNECE's WLTP reference implementation in Python
       WltpCars.h5             the h5db where all data are stored
       
 > **Note:**
-> It is the `.Rmd` files that are stored in the git-repo of this project;
-> these aresynced  automatically with `.ipynb` notebooks byt the *jupytext*
+> It is the `.Rmd` files that are stored in the git-repo of this project
+> that are synced  automatically from `.ipynb` notebooks by the *jupytext*
 > jupyter-lab extension.
 
 
@@ -58,15 +58,17 @@ vehicles/
 ```
 
 ## Recreate this Jupyter-lab server
-This server runs on a *miniconda3* environment.  
-All installed dependencies are kept in the `./binder/environment.yaml` file.
+You may launch and experiment with [a *live* demo of this repository][1].
+
+Otherwise, you may use a *miniconda3* environment to launch it locally.
+All installed conda libraries are kept in the `./environment.yaml` file.
 
 > **Note:**
 > Maintain the env-file by running this terminal command after any programm (un)install::
 >     
->     conda env export -n jupyter > binder/environment.yaml 
+>     conda env export -n jupyter > environment.yaml 
 
-To reproduce this server:
+To make the *conda environment*, follow these instructions:
 
 ### 0. Install Conda
 Install [*miniconda3*](https://docs.conda.io/en/latest/miniconda.html) 
@@ -77,7 +79,7 @@ Install [*miniconda3*](https://docs.conda.io/en/latest/miniconda.html)
 Reproduce the *exact same* conda-env with::
 
 ```bash
-$ conda env create -f binder/environment.yaml
+$ conda env create -f environment.yaml
 $ conda activate jupyter
 ```
 
@@ -218,3 +220,6 @@ print([i.column_name for i in crsr.columns('gearshift_table_all')]
 ## Questions to Heinz
 
 - How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
+
+
+[1]: https://mybinder.org/v2/gh/JRCSTU/wltp/jupyter?urlpath=lab%2F
