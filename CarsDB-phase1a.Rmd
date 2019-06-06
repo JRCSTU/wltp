@@ -28,7 +28,7 @@ jupyter:
 from typing import Union
 import io
 import logging
-from pathlib import PurePosixPath as P
+from pathlib import Path, PurePosixPath as P
 
 import pandas as pd
 from wltp.experiment import Experiment
@@ -37,14 +37,20 @@ from ruamel.yaml import YAML
 import nbutils as nbu
 
 log = logging.getLogger('CarsDB-phase1a.ipynb')
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:%(message)s', 
+    datefmt='%Y-%m-%d,%H:%M:%S',
+)
 ```
 
 ```{python}
 ## DEFINITIONS
 #
-h5fname = 'WltpCars.h5'
-heinzdb_fpath="WLTP_GS_calculation_15032019_for_prog_code_subgroup.accdb"
+h5fname = 'VehData/WltpCars.h5'
+# Test cars delivered by Heinz to ank on 4 Jun 2019
+heinzdb_fpath="VehData/WLTP_GS_calculation_28052019-116cars.accdb"
+xlfname = Path("VehData/vehicle_info-116.xlsx")
 c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 ```
 
@@ -136,11 +142,12 @@ def store_phase1A_results(h5):
 
     """
     def func(h5db):
-        for g in h5db._handle.walk_groups(nbu.vehnode()):
-            if not g._v_name.endswith('out1'):
+        okgroups  = sorted(g._v_pathname for g in h5db._handle.walk_groups(nbu.vehnode()))
+        for g in okgroups:
+            if not g.endswith('out1'):
                 continue
 
-            vehnum = int(g._v_parent._v_name[1:])
+            vehnum = int(P(g).parent.name[1:])
 
             try:
                 output_model = run_old_wltp_on_db_vehice(h5db, vehnum)
@@ -167,7 +174,7 @@ nbu.print_nodes(h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x100 HDF5: 122MB --> ~3.1MB in 5.6s on my speedy laptop.
+## COMPRESS x100 HDF5: 99Mb in 22s.
 #
 # !ls -lh {h5fname}
 # !ptrepack  {h5fname}  --complevel=9 --complib=blosc:blosclz -o {h5fname}.tmp
