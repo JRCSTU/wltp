@@ -1,5 +1,8 @@
 # WLTP
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/JRCSTU/wltp/jupyter?filepath=CarsDB-msaccess.Rmd)
+
 UNECE's WLTP reference implementation in Python
+
 
 [TOC]
 
@@ -55,49 +58,128 @@ vehicles/
 ```
 
 ## Recreate this Jupyter-lab server
-This server runs on a full *Anaconda* environment.  
-All installed dependencies are kept in the `./environment.yaml` file.
+This server runs on a *miniconda3* environment.  
+All installed dependencies are kept in the `./binder/environment.yaml` file.
 
 > **Note:**
 > Maintain the env-file by running this terminal command after any programm (un)install::
 >     
->     conda env export -n jupyter > environment.yaml 
+>     conda env export -n jupyter > binder/environment.yaml 
 
 To reproduce this server:
 
-0. Install *miniconda3* or the full *Anaconda* distribution (as this server has done).
+### 0. Install Conda
+Install [*miniconda3*](https://docs.conda.io/en/latest/miniconda.html) 
+(or the full *Anaconda* distribution).
    Instructions vary for your Operating System.
-   
-1. Recreate the conda-env::
 
-   ```bash
-   $ conda env create -f environment.yaml
-   ```
+### 1. Create a conda environment
+Reproduce the *exact same* conda-env with::
 
-   > **Tip:**
-   > The really necessary packages are these::
-   > 
-   >     conda install \
-   >         black blackcellmagic columnize ipympl jsonschema==2.6.0 jupytext \
-   >         matplotlib nodejs pandalone xonsh qgrid ruamel.yaml tables wltp xlrd
+```bash
+$ conda env create -f binder/environment.yaml
+$ conda activate jupyter
+```
 
-2. then follow the instructions in each linked site below to install 
-   these jupyer-lab extensions (working `nodejs`* & `npm` commands are needed):
+> **Tip:**
+> You may install the latest necessary packages (without pinned versions) 
+> with this 2 commands::
+> 
+> ```bash
+> $ conda create -n jupyter
+> $ conda activate jupyter
+> $ conda install  --override-channels -c ankostis -c conda-forge -c defaults pip  jupyterlab nodejs qgrid jupytext  scipy matplotlib ipympl seaborn black jsonschema==2.6.0 pytables h5py wltp xlrd pandalone sphinx ruamel.yaml xonsh
+> $ pip install  blackcellmagic columnize
+> $ ./binder/postBuild
+> ```
 
-   - [`qgrid`](https://github.com/quantopian/qgrid#installation)
-   - [`jupyter-matplotlib`](https://github.com/matplotlib/jupyter-matplotlib)
-   - [`jupytext`](https://github.com/mwouts/jupytext): optional, if you want 
-     to commit changes into this project's git-repo.
 
-3. finally launch it with:
+On *Windows* you need additionally *Git* and *NodeJS*. 
+You may install them also through *conda* system::
+
+```bat
+> conda install m2-git nodejs m2-base
+```
+
+(`m2-base` contains optional Unix command-line utilities)
+
+
+
+#### 2. Clone the git repo with the Notebooks
+
+Change to the directory you want to work, and run these commands::
+
+```bash
+$ git clone http://github.com/JRCSTU/wltp wltp.git --branch=jupyter --depth=1
+$ cd wltp.git
+```
+
+
+### 3. Enable *Jupyterlab* extensions
+
+> (working `nodejs`* & `npm` commands are needed there)
+
+Install widgets extension and rebuild the jupyterlab
+(if you skip this, jupyter will ask you to *BUILD* on your first launch):
+
+    ## Once for all extensions of a jupyter installation
+    jupyter nbextension enable --py --sys-prefix widgetsnbextension    # for jupyter-notebook server
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager   # for jupyter-lab server
+
+    jupyter lab build
+
+Alternatively, you may follow the explicit instructions of each extension,
+linked site below:
+
+- [`jupytext`](https://github.com/mwouts/jupytext): needed to convert git-cloned files into *notebooks*.
+  As a quick reference, do these steps:
+
+  - You need the jupyterlab config-file; run this to generate it, if it does not exist::
+
+      jupyter lab --generate-config
   
-   ```bash
-   $ jupyter lab
-   ```
+  - Append this to the bottom of your jupyter-config file::
+  
+  
+        ## Git only r-Markdown diffs
+        # From https://towardsdatascience.com/version-control-with-jupyter-notebooks-f096f4d7035a
+        c.NotebookApp.contents_manager_class="jupytext.TextFileContentsManager"
+        c.ContentsManager.default_jupytext_formats = ".ipynb,.Rmd"
 
-   > **Tip:**
-   > You don't need to restart the server after installing lab extensions - restarting 
-   > just the the kernel is enough.
+- [`qgrid`](https://github.com/quantopian/qgrid#installation)::
+
+      jupyter nbextension enable --py --sys-prefix qgrid                 # for jupyter-notebook server
+      jupyter labextension install qgrid                                 # for jupyter-lab server
+      
+- [`jupyter-matplotlib`](https://github.com/matplotlib/jupyter-matplotlib)::
+
+      jupyter labextension install jupyter-matplotlib
+
+> **Tip:**
+> Make sure you restart the server after installing lab extensions - restarting 
+> just the the kernel is not enough.
+
+
+### 5. Convert git-cloned scripts into *notebooks* `jupytext`
+
+Run this command in the directory of the gir-repo you cloned::
+
+      jupytext --to ipynb *.Rmd
+
+> **Tip**: 
+> After jupyterlab hash launched, you may *right-click* a `.Rmd` file and 
+> click **Open with | Notebook**, and **Save** to generate a freshly created notebook 
+> (just remember to close the `.Rmd` file).
+
+
+### 5. Launch *Jupyterlab* server
+Change directory to the folder you wish to store the notebooks,
+and launch jupyterlab with::
+
+    jupyter lab
+
+A new tab should open automatically in your browser.
+
 
 
 ## Code to extract data from MSAccess
@@ -134,6 +216,5 @@ print([i.column_name for i in crsr.columns('gearshift_table_all')]
 ```
 
 ## Questions to Heinz
-- Running a car in the MSAccess needs just selecting its `vehicle_num`?
-  (no other setting touched?)
+
 - How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
