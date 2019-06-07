@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Enable color prompt.
+sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' ~/.bashrc
+
 # Install a JupyterLab extensions
 jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
 
