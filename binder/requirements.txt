@@ -4,7 +4,6 @@ columnize
 h5py
 ipympl
 jsonschema==2.6.0
-jupyterlab
 jupytext
 matplotlib
 pandalone
