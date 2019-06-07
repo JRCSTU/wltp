@@ -5,9 +5,6 @@ jupyter nbextension enable --py --sys-prefix widgetsnbextension
 jupyter nbextension install --py --symlink --sys-prefix qgrid
 jupyter nbextension enable --py --sys-prefix qgrid
 
-## JUPYTER-LAB
-jupyter lab build  # maybe redandunt?
-
 # Install a JupyterLab extensions
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install qgrid jupyter-matplotlib
