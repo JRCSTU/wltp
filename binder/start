@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export TERM=xterm-color
+
 ## From https://github.com/ian-r-rose/binder-workspace-demo/
 # Import the workspace into JupyterLab
 jupyter lab workspaces import binder/workspace.json \
