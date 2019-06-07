@@ -138,7 +138,7 @@ linked site below:
 
   - You need the jupyterlab config-file; run this to generate it, if it does not exist::
 
-      jupyter lab --generate-config
+        jupyter lab --generate-config
   
   - Append this to the bottom of your jupyter-config file::
   
@@ -222,4 +222,4 @@ print([i.column_name for i in crsr.columns('gearshift_table_all')]
 - How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
 
 
-[1]: https://mybinder.org/v2/gh/JRCSTU/wltp/jupyter?urlpath=lab%2F
+[1]: https://mybinder.org/v2/gh/JRCSTU/wltp/jupyter?urlpath=lab
