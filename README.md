@@ -11,16 +11,22 @@ UNECE's WLTP reference implementation in Python
 - The original files of the algo (document & MSAccess db).
 - Notebooks to process the vehicle data, build HDF5-dbm launch the algo, etc::
 
-      CarsDB-msaccess.ipynb   populate h5db with Heinz test-car input & output 
-      CarsDB-phase1a.ipynb    populate h5db with results from the old python code
-      CarsDB-compare.ipynb    print comparison results for cars in the h5db
-      HDF5-APIh-help.ipynb    list usefull HDF5 methods
-      nbutils.py              support code for the above notebooks
-      WltpCars.h5             the h5db where all data are stored
-      
+      CarsDB-msaccess.ipynb       populate h5db with Heinz test-car input & output 
+      CarsDB-phase1a.ipynb        populate h5db with results from the old python code
+      CarsDB-compare.ipynb        print comparison results for cars in the h5db
+      HDF5-APIh-help.ipynb        list usefull HDF5 methods
+      *.Rmd                       R-markdown git-tracked files paired with *.ipynb notebooks 
+      nbutils.py                  support code for the above notebooks
+      VehData/                    folder with raw input & results (e.g Heinz's msaccess DB)
+          +--WltpCars.h5          the h5db where all data are stored
+      binder/                     configurations for launching demo in https://mybinder.org
+      conda/
+          +--environment.yaml     reproduce this conda-env with: `conda create -f conda/environment.yaml`
+      README.md                   this file
+
 > **Note:**
-> It is the `.Rmd` files that are stored in the git-repo of this project
-> that are synced  automatically from `.ipynb` notebooks by the *jupytext*
+> It is the `*.Rmd` files that are stored in the git-repo of this project
+> that are synced automatically from `.ipynb` notebooks by the *jupytext*
 > jupyter-lab extension.
 
 
