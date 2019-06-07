@@ -61,14 +61,14 @@ vehicles/
 You may launch and experiment with [a *live* demo of this repository][1].
 
 Otherwise, you may use a *miniconda3* environment to launch it locally.
-All installed conda libraries are kept in the `./environment.yaml` file.
+All installed conda libraries are kept in the `./conda/environment.yaml` file.
 
 > **Note:**
 > Maintain the env-file by running this terminal command after any programm (un)install::
 >     
->     conda env export -n jupyter > environment.yaml 
+>     conda env export -n jupyter | grep -v nodejs > conda/environment.yaml 
 
-To make the *conda environment*, follow these instructions:
+To replicate this *conda environment*, follow these instructions:
 
 ### 0. Install Conda
 Install [*miniconda3*](https://docs.conda.io/en/latest/miniconda.html) 
@@ -79,7 +79,7 @@ Install [*miniconda3*](https://docs.conda.io/en/latest/miniconda.html)
 Reproduce the *exact same* conda-env with::
 
 ```bash
-$ conda env create -f environment.yaml
+$ conda env create -f conda/environment.yaml
 $ conda activate jupyter
 ```
 
