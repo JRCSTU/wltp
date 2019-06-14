@@ -10,7 +10,7 @@ sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' ~/.bashrc
 jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
 
 # Convert Rmd files into Ipynbs
-jupytext --to ipynb *.Rmd
+jupytext --to ipynb Notebooks/*.Rmd
 
 ## From https://github.com/ian-r-rose/binder-workspace-demo/
 # Import the workspace into JupyterLab
