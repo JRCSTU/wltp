@@ -21,11 +21,11 @@ cat > ~/.inputrc <<-EOF
 EOF
 
 # Install a JupyterLab extensions
-jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
+#jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
 
 # Convert Rmd files into Ipynbs
-jupytext --to ipynb Notebooks/*.Rmd
+#jupytext --to ipynb Notebooks/*.Rmd
 
 ## From https://github.com/ian-r-rose/binder-workspace-demo/
 # Import the workspace into JupyterLab
-jupyter lab workspaces import binder/workspace.json
+#jupyter lab workspaces import binder/workspace.json
