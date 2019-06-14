@@ -49,7 +49,7 @@
         },
         "application-mimedocuments:README.md:Markdown Preview": {
             "data": {
-                "path": "README.md",
+                "path": "Notebooks/README.md",
                 "factory": "Markdown Preview"
             }
         },
