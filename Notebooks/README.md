@@ -228,4 +228,4 @@ print([i.column_name for i in crsr.columns('gearshift_table_all')]
 - How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
 
 
-[1]: https://mybinder.org/v2/gh/JRCSTU/wltp/jupyter?urlpath=lab
+[1]: https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab

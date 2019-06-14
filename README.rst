@@ -1,7 +1,7 @@
 ################################################################
 wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
-|dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues|
+|dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |binder|
 
 :release:       1.0.0.dev0
 :date:          2019-06-14 17:33:49
@@ -985,3 +985,7 @@ Glossary
 .. |github-issues| image:: http://img.shields.io/github/issues/ankostis/wltp.svg
     :target: https://github.com/JRCSTU/wltp/issues
     :alt: Issues count
+
+.. |binder| image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab
+    :alt: JupyterLab for WLTP
