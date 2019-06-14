@@ -1,0 +1,255 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.1'
+      jupytext_version: 1.1.3
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+# Parse excel files into a HDF5 file
+It builds an an [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5) 
+with the the *vehicle inputs (`props`, `pwot`) & *outputs* from Heinz MSAccess DB.
+
+## To see the full tree
+...check the `README.py`,
+## to run this notebook in your own jupyter-server
+...read instructions on the `README.md`,
+## to inspect and get help on the HDF5 file
+...read instructions on the `README.md` and consult the `HDF5-API.ipynb` notebook.
+
+```{python}
+## To autoreload codein python files here.
+# %load_ext autoreload
+# %autoreload 2
+
+## Add %%black at the top of a cell, and re-evaluate it, 
+# to format it before git-commits, and ease diffs.
+# %load_ext blackcellmagic
+```
+
+```{python}
+import functools as ftt
+import itertools as itt
+import logging
+from pathlib import Path
+import re
+from typing import Tuple, Dict
+
+import numpy as np
+from pandalone import xleash
+import qgrid
+import pandas as pd
+from pandas import HDFStore
+
+import nbutils as nbu
+
+idx = pd.IndexSlice
+log = logging.getLogger('CarsDB-inputs.ipynb')
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:%(message)s', 
+    datefmt='%Y-%m-%d,%H:%M:%S',
+)
+```
+
+```{python}
+## DEFINITIONS
+#
+h5fname = 'VehData/WltpCars.h5'
+# Test cars delivered by Heinz to ank on 4 Jun 2019
+heinzdb_fpath="VehData/WLTP_GS_calculation_28052019-116cars.accdb"
+xlfname = Path("VehData/vehicle_info-116.xlsx")
+c_vehnum, c_engno, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'no_engine', 'n', 'Pwot', 'SM', 'ASM'
+```
+
+```{python}
+## PROVENANCE: discover how it came to be, at a later time
+#  (might take 10'')
+root_prov_info = nbu.provenance_info(files=[heinzdb_fpath], repos=['.']) 
+```
+
+```{python}
+## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
+# !rm -f {h5fname}
+```
+
+```{python}
+nbu.print_nodes(h5fname)
+```
+
+```{python}
+from pandalone import xleash
+
+specs = xleash.lasso('%s#vehicle_info!::["df"]' % xlfname)
+pwots = xleash.lasso('%s#TB_Pwot!::["df"]' % xlfname)
+```
+
+```{python}
+import qgrid
+
+display(
+    qgrid.show_grid(specs),
+    qgrid.show_grid(pwots),
+    specs.columns, 
+    pwots.columns
+)
+```
+
+```{python}
+def extract_SM_from_pwot(
+    pwot, c_n=c_n, c_pwot=c_pwot, c_SM=c_SM, c_ASM=c_ASM
+) -> "Tuple(pd.DataFrame, float)":
+    """
+    Keep just (n, Pwot, ASM) columns & extract SM column as scalar value.
+    
+    :param pwot:
+        the wot-curve dataframe for a single vehicle, with columns::
+        
+            IX	no_engine	n	Pwot	Twot	Pwot_norm	Twot_norm	SM	ASM	Pavai
+
+    :return:
+        wot(without SM), SM
+        where `wot` is indexed by engine-speed(n)
+    """
+    SM = nbu.get_scalar_column(pwot, c_SM)
+    pwot = pwot.set_index(c_n).drop(c_SM, axis=1)
+
+    return pwot, SM
+
+
+# ## TEST
+#extract_SM_from_pwot(pwots.loc[pwots[c_engno] == 3])
+```
+
+```{python}
+# Store each a vehicle into a node with 2 nodes: props, pwot
+#
+base = nbu.provenance_info(files=[xlfname], base=root_prov_info)
+
+
+def store_inputs_per_car(h5db, specs, c_vehnum=c_vehnum,  c_engno=c_engno,  c_SM=c_SM, c_ASM=c_ASM):
+    for _, spec in specs.iterrows():
+        vehnum = spec[c_vehnum]
+        spec_node = nbu.vehnode(vehnum, "props")
+        pwot_node = nbu.vehnode(vehnum, "pwot")
+
+        pwot = pwots.loc[pwots[c_engno] == vehnum, :]
+        pwot, SM = extract_SM_from_pwot(pwot)
+
+        spec[c_SM] = SM
+
+        h5db.put(spec_node, spec)
+        h5db.put(pwot_node, pwot)
+
+        nbu.provenir_h5node(
+            h5db,
+            spec_node,
+            title="Specs of the test-car, as delivered by Heinz on 13 May 2019",
+            base=base,
+        )
+        nbu.provenir_h5node(
+            h5db,
+            pwot_node,
+            title="Full-load-curve of the test-car, as delivered by Heinz on 13 May 2019",
+            base=base,
+        )
+
+
+with nbu.openh5(h5fname) as h5db:
+    store_inputs_per_car(h5db, specs)
+    nbu.provenir_h5node(
+        h5db,
+        nbu.vehnode(),
+        title="preprocessed cars for python consumption",
+        base=base,
+    )
+```
+
+```{python}
+scalar_columns = ["Description", "case_no", "case_no2", "vehicle_no", "IDclass"]
+
+
+def store_results_per_car(
+    h5db,
+    results_dir="VehData",
+    cycle_group_suffix="out1/cycle",
+    props_group_suffix="out1/props",
+    c_vehnum=c_vehnum,
+):
+    """
+    Populate h5db with results collected from a folder full of (`V123.xls`, ...) exchel-files.
+    
+        vehicles/
+            +--v001/
+            |   +--props
+            |   +--pwot
+            |   +--out1
+            |       +--cycle      ADD: (df) cycle-run generated by HeinzDb
+            |       +--props      ADD: (series) scalar inputs & outputs generated by HeinzDb
+            ...
+    """
+
+    # A dir with one Excel-file per vehicle, as produced by MSAccess.
+    results_dir = Path(results_dir)
+    for outfpath in results_dir.glob("gearshift_table_all.7.113-116.xlsx"):
+        batchdf = xleash.lasso('%s#::["df"]' % outfpath)
+        vehnums = batchdf[c_vehnum].unique()
+        log.info("Found %s vehicles in file %s: %s", len(vehnums), outfpath, vehnums)
+
+        base = nbu.provenance_info(base=root_prov_info, files=[outfpath])
+        for vehnum, outdf in batchdf.groupby(c_vehnum):
+            try:
+                outdf, props = nbu.drop_scalar_columns(outdf, scalar_columns)
+            except Exception:
+                display(qgrid.show_grid(outdf))
+                raise
+            cycle_group = nbu.vehnode(vehnum, cycle_group_suffix)
+            h5db.put(cycle_group, outdf)
+            nbu.provenir_h5node(
+                h5db,
+                cycle_group,
+                title="Cycle-run produced by Heinz's MSAccess db",
+                base=base,
+            )
+
+            props_group = nbu.vehnode(vehnum, props_group_suffix)
+            h5db.put(props_group, pd.Series(props))
+            nbu.provenir_h5node(
+                h5db,
+                props_group,
+                title="Properties (in & out) produced by Heinz's MSAccess db",
+                base=base,
+            )
+
+
+with nbu.openh5(h5fname) as h5db:
+    store_results_per_car(h5db)
+```
+
+```{python}
+nbu.print_nodes(h5fname)
+```
+
+```{python}
+# %%time
+## COMPRESS x100 HDF5: 431Mb --> ~83Mb in 20s.
+#
+# !ls -lh {h5fname}
+# !ptrepack  {h5fname}  --complevel=9 --complib=blosc:blosclz -o {h5fname}.tmp
+# !mv  {h5fname}.tmp {h5fname}
+# !ls -lh {h5fname}
+```
+
+```{python}
+## SAMPLE: extract data for a specific vehicle. 
+#
+vehnum = 14
+inpsr, outdf, outsr = nbu.load_vehicle(h5fname, vehnum, 'props', 'out1/cycle', 'out1/props')
+display(inpsr, outsr, outdf.columns, qgrid.show_grid(outdf, grid_options={'forceFitColumns': False}))
+```

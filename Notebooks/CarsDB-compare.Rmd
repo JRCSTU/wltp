@@ -1,0 +1,276 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.1'
+      jupytext_version: 1.1.3
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+# Compare results in the DB
+
+```{python}
+## To autoreload codein python files here.
+# %load_ext autoreload
+# %autoreload 2
+
+## Add %%black at the top of a cell, and re-evaluate it, 
+# to format it before git-commits, and ease diffs.
+# %load_ext blackcellmagic
+```
+
+```{python}
+from typing import Union, List, Callable, Any, Sequence as Seq
+import io
+import logging
+from pathlib import PurePosixPath as P
+
+
+import numpy as np
+import pandas as pd
+from pandas import HDFStore
+from pandas.core.generic import NDFrame
+from matplotlib import pyplot as plt
+import qgrid
+from wltp.experiment import Experiment
+from ruamel.yaml import YAML
+
+import nbutils as nbu
+
+idx = pd.IndexSlice
+log = logging.getLogger('CarsDB-compare.ipynb')
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:%(message)s', 
+    datefmt='%Y-%m-%d,%H:%M:%S',
+)
+```
+
+```{python}
+## DEFINITIONS
+#
+h5fname = 'VehData/WltpCars.h5'
+c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
+```
+
+```{python}
+a=nbu.print_nodes(h5fname);
+```
+
+```{python}
+def vehgroups_with_out1(g):
+    return g.endswith('out1') and str(P(g).parent)
+
+## Find VEHICLES without RESULT
+#
+hasv: List[int] = [int(n[len('/vehicles/v'):]) for n in nbu.collect_nodes(h5fname, vehgroups_with_out1)]
+misv: List[int] = sorted(set(range(1, 116)) - set(hasv))
+print(', '.join('%s' % i for i in misv))
+
+# import random
+# random.choices(misv, k=9)
+```
+
+```{python}
+## Merge vehicles into Indexed Pandas
+#
+def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups, nodes_predicate) -> List[NDFrame]:
+    def func(h5db):
+        veh_groups = nbu.collect_nodes(h5db, nodes_predicate)
+        data_collected = list(
+            zip(
+                *(
+                    tuple( 
+                        (vehg, h5db.get(str(P(vehg) / datag)))  # key: vehnum, value: subgroup-dfs
+                        for datag in data_subgroups
+                    )
+                    for vehg in veh_groups
+                )
+            )
+        )
+        
+        return data_collected
+    data_collected = nbu.do_h5(h5, func)
+
+
+    dicts_to_merge = [dict(d) for d in data_collected]
+    index_dfs = [pd.concat(d.values(), keys=d.keys()).sort_index() for d in dicts_to_merge]
+
+    return index_dfs
+ 
+datags_to_collect = ("out1/props", "out1/cycle", "out2/props", "out2/cycle")
+
+p1, c1, p2, c2 = merge_veh_datasets(h5fname, datags_to_collect, vehgroups_with_out1)
+```
+
+```{python}
+cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
+dataset_names = "Heinz Phase1a".split()
+```
+
+```{python}
+## Report PROP differences
+#
+equivalent_columns = [("p_downscale", "f_downscale"), ("cycle", "wltc_class")]
+
+display(
+    cmpr.compare((p1, p2), equivalent_columns, dataset_names),
+    qgrid.show_grid(p1),
+    qgrid.show_grid(p2),
+)
+```
+
+```{python}
+## Report CYCLE-MEAN differences
+#
+cols1 = ["v_orig", "v in km/h", "gear", "g_min", "P_res in kW", "Pavailable in kW", "n in min-1"]
+cols2 = ["v_class", "v_target", "gears_orig", "gears", "p_required", "p_available", "rpm"]
+cc1 = pd.concat((p1.unstack(), c1[cols1].mean(level=0)), axis=1)
+cc2 = pd.concat((p2.unstack(), c2[cols2].mean(level=0)), axis=1)
+
+equivalent_columns = list(zip(cols1, cols2))
+display(
+    cmpr.compare((cc1, cc2), equivalent_columns, dataset_names),
+    c1.columns,
+    c2.columns,
+    qgrid.show_grid(c1), 
+    qgrid.show_grid(c2),
+)
+```
+
+```{python}
+np.max(df)
+```
+
+```{python}
+import wltp.plots as wp
+
+
+def plot_xy_diffs_arrows(
+    df: pd.DataFrame,
+    cols_x1y1x2y2: Seq[str],
+    data_label,
+    ref_label=None,
+    data_fmt="+k",
+    data_kws={},
+    diff_label=None,
+    diff_fmt="-r",
+    diff_cmap=wp.cm.hsv,
+    diff_kws={},  # @UndefinedVariable cm.PiYG
+    title=None,
+    x_label=None,
+    y_label=None,
+    axes_tuple=None,
+    mark_sections=None,
+    distance_prcnt_threshold=1,
+):
+    # fix data: np.sqrt() works only on float64, and
+    # indexing duped columns fetches df (not series). 
+    df = df[set(cols_x1y1x2y2)].astype(np.float64)
+    X_REF, Y_REF, X, Y = [df[i] for i in cols_x1y1x2y2]
+    
+    df['Xdiff'] = X - X_REF
+    df['Ydiff'] = Y - Y_REF
+    
+    # Filter out small differences.
+    #
+    df['dist_x'] = df['Xdiff'].abs() / X_REF
+    df['dist_y'] = df['Ydiff'].abs() / Y_REF
+    df['dist_max[%]'] = df[['dist_x', 'dist_y']].max(axis=1) * 100
+    df = df.loc[df['dist_max[%]'] > distance_prcnt_threshold, :]
+
+    X_REF, Y_REF, X, Y = [df[i] for i in cols_x1y1x2y2]
+    U = df['Xdiff']
+    V = df['Ydiff']
+
+    ANGLE = phi = np.arctan2(V, U)
+
+    color_diff = "r"
+    alpha = 0.9
+    cm_norm = wp.MidPointNorm()
+
+    if axes_tuple:
+        (axes, twin_axis) = axes_tuple
+    else:
+        bottom = 0.1
+        height = 0.8
+        axes = plt.axes([0.1, bottom, 0.80, height])
+
+        ## Prepare axes
+        #
+        axes.set_xlabel(x_label)
+        axes.set_ylabel(r"$%s$" % y_label.replace("$", ""))
+        axes.xaxis.grid(True)
+        axes.yaxis.grid(True)
+
+        twin_axis = axes.twinx()
+        twin_axis.set_ylabel(
+            r"$\Delta %s$" % y_label.replace("$", ""), color=color_diff, labelpad=0
+        )
+        twin_axis.tick_params(axis="y", colors=color_diff)
+        twin_axis.yaxis.grid(True, color=color_diff)
+
+        axes.set_title(title)
+        axes_tuple = (axes, twin_axis)
+
+    if mark_sections == "classes":
+        plot_class_limits(axes, Y.min())
+    elif mark_sections == "parts":
+        raise NotImplementedError()
+
+    ## Plot data
+    #
+    l_ref = axes.quiver(
+        X,
+        Y,
+        U,
+        V,
+        ANGLE,
+        cmap=diff_cmap,
+        norm=cm_norm,
+        scale_units="xy",
+        angles="xy",
+        scale=1,
+        width=0.004,
+        alpha=alpha,
+        pivot="tip",
+    )
+
+    l_data, = axes.plot(X, Y, data_fmt, label=data_label, **data_kws)
+    l_data.set_picker(3)
+
+    l_diff = twin_axis.plot(X, V, "o", color=color_diff, markersize=0.7)
+    line_points, regress_poly = wp.fit_straight_line(X, V)
+    l_diff_fitted, = twin_axis.plot(
+        line_points,
+        wp.polyval(regress_poly, line_points),
+        diff_fmt,
+        label=diff_label,
+        **diff_kws
+    )
+
+    for name, x, y in zip(Y.index, X_REF, Y_REF):
+        axes.annotate(name, (x, y), xycoords="data", size='xx-small')
+
+    return axes_tuple, (l_data, l_ref, l_diff, l_diff_fitted)
+```
+
+```{python}
+# %matplotlib widget
+
+plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr', "n in min-1", 'pmr', 'rpm'], 
+                     data_label="n in min-1", ref_label="HeinzDb",
+#             data_fmt="+k", data_kws={},
+#             diff_label=None, diff_fmt="-r", diff_cmap=cm.hsv, diff_kws={}, #@UndefinedVariable cm.PiYG
+#             title='N', 
+                     x_label='PMR', 
+                     y_label='N_mean',
+#             axes_tuple=None,
+#             mark_sections=None
+                    )
+```

@@ -1,0 +1,5 @@
+*.ipynb
+.ipynb_checkpoints/
+*.BAK.*
+__pycache__/
+.jupyter/

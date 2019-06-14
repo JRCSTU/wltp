@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# break on errors
+set -e
+
+# Enable color prompt.
+sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' ~/.bashrc
+
+# Install a JupyterLab extensions
+jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
+
+# Convert Rmd files into Ipynbs
+jupytext --to ipynb *.Rmd
+
+## From https://github.com/ian-r-rose/binder-workspace-demo/
+# Import the workspace into JupyterLab
+jupyter lab workspaces import binder/workspace.json
