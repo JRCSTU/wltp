@@ -987,5 +987,5 @@ Glossary
     :alt: Issues count
 
 .. |binder| image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab
+    :target: https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md
     :alt: JupyterLab for WLTP
