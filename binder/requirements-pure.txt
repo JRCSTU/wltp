@@ -8,11 +8,11 @@ blackcellmagic
 columnize
 h5py
 ipympl
-#jsonschema==2.6.0
-jupyterlab==1.0.0a1
+jsonschema==2.6.0
+jupyterlab>=1.0.0a8
 jupytext
 matplotlib
-#pandalone
+pandalone
 pip
 qgrid
 ruamel.yaml
@@ -20,6 +20,6 @@ scipy
 seaborn
 sphinx
 tables
-#wltp
+wltp
 xlrd
 xonsh
