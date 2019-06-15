@@ -2,6 +2,7 @@
 
 # break on errors
 set -e
+set -x
 
 # Bash: To prepend conda env and make `conda` work flawlessly.
 conda init bash
@@ -20,14 +21,14 @@ cat > ~/.inputrc <<-'EOF'
 	"\e[B":history-search-forward
 EOF
 
-# Install a JupyterLab extensions
-jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
-
-# Convert Rmd files into Ipynbs
+# # Convert Rmd files into Ipynbs
 jupytext --to ipynb Notebooks/*.Rmd
+
+# # Install a JupyterLab extensions
+jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
 
 ## Import the workspace into JupyterLab
 #  From https://github.com/ian-r-rose/binder-workspace-demo/
 #  BUT will work at least after jupyterlab >1.0.0a8 
 #  (see ian-r-rose/binder-workspace-demo#1)
-jupyter lab workspaces import binder/workspace.json
+#jupyter lab workspaces import binder/workspace.json

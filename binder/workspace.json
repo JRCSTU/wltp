@@ -3,14 +3,48 @@
         "layout-restorer:data": {
             "main": {
                 "dock": {
-                    "type": "tab-area",
-                    "currentIndex": 0,
-                    "widgets": [
-                        "application-mimedocuments:README.md:Markdown Preview"
+                    "type": "split-area",
+                    "orientation": "vertical",
+                    "sizes": [
+                        0.6180469715698393,
+                        0.3819530284301607
+                    ],
+                    "children": [
+                        {
+                            "type": "split-area",
+                            "orientation": "horizontal",
+                            "sizes": [
+                                0.5,
+                                0.5
+                            ],
+                            "children": [
+                                {
+                                    "type": "tab-area",
+                                    "currentIndex": 0,
+                                    "widgets": [
+                                        "notebook:Notebooks/CarsDB-compare.ipynb"
+                                    ]
+                                },
+                                {
+                                    "type": "tab-area",
+                                    "currentIndex": 0,
+                                    "widgets": [
+                                        "application-mimedocuments:Notebooks/README.md:Markdown Preview"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "tab-area",
+                            "currentIndex": 0,
+                            "widgets": [
+                                "terminal:1"
+                            ]
+                        }
                     ]
                 },
                 "mode": "multiple-document",
-                "current": "application-mimedocuments:README.md:Markdown Preview"
+                "current": "terminal:1"
             },
             "left": {
                 "collapsed": false,
@@ -19,13 +53,18 @@
                     "filebrowser",
                     "running-sessions",
                     "command-palette",
-                    "tab-manager",
-                    "extensionmanager.main-view"
+                    "tab-manager"
                 ]
             },
             "right": {
                 "collapsed": true,
                 "widgets": []
+            }
+        },
+        "notebook:Notebooks/CarsDB-compare.ipynb": {
+            "data": {
+                "path": "Notebooks/CarsDB-compare.ipynb",
+                "factory": "Notebook"
             }
         },
         "terminal:1": {
@@ -40,25 +79,20 @@
             ],
             "container": {
                 "editor": "raw",
-                "plugin": "@jupyterlab/extensionmanager-extension:plugin",
+                "plugin": "@jupyterlab/shortcuts-extension:shortcuts",
                 "sizes": [
-                    0.49038080155168706,
-                    0.5096191984483129
+                    0.5,
+                    0.5
                 ]
             }
         },
-        "application-mimedocuments:README.md:Markdown Preview": {
+        "file-browser-filebrowser:cwd": {
+            "path": "Notebooks"
+        },
+        "application-mimedocuments:Notebooks/README.md:Markdown Preview": {
             "data": {
                 "path": "Notebooks/README.md",
                 "factory": "Markdown Preview"
-            }
-        },
-        "file-browser-filebrowser:cwd": {
-            "path": ""
-        },
-        "terminal:4": {
-            "data": {
-                "name": "4"
             }
         }
     },

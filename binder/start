@@ -1,0 +1,10 @@
+set +x
+
+## Import the workspace into JupyterLab (see #1)
+#  From https://github.com/ian-r-rose/binder-workspace-demo/tree/0affecdd4ca4fb2bab50630a02713ac61c369cc5
+#
+# Get the right workspace ID
+sed -i -e "s|/lab|/user/${JUPYTERHUB_USER}/lab|g" binder/workspace.json
+jupyter lab workspaces import --NotebookApp.base_url=user/${JUPYTERHUB_USER} binder/workspace.json
+
+exec "$@"
