@@ -1,0 +1,21 @@
+black
+h5py
+ipympl
+jsonschema==2.6.0   # wltp needs this
+jupyterlab
+jupytext
+#m2-git             # (Windows-only) if no Git exists
+#m2-base            # (Windows-only) Unix-like utils
+matplotlib
+#nodejs             # mostly for Windows, works on other OSs
+pandalone
+pip
+pytables            # this is the `tables` on pyPi
+qgrid
+ruamel.yaml
+scipy
+seaborn
+sphinx
+wltp
+xlrd
+xonsh               # (optional) a python-like shell

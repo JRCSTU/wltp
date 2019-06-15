@@ -39,6 +39,10 @@ Known deficiencies
 * Clutching-points and therefore engine-speed are very preliminary
   (ie ``rpm`` when starting from stop might be < ``n_idle``).
 
+Questions to Heinz
+==================
+* How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
+
 .. _todos-list:
 
 TODOs

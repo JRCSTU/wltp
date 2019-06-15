@@ -8,7 +8,7 @@ blackcellmagic
 columnize
 h5py
 ipympl
-jsonschema==2.6.0
+jsonschema==2.6.0  # wltp needs this
 jupyterlab
 jupytext
 matplotlib
@@ -19,7 +19,7 @@ ruamel.yaml
 scipy
 seaborn
 sphinx
-tables
+tables              # called `pytables` in conda
 wltp
 xlrd
-xonsh
+xonsh               # (optional) a python-like shell
