@@ -29,11 +29,19 @@ pip-log.txt
 .tox
 nosetests.xml
 
-# Translations
-*.mo
+# Binder puts here a proper user dir 
+/.bash*
+/.cache
+/.config
+/.inputrc
+/.ipynb_checkpoints/
+/.jupyter
+/.ipython
+/.npm
+/.local
+/.profile
+/.python_history
 
-# Mr Developer
-.mr.developer.cfg
 
 ## VisualStudioCode ###
 # From https://stackoverflow.com/questions/51876769/should-you-commit-vscode-symbols-file-to-source-control
