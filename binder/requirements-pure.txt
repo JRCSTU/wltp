@@ -1,7 +1,7 @@
 # Push these as binder/requirements.txt`,
 # and get the latest transitive ones from the running binder,
-# by issung in a terminal:
-#   pip freeze
+# by issung in its terminal:
+#     pip freeze
 #
 black
 blackcellmagic
@@ -9,7 +9,7 @@ columnize
 h5py
 ipympl
 jsonschema==2.6.0  # wltp needs this
-jupyterlab
+#jupyterlab        # don't override version in repo2docker
 jupytext
 matplotlib
 pandalone
