@@ -15,6 +15,7 @@ cat > ~/.inputrc <<-'EOF'
 	# Preserve existing behavior (eg. word-back).
 	$include  /etc/inputrc
    
+	"C-xC-r": re-read-init-file
 	## arrow up
 	"\e[A":history-search-backward
 	## arrow down
