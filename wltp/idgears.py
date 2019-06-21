@@ -188,7 +188,7 @@ def find_histogram_peaks(df, bins, smooth_window=None):
             "population": h_points[peak_bins],
         }
     )
-    peaks = peaks.sort(["population"], ascending=False)
+    peaks = peaks.sort_values(["population"], ascending=False)
 
     return peaks, h_centers, h_points
 

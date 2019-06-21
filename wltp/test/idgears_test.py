@@ -21,7 +21,7 @@ import os
 
 def read_all_cycle_data(cycle_run_file, start_col_index=0):
     cycle_run_file = os.path.join(os.path.dirname(__file__), cycle_run_file)
-    df = pd.read_table(
+    df = pd.read_csv(
         cycle_run_file, sep=",", index_col=None, comment="#", skiprows=5, header=None
     )
     df = df.iloc[:, start_col_index : start_col_index + 2]
