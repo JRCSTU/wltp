@@ -23,8 +23,6 @@ from __future__ import division, print_function, unicode_literals
 import glob, os, os.path as path
 import re
 
-from openpyxl.exceptions import IllegalCharacterError
-
 import numpy as np, pandas as pd
 
 
