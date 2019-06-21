@@ -213,9 +213,6 @@ setup(
         # 'openpyxl', 'xlrd',
         "pandalone >=0.3",
     ],
-    setup_requires=[
-        "setuptools-git >= 0.3"  # Gather package-data from all files in git.
-    ],
     tests_require=test_reqs,
     extras_require={
         "plot": plot_reqs,
