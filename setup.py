@@ -133,7 +133,7 @@ download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_v
 
 plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
-test_reqs = ["nose", "coverage", "matplotlib", "coveralls", "docopt"]
+test_reqs = ["pytest", "nose", "coverage", "matplotlib", "coveralls", "docopt", "openpyxl", "xlrd"]
 doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
 dev_reqs = (
     test_reqs
