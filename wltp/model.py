@@ -237,8 +237,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     'unladen_mass': {
                         'title': 'vehicle unladen mass',
                         'type': ['number', 'null'],
-                        'minimum': 0,
-                        'exclusiveMinimum': True,
+                        'exclusiveMinimum': 0,
                         'description': dedent("""
                             The mass (kg) of the vehicle without the driver, used to decide its class,
                             as defined in Annex-4
@@ -255,8 +254,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     'v_max': {
                         'title': 'maximum vehicle velocity',
                         'type': ['number', 'null'],
-                        'minimum': 0,
-                        'exclusiveMinimum': True,
+                        'exclusiveMinimum': 0,
                         'description': dedent("""
                             The maximum velocity as declared by the manufacturer.
                             If ommited, calculated as:
@@ -452,13 +450,11 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
         'definitions': {
             'positiveInteger': {
                 'type': 'integer',
-                'minimum': 0,
-                'exclusiveMinimum': True,
+                'exclusiveMinimum': 0,
             },
             'positiveNumber': {
                 'type': 'number',
-                'minimum': 0,
-                'exclusiveMinimum': True,
+                'exclusiveMinimum': 0,
             },
             'positiveIntegers': {
                 'type': 'array',
