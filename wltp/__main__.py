@@ -22,8 +22,9 @@ import ast
 from distutils.spawn import find_executable
 import json
 from textwrap import dedent
-from wltp import model, pandel, utils, __version__ as prog_ver
-from wltp.pandel import JsonPointerException
+from wltp import model, utils, __version__ as prog_ver
+import pandalone.pandata as pandel
+from jsonschema.exceptions import RefResolutionError
 from pandas.core.generic import NDFrame
 import six
 
@@ -204,7 +205,7 @@ def main(argv=None):
         indent = len(program_name) * " "
         parser.exit(4, "%s: Model validation failed due to: %s\n%s\n"%(program_name, ex, indent))
 
-    except JsonPointerException as ex:
+    except RefResolutionError as ex:
         if DEBUG:
             log.exception('Invalid model operation!')
         indent = len(program_name) * " "
@@ -571,7 +572,7 @@ def store_model_parts(mdl, outfiles):
         try:
             try:
                 part = pandel.resolve_jsonpointer(mdl, filespec.path)
-            except JsonPointerException:
+            except RefResolutionError:
                 log.warning('Nothing found at model(%s) to write to file(%s).', filespec.path, filespec.fname)
             else:
                 store_part_as_df(filespec, part)

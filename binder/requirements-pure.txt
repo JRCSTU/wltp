@@ -8,11 +8,11 @@ blackcellmagic
 columnize
 h5py
 ipympl
-jsonschema==2.6.0  # wltp needs this
+jsonschema
 #jupyterlab        # don't override version in repo2docker
 jupytext
 matplotlib
-pandalone
+pandalone >= 0.3
 pip
 qgrid
 ruamel.yaml

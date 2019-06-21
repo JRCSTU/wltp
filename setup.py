@@ -217,9 +217,10 @@ setup(
     #    },
     install_requires=[
         "six",
-        "jsonschema >=2.5, <3",  # 3+ dropped `validator._types`
+        "jsonschema",
         "numpy",
         "pandas",  # 'openpyxl', 'xlrd',
+        "pandalone >=0.3",
         'mock; python_version == "2.7"',
     ],
     setup_requires=[

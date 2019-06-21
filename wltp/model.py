@@ -33,7 +33,7 @@ from numpy import ndarray
 from pandas.core.generic import NDFrame
 from six import string_types
 from wltp.cycles import (class1, class2, class3)
-from wltp.pandel import PandelVisitor
+from pandalone.pandata import PandelVisitor
 
 import itertools as it
 import numpy as np
@@ -218,8 +218,8 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
     """
 
     schema = {
-        '$schema': 'http://json-schema.org/draft-04/schema#',
-        'id': _url_model,
+        '$schema': 'http://json-schema.org/draft-07/schema#',
+        '$id': _url_model,
         'title': 'Json-schema describing the input for a WLTC experiment.',
         'type': 'object', 'additionalProperties': additional_properties,
         'required': ['vehicle'],
@@ -480,8 +480,8 @@ def _get_wltc_schema():
     """
 
     schema = {
-        '$schema': 'http://json-schema.org/draft-04/schema#',
-        'id': _url_wltc,
+        '$schema': 'http://json-schema.org/draft-07/schema#',
+        '$id': _url_wltc,
         'title': 'WLTC data',
         'type': 'object', 'additionalProperties': False,
         'required': ['classes'],
@@ -690,7 +690,13 @@ def model_validator(additional_properties=False, validate_wltc_data=False, valid
     schema = _get_model_schema(additional_properties)
     wltc_schema = _get_wltc_schema() if validate_wltc_data else {} ## Do not supply wltc schema, for speedup.
     resolver = RefResolver(_url_model, schema, store={_url_wltc: wltc_schema})
-    validator = PandelVisitor(schema, resolver=resolver, skip_meta_validation=not validate_schema)
+
+    validator = PandelVisitor(schema, resolver=resolver)
+    if validate_schema:
+        # See https://github.com/Julian/jsonschema/issues/268
+        stricter_metaschema = dict(validator.META_SCHEMA, additionalProperties=False)
+        strictValidator = jsonschema.validators.validator_for(stricter_metaschema)
+        strictValidator(stricter_metaschema).validate(schema)
 
     return validator
 

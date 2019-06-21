@@ -23,7 +23,7 @@ import pandas as pd
 import xlwings as xw
 
 from wltp.experiment import Experiment
-import wltp.pandel as pdl
+import pandalone.pandata as pdl
 import traceback
 
 DEFAULT_LOG_LEVEL   = logging.INFO

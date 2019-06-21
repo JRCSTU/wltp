@@ -213,7 +213,7 @@ class InstancesTest(unittest.TestCase):
         self.checkModel_valid(mdl)
 
     def test_fields_array_or_single_like_gears_SingleNumber(self):
-        from ..pandel import set_jsonpointer
+        from pandalone.pandata import set_jsonpointer
         mdl = goodVehicle()
         ngears = len(mdl['vehicle']['gear_ratios'])
         fields_array_or_single_like_gears = [
