@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright 2013-2019 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
@@ -33,11 +33,13 @@ import operator as ops
 import pandas as pd
 
 
-DEBUG   = False
-PROG    = 'wltp'
+DEBUG = False
+PROG = "wltp"
 
-DEFAULT_LOG_LEVEL   = logging.INFO
-def _init_logging(loglevel, name='%s-cmd'%PROG, skip_root_level=False):
+DEFAULT_LOG_LEVEL = logging.INFO
+
+
+def _init_logging(loglevel, name="%s-cmd" % PROG, skip_root_level=False):
     logging.basicConfig(level=loglevel)
 
     rlog = logging.getLogger()
@@ -52,6 +54,7 @@ def _init_logging(loglevel, name='%s-cmd'%PROG, skip_root_level=False):
 
 
 log = _init_logging(DEFAULT_LOG_LEVEL)
+
 
 def main(argv=None):
     """Calculates an engine-map by fitting data-points vectors, use --help for gettting help.
@@ -130,14 +133,14 @@ def main(argv=None):
 
     global log, DEBUG
 
-    program_name    = os.path.basename(sys.argv[0])
+    program_name = os.path.basename(sys.argv[0])
 
     if argv is None:
         argv = sys.argv[1:]
 
-    doc_lines       = main.__doc__.splitlines()
-    desc            = doc_lines[0]
-    epilog          = dedent('\n'.join(doc_lines[1:]))
+    doc_lines = main.__doc__.splitlines()
+    desc = doc_lines[0]
+    epilog = dedent("\n".join(doc_lines[1:]))
     parser = build_args_parser(program_name, prog_ver, desc, epilog)
 
     opts = parser.parse_args(argv)
@@ -145,7 +148,7 @@ def main(argv=None):
     try:
         DEBUG = bool(opts.debug)
 
-        if (DEBUG or opts.verbose > 1):
+        if DEBUG or opts.verbose > 1:
             opts.strict = True
 
         if opts.verbose >= 2:
@@ -162,37 +165,41 @@ def main(argv=None):
             copy_excel_template_files(opts.excel)
             return
 
-#        if opts.excelrun:
-#            files_copied = copy_excel_template_files(opts.excelrun)          #@UnusedVariable
-#            xls_file = files_copied[0]
-#
-#            utils.open_file_with_os(xls_file)
-#            return
+        #        if opts.excelrun:
+        #            files_copied = copy_excel_template_files(opts.excelrun)          #@UnusedVariable
+        #            xls_file = files_copied[0]
+        #
+        #            utils.open_file_with_os(xls_file)
+        #            return
 
         if opts.winmenus:
-            add_windows_shortcuts_to_start_menu('winmenus')
+            add_windows_shortcuts_to_start_menu("winmenus")
             return
 
         opts = validate_file_opts(opts)
 
-        infiles     = parse_many_file_args(opts.I, 'r', opts.irenames)
+        infiles = parse_many_file_args(opts.I, "r", opts.irenames)
         log.info("Input-files: %s", infiles)
 
-        outfiles    = parse_many_file_args(opts.O, 'w', None)
+        outfiles = parse_many_file_args(opts.O, "w", None)
         log.info("Output-files: %s", outfiles)
 
     except (ValueError) as ex:
         if DEBUG:
-            log.exception('Cmd-line parsing failed!')
+            log.exception("Cmd-line parsing failed!")
         indent = len(program_name) * " "
-        parser.exit(3, "%s: %s\n%s  for help use --help\n"%(program_name, ex, indent))
+        parser.exit(3, "%s: %s\n%s  for help use --help\n" % (program_name, ex, indent))
 
     ## Main program
     #
     try:
         additional_props = not opts.strict
         mdl = assemble_model(infiles, opts.m)
-        log.info("Input Model(strict: %s): %s", opts.strict, utils.Lazy(lambda: model.json_dumps(mdl, 'to_string')))
+        log.info(
+            "Input Model(strict: %s): %s",
+            opts.strict,
+            utils.Lazy(lambda: model.json_dumps(mdl, "to_string")),
+        )
         mdl = model.validate_model(mdl, additional_props)
 
         mdl = processor.run(opts, mdl)
@@ -201,16 +208,21 @@ def main(argv=None):
 
     except jsons.ValidationError as ex:
         if DEBUG:
-            log.error('Invalid input model!', exc_info=ex)
+            log.error("Invalid input model!", exc_info=ex)
         indent = len(program_name) * " "
-        parser.exit(4, "%s: Model validation failed due to: %s\n%s\n"%(program_name, ex, indent))
+        parser.exit(
+            4,
+            "%s: Model validation failed due to: %s\n%s\n" % (program_name, ex, indent),
+        )
 
     except RefResolutionError as ex:
         if DEBUG:
-            log.exception('Invalid model operation!')
+            log.exception("Invalid model operation!")
         indent = len(program_name) * " "
-        parser.exit(4, "%s: Model operation failed due to: %s\n%s\n"%(program_name, ex, indent))
-
+        parser.exit(
+            4,
+            "%s: Model operation failed due to: %s\n%s\n" % (program_name, ex, indent),
+        )
 
 
 def copy_excel_template_files(dest_dir=None):
@@ -223,12 +235,14 @@ def copy_excel_template_files(dest_dir=None):
 
     try:
         os.mkdir(dest_dir)
-        log.info('Created destination-directory(%s).', dest_dir)
+        log.info("Created destination-directory(%s).", dest_dir)
     except:
-        pass ## Might already exist
+        pass  ## Might already exist
 
-    files_to_copy = ['excel\WltpExcelRunner.xlsm', 'excel\WltpExcelRunner.py']
-    files_to_copy = [pkg.resource_filename('wltp', f) for f in files_to_copy] #@UndefinedVariable
+    files_to_copy = ["excel\WltpExcelRunner.xlsm", "excel\WltpExcelRunner.py"]
+    files_to_copy = [
+        pkg.resource_filename("wltp", f) for f in files_to_copy
+    ]  # @UndefinedVariable
     files_copied = []
     for src_fname in files_to_copy:
         dest_fname = os.path.basename(src_fname)
@@ -237,7 +251,7 @@ def copy_excel_template_files(dest_dir=None):
         while os.path.exists(dest_fname):
             dest_fname = next(fname_genor)
 
-        log.info('Copying `xlwings` template-file: %s --> %s', src_fname, dest_fname)
+        log.info("Copying `xlwings` template-file: %s --> %s", src_fname, dest_fname)
         shutil.copy(src_fname, dest_fname)
         files_copied.append(dest_fname)
 
@@ -245,134 +259,170 @@ def copy_excel_template_files(dest_dir=None):
 
 
 def add_windows_shortcuts_to_start_menu(my_option):
-    if sys.platform != 'win32':
-        exit('This options can run only under *Windows*!')
+    if sys.platform != "win32":
+        exit("This options can run only under *Windows*!")
     my_cmd_name = PROG
     my_cmd_path = find_executable(my_cmd_name)
     if not my_cmd_path:
-        exit("Please properly install the project before running the `--%s` command-option!" % my_option)
+        exit(
+            "Please properly install the project before running the `--%s` command-option!"
+            % my_option
+        )
 
-    win_menu_group = 'Python Wltp Calculator'
+    win_menu_group = "Python Wltp Calculator"
 
     wshell = utils.win_wshell()
-    startMenu_dir   = utils.win_folder(wshell, "StartMenu")
-    myDocs_dir      = utils.win_folder(wshell, "MyDocuments")
-    docs_url        = 'http://wltp.readthedocs.org/'
-    prog_dir        = os.path.join(myDocs_dir, '%s_%s'%(PROG, prog_ver))
-    shcuts = OrderedDict([
-        ("Create new Wltp ExcelRunner files.lnk", {
-            'target_path':  'cmd',
-            'target_args':  '/K wltp --excelrun',
-            'wdir':         prog_dir,
-            'desc':         'Copy `xlwings` excel & python template files into `MyDocuments` and open the Excel-file, so you can run a batch of experiments.',
-            'icon_path':    pkg.resource_filename('wltp.excel', 'ExcelPython.ico'),        #@UndefinedVariable
-        }),
-        ("Wltp Documentation site.url", {
-            'target_path':  docs_url,
-        }),
-    ])
-
+    startMenu_dir = utils.win_folder(wshell, "StartMenu")
+    myDocs_dir = utils.win_folder(wshell, "MyDocuments")
+    docs_url = "http://wltp.readthedocs.org/"
+    prog_dir = os.path.join(myDocs_dir, "%s_%s" % (PROG, prog_ver))
+    shcuts = OrderedDict(
+        [
+            (
+                "Create new Wltp ExcelRunner files.lnk",
+                {
+                    "target_path": "cmd",
+                    "target_args": "/K wltp --excelrun",
+                    "wdir": prog_dir,
+                    "desc": "Copy `xlwings` excel & python template files into `MyDocuments` and open the Excel-file, so you can run a batch of experiments.",
+                    "icon_path": pkg.resource_filename(
+                        "wltp.excel", "ExcelPython.ico"
+                    ),  # @UndefinedVariable
+                },
+            ),
+            ("Wltp Documentation site.url", {"target_path": docs_url}),
+        ]
+    )
 
     try:
         os.makedirs(prog_dir, exist_ok=True)
     except Exception as ex:
-        log.exception('Failed creating Program-folder(%s) due to: %s', prog_dir, ex)
+        log.exception("Failed creating Program-folder(%s) due to: %s", prog_dir, ex)
         exit(-5)
 
     ## Copy Demos.
     #
-    demo_dir = pkg.resource_filename('wltp', 'test')                     #@UndefinedVariable
-    demo_files =['*.csv', '*.xls?', '*.bat', 'engine.py', 'cmdline_test.py']
+    demo_dir = pkg.resource_filename("wltp", "test")  # @UndefinedVariable
+    demo_files = ["*.csv", "*.xls?", "*.bat", "engine.py", "cmdline_test.py"]
     for g in demo_files:
         for src_f in glob.glob(os.path.join(demo_dir, g)):
             f = os.path.basename(src_f)
             dest_f = os.path.join(prog_dir, f)
             if os.path.exists(dest_f):
-                log.trace('Removing previous entry(%s) from existing Program-folder(%s).', f, prog_dir)
+                log.trace(
+                    "Removing previous entry(%s) from existing Program-folder(%s).",
+                    f,
+                    prog_dir,
+                )
                 try:
                     os.unlink(dest_f)
                 except Exception as ex:
-                    log.error('Cannot clear existing item(%s) from Program-folder(%s) due to: %s', dest_f, prog_dir, ex)
+                    log.error(
+                        "Cannot clear existing item(%s) from Program-folder(%s) due to: %s",
+                        dest_f,
+                        prog_dir,
+                        ex,
+                    )
 
             try:
                 shutil.copy(src_f, dest_f)
             except Exception as ex:
-                log.exception('Failed copying item(%s) in program folder(%s): %s', src_f, prog_dir, ex)
+                log.exception(
+                    "Failed copying item(%s) in program folder(%s): %s",
+                    src_f,
+                    prog_dir,
+                    ex,
+                )
 
     ## Create a fresh-new Menu-group.
     #
     group_path = os.path.join(startMenu_dir, win_menu_group)
     if os.path.exists(group_path):
-        log.trace('Removing all entries from existing StartMenu-group(%s).', win_menu_group)
-        for f in glob.glob(os.path.join(group_path, '*')):
+        log.trace(
+            "Removing all entries from existing StartMenu-group(%s).", win_menu_group
+        )
+        for f in glob.glob(os.path.join(group_path, "*")):
             try:
                 os.unlink(f)
             except Exception as ex:
-                log.warning('Minor failure while removing previous StartMenu-item(%s): %s', f, ex)
+                log.warning(
+                    "Minor failure while removing previous StartMenu-item(%s): %s",
+                    f,
+                    ex,
+                )
 
     try:
         os.makedirs(group_path, exist_ok=True)
     except Exception as ex:
-        log.exception('Failed creating StarMenu-group(%s) due to: %s', group_path, ex)
+        log.exception("Failed creating StarMenu-group(%s) due to: %s", group_path, ex)
         exit(-6)
 
     for name, shcut in shcuts.items():
         path = os.path.join(group_path, name)
-        log.info('Creating StartMenu-item: %s', path)
+        log.info("Creating StartMenu-item: %s", path)
         try:
             utils.win_create_shortcut(wshell, path, **shcut)
         except Exception as ex:
-            log.exception('Failed creating item(%s) in StartMenu-group(%s): %s', path, win_menu_group , ex)
+            log.exception(
+                "Failed creating item(%s) in StartMenu-group(%s): %s",
+                path,
+                win_menu_group,
+                ex,
+            )
 
 
 ## The value of file_frmt=VALUE to decide which
 #    pandas.read_XXX() and write_XXX() methods to use.
 #
-#_io_file_modes = {'r':0, 'rb':0, 'w':1, 'wb':1, 'a':1, 'ab':1}
-_io_file_modes = {'r':0, 'w':1}
-_read_clipboard_methods = (pd.read_clipboard, 'to_clipboard')
-_default_pandas_format  = 'AUTO'
-_pandas_formats = collections.OrderedDict([
-    ('AUTO', None),
-    ('CSV', (pd.read_csv, 'to_csv')),
-    ('TXT', (pd.read_csv, 'to_csv')),
-    ('XLS', (pd.read_excel, 'to_excel')),
-    ('JSON', (pd.read_json, 'to_json')),
-    ('SERIES', (pd.Series.from_csv, 'to_json')),
-])
-_known_file_exts = {
-    'XLSX':'XLS'
-}
+# _io_file_modes = {'r':0, 'rb':0, 'w':1, 'wb':1, 'a':1, 'ab':1}
+_io_file_modes = {"r": 0, "w": 1}
+_read_clipboard_methods = (pd.read_clipboard, "to_clipboard")
+_default_pandas_format = "AUTO"
+_pandas_formats = collections.OrderedDict(
+    [
+        ("AUTO", None),
+        ("CSV", (pd.read_csv, "to_csv")),
+        ("TXT", (pd.read_csv, "to_csv")),
+        ("XLS", (pd.read_excel, "to_excel")),
+        ("JSON", (pd.read_json, "to_json")),
+        ("SERIES", (pd.Series.from_csv, "to_json")),
+    ]
+)
+_known_file_exts = {"XLSX": "XLS"}
+
+
 def get_file_format_from_extension(fname):
     ext = os.path.splitext(fname)[1]
-    if (ext):
+    if ext:
         ext = ext.upper()[1:]
-        if (ext in _known_file_exts):
+        if ext in _known_file_exts:
             return _known_file_exts[ext]
-        if (ext in _pandas_formats):
+        if ext in _pandas_formats:
             return ext
 
     return None
 
 
-_default_df_path            = ('/engine_points', '/engine_map')
-_default_out_file_append    = False
+_default_df_path = ("/engine_points", "/engine_map")
+_default_out_file_append = False
 ## When option `-m MODEL_PATH=VALUE` contains a relative path,
 # the following is preppended:
-_default_model_overridde_path = '/engine/'
+_default_model_overridde_path = "/engine/"
 
 
 _value_parsers = {
-    '+': int,
-    '*': float,
-    '?': utils.str2bool,
-    ':': json.loads,
-    '@': eval,
+    "+": int,
+    "*": float,
+    "?": utils.str2bool,
+    ":": json.loads,
+    "@": eval,
     #'@': ast.literal_eval ## best-effort security: http://stackoverflow.com/questions/3513292/python-make-eval-safe
 }
 
 
-_key_value_regex = re.compile(r'^\s*([/_A-Za-z][\w/\.]*)\s*([+*?:@]?)=\s*(.*?)\s*$')
+_key_value_regex = re.compile(r"^\s*([/_A-Za-z][\w/\.]*)\s*([+*?:@]?)=\s*(.*?)\s*$")
+
+
 def parse_key_value_pair(arg):
     """Argument-type for syntax like: KEY [+*?:]= VALUE."""
 
@@ -381,13 +431,20 @@ def parse_key_value_pair(arg):
         (key, type_sym, value) = m.groups()
         if type_sym:
             try:
-                value   = _value_parsers[type_sym](value)
+                value = _value_parsers[type_sym](value)
             except Exception as ex:
-                raise six.reraise(ArgumentTypeError, ("Failed parsing key(%s)%s=VALUE(%s) due to: %s" %(key, type_sym, value, ex)), ex.__traceback__) ## Python-2 :-(
+                raise six.reraise(
+                    ArgumentTypeError,
+                    (
+                        "Failed parsing key(%s)%s=VALUE(%s) due to: %s"
+                        % (key, type_sym, value, ex)
+                    ),
+                    ex.__traceback__,
+                )  ## Python-2 :-(
 
         return [key, value]
     else:
-        raise argparse.ArgumentTypeError("Not a KEY=VALUE syntax: %s"%arg)
+        raise argparse.ArgumentTypeError("Not a KEY=VALUE syntax: %s" % arg)
 
 
 def parse_column_specifier(arg):
@@ -397,7 +454,7 @@ def parse_column_specifier(arg):
     if res:
         return res
 
-    raise argparse.ArgumentTypeError("Not a COLUMN_SPEC syntax: %s"%arg)
+    raise argparse.ArgumentTypeError("Not a COLUMN_SPEC syntax: %s" % arg)
 
 
 def validate_file_opts(opts):
@@ -405,72 +462,85 @@ def validate_file_opts(opts):
     #
     dopts = vars(opts)
 
-    if (not opts.I):
+    if not opts.I:
         n_infiles = 1
     else:
         n_infiles = len(opts.I)
-    rel_opts = ['icolumns', 'irenames']
+    rel_opts = ["icolumns", "irenames"]
     for ropt in rel_opts:
         opt_val = dopts[ropt]
-        if (opt_val):
+        if opt_val:
             n_ropt = len(opt_val)
-            if( n_ropt > 1 and n_ropt != n_infiles):
-                raise argparse.ArgumentTypeError("Number of --%s(%i) mismatches number of -I(%i)!"%(ropt, n_ropt, n_infiles))
-
+            if n_ropt > 1 and n_ropt != n_infiles:
+                raise argparse.ArgumentTypeError(
+                    "Number of --%s(%i) mismatches number of -I(%i)!"
+                    % (ropt, n_ropt, n_infiles)
+                )
 
     return opts
 
 
-FileSpec = collections.namedtuple('FileSpec', ('io_method', 'fname', 'file', 'frmt', 'path', 'append', 'renames', 'kws'))
+FileSpec = collections.namedtuple(
+    "FileSpec",
+    ("io_method", "fname", "file", "frmt", "path", "append", "renames", "kws"),
+)
+
 
 def parse_many_file_args(many_file_args, filemode, col_renames=None):
     io_file_indx = _io_file_modes[filemode]
 
     def parse_file_args(n, fname, *kv_args):
-        frmt    = _default_pandas_format
-        path    = _default_df_path[io_file_indx]
-        append  = _default_out_file_append
+        frmt = _default_pandas_format
+        path = _default_df_path[io_file_indx]
+        append = _default_out_file_append
 
         kv_pairs = [parse_key_value_pair(kv) for kv in kv_args]
         pandas_kws = dict(kv_pairs)
 
-        if ('file_frmt' in pandas_kws):
-            frmt = pandas_kws.pop('file_frmt')
-            if (frmt not in _pandas_formats):
-                raise argparse.ArgumentTypeError("Unsupported pandas file_frmt: %s\n  Set 'file_frmt=XXX' to one of %s" % (frmt, list(_pandas_formats.keys())[1:]))
+        if "file_frmt" in pandas_kws:
+            frmt = pandas_kws.pop("file_frmt")
+            if frmt not in _pandas_formats:
+                raise argparse.ArgumentTypeError(
+                    "Unsupported pandas file_frmt: %s\n  Set 'file_frmt=XXX' to one of %s"
+                    % (frmt, list(_pandas_formats.keys())[1:])
+                )
 
-
-        if (frmt == _default_pandas_format):
-            if ('-' == fname or fname == '+'):
-                frmt = 'CSV'
+        if frmt == _default_pandas_format:
+            if "-" == fname or fname == "+":
+                frmt = "CSV"
             else:
                 frmt = get_file_format_from_extension(fname)
-            if (not frmt):
-                raise argparse.ArgumentTypeError("File(%s) has unknown extension, file_frmt is required! \n  Set 'file_frmt=XXX' to one of %s" % (fname, list(_pandas_formats.keys())[1:]))
+            if not frmt:
+                raise argparse.ArgumentTypeError(
+                    "File(%s) has unknown extension, file_frmt is required! \n  Set 'file_frmt=XXX' to one of %s"
+                    % (fname, list(_pandas_formats.keys())[1:])
+                )
 
-
-        if (fname == '+'):
+        if fname == "+":
             method = _read_clipboard_methods[io_file_indx]
-            file = ''
+            file = ""
         else:
             methods = _pandas_formats[frmt]
             assert isinstance(methods, tuple), methods
             method = methods[io_file_indx]
 
-            if (method == pd.read_excel):
+            if method == pd.read_excel:
                 file = fname
             else:
                 file = argparse.FileType(filemode)(fname)
 
         try:
-            path = pandas_kws.pop('model_path')
-            if (len(path) > 0 and not path.startswith('/')):
-                raise argparse.ArgumentTypeError("Only absolute model-paths (those starting with '/') are supported: %s" % (path))
+            path = pandas_kws.pop("model_path")
+            if len(path) > 0 and not path.startswith("/"):
+                raise argparse.ArgumentTypeError(
+                    "Only absolute model-paths (those starting with '/') are supported: %s"
+                    % (path)
+                )
         except KeyError:
             pass
 
         try:
-            append = pandas_kws.pop('file_append')
+            append = pandas_kws.pop("file_append")
             append = utils.str2bool(append)
         except KeyError:
             pass
@@ -486,30 +556,39 @@ def parse_many_file_args(many_file_args, filemode, col_renames=None):
         return FileSpec(method, fname, file, frmt, path, append, renames, pandas_kws)
 
     if not many_file_args:
-        return [] # FIXME: Why enumeration on None does not work?
-    return [parse_file_args(n, *file_args) for (n, file_args) in enumerate(many_file_args)]
+        return []  # FIXME: Why enumeration on None does not work?
+    return [
+        parse_file_args(n, *file_args) for (n, file_args) in enumerate(many_file_args)
+    ]
 
 
 def load_file_as_df(filespec):
-# FileSpec(io_method, fname, file, frmt, path, append, kws)
+    # FileSpec(io_method, fname, file, frmt, path, append, kws)
     method = filespec.io_method
-    log.debug('Reading file with: pandas.%s(%s, %s)', method.__name__, filespec.fname, filespec.kws)
-    if filespec.file is None:       ## ie. when reading CLIPBOARD
+    log.debug(
+        "Reading file with: pandas.%s(%s, %s)",
+        method.__name__,
+        filespec.fname,
+        filespec.kws,
+    )
+    if filespec.file is None:  ## ie. when reading CLIPBOARD
         dfin = method(**filespec.kws)
     else:
         dfin = method(filespec.file, **filespec.kws)
 
-    if (filespec.renames):
+    if filespec.renames:
         old_cols = dfin.columns
-        new_cols = [old if new['name'] == '_' else new['name'] for (old, new) in zip(old_cols, filespec.renames)]
+        new_cols = [
+            old if new["name"] == "_" else new["name"]
+            for (old, new) in zip(old_cols, filespec.renames)
+        ]
 
         ## If length of rename-columns differ from DF's.
         #    columns at the end are left unchanged,
         #    but will scream if given more renames!
         #
-        new_cols += list(old_cols[len(new_cols):])
+        new_cols += list(old_cols[len(new_cols) :])
         dfin.columns = new_cols
-
 
     dfin = dfin.convert_objects(convert_numeric=True)
 
@@ -534,31 +613,49 @@ def assemble_model(infiles, model_overrides):
         try:
             mdl = load_model_part(mdl, filespec)
         except Exception as ex:
-            raise six.reraise(Exception, ("Failed reading %s due to: %s" %(filespec, ex)), ex.__traceback__) ## Python-2 :-(
+            raise six.reraise(
+                Exception,
+                ("Failed reading %s due to: %s" % (filespec, ex)),
+                ex.__traceback__,
+            )  ## Python-2 :-(
 
-    if (model_overrides):
-        model_overrides = functools.reduce(lambda x,y: x+y, model_overrides) # join all -m
+    if model_overrides:
+        model_overrides = functools.reduce(
+            lambda x, y: x + y, model_overrides
+        )  # join all -m
         for (json_path, value) in model_overrides:
             try:
-                if (not json_path.startswith('/')):
+                if not json_path.startswith("/"):
                     json_path = _default_model_overridde_path + json_path
                 pandel.set_jsonpointer(mdl, json_path, value)
             except Exception as ex:
-                raise six.reraise(Exception, ("Failed setting model-value(%s) due to: %s" %(json_path, value, ex)), ex.__traceback__) ## Python-2 :-(
+                raise six.reraise(
+                    Exception,
+                    (
+                        "Failed setting model-value(%s) due to: %s"
+                        % (json_path, value, ex)
+                    ),
+                    ex.__traceback__,
+                )  ## Python-2 :-(
 
     return mdl
 
 
 def store_part_as_df(filespec, part):
-    '''If part is Pandas, store it as it is, else, store it as json recursively.
+    """If part is Pandas, store it as it is, else, store it as json recursively.
 
         :param FileSpec filespec: named_tuple
         :param part: what to store, originating from model(filespec.path))
-    '''
+    """
 
     if isinstance(part, NDFrame):
-        log.debug('Writing file with: pandas.%s(%s, %s)', filespec.io_method, filespec.fname, filespec.kws)
-        if filespec.file is None:       ## ie. when reading CLIPBOARD
+        log.debug(
+            "Writing file with: pandas.%s(%s, %s)",
+            filespec.io_method,
+            filespec.fname,
+            filespec.kws,
+        )
+        if filespec.file is None:  ## ie. when reading CLIPBOARD
             method = ops.methodcaller(filespec.io_method, **filespec.kws)
         else:
             method = ops.methodcaller(filespec.io_method, filespec.file, **filespec.kws)
@@ -573,11 +670,20 @@ def store_model_parts(mdl, outfiles):
             try:
                 part = pandel.resolve_jsonpointer(mdl, filespec.path)
             except RefResolutionError:
-                log.warning('Nothing found at model(%s) to write to file(%s).', filespec.path, filespec.fname)
+                log.warning(
+                    "Nothing found at model(%s) to write to file(%s).",
+                    filespec.path,
+                    filespec.fname,
+                )
             else:
                 store_part_as_df(filespec, part)
         except Exception as ex:
-            raise six.reraise(Exception, ("Failed storing %s due to: %s" %(filespec, ex)), ex.__traceback__) ## Python-2 :-(
+            raise six.reraise(
+                Exception,
+                ("Failed storing %s due to: %s" % (filespec, ex)),
+                ex.__traceback__,
+            )  ## Python-2 :-(
+
 
 class RawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
     """Help message formatter which retains formatting of all help text.
@@ -591,14 +697,24 @@ class RawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):
 
 
 def build_args_parser(program_name, version, desc, epilog):
-    version_string  = '%s' % version
+    version_string = "%s" % version
 
-    parser = argparse.ArgumentParser(prog=program_name, description=desc, epilog=epilog, add_help=False,
-                                     formatter_class=RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(
+        prog=program_name,
+        description=desc,
+        epilog=epilog,
+        add_help=False,
+        formatter_class=RawTextHelpFormatter,
+    )
 
-
-    grp_io = parser.add_argument_group('Input/Output', 'Options controlling reading/writting of file(s) and for specifying model values.')
-    grp_io.add_argument('-I', help=dedent("""\
+    grp_io = parser.add_argument_group(
+        "Input/Output",
+        "Options controlling reading/writting of file(s) and for specifying model values.",
+    )
+    grp_io.add_argument(
+        "-I",
+        help=dedent(
+            """\
             import file(s) into the model utilizing pandas-IO methods, see
                 http://pandas.pydata.org/pandas-docs/stable/io.html
             Default: %(default)s]
@@ -624,11 +740,18 @@ def build_args_parser(program_name, version, desc, epilog):
             * When multiple input-files given, the number of --icolumns and --irenames options,
               must either match them, be 1 (meaning, use them for all files), or be totally absent
               (meaning, use defaults for all files).
-            * see REMARKS at the bottom regarding the parsing of KEY-VAULE pairs. """),
-                        action='append', nargs='+',
-                        #default=[('- file_frmt=%s model_path=%s'%('CSV', _default_df_dest)).split()],
-                        metavar='ARG')
-    grp_io.add_argument('-c', '--icolumns', help=dedent("""\
+            * see REMARKS at the bottom regarding the parsing of KEY-VAULE pairs. """
+        ),
+        action="append",
+        nargs="+",
+        # default=[('- file_frmt=%s model_path=%s'%('CSV', _default_df_dest)).split()],
+        metavar="ARG",
+    )
+    grp_io.add_argument(
+        "-c",
+        "--icolumns",
+        help=dedent(
+            """\
             describes the columns-contents of input file(s) along with their units (see --I).
             It must be followed either by an integer denoting the index of the header-row
             within the tabular data, or by a list of column-names specifications,
@@ -652,19 +775,34 @@ def build_args_parser(program_name, version, desc, epilog):
                 PMF      (bar)
             4. Irellevant column:
                 X
-            Default when files include headers is 0 (1st row), otherwise it is 'RPM,P,FC'."""),
-                        action='append', nargs='+',
-                        type=parse_column_specifier, metavar='COLUMN_SPEC')
-    grp_io.add_argument('-r', '--irenames', help=dedent("""\
+            Default when files include headers is 0 (1st row), otherwise it is 'RPM,P,FC'."""
+        ),
+        action="append",
+        nargs="+",
+        type=parse_column_specifier,
+        metavar="COLUMN_SPEC",
+    )
+    grp_io.add_argument(
+        "-r",
+        "--irenames",
+        help=dedent(
+            """\
             renames the columns of input-file(s)  (see --I).
             It must be followed by a list of column-names specifications like --icolumns,
             but without accepting integers.
             The number of renamed-columns for each input-file must be equal or less
             than those in the --icolumns for the respective inpute-file.
-            Use '_' for columns to be left intact."""),
-                        action='append', nargs='*',
-                        type=parse_column_specifier, metavar='COLUMN_SPEC')
-    grp_io.add_argument('-m', help=dedent("""\
+            Use '_' for columns to be left intact."""
+        ),
+        action="append",
+        nargs="*",
+        type=parse_column_specifier,
+        metavar="COLUMN_SPEC",
+    )
+    grp_io.add_argument(
+        "-m",
+        help=dedent(
+            """\
             override a model value.
             * The MODEL_PATH is a json-pointer absolute or relative path, see:
                     https://python-json-pointer.readthedocs.org/en/latest/tutorial.html
@@ -680,53 +818,102 @@ def build_args_parser(program_name, version, desc, epilog):
                     }
             * Any values from -m options are applied AFTER any files read by -I option.
             * See REMARKS below for the parsing of KEY-VAULE pairs.
-            """),
-                        action='append', nargs='+',
-                        type=parse_key_value_pair, metavar='MODEL_PATH=VALUE')
-    grp_io.add_argument('--strict', help=dedent("""\
+            """
+        ),
+        action="append",
+        nargs="+",
+        type=parse_key_value_pair,
+        metavar="MODEL_PATH=VALUE",
+    )
+    grp_io.add_argument(
+        "--strict",
+        help=dedent(
+            """\
             validate model more strictly, ie no additional-properties allowed.
-            [default: %(default)s]"""),
-            default=False, type=utils.str2bool,
-            metavar='[TRUE | FALSE]')
-    grp_io.add_argument('-M', help=dedent("""\
+            [default: %(default)s]"""
+        ),
+        default=False,
+        type=utils.str2bool,
+        metavar="[TRUE | FALSE]",
+    )
+    grp_io.add_argument(
+        "-M",
+        help=dedent(
+            """\
             get help description for the specfied model path.
-            If no path specified, gets the default model-base. """),
-                        action='append', nargs='*', metavar='MODEL_PATH')
+            If no path specified, gets the default model-base. """
+        ),
+        action="append",
+        nargs="*",
+        metavar="MODEL_PATH",
+    )
 
-
-    grp_io.add_argument('-O', help=dedent("""\
+    grp_io.add_argument(
+        "-O",
+        help=dedent(
+            """\
             specifies output-file(s) to write model-portions into after calculations.
             The syntax is indentical to -I, with these differences:
             * Instead of <stdin>, <stdout> and write_XXX() methods are used wherever.
             * One extra key-value pair:
             ** file_append = [ TRUE | FALSE ]
                     specify whether to augment pre-existing files, or overwrite them.
-            * Default: - file_frmt=CSV model_path=/engine_map """),
-                        action='append', nargs='+',
-                        #default=[('- file_frmt=%s model_path=%s file_append=%s'%('CSV', _default_df_path[1],  _default_out_file_append)).split()],
-                        metavar='ARG')
-
+            * Default: - file_frmt=CSV model_path=/engine_map """
+        ),
+        action="append",
+        nargs="+",
+        # default=[('- file_frmt=%s model_path=%s file_append=%s'%('CSV', _default_df_path[1],  _default_out_file_append)).split()],
+        metavar="ARG",
+    )
 
     xlusive_group = parser.add_mutually_exclusive_group()
-    xlusive_group.add_argument('--excel', help="copy `xlwings` excel & python template files into DESTPATH or current-working dir, to run a batch of experiments",
-        nargs='?', const=None, metavar='DESTPATH')
-#    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments",
-#        nargs='?', const=os.getcwd(), metavar='DESTPATH')
-    xlusive_group.add_argument('--winmenus', help="Adds shortcuts into Windows StartMenu.", action='store_true')
+    xlusive_group.add_argument(
+        "--excel",
+        help="copy `xlwings` excel & python template files into DESTPATH or current-working dir, to run a batch of experiments",
+        nargs="?",
+        const=None,
+        metavar="DESTPATH",
+    )
+    #    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments",
+    #        nargs='?', const=os.getcwd(), metavar='DESTPATH')
+    xlusive_group.add_argument(
+        "--winmenus", help="Adds shortcuts into Windows StartMenu.", action="store_true"
+    )
 
-    grp_various = parser.add_argument_group('Various', 'Options controlling various other aspects.')
-    grp_various.add_argument('-d', "--debug", action="store_true", help=dedent("""\
+    grp_various = parser.add_argument_group(
+        "Various", "Options controlling various other aspects."
+    )
+    grp_various.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help=dedent(
+            """\
             set debug-mode with various checks and error-traces
             Suggested combining with --verbose counter-flag.
             Implies --strict true
-            [default: %(default)s] """),
-                        default=False)
-    grp_various.add_argument('-v', "--verbose", action="count", default=0, help="set verbosity level [default: %(default)s]")
-    grp_various.add_argument("--version", action="version", version=version_string, help="prints version identifier of the program")
-    grp_various.add_argument("--help", action="help", help='show this help message and exit')
+            [default: %(default)s] """
+        ),
+        default=False,
+    )
+    grp_various.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="set verbosity level [default: %(default)s]",
+    )
+    grp_various.add_argument(
+        "--version",
+        action="version",
+        version=version_string,
+        help="prints version identifier of the program",
+    )
+    grp_various.add_argument(
+        "--help", action="help", help="show this help message and exit"
+    )
 
     return parser
-
 
 
 if __name__ == "__main__":

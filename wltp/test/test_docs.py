@@ -19,12 +19,11 @@ import os.path as osp
 
 
 mydir = osp.dirname(__file__)
-proj_path = osp.join(mydir, '..', '..')
-readme_path = osp.join(proj_path, 'README.rst')
+proj_path = osp.join(mydir, "..", "..")
+readme_path = osp.join(proj_path, "README.rst")
 
 
 class Doctest(unittest.TestCase):
-
     def test_README_version_reldate_opening(self):
         ver = wltp.__version__
         reldate = wltp.__updated__
@@ -50,28 +49,32 @@ class Doctest(unittest.TestCase):
         mydir = osp.dirname(__file__)
         with open(readme_path) as fd:
             ftext = fd.read()
-            with patch('sys.stdout', new=io.StringIO()) as stdout:
+            with patch("sys.stdout", new=io.StringIO()) as stdout:
                 try:
-                    cmain.main(['--version'])
+                    cmain.main(["--version"])
                 except SystemExit as ex:
-                    pass ## Cancel docopt's exit()
+                    pass  ## Cancel docopt's exit()
             proj_ver = stdout.getvalue().strip()
             assert proj_ver
-            self.assertIn(proj_ver, ftext,
-                          "Version(%s) not found in README cmd-line version-check!" %
-                          ver)
+            self.assertIn(
+                proj_ver,
+                ftext,
+                "Version(%s) not found in README cmd-line version-check!" % ver,
+            )
 
     def test_README_as_PyPi_landing_page(self):
         from docutils import core as dcore
 
         long_desc = subprocess.check_output(
-                'python setup.py --long-description'.split(),
-                cwd=proj_path)
-        self.assertIsNotNone(long_desc, 'Long_desc is null!')
+            "python setup.py --long-description".split(), cwd=proj_path
+        )
+        self.assertIsNotNone(long_desc, "Long_desc is null!")
 
-        with patch('sys.exit'):
-            dcore.publish_string(long_desc, enable_exit_status=False,
-                    settings_overrides={ # see `docutils.frontend` for more.
-                            'halt_level': 2 # 2=WARN, 1=INFO
-                    })
-
+        with patch("sys.exit"):
+            dcore.publish_string(
+                long_desc,
+                enable_exit_status=False,
+                settings_overrides={  # see `docutils.frontend` for more.
+                    "halt_level": 2  # 2=WARN, 1=INFO
+                },
+            )

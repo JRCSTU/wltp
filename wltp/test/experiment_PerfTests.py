@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright 2013-2019 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
@@ -17,7 +17,6 @@ from .goodvehicle import goodVehicle
 
 
 class ExperimentPerf(unittest.TestCase):
-
     @unittest.SkipTest
     def testPerf(self):
         logging.getLogger().setLevel(logging.WARNING)
@@ -31,10 +30,12 @@ class ExperimentPerf(unittest.TestCase):
 
             experiment.run()
 
-        elapsed = (time.time() - start)
-        print(">> ELAPSED: %.2fsec, RUN/EXP: %.4fsec"%(elapsed, elapsed/nexp))
+        elapsed = time.time() - start
+        print(">> ELAPSED: %.2fsec, RUN/EXP: %.4fsec" % (elapsed, elapsed / nexp))
 
 
 if __name__ == "__main__":
-    import sys;#sys.argv = ['', 'Test.testName']
-    unittest.main(argv = sys.argv[1:])
+    import sys
+
+    # sys.argv = ['', 'Test.testName']
+    unittest.main(argv=sys.argv[1:])

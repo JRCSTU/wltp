@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Sample `xlwings` script
 #######################
@@ -14,7 +14,6 @@ You can debug it by running it directly as a python script, as suggested by :
 """
 
 
-
 from __future__ import division, print_function, unicode_literals
 
 import os, re, operator, logging
@@ -26,8 +25,10 @@ from wltp.experiment import Experiment
 import pandalone.pandata as pdl
 import traceback
 
-DEFAULT_LOG_LEVEL   = logging.INFO
-def _init_logging(loglevel): ## DEPRECATE!
+DEFAULT_LOG_LEVEL = logging.INFO
+
+
+def _init_logging(loglevel):  ## DEPRECATE!
     logging.basicConfig(level=loglevel)
     logging.getLogger().setLevel(level=loglevel)
 
@@ -35,11 +36,14 @@ def _init_logging(loglevel): ## DEPRECATE!
     log.trace = lambda *args, **kws: log.log(0, *args, **kws)
 
     return log
+
+
 log = _init_logging(DEFAULT_LOG_LEVEL)
 
 
 ## TODO: Convert Excel-ref RC-notation to A1
-_excel_ref_specifier_regex = re.compile(r'''^\s*
+_excel_ref_specifier_regex = re.compile(
+    r"""^\s*
             @
             (?:(?P<sheet>.+)!)?             # Sheet-name optional-group
             (?P<ref>                        # start Cell-ref
@@ -59,14 +63,19 @@ _excel_ref_specifier_regex = re.compile(r'''^\s*
             (?:{(?P<pandas_kws>                   # start PANDAS-kws expression
                 [^)]*
             )})?                            # end PANDAS-kws
-            \s*$''', re.X+re.IGNORECASE)
+            \s*$""",
+    re.X + re.IGNORECASE,
+)
 _undefined = object()
+
+
 def _parse_kws(kws_str):
     if kws_str:
         local_vars = {}
-        exec('kws = dict(%s)' % kws_str, None, local_vars)
-        return local_vars['kws']
+        exec("kws = dict(%s)" % kws_str, None, local_vars)
+        return local_vars["kws"]
     return {}
+
 
 def resolve_excel_ref(ref_str, default=_undefined):
     """
@@ -115,15 +124,15 @@ def resolve_excel_ref(ref_str, default=_undefined):
         ref = matcher.groupdict()
         log.info("Parsed string(%s) as Excel-ref: %s", ref_str, ref)
 
-        sheet = ref.get('sheet') or ''
+        sheet = ref.get("sheet") or ""
         try:
             sheet = int(sheet)
         except ValueError:
             pass
-        cells = ref['ref']
-        range_kws = _parse_kws(ref.get('range_kws'))
+        cells = ref["ref"]
+        range_kws = _parse_kws(ref.get("range_kws"))
         ref_range = xw.Range(sheet, cells, **range_kws)
-        range_shape = ref.get('shape')
+        range_shape = ref.get("shape")
         if range_shape:
             ref_range = operator.attrgetter(range_shape.lower())(ref_range)
 
@@ -132,8 +141,8 @@ def resolve_excel_ref(ref_str, default=_undefined):
         if ref_range.row1 != ref_range.row2 or ref_range.col1 != ref_range.col2:
             ## Parse as DataFrame when more than one cell.
             #
-            pandas_kws = _parse_kws(ref.get('pandas_kws'))
-            if 'header' in range_kws and not 'columns' in pandas_kws :
+            pandas_kws = _parse_kws(ref.get("pandas_kws"))
+            if "header" in range_kws and not "columns" in pandas_kws:
                 ##Do not ignore explicit-columns.
                 v = pd.DataFrame(v[1:], columns=v[0], **pandas_kws)
             else:
@@ -148,15 +157,16 @@ def resolve_excel_ref(ref_str, default=_undefined):
         else:
             return default
 
+
 def add_cycle_run_as_sheet(veh_id, mdl_out):
-    sheet = "cycle_%s"%veh_id
+    sheet = "cycle_%s" % veh_id
     try:
         sh = xw.Sheet(sheet)
         log.info("Sheet(%s) already exists. Clearing it", sheet)
         sh.clear()
     except Exception:
         xw.Sheet.add(sheet)
-    xw.Range(sheet, 'A1').value = mdl_out['cycle_run']
+    xw.Range(sheet, "A1").value = mdl_out["cycle_run"]
 
 
 def read_table_as_df(range):
@@ -171,7 +181,7 @@ def read_table_as_df(range):
 
     """
     vehs = xw.Range(0, range).table.value
-    vehs = pd.DataFrame(vehs[1:], columns=vehs[0]).set_index('id')
+    vehs = pd.DataFrame(vehs[1:], columns=vehs[0]).set_index("id")
 
     return vehs
 
@@ -188,7 +198,7 @@ def build_models(vehs_df, **locals_kws):
         try:
             mdl_in = {}
             for colname, colval in row.items():
-                log.debug('veh_id(%s): Column(%s): %s', veh_id, colname, colval)
+                log.debug("veh_id(%s): Column(%s): %s", veh_id, colname, colval)
                 if not colval or (isinstance(colval, str) and not colval.strip()):
                     continue
                 if isinstance(colval, str):
@@ -203,18 +213,28 @@ def build_models(vehs_df, **locals_kws):
                         #
                         try:
                             old_v = colval
-                            colval = eval(colval, globals(), locals_kws) ## NOTE: Total insecure, but we're scientists, aren't we?
+                            colval = eval(
+                                colval, globals(), locals_kws
+                            )  ## NOTE: Total insecure, but we're scientists, aren't we?
                         except Exception:
-                            log.info("Failed parsing value(%s) as python code due to: %s\n  Assuming plain string.", old_v, traceback.format_exc())
+                            log.info(
+                                "Failed parsing value(%s) as python code due to: %s\n  Assuming plain string.",
+                                old_v,
+                                traceback.format_exc(),
+                            )
                         else:
-                            log.info("Parsed value(%s) as python code into: %s", old_v, colval)
+                            log.info(
+                                "Parsed value(%s) as python code into: %s",
+                                old_v,
+                                colval,
+                            )
                 pdl.set_jsonpointer(mdl_in, colname, colval)
 
             exp = Experiment(mdl_in)
 
             experiment_pairs.append((veh_id, exp))
         except Exception as ex:
-            raise Exception('Invalid model for vehicle(%s): %s' % (veh_id, ex)) from ex
+            raise Exception("Invalid model for vehicle(%s): %s" % (veh_id, ex)) from ex
 
     return experiment_pairs
 
@@ -231,19 +251,26 @@ def run_experiments(experiment_pairs):
 
             add_cycle_run_as_sheet(veh_id, mdl_out)
         except Exception as ex:
-            raise Exception('Experiment failed for vehicle(%s): %s' % (veh_id, ex)) from ex
+            raise Exception(
+                "Experiment failed for vehicle(%s): %s" % (veh_id, ex)
+            ) from ex
+
 
 def _get_active_workbook():
-    from win32com.client import dynamic                 #@UnusedImport
+    from win32com.client import dynamic  # @UnusedImport
 
-    com_app = dynamic.Dispatch('Excel.Application')     #@UndefinedVariable
+    com_app = dynamic.Dispatch("Excel.Application")  # @UndefinedVariable
     com_wb = com_app.ActiveWorkbook
     wb = xw.Workbook(xl_workbook=com_wb)
 
     return wb
 
+
 def _open_my_workbook():
-    excel_fname = os.path.join(os.path.dirname(__file__), '%s.xlsm' % os.path.splitext(os.path.basename(__file__))[0])
+    excel_fname = os.path.join(
+        os.path.dirname(__file__),
+        "%s.xlsm" % os.path.splitext(os.path.basename(__file__))[0],
+    )
     wb_path = os.path.abspath(excel_fname)
     wb = xw.Workbook(wb_path)
 
@@ -251,19 +278,20 @@ def _open_my_workbook():
 
 
 def main():
-    log.info('CWD: %s', os.getcwd())
+    log.info("CWD: %s", os.getcwd())
 
     ## Open and run experiments
     #
-    #wb = _open_my_workbook()
+    # wb = _open_my_workbook()
     wb = _get_active_workbook()
 
-    vehs_df = read_table_as_df('D2')
-    log.info('%s', vehs_df)
+    vehs_df = read_table_as_df("D2")
+    log.info("%s", vehs_df)
     exp_pairs = build_models(vehs_df)
     run_experiments(exp_pairs)
 
     return wb
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
