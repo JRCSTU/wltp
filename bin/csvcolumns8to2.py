@@ -21,8 +21,6 @@ or::
 """
 
 
-from __future__ import division, print_function, unicode_literals
-
 def csvcolumns8to2(inp, inpfname, out, outfname):
     import pandas as pd
 

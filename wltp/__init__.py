@@ -9,8 +9,6 @@
 wltp: generate WLTC gear-shifts based on vehicle characteristics
 """
 
-from __future__ import division, unicode_literals
-
 from ._version import __version__, __updated__
 
 

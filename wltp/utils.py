@@ -6,33 +6,9 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-from __future__ import division, unicode_literals
-
 import argparse
 import sys, os
 import unittest
-
-
-##############
-#  Compatibility
-#
-try:
-    assertRaisesRegex = unittest.TestCase.assertRaisesRegex
-except:
-    assertRaisesRegex = unittest.TestCase.assertRaisesRegexp
-
-## Python-2 compatibility
-#
-try:
-    FileNotFoundError
-except NameError:
-    FileNotFoundError = IOError  # @ReservedAssignment
-else:
-    FileNotFoundError = OSError  # @ReservedAssignment
-
-
-def raise_ex_from(ex_class, chained_ex, *args, **kwds):
-    from six import reraise
 
 
 ##############

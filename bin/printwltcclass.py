@@ -20,8 +20,6 @@ Then copy-paste the output of the program as a python-variable within the respec
  wltp.classes.classX.py modules.
 '''
 
-from __future__ import division, print_function, unicode_literals
-
 import collections
 import csv
 import os, io

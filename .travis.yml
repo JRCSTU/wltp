@@ -2,9 +2,15 @@
 #
 language: python
 python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  # - "3.8-dev"  # too slow!
+matrix:
+  allow_failures:
+    - python: 3.5
+    #- python: "3.8-dev"
+
 before_install:
     ## From: http://conda.pydata.org/docs/travis.htm
     ## Another one: https://gist.github.com/dan-blanchard/7045057

@@ -9,8 +9,6 @@
 Testing of the pure-tree data (just dictionary & lists), without the Model/Experiment classes.
 """
 
-from __future__ import division, print_function, unicode_literals
-
 import json
 from timeit import timeit
 import unittest
@@ -21,7 +19,6 @@ from jsonschema.exceptions import ValidationError
 import numpy as np
 
 from .. import model
-from ..utils import assertRaisesRegex
 from .goodvehicle import goodVehicle
 
 
@@ -146,8 +143,7 @@ class InstancesTest(unittest.TestCase):
         mdl = json.loads(json_txt)
         validator = model.model_validator()
 
-        assertRaisesRegex(
-            self,
+        self.assertRaisesRegex(
             jsonschema.ValidationError,
             "'full_load_curve' is a required property",
             validator.validate,

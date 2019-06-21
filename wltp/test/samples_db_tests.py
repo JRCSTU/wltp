@@ -11,8 +11,6 @@
 * Run it as cmd-line to compare with Heinz's results.
 """
 
-from __future__ import division, print_function, unicode_literals
-
 import glob
 import logging
 import math
@@ -22,14 +20,12 @@ import unittest
 from unittest.case import skip
 
 from matplotlib import pyplot as plt
-from six import string_types
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
 
 from ..experiment import Experiment
-from ..utils import FileNotFoundError
 from .goodvehicle import goodVehicle
 
 
@@ -358,7 +354,7 @@ def _plotResults(
     ## Add pickers on driveability lines showing the specific msg.
     #
     driveability = df_g["driveability"]
-    driveability_true = driveability.apply(lambda s: isinstance(s, string_types))
+    driveability_true = driveability.apply(lambda s: isinstance(s, str))
     lines = ax2.vlines(driveability_true.nonzero()[0], 2, 4, "c", picker=5)
     lines.set_urls(driveability[driveability_true])
 

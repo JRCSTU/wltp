@@ -6,8 +6,6 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-from __future__ import division, print_function, unicode_literals
-
 import logging
 import unittest
 from wltp import model
@@ -18,7 +16,6 @@ import wltp.experiment as ex
 
 from ..experiment import downscaleCycle
 from ..model import _get_wltc_data
-from ..utils import assertRaisesRegex
 
 
 class experimentFuncs(unittest.TestCase):
@@ -40,11 +37,11 @@ class experimentFuncs(unittest.TestCase):
         arr = np.array([0, 9, 10, 36, 255 - ex._escape_char])
 
         self.assertEqual(ex.np2bytes(arr), b"\x80\x89\x8a\xa4\xff")
-        assertRaisesRegex(
-            self, AssertionError, "Outside byte-range", ex.np2bytes, (arr + 1)
+        self.assertRaisesRegex(
+            AssertionError, "Outside byte-range", ex.np2bytes, (arr + 1)
         )
-        assertRaisesRegex(
-            self, AssertionError, "Outside byte-range", ex.np2bytes, (arr - 1)
+        self.assertRaisesRegex(
+            AssertionError, "Outside byte-range", ex.np2bytes, (arr - 1)
         )
 
         npt.assert_array_equal(ex.bytes2np(ex.np2bytes(arr)), arr)

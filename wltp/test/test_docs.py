@@ -52,8 +52,8 @@ class Doctest(unittest.TestCase):
             with patch("sys.stdout", new=io.StringIO()) as stdout:
                 try:
                     cmain.main(["--version"])
-                except SystemExit as ex:
-                    pass  ## Cancel docopt's exit()
+                except SystemExit:
+                    pass  ## Cancel argparse's exit()
             proj_ver = stdout.getvalue().strip()
             assert proj_ver
             self.assertIn(

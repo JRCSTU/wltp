@@ -48,8 +48,6 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
 .. Seealso:: :mod:`model` for in/out schemas
 """
 
-from __future__ import division, unicode_literals
-
 import logging
 import re
 import sys
@@ -647,17 +645,9 @@ _escape_char = 128
 
 _regex_gears2regex = re.compile(br"\\g(\d+)")
 
-PY2 = sys.version_info[0] < 3
-if PY2:
 
-    def dec_byte_repl(m):
-        return chr(_escape_char + int(m.group(1)))
-
-
-else:
-
-    def dec_byte_repl(m):
-        return bytes([_escape_char + int(m.group(1))])
+def dec_byte_repl(m):
+    return bytes([_escape_char + int(m.group(1))])
 
 
 def gearsregex(gearspattern):

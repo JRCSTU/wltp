@@ -6,8 +6,6 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-from __future__ import division, print_function, unicode_literals
-
 from matplotlib import cbook, cm, pyplot as plt
 from matplotlib.colors import Normalize
 from numpy import ma

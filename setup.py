@@ -1,25 +1,10 @@
 #!/usr/bin/env python# -*- coding: utf-8 -*-
 #
-# Copyright 2013\-2019 European Commission (JRC);
+# Copyright 2013-2019 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""'Setuptools script for *wltp*, the WLTC gear-shift calculator.
-
-
-Install:
-========
-Tested with Python 3.4.
-
-To install it, assuming you have download the sources,
-do the usual::
-
-    python setup.py install
-
-Or get it directly from the PIP repository::
-
-    pip install wltp
-"""
+"""Setuptools script for *wltp*, the WLTC gear-shift calculator."""
 # Got ideas for project-setup from many places, among others:
 #    http://www.jeffknupp.com/blog/2013/08/16/open-sourcing-a-python-project-the-right-way/
 #    http://python-packaging-user-guide.readthedocs.org/en/latest/current.html
@@ -31,12 +16,8 @@ from setuptools import setup, find_packages
 # Fail early in ancient python-versions
 #
 py_ver = sys.version_info
-if py_ver < (2, 7):
-    exit("Sorry, Python2 >= 2.7 is supported!")
-if py_ver >= (3,) and py_ver < (3, 3):
-    exit("Sorry, Python3 >= 3.3 is supported!")
-if sys.argv[-1] == "setup.py":
-    exit("To install, run `python setup.py install`")
+if py_ver < (3, 5):
+    exit("Sorry, Python3 >= 3.5 is supported!")
 
 proj_name = "wltp"
 mydir = os.path.dirname(__file__)
@@ -187,11 +168,6 @@ setup(
     ],
     classifiers=[
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -217,13 +193,13 @@ setup(
     #    package_data = {
     #        'wltp.excel': ['*.xlsm', '*.ico'],
     #    },
+    python_requires=">=3.5",
     install_requires=[
-        "six",
         "jsonschema",
         "numpy",
-        "pandas",  # 'openpyxl', 'xlrd',
+        "pandas",
+        # 'openpyxl', 'xlrd',
         "pandalone >=0.3",
-        'mock; python_version == "2.7"',
     ],
     setup_requires=[
         "setuptools-git >= 0.3"  # Gather package-data from all files in git.

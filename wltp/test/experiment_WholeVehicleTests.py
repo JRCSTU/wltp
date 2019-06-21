@@ -7,8 +7,6 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """Tests check top-level functionality. """
 
-from __future__ import division, print_function, unicode_literals
-
 import logging
 import os, io
 import pickle
@@ -21,7 +19,6 @@ import numpy as np
 import numpy.testing as npt
 
 from ..experiment import Experiment
-from ..utils import FileNotFoundError
 from .goodvehicle import goodVehicle
 
 

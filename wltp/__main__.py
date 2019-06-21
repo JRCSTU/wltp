@@ -11,8 +11,6 @@
     :func:`main()`
 """
 
-from __future__ import division, unicode_literals
-
 import os, sys, collections, functools, re, glob, shutil, logging
 from argparse import ArgumentTypeError
 from collections import OrderedDict
@@ -26,7 +24,6 @@ from wltp import model, utils, __version__ as prog_ver
 import pandalone.pandata as pandel
 from jsonschema.exceptions import RefResolutionError
 from pandas.core.generic import NDFrame
-import six
 
 import jsonschema as jsons
 import operator as ops
@@ -433,14 +430,10 @@ def parse_key_value_pair(arg):
             try:
                 value = _value_parsers[type_sym](value)
             except Exception as ex:
-                raise six.reraise(
-                    ArgumentTypeError,
-                    (
-                        "Failed parsing key(%s)%s=VALUE(%s) due to: %s"
-                        % (key, type_sym, value, ex)
-                    ),
-                    ex.__traceback__,
-                )  ## Python-2 :-(
+                raise ArgumentTypeError(
+                    "Failed parsing key(%s)%s=VALUE(%s) due to: %s"
+                    % (key, type_sym, value, ex)
+                ) from ex
 
         return [key, value]
     else:
@@ -613,11 +606,7 @@ def assemble_model(infiles, model_overrides):
         try:
             mdl = load_model_part(mdl, filespec)
         except Exception as ex:
-            raise six.reraise(
-                Exception,
-                ("Failed reading %s due to: %s" % (filespec, ex)),
-                ex.__traceback__,
-            )  ## Python-2 :-(
+            raise Exception("Failed reading %s due to: %s" % (filespec, ex)) from ex
 
     if model_overrides:
         model_overrides = functools.reduce(
@@ -629,14 +618,9 @@ def assemble_model(infiles, model_overrides):
                     json_path = _default_model_overridde_path + json_path
                 pandel.set_jsonpointer(mdl, json_path, value)
             except Exception as ex:
-                raise six.reraise(
-                    Exception,
-                    (
-                        "Failed setting model-value(%s) due to: %s"
-                        % (json_path, value, ex)
-                    ),
-                    ex.__traceback__,
-                )  ## Python-2 :-(
+                raise Exception(
+                    "Failed setting model-value(%s) due to: %s" % (json_path, value, ex)
+                ) from ex
 
     return mdl
 
@@ -678,11 +662,7 @@ def store_model_parts(mdl, outfiles):
             else:
                 store_part_as_df(filespec, part)
         except Exception as ex:
-            raise six.reraise(
-                Exception,
-                ("Failed storing %s due to: %s" % (filespec, ex)),
-                ex.__traceback__,
-            )  ## Python-2 :-(
+            raise Exception("Failed storing %s due to: %s" % (filespec, ex)) from ex
 
 
 class RawTextHelpFormatter(argparse.RawDescriptionHelpFormatter):

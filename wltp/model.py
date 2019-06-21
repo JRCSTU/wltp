@@ -20,8 +20,6 @@ Example-code to get WLTP-data::
         print('%s: \n%s' % (cls, cycle))
 """
 
-from __future__ import division, print_function, unicode_literals
-
 from collections.abc import Mapping, Sized
 import json
 import logging
@@ -31,7 +29,6 @@ from jsonschema import RefResolver, ValidationError
 import jsonschema
 from numpy import ndarray
 from pandas.core.generic import NDFrame
-from six import string_types
 from wltp.cycles import class1, class2, class3
 from pandalone.pandata import PandelVisitor
 
@@ -1022,7 +1019,7 @@ def yield_load_curve_errors(mdl):
             wot["n_norm"] = wot.index
             wot = wot[["n_norm", "p_norm"]]
         elif wot.shape[1] == 2:
-            if not all(isinstance(i, string_types) for i in cols):
+             if not all(isinstance(i, str) for i in cols):
                 wot.columns = ["n_norm", "p_norm"]
 
         n_norm = wot["n_norm"]

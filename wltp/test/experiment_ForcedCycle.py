@@ -6,8 +6,6 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-from __future__ import division, print_function, unicode_literals
-
 import logging
 import unittest
 from wltp.experiment import Experiment
@@ -16,8 +14,6 @@ from wltp.test.goodvehicle import goodVehicle
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
-
-from ..utils import assertRaisesRegex
 
 try:
     from pandas.core.common import PandasError
@@ -37,8 +33,8 @@ class TestForcedCycle(unittest.TestCase):
         mdl["params"] = params = {}
         mdl["cycle_run"] = 1
 
-        with assertRaisesRegex(
-            self, PandasError, "DataFrame constructor not properly called"
+        with self.assertRaisesRegex(
+            PandasError, "DataFrame constructor not properly called"
         ):
             experiment = Experiment(mdl)
             mdl = experiment.run()
