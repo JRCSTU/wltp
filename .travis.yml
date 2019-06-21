@@ -32,6 +32,7 @@ script:
 
     - |
         echo "+++ Checking site...."
+        pip install -e .[doc]
         python setup.py build_sphinx
 
     -   echo "+++ Checking install...."

@@ -114,8 +114,20 @@ download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_v
 
 plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
-test_reqs = ["pytest", "nose", "coverage", "matplotlib", "coveralls", "docopt", "openpyxl", "xlrd"]
 doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
+test_reqs = [
+    "docutils",
+    "docopt",
+    "pytest",
+    "nose",
+    "coverage",
+    "matplotlib",
+    "coveralls",
+    "openpyxl",
+    "sphinx",
+    "twine",
+    "xlrd",
+]
 dev_reqs = (
     test_reqs
     + doc_reqs
@@ -205,7 +217,13 @@ setup(
         "setuptools-git >= 0.3"  # Gather package-data from all files in git.
     ],
     tests_require=test_reqs,
-    extras_require={"plot": plot_reqs, "excel": excel_reqs, "dev": dev_reqs},
+    extras_require={
+        "plot": plot_reqs,
+        "excel": excel_reqs,
+        "dev": dev_reqs,
+        "test": test_reqs,
+        "doc": doc_reqs,
+    },
     test_suite="nose.collector",
     entry_points={"console_scripts": ["wltp = wltp.__main__:main"]},
     zip_safe=True,
