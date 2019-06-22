@@ -20,10 +20,12 @@ script:
     - |
         if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
             echo "+++ Checking all TCs, DTs & Coverage....";
-            python setup.py test_all
+            pytest --doctest-glob=README.rst --doctest-modules \
+                 --cov=wltp.experiment --cov=wltp.model  --cov=wltp.utils --cov=wltp.cycles \
+                 --cov-fail-under=72
         else
             echo "+++ Checking only TCs....";
-            python setup.py test_code
+            pytest
         fi
 
     - |
@@ -44,4 +46,4 @@ script:
         python setup.py sdist bdist_wheel
 
 after_success:
-    - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then coveralls; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == '3.7' ]]; then pip install coveralls && coveralls; fi

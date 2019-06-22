@@ -1,30 +1,20 @@
 #!/bin/bash
-#-*- coding: utf-8 -*-
 #
-# Copyright 2013-2019 European Commission (JRC);
-# Licensed under the EUPL (the 'Licence');
-# You may not use this work except in compliance with the Licence.
-# You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-
-
-## Always invokes  code-tests, but skip doctests and coverage on Python-2.
+# Always invoke code-tests, but skip doctests and coverage on Python!=3.7.
 
 
 my_dir=`dirname "$0"`
 cd $my_dir/..
 
 declare -A fails
-if  python -c 'import sys; print(sys.version_info[0])'| grep -q '3'; then
+if  python -c 'import sys; print(sys.version_info[0:2])'| grep -q '(3, 7)'; then
     echo "Python-3: Running ALL tests (code-tests, doctests, coverage)."
-    python setup.py doctest_docs    || fails['doctest_docs'] 
-    python setup.py doctest_code    || fails['doctest_code']=$?
-    python setup.py test_code       || fails['test_code']=$?
-    
-    rst="`which rst2html.py`"
-    if [ -n "`which cygpath`" ]; then 
-        rst="`cygpath -w $rst`"
-    fi
-    python setup.py --long-description | python "$rst"  --halt=warning > /dev/null || fails['README']=$?
+
+    pytest --doctest-glob=README.rst --doctest-modules \
+        --cov=wltp.experiment --cov=wltp.model  --cov=wltp.utils \
+        || fails['pytest'] 
+
+    ./bin/check_readme.sh || fails['README']=$?
     
     python setup.py build_sphinx    || fails["build_sphinx"]=$?
     
@@ -38,9 +28,11 @@ if  python -c 'import sys; print(sys.version_info[0])'| grep -q '3'; then
         echo
         
         exit 1
+    else:
+        echo "ALL OK"
     fi
 else
     echo "Python-2: Running ONLY code-tests."
-    python setup.py test_code
+    pytest
 fi
 

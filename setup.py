@@ -118,12 +118,12 @@ doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
 test_reqs = [
     "docutils",
     "docopt",
-    "pytest",
-    "nose",
     "coverage",
     "matplotlib",
     "coveralls",
     "openpyxl",
+    "pytest",
+    "pytest-cov",
     "sphinx",
     "twine",
     "xlrd",
@@ -221,7 +221,6 @@ setup(
         "test": test_reqs,
         "doc": doc_reqs,
     },
-    test_suite="nose.collector",
     entry_points={"console_scripts": ["wltp = wltp.__main__:main"]},
     zip_safe=True,
     options={
