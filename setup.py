@@ -118,15 +118,13 @@ doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
 test_reqs = [
     "docutils",
     "docopt",
-    "coverage",
     "matplotlib",
     "coveralls",
-    "openpyxl",
+    "openpyxl",     # for pandas to write excel-files
     "pytest",
     "pytest-cov",
     "sphinx",
-    "twine",
-    "xlrd",
+    "twine",        # for PyPi long-description check
 ]
 dev_reqs = (
     test_reqs
@@ -210,7 +208,6 @@ setup(
         "jsonschema",
         "numpy",
         "pandas",
-        # 'openpyxl', 'xlrd',
         "pandalone >=0.3",
     ],
     tests_require=test_reqs,
