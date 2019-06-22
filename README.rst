@@ -611,19 +611,19 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     >>> df.columns
     Index(['v_class', 'v_target', 'clutch', 'gears_orig', 'gears', 'v_real', 'p_available', 'p_required', 'rpm', 'rpm_norm', 'driveability'], dtype='object')
     >>> 'Mean engine_speed: %s' % df.rpm.mean()
-    'Mean engine_speed: 1940.72109939'
+    'Mean engine_speed: 1924.2379789006109'
     >>> df.describe()
-               v_class     v_target     clutch   gears_orig        gears  \
-    count  1801.000000  1801.000000       1801  1801.000000  1801.000000
-    mean     46.506718    46.506718  0.0660744     3.794003     3.683509
-    std      36.119280    36.119280  0.2484811     2.278959     2.278108
-    ...
+               v_class     v_target  ...          rpm     rpm_norm
+    count  1801.000000  1801.000000  ...  1801.000000  1801.000000
+    mean     46.506718    46.506718  ...  1924.237979     0.211235
+    std      36.119280    36.119280  ...   842.667137     0.195407
+    min       0.000000     0.000000  ...   950.000000    -0.209689
+    25%      17.700000    17.700000  ...  1327.500000     0.083889
+    50%      41.500000    41.500000  ...  1732.500000     0.173889
+    75%      68.700000    68.700000  ...  2271.800000     0.293733
+    max     131.300000   131.300000  ...  4201.600000     0.722578
     <BLANKLINE>
-                v_real  p_available   p_required          rpm     rpm_norm
-    count  1801.000000  1801.000000  1801.000000  1801.000000  1801.000000
-    mean     50.356222    28.846639     4.991915  1940.721099     0.214898
-    std      32.336908    15.833262    12.139823   840.959339     0.195142
-    ...
+    [8 rows x 9 columns]
 
     >>> processor.driveability_report()                                             # doctest: +SKIP
     ...

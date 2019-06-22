@@ -30,7 +30,7 @@ def heinz_db_result_table_to_csv(heinz_results_glob, inp_vehs_df, cols_to_move, 
         print("%s..."%heinz_fname, end='')
 
         try:
-            m = re.match('(\d+)', heinz_fname)
+            m = re.match('(\\d+)', heinz_fname)
             assert m, heinz_fname
             veh = int(m.groups()[0])
 
