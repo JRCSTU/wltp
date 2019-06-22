@@ -1,5 +1,7 @@
 ## TravisCI config
 #
+git:
+  depth: 3
 language: python
 python:
   - "3.5"
