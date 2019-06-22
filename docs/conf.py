@@ -377,7 +377,7 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3.7', None),
     'pandas': ('https://pandas-docs.github.io/pandas-docs-travis/', None),
     'numpy': ('https://www.numpy.org/', None),
-    'jsonschema': ('https://python-jsonschema.readthedocs.org/en/latest/', None),
-    'pandalone': ('https://pandalone.readthedocs.org/en/latest/', None),
+    'jsonschema': ('https://python-jsonschema.readthedocs.io/en/latest/', None),
+    'pandalone': ('https://pandalone.readthedocs.io/en/latest/', None),
 }
 
