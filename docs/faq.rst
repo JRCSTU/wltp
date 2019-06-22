@@ -36,15 +36,6 @@ copy it, modify or extend it, and distrbute it, as long as you always distribute
 
 Technical
 =========
-How do i "register" my *WinPython* installation?
-------------------------------------------------
-To register it, you need to perform 2 tasks: 
-
-  and then :menuselection:`Options --> Register Distribution` .
-- Ensure your installation is permanently added in your :envvar:`PATH`.
-  For that you have to create or modify the registry string-key :samp:`[HKEY_CURRENT_USER\Environment:PATH]`.
-  Use :program:`regedit.exe` and then **logoff** and **re-logon** to see the changes.
-
 
 I followed the instructions but i still cannot install/run/do *X*.  What now?
 -----------------------------------------------------------------------------

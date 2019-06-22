@@ -69,13 +69,13 @@ Changelog
 v0.1.2a0  (5-Jun-2019): Relax checks
 ------------------------------------
 - Relax some conditions on inputs:
+    - Just warn on Pwot-normalized > 1 or > n_idle or < 1.2 x n_rated
+      (BUT not extrapolate)
+    - allow float as `v_max`.
 
-  - Just warn on Pwot-normalized > 1 or > n_idle or < 1.2 x n_rated
-    (BUT not extrapolate)
-  - allow float as `v_max`.
 - build: 
-  - drop `sphinx_rtd_theme` dependency -  provided by default these days.
-  - drop pip-installin of `xlwings` attrocity if missing.
+    - drop `sphinx_rtd_theme` dependency -  provided by default these days.
+    - drop pip-installin of `xlwings` attrocity if missing.
 
 
 v0.1.1a0  (25-May-2019): UNECE takeover
@@ -87,16 +87,16 @@ v0.1.1a0  (25-May-2019): UNECE takeover
 - VSCode files & dev plugins.
 
 
-v0.1.0a3  (23-Aug-2018)
------------------------
+v0.1.0a3 (23-Aug-2018)
+----------------------
 Quick'n Dirty release to remove ``matplotlib`` from dependencies.
 
 - fix(main): ``--gui``and ``--excelrun`` were preventing cmd-line launches,
   the ``-M`` option did not work due to bad argument type-parsing.
 - Dependencies:
-  - drop *easygui* dependency.
-  - BREAK: move ``matplotlib`` to extras ``[plot]``, so ``co2mpas`` docker-image
-    does not load Qt and other heavy graphical stuff.
+    - drop *easygui* dependency.
+    - BREAK: move ``matplotlib`` to extras ``[plot]``, so ``co2mpas`` docker-image
+      does not load Qt and other heavy graphical stuff.
 
 
 v0.1.0-alpha.2 (25-May-2017)

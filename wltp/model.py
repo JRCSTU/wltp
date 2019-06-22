@@ -18,6 +18,7 @@ Example-code to get WLTP-data::
     for cls, value in cycle_data['classes'].items():
         cycle = np.array(value['cycle'])
         print('%s: \n%s' % (cls, cycle))
+
 """
 
 from collections.abc import Mapping, Sized

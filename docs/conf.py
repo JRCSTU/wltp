@@ -135,7 +135,7 @@ extensions = [
 
 ## Prevent Sphinx from doctesting python-modules doctests,
 # they will be checked separately with *pytest*.
-doctest_test_doctest_blocks = False
+doctest_test_doctest_blocks = ''
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -151,7 +151,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'wltp'
-copyright = '2013-2014, European Commission (JRC), EUPL 1.1+'  # @ReservedAssignment
+copyright = '2013-2019, European Commission (JRC), EUPL 1.1+'  # @ReservedAssignment
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -341,7 +341,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'wltp', 'wltp Documentation',
-     ['Kostis Anagnostopoulos'], 1)
+     ["Authors: see '4.5 Development Team' section"], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -355,7 +355,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'wltp', 'wltp Documentation',
-   'Kostis Anagnostopoulos', 'wltp', 'One line description of project.',
+   "Authors: see '4.5 Development Team' section", 'wltp', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -374,9 +374,10 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/3.7', None),
-    'jsonschema': ('http://python-jsonschema.readthedocs.org/en/latest/', None),
-    'pandas': ('http://pandas.pydata.org/pandas-docs/dev', None),
-    'pandas': ('http://pandas.pydata.org/pandas-docs/dev', None),
+    'python': ('https://docs.python.org/3.7', None),
+    'pandas': ('https://pandas-docs.github.io/pandas-docs-travis/', None),
+    'numpy': ('https://www.numpy.org/', None),
+    'jsonschema': ('https://python-jsonschema.readthedocs.org/en/latest/', None),
+    'pandalone': ('https://pandalone.readthedocs.org/en/latest/', None),
 }
 

@@ -571,7 +571,7 @@ For information on the accepted model-data, check its :term:`JSON-schema`:
 
 
 You then have to feed this model-tree to the :class:`~wltp.experiment.Experiment`
-constructor. Internally the :class:`~wltp.pandel.Pandel` resolves URIs, fills-in default values and
+constructor. Internally the :class:`pandalone.pandel.Pandel` resolves URIs, fills-in default values and
 validates the data based on the project's pre-defined JSON-schema:
 
 .. doctest::
