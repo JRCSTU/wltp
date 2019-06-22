@@ -95,7 +95,7 @@ def identify_n_idle(N):
     ## Estimate n_idel as the peak-N on the lower-half.
     #
     N = N[N < N.median()]
-    peaks, _, _ = find_histogram_peaks(N, int(math.sqrt(len(N))+1))
+    peaks, _, _ = find_histogram_peaks(N, int(math.sqrt(len(N)) + 1))
 
     n_idle_0 = peaks.iloc[0, -1]
     # print(n_idle_0)

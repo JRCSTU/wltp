@@ -120,11 +120,11 @@ test_reqs = [
     "docopt",
     "matplotlib",
     "coveralls",
-    "openpyxl",     # for pandas to write excel-files
+    "openpyxl",  # for pandas to write excel-files
     "pytest",
     "pytest-cov",
     "sphinx",
-    "twine",        # for PyPi long-description check
+    "twine",  # for PyPi long-description check
 ]
 dev_reqs = (
     test_reqs
@@ -202,12 +202,7 @@ setup(
     #        'wltp.excel': ['*.xlsm', '*.ico'],
     #    },
     python_requires=">=3.5",
-    install_requires=[
-        "jsonschema",
-        "numpy",
-        "pandas",
-        "pandalone >=0.3",
-    ],
+    install_requires=["jsonschema", "numpy", "pandas", "pandalone >=0.3"],
     tests_require=test_reqs,
     extras_require={
         "plot": plot_reqs,

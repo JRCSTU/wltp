@@ -734,12 +734,7 @@ def _get_wltc_schema():
                         "minItems": 2,
                         "maxItems": 2,
                     },
-                    "parts": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        },
-                    },
+                    "parts": {"type": "array", "items": {"type": "integer"}},
                     "downscale": {
                         "type": "object",
                         "additionalProperties": False,
@@ -819,7 +814,7 @@ def get_class_parts_limits(cls_name, mdl=None, edges=False):
     part_limits = cls["parts"]
     if edges:
         part_limits.insert(0, 0)
-        part_limits.append(len(cls['cycle']))
+        part_limits.append(len(cls["cycle"]))
 
     return part_limits
 
@@ -1016,7 +1011,7 @@ def yield_load_curve_errors(mdl):
             wot["n_norm"] = wot.index
             wot = wot[["n_norm", "p_norm"]]
         elif wot.shape[1] == 2:
-             if not all(isinstance(i, str) for i in cols):
+            if not all(isinstance(i, str) for i in cols):
                 wot.columns = ["n_norm", "p_norm"]
 
         n_norm = wot["n_norm"]
