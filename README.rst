@@ -3,8 +3,8 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
 |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |binder|
 
-:release:       1.0.0.dev0
-:date:          2019-06-14 17:33:49
+:release:       1.0.0.dev1
+:date:          2019-06-22 13:56:35
 :documentation: https://wltp.readthedocs.org/ (build-date: |today|)
 :source:        https://github.com/JRCSTU/wltp
 :pypi-repo:     https://pypi.python.org/pypi/wltp
@@ -31,7 +31,7 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
 
     * In the :doc:`CHANGES`.
     * Presented in the diagrams of the :doc:`metrics` section.
-    * Imprinted in the :mod:`~wltp.test.wltp_db_tests` test-case
+    * Imprinted in the :mod:`~tests.wltp_db_tests` test-case
       which automatically compares, on each build, the mean RPMs & Gears of this program 
       against Heinz's *phase-1a* (end of 2014) MSAccess, 
       for a pre-determined set of *Heinz-db* vehicles.
@@ -120,7 +120,7 @@ you can try the following commands:
     .. code-block:: bash
 
         $ wltp --version
-        1.0.0.dev0
+        1.0.0.dev1
 
         $ wltp --help
         ...
@@ -278,7 +278,7 @@ After installation, it is important that you check which version is visible in y
 .. code-block:: bash
 
     $ wltp --version
-    1.0.0.dev0
+    1.0.0.dev1
 
 
 To install for different Python versions, repeat the procedure for every required version.
@@ -499,7 +499,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '1.0.0.dev0'
+    '1.0.0.dev1'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...

@@ -42,6 +42,8 @@ Known deficiencies
 Questions to Heinz
 ==================
 * How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
+* Why the limits of the cycle-parts do not coicede with the starting-time on the time column?
+
 
 .. _todos-list:
 
@@ -65,6 +67,26 @@ TODOs
 
 Changelog
 =========
+
+v1.0.0.dev  (X-Jun-2019): PY3.5 only & real work!
+-------------------------------------------------
+- Drop support for Python 2.7 & 3.4, `which covers 95% of 2018 Python-3 installations 
+  (84% of Pythons in total)
+  <https://www.jetbrains.com/research/python-developers-survey-2018/#python-3-adoption>`_
+- FEAT: NOTEBOOKS comparing with latest Heinz db.
+  Possible to launch a *live* demo of this repository in *mybinder.org*.
+- Revive tests & TravisCI with *pytest* (drop *nosetest*), 
+  move all TCs out of main-sources.
+- Depend on *pandalone* which has updated *jsonschema-v3* validator 
+  (draft4-->draft7).
+- Build & dev-dependencies enhancements.
+- style: auto-format python files with |black|_  using |pre-commit|_.
+
+.. |black| replace:: *black* opinionated formatter
+.. _black: https://black.readthedocs.io/
+.. |pre-commit| replace:: *pre-commit* hooks framework 
+.. _pre-commit: https://pre-commit.com/
+
 
 v0.1.2a0  (5-Jun-2019): Relax checks
 ------------------------------------
