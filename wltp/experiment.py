@@ -651,7 +651,7 @@ def dec_byte_repl(m):
 
 
 def gearsregex(gearspattern):
-    """
+    r"""
     :param gearspattern: regular-expression or substitution that escapes decimal-bytes written as: ``\g\d+``
                         with adding +128, eg::
 
@@ -694,7 +694,7 @@ def assert_regexp_unmatched(regex, string, msg):
 
 
 def rule_checkSingletons(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
-    re_singletons = gearsregex(b"(\g0)")
+    re_singletons = gearsregex(b"(\\g0)")
 
 
 def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):

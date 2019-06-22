@@ -236,7 +236,7 @@ def copy_excel_template_files(dest_dir=None):
     except:
         pass  ## Might already exist
 
-    files_to_copy = ["excel\WltpExcelRunner.xlsm", "excel\WltpExcelRunner.py"]
+    files_to_copy = [r"excel\WltpExcelRunner.xlsm", r"excel\WltpExcelRunner.py"]
     files_to_copy = [
         pkg.resource_filename("wltp", f) for f in files_to_copy
     ]  # @UndefinedVariable

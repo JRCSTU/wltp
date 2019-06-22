@@ -47,11 +47,11 @@ class experimentFuncs(unittest.TestCase):
         npt.assert_array_equal(ex.bytes2np(ex.np2bytes(arr)), arr)
 
     def testRegex2bytes(self):
-        regex = b"\g1\g0\g24\g66\g127"
+        regex = br"\g1\g0\g24\g66\g127"
 
         self.assertEqual(ex.gearsregex(regex).pattern, b"\x81\x80\x98\xc2\xff")
 
-        regex = b"\g1\g0|\g24\g66\g127"
+        regex = br"\g1\g0|\g24\g66\g127"
 
         self.assertEqual(ex.gearsregex(regex).pattern, b"\x81\x80|\x98\xc2\xff")
 
