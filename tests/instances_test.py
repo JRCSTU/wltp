@@ -10,15 +10,16 @@ Testing of the pure-tree data (just dictionary & lists), without the Model/Exper
 """
 
 import json
-from timeit import timeit
 import unittest
+from timeit import timeit
 
 import jsonschema
+import numpy as np
+import pandas as pd
 from jsonschema.exceptions import ValidationError
 
-import numpy as np
-
 from wltp import model
+
 from .goodvehicle import goodVehicle
 
 
@@ -120,9 +121,19 @@ class InstancesTest(unittest.TestCase):
         wltc = model._get_wltc_data()
 
         for cl, cd in wltc["classes"].items():
-            numsum = np.array(cd["cycle"]).sum()
+            cycle = np.array(cd["cycle"])
+            numsum = cycle.sum()
             checksum = cd["checksum"]
             self.assertAlmostEqual(numsum, checksum)
+
+            parts = model.get_class_parts_limits(cl)
+            cycle_parts = np.split(cycle, parts)
+            for partnum, (pchk, cpart) in enumerate(
+                zip(cd["part_checksums"], cycle_parts)
+            ):
+                self.assertAlmostEqual(
+                    pchk, cpart.sum(), msg=f"class={cl}, partnum={partnum}"
+                )
 
     def testModelBase_plainInvalid(self):
         mdl = model._get_model_base()

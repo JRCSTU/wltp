@@ -30,6 +30,7 @@ def class_data():
             "v_max_split": 105,  ## V (Km/h), >
         },
         "checksum": 81536.9,
+        "part_checksums": [11162.2, 17054.3, 24450.6],
         "cycle": [
             0.0,
             0.0,

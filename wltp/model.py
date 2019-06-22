@@ -6,7 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """
-Defines the schema, defaults and validation operations for the data consumed and produced by the :class:`~wltp.experiment.Experiment`.
+Defines schema, defaults and validations for data consumed/produced by :class:`~wltp.experiment.Experiment`.
 
 The model-instance is managed by :class:`pandel.Pandel`.
 
@@ -21,22 +21,22 @@ Example-code to get WLTP-data::
 
 """
 
-from collections.abc import Mapping, Sized
+import itertools as it
 import json
 import logging
+import operator as ops
+from collections.abc import Mapping, Sized
 from textwrap import dedent
 
-from jsonschema import RefResolver, ValidationError
 import jsonschema
+import numpy as np
+import pandas as pd
+from jsonschema import RefResolver, ValidationError
 from numpy import ndarray
 from pandas.core.generic import NDFrame
-from wltp.cycles import class1, class2, class3
-from pandalone.pandata import PandelVisitor
 
-import itertools as it
-import numpy as np
-import operator as ops
-import pandas as pd
+from pandalone.pandata import PandelVisitor
+from wltp.cycles import class1, class2, class3
 
 try:
     from pandas.core.common import PandasError
@@ -769,6 +769,7 @@ def _get_wltc_schema():
                         },
                     },
                     "checksum": {"type": "number"},
+                    "part_checksums": {"type": "array", "items": {"type": "number"}},
                     "cycle": {
                         "type": "array",
                         "items": {"type": "number"},

@@ -29,6 +29,7 @@ def class_data():
             "factor_coeffs": [1, 0.54, -0.54],  ## r0, a1, b1
         },
         "checksum": 41139.6,
+        "part_checksums": [11988.4, 17162.8, 11988.4],
         "cycle": [
             0,
             0,
