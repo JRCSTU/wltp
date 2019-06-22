@@ -29,8 +29,7 @@ def make_class_fig(class_name, class_data):
     c=np.array(class_data['cycle'])
     a = 1000 * np.gradient(c) / 3600
     t = np.arange(0, len(c))
-    parts = class_data['parts']
-    part_limits = [e+0.5 for (s, e) in parts[:-1]]
+    part_limits = class_data['parts']
 
     fig, ax1 = plt.subplots()
     ax1.set_xlabel('Time (s): ', size=font_size)
@@ -60,7 +59,7 @@ def make_class_fig(class_name, class_data):
     ## Plot part-Limits
     #
     for limit in part_limits:
-        l = plt.axvline(limit, color='r', linewidth=2)
+        _l = plt.axvline(limit, color='r', linewidth=2)
 
     ## Add part-labels.
     #

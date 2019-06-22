@@ -737,10 +737,7 @@ def _get_wltc_schema():
                     "parts": {
                         "type": "array",
                         "items": {
-                            "type": "array",
-                            "items": {"type": "integer"},
-                            "minItems": 2,
-                            "maxItems": 2,
+                            "type": "integer"
                         },
                     },
                     "downscale": {
@@ -810,8 +807,8 @@ def get_class_parts_limits(cls_name, mdl=None, edges=False):
 
     :param str cls_name: one of 'class1', ..., 'class3b'
     :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`_get_wltc_data()`
-    :param edges: when `True`, embeds internal limits into (0, len)
-    :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers
+    :param edges: when `True`, embeds internal limits inside [0, ..., len]
+    :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
     """
     if mdl:
         wltc_data = mdl["wltc_data"]
@@ -819,11 +816,10 @@ def get_class_parts_limits(cls_name, mdl=None, edges=False):
         wltc_data = _get_wltc_data()
 
     cls = wltc_data["classes"][cls_name]
-    parts = cls["parts"]
-    parts = parts if edges else parts[:-1]
-    part_limits = [end + 0.5 for (start, end) in parts]
+    part_limits = cls["parts"]
     if edges:
         part_limits.insert(0, 0)
+        part_limits.append(len(cls['cycle']))
 
     return part_limits
 
@@ -845,16 +841,16 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
         >>> cls = 'class2'
         >>> part_limits = model.get_class_parts_index(cls)
         >>> part_limits
-        array([   0,  589, 1022, 1477, 1800])
+        array([   0,  590, 1023, 1478, 1801])
 
         >>> cls_data = model._get_wltc_data()['classes'][cls]
         >>> cycle = pd.DataFrame(cls_data['cycle'])
         >>> cycle.groupby(pd.cut(cycle.index, part_limits)).sum()
                             0
-        (0, 589]      11162.2
-        (589, 1022]   17054.3
-        (1022, 1477]  24450.6
-        (1477, 1800]  28869.8
+        (0, 590]      11162.2
+        (590, 1023]   17054.3
+        (1023, 1478]  24450.6
+        (1478, 1801]  28869.8
 
     """
     limits = get_class_parts_limits(cls_name, mdl=mdl, edges=True)

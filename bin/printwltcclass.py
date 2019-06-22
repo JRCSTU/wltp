@@ -57,7 +57,7 @@ def read_wltc_class(wltc_class, assert_files = False):
     :return :generator: with the speed_column floats
     '''
 
-    def iterate_csv(fnames, yieldfun, beginfilefunc = None, endfilefunc = None):
+    def iterate_csv(fnames, yieldfun, endfilefunc = None):
         '''
         :argument: stringarray: fnames: the names of the resource-files
         :argument: function: yieldfunc: how to yield from each csv-row
@@ -69,8 +69,6 @@ def read_wltc_class(wltc_class, assert_files = False):
                 first_line = True
                 reader = csv.reader(io.TextIOWrapper(csvfile))
                 for row in reader:
-                    if (beginfilefunc is not None and first_line):
-                        beginfilefunc(row)
                     try:
                         yield yieldfun(row)
                     except csv.Error as e:
@@ -108,19 +106,13 @@ def read_wltc_class(wltc_class, assert_files = False):
         return float(row[1])
 
 
-    def extract_start_time(row):
-        nonlocal parts
-        time = int(float(row[0]))
-        parts.append([time])
-
-
     def extract_end_time(row):
         nonlocal parts
         time = int(float(row[0]))
-        parts[-1].append(time)
+        parts.append(time)
 
     parts = []
-    speed_profile = iterate_csv(class_part_names, extract_speed_column, extract_start_time, extract_end_time)
+    speed_profile = iterate_csv(class_part_names, extract_speed_column, extract_end_time)
 
     return (speed_profile, parts)
 

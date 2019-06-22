@@ -50,18 +50,6 @@ class Test(unittest.TestCase):
         mdl = exp._model
         self.assertEqual(mdl["vehicle"]["n_rated"], nval)
 
-    def test_get_class_parts_limits(self):
-        l = model.get_class_parts_limits("class1")
-        self.assertSequenceEqual(l, [589.5])
-
-        l = model.get_class_parts_limits("class2")
-        self.assertSequenceEqual(l, [589.5, 1022.5, 1477.5])
-
-        l = model.get_class_parts_limits("class3a")
-        self.assertSequenceEqual(l, [589.5, 1022.5, 1477.5])
-        l = model.get_class_parts_limits("class3b")
-        self.assertSequenceEqual(l, [589.5, 1022.5, 1477.5])
-
     def test_get_class_parts_limits_sorted(self):
         classes = model._get_wltc_data()["classes"]
         class_limits = {
@@ -80,7 +68,7 @@ class Test(unittest.TestCase):
         for (cls, l) in class_limits.items():
             self.assertEqual(
                 l[-1],
-                len(classes[cls]["cycle"]) - 0.5,
+                len(classes[cls]["cycle"]),
                 "Class(%s): Section Right-edge not len(cycle)!" % cls,
             )
 

@@ -107,15 +107,14 @@ class InstancesTest(unittest.TestCase):
 
         for cl, cd in wltc["classes"].items():
             cycle = cd["cycle"]
-            parts = cd["parts"]
-            prev_high = -1
-            for i, (low, high) in enumerate(parts):
-                self.assertLess(low, high, cl)
-                self.assertLess(high, len(cycle), "class(%s), part(%s)" % (cl, i))
-                self.assertGreater(low, prev_high, cl)
+            parts = model.get_class_parts_limits(cl, edges=True)
+            prev_start = -1
+            for start in parts:
+                assert 0 <= start <= len(cycle)
+                assert prev_start < start
 
-                prev_high = high
-            self.assertEqual(prev_high, len(cycle) - 1)
+                prev_start = start
+            assert prev_start == len(cycle)
 
     def test_wltc_validate_checksums(self):
         wltc = model._get_wltc_data()

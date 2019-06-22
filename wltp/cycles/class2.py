@@ -22,7 +22,7 @@ def class_data():
 
     data = {
         "pmr_limits": [22, 34],  ## PMR (low, high]
-        "parts": [[0, 589], [590, 1022], [1023, 1477], [1478, 1800]],
+        "parts": [590, 1023, 1478],
         "downscale": {
             "phases": [1520, 1725, 1742],  ## Note: Start end end +1 from specs.
             "p_max_values": [1574, 109.9, 0.36],  ## t, V(Km/h), Accel(m/s2)
