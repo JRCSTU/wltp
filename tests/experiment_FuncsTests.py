@@ -14,8 +14,8 @@ import numpy as np
 import numpy.testing as npt
 import wltp.experiment as ex
 
-from ..experiment import downscaleCycle
-from ..model import _get_wltc_data
+from wltp.experiment import downscaleCycle
+from wltp.model import _get_wltc_data
 
 
 class experimentFuncs(unittest.TestCase):

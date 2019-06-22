@@ -178,7 +178,7 @@ def reindex_db_vehicles():
 
 if __name__ == '__main__':
     _mydir = path.dirname(__file__)
-    os.chdir(path.join(_mydir, '../wltp/test/wltp_db'))
+    os.chdir(path.join(_mydir, '..tests/wltp_db'))
 
     post_proc_heinz_results() #TODO: have top re-proc heinz-files.
     #reindex_db_vehicles()

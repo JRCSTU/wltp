@@ -18,7 +18,7 @@ from jsonschema.exceptions import ValidationError
 
 import numpy as np
 
-from .. import model
+from wltp import model
 from .goodvehicle import goodVehicle
 
 

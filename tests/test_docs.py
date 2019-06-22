@@ -19,7 +19,7 @@ import os.path as osp
 
 
 mydir = osp.dirname(__file__)
-proj_path = osp.join(mydir, "..", "..")
+proj_path = osp.join(mydir, "..")
 readme_path = osp.join(proj_path, "README.rst")
 
 

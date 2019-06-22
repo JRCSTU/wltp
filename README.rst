@@ -361,10 +361,10 @@ The files and folders of the project are listed below::
 
     +--wltp/            ## (package) The python-code of the calculator
     |   +--cycles/      ## (package) The python-code for the WLTC data
-    |   +--test/        ## (package) Test-cases and the wltp_db
     |   +--model        ## (module) Describes the data and their schema for the calculation
     |   +--experiment   ## (module) The calculator
     |   +--plots        ## (module) Diagram-plotting code and utilities
+    +--tests/            ## (package) Test-cases and the wltp_db
     +--docs/            ## Documentation folder
     |   +--pyplots/     ## (scripts) Plot the metric diagrams embeded in the README
     +--devtools/        ## (scripts) Preprocessing of WLTC data on GTR and the wltp_db
@@ -648,7 +648,7 @@ You can export the cycle-run results in a CSV-file with the following pandas com
 
 
 For more examples, download the sources and check the test-cases
-found under the :file:`/wltp/test/` folder.
+found under the :file:`/tests/` folder.
 
 
 

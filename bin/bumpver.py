@@ -101,7 +101,7 @@ def run_testcases():
     ## Needed to import TCs AFTER grafting of version.
     #
     sys.path.append(osp.normpath(osp.join(my_dir, '..')))
-    import wltp.test.test_docs as test_docs  # @IgnorePep8
+    import tests.test_docs as test_docs  # @IgnorePep8
 
     suite = unittest.TestLoader().loadTestsFromModule(test_docs)
     res = unittest.TextTestRunner(failfast=True).run(suite)

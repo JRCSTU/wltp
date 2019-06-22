@@ -9,7 +9,7 @@
 import os
 import sys
 from wltp import (plots, model)
-from wltp.test import wltp_db_tests as wltpdb
+from tests import wltp_db_tests as wltpdb
 
 from matplotlib import pyplot as plt, cm
 

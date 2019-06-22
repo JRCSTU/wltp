@@ -195,9 +195,7 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    packages=find_packages(
-        exclude=["wltp.test", "wltp.test.*"]
-    ),  # Wy need prune then??
+    packages=find_packages(exclude=["tests"]),
     include_package_data=True,
     #     package_data= {'proj_name': ['data/*.csv']},
     #    package_data = {

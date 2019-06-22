@@ -12,7 +12,7 @@ The core of the simulator is composed from the following modules:
 Among the various tests, those running on 'sample' databases for comparing differences
 with existing tool are the following:
 
-.. currentmodule:: wltp.test
+.. currentmodule:: tests
 .. autosummary::
 
     samples_db_tests
@@ -36,13 +36,13 @@ Module: :mod:`wltp.model`
 .. automodule:: wltp.model
     :members:
 
-Module: :mod:`wltp.test.samples_db_tests`
+Module: :mod:`tests.samples_db_tests`
 -----------------------------------------
-.. automodule:: wltp.test.samples_db_tests
+.. automodule:: tests.samples_db_tests
     :members:
 
-Module: :mod:`wltp.test.wltp_db_tests`
+Module: :mod:`tests.wltp_db_tests`
 --------------------------------------
-.. automodule:: wltp.test.wltp_db_tests
+.. automodule:: tests.wltp_db_tests
     :members:
 

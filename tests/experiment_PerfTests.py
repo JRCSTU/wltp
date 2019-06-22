@@ -10,7 +10,7 @@ import logging
 import time
 import unittest
 
-from ..experiment import Experiment
+from wltp.experiment import Experiment
 from .goodvehicle import goodVehicle
 
 

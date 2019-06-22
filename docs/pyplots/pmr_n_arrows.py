@@ -10,7 +10,7 @@ import os
 
 from matplotlib import pyplot as plt
 from wltp import plots
-from wltp.test import wltp_db_tests as wltpdb
+from tests import wltp_db_tests as wltpdb
 
 
 def prepare_data(gened_column, heinz_column):

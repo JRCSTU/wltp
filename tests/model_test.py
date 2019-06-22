@@ -15,7 +15,7 @@ import pandas as pd
 from wltp import model
 import wltp
 
-from ..experiment import Experiment
+from wltp.experiment import Experiment
 from .goodvehicle import goodVehicle
 
 

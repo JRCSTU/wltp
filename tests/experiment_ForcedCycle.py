@@ -9,7 +9,7 @@
 import logging
 import unittest
 from wltp.experiment import Experiment
-from wltp.test.goodvehicle import goodVehicle
+from tests.goodvehicle import goodVehicle
 
 import numpy as np
 import numpy.testing as npt

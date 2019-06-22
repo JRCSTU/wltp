@@ -17,7 +17,7 @@ from wltp.experiment import (
 
 import numpy as np
 
-from .. import model
+from wltp import model
 
 
 log = logging.getLogger(__name__)

@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 import os
 
 from wltp import plots
-from wltp.test import wltp_db_tests as wltpdb
+from tests import wltp_db_tests as wltpdb
 
 
 def data_meanN_pmr(gened_column, heinz_column):

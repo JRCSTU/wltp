@@ -27,7 +27,7 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 
-from ..experiment import Experiment
+from wltp.experiment import Experiment
 from .goodvehicle import goodVehicle
 
 

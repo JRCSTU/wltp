@@ -11,7 +11,7 @@ if  python -c 'import sys; print(sys.version_info[0:2])'| grep -q '(3, 7)'; then
     echo "Python-3: Running ALL tests (code-tests, doctests, coverage)."
 
     pytest --doctest-glob=README.rst --doctest-modules \
-        --cov=wltp.experiment --cov=wltp.model  --cov=wltp.utils \
+        --cov=wltp.experiment --cov=wltp.model --cov=wltp.cycles --cov=wltp.utils \
         || fails['pytest'] 
 
     ./bin/check_readme.sh || fails['README']=$?

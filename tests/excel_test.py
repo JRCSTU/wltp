@@ -63,7 +63,7 @@ def close_workbook(wb):
 )
 class TestExcel(unittest.TestCase):
     def test_build_excel(self):
-        from ..excel import xlsutils
+        from wltp.excel import xlsutils
 
         with tempfile.TemporaryDirectory() as tmpdir:
             wb_inp_fname = from_my_path("..", "excel", "WltpExcelRunner.xlsm")
@@ -91,7 +91,7 @@ class TestExcel(unittest.TestCase):
             close_workbook(wb)
 
     def test_excel_refs(self):
-        from ..excel.WltpExcelRunner import resolve_excel_ref
+        from wltp.excel.WltpExcelRunner import resolve_excel_ref
 
         sheetname = "Input"
         addr = "d2"
@@ -157,7 +157,7 @@ class TestExcel(unittest.TestCase):
             )
 
     def test_excel_runner_call_from_python(self):
-        from ..excel import WltpExcelRunner
+        from wltp.excel import WltpExcelRunner
 
         wb = None
         try:

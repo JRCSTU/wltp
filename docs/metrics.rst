@@ -7,7 +7,7 @@ Tests, Metrics & Reports
 In order to maintain the algorithm stable, a lot of effort has been put
 to setup a series of test-case and metrics to check the sanity of the results
 and to compare them with the Heinz-db tool or other datasets included in the project.
-These tests can be found in the :file:`wltp/test/` folders.
+These tests can be found in the :file:`/tests/` folders.
 
 Additionally, below are *auto-generated* representative diagrams with the purpose
 to track the behavior and the evolution of this project.

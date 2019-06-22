@@ -18,7 +18,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import numpy.testing as npt
 
-from ..experiment import Experiment
+from wltp.experiment import Experiment
 from .goodvehicle import goodVehicle
 
 
