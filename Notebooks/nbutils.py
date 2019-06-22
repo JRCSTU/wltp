@@ -57,7 +57,9 @@ def _file_hashed(fpath, algo="md5") -> Tuple[str, str]:
 
 
 def _cmd(*args):
-    return sbp.check_output(args, universal_newlines=True, shell=sys.platform=='win32')
+    return sbp.check_output(
+        args, universal_newlines=True, shell=sys.platform == "win32"
+    )
 
 
 def _git_describe(basedir="."):
@@ -106,6 +108,7 @@ def _provenir_fpath(fpath, algos=("md5", "sha256")) -> Dict[str, str]:
 #: Lazily instanciated
 _root_provenance = None
 
+
 def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
     """Build a provenance record, examining environment if no `base` given.
     
@@ -113,11 +116,14 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
         if given, reused (cloned first), and any fpaths & git-repos appended in it.
     """
     global _root_provenance
-    
+
     if _root_provenance is None:
-        _root_provenance = {"uname": dict(platform.uname()._asdict()), "python": _python_describe()}
+        _root_provenance = {
+            "uname": dict(platform.uname()._asdict()),
+            "python": _python_describe(),
+        }
     info = deepcopy(_root_provenance)
-    
+
     if base:
         info.update(base)
 
@@ -137,6 +143,7 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
     )
 
     return info
+
 
 # prov_info = nbu.provenance_info(files=[h5fname])
 # prov_info = nbu.provenance_info(files=['sfdsfd'], base=prov_info)
@@ -196,6 +203,7 @@ def provenir_h5node(
     
     For its API, see :func:`provenance_info`. 
     """
+
     def func(h5db):
         h5file = h5db._handle
         if title:
@@ -214,11 +222,13 @@ def collect_nodes(
     """
     feed all groups into predicate and collect its truthy output
     """
+
     def func(h5db):
         out = [predicate(g._v_pathname) for g in h5db._handle.walk_groups(start_in)]
         return sorted(set(i for i in out if bool(i)))
+
     return do_h5(h5, func)
-    
+
 
 #########################
 ## Pandas etc
@@ -253,7 +263,7 @@ class Comparator:
         col_accesor: Callable[[NDFrame, str], NDFrame],
         no_diff_prcnt=False,
         diff_colname="diffs",
-        diff_bar_kw={'align': 'mid', 'color': ['#d65f5f', '#5fba7d']},
+        diff_bar_kw={"align": "mid", "color": ["#d65f5f", "#5fba7d"]},
         no_styling=False,
     ):
         """
@@ -277,7 +287,7 @@ class Comparator:
         self, datasets: Seq[NDFrame], col_names: Seq[str], dataset_names: Seq[str]
     ) -> NDFrame:
         """
-        Pick and concatenate the respective `col_names` from each dataframe in `dfs`, 
+        Pick and concatenate the respective `col_names` from each dataframe in `datasets`, 
 
         and (optionally) diff against the 1st dataset. 
 
@@ -286,10 +296,10 @@ class Comparator:
             Each one must contain the respective column from `col_names`, 
             when access by ``self.col_accesor( df[i], col_name[i] )`` ∀ i ∈ [0, N).
         :param col_names:
-            a list o N x column-names
+            a list o N x column-names; Nones omit the respective dataset
         :return: 
         """
-        picked_cols = [self.col_accesor(d, c) for d, c in zip(datasets, col_names)]
+        picked_cols = [self.col_accesor(d, c) for d, c in zip(datasets, col_names) if c]
         dataset_names = list(dataset_names)
 
         if not self.no_diff_prcnt and all(is_numeric_dtype(d) for d in picked_cols):
@@ -304,7 +314,11 @@ class Comparator:
         return pd.concat(picked_cols, axis=1, keys=dataset_names)
 
     def compare(
-        self, datasets: Seq, equiv_colnames: Seq[Seq[str]], dataset_names: Seq[str]
+        self,
+        datasets: Seq,
+        equiv_colnames: Seq[Seq[str]],
+        dataset_names: Seq[str],
+        no_styling=None,
     ):
         """
         List side-by-side same-kind columns (with different names) from many datasets,
@@ -324,6 +338,9 @@ class Comparator:
         :param dataset_names:
             used as hierarchical labels to distinuish from which dataset each column comes from
         """
+        if no_styling is None:
+            no_styling = self.no_styling
+
         col_level_0 = list(zip(*equiv_colnames))[0]
         df = pd.concat(
             (
@@ -334,21 +351,21 @@ class Comparator:
             keys=col_level_0,
         )
 
-        if self.diff_bar_kw and not self.no_styling:
+        if self.diff_bar_kw and not no_styling:
             df = self._styled_with_diff_bars(df, col_level_0)
         return df
 
     def _styled_with_diff_bars(self, df, col_level_0):
         style = df.style
         for c in col_level_0:
-            diff_idx = (c, 'diffs[%]')
+            diff_idx = (c, "diffs[%]")
             try:
                 df[diff_idx]
             except Exception:
                 "Ok, `diff[%]` column missing"
             else:
-                style = style.bar(subset=[diff_idx], **self.diff_bar_kw) 
-        
+                style = style.bar(subset=[diff_idx], **self.diff_bar_kw)
+
         return style
 
 
@@ -376,6 +393,8 @@ def load_vehicle(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
 
     def func(h5db):
         return [h5db.get(vehnode(vehnum, sn)) for sn in subnodes]
+
     return do_h5(h5, func)
+
 
 # props, pwot = load_vehicle(h5fname, vehnum, "props", "pwot")

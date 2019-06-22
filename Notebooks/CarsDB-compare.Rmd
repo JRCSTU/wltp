@@ -1,11 +1,12 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,Rmd
     text_representation:
       extension: .Rmd
       format_name: rmarkdown
       format_version: '1.1'
-      jupytext_version: 1.1.3
+      jupytext_version: 1.1.7-rc0
   kernelspec:
     display_name: Python 3
     language: python
@@ -46,9 +47,20 @@ idx = pd.IndexSlice
 log = logging.getLogger('CarsDB-compare.ipynb')
 logging.basicConfig(
     level=logging.INFO, 
-    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:%(message)s', 
+    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
     datefmt='%Y-%m-%d,%H:%M:%S',
 )
+
+## Fix too-small columns when too many,
+# from: https://github.com/quantopian/qgrid/issues/171#issuecomment-365489567
+def grid(df, fitcols=True, cwidth=None):
+    grid_opts = {'forceFitColumns': fitcols}
+    if not fitcols and cwidth is None:
+        cwith = 86
+    if cwidth is not None:
+        grid_opts['defaultColumnWidth'] = cwidth
+        
+    return qgrid.show_grid(df, grid_options=grid_opts) 
 ```
 
 ```{python}
@@ -77,9 +89,13 @@ print(', '.join('%s' % i for i in misv))
 ```
 
 ```{python}
-## Merge vehicles into Indexed Pandas
-#
 def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups, nodes_predicate) -> List[NDFrame]:
+    """
+    Merge HDF-subgroup(s) from all vehiclesinto an Indexed-DataFrame(s)
+
+    :return:
+        as may merged-dataframes as `data_subgroups` given
+    """
     def func(h5db):
         veh_groups = nbu.collect_nodes(h5db, nodes_predicate)
         data_collected = list(
@@ -103,48 +119,84 @@ def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups, nodes_predicate
 
     return index_dfs
  
-datags_to_collect = ("out1/props", "out1/cycle", "out2/props", "out2/cycle")
+datags_to_collect = ("props", "out1/props", "out1/cycle", "out2/props", "out2/cycle")
 
-p1, c1, p2, c2 = merge_veh_datasets(h5fname, datags_to_collect, vehgroups_with_out1)
+ip1, p1, c1, p2, c2 = merge_veh_datasets(h5fname, datags_to_collect, vehgroups_with_out1)
+
+## Merge input & Output props from heinz db.
+#
+ip1.name, p1.name = 'ab' # da butare
+p1 = pd.concat((ip1, p1, ), axis=0).sort_index()
+p1 = p1[~p1.index.duplicated()]  # or else, pivot(unstack) fails below
+
+## Set level-2 indexas cycle-time, to plot nicely,
+#  bc they Heinz-DFs were not stored with time as index 
+#  (was just a column).
+#
+c1['vg'] = c1.index.droplevel(1)
+c1 = c1.set_index(['vg', 'tim']
 ```
 
 ```{python}
-cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
+display(
+   grid(p1),
+   grid(p2),
+)
+```
+
+```{python}
+sr_cmpr = nbu.Comparator(lambda d, c: d[:, c], no_styling=True)
 dataset_names = "Heinz Phase1a".split()
 ```
 
 ```{python}
 ## Report PROP differences
 #
-equivalent_columns = [("p_downscale", "f_downscale"), ("cycle", "wltc_class")]
+equivalent_columns = [
+    ("Description", None),
+    ("class", "wltc_class"),
+    ("pmr_km", "pmr"),
+    ("f_dsc_req", "f_downscale"),
+    ("test_mass", "test_mass"),
+    ("kerb_mass", "unladen_mass"),
+    ("v_max", "v_max")
+]
 
-display(
-    cmpr.compare((p1, p2), equivalent_columns, dataset_names),
-    qgrid.show_grid(p1),
-    qgrid.show_grid(p2),
-)
+cdf = sr_cmpr.compare((p1, p2), equivalent_columns, dataset_names)
+## Workaround qgrid's hate for hierarchical-columns:
+#  https://github.com/quantopian/qgrid/issues/18#issuecomment-149321165
+cdf.columns = [' '.join(col).strip() for col in cdf.columns.values]
+
+display(grid(cdf, fitcols=False, cwidth=100),)
+```
+
+```{python}
+from columnize import columnize
+print(columnize(list(c1.columns), displaywidth=160))
+print(c2.columns)
+```
+
+```{python}
+cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
 ```
 
 ```{python}
 ## Report CYCLE-MEAN differences
 #
-cols1 = ["v_orig", "v in km/h", "gear", "g_min", "P_res in kW", "Pavailable in kW", "n in min-1"]
+cols1 = ["v_orig", "v", "g_min", "gear", "P_res", "P_a", "n_kl"]
 cols2 = ["v_class", "v_target", "gears_orig", "gears", "p_required", "p_available", "rpm"]
 cc1 = pd.concat((p1.unstack(), c1[cols1].mean(level=0)), axis=1)
 cc2 = pd.concat((p2.unstack(), c2[cols2].mean(level=0)), axis=1)
 
-equivalent_columns = list(zip(cols1, cols2))
+equivalent_columns = [
+    ("Description", None),
+    ("class", None),
+    ("pmr_km", None),
+]
+equivalent_columns += list(zip(cols1, cols2))
 display(
     cmpr.compare((cc1, cc2), equivalent_columns, dataset_names),
-    c1.columns,
-    c2.columns,
-    qgrid.show_grid(c1), 
-    qgrid.show_grid(c2),
 )
-```
-
-```{python}
-np.max(df)
 ```
 
 ```{python}
@@ -263,7 +315,7 @@ def plot_xy_diffs_arrows(
 ```{python}
 # %matplotlib widget
 
-plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr', "n in min-1", 'pmr', 'rpm'], 
+plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "n_kl", 'pmr', 'rpm'], 
                      data_label="n in min-1", ref_label="HeinzDb",
 #             data_fmt="+k", data_kws={},
 #             diff_label=None, diff_fmt="-r", diff_cmap=cm.hsv, diff_kws={}, #@UndefinedVariable cm.PiYG
@@ -273,4 +325,12 @@ plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr', "n in 
 #             axes_tuple=None,
 #             mark_sections=None
                     )
+```
+
+```{python}
+plt.close(); plt.figure()
+veh = '/vehicles/v078'
+display(c1.loc[veh, :].v.mean(), c2.loc[veh, :].v_class.mean())
+ax = c1.loc[veh, 'v'].plot()
+c2.loc[veh, 'v_class'].plot(ax=ax)
 ```

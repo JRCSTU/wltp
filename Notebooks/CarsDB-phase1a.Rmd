@@ -1,11 +1,12 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,Rmd
     text_representation:
       extension: .Rmd
       format_name: rmarkdown
       format_version: '1.1'
-      jupytext_version: 1.1.3
+      jupytext_version: 1.1.7-rc0
   kernelspec:
     display_name: Python 3
     language: python
@@ -39,7 +40,7 @@ import nbutils as nbu
 log = logging.getLogger('CarsDB-phase1a.ipynb')
 logging.basicConfig(
     level=logging.INFO, 
-    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:%(message)s', 
+    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
     datefmt='%Y-%m-%d,%H:%M:%S',
 )
 ```
@@ -152,6 +153,7 @@ def store_phase1A_results(h5):
             try:
                 output_model = run_old_wltp_on_db_vehice(h5db, vehnum)
             except Exception as ex:
+                raise ex
                 log.error('V%0.3i failed: %s', vehnum, ex)
             else:
                 h5db.put(nbu.vehnode(vehnum, 'out2', 'cycle'), output_model['cycle_run'])

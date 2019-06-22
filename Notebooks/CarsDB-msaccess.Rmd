@@ -1,11 +1,12 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,Rmd
     text_representation:
       extension: .Rmd
       format_name: rmarkdown
       format_version: '1.1'
-      jupytext_version: 1.1.3
+      jupytext_version: 1.1.7-rc0
   kernelspec:
     display_name: Python 3
     language: python
@@ -53,7 +54,7 @@ idx = pd.IndexSlice
 log = logging.getLogger('CarsDB-inputs.ipynb')
 logging.basicConfig(
     level=logging.INFO, 
-    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:%(message)s', 
+    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
     datefmt='%Y-%m-%d,%H:%M:%S',
 )
 ```
@@ -197,7 +198,7 @@ def store_results_per_car(
 
     # A dir with one Excel-file per vehicle, as produced by MSAccess.
     results_dir = Path(results_dir)
-    for outfpath in results_dir.glob("gearshift_table_all.7.113-116.xlsx"):
+    for outfpath in results_dir.glob("gearshift_table_all.*.xlsx"):
         batchdf = xleash.lasso('%s#::["df"]' % outfpath)
         vehnums = batchdf[c_vehnum].unique()
         log.info("Found %s vehicles in file %s: %s", len(vehnums), outfpath, vehnums)
