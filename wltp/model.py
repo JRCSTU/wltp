@@ -622,7 +622,7 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     "f_inertial": {
                         "description": "This is the 'kr' inertial-factor used in the 2nd part of the formula for calculating required-power (Annex 2-3.1, p71).",
                         "type": ["number", "null"],
-                        "default": 1.1,
+                        "default": 1.03,
                     },
                     "f_safety_margin": {
                         "description": dedent(
