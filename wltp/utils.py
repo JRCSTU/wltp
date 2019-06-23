@@ -7,8 +7,9 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 import argparse
-import sys, os
+import io, os, sys
 import unittest
+from typing import Union
 
 
 ##############
@@ -92,6 +93,25 @@ def open_file_with_os(fpath):
         elif os.name == "posix":
             subprocess.call(("xdg-open", fpath))
     return
+
+
+def yaml_dumps(o) -> str:
+    from ruamel.yaml import YAML
+
+    s = io.StringIO()
+    yaml = YAML(typ="safe", pure=True)
+    yaml.default_flow_style = False
+    # yaml.canonical = True
+    yaml.dump(o, s)
+    return s.getvalue()
+
+
+def yaml_loads(y) -> Union[dict, list]:
+    from ruamel.yaml import YAML
+
+    s = io.StringIO(y)
+    yaml = YAML(typ="safe", pure=True)
+    return yaml.load(y)
 
 
 ###### WINDOWS ######

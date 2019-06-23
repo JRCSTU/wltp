@@ -1,7 +1,6 @@
 from typing import List, Tuple, Dict, Union, Callable, Any, Sequence as Seq
 import io, json, time, platform
 from datetime import datetime
-from ruamel.yaml import YAML
 from pathlib import Path, PurePosixPath
 from copy import deepcopy
 import logging
@@ -14,24 +13,10 @@ import sys
 import pandas as pd
 from pandas import HDFStore
 
+from wltp.utils import yaml_loads, yaml_dumps
+
 
 log = logging.getLogger(__name__)
-
-
-def yaml_dumps(o) -> str:
-    s = io.StringIO()
-    yaml = YAML(typ="safe", pure=True)
-    yaml.default_flow_style = False
-    # yaml.canonical = True
-    yaml.dump(o, s)
-    return s.getvalue()
-
-
-def yaml_loads(y) -> Union[dict, list]:
-    s = io.StringIO(y)
-    yaml = YAML(typ="safe", pure=True)
-    return yaml.load(y)
-    return s.getvalue()
 
 
 def _human_time(unixtime: int = None) -> str:

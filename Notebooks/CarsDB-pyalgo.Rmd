@@ -33,7 +33,7 @@ from pathlib import Path, PurePosixPath as P
 
 import pandas as pd
 from wltp.experiment import Experiment
-from ruamel.yaml import YAML
+import wltp.utils as wutils
 
 import nbutils as nbu
 
@@ -93,7 +93,7 @@ def run_old_wltp_on_db_vehice(h5, vehnum):
     )
     inverse_SM = 1.0 - props.SM
 
-    input_model = nbu.yaml_loads(
+    input_model = wutils.yaml_loads(
         f"""
         vehicle:
           gear_ratios:  {ndvs}
@@ -123,8 +123,8 @@ def run_old_wltp_on_db_vehice(h5, vehnum):
     del veh['resistance_coeffs'], veh['gear_ratios']
     
     return output_model
-# output_model = run_old_wltp_on_db_vehice(14)
-# display(output_model["cycle_run"])
+output_model = run_old_wltp_on_db_vehice(h5fname, 14)
+display(output_model["cycle_run"])
 ```
 
 ```{python}
