@@ -145,7 +145,7 @@ display(
 
 ```{python}
 sr_cmpr = nbu.Comparator(lambda d, c: d[:, c], no_styling=True)
-dataset_names = "Heinz Phase1a".split()
+dataset_names = "Heinz Python".split()
 ```
 
 ```{python}
@@ -182,7 +182,7 @@ cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
 ```{python}
 ## Report CYCLE-MEAN differences
 #
-cols1 = ["v_orig", "v", "g_min", "gear", "P_res", "P_a", "n_kl"]
+cols1 = ["v_orig", "v", "g_max", "gear", "P_tot", "P_max", "n_kl"]
 cols2 = ["v_class", "v_target", "gears_orig", "gears", "p_required", "p_available", "rpm"]
 cc1 = pd.concat((p1.unstack(), c1[cols1].mean(level=0)), axis=1)
 cc2 = pd.concat((p2.unstack(), c2[cols2].mean(level=0)), axis=1)
