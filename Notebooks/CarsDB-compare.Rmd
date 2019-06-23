@@ -128,12 +128,12 @@ ip1.name, p1.name = 'ab' # da butare
 p1 = pd.concat((ip1, p1, ), axis=0).sort_index()
 p1 = p1[~p1.index.duplicated()]  # or else, pivot(unstack) fails below
 
-## Set level-2 indexas cycle-time, to plot nicely,
+## Set level-2 indexs cycle-time, to plot nicely,
 #  bc they Heinz-DFs were not stored with time as index 
 #  (was just a column).
 #
 c1['vg'] = c1.index.droplevel(1)
-c1 = c1.set_index(['vg', 'tim']
+c1 = c1.set_index(['vg', 'tim'])
 ```
 
 ```{python}
@@ -187,10 +187,15 @@ cols2 = ["v_class", "v_target", "gears_orig", "gears", "p_required", "p_availabl
 cc1 = pd.concat((p1.unstack(), c1[cols1].mean(level=0)), axis=1)
 cc2 = pd.concat((p2.unstack(), c2[cols2].mean(level=0)), axis=1)
 
+## Convert props to numerics 
+cc1[cols1 + ["pmr_km", "f_dsc_req"]] = cc1[cols1 + ["pmr_km", "f_dsc_req"]].astype('float64')
+cc2[cols2 + ["f_downscale"]] = cc2[cols2 + ["f_downscale"]].astype('float64')
+
 equivalent_columns = [
     ("Description", None),
     ("class", None),
     ("pmr_km", None),
+    ("f_dsc_req", "f_downscale"),
 ]
 equivalent_columns += list(zip(cols1, cols2))
 display(
@@ -328,7 +333,7 @@ plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "n_
 
 ```{python}
 plt.close(); plt.figure()
-veh = '/vehicles/v078'
+veh = '/vehicles/v007'
 display(c1.loc[veh, :].v.mean(), c2.loc[veh, :].v_class.mean())
 ax = c1.loc[veh, 'v'].plot()
 c2.loc[veh, 'v_class'].plot(ax=ax)
