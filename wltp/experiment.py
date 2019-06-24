@@ -152,9 +152,6 @@ class Experiment(object):
             log.info("Found forced velocity(%s).", forced_v_column)
 
             V = results[forced_v_column].values
-            SLOPE = results.get("slope")
-            if not SLOPE is None:
-                SLOPE = np.asarray(SLOPE)
 
             results["v_class"] = V
             results["v_target"] = V
@@ -173,14 +170,13 @@ class Experiment(object):
 
             class_data = self.wltc["classes"][wltc_class]
             V = np.asarray(class_data["cycle"], dtype=self.dtype)
-            SLOPE = None
 
             results["v_class"] = V
 
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial = params.get("f_inertial", 1.1)
-        A, P_REQ = calcPower_required(V, SLOPE, test_mass, f0, f1, f2, f_inertial)
+        A, P_REQ = calcPower_required(V, test_mass, f0, f1, f2, f_inertial)
         results["a_class"] = A
         results["p_required_class"] = P_REQ
 
@@ -208,9 +204,7 @@ class Experiment(object):
 
             if f_downscale > 0:
                 V = downscaleCycle(V, f_downscale, phases)
-                A, P_REQ = calcPower_required(
-                    V, SLOPE, test_mass, f0, f1, f2, f_inertial
-                )
+                A, P_REQ = calcPower_required(V, test_mass, f0, f1, f2, f_inertial)
 
             results["v_target"] = V
             results["a_target"] = A
@@ -549,13 +543,11 @@ def possibleGears_byEngineRevs(
     return (_GEARS_YES, CLUTCH)
 
 
-def calcPower_required(V, SLOPE, test_mass, f0, f1, f2, f_inertial):
+def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
     """
 
     @see: Annex 2-3.1, p 71
     """
-
-    gee = 9.81
 
     ## NOTE: Improved Acceleration calc on central-values with gradient.
     #    The pure_load 2nd-part of the P_REQ from start-to-stop is 0, as it should.
@@ -568,17 +560,7 @@ def calcPower_required(V, SLOPE, test_mass, f0, f1, f2, f_inertial):
     VVV = VV * V
     assert V.shape == VV.shape == VVV.shape == A.shape, _shapes(V, VV, VVV, A)
 
-    if SLOPE is None:
-        P_REQ = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
-    else:
-        assert V.shape == SLOPE.shape, _shapes(V, SLOPE)
-        P_REQ = (
-            f0 * V * np.cos(SLOPE)
-            + f1 * VV
-            + f2 * VVV
-            + f_inertial * A * V * test_mass
-            + test_mass * np.sin(SLOPE) * gee * V
-        ) / 3600.0
+    P_REQ = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
     assert V.shape == P_REQ.shape, _shapes(V, P_REQ)
 
     return A, P_REQ
