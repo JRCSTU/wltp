@@ -215,7 +215,7 @@ to use Excel files for providing input and output to the experiment.
 
 To create the necessary template-files in your current-directory you should enter:
 
-.. code-block:: console
+.. code-block:: shell
 
      $ wltp --excel
 
@@ -473,100 +473,16 @@ This project is hosted in **github**.
 To provide feedback about bugs and errors or questions and requests for enhancements,
 use `github's Issue-tracker <https://github.com/JRCSTU/wltp/issues>`_.
 
+Remember to install and arm a *pre-commit* hook with *black* 
+to auto-format you python-code (see "Quick-start", above).
 
 
-Sources & Dependencies
-----------------------
-To get involved with development, you need a POSIX environment to fully build it
-(*Linux*, *OSX* or *Cygwin* on *Windows*).
+Run test-cases with *pytest*, or call this helper-script to check also 
+the doctests, coverage & the site:
 
-First you need to download the latest sources:
+.. code-block:: shell
 
-.. code-block:: console
-
-    $ git clone https://github.com/JRCSTU/wltp.git wltp.git
-    $ cd wltp.git
-
-
-.. Admonition:: Virtualenv
-    :class: note
-
-    You may choose to work in a |virtualenv|_,
-    to install dependency libraries isolated from system's ones, and/or without *admin-rights*
-    (this is recommended for *Linux*/*Mac OS*).
-
-    .. Attention::
-        If you decide to reuse stystem-installed packages using  :option:`--system-site-packages`
-        with ``virtualenv <= 1.11.6``
-        (to avoid, for instance, having to reinstall *numpy* and *pandas* that require native-libraries)
-        you may be bitten by `bug #461 <https://github.com/pypa/virtualenv/issues/461>`_ which
-        prevents you from upgrading any of the pre-installed packages with :command:`pip`.
-
-.. Admonition:: Liclipse IDE
-    :class: note
-
-    Within the sources there are two sample files for the comprehensive
-    `LiClipse IDE <http://www.liclipse.com/>`_:
-
-    * :file:`eclipse.project`
-    * :file:`eclipse.pydevproject`
-
-    Remove the ``eclipse`` prefix, (but leave the dot(``.``)) and import it as "existing project" from
-    Eclipse's *File*`* menu.
-
-    Another issue is caused due to the fact that LiClipse contains its own implementation of *Git*, *EGit*,
-    which badly interacts with unix *symbolic-links*, such as the :file:`docs/docs`, and it detects
-    working-directory changes even after a fresh checkout.  To workaround this, Right-click on the above file
-    :menuselection:`Properties --> Team --> Advanced --> Assume Unchanged`
-
-
-Then you can install all project's dependencies in *`development mode* using the :file:`setup.py` script:
-
-.. code-block:: console
-
-    $ python setup.py --help                           ## Get help for this script.
-    Common commands: (see '--help-commands' for more)
-
-      setup.py build      will build the package underneath 'build/'
-      setup.py install    will install the package
-
-    Global options:
-      --verbose (-v)      run verbosely (default)
-      --quiet (-q)        run quietly (turns verbosity off)
-      --dry-run (-n)      don't actually do anything
-    ...
-
-    $ python setup.py develop                           ## Also installs dependencies into project's folder.
-    $ python setup.py build                             ## Check that the project indeed builds ok.
-
-
-You should now run the test-cases (see :doc:`metrics`) to check
-that the sources are in good shape:
-
-.. code-block:: console
-
-   $ python setup.py test
-
-
-.. Note:: The above commands installed the dependencies inside the project folder and
-    for the *virtual-environment*.  That is why all build and testing actions have to go through
-    :samp:`python setup.py {some_cmd}`.
-
-    If you are dealing with installation problems and/or you want to permantly install dependant packages,
-    you have to *deactivate* the virtual-environment and start installing them into your *base*
-    python environment:
-
-    .. code-block:: console
-
-       $ deactivate
-       $ python setup.py develop
-
-    or even try the more *permanent* installation-mode:
-
-    .. code-block:: console
-
-       $ python setup.py install                # May require admin-rights
-
+   ./bin/run_tests.sh
 
 
 Development procedure
@@ -577,28 +493,20 @@ The typical development procedure is like this:
 
 1. Modify the sources in small, isolated and well-defined changes, i.e.
    adding a single feature, or fixing a specific bug.
+
 2. Add test-cases "proving" your code.
+
 3. Rerun all test-cases to ensure that you didn't break anything,
-   and check their *coverage* remain above 80%:
-
-   .. code-block:: console
-
-        $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
-
-
-   .. Tip:: You can enter just: ``python setup.py test_all`` instead of the above cmd-line
-       since it has been *aliased* in the :file:`setup.cfg` file.
-       Check this file for more example commands to use during development.
-
+   and check their *coverage* remain above the limit set in :file:`setup.cfg`.
 
 4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
    other documents (i.e. README.rst).  To see the rendered results of the documents,
    issue the following commands and read the result html at :file:`build/sphinx/html/index.html`:
 
-   .. code-block:: console
+   .. code-block:: shell
 
-        $ python setup.py build_sphinx                  # Builds html docs
-        $ python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
+        python setup.py build_sphinx                  # Builds html docs
+        python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
 
 5. If there are no problems, commit your changes with a descriptive message.
 
