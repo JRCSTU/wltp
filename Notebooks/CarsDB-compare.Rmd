@@ -109,6 +109,12 @@ p2, c2 = merge_veh_datasets(out_h5fname, ("oprop", "cycle"))
 ip1.name, p1.name = "ab"  # da butare
 p1 = pd.concat((ip1, p1), axis=0).sort_index()
 p1 = p1[~p1.index.duplicated()]  # or else, pivot(unstack) fails below
+
+## By the spec, V rounded to 2-digits,
+#  But exporting MSAccess --> Excel outputs garbage decimals!
+#
+v_cols = "v v_orig v_cap v_downscale".split()
+c1[v_cols] = c1[v_cols].round(1)
 ```
 
 ```{python}
