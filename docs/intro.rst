@@ -1,6 +1,6 @@
 .. include:: ../README.rst
     :start-after: _begin-intro:
-    :end-before: _wltp-install:
+    :end-before: _wltp-usage:
 
 Discussion
 ----------

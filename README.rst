@@ -10,7 +10,7 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 :pypi-repo:     https://pypi.python.org/pypi/wltp
 :keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifts,
                 rpm, simulation, simulator, standard, vehicle, vehicles, wltc, nedc
-:Copyright:     2013-2014 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_)
+:Copyright:     2013-2019 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_)
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
 A python package to generate the *gear-shifts* of Light-duty vehicles
@@ -79,42 +79,34 @@ The *Input & Output DataModels* are instances of :dfn:`pandas-model`, trees of s
 
 Quick-start
 -----------
+`Launch it in binder <https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md>`_, 
+or install it locally (below).
 
 .. Note::
-    The program runs on **Python-2.7+** and **Python-3.3+** (preferred) and requires
-    **numpy/scipy**, **pandas** and **win32** libraries along with their *native backends* to be installed.
-    If you do not have such an environment already installed, please read :doc:`install` section below for
-    suitable distributions such as |winpython|_ or |anaconda|_.
+    The program runs on **Python-3.6+** and requires **numpy/scipy** and **pandas** libraries
+    When pip-installing,  use `--pre` if version-string has a build-suffix.
 
-Assuming that you have a working python-environment, open a *command-shell*,
-(in *Windows* use :program:`cmd.exe` BUT ensure :program:`python.exe` is in its :envvar:`PATH`),
-you can try the following commands:
+.. code-block:: shell
 
-.. Tip::
-    The commands beginning with ``$``, below, imply a *Unix* like operating system with a *POSIX* shell
-    (*Linux*, *OS X*). Although the commands are simple and easy to translate in its *Windows* ``cmd.exe`` counterpart,
-    it would be worthwile to install `Cygwin <https://www.cygwin.com/>`_ to get the same environment on *Windows*.
-    If you choose to do that, include also the following packages in the *Cygwin*'s installation wizard::
+    pip install wltp
+    wltp --version
 
-        * git, git-completion
-        * make, zip, unzip, bzip2, dos2unix
-        * openssh, curl, wget
+Or in case you need the very latest from *master* branch :
 
-    But do not install/rely on cygwin's outdated python environment.
+.. code-block:: shell
 
-:Install:
-    .. code-block:: bash
+    pip install https://github.com/JRCSTU/wltp.git
 
-        $ pip install wltp                      ## Use `--pre` if version-string has a build-suffix.
-        $ wltp --winmenus                       ## Adds StartMenu-items, Windows only.
 
-    Or in case you need the very latest from *master* branch :
+For development, clone this repository, and install it in *develop-mode*,
+with *extras* ensuring all needed dependencies are installed and 
+with *pre-commit hook* for auto-formatting python-code with *black*:
 
-    .. code-block:: bash
+.. code-block:: shell
 
-        $ pip install git+git://github.com/ankostis/wltp.git@master --pre
-
-    See: :doc:`install`
+    cd {repo-folder}
+    pip install -e .[dev]
+    pre-commit install
 
 :Cmd-line:
     .. code-block:: bash
@@ -148,229 +140,23 @@ you can try the following commands:
 
 
 
-.. _wltp-install:
-
-Install
-=======
-Current version(|version|) runs on **Python-2.7+** and **Python-3.3+** and requires
-**numpy/scipy**, **pandas** and **win32** libraries along with their *native backends* to be installed.
-
-It has been tested under *Windows* and *Linux* and *Python-3.3+* is the preferred interpreter,
-i.e, the *Excel* interface and desktop-UI runs only with it.
-
-It is distributed on `Wheels <https://pypi.python.org/pypi/wheel>`_.
-
-
-Python installation
--------------------
-
-.. Warning::
-    On *Windows* it is strongly suggested **NOT to install the standard CPython distribution**,
-    unless:
-
-    a) you have *administrative priviledges*,
-    b) you are an experienced python programmer, so that
-    c) you know how to hunt dependencies from *PyPi* repository and/or
-       the `Unofficial Windows Binaries for Python Extension Packages <http://www.lfd.uci.edu/~gohlke/pythonlibs/>`_.
-
-As explained above, this project depends on packages with *native-backends* that require the use
-of *C* and *Fortran* compilers to build from sources.
-To avoid this hassle, you should choose one of the user-friendly distributions suggested below.
-
-Below is a matrix of the two suggested self-wrapped python distributions for running this program
-(we excluded here default *python* included in *linux*). Both distributions:
-
-- are free (as of freedom),
-- do not require *admin-rights* for installation in *Windows*, and
-- have been tested to run successfully this program (also tested on default *linux* distros).
-
-+-----------------+-------------------------------------------+-------------------------------------------+
-| *Distributions* | |winpython|_                              | |anaconda|_                               |
-|                 |                                           |                                           |
-+=================+===========================================+===========================================+
-| *Platform*      | **Windows**                               | **Windows**, **Mac OS**, **Linux**        |
-+-----------------+-------------------------------------------+-------------------------------------------+
-| *Ease of*       | Fair                                      | - *Anaconda:* Easy                        |
-|                 |                                           | - *MiniConda:* Moderate                   |
-|                 | Currently (March-2015) it                 |                                           |
-|                 | requires fiddling with the                |                                           |
-| *Installation*  | :envvar:`PATH` after install.             |                                           |
-|                 |                                           |                                           |
-|                 |                                           |                                           |
-+-----------------+-------------------------------------------+-------------------------------------------+
-| *Ease of Use*   | Easy                                      | Moderate                                  |
-|                 |                                           |                                           |
-|                 |                                           | Should use :command:`conda` and/or        |
-|                 |                                           | :command:`pip`                            |
-|                 |                                           | depending on whether a package            |
-|                 |                                           | contains native libraries                 |
-|                 |                                           |                                           |
-+-----------------+-------------------------------------------+-------------------------------------------+
-| *# of Packages* | Only what's included in the               | Many 3rd-party packages                   |
-|                 | downloaded-archive                        | uploaded by users                         |
-|                 |                                           |                                           |
-|                 |                                           |                                           |
-+-----------------+-------------------------------------------+-------------------------------------------+
-| *Notes*         | After installation, see *faq* for:        | - Check also the lighter `miniconda       |
-|                 |                                           |   <http://conda.pydata.org/               |
-|                 | - Registering WinPython installation      |   miniconda.html>`_.                      |
-|                 | - Adding your installation in             | - For installing native-dependencies      |
-|                 |   :envvar:`PATH`                          |   with :command:`conda` see files:        |
-|                 |                                           |   - :file:`requirements/miniconda.txt`    |
-|                 |                                           |   - :file:`.travis.yaml`                  |
-|                 |                                           |                                           |
-+-----------------+-------------------------------------------+-------------------------------------------+
-|                 | Check also installation instructions from `the  pandas site                           |
-|                 | <http://pandas.pydata.org/pandas-docs/stable/install.html>`_.                         |
-|                 |                                                                                       |
-+-----------------+-------------------------------------------+-------------------------------------------+
-
-
-
-Package installation
---------------------
-
-Before installing it, make sure that there are no older versions left over
-on the python installation you are using.
-To cleanly uninstall it, run this command until you cannot find any project installed:
-
-.. code-block:: bash
-
-    $ pip uninstall wltp                        ## Use `pip3` if both python-2 & 3 are in PATH.
-
-
-You can install the project directly from the |pypi|_ the "standard" way,
-by typing the :command:`pip` in the console:
-
-  .. code-block:: bash
-
-      $ pip install wltp
-
-- If you want to install a *pre-release* version (the version-string is not plain numbers, but
-  ends with ``alpha``, ``beta.2`` or something else), use additionally :option:`--pre`.
-
-.. code-block:: bash
-
-    $ pip install wltp
-
-- Also you can install the very latest version straight from the sources:
-
-  .. code-block:: bash
-
-      $ pip install git+git://github.com/ankostis/wltp.git  --pre
-
-- If you want to upgrade an existing instalation along with all its dependencies,
-  add also :option:`--upgrade` (or :option:`-U` equivalently), but then the build might take some
-  considerable time to finish.  Also there is the possibility the upgraded libraries might break
-  existing programs(!) so use it with caution, or from within a |virtualenv|_.
-
-- To install it for different Python environments, repeat the procedure using
-  the appropriate :program:`python.exe` interpreter for each environment.
-
-- .. Tip::
-    To debug installation problems, you can export a non-empty :envvar:`DISTUTILS_DEBUG`
-    and *distutils* will print detailed information about what it is doing and/or
-    print the whole command line when an external program (like a C compiler) fails.
-
-
-After installation, it is important that you check which version is visible in your :envvar:`PATH`:
-
-.. code-block:: bash
-
-    $ wltp --version
-    1.0.0.dev2
-
-
-To install for different Python versions, repeat the procedure for every required version.
-
-
-
-Older versions
---------------
-An additional purpose of the versioning schema of the project is to track which specific version
-of the GTR it implements.
-Given a version number ``MAJOR.MINOR.PATCH``, the ``MAJOR`` part tracks the GTR phase implemented.
-See the "GTR version matrix" section in :doc:`CHANGES` for the mapping of MAJOR-numbers to GTR versions.
-
-To install an older released version issue the console command:
-
-.. code-block:: bash
-
-    $ pip install wltp=1.1.1                    ## Use `--pre` if version-string has a build-suffix.
-
-or alternatively straight from the sources:
-
-.. code-block:: bash
-
-    $ pip install git+git://github.com/ankostis/wltp.git@v0.0.9-alpha.3.1  --pre
-
-Ofcourse you can substitute ``v0.0.9-alpha.3.1`` with any slug from "commits", "branches" or "releases"
-that you will find on project's `github-repo <https://github.com/JRCSTU/wltp>`_).
-
-.. Note::
-    If you have another version already installed, you have to use :option:`--ignore-installed` (or :option:`-I`).
-    For using the specific version, check this (untested)
-    `stackoverflow question <http://stackoverflow.com/questions/6445167/force-python-to-use-an-older-version-of-module-than-what-i-have-installed-now>`_ .
-
-    You can install each version in a separate |virtualenv|_ and shy away from all this.
-    Check
-
-
-Installing from sources
------------------------
-If you download the sources you have more options for installation.
-There are various methods to get hold of them:
-
-* Download the *source* distribution from |pypi|_.
-* Download a `release-snapshot from github <https://github.com/JRCSTU/wltp/releases>`_
-* Clone the *git-repository* at *github*.
-
-  Assuming you have a working installation of `git <http://git-scm.com/>`_
-  you can fetch and install the latest version of the project with the following series of commands:
-
-  .. code-block:: bash
-
-      $ git clone "https://github.com/JRCSTU/wltp.git" wltp.git
-      $ cd wltp.git
-      $ python setup.py install                                 ## Use `python3` if both python-2 & 3 installed.
-
-
-When working with sources, you need to have installed all libraries that the project depends on:
-
-.. code-block:: bash
-
-    $ pip install -r requirements/execution.txt .
-
-
-The previous command installs a "snapshot" of the project as it is found in the sources.
-If you wish to link the project's sources with your python environment, install the project
-in `development mode <http://pythonhosted.org/setuptools/setuptools.html#development-mode>`_:
-
-.. code-block:: bash
-
-    $ python setup.py develop
-
-
-.. Note:: This last command installs any missing dependencies inside the project-folder.
-
-
-
 Project files and folders
 -------------------------
 The files and folders of the project are listed below::
 
-    +--wltp/            ## (package) The python-code of the calculator
-    |   +--cycles/      ## (package) The python-code for the WLTC data
-    |   +--model        ## (module) Describes the data and their schema for the calculation
-    |   +--experiment   ## (module) The calculator
-    |   +--plots        ## (module) Diagram-plotting code and utilities
-    +--tests/            ## (package) Test-cases and the wltp_db
-    +--docs/            ## Documentation folder
-    |   +--pyplots/     ## (scripts) Plot the metric diagrams embeded in the README
-    +--devtools/        ## (scripts) Preprocessing of WLTC data on GTR and the wltp_db
-    |   +--run_tests.sh ## (script) Executes all TestCases
-    +--setup.py         ## (script) The entry point for `setuptools`, installing, testing, etc
-    +--requirements/    ## (txt-files) Various pip-dependencies for tools.
+    +--bin/               ## (shell-scripts) Utilities & preprocessing of WLTC data on GTR and the wltp_db
+    |   +--run_tests.sh   ## (script) Executes all TestCases
+    +--wltp/              ## (package) The python-code of the calculator
+    |   +--cycles/        ## (package) The python-code for the WLTC data
+    |   +--model          ## (module) Describes the data and their schema for the calculation
+    |   +--experiment     ## (module) The calculator
+    |   +--plots          ## (module) Diagram-plotting code and utilities
+    +--tests/             ## (package) Test-cases and the wltp_db
+    +--docs/              ## Documentation folder
+    |   +--pyplots/       ## (scripts) Plot the metric diagrams embeded in the README
+    +--Notebooks/         ## Jupyter notebooks for running & comparing results (see `Notebooks/README.md`)
+    +--setup.py           ## (script) The entry point for `setuptools`, installing, testing, etc
+    +--requirements/      ## (txt-files) Various pip-dependencies for tools.
     +--README.rst
     +--CHANGES.rst
     +--LICENSE.txt
@@ -664,7 +450,7 @@ In order to run them interactively, ensure that the following requirements are s
 
 a. A `ipython-notebook server <http://ipython.org/notebook.html>`_ >= v2.x.x is installed for  *python-3*,
    it is up, and running.
-b. The *wltp* is installed on your system (see :doc:`install` above).
+b. The *wltp* is installed on your system.
 
 Instructions
 ^^^^^^^^^^^^

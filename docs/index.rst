@@ -5,7 +5,6 @@
     :numbered:
 
     intro
-    install
     usage
     contribute
     annex-2

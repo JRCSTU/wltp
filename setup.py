@@ -16,8 +16,8 @@ from setuptools import setup, find_packages
 # Fail early in ancient python-versions
 #
 py_ver = sys.version_info
-if py_ver < (3, 5):
-    exit("Sorry, Python3 >= 3.5 is supported!")
+if py_ver < (3, 6):
+    exit("Sorry, Python3 >= 3.6 is supported!")
 
 proj_name = "wltp"
 mydir = os.path.dirname(__file__)
@@ -201,7 +201,7 @@ setup(
     #    package_data = {
     #        'wltp.excel': ['*.xlsm', '*.ico'],
     #    },
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     install_requires=["jsonschema", "numpy", "pandas", "pandalone >=0.3"],
     tests_require=test_reqs,
     extras_require={

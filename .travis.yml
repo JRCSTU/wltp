@@ -4,13 +4,11 @@ git:
   depth: 3
 language: python
 python:
-  - "3.5"
   - "3.6"
   - "3.7"
   # - "3.8-dev"  # too slow!
 matrix:
   allow_failures:
-    - python: "3.5"  # for f"strings"
     #- python: "3.8-dev"
 
 install:
