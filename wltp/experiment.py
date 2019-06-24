@@ -177,18 +177,12 @@ class Experiment(object):
 
             results["v_class"] = V
 
-        ## NOTE: Improved Acceleration calc on central-values with gradient.
-        #    The pure_load 2nd-part of the P_REQ from start-to-stop is 0, as it should.
-        #
-        # A       = np.gradient(V) ## TODO: Enable gradient acceleration-calculation.
-        A = np.diff(V)
-        A = np.append(A, 0)  # Restore element lost by diff().
-        A = A / 3.6
-
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial = params.get("f_inertial", 1.1)
-        P_REQ = calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial)
+        A, P_REQ = calcPower_required(V, SLOPE, test_mass, f0, f1, f2, f_inertial)
+        results["a_class"] = A
+        results["p_required_class"] = P_REQ
 
         if not is_velocity_forced:
             ## Downscale velocity-profile.
@@ -214,7 +208,13 @@ class Experiment(object):
 
             if f_downscale > 0:
                 V = downscaleCycle(V, f_downscale, phases)
+                A, P_REQ = calcPower_required(
+                    V, SLOPE, test_mass, f0, f1, f2, f_inertial
+                )
+
             results["v_target"] = V
+            results["a_target"] = A
+            results["p_required"] = P_REQ
 
         ## Run cycle to find internal matrices for all gears
         #    and (optionally) gearshifts.
@@ -266,12 +266,11 @@ class Experiment(object):
         V_REAL = RPM / _GEAR_RATIOS[GEARS - 1, range(len(V))]
         RPM[RPM < n_idle] = n_idle
 
-        results["gears"] = GEARS
-        results["v_real"] = V_REAL
         results["p_available"] = P_AVAIL
-        results["p_required"] = P_REQ
+        results["gears"] = GEARS
         results["rpm"] = RPM
         results["rpm_norm"] = N_NORM
+        results["v_real"] = V_REAL
         results["driveability"] = driveability_issues
 
         return model
@@ -550,13 +549,20 @@ def possibleGears_byEngineRevs(
     return (_GEARS_YES, CLUTCH)
 
 
-def calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial):
+def calcPower_required(V, SLOPE, test_mass, f0, f1, f2, f_inertial):
     """
 
     @see: Annex 2-3.1, p 71
     """
 
     gee = 9.81
+
+    ## NOTE: Improved Acceleration calc on central-values with gradient.
+    #    The pure_load 2nd-part of the P_REQ from start-to-stop is 0, as it should.
+    #
+    # A       = np.gradient(V) ## TODO: Enable gradient acceleration-calculation.
+    A = np.diff(V) / 3.6
+    A = np.append(A, 0)  # Restore element lost by diff().
 
     VV = V * V
     VVV = VV * V
@@ -575,7 +581,7 @@ def calcPower_required(V, A, SLOPE, test_mass, f0, f1, f2, f_inertial):
         ) / 3600.0
     assert V.shape == P_REQ.shape, _shapes(V, P_REQ)
 
-    return P_REQ
+    return A, P_REQ
 
 
 def calcPower_available(

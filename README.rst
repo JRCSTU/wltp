@@ -393,23 +393,25 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     >>> import pandas as pd
     >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
     >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
-    (1801, 11)
+    (1801, 14)
     >>> df.columns
-    Index(['v_class', 'v_target', 'clutch', 'gears_orig', 'gears', 'v_real', 'p_available', 'p_required', 'rpm', 'rpm_norm', 'driveability'], dtype='object')
+    Index(['v_class', 'a_class', 'p_required_class', 'v_target', 'a_target',
+           'p_required', 'clutch', 'gears_orig', 'p_available', 'gears', 'rpm',
+           'rpm_norm', 'v_real', 'driveability'], dtype='object')
     >>> 'Mean engine_speed: %s' % df.rpm.mean()
     'Mean engine_speed: 1924.2379789006109'
     >>> df.describe()
-               v_class     v_target  ...          rpm     rpm_norm
-    count  1801.000000  1801.000000  ...  1801.000000  1801.000000
-    mean     46.506718    46.506718  ...  1924.237979     0.211235
-    std      36.119280    36.119280  ...   842.667137     0.195407
-    min       0.000000     0.000000  ...   950.000000    -0.209689
-    25%      17.700000    17.700000  ...  1327.500000     0.083889
-    50%      41.500000    41.500000  ...  1732.500000     0.173889
-    75%      68.700000    68.700000  ...  2271.800000     0.293733
-    max     131.300000   131.300000  ...  4201.600000     0.722578
+               v_class       a_class  ...     rpm_norm       v_real
+    count  1801.000000  1.801000e+03  ...  1801.000000  1801.000000
+    mean     46.506718 -3.945268e-18  ...     0.211235    50.356222
+    std      36.119280  5.272219e-01  ...     0.195407    32.336908
+    min       0.000000 -1.500000e+00  ...    -0.209689     0.200000
+    25%      17.700000 -1.944444e-01  ...     0.083889    28.000000
+    50%      41.500000  0.000000e+00  ...     0.173889    41.500000
+    75%      68.700000  2.222222e-01  ...     0.293733    68.700000
+    max     131.300000  1.666667e+00  ...     0.722578   131.300000
     <BLANKLINE>
-    [8 rows x 9 columns]
+    [8 rows x 12 columns]
 
     >>> processor.driveability_report()                                             # doctest: +SKIP
     ...
