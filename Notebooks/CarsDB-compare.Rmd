@@ -163,10 +163,12 @@ cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
 ```{python}
 ## Report CYCLE-MEAN differences
 #
+# RERUN merge_veh_datasets(), above, to FETCH new.
+#
 cols1 = ["v_orig", "a_orig", "v", "g_max", "gear", "P_tot", "P_max", "n_kl"]
 cols2 = ["v_class", "a_class", "v_target", "gears_orig", "gears", "p_required", "p_available", "rpm"]
-cc1 = pd.concat((p1.unstack(), c1[cols1].mean(level=0)), axis=1)
-cc2 = pd.concat((p2.unstack(), c2[cols2].mean(level=0)), axis=1)
+cc1 = pd.concat((p1.unstack(), c1[cols1].abs().mean(level=0)), axis=1)
+cc2 = pd.concat((p2.unstack(), c2[cols2].abs().mean(level=0)), axis=1)
 
 ## Convert props to numerics 
 cc1[cols1 + ["pmr_km", "f_dsc_req"]] = cc1[cols1 + ["pmr_km", "f_dsc_req"]].astype('float64')
