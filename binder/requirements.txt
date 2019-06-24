@@ -54,7 +54,6 @@ pamela==1.0.0
 pandalone==0.2.6
 pandas==0.24.2
 pandocfilters==1.4.2
-parso==0.4.0
 pexpect==4.7.0
 pickleshare==0.7.5
 prometheus-client==0.6.0
