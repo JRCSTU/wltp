@@ -32,6 +32,7 @@ import logging
 from pathlib import PurePosixPath as P
 
 
+from columnize import columnize
 import numpy as np
 import pandas as pd
 from pandas import HDFStore
@@ -54,81 +55,67 @@ logging.basicConfig(
 ```{python}
 ## DEFINITIONS
 #
-h5fname = 'VehData/WltpCars.h5'
+inp_h5fname = 'VehData/WltpGS-msaccess.h5'
+out_h5fname = 'VehData/WltpGS-python.h5'
 c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 ```
 
 ```{python}
-a=nbu.print_nodes(h5fname);
+nbu.print_nodes(inp_h5fname)
+nbu.print_nodes(out_h5fname)
 ```
 
 ```{python}
-def vehgroups_with_out1(g):
-    return g.endswith('out1') and str(P(g).parent)
-
-## Find VEHICLES without RESULT
-#
-hasv: List[int] = [int(n[len('/vehicles/v'):]) for n in nbu.collect_nodes(h5fname, vehgroups_with_out1)]
-misv: List[int] = sorted(set(range(1, 116)) - set(hasv))
-print(', '.join('%s' % i for i in misv))
-
-# import random
-# random.choices(misv, k=9)
-```
-
-```{python}
-def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups, nodes_predicate) -> List[NDFrame]:
+def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups) -> List[NDFrame]:
     """
     Merge HDF-subgroup(s) from all vehiclesinto an Indexed-DataFrame(s)
 
     :return:
         as may merged-dataframes as `data_subgroups` given
     """
+
     def func(h5db):
-        veh_groups = nbu.collect_nodes(h5db, nodes_predicate)
+        vehnums = nbu.all_vehnums(h5db)
         data_collected = list(
             zip(
                 *(
-                    tuple( 
-                        (vehg, h5db.get(str(P(vehg) / datag)))  # key: vehnum, value: subgroup-dfs
+                    tuple(
+                        # key: vehnum, value: subgroup-dfs
+                        ("v%0.3i" % vehnum, h5db.get(nbu.vehnode(vehnum, datag)))
                         for datag in data_subgroups
                     )
-                    for vehg in veh_groups
+                    for vehnum in vehnums
                 )
             )
         )
-        
+
         return data_collected
+
     data_collected = nbu.do_h5(h5, func)
 
-
     dicts_to_merge = [dict(d) for d in data_collected]
-    index_dfs = [pd.concat(d.values(), keys=d.keys()).sort_index() for d in dicts_to_merge]
+    index_dfs = [
+        pd.concat(d.values(), keys=d.keys()).sort_index() for d in dicts_to_merge
+    ]
 
     return index_dfs
- 
-datags_to_collect = ("props", "out1/props", "out1/cycle", "out2/props", "out2/cycle")
 
-ip1, p1, c1, p2, c2 = merge_veh_datasets(h5fname, datags_to_collect, vehgroups_with_out1)
+
+ip1, p1, c1 = merge_veh_datasets(inp_h5fname, ("iprop", "oprop", "cycle"))
+p2, c2 = merge_veh_datasets(out_h5fname, ("oprop", "cycle"))
 
 ## Merge input & Output props from heinz db.
 #
-ip1.name, p1.name = 'ab' # da butare
-p1 = pd.concat((ip1, p1, ), axis=0).sort_index()
+ip1.name, p1.name = "ab"  # da butare
+p1 = pd.concat((ip1, p1), axis=0).sort_index()
 p1 = p1[~p1.index.duplicated()]  # or else, pivot(unstack) fails below
-
-## Set level-2 indexs cycle-time, to plot nicely,
-#  bc they Heinz-DFs were not stored with time as index 
-#  (was just a column).
-#
-c1['vg'] = c1.index.droplevel(1)
-c1 = c1.set_index(['vg', 'tim'])
 ```
 
 ```{python}
 display(
-   nbu.grid(p1),
-   nbu.grid(p2),
+    nbu.grid(p1),
+    nbu.grid(p2),
+    #nbu.grid(c1, fitcols=0),
 )
 ```
 
@@ -159,7 +146,6 @@ display(nbu.grid(cdf, fitcols=False, cwidth=100),)
 ```
 
 ```{python}
-from columnize import columnize
 print(columnize(list(c1.columns), displaywidth=160))
 print(c2.columns)
 ```
@@ -308,6 +294,7 @@ def plot_xy_diffs_arrows(
 ```{python}
 # %matplotlib widget
 
+plt.close(); plt.figure()
 plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "n_kl", 'pmr', 'rpm'], 
                      data_label="n in min-1", ref_label="HeinzDb",
 #             data_fmt="+k", data_kws={},
@@ -322,7 +309,7 @@ plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "n_
 
 ```{python}
 plt.close(); plt.figure()
-veh = '/vehicles/v007'
+veh = 'v007'
 display(c1.loc[veh, :].v.mean(), c2.loc[veh, :].v_class.mean())
 ax = c1.loc[veh, 'v'].plot()
 c2.loc[veh, 'v_class'].plot(ax=ax)

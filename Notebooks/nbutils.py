@@ -396,4 +396,12 @@ def load_vehicle(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
     return do_h5(h5, func)
 
 
+def all_vehnums(h5) -> List[int]:
+    def func(h5db):
+        vehnums = [int(g._v_name[1:]) for g in h5db._handle.iter_nodes(vehnode())]
+        return sorted(vehnums)
+
+    return do_h5(h5, func)
+
+
 # props, pwot = load_vehicle(h5fname, vehnum, "props", "pwot")
