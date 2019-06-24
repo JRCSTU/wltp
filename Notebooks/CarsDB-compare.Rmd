@@ -49,17 +49,6 @@ logging.basicConfig(
     format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
     datefmt='%Y-%m-%d,%H:%M:%S',
 )
-
-## Fix too-small columns when too many,
-# from: https://github.com/quantopian/qgrid/issues/171#issuecomment-365489567
-def grid(df, fitcols=True, cwidth=None):
-    grid_opts = {'forceFitColumns': fitcols}
-    if not fitcols and cwidth is None:
-        cwith = 86
-    if cwidth is not None:
-        grid_opts['defaultColumnWidth'] = cwidth
-        
-    return qgrid.show_grid(df, grid_options=grid_opts) 
 ```
 
 ```{python}
@@ -138,8 +127,8 @@ c1 = c1.set_index(['vg', 'tim'])
 
 ```{python}
 display(
-   grid(p1),
-   grid(p2),
+   nbu.grid(p1),
+   nbu.grid(p2),
 )
 ```
 
@@ -166,7 +155,7 @@ cdf = sr_cmpr.compare((p1, p2), equivalent_columns, dataset_names)
 #  https://github.com/quantopian/qgrid/issues/18#issuecomment-149321165
 cdf.columns = [' '.join(col).strip() for col in cdf.columns.values]
 
-display(grid(cdf, fitcols=False, cwidth=100),)
+display(nbu.grid(cdf, fitcols=False, cwidth=100),)
 ```
 
 ```{python}

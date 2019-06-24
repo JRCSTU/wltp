@@ -6,6 +6,7 @@ from copy import deepcopy
 import logging
 import subprocess as sbp
 import os
+import qgrid
 import shutil
 import sys
 
@@ -164,6 +165,7 @@ def openh5(h5: Union[str, HDFStore]):
 
 
 def do_h5(h5: Union[str, HDFStore], func: callable, *args, **kw):
+    """Open & close if `h5` is fname (string), do nothing if an opened db"""
     if isinstance(h5, HDFStore) and h5.is_open:
         out = func(h5, *args, **kw)
     else:
@@ -352,6 +354,18 @@ class Comparator:
                 style = style.bar(subset=[diff_idx], **self.diff_bar_kw)
 
         return style
+
+
+## Fix too-small columns when too many,
+# from: https://github.com/quantopian/qgrid/issues/171#issuecomment-365489567
+def grid(df, fitcols=True, cwidth=None):
+    grid_opts = {"forceFitColumns": fitcols}
+    if not fitcols and cwidth is None:
+        cwith = 86
+    if cwidth is not None:
+        grid_opts["defaultColumnWidth"] = cwidth
+
+    return qgrid.show_grid(df, grid_options=grid_opts)
 
 
 #########################
