@@ -99,13 +99,12 @@ if on_rtd:
 #    From http://stackoverflow.com/a/5599712/548792
 #    and http://stackoverflow.com/questions/3757500/how-do-i-connect-sphinxs-autodoc-skip-member-to-my-function
 #
-autodoc_default_flags = [
-    "members",
-    "private-members",
-    "special-members",
-    #'undoc-members',
-    "show-inheritance",
-]
+autodoc_default_options = {
+    "private-members": True,
+    "special-members": "__init__",
+    #'undoc-members': True,
+    "show-inheritance": True,
+}
 # autoclass_content = 'both' ## Join class+ __init__() docstrings
 def autodoc_skip_member(app, what, name, obj, skip, options):
     exclusions = (
