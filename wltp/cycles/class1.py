@@ -25,8 +25,14 @@ def class_data():
         "parts": [590, 1023],
         "downscale": {
             "phases": [651, 848, 906],  ## Note: Start end end +1 from specs.
-            "p_max_values": [764, 61.4, 0.22],  ## t, V(Km/h), Accel(m/s2)
-            "factor_coeffs": [1, 0.54, -0.54],  ## r0, a1, b1
+            "p_max_values": {
+                "time": 764,
+                # Km/h
+                "v": 61.4,
+                # m/s^2
+                "a": 0.22,
+            },
+            "factor_coeffs": [0.978, 0.680, -0.665],  ## r0, a1, b1
         },
         "checksum": 41139.6,
         "part_checksums": [11988.4, 17162.8, 11988.4],

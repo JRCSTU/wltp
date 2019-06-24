@@ -53,15 +53,8 @@ class ExperimentDownscale(unittest.TestCase):
         phases = dsc_data["phases"]
         p_max_values = dsc_data["p_max_values"]
         downsc_coeffs = dsc_data["factor_coeffs"]
-        dsc_v_split = dsc_data.get("v_max_split", None)
         f_downscale = calcDownscaleFactor(
-            P_REQ,
-            p_max_values,
-            downsc_coeffs,
-            dsc_v_split,
-            p_rated,
-            v_max,
-            f_downscale_threshold,
+            P_REQ, p_max_values, downsc_coeffs, p_rated, v_max, f_downscale_threshold
         )
         if f_downscale > 0:
             cycle = downscaleCycle(cycle, f_downscale, phases)

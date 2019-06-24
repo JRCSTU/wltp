@@ -358,7 +358,7 @@ def _get_model_base():
             "f_downscale_threshold": 0.01,
             "driver_mass": 75,  # kg
             "v_stopped_threshold": 1,  # km/h, <=
-            "f_inertial": 1.1,
+            "f_inertial": 1.03,
             "f_safety_margin": 0.9,  # TODO: this must change to 1-SM = 0.1
             "f_n_max": 1.2,
             "f_n_min": 0.125,
@@ -755,17 +755,16 @@ def _get_wltc_schema():
                                 "minItems": 2,
                             },
                             "p_max_values": {
-                                "type": "array",
-                                "additionalItems": False,
-                                "items": {"type": "number"},
-                                "maxItems": 3,
-                                "minItems": 3,
+                                "type": "object",
+                                "properties": {
+                                    "time": {"type": "number"},
+                                    "v": {"type": "number"},
+                                    "a": {"type": "number"},
+                                },
+                                "additionalProperties": False,
+                                "required": ["time", "v", "a"],
                             },
                             "factor_coeffs": {"type": "array"},
-                            "v_max_split": {
-                                "description": "Velocity-limit (<, km/h) for calculating class-2 & 3 ``f_downscaling`` (Annex 1.7.3, p68).",
-                                "type": "number",
-                            },
                         },
                     },
                     "checksum": {"type": "number"},

@@ -175,7 +175,7 @@ class Experiment(object):
 
         ## Required-Power needed early-on by Downscaling.
         #
-        f_inertial = params.get("f_inertial", 1.1)
+        f_inertial = params["f_inertial"]
         A, P_REQ = calcPower_required(V, test_mass, f0, f1, f2, f_inertial)
         results["a_class"] = A
         results["p_required_class"] = P_REQ
@@ -190,12 +190,10 @@ class Experiment(object):
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
                 downsc_coeffs = dsc_data["factor_coeffs"]
-                dsc_v_split = dsc_data.get("v_max_split", None)
                 f_downscale = calcDownscaleFactor(
                     P_REQ,
                     p_max_values,
                     downsc_coeffs,
-                    dsc_v_split,
                     p_rated,
                     v_max,
                     f_downscale_threshold,
@@ -358,16 +356,9 @@ def decideClass(wltc_data, p_m_ratio, v_max):
 
 
 def calcDownscaleFactor(
-    P_REQ,
-    p_max_values,
-    downsc_coeffs,
-    dsc_v_split,
-    p_rated,
-    v_max,
-    f_downscale_threshold,
+    P_REQ: pd.Series, p_max_values, downsc_coeffs, p_rated, v_max, f_downscale_threshold
 ):
     """Check if downscaling required, and apply it.
-
     :return: (float) the factor
 
     @see: Annex 1-7, p 68
@@ -375,28 +366,29 @@ def calcDownscaleFactor(
 
     ## Max required power
     #
-    p_req_max = P_REQ[p_max_values[0]]
+    p_max_time = p_max_values["time"]
+    p_req_max = P_REQ[p_max_time]
+    if p_req_max < P_REQ.max():
+        log.debug(
+            "max(P_REQ) not at %ssec(%s) but %s(%s)!",
+            p_max_time,
+            p_req_max,
+            P_REQ.argmax(),
+            P_REQ.max(),
+        )
+
     r_max = p_req_max / p_rated
 
-    ## Cycle r0
     #
-    if dsc_v_split is not None:
-        assert len(downsc_coeffs) == 2, downsc_coeffs
+    (r0, a1, b1) = downsc_coeffs
 
-        downsc_coeffs = downsc_coeffs[0] if (v_max <= dsc_v_split) else downsc_coeffs[1]
-
-    if downsc_coeffs is None:
+    if r_max < r0:
         f_downscale = 0
     else:
-        (r0, a1, b1) = downsc_coeffs
-
-        if r_max < r0:
+        f_downscale = a1 * r_max + b1
+        f_downscale = round(f_downscale, 3)
+        if f_downscale <= f_downscale_threshold:
             f_downscale = 0
-        else:
-            f_downscale = a1 * r_max + b1
-            f_downscale = round(f_downscale, 1)
-            if f_downscale <= f_downscale_threshold:
-                f_downscale = 0
 
     return f_downscale
 
