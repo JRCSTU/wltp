@@ -70,8 +70,8 @@ Changelog
 
 v1.0.0.dev  (X-Jun-2019): PY3.5 only & real work!
 -------------------------------------------------
-- Drop support for Python 2.7 & 3.4, `which covers 95% of 2018 Python-3 installations 
-  (84% of Pythons in total)
+- Drop support for Python 2.7 & <3.6, due to `f"string:`, among others...
+  The supported Pythons `covers 84% of 2018 Python-3 installations (71% of Pythons in total)
   <https://www.jetbrains.com/research/python-developers-survey-2018/#python-3-adoption>`_
 - FEAT: NOTEBOOKS comparing with latest Heinz db.
   Possible to launch a *live* demo of this repository in *mybinder.org*.
@@ -79,6 +79,9 @@ v1.0.0.dev  (X-Jun-2019): PY3.5 only & real work!
   move all TCs out of main-sources.
 - Depend on *pandalone* which has updated *jsonschema-v3* validator 
   (draft4-->draft7).
+- model:
+    - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec. 
+    - break: cycle-part limits are plain lists-of-limits (not list-of-pairs).
 - Build & dev-dependencies enhancements.
 - style: auto-format python files with |black|_  using |pre-commit|_.
 
