@@ -16,68 +16,74 @@
 import re
 import sys, os, io
 
-print("python exec: %s"% sys.executable)
-print("sys.path: %s"%sys.path)
+print("python exec: %s" % sys.executable)
+print("sys.path: %s" % sys.path)
 try:
     import numpy
+
     print("numpy: %s, %s" % (numpy.__version__, numpy.__file__))
 except ImportError:
     print("no numpy")
 try:
     import scipy
+
     print("scipy: %s, %s" % (scipy.__version__, scipy.__file__))
 except ImportError:
     print("no scipy")
 try:
     import pandas
+
     print("pandas: %s, %s" % (pandas.__version__, pandas.__file__))
 except ImportError:
     print("no pandas")
 try:
     import matplotlib
+
     print("matplotlib: %s, %s" % (matplotlib.__version__, matplotlib.__file__))
 except ImportError:
     print("no matplotlib")
 try:
     import IPython
+
     print("ipython: %s, %s" % (IPython.__version__, IPython.__file__))
 except ImportError:
     print("no ipython")
 try:
     import mock
+
     print("mock: %s, %s" % (mock.__version__, mock.__file__))
 except ImportError:
     print("no mock")
-    
-    
-projname = 'wltp'
+
+
+projname = "wltp"
 mydir = os.path.dirname(__file__)
+
 
 def read_project_version():
     fglobals = {}
-    with io.open(os.path.join(mydir, '..', projname, '_version.py')) as fd:
+    with io.open(os.path.join(mydir, "..", projname, "_version.py")) as fd:
         exec(fd.read(), fglobals)  # To read __version__
-    return fglobals['__version__']
+    return fglobals["__version__"]
+
 
 proj_ver = read_project_version()
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../'))
-#sys.path.insert(0, os.path.abspath('../devtools')) # Does not work for scripts :-(
+sys.path.insert(0, os.path.abspath("../"))
+# sys.path.insert(0, os.path.abspath('../devtools')) # Does not work for scripts :-(
 
 
 #
 if on_rtd:
     from unittest.mock import MagicMock
 
-    MOCK_MODULES =  [
-        'xlwings' ## Mock-out because it depends on win32.
-    ]
+    MOCK_MODULES = ["xlwings"]  ## Mock-out because it depends on win32.
     for mod_name in MOCK_MODULES:
         sys.modules[mod_name] = MagicMock()
 
@@ -85,29 +91,40 @@ if on_rtd:
 # On read the docs we need to use a different CDN URL for MathJax which loads
 # over HTTPS.
 if on_rtd:
-    mathjax_path = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
+    mathjax_path = (
+        "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+    )
 
 ## Make autodoc always includes constructors.
 #    From http://stackoverflow.com/a/5599712/548792
 #    and http://stackoverflow.com/questions/3757500/how-do-i-connect-sphinxs-autodoc-skip-member-to-my-function
 #
-autodoc_default_flags = ['members', 'private-members',
-                    'special-members',
-                    #'undoc-members',
-                    'show-inheritance']
+autodoc_default_flags = [
+    "members",
+    "private-members",
+    "special-members",
+    #'undoc-members',
+    "show-inheritance",
+]
 # autoclass_content = 'both' ## Join class+ __init__() docstrings
 def autodoc_skip_member(app, what, name, obj, skip, options):
-    exclusions = ('__weakref__',  # special-members
-                  '__doc__', '__module__', '__dict__',  # undoc-members
-                  #'__init__', __new__
-                  )
+    exclusions = (
+        "__weakref__",  # special-members
+        "__doc__",
+        "__module__",
+        "__dict__",  # undoc-members
+        #'__init__', __new__
+    )
     exclude = name in exclusions
     return skip or exclude
+
+
 # #     if what == 'method' and \
 # #             (name == "__init__" or re.match(r'^_[A-Za-z]', name)):
 #     if (name == "__init__" or re.match(r'^_[A-Za-z]', name)):
 #         return False
 #     return skip
+
 
 def setup(app):
     app.connect("autodoc-skip-member", autodoc_skip_member)
@@ -116,42 +133,42 @@ def setup(app):
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+# needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.extlinks',
-    'sphinx.ext.todo',
-    'matplotlib.sphinxext.plot_directive',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.todo",
+    "matplotlib.sphinxext.plot_directive",
 ]
 
 ## Prevent Sphinx from doctesting python-modules doctests,
 # they will be checked separately with *pytest*.
-doctest_test_doctest_blocks = ''
+doctest_test_doctest_blocks = ""
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
-#source_encoding = 'utf-8-sig'
+# source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = 'wltp'
-copyright = '2013-2019, European Commission (JRC), EUPL 1.1+'  # @ReservedAssignment
+project = "wltp"
+copyright = "2013-2019, European Commission (JRC), EUPL 1.1+"  # @ReservedAssignment
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -162,48 +179,46 @@ version = proj_ver
 # The full version, including alpha/beta/rc tags.
 release = proj_ver
 
-extlinks = {
-    'issue': ('https://github.com/JRCSTU/wltp/issues/%s','issue')
-}
+extlinks = {"issue": ("https://github.com/JRCSTU/wltp/issues/%s", "issue")}
 todo_include_todos = True
 
 # The language for content autogenerated by Sphinx. Refer to documentation
 # for a list of supported languages.
-#language = None
+# language = None
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
-#today = ''
+# today = ''
 # Else, today_fmt is used as the format for a strftime call.
-#today_fmt = '%B %d, %Y'
+# today_fmt = '%B %d, %Y'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', 'docs']
+exclude_patterns = ["_build", "docs"]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
-default_role = 'obj'
+default_role = "obj"
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
-#add_function_parentheses = True
+# add_function_parentheses = True
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+# add_module_names = True
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
-#show_authors = False
+# show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # A list of ignored prefixes for module index sorting.
-#modindex_common_prefix = []
+# modindex_common_prefix = []
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
-#keep_warnings = False
+# keep_warnings = False
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -215,124 +230,126 @@ pygments_style = 'sphinx'
 # }
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+# html_theme_path = []
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+# html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-#html_short_title = None
+# html_short_title = None
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+# html_logo = None
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+# html_favicon = None
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
-#html_extra_path = []
+# html_extra_path = []
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-html_last_updated_fmt = '%b %d, %Y'
+html_last_updated_fmt = "%b %d, %Y"
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+# html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-#html_additional_pages = {}
+# html_additional_pages = {}
 
 # If false, no module index is generated.
-#html_domain_indices = True
+# html_domain_indices = True
 
 # If false, no index is generated.
-#html_use_index = True
+# html_use_index = True
 
 # If true, the index is split into individual pages for each letter.
-#html_split_index = False
+# html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+# html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+# html_show_sphinx = True
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-#html_show_copyright = True
+# html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
-#html_use_opensearch = ''
+# html_use_opensearch = ''
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
-#html_file_suffix = None
+# html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'wltpdoc'
+htmlhelp_basename = "wltpdoc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
-'papersize': 'a4paper',
-
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
-
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
-'preamble': u'''
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
+    "papersize": "a4paper",
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
+    "preamble": u"""
     \\usepackage{amsmath}
-''',
+""",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'wltp.tex', 'wltp Documentation',
-   "Authors: see '4.5 Development Team' section", 
-   'manual'),
+    (
+        "index",
+        "wltp.tex",
+        "wltp Documentation",
+        "Authors: see '4.5 Development Team' section",
+        "manual",
+    )
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = None
+# latex_logo = None
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
-#latex_use_parts = False
+# latex_use_parts = False
 
 # If true, show page references after internal links.
-#latex_show_pagerefs = False
+# latex_show_pagerefs = False
 
 # If true, show URL addresses after external links.
-#latex_show_urls = False
+# latex_show_urls = False
 
 # Documents to append as an appendix to all manuals.
-#latex_appendices = []
+# latex_appendices = []
 
 # If false, no module index is generated.
-#latex_domain_indices = True
+# latex_domain_indices = True
 
 
 # -- Options for manual page output ---------------------------------------
@@ -340,12 +357,17 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'wltp', 'wltp Documentation',
-     ["Authors: see '4.5 Development Team' section"], 1)
+    (
+        "index",
+        "wltp",
+        "wltp Documentation",
+        ["Authors: see '4.5 Development Team' section"],
+        1,
+    )
 ]
 
 # If true, show URL addresses after external links.
-#man_show_urls = False
+# man_show_urls = False
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -354,30 +376,35 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'wltp', 'wltp Documentation',
-   "Authors: see '4.5 Development Team' section", 'wltp', 'One line description of project.',
-   'Miscellaneous'),
+    (
+        "index",
+        "wltp",
+        "wltp Documentation",
+        "Authors: see '4.5 Development Team' section",
+        "wltp",
+        "One line description of project.",
+        "Miscellaneous",
+    )
 ]
 
 # Documents to append as an appendix to all manuals.
-#texinfo_appendices = []
+# texinfo_appendices = []
 
 # If false, no module index is generated.
-#texinfo_domain_indices = True
+# texinfo_domain_indices = True
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
-#texinfo_show_urls = 'footnote'
+# texinfo_show_urls = 'footnote'
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
-#texinfo_no_detailmenu = False
+# texinfo_no_detailmenu = False
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3.7', None),
-    'pandas': ('https://pandas-docs.github.io/pandas-docs-travis/', None),
-    'numpy': ('https://www.numpy.org/', None),
-    'jsonschema': ('https://python-jsonschema.readthedocs.io/en/latest/', None),
-    'pandalone': ('https://pandalone.readthedocs.io/en/latest/', None),
+    "python": ("https://docs.python.org/3.7", None),
+    "pandas": ("https://pandas-docs.github.io/pandas-docs-travis/", None),
+    "numpy": ("https://www.numpy.org/", None),
+    "jsonschema": ("https://python-jsonschema.readthedocs.io/en/latest/", None),
+    "pandalone": ("https://pandalone.readthedocs.io/en/latest/", None),
 }
-
