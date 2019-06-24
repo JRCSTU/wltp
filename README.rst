@@ -741,18 +741,18 @@ Glossary
 .. |anaconda| replace:: *Anaconda*
 .. _anaconda: http://docs.continuum.io/anaconda/
 
-.. |build-status| image:: https://travis-ci.org/ankostis/wltp.svg
+.. |build-status| image:: https://travis-ci.org/JRCSTU/wltp.svg
     :alt: Integration-build status
     :scale: 100%
-    :target: https://travis-ci.org/ankostis/wltp/builds
+    :target: https://travis-ci.org/JRCSTU/wltp/builds
 
-.. |cover-status| image:: https://coveralls.io/repos/ankostis/wltp/badge.png?branch=master
-    :target: https://coveralls.io/r/ankostis/wltp?branch=master
+.. |cover-status| image:: https://coveralls.io/repos/JRCSTU/wltp/badge.png?branch=master
+    :target: https://coveralls.io/r/JRCSTU/wltp?branch=master
 
 .. |docs-status| image:: https://readthedocs.org/projects/wltp/badge/
     :alt: Documentation status
     :scale: 100%
-    :target: https://readthedocs.org/builds/wltp/
+    :target: https://readthedocs.org/projects/wltp/builds/
 
 .. |pypi-status| image::  https://pypip.in/v/wltp/badge.png
     :target: https://pypi.python.org/pypi/wltp/
@@ -770,7 +770,7 @@ Glossary
     :target: https://pypi.python.org/pypi/wltp/
     :alt: Downloads
 
-.. |github-issues| image:: http://img.shields.io/github/issues/ankostis/wltp.svg
+.. |github-issues| image:: http://img.shields.io/github/issues/JRCSTU/wltp.svg
     :target: https://github.com/JRCSTU/wltp/issues
     :alt: Issues count
 
