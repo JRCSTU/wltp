@@ -177,6 +177,7 @@ class Experiment(object):
             V = np.asarray(class_data["cycle"], dtype=self.dtype)
 
             cycle_run["v_class"] = V
+            V = cycle_run["v_class"]  # to get cycle's index
 
             ## Downscale velocity-profile.
             #
@@ -401,7 +402,7 @@ def calcDownscaleFactor(
     return f_downscale
 
 
-def downscaleCycle(V, f_downscale, phases):
+def downscaleCycle(V: pd.Series, f_downscale, phases):
     """
     Downscale just by scaling the 2 UP/DOWN phases with different factors,
     
@@ -420,34 +421,31 @@ def downscaleCycle(V, f_downscale, phases):
 
     @see: Annex 1-8, p 64-68
     """
+    V_DSC = V.copy()
     (t0, t1, t2) = phases
+    f_scale = 1 - f_downscale
 
     ## UP-phase
     #
-    # +1 (=1725 for class3) to respect python range-notation on "tip".
-    up_ix = np.arange(t0, t1 + 1)
+    #  tip included in this phase: [start, tip] (=[1533, 1724] for class3)
+    up_ix = (t0 <= V.index) & (V.index <= t1)
     up_offset = V[t0]
-    up_scaled = (1 - f_downscale) * (V[up_ix] - up_offset) + up_offset
-    assert up_scaled[0] == V[t0], f"Smooth-start violation {up_scaled[0]} != {V[t0]}!"
+    V_DSC[up_ix] = up_offset + f_scale * (V[up_ix] - up_offset)
+    assert V_DSC[t0] == V[t0], f"Invariant-start violation {V_DSC[t0]} != {V[t0]}!"
 
     ## DOWN-phase
     #
-    # +1 (=1764 for class3) to respect python range-notation on "end".
-    dn_ix = np.arange(t1 + 1, t2 + 1)
+    # [tip+1, end] ()=[1725, 1763] for class3)
+    dn_ix = (t1 + 1 <= V.index) & (V.index <= t2)
     dn_offset = V[t2]
-    f_corr = (up_scaled[-1] - dn_offset) / (V[t1] - dn_offset)
-    dn_scaled = f_corr * (V[dn_ix] - dn_offset) + dn_offset
-    assert (
-        dn_scaled[-1] == V[t2]
-    ), f"Smooth-finish violation {dn_scaled[-1]} != {V[t2]}!"
+    f_corr = (V_DSC[t1] - dn_offset) / (V[t1] - dn_offset)
+    V_DSC[dn_ix] = dn_offset + f_corr * (V[dn_ix] - dn_offset)
+    assert V_DSC[t2] == V[t2], f"Invariant-end violation {V_DSC[t2]} != {V[t2]}!"
 
-    scaled = np.hstack((up_scaled, dn_scaled))
-    assert (1 - f_downscale) * abs(scaled[t1 - t0] - scaled[t1 - t0 + 1]) <= abs(
-        V[t1] - V[t1 + 1]
-    ), f"Smooth-tip violation ({scaled[t1 - t0]}, {scaled[t1 - t0 + 1]}) != ){V[t1]}, {V[t1 + 1]})!"
-
-    V_DSC = np.hstack((V[:t0], scaled, V[t2 + 1 :]))
-    assert V.shape == V_DSC.shape, _shapes(V, V_DSC)
+    assert f_scale * (V_DSC[t1] - V_DSC[t1 + 1]) <= (V[t1] - V[t1 + 1]), (
+        f"Smooth-tip violation {f_scale} x V_DSC_tip({V_DSC[t1]}, {V_DSC[t1 + 1]})"
+        f" != V_tip({V[t1]}, {V[t1 + 1]})!"
+    )
 
     return V_DSC
 

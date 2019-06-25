@@ -168,7 +168,7 @@ cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
 ```{python}
 ## Report CYCLE-MEAN differences
 #
-# UNCOMMENT to FETCH new vehicles.
+# UNCOMMENT next line to FETCH new vehicles.
 p1, c1, p2, c2 = load_heinz_and_python_datasets()
 equivalent_series = [
     ("v_orig", "v_class"),
@@ -340,24 +340,27 @@ def get_similarity(a, b):
 
 ```{python}
 plt.close();
-_fig, (ax1, ax2) = plt.subplots(2, sharex=True)
+_fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(12,8))
 
 veh, col1, col2 = 'v075 P_tot p_required'.split()
-a, b = c1.loc[veh, col1], c2.loc[veh, col2]
+tol = 0.001
+a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
+ix = 100*(a-b).abs()/a.max() > tol 
 display('P', get_similarity(a, b))
-a.plot(ax=ax1)
-b.plot(ax=ax1)
+a[ix].plot(ax=ax1)
+b[ix].plot(ax=ax1)
 
 ax1.legend()
 
 #ax2 = ax.twinx()
 
 col1, col2 = 'v_downscale v_target'.split()
-a, b = c1.loc[veh, col1], c2.loc[veh, col2]
+a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
+ix = 100*(a-b).abs()/a.max() > tol
 display(get_similarity(a, b))
-c1.loc[veh, 'v_orig'].plot(ax=ax2)
-a.plot(ax=ax2)
-b.plot(ax=ax2)
+c1.loc[veh, 'v_orig'].copy()[ix].plot(ax=ax2)
+a[ix].plot(style='+', ax=ax2)
+b[ix].plot(style='x', ax=ax2)
 
 ax2.legend()
 ```
