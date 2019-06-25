@@ -411,20 +411,20 @@ def downscaleCycle(V, f_downscale, phases):
 
     ## Accelaration phase
     #
-    ix_acc = np.arange(t0, t1 + 1)
-    offset_acc = V[t0]
-    acc_scaled = (1 - f_downscale) * (V[ix_acc] - offset_acc) + offset_acc
-    assert acc_scaled[0] == V[t0], ("smooth-start: ", acc_scaled[0], V[t0])
+    up_ix = np.arange(t0, t1 + 1)
+    up_offset = V[t0]
+    up_scaled = (1 - f_downscale) * (V[up_ix] - up_offset) + up_offset
+    assert up_scaled[0] == V[t0], ("smooth-start: ", up_scaled[0], V[t0])
 
     ## Decelaration phase
     #
-    ix_dec = np.arange(t1 + 1, t2 + 1)
-    offset_dec = V[t2]
-    f_corr = (acc_scaled[-1] - offset_dec) / (V[t1] - offset_dec)
-    dec_scaled = f_corr * (V[ix_dec] - offset_dec) + offset_dec
-    assert dec_scaled[-1] == V[t2], ("smooth-finish: ", dec_scaled[-1], V[t2])
+    dn_ix = np.arange(t1 + 1, t2 + 1)
+    dn_offset = V[t2]
+    f_corr = (up_scaled[-1] - dn_offset) / (V[t1] - dn_offset)
+    dn_scaled = f_corr * (V[dn_ix] - dn_offset) + dn_offset
+    assert dn_scaled[-1] == V[t2], ("smooth-finish: ", dn_scaled[-1], V[t2])
 
-    scaled = np.hstack((acc_scaled, dec_scaled))
+    scaled = np.hstack((up_scaled, dn_scaled))
     assert (1 - f_downscale) * abs(scaled[t1 - t0] - scaled[t1 - t0 + 1]) <= abs(
         V[t1] - V[t1 + 1]
     ), ("smooth-tip: ", scaled[t1 - t0], scaled[t1 - t0 + 1], V[t1], V[t1 + 1])
