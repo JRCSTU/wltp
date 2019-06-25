@@ -42,7 +42,21 @@ Known deficiencies
 Questions to Heinz
 ==================
 * How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
-* Why the limits of the cycle-parts do not coicede with the starting-time on the time column?
+  see vehicles: 
+  
+  * ABOVE: 7, 30, 48, 64, ...
+  * BELOW: 23, 25, 34, 39, 45, 48, 49, 50, 52, 53, 57, 64, ...
+
+* Why the limits of the cycle-parts do not coincede with the starting-time on the time column?
+* There are not capped vehicles in sample cars?
+* Why is there a +0.5 (evident in veh082 where f_downscale=0.01)::
+
+      f_dsc_req = Int((a1 * rmax + b1) * 1000 + 0.5) / 1000
+
+  in the following places?
+  
+  * WLTP_GS_AccessDB-sources/F calc gearshifts single vehicle.form.txt:(4877, 4903, 4920)
+  * WLTP_GS_AccessDB-sources/F new vehicle.form.txt:(3537, 3563, 3589)
 
 
 .. _todos-list:
