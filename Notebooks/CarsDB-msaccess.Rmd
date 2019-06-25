@@ -73,7 +73,7 @@ c_vehnum, c_engno, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'no_engine', 'n', 'P
 ```{python}
 ## PROVENANCE: discover how it came to be, at a later time
 #  (might take 10'')
-root_prov_info = nbu.provenance_info(files=[heinzdb_fpath], repos=['.']) 
+root_prov_info = nbu.provenance_info(files=[heinzdb_fpath]) 
 ```
 
 ```{python}

@@ -61,7 +61,7 @@ c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 ```{python}
 ## PROVENANCE: discover how it came to be, at a later time
 #  (might take 10'')
-root_prov_info = nbu.provenance_info(files=[heinzdb_fpath], repos=['.', '../wltp.git']) 
+root_prov_info = nbu.provenance_info(files=[heinzdb_fpath])
 ```
 
 ```{python}

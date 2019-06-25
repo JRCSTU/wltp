@@ -59,7 +59,7 @@ def _git_describe(basedir="."):
 def _python_describe():
     info = {"path": shutil.which("python")}
     condaenv = os.environ.get("CONDA_DEFAULT_ENV")
-    log.info(f"Asking conda-env({condaenv}) or `pip`, might take some time...")
+    log.info("Asking conda-env(%s) or `pip`, might take some time...", condaenv)
     if condaenv:
         info["type"] = "conda"
 
@@ -123,6 +123,11 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
     gtr = info.get("repos")
     if not isinstance(gtr, list):
         gtr = info["repos"] = []
+
+    if not repos and "." not in gtr:
+        repos = ["."]
+
+    log.debug("Git-describing (%s)...", repos)
     gtr.extend(
         {"path": str(Path(g).absolute()), "type": "git", "version": _git_describe(g)}
         for g in repos
