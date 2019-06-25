@@ -742,10 +742,11 @@ def _get_wltc_schema():
                         "properties": {
                             "phases": {
                                 "type": "array",
-                                "additionalItems": False,
+                                "description": "triplet (start, tip, end); start & end remain unchanged",
                                 "items": {"$ref": "model#definitions/positiveInteger"},
                                 "maxItems": 3,
                                 "minItems": 3,
+                                "additionalItems": False,
                             },
                             "decel_phase": {
                                 "type": "array",
