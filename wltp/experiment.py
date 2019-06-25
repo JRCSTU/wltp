@@ -185,7 +185,7 @@ class Experiment(object):
             #
             f_downscale = params.get("f_downscale")
             if not f_downscale:
-                f_downscale_threshold = params.get("f_downscale_threshold", 0.01)
+                f_downscale_threshold = params["f_downscale_threshold"]
                 dsc_data = class_data["downscale"]
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]

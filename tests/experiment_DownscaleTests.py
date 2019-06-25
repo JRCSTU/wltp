@@ -46,9 +46,7 @@ class ExperimentDownscale(unittest.TestCase):
         class_data = wltc["classes"][wltc_class]
         cycle = np.asarray(class_data["cycle"], dtype=dtp)
 
-        A, P_REQ = calcPower_required(cycle, None, mass, f0, f1, f2, f_inertial)
-
-        f_downscale_threshold = 0.01
+        f_downscale_threshold = 0.01  # TODO: get it from schema-default
         dsc_data = class_data["downscale"]
         phases = dsc_data["phases"]
         p_max_values = dsc_data["p_max_values"]
