@@ -8,12 +8,7 @@
 
 import logging
 import unittest
-from wltp.experiment import (
-    decideClass,
-    calcPower_required,
-    calcDownscaleFactor,
-    downscaleCycle,
-)
+from wltp.experiment import decideClass, calcDownscaleFactor, downscaleCycle
 
 import numpy as np
 
@@ -32,7 +27,7 @@ class ExperimentDownscale(unittest.TestCase):
 
         dtp = np.float64
 
-        mass = 1577.3106
+        test_mass = 1577.3106
         p_rated = 78.6340
         v_max = 186.4861
         f0 = 152.5813
@@ -42,7 +37,7 @@ class ExperimentDownscale(unittest.TestCase):
         ## Decide WLTC-class.
         #
         wltc = model._get_wltc_data()
-        wltc_class = decideClass(wltc, p_rated / mass, v_max)
+        wltc_class = decideClass(wltc, p_rated / test_mass, v_max)
         class_data = wltc["classes"][wltc_class]
         cycle = np.asarray(class_data["cycle"], dtype=dtp)
 
@@ -52,7 +47,15 @@ class ExperimentDownscale(unittest.TestCase):
         p_max_values = dsc_data["p_max_values"]
         downsc_coeffs = dsc_data["factor_coeffs"]
         f_downscale = calcDownscaleFactor(
-            P_REQ, p_max_values, downsc_coeffs, p_rated, v_max, f_downscale_threshold
+            p_max_values,
+            downsc_coeffs,
+            p_rated,
+            f_downscale_threshold,
+            test_mass,
+            f0,
+            f1,
+            f2,
+            f_inertial,
         )
         if f_downscale > 0:
             cycle = downscaleCycle(cycle, f_downscale, phases)

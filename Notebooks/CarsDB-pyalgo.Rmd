@@ -28,11 +28,12 @@ with the *outputs* (`oprop`, `cycle`) from this *wltp* library.
 ```
 
 ```{python}
-from typing import Union
+from typing import Union, Sequence as Seq
 import io
 import logging
 from pathlib import Path, PurePosixPath as P
 
+import numpy as np
 import pandas as pd
 from wltp.experiment import Experiment
 import wltp.utils as wutils
@@ -135,9 +136,15 @@ def run_python_wltp_on_db_vehice(h5, vehnum,
     ## Drop these arrays not to burden HDF data-model
     #  (all but `, exist also in inputs.
     #
-    del veh['resistance_coeffs'], veh['gear_ratios']
-    output_model['cycle_run'] = output_model['cycle_run'].drop('driveability', axis=1)
-    
+    del veh['resistance_coeffs'], veh['gear_ratios'], veh['full_load_curve']
+    for k, v in veh.items():
+        if v is None:
+            veh[k] = np.NaN
+    cycle_run = output_model['cycle_run']
+    cycle_run = cycle_run.drop('driveability', axis=1)
+    for badtype_col in 'gears gears_orig'.split():
+        cycle_run[badtype_col] = cycle_run[badtype_col].astype('int64')
+            
     return output_model
 # output_model = run_python_wltp_on_db_vehice(inp_h5fname, 14)
 # display(output_model["cycle_run"])
@@ -145,7 +152,12 @@ def run_python_wltp_on_db_vehice(h5, vehnum,
 
 ```{python}
 def store_python_results(
-    inph5, outh5, props_group_suffix="oprop", cycle_group_suffix="cycle", no_write=False
+    inph5,
+    outh5,
+    vehile_nums: Seq[int]=None,
+    props_group_suffix="oprop",
+    cycle_group_suffix="cycle",
+    no_write=False,
 ):
     """
     RUN PYTHON on cars that have HeinzDB results in /vechicles/v123/out1
@@ -161,16 +173,18 @@ def store_python_results(
     """
 
     def run_vehicles_with_pythons(h5db):
-        for vehnum in nbu.all_vehnums(h5db):
+        for vehnum in vehile_nums or nbu.all_vehnums(h5db):
+            log.info("Processing veh(v%0.3i)...", vehnum)
             try:
                 yield vehnum, run_python_wltp_on_db_vehice(inph5, vehnum)
             except Exception as ex:
                 log.error("V%0.3i failed: %s", vehnum, ex)
                 raise ex
-    
+
     def store_vehicles(h5db, vehnum, outmodel):
         if no_write:
             return
+        
         g = nbu.vehnode(vehnum, props_group_suffix)
         h5db.put(g, pd.Series(outmodel["vehicle"]))
         nbu.provenir_h5node(
@@ -183,15 +197,12 @@ def store_python_results(
         g = nbu.vehnode(vehnum, cycle_group_suffix)
         h5db.put(g, outmodel["cycle_run"])
         nbu.provenir_h5node(
-            h5db,
-            g,
-            title="Wltp-run generated old phase-1a python",
-            base=root_prov_info,
+            h5db, g, title="Wltp-run generated old phase-1a python", base=root_prov_info
         )
 
-    
     for vehnum, outmodel in nbu.do_h5(inph5, run_vehicles_with_pythons):
         nbu.do_h5(outh5, store_vehicles, vehnum, outmodel)
+
 
 with nbu.openh5(inp_h5fname) as inph5, nbu.openh5(out_h5fname) as outh5:
     store_python_results(inph5, outh5)
@@ -203,7 +214,7 @@ nbu.print_nodes(out_h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x100 HDF5: 135Mb-->19Mb in 22s.
+## COMPRESS x100 HDF5: 252Mb-->21Mb in 22s.
 #
 # !ls -lh {out_h5fname}
 # !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:blosclz -o {out_h5fname}.tmp

@@ -51,12 +51,12 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
 import logging
 import re
 import sys
+from typing import Union
 
 import numpy as np
 import pandas as pd
 
 from . import model
-
 
 log = logging.getLogger(__name__)
 
@@ -142,27 +142,32 @@ class Experiment(object):
             (f0, f1, f2) = calc_default_resistance_coeffs(
                 test_mass, params["resistance_coeffs_regression_curves"]
             )
+        f_inertial = params["f_inertial"]
 
+        ## TODO: real calc v_max.
+        #
         if v_max is None:
             v_max = n_rated / gear_ratios[-1]
 
-        is_velocity_forced = any(col in cycle_run for col in ("v_class", "v_target"))
-        if is_velocity_forced:
-            forced_v_column = "v_class" if "v_class" in cycle_run else "v_target"
-            log.info("Found forced velocity(%s).", forced_v_column)
+        p_m_ratio = 1000 * p_rated / unladen_mass
+        vehicle["pmr"] = p_m_ratio
 
-            V = cycle_run[forced_v_column].values
+        forced_v_column = "v_target"
+        V = cycle_run.get(forced_v_column)
+        if V is not None:
+            log.info(
+                "Found forced velocity in %r with %s valus.", forced_v_column, len(V)
+            )
 
+            ## Facilitate post-processing scripts, and keep columns.
+            #
             cycle_run["v_class"] = V
-            cycle_run["v_target"] = V
+            params["f_downscale"] = None
         else:
             ## Decide WLTC-class.
             #
             wltc_class = vehicle.get("wltc_class")
             if wltc_class is None:
-                p_m_ratio = 1000 * p_rated / unladen_mass
-                vehicle["pmr"] = p_m_ratio
-
                 wltc_class = decideClass(self.wltc, p_m_ratio, v_max)
                 vehicle["wltc_class"] = wltc_class
             else:
@@ -173,14 +178,6 @@ class Experiment(object):
 
             cycle_run["v_class"] = V
 
-        ## Required-Power needed early-on by Downscaling.
-        #
-        f_inertial = params["f_inertial"]
-        A, P_REQ = calcPower_required(V, test_mass, f0, f1, f2, f_inertial)
-        cycle_run["a_class"] = A
-        cycle_run["p_required_class"] = P_REQ
-
-        if not is_velocity_forced:
             ## Downscale velocity-profile.
             #
             f_downscale = params.get("f_downscale")
@@ -191,22 +188,28 @@ class Experiment(object):
                 p_max_values = dsc_data["p_max_values"]
                 downsc_coeffs = dsc_data["factor_coeffs"]
                 f_downscale = calcDownscaleFactor(
-                    P_REQ,
                     p_max_values,
                     downsc_coeffs,
                     p_rated,
-                    v_max,
                     f_downscale_threshold,
+                    test_mass,
+                    f0,
+                    f1,
+                    f2,
+                    f_inertial,
                 )
                 params["f_downscale"] = f_downscale
 
             if f_downscale > 0:
                 V = downscaleCycle(V, f_downscale, phases)
-                A, P_REQ = calcPower_required(V, test_mass, f0, f1, f2, f_inertial)
 
             cycle_run["v_target"] = V
-            cycle_run["a_target"] = A
-            cycle_run["p_required"] = P_REQ
+
+        V = cycle_run["v_target"]  # as Series
+        A = calcAcceleration(V)
+        P_REQ = calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial)
+        cycle_run["a_target"] = A
+        cycle_run["p_required"] = P_REQ
 
         ## Run cycle to find internal matrices for all gears
         #    and (optionally) gearshifts.
@@ -356,7 +359,15 @@ def decideClass(wltc_data, p_m_ratio, v_max):
 
 
 def calcDownscaleFactor(
-    P_REQ: pd.Series, p_max_values, downsc_coeffs, p_rated, v_max, f_downscale_threshold
+    p_max_values,
+    downsc_coeffs,
+    p_rated,
+    f_downscale_threshold,
+    test_mass,
+    f0,
+    f1,
+    f2,
+    f_inertial,
 ):
     """Check if downscaling required, and apply it.
     :return: (float) the factor
@@ -364,31 +375,28 @@ def calcDownscaleFactor(
     @see: Annex 1-7, p 68
     """
 
-    ## Max required power
+    ## Max required power at critical point.
     #
-    p_max_time = p_max_values["time"]
-    p_req_max = P_REQ[p_max_time]
-    if p_req_max < P_REQ.max():
-        log.debug(
-            "max(P_REQ) not at %ssec(%s) but %s(%s)!",
-            p_max_time,
-            p_req_max,
-            P_REQ.argmax(),
-            P_REQ.max(),
-        )
-
+    pmv = p_max_values["v"]
+    pma = p_max_values["a"]
+    p_req_max = (
+        f0 * pmv + f1 * pmv ** 2 + f2 * pmv ** 3 + f_inertial * pma * pmv * test_mass
+    ) / 3600.0
     r_max = p_req_max / p_rated
 
-    #
     (r0, a1, b1) = downsc_coeffs
 
-    if r_max < r0:
-        f_downscale = 0
-    else:
+    if r_max >= r0:
         f_downscale = a1 * r_max + b1
         f_downscale = round(f_downscale, 3)
+        ## ATTENTION:
+        #  By the spec, f_downscale MUST be > 0.01 to apply,
+        #  but in F new vehicle.form.txt:(3537, 3563, 3589) (see CHANGES.rst)
+        #  a +0.5 is ADDED!
         if f_downscale <= f_downscale_threshold:
             f_downscale = 0
+    else:
+        f_downscale = 0
 
     return f_downscale
 
@@ -535,18 +543,22 @@ def possibleGears_byEngineRevs(
     return (_GEARS_YES, CLUTCH)
 
 
-def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
-    """
-
-    @see: Annex 2-3.1, p 71
-    """
-
+def calcAcceleration(V: Union[np.ndarray, pd.Series]):
     ## NOTE: Improved Acceleration calc on central-values with gradient.
     #    The pure_load 2nd-part of the P_REQ from start-to-stop is 0, as it should.
     #
     # A       = np.gradient(V) ## TODO: Enable gradient acceleration-calculation.
     A = np.diff(V) / 3.6
     A = np.append(A, 0)  # Restore element lost by diff().
+
+    return A
+
+
+def calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial):
+    """
+
+    @see: Annex 2-3.1, p 71
+    """
 
     VV = V * V
     VVV = VV * V
@@ -555,7 +567,7 @@ def calcPower_required(V, test_mass, f0, f1, f2, f_inertial):
     P_REQ = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
     assert V.shape == P_REQ.shape, _shapes(V, P_REQ)
 
-    return A, P_REQ
+    return P_REQ
 
 
 def calcPower_available(
@@ -599,7 +611,7 @@ def possibleGears_byPower(
     )
     assert _N_GEARS.shape == _P_AVAILS.shape, _shapes(P_REQ, _N_GEARS, _P_AVAILS)
 
-    _GEARS_YES = _P_AVAILS >= P_REQ
+    _GEARS_YES = _P_AVAILS >= P_REQ.values
 
     _GEARS_BAD = (~_GEARS_YES).all(axis=0)
     addDriveabilityProblems(_GEARS_BAD, "Insufficient power!", driveability_issues)
@@ -847,6 +859,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
     @note: Modifies GEARS & CLUTCH.
     @see: Annex 2-4, p 72
     """
+    return  ## FIXME: BREAK RULES oin advance of UPDATING them 2019
 
     def apply_step_rules(rules, isStopOnFirstApplied):
         for t in t_range:

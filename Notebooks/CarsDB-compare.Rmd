@@ -101,20 +101,25 @@ def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups) -> List[NDFrame
     return index_dfs
 
 
-ip1, p1, c1 = merge_veh_datasets(inp_h5fname, ("iprop", "oprop", "cycle"))
-p2, c2 = merge_veh_datasets(out_h5fname, ("oprop", "cycle"))
+def load_heinz_and_python_datasets():
+    ip1, p1, c1 = merge_veh_datasets(inp_h5fname, ("iprop", "oprop", "cycle"))
+    p2, c2 = merge_veh_datasets(out_h5fname, ("oprop", "cycle"))
 
-## Merge input & Output props from heinz db.
-#
-ip1.name, p1.name = "ab"  # da butare
-p1 = pd.concat((ip1, p1), axis=0).sort_index()
-p1 = p1[~p1.index.duplicated()]  # or else, pivot(unstack) fails below
+    ## Merge input & Output props from heinz db.
+    #
+    ip1.name, p1.name = "ab"  # da butare
+    p1 = pd.concat((ip1, p1), axis=0).sort_index()
+    p1 = p1[~p1.index.duplicated()]  # or else, pivot(unstack) fails below
 
-## By the spec, V rounded to 2-digits,
-#  But exporting MSAccess --> Excel outputs garbage decimals!
-#
-v_cols = "v v_orig v_cap v_downscale".split()
-c1[v_cols] = c1[v_cols].round(1)
+    ## By the spec, V rounded to 2-digits,
+    #  But exporting MSAccess --> Excel outputs garbage decimals!
+    #
+    v_cols = "v v_orig v_cap v_downscale".split()
+    c1[v_cols] = c1[v_cols].round(1)
+
+    return p1, c1, p2, c2
+
+p1, c1, p2, c2 = load_heinz__and_python_datasets()
 ```
 
 ```{python}
@@ -163,27 +168,36 @@ cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
 ```{python}
 ## Report CYCLE-MEAN differences
 #
-# RERUN merge_veh_datasets(), above, to FETCH new.
-#
-cols1 = ["v_orig", "a_orig", "v", "g_max", "gear", "P_tot", "P_max", "n_kl"]
-cols2 = ["v_class", "a_class", "v_target", "gears_orig", "gears", "p_required", "p_available", "rpm"]
+# UNCOMMENT to FETCH new vehicles.
+p1, c1, p2, c2 = load_heinz_and_python_datasets()
+equivalent_series = [
+    ("v_orig", "v_class"),
+    ("v_downscale", "v_target"),
+    ("a", "a_target"),
+    ("P_tot", "p_required"),
+    ("g_max", "gears_orig"),
+    ("gear", "gears"),
+    ("P_max", "p_available"),
+    ("nc", "rpm"),
+]
+cols1, cols2 = zip(*equivalent_series)
+cols1, cols2 = list(cols1), list(cols2)
 cc1 = pd.concat((p1.unstack(), c1[cols1].abs().mean(level=0)), axis=1)
 cc2 = pd.concat((p2.unstack(), c2[cols2].abs().mean(level=0)), axis=1)
 
-## Convert props to numerics 
-cc1[cols1 + ["pmr_km", "f_dsc_req"]] = cc1[cols1 + ["pmr_km", "f_dsc_req"]].astype('float64')
-cc2[cols2 + ["f_downscale"]] = cc2[cols2 + ["f_downscale"]].astype('float64')
+## Convert props to numerics
+cc1[cols1 + ["pmr_km", "f_dsc_req"]] = cc1[cols1 + ["pmr_km", "f_dsc_req"]].astype(
+    "float64"
+)
+cc2[cols2 + ["f_downscale"]] = cc2[cols2 + ["f_downscale"]].astype("float64")
 
-equivalent_columns = [
+equivalent_props = [
     ("Description", None),
     ("class", None),
     ("pmr_km", None),
     ("f_dsc_req", "f_downscale"),
 ]
-equivalent_columns += list(zip(cols1, cols2))
-display(
-    cmpr.compare((cc1, cc2), equivalent_columns, dataset_names),
-)
+display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
 ```
 
 ```{python}
@@ -209,23 +223,23 @@ def plot_xy_diffs_arrows(
     distance_prcnt_threshold=1,
 ):
     # fix data: np.sqrt() works only on float64, and
-    # indexing duped columns fetches df (not series). 
+    # indexing duped columns fetches df (not series).
     df = df[set(cols_x1y1x2y2)].astype(np.float64)
     X_REF, Y_REF, X, Y = [df[i] for i in cols_x1y1x2y2]
-    
-    df['Xdiff'] = X - X_REF
-    df['Ydiff'] = Y - Y_REF
-    
+
+    df["Xdiff"] = X - X_REF
+    df["Ydiff"] = Y - Y_REF
+
     # Filter out small differences.
     #
-    df['dist_x'] = df['Xdiff'].abs() / X_REF
-    df['dist_y'] = df['Ydiff'].abs() / Y_REF
-    df['dist_max[%]'] = df[['dist_x', 'dist_y']].max(axis=1) * 100
-    df = df.loc[df['dist_max[%]'] > distance_prcnt_threshold, :]
+    df["dist_x"] = df["Xdiff"].abs() / X_REF
+    df["dist_y"] = df["Ydiff"].abs() / Y_REF
+    df["dist_max[%]"] = df[["dist_x", "dist_y"]].max(axis=1) * 100
+    df = df.loc[df["dist_max[%]"] > distance_prcnt_threshold, :]
 
     X_REF, Y_REF, X, Y = [df[i] for i in cols_x1y1x2y2]
-    U = df['Xdiff']
-    V = df['Ydiff']
+    U = df["Xdiff"]
+    V = df["Ydiff"]
 
     ANGLE = phi = np.arctan2(V, U)
 
@@ -294,7 +308,7 @@ def plot_xy_diffs_arrows(
     )
 
     for name, x, y in zip(Y.index, X_REF, Y_REF):
-        axes.annotate(name, (x, y), xycoords="data", size='xx-small')
+        axes.annotate(name, (x, y), xycoords="data", size="xx-small")
 
     return axes_tuple, (l_data, l_ref, l_diff, l_diff_fitted)
 ```
@@ -303,7 +317,7 @@ def plot_xy_diffs_arrows(
 # %matplotlib widget
 
 plt.close(); plt.figure()
-plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "n_kl", 'pmr', 'rpm'], 
+plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "nc", 'pmr', 'rpm'], 
                      data_label="n in min-1", ref_label="HeinzDb",
 #             data_fmt="+k", data_kws={},
 #             diff_label=None, diff_fmt="-r", diff_cmap=cm.hsv, diff_kws={}, #@UndefinedVariable cm.PiYG
@@ -316,9 +330,38 @@ plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "n_
 ```
 
 ```{python}
-plt.close(); plt.figure()
-veh = 'v078'
-display(c1.loc[veh, 'v'].mean(), c2.loc[veh, 'v_class'].mean())
-ax = c1.loc[veh, 'v'].plot()
-c2.loc[veh, 'v_class'].plot()
+from scipy.stats import pearsonr
+
+def get_similarity(a, b):
+    return pearsonr(a, b), a.abs().mean(), b.abs().mean()
+
+#get_similarityc1.loc[veh, col1], c2.loc[veh, col2])
+```
+
+```{python}
+plt.close();
+_fig, (ax1, ax2) = plt.subplots(2, sharex=True)
+
+veh, col1, col2 = 'v075 P_tot p_required'.split()
+a, b = c1.loc[veh, col1], c2.loc[veh, col2]
+display('P', get_similarity(a, b))
+a.plot(ax=ax1)
+b.plot(ax=ax1)
+
+ax1.legend()
+
+#ax2 = ax.twinx()
+
+col1, col2 = 'v_downscale v_target'.split()
+a, b = c1.loc[veh, col1], c2.loc[veh, col2]
+display(get_similarity(a, b))
+c1.loc[veh, 'v_orig'].plot(ax=ax2)
+a.plot(ax=ax2)
+b.plot(ax=ax2)
+
+ax2.legend()
+```
+
+```{python}
+plt.gca().legend
 ```
