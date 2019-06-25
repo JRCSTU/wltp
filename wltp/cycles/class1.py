@@ -24,7 +24,7 @@ def class_data():
         "pmr_limits": [0, 22],  ## PMR (low, high]
         "parts": [590, 1023],
         "downscale": {
-            "phases": [651, 848, 906],  ## Note: Start end end +1 from specs.
+            "phases": [651, 849, 907],  ## Note: Start end end +1 from specs.
             "p_max_values": {
                 "time": 764,
                 # Km/h
