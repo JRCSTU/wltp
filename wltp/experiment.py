@@ -108,22 +108,22 @@ class Experiment(object):
 
         ## Prepare results
         #
-        results = model.get("cycle_run")
-        if results is None:
-            results = pd.DataFrame()
+        cycle_run = model.get("cycle_run")
+        if cycle_run is None:
+            cycle_run = pd.DataFrame()
         else:
-            results = pd.DataFrame(results)
+            cycle_run = pd.DataFrame(cycle_run)
             log.info(
                 "Found forced `cycle-run` table(%ix%i).",
-                results.shape[0],
-                results.shape[1],
+                cycle_run.shape[0],
+                cycle_run.shape[1],
             )
-        model["cycle_run"] = results
+        model["cycle_run"] = cycle_run
 
         ## Ensure Time-steps start from 0 (not 1!).
         #
-        results.reset_index()
-        results.index.name = "t"
+        cycle_run.reset_index()
+        cycle_run.index.name = "t"
 
         ## Extract vehicle attributes from model.
         #
@@ -146,15 +146,15 @@ class Experiment(object):
         if v_max is None:
             v_max = n_rated / gear_ratios[-1]
 
-        is_velocity_forced = any(col in results for col in ("v_class", "v_target"))
+        is_velocity_forced = any(col in cycle_run for col in ("v_class", "v_target"))
         if is_velocity_forced:
-            forced_v_column = "v_class" if "v_class" in results else "v_target"
+            forced_v_column = "v_class" if "v_class" in cycle_run else "v_target"
             log.info("Found forced velocity(%s).", forced_v_column)
 
-            V = results[forced_v_column].values
+            V = cycle_run[forced_v_column].values
 
-            results["v_class"] = V
-            results["v_target"] = V
+            cycle_run["v_class"] = V
+            cycle_run["v_target"] = V
         else:
             ## Decide WLTC-class.
             #
@@ -171,14 +171,14 @@ class Experiment(object):
             class_data = self.wltc["classes"][wltc_class]
             V = np.asarray(class_data["cycle"], dtype=self.dtype)
 
-            results["v_class"] = V
+            cycle_run["v_class"] = V
 
         ## Required-Power needed early-on by Downscaling.
         #
         f_inertial = params["f_inertial"]
         A, P_REQ = calcPower_required(V, test_mass, f0, f1, f2, f_inertial)
-        results["a_class"] = A
-        results["p_required_class"] = P_REQ
+        cycle_run["a_class"] = A
+        cycle_run["p_required_class"] = P_REQ
 
         if not is_velocity_forced:
             ## Downscale velocity-profile.
@@ -204,9 +204,9 @@ class Experiment(object):
                 V = downscaleCycle(V, f_downscale, phases)
                 A, P_REQ = calcPower_required(V, test_mass, f0, f1, f2, f_inertial)
 
-            results["v_target"] = V
-            results["a_target"] = A
-            results["p_required"] = P_REQ
+            cycle_run["v_target"] = V
+            cycle_run["a_target"] = A
+            cycle_run["p_required"] = P_REQ
 
         ## Run cycle to find internal matrices for all gears
         #    and (optionally) gearshifts.
@@ -232,9 +232,9 @@ class Experiment(object):
             load_curve,
             params,
         )
-        results["clutch"] = CLUTCH  # TODO: Allow overridde clutch, etc.
-        if "gears_orig" in results:
-            forced_gears = results["gears_orig"].values
+        cycle_run["clutch"] = CLUTCH  # TODO: Allow overridde clutch, etc.
+        if "gears_orig" in cycle_run:
+            forced_gears = cycle_run["gears_orig"].values
             log.info("Found forced gears(x%i).", forced_gears.size)
             if GEARS_ORIG.max() != len(gear_ratios):
                 raise ValueError(
@@ -243,7 +243,7 @@ class Experiment(object):
                 )
             GEARS_ORIG = forced_gears
         else:
-            results["gears_orig"] = GEARS_ORIG
+            cycle_run["gears_orig"] = GEARS_ORIG
 
         ## Apply Driveability-rules.
         #
@@ -258,12 +258,12 @@ class Experiment(object):
         V_REAL = RPM / _GEAR_RATIOS[GEARS - 1, range(len(V))]
         RPM[RPM < n_idle] = n_idle
 
-        results["p_available"] = P_AVAIL
-        results["gears"] = GEARS
-        results["rpm"] = RPM
-        results["rpm_norm"] = N_NORM
-        results["v_real"] = V_REAL
-        results["driveability"] = driveability_issues
+        cycle_run["p_available"] = P_AVAIL
+        cycle_run["gears"] = GEARS
+        cycle_run["rpm"] = RPM
+        cycle_run["rpm_norm"] = N_NORM
+        cycle_run["v_real"] = V_REAL
+        cycle_run["driveability"] = driveability_issues
 
         return model
 
