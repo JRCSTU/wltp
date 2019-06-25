@@ -141,6 +141,8 @@ dev_reqs = (
         "pre-commit",
         # for VSCode RST linting
         "doc8",
+        # for VSCode refactoring
+        "rope",
         "sphinx-autobuild",
     ]
 )
