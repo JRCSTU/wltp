@@ -15,8 +15,8 @@ with existing tool are the following:
 .. currentmodule:: tests
 .. autosummary::
 
-    samples_db_tests
-    wltp_db_tests
+    test_samples_db
+    test_wltp_db
 
 The following scripts in the sources maybe used to preprocess various wltc data:
 
@@ -36,13 +36,13 @@ Module: :mod:`wltp.model`
 .. automodule:: wltp.model
     :members:
 
-Module: :mod:`tests.samples_db_tests`
+Module: :mod:`tests.test_samples_db`
 -----------------------------------------
-.. automodule:: tests.samples_db_tests
+.. automodule:: tests.test_samples_db
     :members:
 
-Module: :mod:`tests.wltp_db_tests`
+Module: :mod:`tests.test_wltp_db`
 --------------------------------------
-.. automodule:: tests.wltp_db_tests
+.. automodule:: tests.test_wltp_db
     :members:
 

@@ -31,7 +31,7 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
 
     * In the :doc:`CHANGES`.
     * Presented in the diagrams of the :doc:`metrics` section.
-    * Imprinted in the :mod:`~tests.wltp_db_tests` test-case
+    * Imprinted in the :mod:`~tests.test_wltp_db` test-case
       which automatically compares, on each build, the mean RPMs & Gears of this program 
       against Heinz's *phase-1a* (end of 2014) MSAccess, 
       for a pre-determined set of *Heinz-db* vehicles.
