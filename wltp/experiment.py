@@ -202,7 +202,7 @@ class Experiment(object):
                 params["f_downscale"] = f_downscale
 
             if f_downscale > 0:
-                V = downscaleCycle(V, f_downscale, phases)
+                V = downscaleCycle(V, f_downscale, phases).round(1)  # TODO: from model
 
             cycle_run["v_target"] = V
 
@@ -402,13 +402,17 @@ def calcDownscaleFactor(
     return f_downscale
 
 
-def downscaleCycle(V: pd.Series, f_downscale, phases):
+def downscaleCycle(V: pd.Series, f_downscale, phases) -> pd.Series:
     """
-    Downscale just by scaling the 2 UP/DOWN phases with different factors,
-    
-    no recursion used, as implied by the specs.
+    Downscale velocity profile by `f_downscale`.
 
-    - The Spec demarks 2 UP/DOWN phases with 3 time-points, eg. class3:
+    :return:
+        the downscaled velocity profile, not-rounded 
+        (by the Spec should have 1 decimal only)
+
+    - The Spec demarks 2 UP/DOWN phases with 3 time-points in `phases`, 
+      eg. for class3:
+
       - 1533: the "start" of downscaling
       - 1724: the "tip"
       - 1763: the "end"
@@ -419,7 +423,45 @@ def downscaleCycle(V: pd.Series, f_downscale, phases):
     - The code asserts that the scaled V remains as smooth at tip as originally
       (and a bit more, due to the downscaling).
 
+    Compare v075(class-3a) with Heinz:
+        V_heinz V_python      diff%
+        45.1636	45.1637	-0.000224059  # middle on tip(eg. 1724), both scale & recurse
+        45.1636	45.1637	-0.000122941  # on tip, scale & recurse, round(1)
+        45.1636	45.1637	-5.39439e-05  # on tip-1
+        45.1636	45.1636	0             # on tip-1, scale & recurse, round(1)
+        45.1636	45.1637	-6.48634e-05  # on tip+1
+        45.1636	45.1636	0             # on tip+1, scale & recurse, round(1)
+
     @see: Annex 1-8, p 64-68
+    """
+    return downscale_by_recursing(V, f_downscale, phases)
+    # return downscale_by_scaling(V, f_downscale, phases)
+
+
+def downscale_by_recursing(V, f_downscale, phases):
+    """Downscale by recursing (according to the Spec). """
+    V_DSC = V.copy()
+    (t0, t1, t2) = phases
+
+    ## Accelaration phase
+    #
+    for t in range(t0, t1):
+        a = V[t + 1] - V[t]
+        V_DSC[t + 1] = V_DSC[t] + a * (1 - f_downscale)
+
+    ## Decelaration phase
+    #
+    f_corr = (V_DSC[t1] - V[t2]) / (V[t1] - V[t2])
+    for t in range(t1 + 1, t2):
+        a = V[t] - V[t - 1]
+        V_DSC[t] = V_DSC[t - 1] + a * f_corr
+
+    return V_DSC
+
+
+def downscale_by_scaling(V: pd.Series, f_downscale, phases) -> pd.Series:
+    """
+    Multiply the UP/DOWN phases with 2 factors (no recurse, against the Spec).
     """
     V_DSC = V.copy()
     (t0, t1, t2) = phases
