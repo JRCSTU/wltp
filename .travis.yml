@@ -22,7 +22,6 @@ script:
             echo "+++ Checking all TCs, DTs & Coverage....";
             pytest --doctest-glob=README.rst --doctest-modules \
                  --cov=wltp.experiment --cov=wltp.model  --cov=wltp.utils --cov=wltp.cycles \
-                 --cov-fail-under=72
         else
             echo "+++ Checking only TCs....";
             pytest
