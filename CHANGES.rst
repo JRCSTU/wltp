@@ -42,27 +42,27 @@ Known deficiencies
 Questions to Heinz
 ==================
 * How to extrapolate `PWot`?  eg. when `min(pwot[n]` > `n_idle`?
-  see vehicles: 
-  
+  see vehicles:
+
   * ABOVE: 7, 30, 48, 64, ...
   * BELOW: 23, 25, 34, 39, 45, 48, 49, 50, 52, 53, 57, 64, ...
 
 * Why the limits of the cycle-parts do not coincede with the starting-time on the time column?
-* There are not capped vehicles in sample cars?
+* Why the cycle for the capped vehicles are not extended?  Is there a flag denoting them?
 * Why is there a +0.5 (evident in veh082 where f_downscale=0.01)::
 
       f_dsc_req = Int((a1 * rmax + b1) * 1000 + 0.5) / 1000
 
   in the following places?
-  
+
   * WLTP_GS_AccessDB-sources/F calc gearshifts single vehicle.form.txt:(4877, 4903, 4920)
   * WLTP_GS_AccessDB-sources/F new vehicle.form.txt:(3537, 3563, 3589)
-
 
 .. _todos-list:
 
 TODOs
 =====
+* model: merge wltc-data with params.
 * Add cmd-line and UI front-ends.
 * Use a model-explorer to autocomplete excel-cells.
 * Automatically calculate masses from H & L vehicles, and regression-curves from categories.
@@ -89,19 +89,29 @@ v1.0.0.dev  (X-Jun-2019): PY3.5 only & real work!
   <https://www.jetbrains.com/research/python-developers-survey-2018/#python-3-adoption>`_
 - FEAT: NOTEBOOKS comparing with latest Heinz db.
   Possible to launch a *live* demo of this repository in *mybinder.org*.
-- Revive tests & TravisCI with *pytest* (drop *nosetest*), 
+- Revive tests & TravisCI with *pytest* (drop *nosetest*),
   move all TCs out of main-sources.
-- Depend on *pandalone* which has updated *jsonschema-v3* validator 
+- Depend on *pandalone* which has updated *jsonschema-v3* validator
   (draft4-->draft7).
 - model:
-    - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec. 
-    - break: cycle-part limits are plain lists-of-limits (not list-of-pairs).
+
+  - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec.
+  - break: cycle-part limits are plain lists-of-limits (not list-of-pairs).
+
+- algo:
+
+  - Drop Slope, cannot work with downscaling.
+  - UPD: DOWNSCALING to recent formulas & constants, and ducoment them.
+    Still scaled (not recursive), none can reproduce exactly MsAccess.
+  - Start PANDA-izing calculations (from numpy-arrays + rogue indices).
+    Much better and shorter code.
+
 - Build & dev-dependencies enhancements.
 - style: auto-format python files with |black|_  using |pre-commit|_.
 
 .. |black| replace:: *black* opinionated formatter
 .. _black: https://black.readthedocs.io/
-.. |pre-commit| replace:: *pre-commit* hooks framework 
+.. |pre-commit| replace:: *pre-commit* hooks framework
 .. _pre-commit: https://pre-commit.com/
 
 
@@ -112,7 +122,7 @@ v0.1.2a0  (5-Jun-2019): Relax checks
       (BUT not extrapolate)
     - allow float as `v_max`.
 
-- build: 
+- build:
     - drop `sphinx_rtd_theme` dependency -  provided by default these days.
     - drop pip-installin of `xlwings` attrocity if missing.
 
