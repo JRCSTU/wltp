@@ -48,13 +48,6 @@ try:
     print("ipython: %s, %s" % (IPython.__version__, IPython.__file__))
 except ImportError:
     print("no ipython")
-try:
-    import mock
-
-    print("mock: %s, %s" % (mock.__version__, mock.__file__))
-except ImportError:
-    print("no mock")
-
 
 projname = "wltp"
 mydir = os.path.dirname(__file__)
@@ -259,7 +252,7 @@ html_static_path = ["_static"]
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-html_last_updated_fmt = "%b %d, %Y"
+html_last_updated_fmt = "%d/%m/%Y %H:%M:%S"
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
