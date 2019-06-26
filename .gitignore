@@ -34,7 +34,6 @@ nosetests.xml
 /.cache
 /.config
 /.inputrc
-/.ipynb_checkpoints/
 /.jupyter
 /.ipython
 /.npm
@@ -65,6 +64,7 @@ local.properties
 .loadpath
 __pycache__/
 .pytest_cache/
+.ipynb_checkpoints/
 
 # External tool builders
 .externalToolBuilders/
