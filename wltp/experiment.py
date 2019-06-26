@@ -161,7 +161,7 @@ class Experiment(object):
 
             ## Facilitate post-processing scripts, and keep columns.
             #
-            cycle_run["v_class"] = V
+            V = cycle_run["v_class"] = V.round(1)
             params["f_downscale"] = None
         else:
             ## Decide WLTC-class.
@@ -176,7 +176,7 @@ class Experiment(object):
             class_data = self.wltc["classes"][wltc_class]
             V = np.asarray(class_data["cycle"], dtype=self.dtype)
 
-            cycle_run["v_class"] = V
+            cycle_run["v_class"] = V  # rounded already
             V = cycle_run["v_class"]  # to get cycle's index
 
             ## Downscale velocity-profile.
