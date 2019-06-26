@@ -356,6 +356,7 @@ def _get_model_base():
                 [1.11e-05, 2.03e-02],
             ],
             "f_downscale_threshold": 0.01,
+            "f_downscale_decimals": 3,
             "driver_mass": 75,  # kg
             "v_stopped_threshold": 1,  # km/h, <=
             "f_inertial": 1.03,
@@ -405,7 +406,7 @@ _url_model = "/model"
 _url_wltc = "/wltc"
 
 
-def _get_model_schema(additional_properties=False, for_prevalidation=False):
+def _get_model_schema(additional_properties=False):
     """
     :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
     :return: The json-schema(dict) for input/output of the WLTC experiment.
@@ -604,9 +605,14 @@ def _get_model_schema(additional_properties=False, for_prevalidation=False):
                     },
                     "f_downscale_threshold": {
                         "title": "Downscale-factor threshold",
-                        "description": "The limit for the calculated ``f_downscale``` below which no downscaling happens.",
+                        "description": "The limit for the calculated ``f_downscale`` below which no downscaling happens.",
                         "type": ["number", "null"],
                         "default": 0.01,
+                    },
+                    "f_downscale_decimals": {
+                        "title": "Downscale-factor rounding decimals",
+                        "type": ["number", "null"],
+                        "default": 3,
                     },
                     "driver_mass": {
                         "title": "Driver's mass (kg)",

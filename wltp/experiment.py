@@ -184,6 +184,7 @@ class Experiment(object):
             f_downscale = params.get("f_downscale")
             if not f_downscale:
                 f_downscale_threshold = params["f_downscale_threshold"]
+                f_downscale_decimals = params["f_downscale_decimals"]
                 dsc_data = class_data["downscale"]
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
@@ -193,6 +194,7 @@ class Experiment(object):
                     downsc_coeffs,
                     p_rated,
                     f_downscale_threshold,
+                    f_downscale_decimals,
                     test_mass,
                     f0,
                     f1,
@@ -364,6 +366,7 @@ def calcDownscaleFactor(
     downsc_coeffs,
     p_rated,
     f_downscale_threshold,
+    f_downscale_decimals,
     test_mass,
     f0,
     f1,
@@ -389,7 +392,7 @@ def calcDownscaleFactor(
 
     if r_max >= r0:
         f_downscale = a1 * r_max + b1
-        f_downscale = round(f_downscale, 3)
+        f_downscale = round(f_downscale, f_downscale_decimals)
         ## ATTENTION:
         #  By the spec, f_downscale MUST be > 0.01 to apply,
         #  but in F new vehicle.form.txt:(3537, 3563, 3589) (see CHANGES.rst)

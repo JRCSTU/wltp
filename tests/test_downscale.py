@@ -44,6 +44,7 @@ def test_smoke():
     V = pd.Series(class_data["cycle"])
 
     f_downscale_threshold = 0.01  # TODO: get it from schema-default
+    f_downscale_decimals = 3  # TODO: get it from schema-default
     dsc_data = class_data["downscale"]
     phases = dsc_data["phases"]
     p_max_values = dsc_data["p_max_values"]
@@ -53,6 +54,7 @@ def test_smoke():
         downsc_coeffs,
         p_rated,
         f_downscale_threshold,
+        f_downscale_decimals,
         test_mass,
         f0,
         f1,
