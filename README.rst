@@ -1,7 +1,7 @@
 ################################################################
 wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
-|dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |binder|
+|binder| |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |codestyle|
 
 :release:       1.0.0.dev2
 :date:          2019-06-24 11:36:49
@@ -640,6 +640,10 @@ Glossary
 .. |virtualenv| replace::  *virtualenv* (isolated Python environment)
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
+.. |binder| image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md
+    :alt: JupyterLab for WLTP
+
 .. |pypi| replace:: *PyPi* repo
 .. _pypi: https://pypi.python.org/pypi/wltp
 
@@ -682,6 +686,6 @@ Glossary
     :target: https://github.com/JRCSTU/wltp/issues
     :alt: Issues count
 
-.. |binder| image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md
-    :alt: JupyterLab for WLTP
+.. |codestyle| image:: https://img.shields.io/badge/code%20style-black-black.svg
+    :target: https://github.com/ambv/black
+    :alt: Code Style
