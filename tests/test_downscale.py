@@ -8,12 +8,12 @@
 
 import logging
 import unittest
-from wltp.experiment import decideClass, calcDownscaleFactor, downscaleCycle
 
 import numpy as np
+import pandas as pd
 
 from wltp import model
-
+from wltp.experiment import calcDownscaleFactor, decideClass, downscaleCycle
 
 log = logging.getLogger(__name__)
 
@@ -24,8 +24,6 @@ class ExperimentDownscale(unittest.TestCase):
 
     def testFull_manually(self):
         logging.getLogger().setLevel(logging.DEBUG)
-
-        dtp = np.float64
 
         test_mass = 1577.3106
         p_rated = 78.6340
@@ -39,7 +37,7 @@ class ExperimentDownscale(unittest.TestCase):
         wltc = model._get_wltc_data()
         wltc_class = decideClass(wltc, p_rated / test_mass, v_max)
         class_data = wltc["classes"][wltc_class]
-        cycle = np.asarray(class_data["cycle"], dtype=dtp)
+        cycle = pd.Series(class_data["cycle"])
 
         f_downscale_threshold = 0.01  # TODO: get it from schema-default
         dsc_data = class_data["downscale"]
@@ -61,24 +59,21 @@ class ExperimentDownscale(unittest.TestCase):
             cycle = downscaleCycle(cycle, f_downscale, phases)
 
     def testCompareDownscaleMethodWithSpecs(self):
-        from matplotlib import pyplot as plt
-
         """Compare downcalings with the both methods: simplified (scale by multiply) and by_the_spec (iterativelly scale accelerations)."""
-
-        dtp = np.float64
+        from matplotlib import pyplot as plt
 
         wltc = model._get_wltc_data()
         wclasses = wltc["classes"]
+        results = {}
         for wclass in wclasses.keys():
             for f_downscale in np.arange(0, 4, 0.1):
                 class_data = wclasses[wclass]
-                cycle = np.asarray(class_data["cycle"], dtype=dtp)
+                cycle = pd.Series(class_data["cycle"])
                 phases = class_data["downscale"]["phases"]
                 V1 = downscaleCycle(cycle, f_downscale, phases)
                 V2 = downscaleCycle_bySpecs(cycle, f_downscale, phases)
 
-                err = np.abs(V1 - V2).max()
-                print("Class(%s), f_dnscl(%s): %s" % (wclass, f_downscale, err))
+                results[(wclass, f_downscale)] = np.abs(V1 - V2).describe()
                 if not np.allclose(V1, V2):
                     print("Class(%s), f_dnscl(%s)" % (wclass, f_downscale))
                     plt.plot(cycle, "r")
@@ -88,6 +83,11 @@ class ExperimentDownscale(unittest.TestCase):
                     raise AssertionError(
                         "Class(%s), f_dnscl(%s)" % (wclass, f_downscale)
                     )
+
+        results = pd.concat(results.values(), keys=results.keys(), axis=1).T
+        with pd.option_context("display.max_rows", None):
+            print(results)
+        print(results.describe())
 
 
 def downscaleCycle_bySpecs(cycle, f_downscale, phases):
@@ -103,9 +103,9 @@ def downscaleCycle_bySpecs(cycle, f_downscale, phases):
     ## Decelaration phase
     #
     f_corr = (V[t1] - cycle[t2]) / (cycle[t1] - cycle[t2])
-    for t in range(t1, t2):
-        a = cycle[t + 1] - cycle[t]
-        V[t + 1] = V[t] + a * f_corr
+    for t in range(t1 + 1, t2):
+        a = cycle[t] - cycle[t - 1]
+        V[t] = V[t - 1] + a * f_corr
 
     return V
 

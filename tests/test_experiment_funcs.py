@@ -12,6 +12,7 @@ from wltp import model
 
 import numpy as np
 import numpy.testing as npt
+import pandas as pd
 import wltp.experiment as ex
 
 from wltp.experiment import downscaleCycle
@@ -25,7 +26,7 @@ class experimentFuncs(unittest.TestCase):
     def testDownscaling(self):
         wclasses = _get_wltc_data()["classes"]
         test_data = [
-            (np.array(wclass["cycle"]), wclass["downscale"]["phases"], f_downscale)
+            (pd.Series(wclass["cycle"]), wclass["downscale"]["phases"], f_downscale)
             for wclass in wclasses.values()
             for f_downscale in np.linspace(0.1, 1, 10)
         ]

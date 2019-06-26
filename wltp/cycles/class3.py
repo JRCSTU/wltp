@@ -25,7 +25,7 @@ def class_data_a():
         "velocity_limits": [0, 120],  ## Km/h [low, high)
         "parts": [590, 1023, 1478],
         "downscale": {
-            "phases": [1533, 1725, 1763],  ## Note: Start end end +1 from specs.
+            "phases": [1533, 1724, 1763],
             "p_max_values": {
                 "time": 1566,
                 # Km/h
