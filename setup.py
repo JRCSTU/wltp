@@ -219,7 +219,7 @@ setup(
         "test": test_reqs,
         "doc": doc_reqs,
     },
-    entry_points={"console_scripts": ["wltp = wltp.__main__:main"]},
+    entry_points={"console_scripts": ["wltp = wltp.cli:main"]},
     zip_safe=True,
     options={
         "build_sphinx": {"build_dir": "docs/_build"},

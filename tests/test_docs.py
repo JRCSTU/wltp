@@ -12,7 +12,7 @@ import subprocess
 import unittest
 from unittest.mock import patch
 
-from wltp import __main__ as cmain
+from wltp import cli
 import wltp
 
 import os.path as osp
@@ -46,12 +46,11 @@ class Doctest(unittest.TestCase):
 
     def test_README_version_from_cmdline(self):
         ver = wltp.__version__
-        mydir = osp.dirname(__file__)
         with open(readme_path) as fd:
             ftext = fd.read()
             with patch("sys.stdout", new=io.StringIO()) as stdout:
                 try:
-                    cmain.main(["--version"])
+                    cli.main(["--version"])
                 except SystemExit:
                     pass  ## Cancel argparse's exit()
             proj_ver = stdout.getvalue().strip()
