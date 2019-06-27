@@ -21,6 +21,7 @@ Example-code to get WLTP-data::
 
 """
 
+import copy
 import itertools as it
 import json
 import logging
@@ -404,8 +405,10 @@ def _get_wltc_data():
     return wltc_data
 
 
-_url_model = "/model"
-_url_wltc = "/wltc"
+_model_url = "/model"
+_cached_model_schema = None
+_wltc_url = "/wltc"
+_cached_wltc_schema = None
 
 
 def _get_model_schema(additional_properties=False):
@@ -413,11 +416,13 @@ def _get_model_schema(additional_properties=False):
     :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
     :return: The json-schema(dict) for input/output of the WLTC experiment.
     """
+    global _cached_model_schema
 
-    schema = utils.yaml_loads(
-        f"""
+    if not _cached_model_schema:
+        _cached_model_schema = utils.yaml_loads(
+            f"""
 $schema: http://json-schema.org/draft-07/schema#
-$id: {_url_model}
+$id: {_model_url}
 title: Json-schema describing the input for a WLTC experiment.
 type: object
 additionalProperties: {additional_properties}
@@ -682,7 +687,7 @@ properties:
           (Annex 1-7.3, p68).
         type: number
       wltc_data:
-        $ref: {_url_wltc}
+        $ref: {_wltc_url}
   cycle_run: {{}}
 definitions:
   positiveInteger:
@@ -700,9 +705,9 @@ definitions:
     items:
       $ref: '#/definitions/positiveNumber'
     """
-    )
+        )
 
-    return schema
+    return copy.deepcopy(_cached_model_schema)
 
 
 def _get_wltc_schema():
@@ -710,11 +715,13 @@ def _get_wltc_schema():
 
     :return :dict:
     """
+    global _cached_wltc_schema
 
-    schema = utils.yaml_loads(
-        f"""
+    if not _cached_wltc_schema:
+        _cached_wltc_schema = utils.yaml_loads(
+            f"""
 $schema: http://json-schema.org/draft-07/schema#
-$id: {_url_wltc}
+$id: {_wltc_url}
 title: WLTC data
 type: object
 additionalProperties: false
@@ -823,9 +830,9 @@ definitions:
           type: number
         minItems: 906
     """
-    )
+        )
 
-    return schema
+    return copy.deepcopy(_cached_wltc_schema)
 
 
 def get_class_part_names(cls_name=None):
@@ -957,7 +964,7 @@ def model_validator(
     wltc_schema = (
         _get_wltc_schema() if validate_wltc_data else {}
     )  ## Do not supply wltc schema, for speedup.
-    resolver = RefResolver(_url_model, schema, store={_url_wltc: wltc_schema})
+    resolver = RefResolver(_model_url, schema, store={_wltc_url: wltc_schema})
 
     validator = PandelVisitor(schema, resolver=resolver)
     if validate_schema:
