@@ -15,7 +15,7 @@ import pandas as pd
 import pytest
 
 from wltp import model
-from wltp.experiment import (
+from wltp.formulae import (
     calcDownscaleFactor,
     decideClass,
     downscale_by_recursing,

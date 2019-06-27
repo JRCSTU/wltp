@@ -8,14 +8,14 @@
 
 import logging
 import unittest
-from wltp import model
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
-import wltp.experiment as ex
 
-from wltp.experiment import downscaleCycle
+import wltp.experiment as ex
+from wltp import model
+from wltp.formulae import calc_default_resistance_coeffs, downscaleCycle
 from wltp.model import _get_wltc_data
 
 
@@ -60,18 +60,18 @@ class experimentFuncs(unittest.TestCase):
         tm = 1000  # test_mass
 
         identity = (1, 0)
-        res = ex.calc_default_resistance_coeffs(tm, [identity] * 3)
+        res = calc_default_resistance_coeffs(tm, [identity] * 3)
         print(res)
         self.assertEqual(res, (tm, tm, tm))
 
         zero = (0, 0)
-        res = ex.calc_default_resistance_coeffs(tm, [zero] * 3)
+        res = calc_default_resistance_coeffs(tm, [zero] * 3)
         print(res)
         self.assertEqual(res, (0, 0, 0))
 
         a_num = 123
         replace = (0, a_num)
-        res = ex.calc_default_resistance_coeffs(tm, [replace] * 3)
+        res = calc_default_resistance_coeffs(tm, [replace] * 3)
         print(res)
         self.assertEqual(res, (a_num, a_num, a_num))
 
@@ -80,7 +80,7 @@ class experimentFuncs(unittest.TestCase):
 
         bm = model._get_model_base()
         regression_curves = bm["params"]["resistance_coeffs_regression_curves"]
-        res = ex.calc_default_resistance_coeffs(tm, regression_curves)
+        res = calc_default_resistance_coeffs(tm, regression_curves)
         print(res)
         self.assertEqual(len(res), 3)
 
