@@ -170,7 +170,7 @@ class Experiment(object):
             #
             wltc_class = vehicle.get("wltc_class")
             if wltc_class is None:
-                wltc_class = formulae.decideClass(self.wltc, p_m_ratio, v_max)
+                wltc_class = formulae.decide_wltc_class(self.wltc, p_m_ratio, v_max)
                 vehicle["wltc_class"] = wltc_class
             else:
                 log.info("Found forced wltc_class(%s).", wltc_class)
@@ -191,7 +191,7 @@ class Experiment(object):
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
                 downsc_coeffs = dsc_data["factor_coeffs"]
-                f_downscale = formulae.calcDownscaleFactor(
+                f_downscale = formulae.calc_downscale_factor(
                     p_max_values,
                     downsc_coeffs,
                     p_rated,
@@ -206,7 +206,7 @@ class Experiment(object):
                 params["f_downscale"] = f_downscale
 
             if f_downscale > 0:
-                V = formulae.downscaleCycle(V, f_downscale, phases)
+                V = formulae.downscale_class_velocity(V, f_downscale, phases)
 
                 V = formulae.round1(V, v_decimals)
 

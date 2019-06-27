@@ -66,7 +66,7 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
     return (f0, f1, f2)
 
 
-def decideClass(wltc_data, p_m_ratio, v_max):
+def decide_wltc_class(wltc_data, p_m_ratio, v_max):
     """
 
     @see: Annex 1, p 19
@@ -91,7 +91,7 @@ def decideClass(wltc_data, p_m_ratio, v_max):
     return wltc_class
 
 
-def calcDownscaleFactor(
+def calc_downscale_factor(
     p_max_values,
     downsc_coeffs,
     p_rated,
@@ -136,7 +136,7 @@ def calcDownscaleFactor(
     return f_downscale
 
 
-def downscaleCycle(V: pd.Series, f_downscale, phases) -> pd.Series:
+def downscale_class_velocity(V: pd.Series, f_downscale, phases) -> pd.Series:
     """
     Downscale velocity profile by `f_downscale`.
 

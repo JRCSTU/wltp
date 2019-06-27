@@ -16,11 +16,11 @@ import pytest
 
 from wltp import model
 from wltp.formulae import (
-    calcDownscaleFactor,
-    decideClass,
+    calc_downscale_factor,
+    decide_wltc_class,
     downscale_by_recursing,
     downscale_by_scaling,
-    downscaleCycle,
+    downscale_class_velocity,
     round1,
 )
 
@@ -40,7 +40,7 @@ def test_smoke():
     ## Decide WLTC-class.
     #
     wltc = model._get_wltc_data()
-    wltc_class = decideClass(wltc, p_rated / test_mass, v_max)
+    wltc_class = decide_wltc_class(wltc, p_rated / test_mass, v_max)
     class_data = wltc["classes"][wltc_class]
     V = pd.Series(class_data["cycle"])
 
@@ -50,7 +50,7 @@ def test_smoke():
     phases = dsc_data["phases"]
     p_max_values = dsc_data["p_max_values"]
     downsc_coeffs = dsc_data["factor_coeffs"]
-    f_downscale = calcDownscaleFactor(
+    f_downscale = calc_downscale_factor(
         p_max_values,
         downsc_coeffs,
         p_rated,
@@ -63,7 +63,7 @@ def test_smoke():
         f_inertial,
     )
     if f_downscale > 0:
-        V = downscaleCycle(V, f_downscale, phases)
+        V = downscale_class_velocity(V, f_downscale, phases)
         # print(
         #     "Class(%s), f_dnscl(%s), DIFFs:\n%s" % (wclass, f_downscale, diffs[bad_ix])
         # )

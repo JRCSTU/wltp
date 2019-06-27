@@ -15,7 +15,7 @@ import pandas as pd
 
 import wltp.experiment as ex
 from wltp import model
-from wltp.formulae import calc_default_resistance_coeffs, downscaleCycle
+from wltp.formulae import calc_default_resistance_coeffs, downscale_class_velocity
 from wltp.model import _get_wltc_data
 
 
@@ -32,7 +32,7 @@ class experimentFuncs(unittest.TestCase):
         ]
 
         for (V, phases, f_downscale) in test_data:
-            downscaleCycle(V, f_downscale, phases)
+            downscale_class_velocity(V, f_downscale, phases)
 
     def testNparray2Bytes(self):
         arr = np.array([0, 9, 10, 36, 255 - ex._escape_char])
