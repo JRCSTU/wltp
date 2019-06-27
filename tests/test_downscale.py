@@ -21,6 +21,7 @@ from wltp.formulae import (
     downscale_by_recursing,
     downscale_by_scaling,
     downscaleCycle,
+    round1,
 )
 
 log = logging.getLogger(__name__)
@@ -78,10 +79,6 @@ def test_smoke():
 _wltc = model._get_wltc_data()
 
 
-def _round(V, v_decimals):
-    return V.round(v_decimals + 2).round(v_decimals)
-
-
 @pytest.mark.parametrize("wclass", _wltc["classes"])
 def test_recurse_vs_scaling(wclass):
     """Compare downcalings with the both methods: simplified (scale by multiply) and by_the_spec (iterativelly scale accelerations)."""
@@ -116,7 +113,7 @@ def test_recurse_vs_scaling(wclass):
             )[bad_ix]
             bad_accuracies[f_downscale] = errs
 
-        bad_ix = _round(V1, v_decimals) != _round(V2, v_decimals)
+        bad_ix = round1(V1, v_decimals) != round1(V2, v_decimals)
         if bad_ix.any():
             bad_rounds[f_downscale] = pd.concat(
                 (V1, V2), axis=1, keys=["recurse", "rescale"]
@@ -128,7 +125,7 @@ def test_recurse_vs_scaling(wclass):
             pytest.fail(f"{wclass}: ACCURACY errors!\n{errs}\n{errs.describe()}")
 
     if bad_rounds:
-        rounded = (_round(i, v_decimals) for i in bad_rounds.values())
+        rounded = (round1(i, v_decimals) for i in bad_rounds.values())
         rounded = pd.concat(rounded, axis=0, keys=bad_rounds.keys())
         precise = pd.concat((bad_rounds.values()), axis=0, keys=bad_rounds.keys())
         errs = pd.concat((rounded, precise), axis=1, keys=["rounded", "precise"])

@@ -22,6 +22,40 @@ import pandas as pd
 log = logging.getLogger(__name__)
 
 
+def round1(n, decimals=0):
+    """
+    Rounding in 2-steps with "bankers rounding" (ties on even: 3.5 --> 4 <-- 4.5), 
+    
+    to achive stability also on ties with long decimals.
+    
+    This trick produces identical `V` for both recurse & rescale
+    (see ``tests/test_downscale:test_recurse_vs_scaling()``).
+
+    :param n:
+        number/array to round
+    :param decimals:
+        Number of decimal places to round to (default: 0).
+        If decimals is negative, it specifies the number of positions to the left of the decimal point.
+        `None` means keep it as it is.
+
+    >>> n = np.arange(-6.55, 7); n
+    array([-6.55, -5.55, -4.55, -3.55, -2.55, -1.55, -0.55,
+           0.45,  1.45, 2.45,  3.45,  4.45,  5.45,  6.45])
+    >>> round1(np.arange(-6.55, 7), 1)
+    array([-6.6, -5.6, -4.6, -3.6, -2.6, -1.6, -0.6,
+           0.4,  1.4,  2.4,  3.4, 4.4,  5.4,  6.4])
+    >>> round1(np.arange(-6.65, 7), 1)  # the same as before!
+    array([-6.6, -5.6, -4.6, -3.6, -2.6, -1.6, -0.6,
+           0.4,  1.4,  2.4,  3.4, 4.4,  5.4,  6.4])
+    
+    .. seealso:: https://en.wikipedia.org/wiki/Rounding#Round_half_to_even
+    """
+    if decimals is None:
+        return n
+
+    return np.around(np.around(n, decimals + 2), decimals)
+
+
 #    resistance_coeffs_regression_curves
 def calc_default_resistance_coeffs(test_mass, regression_curves):
     a = regression_curves
@@ -88,10 +122,7 @@ def calcDownscaleFactor(
 
     if r_max >= r0:
         f_downscale = a1 * r_max + b1
-        ## NOTE: rounding in 2-steps to achive stability on ties
-        #  (see also V-rounding)
-        f_downscale = round(f_downscale, f_downscale_decimals + 2)
-        f_downscale = round(f_downscale, f_downscale_decimals)
+        f_downscale = round1(f_downscale, f_downscale_decimals)
 
         ## ATTENTION:
         #  By the spec, f_downscale MUST be > 0.01 to apply,
@@ -110,10 +141,10 @@ def downscaleCycle(V: pd.Series, f_downscale, phases) -> pd.Series:
     Downscale velocity profile by `f_downscale`.
 
     :return:
-        the downscaled velocity profile, not-rounded 
+        the downscaled velocity profile, not-rounded
         (by the Spec should have 1 decimal only)
 
-    - The Spec demarks 2 UP/DOWN phases with 3 time-points in `phases`, 
+    - The Spec demarks 2 UP/DOWN phases with 3 time-points in `phases`,
       eg. for class3:
 
       - 1533: the "start" of downscaling
@@ -121,7 +152,7 @@ def downscaleCycle(V: pd.Series, f_downscale, phases) -> pd.Series:
       - 1763: the "end"
 
     - V @ start & end (1533, 1763) must remain unchanged (by the Spec & asserted).
-    - The "tip" is scaled with the UP-phase (by the Spec).  
+    - The "tip" is scaled with the UP-phase (by the Spec).
     - Those numbers are recorded in the model @ ``<class>/downscale/phases/``
     - The code asserts that the scaled V remains as smooth at tip as originally
       (and a bit more, due to the downscaling).

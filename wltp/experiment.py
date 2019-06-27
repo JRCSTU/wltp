@@ -125,6 +125,8 @@ class Experiment(object):
         cycle_run.reset_index()
         cycle_run.index.name = "t"
 
+        v_decimals = 1  # TODO: from model
+
         ## Extract vehicle attributes from model.
         #
         test_mass = vehicle["test_mass"]
@@ -159,9 +161,9 @@ class Experiment(object):
                 "Found forced velocity in %r with %s valus.", forced_v_column, len(V)
             )
 
-            ## Facilitate post-processing scripts, and keep columns.
+            ## Keep same columns/props, not to surprise post-processing scripts.
             #
-            V = cycle_run["v_class"] = V.round(1)
+            V = cycle_run["v_class"] = formulae.round1(V, 1)
             params["f_downscale"] = None
         else:
             ## Decide WLTC-class.
@@ -206,10 +208,7 @@ class Experiment(object):
             if f_downscale > 0:
                 V = formulae.downscaleCycle(V, f_downscale, phases)
 
-                v_decimals = 1  # TODO: from model
-                ## NOTE: rounding in 2-steps to achive stability on ties,
-                #  eg. this trick produces identical Vs for both recurse & rescale.
-                V = V.round(v_decimals + 2).round(v_decimals)
+                V = formulae.round1(V, v_decimals)
 
             cycle_run["v_target"] = V
 
