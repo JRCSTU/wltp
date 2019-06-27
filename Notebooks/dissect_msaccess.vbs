@@ -83,13 +83,13 @@ Function exportModulesTxt(ACCDBFilename, sExportpath)
     For Each myObj In oApplication.CurrentProject.AllForms
         Wscript.Echo "Exporting FORM " & myObj.FullName
         sFname = NormalizeFname(myObj.FullName)
-        oApplication.SaveAsText acForm, myObj.FullName, sExportpath & "\" & sFname & ".form.txt"
+        oApplication.SaveAsText acForm, myObj.FullName, sExportpath & "\" & sFname & ".form.vbs"
         oApplication.DoCmd.Close acForm, myObj.FullName
     Next
     For Each myObj In oApplication.CurrentProject.AllModules
         sFname = NormalizeFname(myObj.FullName)
         Wscript.Echo "Exporting MODULE " & myObj.FullName
-        oApplication.SaveAsText acModule, myObj.FullName, sExportpath & "\" & sFname & ".module.txt"
+        oApplication.SaveAsText acModule, myObj.FullName, sExportpath & "\" & sFname & ".module.vbs"
     Next
     For Each myObj In oApplication.CurrentProject.AllMacros
         sFname = NormalizeFname(myObj.FullName)
