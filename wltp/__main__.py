@@ -169,10 +169,6 @@ def main(argv=None):
         #            utils.open_file_with_os(xls_file)
         #            return
 
-        if opts.winmenus:
-            add_windows_shortcuts_to_start_menu("winmenus")
-            return
-
         opts = validate_file_opts(opts)
 
         infiles = parse_many_file_args(opts.I, "r", opts.irenames)
@@ -253,119 +249,6 @@ def copy_excel_template_files(dest_dir=None):
         files_copied.append(dest_fname)
 
     return files_copied
-
-
-def add_windows_shortcuts_to_start_menu(my_option):
-    if sys.platform != "win32":
-        exit("This options can run only under *Windows*!")
-    my_cmd_name = PROG
-    my_cmd_path = find_executable(my_cmd_name)
-    if not my_cmd_path:
-        exit(
-            "Please properly install the project before running the `--%s` command-option!"
-            % my_option
-        )
-
-    win_menu_group = "Python Wltp Calculator"
-
-    wshell = utils.win_wshell()
-    startMenu_dir = utils.win_folder(wshell, "StartMenu")
-    myDocs_dir = utils.win_folder(wshell, "MyDocuments")
-    docs_url = "http://wltp.readthedocs.org/"
-    prog_dir = os.path.join(myDocs_dir, "%s_%s" % (PROG, prog_ver))
-    shcuts = OrderedDict(
-        [
-            (
-                "Create new Wltp ExcelRunner files.lnk",
-                {
-                    "target_path": "cmd",
-                    "target_args": "/K wltp --excelrun",
-                    "wdir": prog_dir,
-                    "desc": "Copy `xlwings` excel & python template files into `MyDocuments` and open the Excel-file, so you can run a batch of experiments.",
-                    "icon_path": pkg.resource_filename(
-                        "wltp.excel", "ExcelPython.ico"
-                    ),  # @UndefinedVariable
-                },
-            ),
-            ("Wltp Documentation site.url", {"target_path": docs_url}),
-        ]
-    )
-
-    try:
-        os.makedirs(prog_dir, exist_ok=True)
-    except Exception as ex:
-        log.exception("Failed creating Program-folder(%s) due to: %s", prog_dir, ex)
-        exit(-5)
-
-    ## Copy Demos.
-    #
-    demo_dir = pkg.resource_filename("wltp", "test")  # @UndefinedVariable
-    demo_files = ["*.csv", "*.xls?", "*.bat", "engine.py", "cmdline_test.py"]
-    for g in demo_files:
-        for src_f in glob.glob(os.path.join(demo_dir, g)):
-            f = os.path.basename(src_f)
-            dest_f = os.path.join(prog_dir, f)
-            if os.path.exists(dest_f):
-                log.trace(
-                    "Removing previous entry(%s) from existing Program-folder(%s).",
-                    f,
-                    prog_dir,
-                )
-                try:
-                    os.unlink(dest_f)
-                except Exception as ex:
-                    log.error(
-                        "Cannot clear existing item(%s) from Program-folder(%s) due to: %s",
-                        dest_f,
-                        prog_dir,
-                        ex,
-                    )
-
-            try:
-                shutil.copy(src_f, dest_f)
-            except Exception as ex:
-                log.exception(
-                    "Failed copying item(%s) in program folder(%s): %s",
-                    src_f,
-                    prog_dir,
-                    ex,
-                )
-
-    ## Create a fresh-new Menu-group.
-    #
-    group_path = os.path.join(startMenu_dir, win_menu_group)
-    if os.path.exists(group_path):
-        log.trace(
-            "Removing all entries from existing StartMenu-group(%s).", win_menu_group
-        )
-        for f in glob.glob(os.path.join(group_path, "*")):
-            try:
-                os.unlink(f)
-            except Exception as ex:
-                log.warning(
-                    "Minor failure while removing previous StartMenu-item(%s): %s",
-                    f,
-                    ex,
-                )
-
-    try:
-        os.makedirs(group_path, exist_ok=True)
-    except Exception as ex:
-        log.exception("Failed creating StarMenu-group(%s) due to: %s", group_path, ex)
-        exit(-6)
-
-    for name, shcut in shcuts.items():
-        path = os.path.join(group_path, name)
-        log.info("Creating StartMenu-item: %s", path)
-        try:
-            utils.win_create_shortcut(wshell, path, **shcut)
-        except Exception as ex:
-            log.exception(
-                "Failed creating item(%s) in StartMenu-group(%s): %s",
-                path,
-                win_menu_group,
-                ex,
-            )
 
 
 ## The value of file_frmt=VALUE to decide which
@@ -853,11 +736,6 @@ def build_args_parser(program_name, version, desc, epilog):
         nargs="?",
         const=None,
         metavar="DESTPATH",
-    )
-    #    xlusive_group.add_argument('--excelrun', help="Copy `xlwings` excel & python template files into USERDIR and open Excel-file, to run a batch of experiments",
-    #        nargs='?', const=os.getcwd(), metavar='DESTPATH')
-    xlusive_group.add_argument(
-        "--winmenus", help="Adds shortcuts into Windows StartMenu.", action="store_true"
     )
 
     grp_various = parser.add_argument_group(
