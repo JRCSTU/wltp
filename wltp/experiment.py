@@ -204,7 +204,12 @@ class Experiment(object):
                 params["f_downscale"] = f_downscale
 
             if f_downscale > 0:
-                V = downscaleCycle(V, f_downscale, phases).round(1)  # TODO: from model
+                V = downscaleCycle(V, f_downscale, phases)
+
+                v_decimals = 1  # TODO: from model
+                ## NOTE: rounding in 2-steps to achive stability on ties,
+                #  eg. this trick produces identical Vs for both recurse & rescale.
+                V = V.round(v_decimals + 2).round(v_decimals)
 
             cycle_run["v_target"] = V
 

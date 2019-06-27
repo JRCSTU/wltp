@@ -78,50 +78,60 @@ def test_smoke():
 _wltc = model._get_wltc_data()
 
 
+def _round(V, v_decimals):
+    return V.round(v_decimals + 2).round(v_decimals)
+
+
 @pytest.mark.parametrize("wclass", _wltc["classes"])
 def test_recurse_vs_scaling(wclass):
     """Compare downcalings with the both methods: simplified (scale by multiply) and by_the_spec (iterativelly scale accelerations)."""
     from matplotlib import pyplot as plt
 
+    pd_opts = [
+        "display.max_rows",
+        None,
+        "display.max_columns",
+        None,
+        "display.precision",
+        16,
+        "display.float_format",
+        "{:0.16f}".format,
+        "display.width",
+        160,
+    ]
     v_decimals = 1
     class_data = _wltc["classes"][wclass]
     V = pd.Series(class_data["cycle"])
     phases = class_data["downscale"]["phases"]
 
-    bad_rounds = {}
+    bad_accuracies, bad_rounds = {}, {}
     for f_downscale in np.arange(0, 4, 0.1):
         V1 = downscale_by_recursing(V, f_downscale, phases)
         V2 = downscale_by_scaling(V, f_downscale, phases)
 
         bad_ix = ~np.isclose(V1, V2)
-        with pd.option_context("display.max_rows", None):
-            assert (
-                not bad_ix.any()
-            ), f"{wclass}: ACCURACY errors!\n{pd.concat((V1, V2), axis=1)[bad_ix]}\n{np.abs(V1 - V2).describe()}"
+        if bad_ix.any():
+            errs = pd.concat(
+                (V1, V2, V1 - V2), axis=1, keys=["recurse", "rescale", "diff"]
+            )[bad_ix]
+            bad_accuracies[f_downscale] = errs
 
-        bad_ix = V1.round(v_decimals) != V2.round(v_decimals)
+        bad_ix = _round(V1, v_decimals) != _round(V2, v_decimals)
         if bad_ix.any():
             bad_rounds[f_downscale] = pd.concat(
                 (V1, V2), axis=1, keys=["recurse", "rescale"]
             )[bad_ix]
 
-    ## MANY FAILURES below!!!
+    if bad_accuracies:
+        errs = pd.concat((bad_accuracies.values()), axis=0, keys=bad_accuracies.keys())
+        with pd.option_context(*pd_opts):
+            pytest.fail(f"{wclass}: ACCURACY errors!\n{errs}\n{errs.describe()}")
+
     if bad_rounds:
-        rounded = (i.round(v_decimals) for i in bad_rounds.values())
+        rounded = (_round(i, v_decimals) for i in bad_rounds.values())
         rounded = pd.concat(rounded, axis=0, keys=bad_rounds.keys())
         precise = pd.concat((bad_rounds.values()), axis=0, keys=bad_rounds.keys())
         errs = pd.concat((rounded, precise), axis=1, keys=["rounded", "precise"])
 
-        with pd.option_context(
-            "display.max_rows",
-            None,
-            "display.max_columns",
-            None,
-            "display.precision",
-            16,
-            "display.float_format",
-            "{:0.16f}".format,
-            "display.width",
-            160,
-        ):
-            pytest.xfail(f"{wclass}: ROUNDING errors!\n{errs}")
+        with pd.option_context(*pd_opts):
+            pytest.fail(f"{wclass}: ROUNDING errors!\n{errs}\n{errs.describe()}")
