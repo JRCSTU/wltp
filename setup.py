@@ -210,6 +210,7 @@ setup(
         "pandas",
         "pandalone >=0.3",
         "ruamel.yaml",
+        "scipy",
     ],
     tests_require=test_reqs,
     extras_require={

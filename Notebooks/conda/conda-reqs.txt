@@ -1,7 +1,7 @@
 black
 h5py
 ipympl
-jsonschema==2.6.0   # wltp needs this
+jsonschema>=3.0     # pandalone needs this
 jupyterlab
 jupytext
 #m2-git             # (Windows-only) if no Git exists
