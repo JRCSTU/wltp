@@ -66,44 +66,9 @@ nbu.print_nodes(out_h5fname)
 ```
 
 ```{python}
-def merge_veh_datasets(h5: Union[str, HDFStore], data_subgroups) -> List[NDFrame]:
-    """
-    Merge HDF-subgroup(s) from all vehiclesinto an Indexed-DataFrame(s)
-
-    :return:
-        as may merged-dataframes as `data_subgroups` given
-    """
-
-    def func(h5db):
-        vehnums = nbu.all_vehnums(h5db)
-        data_collected = list(
-            zip(
-                *(
-                    tuple(
-                        # key: vehnum, value: subgroup-dfs
-                        ("v%0.3i" % vehnum, h5db.get(nbu.vehnode(vehnum, datag)))
-                        for datag in data_subgroups
-                    )
-                    for vehnum in vehnums
-                )
-            )
-        )
-
-        return data_collected
-
-    data_collected = nbu.do_h5(h5, func)
-
-    dicts_to_merge = [dict(d) for d in data_collected]
-    index_dfs = [
-        pd.concat(d.values(), keys=d.keys()).sort_index() for d in dicts_to_merge
-    ]
-
-    return index_dfs
-
-
-def load_heinz_and_python_datasets():
-    ip1, p1, c1 = merge_veh_datasets(inp_h5fname, ("iprop", "oprop", "cycle"))
-    p2, c2 = merge_veh_datasets(out_h5fname, ("oprop", "cycle"))
+def load_heinz_and_python_datasets(veh_nums=None):
+    ip1, p1, c1 = nbu.merge_db_vehicle_subgroups(inp_h5fname, ("iprop", "oprop", "cycle"), veh_nums)
+    p2, c2 = nbu.merge_db_vehicle_subgroups(out_h5fname, ("oprop", "cycle"), veh_nums)
 
     ## Merge input & Output props from heinz db.
     #
@@ -119,7 +84,7 @@ def load_heinz_and_python_datasets():
 
     return p1, c1, p2, c2
 
-p1, c1, p2, c2 = load_heinz__and_python_datasets()
+p1, c1, p2, c2 = load_heinz_and_python_datasets()
 ```
 
 ```{python}
@@ -140,11 +105,11 @@ dataset_names = "Heinz Python".split()
 #
 equivalent_columns = [
     ("Description", None),
+    ("test_mass", None),
+    ("kerb_mass", None),
     ("class", "wltc_class"),
     ("pmr_km", "pmr"),
     ("f_dsc_req", "f_downscale"),
-    ("test_mass", "test_mass"),
-    ("kerb_mass", "unladen_mass"),
     ("v_max", "v_max")
 ]
 
@@ -168,7 +133,10 @@ cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
 ```{python}
 ## Report CYCLE-MEAN differences
 #
-# UNCOMMENT next line to FETCH new vehicles.
+# # Vehicles with DOWNSCALE discrepancies
+# veh_nums = [7, 19, 20, 33, 35, 43, 44, 56, 59, 66]
+# veh_nums += [82, 88, 91, 99, 100, 101, 112, 113, 114]
+# # UNCOMMENT next line to FETCH new vehicles.
 p1, c1, p2, c2 = load_heinz_and_python_datasets()
 equivalent_series = [
     ("v_orig", "v_class"),
@@ -314,7 +282,7 @@ def plot_xy_diffs_arrows(
 ```
 
 ```{python}
-# %matplotlib widget
+# %matplotlib inline
 
 plt.close(); plt.figure()
 plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "nc", 'pmr', 'rpm'], 
@@ -339,17 +307,19 @@ def get_similarity(a, b):
 ```
 
 ```{python}
-plt.close();
+# %matplotlib widget
+
 _fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(12,8))
 
-veh, col1, col2 = 'v075 P_tot p_required'.split()
-tol = 0.001
+veh, col1, col2 = 'v056 P_tot p_required'.split()
+tol = 0.00001
 a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
 ix = 100*(a-b).abs()/a.max() > tol 
 display('P', get_similarity(a, b))
 a[ix].plot(ax=ax1)
 b[ix].plot(ax=ax1)
 
+ax1.grid(which='both')
 ax1.legend()
 
 #ax2 = ax.twinx()
@@ -358,13 +328,10 @@ col1, col2 = 'v_downscale v_target'.split()
 a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
 ix = 100*(a-b).abs()/a.max() > tol
 display(get_similarity(a, b))
-c1.loc[veh, 'v_orig'].copy()[ix].plot(ax=ax2)
+c1.loc[veh, 'v_orig'].copy()[ix].plot(style='3', ax=ax2)
 a[ix].plot(style='+', ax=ax2)
 b[ix].plot(style='x', ax=ax2)
 
+ax2.grid(which='both')
 ax2.legend()
-```
-
-```{python}
-plt.gca().legend
 ```

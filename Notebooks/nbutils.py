@@ -401,6 +401,9 @@ def load_vehicle(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
     return do_h5(h5, func)
 
 
+# props, pwot = load_vehicle(h5fname, vehnum, "props", "pwot")
+
+
 def all_vehnums(h5) -> List[int]:
     def func(h5db):
         vehnums = [int(g._v_name[1:]) for g in h5db._handle.iter_nodes(vehnode())]
@@ -409,4 +412,129 @@ def all_vehnums(h5) -> List[int]:
     return do_h5(h5, func)
 
 
-# props, pwot = load_vehicle(h5fname, vehnum, "props", "pwot")
+def normalize_pwot(
+    pwot,
+    n_idle,
+    n_rated,
+    p_rated,
+    c_n="n",
+    c_p="Pwot",
+    c_n_norm="n_norm",
+    c_p_norm="p_norm",
+):
+    pwot = pwot.copy()
+    pwot[c_n] = pwot.index
+
+    pwot[c_n_norm] = (pwot[c_n] - n_idle) / (n_rated - n_idle)
+    pwot[c_p_norm] = pwot[c_p] / p_rated
+
+    return pwot[[c_n_norm, c_p_norm]]
+
+
+def run_pyalgo_on_Heinz_vehicle(
+    h5, vehnum, props_group_suffix="iprop", pwot_group_suffix="pwot"
+) -> Tuple[dict, pd.DataFrame]:
+    """
+    Quick'n dirty way to invoke python-algo (bc model will change).
+     
+    :param h5:
+        the `WltpGs-msaccess.h5` file (path or h5db) to read input from 
+    :return:
+        the *out-props* key-values, and the *cycle_run* data-frame
+    """
+    from wltp.experiment import Experiment
+
+    props, pwot = load_vehicle(h5, vehnum, props_group_suffix, pwot_group_suffix)
+
+    ndvs = [props["ndv_%i" % g] for g in range(1, props["no_of_gears"] + 1)]
+    norm_pwot = normalize_pwot(
+        pwot, props.idling_speed, props.rated_speed, props.rated_power
+    )
+    inverse_SM = 1.0 - props.SM
+
+    input_model = yaml_loads(
+        f"""
+        vehicle:
+          gear_ratios:  {ndvs}
+          resistance_coeffs:
+            - {props.f0} 
+            - {props.f1}
+            - {props.f2}
+          p_rated:      {props.rated_power}
+          unladen_mass: {props.kerb_mass}
+          test_mass:    {props.test_mass}
+          n_rated:      {props.rated_speed}
+          n_idle:       {props.idling_speed}
+          v_max:        {props.v_max_declared}
+        params:
+          f_safety_margin: {inverse_SM}
+        """
+    )
+    input_model["vehicle"]["full_load_curve"] = norm_pwot
+
+    exp = Experiment(input_model)
+    output_model = exp.run()
+
+    ## Keep only *output* key-values, not to burden HDF data-model
+    #  (excluding `driveability`, which is a list, and f0,f1,f2, addume were input).
+    #
+    veh = output_model["vehicle"]
+    oprops = {
+        "f_downscale": output_model["params"]["f_downscale"],
+        "pmr": veh["pmr"],
+        "wltc_class": veh["wltc_class"],
+        "v_max": veh["v_max"],
+    }
+
+    cycle_run = output_model["cycle_run"]
+    # Drop `driveability` arrays, not to burden HDF data-model.
+    cycle_run = cycle_run.drop("driveability", axis=1)
+    ## Gears are `int8`, and h5 pickles them.
+    #
+    for badtype_col in "gears gears_orig".split():
+        cycle_run[badtype_col] = cycle_run[badtype_col].astype("int64")
+
+    return oprops, cycle_run
+
+
+# oprops, cycle = nbu.run_pyalgo_on_Heinz_vehicle(inp_h5fname, 14)
+# display(oprops, cycle)
+
+
+def merge_db_vehicle_subgroups(
+    h5: Union[str, HDFStore], vehicle_subgroups, veh_nums=None
+) -> List[NDFrame]:
+    """
+    Merge HDF-subgroup(s) from all vehicles into an Indexed-DataFrame(s)
+
+    :param h5:
+        any `WltpGs-*.h5` file (path or h5db) containing `vehicles/v001/{subgroups}` groups 
+    :return:
+        as many vertically concatenated dataframes as `vehicle_subgroups` given
+    """
+
+    def func(h5db):
+        veh_nums_ = all_vehnums(h5db) if veh_nums is None else veh_nums
+        data_collected = list(
+            zip(
+                *(
+                    tuple(
+                        # key: vehnum, value: subgroup-dfs
+                        ("v%0.3i" % vehnum, h5db.get(vehnode(vehnum, datag)))
+                        for datag in vehicle_subgroups
+                    )
+                    for vehnum in veh_nums_
+                )
+            )
+        )
+
+        return data_collected
+
+    data_collected = do_h5(h5, func)
+
+    dicts_to_merge = [dict(d) for d in data_collected]
+    index_dfs = [
+        pd.concat(d.values(), keys=d.keys()).sort_index() for d in dicts_to_merge
+    ]
+
+    return index_dfs
