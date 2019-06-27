@@ -63,15 +63,23 @@ def test_smoke():
     )
     if f_downscale > 0:
         V = downscaleCycle(V, f_downscale, phases)
+        # print(
+        #     "Class(%s), f_dnscl(%s), DIFFs:\n%s" % (wclass, f_downscale, diffs[bad_ix])
+        # )
+        # plt.plot(V, "r")
+        # plt.plot(V1, "b")
+        # plt.plot(V2, "g")
+        # plt.show()
+        # raise AssertionError(
+        #     "Class(%s), f_dnscl(%s)" % (wclass, f_downscale)
+        # )
 
 
 _wltc = model._get_wltc_data()
 
 
-@pytest.mark.parametrize(
-    "wclass, f_downscale", itt.product(_wltc["classes"], np.arange(0, 4, 0.1))
-)
-def test_recurse_vs_scaling(wclass, f_downscale):
+@pytest.mark.parametrize("wclass", _wltc["classes"])
+def test_recurse_vs_scaling(wclass):
     """Compare downcalings with the both methods: simplified (scale by multiply) and by_the_spec (iterativelly scale accelerations)."""
     from matplotlib import pyplot as plt
 
@@ -79,46 +87,41 @@ def test_recurse_vs_scaling(wclass, f_downscale):
     class_data = _wltc["classes"][wclass]
     V = pd.Series(class_data["cycle"])
     phases = class_data["downscale"]["phases"]
-    V1 = downscale_by_recursing(V, f_downscale, phases)
-    V2 = downscale_by_scaling(V, f_downscale, phases)
 
-    bad_ix = ~np.isclose(V1, V2)
-    with pd.option_context("display.max_rows", None):
-        assert (
-            not bad_ix.any()
-        ), f"\n{pd.concat((V1, V2), axis=1)[bad_ix]}\n{np.abs(V1 - V2).describe()}"
+    bad_rounds = {}
+    for f_downscale in np.arange(0, 4, 0.1):
+        V1 = downscale_by_recursing(V, f_downscale, phases)
+        V2 = downscale_by_scaling(V, f_downscale, phases)
 
-    bad_ix = V1.round(v_decimals) != V2.round(v_decimals)
-    with pd.option_context(
-        "display.max_rows",
-        None,
-        "display.max_columns",
-        None,
-        "display.precision",
-        16,
-        "display.float_format",
-        "{:0.16f}".format,
-        "display.width",
-        160,
-    ):
-        ## MANY FAILURES below!!!
-        assert True or not bad_ix.any(), pd.concat(
-            (V1, V2, V1.round(v_decimals), V2.round(v_decimals)),
-            axis=1,
-            keys=[
-                ("rounded", "recurse"),
-                ("rounded", "scale"),
-                ("precise", "recurse"),
-                ("precise", "scale"),
-            ],
-        )[bad_ix]
-    # print(
-    #     "Class(%s), f_dnscl(%s), DIFFs:\n%s" % (wclass, f_downscale, diffs[bad_ix])
-    # )
-    # plt.plot(V, "r")
-    # plt.plot(V1, "b")
-    # plt.plot(V2, "g")
-    # plt.show()
-    # raise AssertionError(
-    #     "Class(%s), f_dnscl(%s)" % (wclass, f_downscale)
-    # )
+        bad_ix = ~np.isclose(V1, V2)
+        with pd.option_context("display.max_rows", None):
+            assert (
+                not bad_ix.any()
+            ), f"{wclass}: ACCURACY errors!\n{pd.concat((V1, V2), axis=1)[bad_ix]}\n{np.abs(V1 - V2).describe()}"
+
+        bad_ix = V1.round(v_decimals) != V2.round(v_decimals)
+        if bad_ix.any():
+            bad_rounds[f_downscale] = pd.concat(
+                (V1, V2), axis=1, keys=["recurse", "rescale"]
+            )[bad_ix]
+
+    ## MANY FAILURES below!!!
+    if bad_rounds:
+        rounded = (i.round(v_decimals) for i in bad_rounds.values())
+        rounded = pd.concat(rounded, axis=0, keys=bad_rounds.keys())
+        precise = pd.concat((bad_rounds.values()), axis=0, keys=bad_rounds.keys())
+        errs = pd.concat((rounded, precise), axis=1, keys=["rounded", "precise"])
+
+        with pd.option_context(
+            "display.max_rows",
+            None,
+            "display.max_columns",
+            None,
+            "display.precision",
+            16,
+            "display.float_format",
+            "{:0.16f}".format,
+            "display.width",
+            160,
+        ):
+            pytest.xfail(f"{wclass}: ROUNDING errors!\n{errs}")
