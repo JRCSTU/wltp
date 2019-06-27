@@ -442,8 +442,8 @@ def downscaleCycle(V: pd.Series, f_downscale, phases) -> pd.Series:
 
     @see: Annex 1-8, p 64-68
     """
-    return downscale_by_recursing(V, f_downscale, phases)
-    # return downscale_by_scaling(V, f_downscale, phases)
+    # return downscale_by_recursing(V, f_downscale, phases)
+    return downscale_by_scaling(V, f_downscale, phases)
 
 
 def downscale_by_recursing(V, f_downscale, phases):
