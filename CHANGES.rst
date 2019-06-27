@@ -101,7 +101,7 @@ v1.0.0.dev  (X-Jun-2019): PY3.5 only & real work!
 - algo:
 
   - Drop Slope, cannot work with downscaling.
-  - UPD: DOWNSCALING to recent formulas & constants, and ducoment them.
+  - UPD: DOWNSCALING to recent formulas & constants, and document them.
     Still scaled (not recursive), none can reproduce exactly MsAccess.
   - Start PANDA-izing calculations (from numpy-arrays + rogue indices).
     Much better and shorter code.
