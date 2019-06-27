@@ -397,7 +397,11 @@ def calcDownscaleFactor(
 
     if r_max >= r0:
         f_downscale = a1 * r_max + b1
+        ## NOTE: rounding in 2-steps to achive stability on ties
+        #  (see also V-rounding)
+        f_downscale = round(f_downscale, f_downscale_decimals + 2)
         f_downscale = round(f_downscale, f_downscale_decimals)
+
         ## ATTENTION:
         #  By the spec, f_downscale MUST be > 0.01 to apply,
         #  but in F new vehicle.form.txt:(3537, 3563, 3589) (see CHANGES.rst)
