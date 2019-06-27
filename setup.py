@@ -204,7 +204,13 @@ setup(
     #        'wltp.excel': ['*.xlsm', '*.ico'],
     #    },
     python_requires=">=3.6",
-    install_requires=["jsonschema", "numpy", "pandas", "pandalone >=0.3"],
+    install_requires=[
+        "jsonschema",
+        "numpy",
+        "pandas",
+        "pandalone >=0.3",
+        "ruamel.yaml",
+    ],
     tests_require=test_reqs,
     extras_require={
         "plot": plot_reqs,
