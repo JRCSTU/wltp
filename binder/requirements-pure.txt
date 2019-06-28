@@ -20,6 +20,6 @@ scipy
 seaborn
 sphinx
 tables              # called `pytables` in conda
-wltp
 xlrd
 xonsh               # (optional) a python-like shell
+-e .
