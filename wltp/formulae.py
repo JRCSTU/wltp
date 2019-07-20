@@ -16,6 +16,7 @@ import re
 import sys
 from typing import Union
 
+import numbers
 import numpy as np
 import pandas as pd
 
@@ -24,12 +25,9 @@ log = logging.getLogger(__name__)
 
 def round1(n, decimals=0):
     """
-    Rounding in 2-steps with "bankers rounding" (ties on even: 3.5 --> 4 <-- 4.5), 
-    
-    to achive stability also on ties with long decimals.
-    
-    This trick produces identical `V` for both recurse & rescale
-    (see ``tests/test_downscale:test_recurse_vs_scaling()``).
+     Rounding twice with the Access DB method (all ties half-up: 0.5 --> 1),
+-
+-    to achive stability also on ties with long decimals.
 
     :param n:
         number/array to round
@@ -37,23 +35,34 @@ def round1(n, decimals=0):
         Number of decimal places to round to (default: 0).
         If decimals is negative, it specifies the number of positions to the left of the decimal point.
         `None` means keep it as it is.
-
-    >>> n = np.arange(-6.55, 7); n
-    array([-6.55, -5.55, -4.55, -3.55, -2.55, -1.55, -0.55,
-           0.45,  1.45, 2.45,  3.45,  4.45,  5.45,  6.45])
+    >>> round1(2.5, None)
+    2.5
+    >>> round1(2.5)
+    3.0
     >>> round1(np.arange(-6.55, 7), 1)
-    array([-6.6, -5.6, -4.6, -3.6, -2.6, -1.6, -0.6,
-           0.4,  1.4,  2.4,  3.4, 4.4,  5.4,  6.4])
-    >>> round1(np.arange(-6.65, 7), 1)  # the same as before!
-    array([-6.6, -5.6, -4.6, -3.6, -2.6, -1.6, -0.6,
-           0.4,  1.4,  2.4,  3.4, 4.4,  5.4,  6.4])
+    array([-6.5, -5.5, -4.5, -3.5, -2.5, -1.5, -0.5,
+           0.5,  1.5,  2.5,  3.5, 4.5,  5.5,  6.5])
+    >>> round1(np.arange(-6.65, 7), 1)
+    array([-6.6, -5.6, -4.6, -3.6, -2.7, -1.7, -0.7,
+           0.3,  1.3,  2.3,  3.4, 4.4,  5.4,  6.4])
+    >>> round1([0.49999999999999994, 5000000000000001.0, -2.4, 2.4])
+     array([ 1.e+00,  5.e+15, -2.e+00,  2.e+00])
     
     .. seealso:: https://en.wikipedia.org/wiki/Rounding#Round_half_to_even
+    .. seealso:: https://en.wikipedia.org/wiki/Rounding#Double_rounding
     """
+
+    def _round(n, decimals):
+        multiplier = 10 ** decimals
+        return np.floor(multiplier * n + 0.5) / multiplier
+
     if decimals is None:
         return n
 
-    return np.around(np.around(n, decimals + 2), decimals)
+    if isinstance(n, (list, tuple)):
+        n = np.asarray(n)
+
+    return _round(_round(n, decimals + 2), decimals)
 
 
 #    resistance_coeffs_regression_curves
