@@ -344,7 +344,6 @@ def _get_model_base():
         "vehicle": {
             "unladen_mass": None,
             "test_mass": None,
-            "v_max": None,
             "p_rated": None,
             "n_rated": None,
             "n_idle": None,
@@ -364,7 +363,6 @@ def _get_model_base():
             "v_stopped_threshold": 1,  # km/h, <=
             "f_inertial": 1.03,
             "f_safety_margin": 0.9,  # TODO: this must change to 1-SM = 0.1
-            "f_n_max": 1.2,
             "f_n_min": 0.125,
             "f_n_min_gear2": 0.9,
             "f_n_clutch_gear2": [1.15, 0.03],
@@ -435,7 +433,6 @@ properties:
     additionalProperties: {additional_properties}
     required:
     - test_mass
-    - v_max
     - p_rated
     - n_rated
     - n_idle
@@ -471,11 +468,7 @@ properties:
         - number
         - 'null'
         exclusiveMinimum: 0
-        description: |2
-          The maximum velocity as declared by the manufacturer.
-          If ommited, calculated as:
-
-              v_max = (n_rated * f_n_max (=1.2)) / gear_ratio[last]
+        description: The calculcated maximum velocity, as defined in Annex 2-3.i.
       p_rated:
         title: maximum rated power
         $ref: '#/definitions/positiveNumber'
@@ -583,7 +576,6 @@ properties:
     - v_stopped_threshold
     - f_inertial
     - f_safety_margin
-    - f_n_max
     - f_n_min
     - f_n_min_gear2
     - f_n_clutch_gear2
@@ -650,12 +642,6 @@ properties:
         - number
         - 'null'
         default: 0.9
-      f_n_max:
-        description: For each gear, N :< n_max = n_idle + f_n_max * n_range
-        type:
-        - number
-        - 'null'
-        default: 1.2
       f_n_min:
         description: 
           For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
@@ -1001,7 +987,6 @@ def validate_model(
     >>> mdl["vehicle"].update({
     ...     "unladen_mass":1230,
     ...     "test_mass":   1300,
-    ...     "v_max":   195,
     ...     "p_rated": 110.625,
     ...     "n_rated": 5450,
     ...     "n_idle":  950,
@@ -1044,7 +1029,6 @@ def validate_model(
 
 def yield_load_curve_errors(mdl):
     vehicle = mdl["vehicle"]
-    f_n_max = mdl["params"]["f_n_max"]
     wot = vehicle["full_load_curve"]
     try:
         if not isinstance(wot, pd.DataFrame):
@@ -1066,19 +1050,6 @@ def yield_load_curve_errors(mdl):
         elif wot.shape[1] == 2:
             if not all(isinstance(i, str) for i in cols):
                 wot.columns = ["n_norm", "p_norm"]
-
-        n_norm = wot["n_norm"]
-        if min(n_norm) > 0.1:
-            log.warning(
-                "The full_load_curve SHOULD begin at least from 0%%, not from %f%%!"
-                % min(n_norm)
-            )
-        max_x_limit = f_n_max
-        if max(n_norm) < max_x_limit:
-            log.warning(
-                "The full_load_curve SHOULD finish at least on f_n_max(%f%%), not on %f%%!"
-                % (max_x_limit, max(n_norm))
-            )
 
         p_norm = wot["p_norm"]
         if min(p_norm) < 0:

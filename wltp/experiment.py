@@ -135,7 +135,7 @@ class Experiment(object):
         n_rated = vehicle["n_rated"]
         n_idle = vehicle["n_idle"]
         n_min_drive = vehicle["n_min"]
-        v_max = vehicle["v_max"]
+        v_max = vehicle.get("v_max", None)
         gear_ratios = vehicle["gear_ratios"]
         res_coeffs = vehicle.get("resistance_coeffs")
         if res_coeffs:
