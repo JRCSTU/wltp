@@ -20,7 +20,7 @@ import ast
 from distutils.spawn import find_executable
 import json
 from textwrap import dedent
-from wltp import model, utils, __version__ as prog_ver
+from wltp import model, experiment, utils, __version__ as prog_ver
 import pandalone.pandata as pandel
 from jsonschema.exceptions import RefResolutionError
 from pandas.core.generic import NDFrame
@@ -195,7 +195,7 @@ def main(argv=None):
         )
         mdl = model.validate_model(mdl, additional_props)
 
-        mdl = processor.run(opts, mdl)
+        mdl = experiment.Experiment(mdl).run()
 
         store_model_parts(mdl, outfiles)
 
@@ -265,7 +265,11 @@ _pandas_formats = collections.OrderedDict(
         ("TXT", (pd.read_csv, "to_csv")),
         ("XLS", (pd.read_excel, "to_excel")),
         ("JSON", (pd.read_json, "to_json")),
-        ("SERIES", (pd.Series.from_csv, "to_json")),
+        # From https://stackoverflow.com/a/40208359/548792
+        (
+            "SERIES",
+            ((lambda *args, **kw: pd.read_csv(*args, **kw).T.squeeze()), "to_json"),
+        ),
     ]
 )
 _known_file_exts = {"XLSX": "XLS"}
@@ -502,7 +506,8 @@ def assemble_model(infiles, model_overrides):
                 pandel.set_jsonpointer(mdl, json_path, value)
             except Exception as ex:
                 raise Exception(
-                    "Failed setting model-value(%s) due to: %s" % (json_path, value, ex)
+                    "Failed setting model-value(%s)@(%s) due to: %s"
+                    % (json_path, value, ex)
                 ) from ex
 
     return mdl
