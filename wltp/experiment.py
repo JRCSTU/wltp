@@ -565,7 +565,7 @@ def np2bytes(NUMS):
 def bytes2np(bytesarr):
     assert isinstance(bytesarr, bytes), "Not bytes: %s" % bytesarr
 
-    return np.fromstring(bytesarr, dtype="uint8") - _escape_char
+    return np.frombuffer(bytesarr, dtype="uint8") - _escape_char
 
 
 def assert_regexp_unmatched(regex, string, msg):
