@@ -97,22 +97,30 @@ def open_file_with_os(fpath):
     return
 
 
-def yaml_dumps(o) -> str:
+def yaml_dump(o, fp):
     from ruamel import yaml
     from ruamel.yaml import YAML
 
-    s = io.StringIO()
     y = YAML(typ="rt", pure=True)
     y.default_flow_style = False
     # yaml.canonical = True
     yaml.scalarstring.walk_tree(o)
-    y.dump(o, s)
-    return s.getvalue()
+    y.dump(o, fp)
 
 
-def yaml_loads(y) -> Union[dict, list]:
+def yaml_dumps(o) -> str:
+    fp = io.StringIO()
+    yaml_dump(o, fp)
+    return fp.getvalue()
+
+
+def yaml_load(fp) -> Union[dict, list]:
     from ruamel.yaml import YAML
 
-    s = io.StringIO(y)
-    yaml = YAML(typ="rt", pure=True)
-    return yaml.load(y)
+    y = YAML(typ="rt", pure=True)
+    return y.load(fp)
+
+
+def yaml_loads(txt: str) -> Union[dict, list]:
+    fp = io.StringIO(txt)
+    return yaml_load(fp)
