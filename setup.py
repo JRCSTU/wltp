@@ -17,7 +17,7 @@ from setuptools import setup, find_packages
 #
 py_ver = sys.version_info
 if py_ver < (3, 6):
-    exit("Sorry, Python3 >= 3.6 is supported!")
+    exit("Sorry, Python3 >= 3.6 is supported! Not %s" % py_ver)
 
 proj_name = "wltp"
 mydir = os.path.dirname(__file__)

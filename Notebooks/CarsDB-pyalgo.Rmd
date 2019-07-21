@@ -139,7 +139,7 @@ nbu.print_nodes(out_h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x100 HDF5: 135Mb-->19Mb in 20s.
+## COMPRESS x100 HDF5: 135Mb-->24Mb in 20s.
 #
 # !ls -lh {out_h5fname}
 # !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:blosclz -o {out_h5fname}.tmp

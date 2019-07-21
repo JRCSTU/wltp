@@ -19,6 +19,8 @@ from typing import Union
 import numbers
 import numpy as np
 import pandas as pd
+from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy import optimize
 
 log = logging.getLogger(__name__)
 
@@ -75,11 +77,11 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
     return (f0, f1, f2)
 
 
-def calc_road_load_power_required(V, f0, f1, f2):
+def calc_road_load_power(V, f0, f1, f2):
     """
-    Used to calc V_max_vehicle
-
-    @see: Annex 2-2.i
+    The power required to overcome vehicle-resistances for various velocities, 
+    
+    as defined in Annex 2-2.i (calculate `V_max_vehicle`).
     """
     return (f0 * V + f1 * V ** 2 + f2 * V ** 3) / 3600.0
 
@@ -90,18 +92,68 @@ def calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial):
     @see: Annex 2-3.1
     """
     P_REQ = (
-        calc_road_load_power_required(V, f0, f1, f2)
-        + (f_inertial * A * V * test_mass) / 3600.0
+        calc_road_load_power(V, f0, f1, f2) + (f_inertial * A * V * test_mass) / 3600.0
     )
 
     return P_REQ
 
 
-def decide_wltc_class(wltc_data, p_m_ratio, v_max):
+def _find_p_remain_root(pv: pd.DataFrame, initial_guess):
+    """
+    :param pv: 
+        a dataframe with columns 'v', 'p'
+    """
+    V, P = pv.iloc[:, 0], pv.iloc[:, 1]
+    pv_curve = InterpolatedUnivariateSpline(V, P, k=1, ext=3)
+    pv_jacobian = InterpolatedUnivariateSpline(V, np.gradient(P), k=1, ext=3)
+
+    ## NOTE: default 'hybr' method fails to find root!
+    res = optimize.root(pv_curve, initial_guess, jac=pv_jacobian, method="broyden1")
+    if not res.success:
+        return None
+    return res.x
+
+
+def calc_gear_v_max(
+    Pwots: Union[pd.Series, pd.DataFrame],
+    gear_n2v_ratios,
+    n_rated,
+    f0,
+    f1,
+    f2,
+    f_safety_factor=0.10,
+):
     """
 
-    @see: Annex 1, p 19
+    :param Pwots:
+        A series/single-column-dataframe containing the corresponding P(kW) value 
+        for each N in its index. 
+    :param gear_n2v_ratios:
+        a sequence of n/v ratios, as defined in Annex 1-2.e
     """
+    ng = 0
+    n2v = gear_n2v_ratios[-1]
+
+    df = pd.DataFrame(Pwots)
+    df.columns = ["p_wot"]
+    df["n"] = df.index
+    df["v"] = df["n"] / n2v
+    df["p_avail"] = df["p_wot"] * (1.0 - f_safety_factor)
+    df["p_road_loads"] = calc_road_load_power(df["v"], f0, f1, f2)
+    df["p_remain"] = df["p_avail"] - df["p_road_loads"]
+    initial_guess_v = n_rated / n2v
+    max_v = _find_p_remain_root(df[["v", "p_remain"]], initial_guess_v)
+    if max_v is None:
+        log.info(
+            "Cannot find where Pwot intersects road-load-power curve!" "\n  %s\n%s",
+            initial_guess_v,
+            df,
+        )
+    return max_v
+
+
+def decide_wltc_class(wltc_data, p_m_ratio, v_max):
+    """Vehicle classification according to Annex 1-2. """
     class_limits = {
         cl: (cd["pmr_limits"], cd.get("velocity_limits"))
         for (cl, cd) in wltc_data["classes"].items()

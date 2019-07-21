@@ -13,16 +13,36 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
-from wltp import experiment
-from wltp import model
+from wltp import experiment, model
 from wltp.formulae import calc_default_resistance_coeffs, downscale_class_velocity
-from wltp.model import _get_wltc_data
+from wltp import model, formulae
+
+from . import nbutils as nbu
 
 logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
+h5db = "Notebooks/VehData/WltpGS-msaccess.h5"
+
+
+def test_v_max():
+    def make_v_maxes(vehnum):
+        iprops, Pwot = nbu.load_vehicle(h5db, vehnum, "iprop", "pwot")
+        n2vs = nbu.load_n2v_gear_ratios(iprops)
+        v_max_calced = formulae.calc_gear_v_max(
+            Pwot["Pwot"], n2vs, iprops.rated_speed, iprops.f0, iprops.f1, iprops.f2
+        )
+        v_max_heinz = iprops["v_max"]
+        return v_max_calced, v_max_heinz
+
+    veh_nums = nbu.all_vehnums(h5db)
+    v_maxes = [make_v_maxes(vehnum) for vehnum in veh_nums]
+    print("Nones:", sum(i is None for i in v_maxes))
+    v_maxes_calced, v_maxes_heinz = np.array(v_maxes).T
+    npt.assert_array_equal(v_maxes_calced, v_maxes_heinz)
 
 
 def test_smoke_downscaling():
-    wclasses = _get_wltc_data()["classes"]
+    wclasses = model._get_wltc_data()["classes"]
     test_data = [
         (pd.Series(wclass["cycle"]), wclass["downscale"]["phases"], f_downscale)
         for wclass in wclasses.values()
@@ -85,3 +105,7 @@ def test_calc_default_resistance_coeffs_base_model():
     res = calc_default_resistance_coeffs(tm, regression_curves)
     print(res)
     assert len(res) == 3
+
+
+if __name__ == "__main__":
+    test_v_max()

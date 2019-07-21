@@ -88,6 +88,10 @@ p1, c1, p2, c2 = load_heinz_and_python_datasets()
 ```
 
 ```{python}
+list(p1.index.levels[1])
+```
+
+```{python}
 display(
     nbu.grid(p1),
     nbu.grid(p2),
@@ -311,6 +315,36 @@ def get_similarity(a, b):
 
 _fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(12,8))
 
+veh, col1, col2 = 'v001 P_tot p_required'.split()
+tol = 0.00001
+a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
+ix = 100*(a-b).abs()/a.max() > tol 
+display('P', get_similarity(a, b))
+a[ix].plot(ax=ax1)
+b[ix].plot(ax=ax1)
+
+ax1.grid(which='both')
+ax1.legend()
+
+#ax2 = ax.twinx()
+
+col1, col2 = 'a a_target'.split()
+a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
+ix = (a-b).abs()/a.max() > 0.8e-6
+display(get_similarity(a, b))
+#c1.loc[veh, 'v_orig'].copy()[ix].plot(style='3', ax=ax2)
+a[ix].plot(style='+', ax=ax2)
+b[ix].plot(style='x', ax=ax2)
+
+ax2.grid(which='both')
+ax2.legend()
+```
+
+```{python}
+# %matplotlib widget
+
+_fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(12,8))
+
 veh, col1, col2 = 'v056 P_tot p_required'.split()
 tol = 0.00001
 a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
@@ -326,7 +360,7 @@ ax1.legend()
 
 col1, col2 = 'v_downscale v_target'.split()
 a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
-ix = 100*(a-b).abs()/a.max() > tol
+ix = a != b
 display(get_similarity(a, b))
 c1.loc[veh, 'v_orig'].copy()[ix].plot(style='3', ax=ax2)
 a[ix].plot(style='+', ax=ax2)
@@ -334,4 +368,12 @@ b[ix].plot(style='x', ax=ax2)
 
 ax2.grid(which='both')
 ax2.legend()
+```
+
+```{python}
+ c1.loc['v001', :].shape
+```
+
+```{python}
+
 ```

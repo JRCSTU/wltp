@@ -22,4 +22,3 @@ sphinx
 tables              # called `pytables` in conda
 xlrd
 xonsh               # (optional) a python-like shell
--e .

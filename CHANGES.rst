@@ -58,6 +58,11 @@ Questions to Heinz
   * WLTP_GS_AccessDB-sources/F calc gearshifts single vehicle.form.txt:(4877, 4903, 4920)
   * WLTP_GS_AccessDB-sources/F new vehicle.form.txt:(3537, 3563, 3589)
 
+* Where is `n_lim` in the input table?
+* What is this 0.9 factor in `F new vehicle.form.vbs:L2738` reducing max-wot-n?
+* What is this -50 in `F new vehicle.form.vbs:L3325`, `L3330`, &  `L3335` reducing max-wot-n?
+
+
 .. _todos-list:
 
 TODOs
