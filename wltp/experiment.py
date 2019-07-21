@@ -214,7 +214,7 @@ class Experiment(object):
 
         V = cycle_run["v_target"]  # as Series
         A = calcAcceleration(V)
-        P_REQ = calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial)
+        P_REQ = formulae.calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial)
         cycle_run["a_target"] = A
         cycle_run["p_required"] = P_REQ
 
@@ -447,22 +447,6 @@ def calcAcceleration(V: Union[np.ndarray, pd.Series]):
     A = np.append(A, 0)  # Restore element lost by diff().
 
     return A
-
-
-def calcPower_required(V, A, test_mass, f0, f1, f2, f_inertial):
-    """
-
-    @see: Annex 2-3.1, p 71
-    """
-
-    VV = V * V
-    VVV = VV * V
-    assert V.shape == VV.shape == VVV.shape == A.shape, _shapes(V, VV, VVV, A)
-
-    P_REQ = (f0 * V + f1 * VV + f2 * VVV + f_inertial * A * V * test_mass) / 3600.0
-    assert V.shape == P_REQ.shape, _shapes(V, P_REQ)
-
-    return P_REQ
 
 
 def calcPower_available(

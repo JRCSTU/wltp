@@ -75,6 +75,28 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
     return (f0, f1, f2)
 
 
+def calc_road_load_power_required(V, f0, f1, f2):
+    """
+    Used to calc V_max_vehicle
+
+    @see: Annex 2-2.i
+    """
+    return (f0 * V + f1 * V ** 2 + f2 * V ** 3) / 3600.0
+
+
+def calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial):
+    """
+
+    @see: Annex 2-3.1
+    """
+    P_REQ = (
+        calc_road_load_power_required(V, f0, f1, f2)
+        + (f_inertial * A * V * test_mass) / 3600.0
+    )
+
+    return P_REQ
+
+
 def decide_wltc_class(wltc_data, p_m_ratio, v_max):
     """
 
