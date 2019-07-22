@@ -135,6 +135,7 @@ dev_reqs = (
         "wheel",
         "twine",
         "pylint",
+        "mypy",
         # for VSCode autoformatting
         "black ; python_version > '3.5'",
         # for git autoformatting
