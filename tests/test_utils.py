@@ -61,14 +61,23 @@ def test_make_xy_df_simple(xy, xname, yname):
         (({"a": [1, 2]},), pd.DataFrame([[1], [2]], columns=["a"])),
         (({"a": [1, 2]}, "X", "Y"), pd.DataFrame([[1], [2]], columns=["Y"])),
         (([[11, 12], [21, 22]],), pd.DataFrame([[11, 12], [21, 22]]).set_index(0)),
+        (
+            (pd.DataFrame({"YY": [11, 22], "extra": [0, 0], "XX": [3, 4]}), "XX", "YY"),
+            pd.DataFrame({"YY": [11, 22]}, index=[3, 4]),
+        ),
+        ((pd.DataFrame({"YY": [11, 22], "extra": [0, 0], "XX": [3, 4]}),), ValueError),
     ],
 )
 def test_make_xy_df(make_xy_args, exp):
-    res = utils.make_xy_df(*make_xy_args)
-    assert isinstance(res, pd.DataFrame)
-    assert exp.equals(res)
-    assert res.columns == exp.columns
-    assert (res.index == exp.index).all()
+    if type(exp) is type and issubclass(exp, Exception):
+        with pytest.raises(exp):
+            utils.make_xy_df(*make_xy_args)
+    else:
+        res = utils.make_xy_df(*make_xy_args)
+        assert isinstance(res, pd.DataFrame)
+        assert exp.equals(res)
+        assert res.columns == exp.columns
+        assert (res.index == exp.index).all()
 
 
 @pytest.mark.parametrize(
