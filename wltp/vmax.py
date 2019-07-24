@@ -52,16 +52,21 @@ def _find_p_remain_root(pv: pd.DataFrame, initial_guess) -> optimize.OptimizeRes
     pv_jacobian = Spline(V, np.gradient(P), k=rank, ext=derivative_extrapolate_bounds)
 
     ## NOTE: the default 'hybr' method fails to find any root!
-    res = optimize.root(pv_curve, initial_guess, jac=pv_jacobian, method="broyden1")
+    res = optimize.root(
+        pv_curve,
+        initial_guess,
+        # Low tol because GTR requires 1 decimal point in V.
+        tol=0.0001,
+        jac=pv_jacobian,
+        method="broyden1",
+    )
 
     if res.success:
         return pv_curve(res.x), res
     return None, res
 
 
-def _calc_gear_v_max(
-    g, df: pd.DataFrame, c_p_avail, gear_n2v_ratio, f0, f1, f2
-) -> GearVMaxRec:
+def _calc_gear_v_max(g, df: pd.DataFrame, c_p_avail, n2v, f0, f1, f2) -> GearVMaxRec:
     """
     The `v_max` for a gear `g` is the solution of :math:`0.1 * P_{avail}(g) = P_{road_loads}`.
 
@@ -72,7 +77,7 @@ def _calc_gear_v_max(
         
         .. attention:: it appends columns in this dataframe.
         
-    :param gear_n2v_ratio:
+    :param n2v:
         The n/v ratio as defined in Annex 1-2 for the gear to 
         calc its `v_max` (if it exists). 
     :return:
@@ -81,12 +86,29 @@ def _calc_gear_v_max(
     """
     from . import formulae
 
-    df["v"] = df.index / gear_n2v_ratio
+    df["v"] = df.index / n2v
     df["p_road_loads"] = formulae.calc_road_load_power(df["v"], f0, f1, f2)
     df["p_remain"] = df[c_p_avail] - df["p_road_loads"]
-    initial_guess_v = df.index.max() / gear_n2v_ratio
+    initial_guess_v = df.index.max() / n2v
     p_max, res = _find_p_remain_root(df[["v", "p_remain"]], initial_guess_v)
-    v_max = res.x if res.success else np.NaN
+
+    v_max = np.NAN
+    if res.success:
+        n = res.x * n2v
+        v_rounded = formulae.round1(res.x, 1)
+        n_rounded = v_rounded * n2v
+        if df.index.min() <= n_rounded <= df.index.max():
+            v_max = res.x
+            ## Interpolate solved `n` in index.
+            #
+            df.loc[n, :] = np.NAN
+            df.loc[n_rounded, :] = np.NAN
+            df.interpolate()
+        elif n_rounded > df.index.max():
+            v_max = df.index.max() / n2v
+            # Do not interpolate solved `n`,
+            # it will extend wot beyond `pwot_n_max`.
+
     return GearVMaxRec(v_max, p_max, res, df)
 
 
@@ -117,12 +139,7 @@ def calc_v_max(
         """note: each arg is a list of items"""
         items1 = pd.DataFrame.from_dict({"v_max": v_maxes, "p_max": p_maxes})
         items2 = pd.DataFrame.from_records(optimize_results)[
-            [
-                "success",
-                "status",
-                "message",
-                "nit",
-            ]  # , "nfev", "njev"]  # for other solvers
+            ["success", "status", "message", "nit"]
         ]
         items2.columns = "solver_ok solver_status solver_msg solver_nit".split()
         return pd.concat((items1, items2), axis=1)
@@ -131,7 +148,7 @@ def calc_v_max(
         _drop_maxv_common_columns(solution_dfs)
         wots_df = pd.concat(solution_dfs, axis=1, keys=range(0, ng + 1))
         wot_df[c_n] = wot_df.index
-        wots_df.index = wot_df.values
+        ###wots_df.index = wot_df.values
 
         return wots_df
 

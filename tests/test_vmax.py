@@ -27,7 +27,8 @@ def test_v_max(h5db):
     from wltp import formulae
     from . import conftest
 
-    nsamples = 116
+    # DEBUG: reduce clutter in console.
+    nsamples = None
 
     def make_v_maxes(vehnum):
         iprops, Pwot, n2vs = conftest._load_vehicle_data(h5db, vehnum)
@@ -38,12 +39,10 @@ def test_v_max(h5db):
         return v_max_calced, v_max_round, v_max_heinz, rec.gears_df
 
     veh_nums = nbu.all_vehnums(h5db)
-    recs = np.array(
-        [
-            make_v_maxes(vehnum)
-            for vehnum in random.sample(veh_nums, nsamples or len(veh_nums))
-        ]
-    )
+    veh_samples = random.sample(veh_nums, nsamples) if nsamples else veh_nums
+
+    recs = np.array([make_v_maxes(vehnum) for vehnum in veh_samples])
+
     v_maxes_calced, v_maxes_round, v_maxes_heinz, gears_dfs = recs.T
     gears_df = pd.concat(gears_dfs, keys=range(len(gears_dfs)))
     print(
