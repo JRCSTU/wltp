@@ -8,7 +8,7 @@
 
 import logging
 from collections import namedtuple
-from typing import Union
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
@@ -87,8 +87,6 @@ def _calc_gear_v_max(
     initial_guess_v = df.index.max() / gear_n2v_ratio
     p_max, res = _find_p_remain_root(df[["v", "p_remain"]], initial_guess_v)
     v_max = res.x if res.success else np.NaN
-    if res.success:
-        log.info("gear %s: , vmax: %s, p_remain: %s, nit: %s", g, v_max, p_max, res.nit)
     return GearVMaxRec(v_max, p_max, res, df)
 
 
@@ -139,10 +137,12 @@ def calc_v_max(
 
     wot_df = make_xy_df(Pwots, xname=c_n, yname=c_p_wot, auto_transpose=True)
     wot_df[c_p_avail] = wot_df[c_p_wot] * (1.0 - f_safety_margin)
-    recs = [
-        _calc_gear_v_max(g, wot_df.copy(), c_p_avail, n2v, f0, f1, f2)
-        for g, n2v in enumerate(gear_n2v_ratios)
-    ]
+
+    recs: List[GearVMaxRec] = []
+    for g, n2v in reversed(list(enumerate(gear_n2v_ratios, 1))):
+        rec = _calc_gear_v_max(g, wot_df.copy(), c_p_avail, n2v, f0, f1, f2)
+        if not recs or recs[-1].v_max < rec.v_max:
+            recs.append(rec)
 
     *gears_infos, wot_solution_dfs = zip(*recs)
 
