@@ -1039,7 +1039,7 @@ def validate_model(
             except jsonschema.ValidationError as ex:
                 ## Attempt to workround BUG: https://github.com/Julian/jsonschema/issues/164
                 #
-                if isinstance(ex.instance, NDFrame) or isinstance(ex.instance, ndarray):
+                if isinstance(ex.instance, (NDFrame, ndarray)):
                     ex.instance = "%s: %s" % (type(ex.instance), str(ex.instance))
                     ex.instance = str(ex.instance)
                 raise
@@ -1126,7 +1126,7 @@ def yield_forced_cycle_errors(mdl, additional_properties):
                 forced_cycle = pd.DataFrame(forced_cycle)
                 if forced_cycle.shape[0] == forced_cycle.shape[1]:
                     yield ValidationError(
-                        "The full_load_curve is a square matrix(%s), cannot decide orientation!"
+                        "The force_cycle is a square matrix(%s), cannot decide orientation!"
                         % (forced_cycle.shape,)
                     )
             if forced_cycle.shape[0] < forced_cycle.shape[1]:
