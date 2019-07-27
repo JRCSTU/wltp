@@ -71,7 +71,7 @@ def _interpolate_wot_on_v_grid(pv: pd.DataFrame):
 
 def _find_p_remain_root(wot: pd.DataFrame) -> optimize.OptimizeResult:
     """
-    Find the velocity (the "x") where power (the "y") gets to zero.
+    Find the velocity (the "x") where remain-power (the "y") gets to zero.
 
     :param wot: 
         df with: n, v, p_remain
@@ -81,16 +81,19 @@ def _find_p_remain_root(wot: pd.DataFrame) -> optimize.OptimizeResult:
     wot = _interpolate_wot_on_v_grid(wot)
     assert not wot.isnull().any(None), wot[wot.isnull()]
 
-    wot[c.sign_p_remain] = np.sign(wot[c.p_remain])
-
-    ## period=-1: diff with next-element so zero-crossing is marked on low-index
-    #  (e.g. `F new vehicle.form.vbs#L3273`).
-    wot[c.zero_crosings] = wot[c.sign_p_remain].diff(periods=-1).fillna(0)
-    # assert (wot[c.zero_crosings] <= 0).all(), wot.loc[wot[c.zero_crosings] > 0, c.zero_crosings]
-
-    roots = wot.index[wot[c.zero_crosings] != 0]
-    has_root = roots.size > 0
-    x = roots[0] if has_root else np.NAN
+    ## Find the lowest n BEFORE p_remain crosses to negatives
+    #  (like MSAccess in e.g. `F new vehicle.form.vbs#L3273`).
+    #
+    negatives_idx = wot[c.p_remain] < 0
+    negatives_idx_idx = np.nonzero(negatives_idx)[0]
+    has_root = bool(negatives_idx_idx.size)
+    if has_root:
+        negatives_idx_idx = negatives_idx_idx[0]
+        if negatives_idx_idx > 0:
+            negatives_idx_idx -= 1
+        x = wot.index[negatives_idx_idx]
+    else:
+        x = np.NAN
     res = optimize.OptimizeResult(
         {"x": x, "success": has_root, "message": None, "nit": -1}  # , "wot": wot}
     )
