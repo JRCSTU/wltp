@@ -55,6 +55,6 @@ def test_v_max(h5db):
         f"\n++ nones: {np.isnan(v_maxes_calced.astype('float64')).sum()} (out of {len(veh_nums)})"
     )
     nbad = (v_maxes_round != v_maxes_heinz).sum()
-    assert not nbad
+    # assert not nbad
     ## No, too much outputgit
-    # npt.assert_array_equal(v_maxes_round, v_maxes_heinz)
+    npt.assert_array_equal(v_maxes_round, v_maxes_heinz)
