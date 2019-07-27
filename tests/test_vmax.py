@@ -46,11 +46,15 @@ def test_v_max(h5db):
     v_maxes_calced, v_maxes_round, v_maxes_heinz, gears_dfs = recs.T
     gears_df = pd.concat(gears_dfs, keys=range(len(gears_dfs)))
     print(
-        "iterations_count(ok):",
+        "++ iterations_count(ok):",
         gears_df.loc[gears_df.solver_ok, "solver_nit"].describe(),
     )
     print(
-        f"v_max diffs: {pd.Series((v_maxes_calced - v_maxes_heinz)).describe()}"
-        f",\n  nones: {np.isnan(v_maxes_calced.astype('float64')).sum()} (out of {len(veh_nums)})"
+        f"\n++ DIFFs: {(v_maxes_round != v_maxes_heinz).sum()} (out of {len(veh_nums)})"
+        f"\n++ v_max diffs: {pd.Series((v_maxes_round - v_maxes_heinz)).dropna().describe()}"
+        f"\n++ nones: {np.isnan(v_maxes_calced.astype('float64')).sum()} (out of {len(veh_nums)})"
     )
-    npt.assert_array_equal(v_maxes_round, v_maxes_heinz)
+    nbad = (v_maxes_round != v_maxes_heinz).sum()
+    assert not nbad
+    ## No, too much outputgit
+    # npt.assert_array_equal(v_maxes_round, v_maxes_heinz)
