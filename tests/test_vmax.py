@@ -51,12 +51,13 @@ def test_v_max(h5db):
         "++ iterations_count(ok):",
         gears_df.loc[gears_df.solver_ok, "solver_nit"].describe(),
     )
+    nulls = gears_df.loc[gears_df["v_max"].isnull(), :]
     print(
         f"\n++ DIFFs: {(v_maxes_round != v_maxes_heinz).sum()} (out of {len(veh_nums)})"
         f"\n++ v_max diffs: {pd.Series((v_maxes_round - v_maxes_heinz)).dropna().describe()}"
-        f"\n++ nones: {np.isnan(v_maxes_calced.astype('float64')).sum()} (out of {len(veh_nums)})"
+        f"\n++ nones: {len(nulls)} (out of {len(veh_nums)}):\n{nulls}"
     )
-    nbad = (v_maxes_round != v_maxes_heinz).sum()
+    # nbad = (v_maxes_round != v_maxes_heinz).sum()
     # assert not nbad
     ## No, too much outputgit
     npt.assert_array_equal(v_maxes_round, v_maxes_heinz)

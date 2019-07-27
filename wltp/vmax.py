@@ -71,7 +71,11 @@ def _interpolate_wot_on_v_grid(pv: pd.DataFrame):
 
 def _find_p_remain_root(wot: pd.DataFrame) -> optimize.OptimizeResult:
     """
-    Find the velocity (the "x") where remain-power (the "y") gets to zero.
+    Find the velocity (the "x") where remain-power (the "y") gets crossed to zero,
+    
+    rounded towards the part of wot where p_remain > 0
+    (like MSAccess in e.g. `F new vehicle.form.vbs#L3273`)
+    or V @ max p_wot, if p_remain is always positive.
 
     :param wot: 
         df with: n, v, p_remain
@@ -81,19 +85,22 @@ def _find_p_remain_root(wot: pd.DataFrame) -> optimize.OptimizeResult:
     wot = _interpolate_wot_on_v_grid(wot)
     assert not wot.isnull().any(None), wot[wot.isnull()]
 
+    has_root = False
+    x = np.NAN
     ## Find the lowest n BEFORE p_remain crosses to negatives
-    #  (like MSAccess in e.g. `F new vehicle.form.vbs#L3273`).
     #
     negatives_idx = wot[c.p_remain] < 0
-    negatives_idx_idx = np.nonzero(negatives_idx)[0]
-    has_root = bool(negatives_idx_idx.size)
-    if has_root:
+    if not negatives_idx.sum():
+        has_root = True
+        x = wot[c.v].iloc[-1]
+    elif negatives_idx.sum() < len(wot):
+        negatives_idx_idx = np.nonzero(negatives_idx)[0]
         negatives_idx_idx = negatives_idx_idx[0]
-        if negatives_idx_idx > 0:
+        if negatives_idx_idx != 0:
+            has_root = True
             negatives_idx_idx -= 1
-        x = wot.index[negatives_idx_idx]
-    else:
-        x = np.NAN
+            x = wot.index[negatives_idx_idx]
+
     res = optimize.OptimizeResult(
         {"x": x, "success": has_root, "message": None, "nit": -1}  # , "wot": wot}
     )
@@ -126,15 +133,7 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> GearVMaxRec:
     wot[c.p_remain] = wot[c.p_avail] - wot[c.p_road_loads]
     res = _find_p_remain_root(wot)
 
-    v_max = np.NAN
-    if res.success:
-        n = res.x * n2v
-        if wot.index.min() <= n <= wot.index.max():
-            v_max = res.x
-        elif n > wot.index.max():
-            v_max = wot.index.max() / n2v
-
-    return GearVMaxRec(v_max, -1, res, wot)
+    return GearVMaxRec(res.x, -1, res, wot)
 
 
 def calc_v_max(
