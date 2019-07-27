@@ -30,9 +30,11 @@ def test_v_max(h5db):
     # DEBUG: reduce clutter in console.
     nsamples = None
 
-    def make_v_maxes(vehnum):
+    def make_v_maxes(vehnum, mdl: dict):
         iprops, Pwot, n2vs = conftest._load_vehicle_data(h5db, vehnum)
-        rec = vmax.calc_v_max(Pwot["Pwot"], n2vs, iprops.f0, iprops.f1, iprops.f2, 0.1)
+        rec = vmax.calc_v_max(
+            mdl, Pwot["Pwot"], n2vs, iprops.f0, iprops.f1, iprops.f2, 0.1
+        )
         v_max_calced = rec.v_max
         v_max_round = formulae.round1(v_max_calced, 1)
         v_max_heinz = iprops["v_max"]
@@ -41,7 +43,7 @@ def test_v_max(h5db):
     veh_nums = nbu.all_vehnums(h5db)
     veh_samples = random.sample(veh_nums, nsamples) if nsamples else veh_nums
 
-    recs = np.array([make_v_maxes(vehnum) for vehnum in veh_samples])
+    recs = np.array([make_v_maxes(vehnum, {}) for vehnum in veh_samples])
 
     v_maxes_calced, v_maxes_round, v_maxes_heinz, gears_dfs = recs.T
     gears_df = pd.concat(gears_dfs, keys=range(len(gears_dfs)))

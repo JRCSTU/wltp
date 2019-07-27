@@ -21,6 +21,8 @@ log = logging.getLogger(__name__)
 
 #: column names
 c = mappings.Pstep()
+#: model paths
+p = mappings.Pstep()
 
 #: Solution results of the equation finding the v-max of each gear:
 #:   - v_max, p_max: in kmh, kW, `Nan` if not found
@@ -90,7 +92,7 @@ def _find_p_remain_root(wot: pd.DataFrame) -> optimize.OptimizeResult:
     has_root = roots.size > 0
     x = roots[0] if has_root else np.NAN
     res = optimize.OptimizeResult(
-        {"x": x, "success": has_root, "status": None, "message": None, "nit": -1}
+        {"x": x, "success": has_root, "message": None, "nit": -1}  # , "wot": wot}
     )
 
     return res
@@ -133,7 +135,13 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> GearVMaxRec:
 
 
 def calc_v_max(
-    Pwots: Union[pd.Series, pd.DataFrame], gear_n2v_ratios, f0, f1, f2, f_safety_margin
+    mdl: dict,
+    Pwots: Union[pd.Series, pd.DataFrame],
+    gear_n2v_ratios,
+    f0,
+    f1,
+    f2,
+    f_safety_margin,
 ) -> VMaxRec:
     """
     Finds the maximum velocity achieved by all gears.
@@ -150,22 +158,24 @@ def calc_v_max(
     """
     ng = len(gear_n2v_ratios)
 
-    def _drop_maxv_common_columns(dfs):
-        for df in dfs:
-            df.drop(columns=[c.p_wot, c.p_avail], inplace=True)
-
-    def _package_gears_df(v_maxes, p_maxes, optimize_results):
+    def _package_gears_df(v_maxes, p_maxes, solver_results):
         """note: each arg is a list of items"""
         items1 = pd.DataFrame.from_dict({"v_max": v_maxes, "p_max": p_maxes})
-        items2 = pd.DataFrame.from_records(optimize_results)[
-            ["success", "status", "message", "nit"]
+        items2 = pd.DataFrame.from_records(solver_results)[
+            ["success", "message", "nit"]  # , "wot"]
         ]
-        items2.columns = "solver_ok solver_status solver_msg solver_nit".split()
+        items2.columns = "solver_ok solver_msg solver_nit".split()
         return pd.concat((items1, items2), axis=1)
 
+    def _drop_maxv_common_columns(df):
+        return df.drop(columns=[c.v, c.n, c.p_wot, c.p_avail])
+
     def _package_wots_df(wot, solution_dfs):
-        _drop_maxv_common_columns(solution_dfs)
-        wots_df = pd.concat(solution_dfs, axis=1, keys=range(0, ng + 1))
+        wots_df = pd.concat(
+            (_drop_maxv_common_columns(df) for df in solution_dfs),
+            axis=1,
+            keys=range(0, ng + 1),
+        )
         wot[c.n] = wot.index
         ###wots_df.index = wot.values
 
