@@ -84,6 +84,10 @@ def test_recurse_vs_scaling(wclass):
     """Compare downcalings with the both methods: simplified (scale by multiply) and by_the_spec (iterativelly scale accelerations)."""
     from matplotlib import pyplot as plt
 
+    # Scaling == Recurse only with this!!
+    def double_round(n, decimals):
+        return round1(round1(n, decimals + 2), decimals)
+
     pd_opts = [
         "display.max_rows",
         None,
@@ -113,7 +117,7 @@ def test_recurse_vs_scaling(wclass):
             )[bad_ix]
             bad_accuracies[f_downscale] = errs
 
-        bad_ix = round1(V1, v_decimals) != round1(V2, v_decimals)
+        bad_ix = double_round(V1, v_decimals) != double_round(V2, v_decimals)
         if bad_ix.any():
             bad_rounds[f_downscale] = pd.concat(
                 (V1, V2), axis=1, keys=["recurse", "rescale"]
@@ -125,7 +129,7 @@ def test_recurse_vs_scaling(wclass):
             pytest.fail(f"{wclass}: ACCURACY errors!\n{errs}\n{errs.describe()}")
 
     if bad_rounds:
-        rounded = (round1(i, v_decimals) for i in bad_rounds.values())
+        rounded = (double_round(i, v_decimals) for i in bad_rounds.values())
         rounded = pd.concat(rounded, axis=0, keys=bad_rounds.keys())
         precise = pd.concat((bad_rounds.values()), axis=0, keys=bad_rounds.keys())
         errs = pd.concat((rounded, precise), axis=1, keys=["rounded", "precise"])

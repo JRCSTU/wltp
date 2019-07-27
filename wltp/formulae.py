@@ -26,9 +26,10 @@ log = logging.getLogger(__name__)
 
 def round1(n, decimals=0):
     """
-     Rounding twice with the Access DB method (all ties half-up: 0.5 --> 1),
--
--    to achive stability also on ties with long decimals.
+     Rounding with the Access DB method (all ties half-up: 0.5 --> 1).
+    
+    TIP: Double rounding might be needed to achive stability on ties with long decimals
+    (see downscale scale vs recurse)
 
     :param n:
         number/array to round
@@ -53,17 +54,14 @@ def round1(n, decimals=0):
     .. seealso:: https://en.wikipedia.org/wiki/Rounding#Double_rounding
     """
 
-    def _round(n, decimals):
-        multiplier = 10 ** decimals
-        return np.floor(multiplier * n + 0.5) / multiplier
-
     if decimals is None:
         return n
 
     if isinstance(n, (list, tuple)):
         n = np.asarray(n)
 
-    return _round(_round(n, decimals + 2), decimals)
+    multiplier = 10 ** decimals
+    return np.floor(multiplier * n + 0.5) / multiplier
 
 
 #    resistance_coeffs_regression_curves
