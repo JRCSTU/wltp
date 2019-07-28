@@ -6,7 +6,7 @@ jupyter:
       extension: .Rmd
       format_name: rmarkdown
       format_version: '1.1'
-      jupytext_version: 1.1.7-rc0
+      jupytext_version: 1.2.1
   kernelspec:
     display_name: Python 3
     language: python
@@ -30,15 +30,23 @@ with the *outputs* (`oprop`, `cycle`) from this *wltp* library.
 ```{python}
 from typing import Tuple, Union, Sequence as Seq
 import io
+import sys
 import logging
 from pathlib import Path, PurePosixPath as P
 
 import numpy as np
 import pandas as pd
 from wltp.experiment import Experiment
+import wltp
 import wltp.utils as wutils
 
-import nbutils as nbu
+## Add tests/ into `sys.path` to import `vehdb` module.
+#
+proj_dir = str(Path(wltp.__file__).parents[1] / "tests")
+if proj_dir not in sys.path:
+    sys.path.insert(0, proj_dir)
+
+import vehdb
 
 log = logging.getLogger('CarsDB-phase1a.ipynb')
 logging.basicConfig(
@@ -62,7 +70,7 @@ c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 ```{python}
 ## PROVENANCE: discover how it came to be, at a later time
 #  (might take 10'')
-root_prov_info = nbu.provenance_info(files=[heinzdb_fpath])
+root_prov_info = vehdb.provenance_info(files=[heinzdb_fpath])
 ```
 
 ```{python}
@@ -71,7 +79,7 @@ root_prov_info = nbu.provenance_info(files=[heinzdb_fpath])
 ```
 
 ```{python}
-nbu.print_nodes(out_h5fname)
+vehdb.print_nodes(out_h5fname)
 ```
 
 ```{python}
@@ -97,11 +105,11 @@ def store_python_results(
     """
 
     def run_vehicles_with_pythons(h5db):
-        veh_nums =  nbu.all_vehnums(h5db) if vehile_nums is None else vehile_nums
+        veh_nums =  vehdb.all_vehnums(h5db) if vehile_nums is None else vehile_nums
         for vehnum in veh_nums:
             log.info("Processing veh(v%0.3i)...", vehnum)
             try:
-                yield vehnum, nbu.run_pyalgo_on_Heinz_vehicle(inph5, vehnum)
+                yield vehnum, vehdb.run_pyalgo_on_Heinz_vehicle(inph5, vehnum)
             except Exception as ex:
                 log.error("V%0.3i failed: %s", vehnum, ex)
                 raise ex
@@ -110,31 +118,31 @@ def store_python_results(
         if no_write:
             return
         
-        g = nbu.vehnode(vehnum, props_group_suffix)
+        g = vehdb.vehnode(vehnum, props_group_suffix)
         h5db.put(g, pd.Series(oprops))
-        nbu.provenir_h5node(
+        vehdb.provenir_h5node(
             h5db,
             g,
             title="Wltp-run generated old pghase-1a python",
             base=root_prov_info,
         )
 
-        g = nbu.vehnode(vehnum, cycle_group_suffix)
+        g = vehdb.vehnode(vehnum, cycle_group_suffix)
         h5db.put(g, cycle_run)
-        nbu.provenir_h5node(
+        vehdb.provenir_h5node(
             h5db, g, title="Wltp-run generated old phase-1a python", base=root_prov_info
         )
 
-    for vehnum, (oprops, cycle_run) in nbu.do_h5(inph5, run_vehicles_with_pythons):
-        nbu.do_h5(outh5, store_vehicles, vehnum, oprops, cycle_run)
+    for vehnum, (oprops, cycle_run) in vehdb.do_h5(inph5, run_vehicles_with_pythons):
+        vehdb.do_h5(outh5, store_vehicles, vehnum, oprops, cycle_run)
 
 
-with nbu.openh5(inp_h5fname) as inph5, nbu.openh5(out_h5fname) as outh5:
+with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname) as outh5:
     store_python_results(inph5, outh5)#, [59])
 ```
 
 ```{python}
-nbu.print_nodes(out_h5fname)
+vehdb.print_nodes(out_h5fname)
 ```
 
 ```{python}

@@ -17,7 +17,7 @@ import pytest
 
 from wltp import formulae, vmax
 
-from . import nbutils as nbu
+from . import vehdb
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ def test_v_max(h5db):
         v_max_heinz = iprops["v_max"]
         return v_max_calced, v_max_round, v_max_heinz, rec.gears_df
 
-    veh_nums = nbu.all_vehnums(h5db)
+    veh_nums = vehdb.all_vehnums(h5db)
     veh_samples = random.sample(veh_nums, nsamples) if nsamples else veh_nums
 
     recs = np.array([make_v_maxes(vehnum, {}) for vehnum in veh_samples])

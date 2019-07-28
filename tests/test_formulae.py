@@ -17,7 +17,7 @@ from wltp import experiment, model
 from wltp.formulae import calc_default_resistance_coeffs, downscale_class_velocity
 from wltp import model, formulae
 
-from . import nbutils as nbu
+from . import vehdb
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)

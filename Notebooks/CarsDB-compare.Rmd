@@ -6,7 +6,7 @@ jupyter:
       extension: .Rmd
       format_name: rmarkdown
       format_version: '1.1'
-      jupytext_version: 1.1.7-rc0
+      jupytext_version: 1.2.1
   kernelspec:
     display_name: Python 3
     language: python
@@ -29,7 +29,8 @@ jupyter:
 from typing import Union, List, Callable, Any, Sequence as Seq
 import io
 import logging
-from pathlib import PurePosixPath as P
+import sys
+from pathlib import Path, PurePosixPath as P
 
 
 from columnize import columnize
@@ -39,9 +40,16 @@ from pandas import HDFStore
 from pandas.core.generic import NDFrame
 from matplotlib import pyplot as plt
 import qgrid
+import wltp
 from wltp.experiment import Experiment
 
-import nbutils as nbu
+## Add tests/ into `sys.path` to import `vehdb` module.
+#
+proj_dir = str(Path(wltp.__file__).parents[1] / "tests")
+if proj_dir not in sys.path:
+    sys.path.insert(0, proj_dir)
+
+import vehdb
 
 idx = pd.IndexSlice
 log = logging.getLogger('CarsDB-compare.ipynb')
@@ -61,14 +69,14 @@ c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 ```
 
 ```{python}
-nbu.print_nodes(inp_h5fname)
-nbu.print_nodes(out_h5fname)
+vehdb.print_nodes(inp_h5fname)
+vehdb.print_nodes(out_h5fname)
 ```
 
 ```{python}
 def load_heinz_and_python_datasets(veh_nums=None):
-    ip1, p1, c1 = nbu.merge_db_vehicle_subgroups(inp_h5fname, ("iprop", "oprop", "cycle"), veh_nums)
-    p2, c2 = nbu.merge_db_vehicle_subgroups(out_h5fname, ("oprop", "cycle"), veh_nums)
+    ip1, p1, c1 = vehdb.merge_db_vehicle_subgroups(inp_h5fname, ("iprop", "oprop", "cycle"), veh_nums)
+    p2, c2 = vehdb.merge_db_vehicle_subgroups(out_h5fname, ("oprop", "cycle"), veh_nums)
 
     ## Merge input & Output props from heinz db.
     #
@@ -93,14 +101,14 @@ list(p1.index.levels[1])
 
 ```{python}
 display(
-    nbu.grid(p1),
-    nbu.grid(p2),
-    #nbu.grid(c1, fitcols=0),
+    vehdb.grid(p1),
+    vehdb.grid(p2),
+    #vehdb.grid(c1, fitcols=0),
 )
 ```
 
 ```{python}
-sr_cmpr = nbu.Comparator(lambda d, c: d[:, c], no_styling=True)
+sr_cmpr = vehdb.Comparator(lambda d, c: d[:, c], no_styling=True)
 dataset_names = "Heinz Python".split()
 ```
 
@@ -122,7 +130,7 @@ cdf = sr_cmpr.compare((p1, p2), equivalent_columns, dataset_names)
 #  https://github.com/quantopian/qgrid/issues/18#issuecomment-149321165
 cdf.columns = [' '.join(col).strip() for col in cdf.columns.values]
 
-display(nbu.grid(cdf, fitcols=False, cwidth=100),)
+display(vehdb.grid(cdf, fitcols=False, cwidth=100),)
 ```
 
 ```{python}
@@ -131,7 +139,7 @@ print(c2.columns)
 ```
 
 ```{python}
-cmpr = nbu.Comparator(lambda d, c: d.loc[idx[:, c]])
+cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
 ```
 
 ```{python}

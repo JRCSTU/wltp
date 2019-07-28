@@ -6,7 +6,7 @@ jupyter:
       extension: .Rmd
       format_name: rmarkdown
       format_version: '1.1'
-      jupytext_version: 1.1.7-rc0
+      jupytext_version: 1.2.1
   kernelspec:
     display_name: Python 3
     language: python
@@ -40,6 +40,7 @@ import itertools as itt
 import logging
 from pathlib import Path
 import re
+import sys
 from typing import Tuple, Dict
 
 from columnize import columnize
@@ -48,8 +49,15 @@ from pandalone import xleash
 import qgrid
 import pandas as pd
 from pandas import HDFStore
+import wltp
 
-import nbutils as nbu
+## Add tests/ into `sys.path` to import `vehdb` module.
+#
+proj_dir = str(Path(wltp.__file__).parents[1] / "tests")
+if proj_dir not in sys.path:
+    sys.path.insert(0, proj_dir)
+
+import vehdb
 
 idx = pd.IndexSlice
 log = logging.getLogger('CarsDB-inputs.ipynb')
@@ -73,7 +81,7 @@ c_vehnum, c_engno, c_n, c_pwot, c_SM, c_ASM = 'vehicle_no', 'no_engine', 'n', 'P
 ```{python}
 ## PROVENANCE: discover how it came to be, at a later time
 #  (might take 10'')
-root_prov_info = nbu.provenance_info(files=[heinzdb_fpath]) 
+root_prov_info = vehdb.provenance_info(files=[heinzdb_fpath]) 
 ```
 
 ```{python}
@@ -82,7 +90,7 @@ root_prov_info = nbu.provenance_info(files=[heinzdb_fpath])
 ```
 
 ```{python}
-nbu.print_nodes(h5fname)
+vehdb.print_nodes(h5fname)
 ```
 
 ```{python}
@@ -97,7 +105,7 @@ import qgrid
 
 print(columnize(list(specs.columns), displaywidth=160))
 print(pwots.columns)
-display(nbu.grid(specs, fitcols=False), nbu.grid(pwots))
+display(vehdb.grid(specs, fitcols=False), vehdb.grid(pwots))
 ```
 
 ```{python}
@@ -116,7 +124,7 @@ def extract_SM_from_pwot(
         wot(without SM), SM
         where `wot` is indexed by engine-speed(n)
     """
-    SM = nbu.get_scalar_column(pwot, c_SM)
+    SM = vehdb.get_scalar_column(pwot, c_SM)
     pwot = pwot.set_index(c_n).drop(c_SM, axis=1)
 
     return pwot, SM
@@ -129,14 +137,14 @@ def extract_SM_from_pwot(
 ```{python}
 # Store each a vehicle into a node with 2 nodes: iprop, pwot
 #
-base = nbu.provenance_info(files=[xlfname], base=root_prov_info)
+base = vehdb.provenance_info(files=[xlfname], base=root_prov_info)
 
 
 def store_inputs_per_car(h5db, specs, c_vehnum=c_vehnum,  c_engno=c_engno,  c_SM=c_SM, c_ASM=c_ASM):
     for _, spec in specs.iterrows():
         vehnum = spec[c_vehnum]
-        spec_node = nbu.vehnode(vehnum, "iprop")
-        pwot_node = nbu.vehnode(vehnum, "pwot")
+        spec_node = vehdb.vehnode(vehnum, "iprop")
+        pwot_node = vehdb.vehnode(vehnum, "pwot")
 
         pwot = pwots.loc[pwots[c_engno] == vehnum, :]
         pwot, SM = extract_SM_from_pwot(pwot)
@@ -146,13 +154,13 @@ def store_inputs_per_car(h5db, specs, c_vehnum=c_vehnum,  c_engno=c_engno,  c_SM
         h5db.put(spec_node, spec)
         h5db.put(pwot_node, pwot)
 
-        nbu.provenir_h5node(
+        vehdb.provenir_h5node(
             h5db,
             spec_node,
             title="Specs of the test-car, as delivered by Heinz on 13 May 2019",
             base=base,
         )
-        nbu.provenir_h5node(
+        vehdb.provenir_h5node(
             h5db,
             pwot_node,
             title="Full-load-curve of the test-car, as delivered by Heinz on 13 May 2019",
@@ -160,11 +168,11 @@ def store_inputs_per_car(h5db, specs, c_vehnum=c_vehnum,  c_engno=c_engno,  c_SM
         )
 
 
-with nbu.openh5(h5fname) as h5db:
+with vehdb.openh5(h5fname) as h5db:
     store_inputs_per_car(h5db, specs)
-    nbu.provenir_h5node(
+    vehdb.provenir_h5node(
         h5db,
-        nbu.vehnode(),
+        vehdb.vehnode(),
         title="preprocessed cars for python consumption",
         base=base,
     )
@@ -200,39 +208,39 @@ def store_results_per_car(
         vehnums = batchdf[c_vehnum].unique()
         log.info("Found %s vehicles in file %s: %s", len(vehnums), outfpath, vehnums)
 
-        base = nbu.provenance_info(base=root_prov_info, files=[outfpath])
+        base = vehdb.provenance_info(base=root_prov_info, files=[outfpath])
         for vehnum, outdf in batchdf.groupby(c_vehnum):
             try:
                 outdf = outdf.set_index('tim')
-                outdf, props = nbu.drop_scalar_columns(outdf, scalar_columns)
+                outdf, props = vehdb.drop_scalar_columns(outdf, scalar_columns)
             except Exception:
                 display(grid(outdf, fitcols=False))
                 raise
 
-            props_group = nbu.vehnode(vehnum, props_group_suffix)
+            props_group = vehdb.vehnode(vehnum, props_group_suffix)
             h5db.put(props_group, pd.Series(props))
-            nbu.provenir_h5node(
+            vehdb.provenir_h5node(
                 h5db,
                 props_group,
                 title="Properties (in & out) produced by Heinz's MSAccess db",
                 base=base,
             )
 
-            cycle_group = nbu.vehnode(vehnum, cycle_group_suffix)
+            cycle_group = vehdb.vehnode(vehnum, cycle_group_suffix)
             h5db.put(cycle_group, outdf)
-            nbu.provenir_h5node(
+            vehdb.provenir_h5node(
                 h5db,
                 cycle_group,
                 title="Cycle-run produced by Heinz's MSAccess db",
                 base=base,
             )
 
-with nbu.openh5(h5fname) as h5db:
+with vehdb.openh5(h5fname) as h5db:
     store_results_per_car(h5db)
 ```
 
 ```{python}
-nbu.print_nodes(h5fname)
+vehdb.print_nodes(h5fname)
 ```
 
 ```{python}
@@ -249,6 +257,6 @@ nbu.print_nodes(h5fname)
 ## SAMPLE: extract data for a specific vehicle. 
 #
 vehnum = 14
-inpsr, outdf, outsr = nbu.load_vehicle(h5fname, vehnum, 'iprop', 'cycle', 'oprop')
-display(inpsr, outsr, outdf.columns, nbu.grid(outdf, fitcols=False))
+inpsr, outdf, outsr = vehdb.load_vehicle(h5fname, vehnum, 'iprop', 'cycle', 'oprop')
+display(inpsr, outsr, outdf.columns, vehdb.grid(outdf, fitcols=False))
 ```

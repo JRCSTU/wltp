@@ -15,8 +15,8 @@ Notebooks for processing UNECE's WLTP reference implementations in Python and MS
       CarsDB-phase1a.ipynb        populate h5db with results from the old python code
       CarsDB-compare.ipynb        print comparison results for cars in the h5db
       HDF5-APIh-help.ipynb        list usefull HDF5 methods
+      ../tests/vehdb.py           support code for reading & validating vehicles from HD5 files
       *.Rmd                       R-markdown git-tracked files paired with *.ipynb notebooks
-      nbutils.py                  support code for the above notebooks
       VehData/                    folder with raw input & results (e.g Heinz's msaccess DB)
           +--WltpCars.h5          the h5db where all data are stored
       binder/                     configurations for launching demo in https://mybinder.org
