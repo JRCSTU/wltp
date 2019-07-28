@@ -56,7 +56,7 @@ def _interpolate_wot_on_v_grid(pv: pd.DataFrame):
 
     V_grid = np.arange(v_wot_min, v_wot_max, step)
     #  To interpolate on grid points, must keep the original data-points.
-    new_v_index = np.unique(np.append(V, V_grid))
+    new_v_index = np.sort(np.unique(np.append(V, V_grid)))
 
     pv = (
         pv.set_index(c.v, drop=False).reindex(new_v_index)
@@ -65,17 +65,20 @@ def _interpolate_wot_on_v_grid(pv: pd.DataFrame):
         # grid has already been clipped inside min/max wot(N), above.
         .interpolate()
     )
+    pv = pv.loc[V_grid, :]
+    ## Mask interpolation rounding inaccuracies...
+    pv[c.v] = V_grid
 
-    return pv.reindex(V_grid)
+    return pv
 
 
 def _find_p_remain_root(wot: pd.DataFrame) -> optimize.OptimizeResult:
     """
-    Find the velocity (the "x") where remain-power (the "y") gets crossed to zero,
+    Find the velocity (the "x") where `p_remain` (the "y") down-crosses zero,
     
     rounded towards the part of wot where p_remain > 0
     (like MSAccess in e.g. `F new vehicle.form.vbs#L3273`)
-    or V @ max p_wot, if p_remain is always positive.
+    or v @ max p_wot, if p_remain is always positive.
 
     :param wot: 
         df with: n, v, p_remain
@@ -84,25 +87,44 @@ def _find_p_remain_root(wot: pd.DataFrame) -> optimize.OptimizeResult:
     """
     wot = _interpolate_wot_on_v_grid(wot)
     assert not wot.isnull().any(None), wot[wot.isnull()]
+    assert (wot.index == wot[c.v]).all(), wot.loc[wot.index != wot[c.v], :]
 
-    has_root = False
-    x = np.NAN
-    ## Find the lowest n BEFORE p_remain crosses to negatives
-    #
-    negatives_idx = wot[c.p_remain] < 0
-    if not negatives_idx.sum():
-        has_root = True
-        x = wot[c.v].iloc[-1]
-    elif negatives_idx.sum() < len(wot):
-        negatives_idx_idx = np.nonzero(negatives_idx)[0]
-        negatives_idx_idx = negatives_idx_idx[0]
-        if negatives_idx_idx != 0:
-            has_root = True
-            negatives_idx_idx -= 1
-            x = wot.index[negatives_idx_idx]
+    if (wot[c.p_remain] > 0).all():
+        v_max = wot.index[-1]  # v @ max n
+    else:
+        v_max = np.NAN
+        ## Zero-crossings of p_remain are marked as sign-changes,
+        #  particularly interested in "down-crosses":
+        #   -1: drop from positive to 0 (perfect match!)
+        #   -2: drop from positive to negative
+        wot[c.sign_p_remain] = np.sign(wot[c.p_remain])
+
+        ## diff-periods:
+        #   ofs=+1: diff with prev-element so zero-crossing is marked on high-index (after cross)
+        #   ofs=-1: diff with next-element so zero-crossing is marked on low-index (before cross)
+        #  (e.g. `F new vehicle.form.vbs#L3273`).
+        #  - Multiplied to preserve sign of down-crossing, for inequality further below.
+        #  - Apply `fillna()`` bc `diff()` leaves one period at head or tail.
+        #
+        offs = -1
+        wot[c.zero_crosings] = offs * wot[c.sign_p_remain].diff(periods=offs).fillna(0)
+        # ... search for down-crossings only.
+        roots = wot.index[wot[c.zero_crosings] < 0]
+        # ... and capture v @ lowest of them (where p_remain is either 0 or still positive)
+        if roots.size > 0:
+            v_max = roots[0]
+            assert (
+                wot.loc[v_max, c.p_remain].squeeze() > 0
+                and wot.loc[v_max + 0.09 : v_max + 0.11, c.p_remain].squeeze() <= 0
+            ), (wot.loc[v_max - 1 : v_max + 1, c.p_remain], v_max)
 
     res = optimize.OptimizeResult(
-        {"x": x, "success": has_root, "message": None, "nit": -1}  # , "wot": wot}
+        {
+            "x": v_max,
+            "success": not np.isnan(v_max),
+            "message": None,
+            "nit": -1,
+        }  # , "wot": wot}
     )
 
     return res
