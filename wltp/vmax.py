@@ -37,39 +37,35 @@ GearVMaxRec = namedtuple("GearVMaxRec", "v_max  p_max  optimize_result  wot")
 VMaxRec = namedtuple("VMaxRec", "v_max  p_max  gears_df  wots_df")
 
 
-def _interpolate_wot_on_v_grid(pv: pd.DataFrame):
+def _interpolate_wot_on_v_grid(wot: pd.DataFrame):
     from .formulae import round1
 
     v_decimals = 1
-    step = 10 ** -v_decimals
-    V = pv[c.v]
+    v_step = 10 ** -v_decimals
+    V = wot[c.v]
 
     ## Clip grid inside min/max of wot(N).
     #
     v_wot_min = round1(V.min(), v_decimals)
-    if v_wot_min < pv[c.n].min():
-        v_wot_min += step
+    if v_wot_min < wot[c.n].min():
+        v_wot_min += v_step
     #
-    v_wot_max = round1(V.max(), v_decimals) + step
-    if v_wot_max > pv[c.n].max():
-        v_wot_max -= step
+    v_wot_max = round1(V.max(), v_decimals) + v_step
+    if v_wot_max > wot[c.n].max():
+        v_wot_max -= v_step
 
-    V_grid = np.arange(v_wot_min, v_wot_max, step)
-    #  To interpolate on grid points, must keep the original data-points.
-    new_v_index = np.sort(np.unique(np.append(V, V_grid)))
+    V_grid = np.arange(v_wot_min, v_wot_max, v_step)
 
-    pv = (
-        pv.set_index(c.v, drop=False).reindex(new_v_index)
-        ## No need for `limit_direction="both"` kw,
-        # to extrapolate point before min wot(N),
-        # grid has already been clipped inside min/max wot(N), above.
-        .interpolate()
-    )
-    pv = pv.loc[V_grid, :]
-    ## Mask interpolation rounding inaccuracies...
-    pv[c.v] = V_grid
+    Spline = interpolate.InterpolatedUnivariateSpline
+    rank = 1
 
-    return pv
+    def interp(C):
+        return Spline(V, C, k=rank)(V_grid)
+
+    wot = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
+    wot.index = wot[c.v]
+
+    return wot
 
 
 def _find_p_remain_root(wot: pd.DataFrame) -> optimize.OptimizeResult:
