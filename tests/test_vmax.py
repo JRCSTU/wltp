@@ -28,36 +28,69 @@ def test_v_max(h5db):
     from . import conftest
 
     # DEBUG: reduce clutter in console.
-    nsamples = None
+    veh_samples = None  # [23]
 
     def make_v_maxes(vehnum, mdl: dict):
         iprops, Pwot, n2vs = conftest._load_vehicle_data(h5db, vehnum)
         rec = vmax.calc_v_max(
             mdl, Pwot["Pwot"], n2vs, iprops.f0, iprops.f1, iprops.f2, 0.1
         )
-        v_max_calced = rec.v_max
-        v_max_round = formulae.round1(v_max_calced, 1)
-        v_max_heinz = iprops["v_max"]
-        return v_max_calced, v_max_round, v_max_heinz, rec.gears_df
+
+        return (
+            iprops["v_max"],
+            rec.v_max,
+            iprops["ng_vmax"],
+            rec.g_max,
+            bool(iprops["vmax_determined_by_n_lim"]),
+            rec.determined_by_n_lim,
+            rec.wot,
+        )
 
     veh_nums = vehdb.all_vehnums(h5db)
-    veh_samples = random.sample(veh_nums, nsamples) if nsamples else veh_nums
+    if not isinstance(veh_samples, (list, tuple)):
+        veh_samples = random.sample(veh_nums, veh_samples) if veh_samples else veh_nums
 
-    recs = np.array([make_v_maxes(vehnum, {}) for vehnum in veh_samples])
+    recs = [make_v_maxes(vehnum, {}) for vehnum in veh_samples]
+    vmaxes = pd.DataFrame(
+        recs,
+        columns="vmax_Heinz vmax_python gmax_Heinz gmax_python det_by_nlim_Heinz det_by_nlim_python wot".split(),
+        index=veh_samples,
+    ).astype({"gmax_Heinz": "Int64", "gmax_python": "Int64"})
 
-    v_maxes_calced, v_maxes_round, v_maxes_heinz, gears_dfs = recs.T
-    gears_df = pd.concat(gears_dfs, keys=range(len(gears_dfs)))
-    print(
-        "++ iterations_count(ok):",
-        gears_df.loc[gears_df.solver_ok, "solver_nit"].describe(),
+    wots_df = pd.concat(
+        vmaxes["wot"].values, keys=[f"v{i}" for i in veh_samples], names=["vehicle"]
     )
-    nulls = gears_df.loc[gears_df["v_max"].isnull(), :]
-    print(
-        f"\n++ DIFFs: {(v_maxes_round != v_maxes_heinz).sum()} (out of {len(veh_nums)})"
-        f"\n++ v_max diffs: {pd.Series((v_maxes_round - v_maxes_heinz)).dropna().describe()}"
-        f"\n++ nones: {len(nulls)} (out of {len(veh_nums)}):\n{nulls}"
-    )
-    # nbad = (v_maxes_round != v_maxes_heinz).sum()
-    # assert not nbad
-    ## No, too much outputgit
-    npt.assert_array_equal(v_maxes_round, v_maxes_heinz)
+    vmaxes = vmaxes.drop("wot", axis=1)
+
+    vmaxes["vmax_diff"] = (vmaxes["vmax_python"] - vmaxes["vmax_Heinz"]).abs()
+    vmaxes["gmax_diff"] = (vmaxes["gmax_python"] - vmaxes["gmax_Heinz"]).abs()
+    with pd.option_context(
+        "display.max_rows",
+        130,
+        "display.max_columns",
+        20,
+        "display.width",
+        120,
+        # "display.precision",
+        # 4,
+        # "display.chop_threshold",
+        # 1e-8,
+        "display.float_format",
+        "{:0.2f}".format,
+    ):
+        print(
+            f"++ nones: {vmaxes.vmax_python.sum()} (out of {len(veh_samples)})"
+            f"\n++++\n{vmaxes}"
+        )
+    with pd.option_context(
+        "display.max_columns",
+        20,
+        "display.width",
+        120,
+        "display.float_format",
+        "{:0.4f}".format,
+    ):
+        print(f"\n++++\n{vmaxes.describe()}")
+    npt.assert_array_equal(vmaxes["vmax_python"], vmaxes["vmax_Heinz"])
+    # assert vmaxes["vmax_diff"].mean() < 0.11 and vmaxes["vmax_diffs"].max() <= 1.5
+    assert vmaxes["gmax_diff"].mean() == 0
