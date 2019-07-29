@@ -92,11 +92,8 @@ def _interpolate_wot_on_v_grid(wot: pd.DataFrame):
         _v_step,
     )
 
-    Spline = interpolate.InterpolatedUnivariateSpline
-    rank = 1
-
     def interp(C):
-        return Spline(V, C, k=rank)(V_grid)
+        return interpolate.interp1d(V, C, copy=False, assume_sorted=True)(V_grid)
 
     wot = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
     ## Throw-away the interpolated v, it's inaccurate, use the "x" (v-grid) instead.
