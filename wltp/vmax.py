@@ -7,9 +7,12 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 import itertools as itt
+import functools as fnt
 import logging
 from collections import namedtuple
 from typing import List, Union
+from wltp import formulae
+
 
 import numpy as np
 import pandas as pd
@@ -32,24 +35,62 @@ _v_step = 10 ** -v_decimals
 #:   - wot: intermediate curves for solving the equation
 VMaxRec = namedtuple("VMaxRec", "v_max  g_max determined_by_n_lim  wot")
 
+#: Not the rounding of the GTR, used for Vs already close to grid,
+#: e.g. to index with results from operations on the grid.
+#: TODO: move to formulae (or utils).
+vround = fnt.partial(formulae.round1, decimals=v_decimals)
+
+
+def gear_name(g):
+    return f"g{g}"
+
+
+def gear_names(glist):
+    return [gear_name(g) for g in glist]
+
+
+def veh_name(g):
+    return f"v{g}"
+
+
+def veh_names(vlist):
+    return [veh_name(v) for v in vlist]
+
 
 def _interpolate_wot_on_v_grid(wot: pd.DataFrame):
     """Return a new linearly interpolated df on v with v_decimals. """
-    from .formulae import round1
+    V = wot[c.v]
 
-    V, N = wot[c.v], wot[c.n]
-
-    ## Clip grid inside min/max of wot(N).
+    ## Clip V-grid inside min/max of wot-N.
     #
-    v_wot_min = round1(V.min(), v_decimals)
-    if v_wot_min < V.min():
-        v_wot_min += _v_step
-    #
-    v_wot_max = round1(V.max(), v_decimals) + _v_step
-    if v_wot_max > V.max():
-        v_wot_max -= _v_step
+    v_precision = 10 ** v_decimals
+    v_wot_min = vround(np.ceil(V.min() * v_precision) / v_precision)
+    v_wot_max = vround(np.floor(V.max() * v_precision) / v_precision)
 
-    V_grid = np.arange(v_wot_min, v_wot_max + _v_step, _v_step)
+    ## Using np.arange() because np.linspace() steps are not reliably spaced,
+    #  and apply the GTR-rounding.
+    #
+    V_grid = vround(np.arange(v_wot_min, v_wot_max, _v_step))
+    assert V_grid.size, ("Empty wot?", v_wot_min, v_wot_max)
+    ## Add endpoint manually because np.arange() is not adding it reliably.
+    #
+    if V_grid[-1] != v_wot_max:
+        V_grid = np.hstack((V_grid, [v_wot_max]))
+
+    assert 0 <= V_grid[0] - V.min() < _v_step, (
+        "V-grid start below/too-far min(N_wot): ",
+        V.min(),
+        v_wot_min,
+        V_grid[0:7],
+        _v_step,
+    )
+    assert 0 <= V.max() - V_grid[-1] < _v_step, (
+        "V-grid end above/too-far max(N_wot): ",
+        V_grid[-7:],
+        v_wot_max,
+        V.max(),
+        _v_step,
+    )
 
     Spline = interpolate.InterpolatedUnivariateSpline
     rank = 1
@@ -58,7 +99,8 @@ def _interpolate_wot_on_v_grid(wot: pd.DataFrame):
         return Spline(V, C, k=rank)(V_grid)
 
     wot = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
-    wot.index = wot[c.v]
+    ## Throw-away the interpolated v, it's inaccurate, use the "x" (v-grid) instead.
+    wot.index = wot[c.v] = V_grid
 
     return wot
 
@@ -72,10 +114,11 @@ def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
     or v @ max p_wot, if p_remain is always positive.
 
     :param wot: 
-        grid-interpolated df indexed by v with (at least): n, v, p_remain
+        grid-interpolated df indexed by v with (at least): p_remain
     :return:
         a :class:`VMaxRec` with v_max in kmh or np.NAN
     """
+    assert not wot.empty
     assert not wot.isnull().any(None), wot[wot.isnull()]
     assert (wot.index == wot[c.v]).all(), wot.loc[wot.index != wot[c.v], :]
 
@@ -101,18 +144,18 @@ def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
         offs = -1
         wot[c.zero_crosings] = offs * wot[c.sign_p_remain].diff(periods=offs).fillna(0)
         # ... search for down-crossings only.
-        roots = wot.index[wot[c.zero_crosings] < 0]
+        roots_head = wot.index[wot[c.zero_crosings] < 0]
         # ... and capture v @ lowest of them (where p_remain is either 0 or still positive)
-
-        if roots.size > 0:
-            v_max = roots[0]
-            assert (
-                wot.loc[v_max, c.p_remain].squeeze() > 0
-                and wot.loc[
-                    v_max + 0.9 * _v_step : v_max + 1.1 * _v_step, c.p_remain
-                ].squeeze()
-                <= 0
-            ), (wot.loc[v_max - 1 : v_max + 1, c.p_remain], v_max)
+        if roots_head.size > 0:
+            v_max = roots_head[0]  # Plain rounding, alreaydy close to grid.
+            assert v_max == vround(v_max), (v_max, vround(v_max))
+            _i = wot.loc[roots_head[0] :, c.p_remain].iteritems()
+            assert next(_i)[1] > 0 and next(_i)[1] <= 0, (
+                "Solution is not the last positive p_remain:",
+                roots_head[0],
+                v_max,
+                wot.loc[v_max - 5 * _v_step : v_max + 5 * _v_step, c.p_remain],
+            )
 
     return VMaxRec(v_max, None, determined_by_n_lim, wot)
 
@@ -135,8 +178,6 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
         a :class:`VMaxRec` namedtuple.
 
     """
-    from . import formulae
-
     wot[c.v] = wot.index / n2v
     wot[c.p_road_loads] = formulae.calc_road_load_power(wot[c.v], f0, f1, f2)
     wot[c.p_remain] = wot[c.p_avail] - wot[c.p_road_loads]
@@ -146,7 +187,7 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
 
 def calc_v_max(
     mdl: dict,
-    Pwots: Union[pd.Series, pd.DataFrame],
+    wot: Union[pd.Series, pd.DataFrame],
     gear_n2v_ratios,
     f0,
     f1,
@@ -158,7 +199,7 @@ def calc_v_max(
 
     :param mdl: 
         store solution wot (see code where)
-    :param Pwots:
+    :param wot:
         A a 2D-matrix(lists/numpy), dict, df(1-or-2 cols) or series 
         containing the corresponding P(kW) value for each N in its index,
         or a 2-column matrix. 
@@ -171,25 +212,44 @@ def calc_v_max(
     ng = len(gear_n2v_ratios)
 
     def _package_wots_df(gear_wot_dfs):
-        wots_df = pd.concat((df for df in gear_wot_dfs), axis=1, keys=range(ng, 0, -1))
-        # Restore n column lost above.
-        wots_df[c.n] = wots_df.index
+        assert gear_wot_dfs
+
+        ## Merge all index values into the index of the 1st DF,
+        #  or else, themerged-df contains n-gear dupes in each index-value.
+        #
+        # first_df, *rest_dfs = gear_wot_dfs
+        # full_index = np.unique(np.hstack(df.index for df in gear_wot_dfs))
+        # first_df = first_df.reindex(full_index)
+        # wots_df = pd.concat(
+        #     [first_df] + rest_dfs,
+        #     axis=1,
+        #     join="inner",
+        wots_df = pd.concat(
+            gear_wot_dfs,
+            axis=1,
+            keys=gear_names(range(ng, ng - len(gear_wot_dfs) - 1, -1)),
+            names=["gear", "wot_item"],
+            verify_integrity=True,
+        )
 
         return wots_df
 
-    wot = make_xy_df(Pwots, xname=c.n, yname=c.p_wot, auto_transpose=True)
+    wot = make_xy_df(wot, xname=c.n, yname=c.p_wot, auto_transpose=True)
     wot[c.n] = wot.index
     wot[c.p_avail] = wot[c.p_wot] * (1.0 - f_safety_margin)
 
-    ## Scan gears from highest only if
+    ## Scan gears from high --> low-4 but stop at most on 2nd gear.
     #  TODO: apply selective logic for ng-x gears from Heinz-DB?
     #
     rec_prev = rec_vmax = None
     recs: List[VMaxRec] = []
-    loop_gears = list(reversed(list(enumerate(gear_n2v_ratios[1:], 2))))
-    for g, n2v in loop_gears[:4]:
+    gears_from_top = list(reversed(list(enumerate(gear_n2v_ratios, 1))))
+    ## Exclude 1st gear and stop on 4th gear from top (as per GTR).
+    gears_to_scan = gears_from_top[:-1][:4]
+    for g, n2v in gears_to_scan:
         rec = _calc_gear_v_max(g, wot.copy(), n2v, f0, f1, f2)
         recs.append(rec)
+        ## It is `<=`` in Heinz-db.
         if rec_prev and not np.isnan(rec.v_max) and rec.v_max <= rec_prev.v_max:
             rec_vmax = rec_prev
             break
@@ -198,4 +258,4 @@ def calc_v_max(
     gear_wots_df = _package_wots_df([r.wot for r in recs])
     if rec_vmax:
         return rec_vmax._replace(wot=gear_wots_df)
-    return VMaxRec(np.NAN, np.NAN, False, gear_wots_df)
+    raise ValueError("Cannot find v_max!\n  Insufficient power??", gear_wots_df, wot)
