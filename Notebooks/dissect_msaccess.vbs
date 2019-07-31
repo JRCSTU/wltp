@@ -1,8 +1,8 @@
 ' Usage:
-'  cscript decompose.vbs <input file> <path>
+'  cscript decompose.vbs <input-file> <out-dir>
 
-' Converts all modules, classes, forms and macros from an Access Project file (.adp) <input file> to
-' text and saves the results in separate files to <path>.  Requires Microsoft Access.
+' Converts all modules, classes, forms and macros from an Access Project file (.adp, accdb) <input-file> to
+' text and saves the results in separate files to <out-dir>.  Requires Microsoft Access.
 ' From same thread. but:
 '    https://stackoverflow.com/a/35501159/548792
 
@@ -63,8 +63,12 @@ Function exportModulesTxt(ACCDBFilename, sExportpath)
         sExportpath = myPath & "\Source"
     End If
     'On Error Resume Next
-    fso.DeleteFolder (sExportpath) ', force=True
-    fso.CreateFolder (sExportpath)
+    If fso.FileExists(sExportpath) Then
+        MsgBox "Output-folder " & sExportpath & " is not a folder!", vbExclamation, "Error"
+        Wscript.Quit()
+    ElseIf Not fso.FolderExists(sExportpath) Then
+        fso.CreateFolder (sExportpath)
+    End If
     On Error GoTo 0
 
     Wscript.Echo "starting Access..."
