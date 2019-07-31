@@ -16,32 +16,22 @@ Begin OutputColumns
     Expression ="EVAP_purge.class"
     Name ="part"
     Expression ="EVAP_purge.part"
+    Name ="part_text"
+    Expression ="EVAP_purge.part_text"
     Name ="tim"
     Expression ="EVAP_purge.tim"
+    Alias ="v1"
     Name ="v"
-    Expression ="EVAP_purge.v"
+    Expression ="Int([v]*10+0.5)/10"
+    Alias ="v_orig"
     Name ="v_orig"
-    Expression ="EVAP_purge.v"
+    Expression ="Int([v]*10+0.5)/10"
+    Alias ="v_downscale"
     Name ="v_downscale"
-    Expression ="EVAP_purge.v"
+    Expression ="Int([v]*10+0.5)/10"
+    Alias ="v_cap"
     Name ="v_cap"
-    Expression ="EVAP_purge.v"
-    Name ="a2"
-    Expression ="EVAP_purge.a2"
-    Name ="a2_orig"
-    Expression ="EVAP_purge.a2"
-    Name ="vma2"
-    Expression ="EVAP_purge.vma2"
-    Name ="vma2_orig"
-    Expression ="EVAP_purge.vma2"
-    Name ="a"
-    Expression ="EVAP_purge.a"
-    Name ="a_orig"
-    Expression ="EVAP_purge.a"
-    Name ="vma"
-    Expression ="EVAP_purge.vma"
-    Name ="vma_orig"
-    Expression ="EVAP_purge.vma"
+    Expression ="Int([v]*10+0.5)/10"
     Name ="final_dec"
     Expression ="EVAP_purge.final_dec"
     Name ="Ind_ST"
@@ -489,17 +479,37 @@ Begin
         dbText "Name" ="EVAP_purge.n_ST"
         dbLong "AggregateType" ="-1"
     End
+    Begin
+        dbText "Name" ="v1"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="v_orig"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="v_downscale"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="v_cap"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="EVAP_purge.part_text"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
     Left =-9
     Top =-38
     Right =1473
-    Bottom =815
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =453
+    Bottom =390
     Left =0
     Top =0
     ColumnsShown =651

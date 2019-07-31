@@ -1,6 +1,6 @@
 Operation =1
 Option =0
-Where ="(((gearshift_table.clutch)=False) AND ((gearshift_table.P_tot)>[P_max]*1.0001))"
+Where ="(((gearshift_table.P_tot)>[P_max]*1.0001))"
 Begin InputTables
     Name ="gearshift_table"
     Name ="ST_vehicle_info"
@@ -10,12 +10,10 @@ Begin OutputColumns
     Expression ="gearshift_table.Description"
     Alias ="cycle_no"
     Expression ="gearshift_table.IDclass"
+    Expression ="gearshift_table.vehicle_no"
     Expression ="ST_vehicle_info.Description"
-    Alias ="Power_curve_no"
-    Expression ="gearshift_table.eng_no"
     Alias ="safety_margin"
     Expression ="gearshift_table.safety_margin_Pwot"
-    Expression ="gearshift_table.vehicle_no"
     Expression ="ST_vehicle_info.kerb_mass"
     Expression ="ST_vehicle_info.rated_power"
     Expression ="ST_vehicle_info.rated_speed"
@@ -27,7 +25,6 @@ Begin OutputColumns
     Expression ="gearshift_table.v"
     Alias ="a"
     Expression ="gearshift_table.a2"
-    Alias ="clutch_disengaged"
     Expression ="gearshift_table.clutch"
     Expression ="gearshift_table.gear"
     Alias ="n"
@@ -292,17 +289,22 @@ Begin
             0xe2e82054752d6f48b78a3d89b45abd56
         End
     End
+    Begin
+        dbText "Name" ="gearshift_table.clutch"
+        dbText "Format" ="On/Off"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
     Left =-9
     Top =-38
     Right =1473
-    Bottom =816
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =342
+    Bottom =321
     Left =0
     Top =0
     ColumnsShown =539

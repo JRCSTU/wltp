@@ -1,6 +1,7 @@
 Operation =1
 Option =0
-Where ="(((gearshift_table.v)<[tol_min] And (gearshift_table.v)<[v_max]-0.5))"
+Where ="(((gearshift_table.v)<[tol_min] And (gearshift_table.v)<[v_max]-0.5) AND ((gears"
+    "hift_table.tim)>0))"
 Begin InputTables
     Name ="gearshift_table"
     Name ="ST_vehicle_info"
@@ -65,17 +66,21 @@ Begin
             0xd2729fa8cf85d046b69327d9e1987897
         End
     End
+    Begin
+        dbText "Name" ="gearshift_table.tim"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
-    State =0
-    Left =0
-    Top =40
-    Right =1115
-    Bottom =701
+    State =2
+    Left =-9
+    Top =-38
+    Right =1473
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1092
-    Bottom =279
+    Right =1444
+    Bottom =258
     Left =0
     Top =0
     ColumnsShown =543

@@ -16,6 +16,8 @@ Begin OutputColumns
     Expression ="gearshift_table.IDclass"
     Name ="part"
     Expression ="gearshift_table.part"
+    Name ="part_text"
+    Expression ="gearshift_table.part_text"
     Name ="tim"
     Expression ="gearshift_table.tim"
     Name ="v"
@@ -62,10 +64,18 @@ Begin OutputColumns
     Expression ="gearshift_table.dec"
     Name ="a"
     Expression ="gearshift_table.a"
+    Name ="a_cap"
+    Expression ="gearshift_table.a_cap"
+    Name ="a_downscale"
+    Expression ="gearshift_table.a_downscale"
     Name ="a_orig"
     Expression ="gearshift_table.a_orig"
     Name ="vma"
     Expression ="gearshift_table.vma"
+    Name ="vma_cap"
+    Expression ="gearshift_table.vma_cap"
+    Name ="vma_downscale"
+    Expression ="gearshift_table.vma_downscale"
     Name ="vma_orig"
     Expression ="gearshift_table.vma_orig"
     Name ="a2"
@@ -224,8 +234,6 @@ Begin OutputColumns
     Expression ="gearshift_table.Pmax_lower_Ptot"
     Name ="n_above_s"
     Expression ="gearshift_table.n_above_s"
-    Name ="flag_4b"
-    Expression ="gearshift_table.flag_4b"
     Name ="flag_6_1"
     Expression ="gearshift_table.flag_6_1"
 End
@@ -1325,6 +1333,34 @@ Begin
         dbText "Name" ="gearshift_table.n_g10"
         dbLong "AggregateType" ="-1"
     End
+    Begin
+        dbText "Name" ="gearshift_table.a_cap"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.a_downshift"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.vma_cap"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.vma_downscale"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="Ausdr1"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.a_downscale"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.part_text"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
@@ -1335,7 +1371,7 @@ Begin
     Left =-1
     Top =-1
     Right =1444
-    Bottom =344
+    Bottom =260
     Left =0
     Top =0
     ColumnsShown =651

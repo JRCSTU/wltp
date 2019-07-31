@@ -1,6 +1,6 @@
 Version =21
 VersionRequired =20
-Checksum =1340675283
+Checksum =1792222497
 Begin Form
     LayoutForPrint = NotDefault
     AutoCenter = NotDefault
@@ -16,7 +16,7 @@ Begin Form
     ItemSuffix =255
     Left =348
     Right =17664
-    Bottom =9300
+    Bottom =9324
     DatasheetGridlinesColor =12632256
     RecSrcDt = Begin
         0xa807a32dd69fe240
@@ -32,10 +32,10 @@ Begin Form
         0x010000006801000000000000a10700000100000001000000
     End
     PrtDevMode = Begin
-        0x0015db6ef67f0000fe0000000000000000000000f67f0000f0c5ed9740020000 ,
+        0x0067465ff67f0000fe0000000000000000000000f67f0000403f21d6ea010000 ,
         0x01040a0c9c00d40e03df8007010009009a0b3408640001000700fdff02000100 ,
-        0x0000030000004134000300001d02000001000000000000000303040200000000 ,
-        0xec02000005020000000000000000000000000000000000000000000001000000 ,
+        0x0000030000004134000300001d02000001000000000000002903030200000000 ,
+        0x1203000004020000000000000000000000000000000000000000000001000000 ,
         0x02000000010000000100000000000000000000000000000000000000d40e0000 ,
         0x424a444d0a0c000000000000900a0000d9000000d90000000000000000000000 ,
         0x0100000008520000047400002c01000054010000604f0000e47000002c010000 ,
@@ -2255,7 +2255,7 @@ Begin Form
                             FontWeight =700
                             BackColor =12632256
                             Name ="Be227"
-                            Caption ="use WLTP annex 2 requirements"
+                            Caption ="use WLTP annex 2 requirements strictly"
                             FontName ="Arial"
                             GUID = Begin
                                 0x50f286f79b0f534e92426cfe4a681522
@@ -3324,66 +3324,71 @@ Set rstbe = dbsDB1.OpenRecordset("n95_low_high", DB_OPEN_DYNASET)
 
 Do Until rsthe.EOF
 
-    m = m + 1
+m = m + 1
 
-    Text91 = m
-    Me.Repaint
+Text91 = m
+Me.Repaint
 
-    Set rstce = dbsDB1.OpenRecordset("A TB_Pwot_ST_veh", DB_OPEN_DYNASET)
-    Set rstde = dbsDB1.OpenRecordset("A TB_Pwot_ST_veh", DB_OPEN_DYNASET)
-
-
-    Set rstae = dbsDB1.OpenRecordset("ST_veh", DB_OPEN_DYNASET)
-    rstae.MoveFirst
-    rstae.edit
-    rstae!veh_no = rsthe!vehicle_no
-    rstae.Update
-    rstae.Close
-
-    rstce.MoveLast
-
-    n_max = rstce!n
-
-    rstce.MoveFirst
+Set rstce = dbsDB1.OpenRecordset("A TB_Pwot_ST_veh", DB_OPEN_DYNASET)
+Set rstde = dbsDB1.OpenRecordset("A TB_Pwot_ST_veh", DB_OPEN_DYNASET)
 
 
 
-    rstde.MoveFirst
-    rstde.MoveNext
-
-    i = 0
-
-    rstbe.AddNew
-
-    If rstce!Pwot_norm > 0.5 Then
-
-    GoTo tn95_low
-
-    ElseIf rstce!Pwot_norm = 0.5 Then
 
 
-    rstbe!n_50 = rstce!n
 
-    GoTo tn95_low
 
-    ElseIf rstde!Pwot_norm = 0.5 Then
+Set rstae = dbsDB1.OpenRecordset("ST_veh", DB_OPEN_DYNASET)
+rstae.MoveFirst
+rstae.edit
+rstae!veh_no = rsthe!vehicle_no
+rstae.Update
+rstae.Close
 
-    rstbe!n_50 = rstde!n
+rstce.MoveLast
 
-    GoTo tn95_low
+n_max = rstce!n
 
-    ElseIf rstce!Pwot_norm < 0.5 And rstde!Pwot_norm > 0.5 Then
+rstce.MoveFirst
 
-    rstbe!n_50 = rstce!n + (rstde!n - rstce!n) / (rstde!Pwot_norm - rstce!Pwot_norm) * (0.5 - rstce!Pwot_norm)
 
-    GoTo tn95_low
 
-    ElseIf rstce!Pwot_norm < 0.5 And rstde!Pwot_norm < 0.5 Then
+rstde.MoveFirst
+rstde.MoveNext
 
-    Do Until rstce!Pwot_norm <= 0.5 And rstde!Pwot_norm > 0.5
+i = 0
 
-    rstce.MoveNext
-    rstde.MoveNext
+rstbe.AddNew
+
+If rstce!Pwot_norm > 0.5 Then
+
+GoTo tn95_low
+
+ElseIf rstce!Pwot_norm = 0.5 Then
+
+
+rstbe!n_50 = rstce!n
+
+GoTo tn95_low
+
+ElseIf rstde!Pwot_norm = 0.5 Then
+
+rstbe!n_50 = rstde!n
+
+GoTo tn95_low
+
+ElseIf rstce!Pwot_norm < 0.5 And rstde!Pwot_norm > 0.5 Then
+
+rstbe!n_50 = rstce!n + (rstde!n - rstce!n) / (rstde!Pwot_norm - rstce!Pwot_norm) * (0.5 - rstce!Pwot_norm)
+
+GoTo tn95_low
+
+ElseIf rstce!Pwot_norm < 0.5 And rstde!Pwot_norm < 0.5 Then
+
+Do Until rstce!Pwot_norm <= 0.5 And rstde!Pwot_norm > 0.5
+
+rstce.MoveNext
+rstde.MoveNext
 
 Loop
 
@@ -4967,7 +4972,7 @@ Set wrkWS1 = DBEngine.Workspaces(0)
 Set dbsDB1 = wrkWS1.Databases(0)
 '...
 
-If Rahmen36 = 1 Or Rahmen36 = 2 Or Rahmen36 = 4 Then
+If Rahmen36 = 1 Or Rahmen36 = 2 Then
 
 Ko244.Visible = True
 Ko244 = False
@@ -5007,6 +5012,51 @@ Ko228.Visible = True
 
 Ko219 = False
 Ko228 = False
+
+ElseIf Rahmen36 = 4 Then
+
+If Kontr226 = True Then
+
+Ko244.Visible = True
+Ko244 = False
+
+Else
+
+Ko244 = False
+Ko244.Visible = False
+
+End If
+
+Ko236.Visible = False
+Be237.Visible = False
+
+
+Be222.Visible = False
+Text221.Visible = False
+Ko219.Visible = True
+Ko219 = False
+Be225.Visible = True
+Text224.Visible = True
+Text238.Visible = True
+Be239.Visible = True
+'End If
+
+Ko179.Visible = True
+Ko179 = False
+
+If Ko195 = False Then
+Be198.Visible = False
+Text197 = ""
+Text197.Visible = False
+Else: End If
+
+Ko219.Visible = True
+Be180.Visible = True
+Ko228.Visible = True
+
+Ko219 = False
+Ko228 = False
+
 
 ElseIf Rahmen36 = 3 Then
 
@@ -7038,7 +7088,7 @@ rstce.edit
 rstce!gear = 0
 rstce!clutch = "disengaged"
 rstce!gear_modification = rstce!gear_modification & "4b2) corr 6644 -> 6044 at transitions from dec to acc, "
-rstce!flag_4b = 1
+
 rstce.Update
 m = m + 1
 
@@ -8714,11 +8764,11 @@ rstce.MoveNext
 
 Loop
 
-Do Until rstbe!tim = 1723
+Do Until rstbe!tim = 1724
 
 rstce.edit
 
-rstce!v_downscale = rstbe!v_downscale + rstbe!a * downscale_factor * 3.6
+rstce!v_downscale = rstbe!v_downscale + (rstce!v_orig - rstbe!v_orig) * downscale_factor
 
 rstce.Update
 
@@ -8733,7 +8783,7 @@ Do Until rstbe!tim = 1762
 
 rstce.edit
 
-rstce!v_downscale = rstbe!v_downscale + rstbe!a * a_neg_ave * 3.6
+rstce!v_downscale = rstbe!v_downscale + (rstce!v_orig - rstbe!v_orig) * a_neg_ave
 
 rstce.Update
 
@@ -8749,6 +8799,7 @@ Do Until rstbe.EOF
 rstbe.edit
 
 rstbe!v = rstbe!v_downscale
+rstbe!v_cap = rstbe!v_downscale
 
 rstbe.Update
 
@@ -8768,11 +8819,11 @@ rstce.MoveNext
 
 Loop
 
-Do Until rstbe!tim = 1724
+Do Until rstbe!tim = 1725
 
 rstce.edit
 
-rstce!v_downscale = rstbe!v_downscale + rstbe!a * downscale_factor * 3.6
+rstce!v_downscale = rstbe!v_downscale + (rstce!v_orig - rstbe!v_orig) * downscale_factor
 
 rstce.Update
 
@@ -8787,7 +8838,7 @@ Do Until rstbe!tim = 1742
 
 rstce.edit
 
-rstce!v_downscale = rstbe!v_downscale + rstbe!a * a_neg_ave * 3.6
+rstce!v_downscale = rstbe!v_downscale + (rstce!v_orig - rstbe!v_orig) * a_neg_ave
 
 rstce.Update
 
@@ -8803,6 +8854,7 @@ Do Until rstbe.EOF
 rstbe.edit
 
 rstbe!v = rstbe!v_downscale
+rstbe!v_cap = rstbe!v_downscale
 
 rstbe.Update
 
@@ -8820,11 +8872,11 @@ rstce.MoveNext
 
 Loop
 
-Do Until rstbe!tim = 847
+Do Until rstbe!tim = 848
 
 rstce.edit
 
-rstce!v_downscale = rstbe!v_downscale + rstbe!a * downscale_factor * 3.6
+rstce!v_downscale = rstbe!v_downscale + (rstce!v_orig - rstbe!v_orig) * downscale_factor
 
 rstce.Update
 
@@ -8839,7 +8891,7 @@ Do Until rstbe!tim = 906
 
 rstce.edit
 
-rstce!v_downscale = rstbe!v_downscale + rstbe!a * a_neg_ave * 3.6
+rstce!v_downscale = rstbe!v_downscale + (rstce!v_orig - rstbe!v_orig) * a_neg_ave
 
 rstce.Update
 
@@ -8851,17 +8903,17 @@ Loop
 
 If t_end > 1700 Then
 
-Do Until rstbe!tim = 2264
+Do Until rstbe!tim = 2262
 rstbe.MoveNext
 rstce.MoveNext
 
 Loop
 
-Do Until rstbe!tim = 2460
+Do Until rstbe!tim = 2459
 
 rstce.edit
 
-rstce!v_downscale = rstbe!v_downscale + rstbe!a * downscale_factor * 3.6
+rstce!v_downscale = rstbe!v_downscale + (rstce!v_orig - rstbe!v_orig) * downscale_factor
 
 rstce.Update
 
@@ -8872,11 +8924,11 @@ Loop
 
 a_neg_ave = (rstbe!v_downscale - 36.7) / (rstbe!v_orig - 36.7)
 
-Do Until rstbe!tim = 2519
+Do Until rstbe!tim = 2517
 
 rstce.edit
 
-rstce!v_downscale = rstbe!v_downscale + rstbe!a * a_neg_ave * 3.6
+rstce!v_downscale = rstbe!v_downscale + (rstce!v_orig - rstbe!v_orig) * a_neg_ave
 
 rstce.Update
 
@@ -8895,6 +8947,7 @@ Do Until rstbe.EOF
 rstbe.edit
 
 rstbe!v = rstbe!v_downscale
+rstbe!v_cap = rstbe!v_downscale
 
 rstbe.Update
 
@@ -8904,65 +8957,10 @@ Loop
 
 End If
 
-Set rstde = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
-
-
-
-rstbe.MoveFirst
-rstce.MoveFirst
-rstce.MoveNext
-rstde.MoveFirst
-rstde.MoveNext
-rstde.MoveNext
-
-rstbe.edit
-
-rstbe!v = rstbe!v_downscale
-rstbe!a = (rstce!v_downscale - rstbe!v_downscale) / 3.6
-rstbe!vma = (rstce!v_downscale - rstbe!v_downscale) / 3.6 * rstbe!v_downscale / 3.6
-
-rstbe!a2 = (rstce!v_downscale - 0) / 3.6 / 2
-rstbe!vma2 = (rstce!v_downscale - 0) / 3.6 / 2 * rstbe!v_downscale / 3.6
-
-rstbe.Update
-
-
-
-Do Until rstde.EOF
-
-rstce.edit
-
-rstce!v = rstce!v_downscale
-rstce!a = (rstde!v_downscale - rstce!v_downscale) / 3.6
-rstce!vma = (rstde!v_downscale - rstce!v_downscale) / 3.6 * rstce!v_downscale / 3.6
-
-rstce!a2 = (rstde!v_downscale - rstbe!v_downscale) / 3.6 / 2
-rstce!vma2 = (rstde!v_downscale - rstbe!v_downscale) / 3.6 / 2 * rstce!v_downscale / 3.6
-
-rstce.Update
-
-
-rstbe.MoveNext
-rstce.MoveNext
-rstde.MoveNext
-
-Loop
-
-rstce.edit
-
-rstce!v = rstce!v_downscale
-rstce!a = 0
-rstce!vma = 0
-
-rstce!a2 = (0 - rstbe!v_downscale) / 3.6 / 2
-rstce!vma2 = (0 - rstbe!v_downscale) / 3.6 / 2 * rstce!v_downscale / 3.6
-
-rstce.Update
-
 
 rstbe.Close
 rstce.Close
-rstde.Close
+
 rstae.Close
 
 
@@ -10472,6 +10470,91 @@ Else: End If
 
 Else: End If
 
+' v is set to v_max, if v > v_max #####################################################################
+
+DoCmd.OpenQuery "A gearshift_table v_corr_v_max"
+
+
+Set rstbe = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
+Set rstce = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
+Set rstde = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
+
+
+
+rstbe.MoveFirst
+rstce.MoveFirst
+rstce.MoveNext
+rstde.MoveFirst
+rstde.MoveNext
+rstde.MoveNext
+
+rstbe.edit
+
+rstbe!a = (rstce!v - rstbe!v) / 3.6
+rstbe!vma = (rstce!v - rstbe!v) / 3.6 * rstbe!v / 3.6
+rstbe!a_cap = (rstce!v_cap - rstbe!v_cap) / 3.6
+rstbe!vma_cap = (rstce!v_cap - rstbe!v_cap) / 3.6 * rstbe!v_cap / 3.6
+rstbe!a_downscale = (rstce!v_downscale - rstbe!v_downscale) / 3.6
+rstbe!vma_downscale = (rstce!v_downscale - rstbe!v_downscale) / 3.6 * rstbe!v_downscale / 3.6
+rstbe!a_orig = (rstce!v_orig - rstbe!v_orig) / 3.6
+rstbe!vma_orig = (rstce!v_orig - rstbe!v_orig) / 3.6 * rstbe!v_orig / 3.6
+
+rstbe!a2 = (rstce!v - 0) / 3.6 / 2
+rstbe!vma2 = (rstce!v - 0) / 3.6 / 2 * rstbe!v / 3.6
+rstbe!a2_orig = (rstce!v_orig - 0) / 3.6 / 2
+rstbe!vma2_orig = (rstce!v_orig - 0) / 3.6 / 2 * rstbe!v_orig / 3.6
+
+rstbe.Update
+
+
+
+Do Until rstde.EOF
+
+rstce.edit
+
+rstce!a = (rstde!v - rstce!v) / 3.6
+rstce!vma = (rstde!v - rstce!v) / 3.6 * rstce!v / 3.6
+rstce!a_cap = (rstde!v_cap - rstce!v_cap) / 3.6
+rstce!vma_cap = (rstde!v_cap - rstce!v_cap) / 3.6 * rstce!v_cap / 3.6
+rstce!a_downscale = (rstde!v_downscale - rstce!v_downscale) / 3.6
+rstce!vma_downscale = (rstde!v_downscale - rstce!v_downscale) / 3.6 * rstce!v_downscale / 3.6
+rstce!a_orig = (rstde!v_orig - rstce!v_orig) / 3.6
+rstce!vma_orig = (rstde!v_orig - rstce!v_orig) / 3.6 * rstce!v_orig / 3.6
+
+rstce!a2 = (rstde!v - rstbe!v) / 3.6 / 2
+rstce!vma2 = (rstde!v - rstbe!v) / 3.6 / 2 * rstce!v / 3.6
+rstce!a2_orig = (rstde!v_orig - rstbe!v_orig) / 3.6 / 2
+rstce!vma2_orig = (rstde!v_orig - rstbe!v_orig) / 3.6 / 2 * rstce!v_orig / 3.6
+
+
+rstce.Update
+
+
+rstbe.MoveNext
+rstce.MoveNext
+rstde.MoveNext
+
+Loop
+
+rstce.edit
+
+
+rstce!a = 0
+rstce!vma = 0
+rstce!a_cap = 0
+rstce!vma_cap = 0
+rstce!a_downscale = 0
+rstce!vma_downscale = 0
+rstce!a_orig = 0
+rstce!vma_orig = 0
+
+rstce!a2 = (0 - rstbe!v) / 3.6 / 2
+rstce!vma2 = (0 - rstbe!v) / 3.6 / 2 * rstce!v / 3.6
+rstce!a2_orig = (0 - rstbe!v_orig) / 3.6 / 2
+rstce!vma2_orig = (0 - rstbe!v_orig) / 3.6 / 2 * rstce!v_orig / 3.6
+
+rstce.Update
+
 
 
 flag = 0
@@ -10502,9 +10585,7 @@ GoTo weiter_NEDC
 
 Else: End If
 
-' v is set to v_max, if v > v_max #####################################################################
 
-DoCmd.OpenQuery "A gearshift_table v_corr_v_max"
 
 Set rstie = dbsDB1.OpenRecordset("A TA_Pwot sort", DB_OPEN_DYNASET)
 rstie.MoveFirst
@@ -10519,56 +10600,46 @@ Pwot_n_max = rstie!Pavai
 
 Set rstke = dbsDB1.OpenRecordset("A TA_Pwot sort", DB_OPEN_DYNASET)
 
-Set rstbe = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
-Set rstce = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
-Set rstde = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
+
 
 rstbe.MoveFirst
 
 rstce.MoveFirst
 rstce.MoveNext
 
-rstde.MoveFirst
-rstde.MoveNext
-rstde.MoveNext
+Do Until rstce.EOF
 
 rstbe.edit
 
-rstbe!a2 = (rstce!v) / 2 / 3.6
-rstbe!vma2 = (rstce!v) / 2 / 3.6 * rstbe!v / 3.6
-
-rstbe.Update
-
-Do Until rstde.EOF
-
-rstbe.edit
-
-rstbe!a = (rstce!v - rstbe!v) / 3.6
-rstbe!vma = (rstce!v - rstbe!v) / 3.6 * rstbe!v / 3.6
 
 rstbe!P_a = (rstbe!v * (rstce!v - rstbe!v) / 3.6 * kr * rstae!test_mass) / 3600
 rstbe!P_res = (rstae!f0 * rstbe!v + rstae!f1 * rstbe!v ^ 2 + rstae!f2 * rstbe!v ^ 3) / 3600
-
-
 
 rstbe!P_tot = (rstbe!v * (rstce!v - rstbe!v) / 3.6 * kr * rstae!test_mass) / 3600 + (rstae!f0 * rstbe!v + rstae!f1 * rstbe!v ^ 2 + rstae!f2 * rstbe!v ^ 3) / 3600
 
 
 rstbe.Update
 
-rstce.edit
-
-rstce!a2 = (rstde!v - rstbe!v) / 2 / 3.6
-rstce!vma2 = (rstde!v - rstbe!v) / 2 / 3.6 * rstce!v / 3.6
-
-rstce.Update
 
 rstbe.MoveNext
 rstce.MoveNext
-rstde.MoveNext
+
 
 Loop
 
+rstbe.edit
+
+
+rstbe!P_a = 0
+rstbe!P_res = (rstae!f0 * rstbe!v + rstae!f1 * rstbe!v ^ 2 + rstae!f2 * rstbe!v ^ 3) / 3600
+
+rstbe!P_tot = (rstae!f0 * rstbe!v + rstae!f1 * rstbe!v ^ 2 + rstae!f2 * rstbe!v ^ 3) / 3600
+
+
+rstbe.Update
+
+
+'Stop
 
 ' Calculation of engine speeds and available power per gear according to annex 2, paragraphs 3.2 and 3.4  and the lowest possible gear according to annex 2, paragraphs 3.3 and 3.5 ###
 
@@ -12591,6 +12662,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
+rstbe!part_text = rstae!part_text
 
 rstbe!tim = t
 
@@ -12614,7 +12686,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12639,7 +12711,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12660,7 +12732,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = speed_cap
@@ -12684,7 +12756,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12715,7 +12787,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12744,7 +12816,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12769,7 +12841,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12790,7 +12862,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = speed_cap
@@ -12814,7 +12886,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12841,7 +12913,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12874,7 +12946,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12899,7 +12971,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12920,7 +12992,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = speed_cap
@@ -12945,7 +13017,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12972,7 +13044,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -12993,7 +13065,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = speed_cap
@@ -13018,7 +13090,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -13047,7 +13119,7 @@ rstbe!vehicle_no = rstce!vehicle_no
 rstbe!description = rstce!description
 rstbe!IDclass = rstce!IDclass
 rstbe!part = rstae!part
-
+rstbe!part_text = rstae!part_text
 rstbe!tim = t
 
 rstbe!v_cap = rstae!v_cap
@@ -13078,61 +13150,7 @@ m = 0
 k = 0
 j = 0
 
-Set rstbe = dbsDB1.OpenRecordset("A gearshift_table_zw sort", DB_OPEN_DYNASET)
-Set rstce = dbsDB1.OpenRecordset("A gearshift_table_zw sort", DB_OPEN_DYNASET)
-Set rstde = dbsDB1.OpenRecordset("A gearshift_table_zw sort", DB_OPEN_DYNASET)
 
-
-rstbe.MoveFirst
-
-rstce.MoveFirst
-rstce.MoveNext
-
-rstde.MoveFirst
-rstde.MoveNext
-rstde.MoveNext
-
-
-
-
-rstbe.edit
-rstbe!a = (rstce!v - rstbe!v) / 3.6
-rstbe!vma = rstbe!v * (rstce!v - rstbe!v) / 3.6 / 3.6
-rstbe!a2 = rstce!v / 2 / 3.6
-rstbe!vma2 = rstbe!v * rstce!v / 2 / 3.6 / 3.6
-rstbe.Update
-
-
-Do Until rstde.EOF
-
-
-rstbe.edit
-rstbe!a = (rstce!v - rstbe!v) / 3.6
-rstbe!vma = rstbe!v * (rstce!v - rstbe!v) / 3.6 / 3.6
-
-rstbe.Update
-
-rstce.edit
-rstce!a2 = (rstde!v - rstbe!v) / 2 / 3.6
-rstce!vma2 = rstce!v * (rstde!v - rstbe!v) / 2 / 3.6 / 3.6
-rstce.Update
-
-rstbe.MoveNext
-rstce.MoveNext
-rstde.MoveNext
-
-Loop
-
-rstce.edit
-rstce!a = 0
-rstce!vma = 0
-rstce!a2 = -rstbe!v / 2 / 3.6
-rstce!vma2 = -rstce!v * rstbe!v / 2 / 3.6 / 3.6
-rstce.Update
-
-rstbe.Close
-rstce.Close
-rstde.Close
 
 DoCmd.OpenQuery "A gearshift_table del"
 DoCmd.OpenQuery "A gearshift_table gearshift_table_zw"
@@ -14908,7 +14926,7 @@ Loop
 
 
 
-' No upshift to a higher gear at the transition from an acceleration or constant speed phase to a deceleration phase shall be performed
+' 4(e) No upshift to a higher gear at the transition from an acceleration or constant speed phase to a deceleration phase shall be performed
 ' if the gear in the phase following the deceleration phase is lower than the upshifted gear or is gear 0.
 '######################################################################################################################################
 
@@ -15338,7 +15356,7 @@ Do While Not rstge.EOF
 
 If rstbe!gear = rstce!gear And rstce!gear = rstde!gear And rstde!gear > rstee!gear And ((rstfe!gear < rstee!gear And rstge!gear <= rstfe!gear And rstfe!gear > 1 And rstge!gear > 0) Or (rstfe!gear = rstee!gear And rstge!gear < rstfe!gear And rstfe!gear > 1 And rstge!gear > 0)) Then
 
-If ((rstbe!v > rstce!v And rstce!v > rstde!v And rstde!v > rstee!v And rstee!v >= rstfe!v) And rstge!flag_4b = 0) Or ((rstde!v > rstee!v And rstee!v > rstfe!v And rstfe!v > rstge!v) And rstge!flag_4b = 0) Then
+If ((rstbe!v > rstce!v And rstce!v > rstde!v And rstde!v > rstee!v And rstee!v >= rstfe!v)) Or ((rstde!v > rstee!v And rstee!v > rstfe!v And rstfe!v > rstge!v)) Then
 
 
 rstee.edit

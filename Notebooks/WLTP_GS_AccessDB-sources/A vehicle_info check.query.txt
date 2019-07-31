@@ -32,13 +32,12 @@ Begin OutputColumns
     Expression ="vehicle_info.f1"
     Expression ="vehicle_info.f2"
     Expression ="vehicle_info.n_min_drive_set"
-    Expression ="vehicle_info.n_min_drive_new"
     Expression ="vehicle_info.f_dsc_req"
     Expression ="vehicle_info.n95_low"
     Expression ="vehicle_info.n95_high"
     Expression ="vehicle_info.n_max1"
-    Expression ="vehicle_info.n_max1_new"
     Expression ="vehicle_info.n_max2"
+    Expression ="vehicle_info.n_max3"
     Expression ="vehicle_info.n_min_wot"
     Expression ="vehicle_info.n_max_wot"
 End
@@ -252,14 +251,6 @@ Begin
         dbLong "AggregateType" ="-1"
     End
     Begin
-        dbText "Name" ="vehicle_info.n_min_drive_new"
-        dbLong "AggregateType" ="-1"
-    End
-    Begin
-        dbText "Name" ="vehicle_info.n_max1_new"
-        dbLong "AggregateType" ="-1"
-    End
-    Begin
         dbText "Name" ="vehicle_info.n_max_wot"
         dbLong "AggregateType" ="-1"
     End
@@ -282,17 +273,21 @@ Begin
         dbInteger "ColumnWidth" ="1824"
         dbBoolean "ColumnHidden" ="0"
     End
+    Begin
+        dbText "Name" ="vehicle_info.n_max3"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
     Left =-9
     Top =-38
     Right =1473
-    Bottom =814
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1369
-    Bottom =150
+    Right =1444
+    Bottom =256
     Left =0
     Top =0
     ColumnsShown =539

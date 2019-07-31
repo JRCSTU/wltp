@@ -1,6 +1,6 @@
 Operation =1
 Option =0
-Where ="(((gearshift_table.v)>=1))"
+Where ="(((gearshift_table.v)>=1) AND ((gearshift_table.tim)>0))"
 Begin InputTables
     Name ="gearshift_table"
     Name ="ST_vehicle_info"
@@ -9,8 +9,8 @@ Begin OutputColumns
     Expression ="gearshift_table.IDclass"
     Alias ="cycle"
     Expression ="gearshift_table.Description"
-    Expression ="ST_vehicle_info.Description"
     Expression ="gearshift_table.vehicle_no"
+    Expression ="ST_vehicle_info.Description"
     Expression ="ST_vehicle_info.rated_speed"
     Alias ="n_max gears below ng_vmax (n_max1)"
     Expression ="ST_vehicle_info.n_max1"
@@ -34,9 +34,9 @@ Begin Groups
     GroupLevel =0
     Expression ="gearshift_table.Description"
     GroupLevel =0
-    Expression ="ST_vehicle_info.Description"
-    GroupLevel =0
     Expression ="gearshift_table.vehicle_no"
+    GroupLevel =0
+    Expression ="ST_vehicle_info.Description"
     GroupLevel =0
     Expression ="ST_vehicle_info.rated_speed"
     GroupLevel =0
@@ -192,17 +192,21 @@ Begin
             0x423166c8c5932a4ea597146f3de736e2
         End
     End
+    Begin
+        dbText "Name" ="gearshift_table.tim"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
     Left =-9
     Top =-38
     Right =1473
-    Bottom =814
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1369
-    Bottom =232
+    Right =1444
+    Bottom =211
     Left =0
     Top =0
     ColumnsShown =543

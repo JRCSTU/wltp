@@ -1,0 +1,8 @@
+dbMemo "SQL" ="SELECT WLTC_new.class, WLTC_new.Version\015\012FROM WLTC_new\015\012GROUP BY WLT"
+    "C_new.class, WLTC_new.Version;\015\012"
+dbMemo "Connect" =""
+dbBoolean "ReturnsRecords" ="-1"
+dbInteger "ODBCTimeout" ="60"
+dbText "KeepLocal" ="T"
+Begin
+End

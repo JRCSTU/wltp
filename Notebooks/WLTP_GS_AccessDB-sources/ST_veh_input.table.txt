@@ -60,8 +60,8 @@
 <xsd:element name="pmr_km" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="pmr_tm" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="n_min_drive_set" minOccurs="0" od:jetType="integer" od:sqlSType="smallint" type="xsd:short"/>
-<xsd:element name="n_min_wot" minOccurs="0" od:jetType="integer" od:sqlSType="smallint" type="xsd:short"/>
-<xsd:element name="n_max_wot" minOccurs="0" od:jetType="integer" od:sqlSType="smallint" type="xsd:short"/>
+<xsd:element name="n_min_wot" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="n_max_wot" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="Pres_130" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="Pres_130_Prated" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="f_dsc_req" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
@@ -70,16 +70,16 @@
 <xsd:element name="above_s" minOccurs="1" od:jetType="yesno" od:sqlSType="bit" od:nonNullable="yes" type="xsd:boolean"/>
 <xsd:element name="vmax_determined_by_n_lim" minOccurs="1" od:jetType="yesno" od:sqlSType="bit" od:nonNullable="yes" type="xsd:boolean"/>
 <xsd:element name="v_max_ext" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
-<xsd:element name="v_max_1" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_2" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_3" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_4" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_5" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_6" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_7" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_8" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_9" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="v_max_10" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
+<xsd:element name="v_max_1" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_2" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_3" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_4" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_5" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_6" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_7" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_8" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_9" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="v_max_10" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>

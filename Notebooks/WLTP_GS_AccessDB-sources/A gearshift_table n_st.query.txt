@@ -1,6 +1,6 @@
 Operation =1
 Option =0
-Where ="(((gearshift_table.v)>=1))"
+Where ="(((gearshift_table.v)>=1) AND ((gearshift_table.tim)>0))"
 Begin InputTables
     Name ="gearshift_table"
     Name ="ST_vehicle_info"
@@ -107,17 +107,21 @@ Begin
             0x35646c30c1bad04cab09d74936e24ea3
         End
     End
+    Begin
+        dbText "Name" ="gearshift_table.tim"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
     Left =-9
     Top =-38
     Right =1473
-    Bottom =816
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =317
+    Bottom =296
     Left =0
     Top =0
     ColumnsShown =543

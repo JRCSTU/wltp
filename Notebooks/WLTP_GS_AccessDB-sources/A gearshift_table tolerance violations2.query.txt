@@ -1,6 +1,7 @@
 Operation =1
 Option =0
-Where ="(((gearshift_table.v)<[tol_min] Or (gearshift_table.v)>[tol_max]))"
+Where ="(((gearshift_table.v)<[tol_min] Or (gearshift_table.v)>[tol_max]) AND ((gearshif"
+    "t_table.tim)>0))"
 Begin InputTables
     Name ="gearshift_table"
     Name ="ST_vehicle_info"
@@ -134,11 +135,11 @@ Begin
     Left =-9
     Top =-38
     Right =1473
-    Bottom =816
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =276
+    Bottom =255
     Left =0
     Top =0
     ColumnsShown =543

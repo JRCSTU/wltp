@@ -9,14 +9,12 @@ Begin OutputColumns
     Expression ="gearshift_table.Description"
     Alias ="cycle_no"
     Expression ="gearshift_table.IDclass"
+    Expression ="gearshift_table.vehicle_no"
     Expression ="ST_vehicle_info.Description"
-    Alias ="Power_curve_no"
-    Expression ="gearshift_table.eng_no"
     Alias ="safety_margin"
     Expression ="gearshift_table.safety_margin_Pwot"
     Alias ="downscale_percentage"
     Expression ="ST_vehicle_info.f_DSC_req"
-    Expression ="gearshift_table.vehicle_no"
     Expression ="ST_vehicle_info.kerb_mass"
     Expression ="ST_vehicle_info.test_mass"
     Expression ="ST_vehicle_info.test_mass_modified"
@@ -79,9 +77,6 @@ Begin OutputColumns
     Expression ="gearshift_table.Ind_g7"
     Expression ="gearshift_table.n_g7"
     Expression ="gearshift_table.gear_modification"
-    Expression ="ST_vehicle_info.n_min_drive_new_used"
-    Expression ="ST_vehicle_info.n_max1_new_used"
-    Expression ="ST_vehicle_info.upshifts_allowed_during_dec"
 End
 Begin Joins
     LeftTable ="gearshift_table"
@@ -611,10 +606,6 @@ Begin
         dbLong "AggregateType" ="-1"
     End
     Begin
-        dbText "Name" ="gearshift_table.v_cap"
-        dbLong "AggregateType" ="-1"
-    End
-    Begin
         dbText "Name" ="v_target"
         dbLong "AggregateType" ="-1"
     End
@@ -624,11 +615,11 @@ Begin
     Left =-9
     Top =-38
     Right =1473
-    Bottom =813
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =240
+    Bottom =219
     Left =0
     Top =0
     ColumnsShown =539

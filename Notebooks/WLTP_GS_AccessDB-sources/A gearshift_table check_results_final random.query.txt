@@ -5,14 +5,10 @@ Begin InputTables
     Name ="ST_vehicle_info"
 End
 Begin OutputColumns
+    Expression ="gearshift_table.vehicle_no"
     Expression ="gearshift_table.Description"
-    Alias ="Power_curve_no"
-    Expression ="gearshift_table.eng_no"
     Alias ="safety_margin"
     Expression ="gearshift_table.safety_margin_Pwot"
-    Alias ="look_ahead_time"
-    Expression ="ST_vehicle_info.time_span"
-    Expression ="gearshift_table.vehicle_no"
     Expression ="ST_vehicle_info.kerb_mass"
     Expression ="ST_vehicle_info.test_mass"
     Expression ="ST_vehicle_info.rated_power"
@@ -28,9 +24,7 @@ Begin OutputColumns
     Expression ="ST_vehicle_info.n_max1"
     Expression ="ST_vehicle_info.n_max2"
     Expression ="ST_vehicle_info.f_dsc_req"
-    Expression ="ST_vehicle_info.ASM0"
-    Expression ="ST_vehicle_info.n_start"
-    Expression ="ST_vehicle_info.n_end"
+    Expression ="ST_vehicle_info.SM0"
     Alias ="vehicle_class"
     Expression ="gearshift_table.IDclass"
     Alias ="cycle_part"
@@ -40,7 +34,6 @@ Begin OutputColumns
     Expression ="gearshift_table.v"
     Alias ="a"
     Expression ="gearshift_table.a2"
-    Alias ="clutch_disengaged"
     Expression ="gearshift_table.clutch"
     Expression ="gearshift_table.gear"
     Expression ="gearshift_table.g_min"
@@ -49,15 +42,11 @@ Begin OutputColumns
     Expression ="gearshift_table.error_description"
     Alias ="n"
     Expression ="gearshift_table.nc"
-    Alias ="Ausdr3"
-    Expression ="gearshift_table.n_norm"
     Alias ="P_res"
     Expression ="gearshift_table.P_tot"
     Expression ="gearshift_table.P_max"
     Alias ="engine_load"
     Expression ="gearshift_table.P_rel"
-    Alias ="Ausdr4"
-    Expression ="gearshift_table.P_Ste_lower_P_tot"
 End
 Begin Joins
     LeftTable ="gearshift_table"
@@ -495,27 +484,39 @@ Begin
     End
     Begin
         dbText "Name" ="Ausdr3"
+        dbLong "AggregateType" ="-1"
         dbBinary "GUID" = Begin
             0x541575c3f6ec4e43ac703e0040aa4f25
         End
     End
     Begin
         dbText "Name" ="Ausdr4"
+        dbLong "AggregateType" ="-1"
         dbBinary "GUID" = Begin
             0xb35642768ad7dd4a9f67f175af2f12f7
         End
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.SM0"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.clutch"
+        dbInteger "ColumnOrder" ="19"
+        dbText "Format" ="On/Off"
+        dbLong "AggregateType" ="-1"
     End
 End
 Begin
     State =2
     Left =-9
     Top =-38
-    Right =1472
-    Bottom =846
+    Right =1473
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1443
-    Bottom =420
+    Right =1444
+    Bottom =399
     Left =0
     Top =0
     ColumnsShown =539
@@ -531,8 +532,8 @@ Begin
     Begin
         Left =538
         Top =12
-        Right =761
-        Bottom =267
+        Right =819
+        Bottom =341
         Top =0
         Name ="ST_vehicle_info"
         Name =""

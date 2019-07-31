@@ -16,7 +16,7 @@
 <xsd:sequence>
 <xsd:element name="class" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 <xsd:element name="part" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
-<xsd:element name="v_max_cycle" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
+<xsd:element name="v_max_cycle" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 </xsd:sequence>
 </xsd:complexType>
 </xsd:element>

@@ -146,6 +146,8 @@ Begin OutputColumns
     Expression ="ST_vehicle_info.n_min_drive_down_modified"
     Name ="n_min_drive_start_up"
     Expression ="ST_vehicle_info.n_min_drive_start_up"
+    Name ="n_min_drive_start_down"
+    Expression ="ST_vehicle_info.n_min_drive_start_down"
     Name ="t_end_start_phase"
     Expression ="ST_vehicle_info.t_end_start_phase"
     Name ="suppress gear 0 during downshifts"
@@ -1291,17 +1293,65 @@ Begin
         dbText "Name" ="ST_vehicle_info.average_gear"
         dbLong "AggregateType" ="-1"
     End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_3"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_4"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_8"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_6"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_5"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_7"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.n_min_drive_start_down"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_1"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_2"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_9"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.v_max_10"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_vehicle_info.n_max_wot"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
     Left =-9
     Top =-38
     Right =1473
-    Bottom =808
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =420
+    Bottom =399
     Left =0
     Top =0
     ColumnsShown =651

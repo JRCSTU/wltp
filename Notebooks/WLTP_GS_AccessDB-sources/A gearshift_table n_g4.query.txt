@@ -1,5 +1,6 @@
 Operation =1
 Option =0
+Where ="(((gearshift_table.tim)>0))"
 Having ="(((gearshift_table.n_g4) Is Not Null))"
 Begin InputTables
     Name ="gearshift_table"
@@ -67,11 +68,11 @@ Begin
     Left =-9
     Top =-38
     Right =1473
-    Bottom =815
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1369
-    Bottom =108
+    Right =1444
+    Bottom =187
     Left =0
     Top =0
     ColumnsShown =543

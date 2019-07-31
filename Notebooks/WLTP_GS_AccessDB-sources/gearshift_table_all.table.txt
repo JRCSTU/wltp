@@ -24,12 +24,19 @@
 </xsd:restriction>
 </xsd:simpleType>
 </xsd:element>
+<xsd:element name="IDclass" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 <xsd:element name="case_no" minOccurs="1" od:jetType="integer" od:sqlSType="smallint" od:nonNullable="yes" type="xsd:short"/>
 <xsd:element name="case_no2" minOccurs="0" od:jetType="integer" od:sqlSType="smallint" type="xsd:short"/>
 <xsd:element name="vehicle_no" minOccurs="1" od:jetType="integer" od:sqlSType="smallint" od:nonNullable="yes" type="xsd:short"/>
-<xsd:element name="IDclass" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 <xsd:element name="part" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
-<xsd:element name="tim" minOccurs="1" od:jetType="integer" od:sqlSType="smallint" od:nonNullable="yes" type="xsd:short"/>
+<xsd:element name="part_text" minOccurs="0" od:jetType="text" od:sqlSType="nvarchar">
+<xsd:simpleType>
+<xsd:restriction base="xsd:string">
+<xsd:maxLength value="255"/>
+</xsd:restriction>
+</xsd:simpleType>
+</xsd:element>
+<xsd:element name="tim" minOccurs="1" od:jetType="longinteger" od:sqlSType="int" od:nonNullable="yes" type="xsd:int"/>
 <xsd:element name="v" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="tol_min" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="tol_max" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
@@ -70,8 +77,12 @@
 <xsd:element name="cruise" minOccurs="1" od:jetType="yesno" od:sqlSType="bit" od:nonNullable="yes" type="xsd:boolean"/>
 <xsd:element name="dec" minOccurs="1" od:jetType="yesno" od:sqlSType="bit" od:nonNullable="yes" type="xsd:boolean"/>
 <xsd:element name="a" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="a_cap" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="a_downscale" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="a_orig" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="vma" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="vma_cap" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="vma_downscale" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="vma_orig" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="a2" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="a2_orig" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
@@ -151,7 +162,6 @@
 <xsd:element name="n_ST" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 <xsd:element name="Pmax_lower_Ptot" minOccurs="1" od:jetType="yesno" od:sqlSType="bit" od:nonNullable="yes" type="xsd:boolean"/>
 <xsd:element name="n_above_s" minOccurs="1" od:jetType="yesno" od:sqlSType="bit" od:nonNullable="yes" type="xsd:boolean"/>
-<xsd:element name="flag_4b" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 <xsd:element name="flag_6_1" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 </xsd:sequence>
 </xsd:complexType>

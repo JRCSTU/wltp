@@ -1,6 +1,6 @@
 Operation =1
 Option =0
-Where ="(((gearshift_table.gear_modification)=\"\"))"
+Where ="(((gearshift_table.gear_modification)=\"\") AND ((gearshift_table.tim)>0))"
 Having ="(((gearshift_table.n_g0) Is Not Null))"
 Begin InputTables
     Name ="gearshift_table"
@@ -72,19 +72,19 @@ Begin
     Left =-9
     Top =-38
     Right =1473
-    Bottom =814
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =173
+    Bottom =227
     Left =0
     Top =0
     ColumnsShown =543
     Begin
-        Left =60
-        Top =15
-        Right =300
-        Bottom =300
+        Left =63
+        Top =-22
+        Right =303
+        Bottom =263
         Top =0
         Name ="gearshift_table"
         Name =""

@@ -27,22 +27,6 @@ Begin OutputColumns
     Expression ="random_cycles.v"
     Name ="v_orig"
     Expression ="random_cycles.v"
-    Name ="a2"
-    Expression ="random_cycles.a2"
-    Name ="a2_orig"
-    Expression ="random_cycles.a2"
-    Name ="vma2"
-    Expression ="random_cycles.vma2"
-    Name ="vma2_orig"
-    Expression ="random_cycles.vma2"
-    Name ="a"
-    Expression ="random_cycles.a"
-    Name ="a_orig"
-    Expression ="random_cycles.a"
-    Name ="vma"
-    Expression ="random_cycles.vma"
-    Name ="vma_orig"
-    Expression ="random_cycles.vma"
 End
 Begin Joins
     LeftTable ="random_cycles"
@@ -328,11 +312,11 @@ Begin
     Left =-9
     Top =-38
     Right =1473
-    Bottom =816
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =321
+    Bottom =300
     Left =0
     Top =0
     ColumnsShown =651

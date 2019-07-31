@@ -27,6 +27,13 @@
 <xsd:element name="vehicle_no" minOccurs="1" od:jetType="longinteger" od:sqlSType="int" od:nonNullable="yes" type="xsd:int"/>
 <xsd:element name="IDclass" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 <xsd:element name="part" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
+<xsd:element name="part_text" minOccurs="0" od:jetType="text" od:sqlSType="nvarchar">
+<xsd:simpleType>
+<xsd:restriction base="xsd:string">
+<xsd:maxLength value="255"/>
+</xsd:restriction>
+</xsd:simpleType>
+</xsd:element>
 <xsd:element name="tim" minOccurs="1" od:jetType="integer" od:sqlSType="smallint" od:nonNullable="yes" type="xsd:short"/>
 <xsd:element name="v" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="tol_min" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>

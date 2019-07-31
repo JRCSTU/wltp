@@ -1,5 +1,6 @@
 Operation =1
 Option =0
+Where ="(((gearshift_table.tim)>0))"
 Begin InputTables
     Name ="gearshift_table"
     Name ="vehicle_info"
@@ -9,8 +10,8 @@ Begin OutputColumns
     Expression ="gearshift_table.IDclass"
     Alias ="cycle"
     Expression ="gearshift_table.Description"
-    Expression ="ST_vehicle_info.Description"
     Expression ="gearshift_table.vehicle_no"
+    Expression ="ST_vehicle_info.Description"
     Expression ="vehicle_info.pmr_km"
     Expression ="vehicle_info.rated_power"
     Expression ="vehicle_info.kerb_mass"
@@ -54,11 +55,13 @@ Begin Joins
     Flag =1
 End
 Begin Groups
+    Expression ="gearshift_table.IDclass"
+    GroupLevel =0
     Expression ="gearshift_table.Description"
     GroupLevel =0
-    Expression ="ST_vehicle_info.Description"
-    GroupLevel =0
     Expression ="gearshift_table.vehicle_no"
+    GroupLevel =0
+    Expression ="ST_vehicle_info.Description"
     GroupLevel =0
     Expression ="vehicle_info.pmr_km"
     GroupLevel =0
@@ -71,8 +74,6 @@ Begin Groups
     Expression ="vehicle_info.idling_speed"
     GroupLevel =0
     Expression ="vehicle_info.f_dsc_req"
-    GroupLevel =0
-    Expression ="gearshift_table.IDclass"
     GroupLevel =0
 End
 dbBoolean "ReturnsRecords" ="-1"
@@ -333,11 +334,11 @@ Begin
     Left =-9
     Top =-38
     Right =1473
-    Bottom =816
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =260
+    Bottom =239
     Left =0
     Top =0
     ColumnsShown =543

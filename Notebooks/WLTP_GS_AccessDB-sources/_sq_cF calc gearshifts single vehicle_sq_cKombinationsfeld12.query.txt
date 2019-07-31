@@ -1,0 +1,12 @@
+dbMemo "SQL" ="SELECT vehicle_info.vehicle_no, vehicle_info.class, vehicle_info.comments, vehic"
+    "le_info.rated_power, vehicle_info.kerb_mass, vehicle_info.test_mass, vehicle_inf"
+    "o.rated_speed, vehicle_info.idling_speed, vehicle_info.pmr_km, vehicle_info.v_ma"
+    "x AS v_max_calc, vehicle_info.v_max_declared AS v_max_decl, vehicle_info.f_dsc_r"
+    "eq, vehicle_info.no_of_gears, vehicle_info.ng_vmax\015\012FROM vehicle_info\015\012"
+    "ORDER BY vehicle_info.vehicle_no, vehicle_info.pmr_km;\015\012"
+dbMemo "Connect" =""
+dbBoolean "ReturnsRecords" ="-1"
+dbInteger "ODBCTimeout" ="60"
+dbText "KeepLocal" ="T"
+Begin
+End

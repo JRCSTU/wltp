@@ -1,6 +1,6 @@
 Operation =1
 Option =0
-Where ="(((gearshift_table.P_rel)>0.95))"
+Where ="(((gearshift_table.P_rel)>0.95) AND ((gearshift_table.tim)>0))"
 Begin InputTables
     Name ="A gearshift_table n_st"
     Name ="gearshift_table"
@@ -10,9 +10,9 @@ Begin OutputColumns
     Expression ="gearshift_table.IDclass"
     Alias ="cycle"
     Expression ="gearshift_table.Description"
+    Expression ="gearshift_table.vehicle_no"
     Expression ="ST_vehicle_info.Description"
     Expression ="gearshift_table.eng_no"
-    Expression ="gearshift_table.vehicle_no"
     Expression ="gearshift_table.part"
     Alias ="t_drive in s"
     Expression ="[A gearshift_table n_st].n_st"
@@ -44,11 +44,11 @@ Begin Groups
     GroupLevel =0
     Expression ="gearshift_table.Description"
     GroupLevel =0
+    Expression ="gearshift_table.vehicle_no"
+    GroupLevel =0
     Expression ="ST_vehicle_info.Description"
     GroupLevel =0
     Expression ="gearshift_table.eng_no"
-    GroupLevel =0
-    Expression ="gearshift_table.vehicle_no"
     GroupLevel =0
     Expression ="gearshift_table.part"
     GroupLevel =0
@@ -173,17 +173,21 @@ Begin
         dbText "Name" ="gearshift_table.IDclass"
         dbLong "AggregateType" ="-1"
     End
+    Begin
+        dbText "Name" ="gearshift_table.tim"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
     Left =-9
     Top =-38
     Right =1473
-    Bottom =814
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1369
-    Bottom =179
+    Right =1444
+    Bottom =274
     Left =0
     Top =0
     ColumnsShown =543

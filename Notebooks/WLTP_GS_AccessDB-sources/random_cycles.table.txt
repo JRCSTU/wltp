@@ -28,11 +28,11 @@
 <xsd:element name="cycle_no" minOccurs="1" od:jetType="integer" od:sqlSType="smallint" od:nonNullable="yes" type="xsd:short"/>
 <xsd:element name="part" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 <xsd:element name="tim" minOccurs="1" od:jetType="integer" od:sqlSType="smallint" od:nonNullable="yes" type="xsd:short"/>
-<xsd:element name="v" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="a2" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="vma2" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="a" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
-<xsd:element name="vma" minOccurs="0" od:jetType="single" od:sqlSType="real" type="xsd:float"/>
+<xsd:element name="v" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="a2" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="vma2" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="a" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
+<xsd:element name="vma" minOccurs="0" od:jetType="double" od:sqlSType="float" type="xsd:double"/>
 <xsd:element name="NEDC_gear" minOccurs="0" od:jetType="byte" od:sqlSType="tinyint" type="xsd:unsignedByte"/>
 <xsd:element name="NEDC_clutch" minOccurs="1" od:jetType="yesno" od:sqlSType="bit" od:nonNullable="yes" type="xsd:boolean"/>
 </xsd:sequence>

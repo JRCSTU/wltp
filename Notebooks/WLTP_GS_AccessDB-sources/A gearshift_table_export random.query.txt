@@ -44,6 +44,7 @@ Begin OutputColumns
     Expression ="ST_vehicle_info.[suppress gear 0 during downshifts]"
     Alias ="cycle_part"
     Expression ="gearshift_table.part"
+    Expression ="gearshift_table.part_text"
     Expression ="ST_vehicle_info.n_min_drive_set"
     Expression ="ST_vehicle_info.n_min_drive_up"
     Expression ="ST_vehicle_info.n_min_drive_up_modified"
@@ -67,6 +68,8 @@ Begin OutputColumns
     Expression ="gearshift_table.g_max"
     Alias ="v_set in km/h"
     Expression ="Int([v_orig]/0.1+0.5)*0.1"
+    Alias ="a_set in m/s²"
+    Expression ="gearshift_table.a_cap"
     Alias ="n in min-1"
     Expression ="gearshift_table.nc"
     Alias ="P_res in kW"
@@ -720,6 +723,18 @@ Begin
             0x0100000000000000d581c435f77f0000
         End
     End
+    Begin
+        dbText "Name" ="a_set in m/s²"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.a_cap"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.part_text"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
@@ -730,7 +745,7 @@ Begin
     Left =-1
     Top =-1
     Right =1444
-    Bottom =357
+    Bottom =315
     Left =0
     Top =0
     ColumnsShown =539

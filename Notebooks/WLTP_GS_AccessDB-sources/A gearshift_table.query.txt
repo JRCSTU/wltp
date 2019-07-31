@@ -16,32 +16,22 @@ Begin OutputColumns
     Expression ="WLTC_new.class"
     Name ="part"
     Expression ="WLTC_new.part"
+    Name ="part_text"
+    Expression ="WLTC_new.part_text"
     Name ="tim"
     Expression ="WLTC_new.tim"
+    Alias ="v1"
     Name ="v"
-    Expression ="WLTC_new.v"
+    Expression ="Int([v]*10+0.5)/10"
+    Alias ="v_orig"
     Name ="v_orig"
-    Expression ="WLTC_new.v"
+    Expression ="Int([v]*10+0.5)/10"
+    Alias ="v_downscale"
     Name ="v_downscale"
-    Expression ="WLTC_new.v"
+    Expression ="Int([v]*10+0.5)/10"
+    Alias ="v_cap"
     Name ="v_cap"
-    Expression ="WLTC_new.v"
-    Name ="a2"
-    Expression ="WLTC_new.a2"
-    Name ="a2_orig"
-    Expression ="WLTC_new.a2"
-    Name ="vma2"
-    Expression ="WLTC_new.vma2"
-    Name ="vma2_orig"
-    Expression ="WLTC_new.vma2"
-    Name ="a"
-    Expression ="WLTC_new.a"
-    Name ="a_orig"
-    Expression ="WLTC_new.a"
-    Name ="vma"
-    Expression ="WLTC_new.vma"
-    Name ="vma_orig"
-    Expression ="WLTC_new.vma"
+    Expression ="Int([v]*10+0.5)/10"
     Name ="final_dec"
     Expression ="WLTC_new.final_dec"
     Name ="Ind_ST"
@@ -445,17 +435,37 @@ Begin
         dbText "Name" ="WLTC_new.final_dec"
         dbLong "AggregateType" ="-1"
     End
+    Begin
+        dbText "Name" ="v1"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="v_orig"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="v_downscale"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="v_cap"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="WLTC_new.part_text"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
-    State =0
-    Left =55
-    Top =106
-    Right =1446
-    Bottom =806
+    State =2
+    Left =-9
+    Top =-38
+    Right =1473
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1369
-    Bottom =327
+    Right =1444
+    Bottom =264
     Left =0
     Top =0
     ColumnsShown =651
