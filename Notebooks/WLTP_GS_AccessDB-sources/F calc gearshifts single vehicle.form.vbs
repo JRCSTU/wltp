@@ -2898,7 +2898,7 @@ If Rahmen36 = 1 Then
 
 DoCmd.OpenQuery "A gearshift_table final_dec"
 
-End If
+Else: End If
 
 calculation_of_tolerances
 
@@ -2924,7 +2924,7 @@ If rstbe![duration in s] > 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -2934,8 +2934,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g0"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -2956,7 +2956,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -2966,8 +2966,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g1"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -2988,7 +2988,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -2998,8 +2998,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g2"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3020,7 +3020,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3030,8 +3030,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g3"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3052,7 +3052,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3062,8 +3062,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g4"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3084,7 +3084,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3094,8 +3094,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g5"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3116,7 +3116,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3126,8 +3126,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g6"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3148,7 +3148,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3158,8 +3158,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g7"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3390,7 +3390,7 @@ Loop
 rstbe!n_50 = rstce!n + (rstde!n - rstce!n) / (rstde!Pwot_norm - rstce!Pwot_norm) * (0.5 - rstce!Pwot_norm)
 
 
-End If
+Else: End If
 
 tn95_low:
 
@@ -3403,7 +3403,7 @@ rstde.MoveNext
 
 Loop
 
-End If
+Else: End If
 
 
 
@@ -3574,7 +3574,7 @@ If Not rstae.EOF Then
 
 rstae.MoveFirst
 
-End If
+Else: End If
 
 Set rstbe = dbsDB1.OpenRecordset("ST_vehicle_info", DB_OPEN_DYNASET)
 rstbe.MoveFirst
@@ -3611,7 +3611,7 @@ MsgBox "You did not save the test mass and road load modifications!"
 
 Exit Sub
 
-End If
+Else: End If
 
 If Ko195 = True And (rstbe!v_cap = "" Or rstbe!v_cap = 0) Then
 
@@ -3619,7 +3619,7 @@ MsgBox "You did not insert a speed cap value!"
 
 Exit Sub
 
-End If
+Else: End If
 
 If rstbe!n_min_drive_up < rstbe!n_min_drive_set Then
 
@@ -3635,7 +3635,7 @@ MsgBox "You chose a n_min_drive_down value lower than the default value, that is
 Exit Sub
 
 
-End If
+Else: End If
 
 
 
@@ -3649,7 +3649,7 @@ rstbe.edit
 rstbe!v_cap = Null
 rstbe.Update
 
-End If
+Else: End If
 
 
 If (Ko179.Visible = False Or Ko179 = False) And rstbe!n_min_drive_set <> rstae!n_min_drive_set Then
@@ -3658,7 +3658,7 @@ rstbe.edit
 rstbe!n_min_drive_set = rstae!n_min_drive_set
 rstbe.Update
 
-End If
+Else: End If
 
 
 If Ko228 = True And (IsNull(Text230) Or IsNull(Text234) Or IsNull(Text242)) Then
@@ -3667,7 +3667,7 @@ MsgBox "You have to specify n_min_drive_start_up and/or n_min_drive_start_down a
 
 Exit Sub
 
-End If
+Else: End If
 
 If IsNull(Kombinationsfeld12) Then
 
@@ -3675,7 +3675,7 @@ MsgBox "You have to chose a vehicle in order to start the calculations!"
 
 Exit Sub
 
-End If
+Else: End If
 
 rstae.Close
 rstbe.Close
@@ -3709,7 +3709,7 @@ If Rahmen36 = 1 Then
 
 DoCmd.OpenQuery "A gearshift_table final_dec"
 
-End If
+Else: End If
 
 calculation_of_tolerances
 
@@ -3729,7 +3729,7 @@ If rstbe![duration in s] > 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3739,8 +3739,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g0"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3761,7 +3761,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3771,8 +3771,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g1"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3793,7 +3793,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3803,8 +3803,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g2"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3825,7 +3825,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3835,8 +3835,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g3"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3857,7 +3857,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3867,8 +3867,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g4"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3889,7 +3889,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3899,8 +3899,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g5"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3921,7 +3921,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3931,8 +3931,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g6"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3953,7 +3953,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3963,8 +3963,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g7"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -3985,7 +3985,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -3995,8 +3995,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g8"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -4018,7 +4018,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -4028,8 +4028,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g9"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -4051,7 +4051,7 @@ If rstbe![duration in s] < 2 Then
 
 n = n + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -4061,8 +4061,8 @@ If n > 0 Then
 
 DoCmd.OpenQuery "A gearshift_table n_g10"
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Close
 
@@ -4707,7 +4707,7 @@ ElseIf Rahmen36 = 4 Then
 
 DoCmd.OpenQuery "A possible_tend_cold_random", , acReadOnly
 
-End If
+Else: End If
 
 End Sub
 
@@ -4875,7 +4875,7 @@ If f_dsc_req < 0.01 Then
 
 f_dsc_req = 0
 
-End If
+Else: End If
 
 End If
 
@@ -4901,7 +4901,7 @@ If f_dsc_req < 0.01 Then
 
 f_dsc_req = 0
 
-End If
+Else: End If
 
 End If
 
@@ -4927,11 +4927,11 @@ If f_dsc_req < 0.01 Then
 
 f_dsc_req = 0
 
-End If
+Else: End If
 
 End If
 
-End If
+Else: End If
 
 rstce.edit
 
@@ -4999,7 +4999,7 @@ If Ko195 = False Then
 Be198.Visible = False
 Text197 = ""
 Text197.Visible = False
-End If
+Else: End If
 
 Ko219.Visible = True
 Be180.Visible = True
@@ -5016,7 +5016,7 @@ Be180.Visible = False
 Ko195.Visible = False
 
 
-End If
+Else: End If
 
 
 
@@ -5110,7 +5110,7 @@ ElseIf Rahmen36 = 3 Then
 rstae!Cycle = "NEDC"
 ElseIf Rahmen36 = 4 Then
 rstae!Cycle = "other cycle"
-End If
+Else: End If
 
 rstae!n_min_drive_start_up = Null
 rstae!n_min_drive_start_down = Null
@@ -5252,7 +5252,7 @@ If Rahmen36 = 3 Then
 GoTo weiter_NEDC_2
 
 
-End If
+Else: End If
 
 
 
@@ -5313,8 +5313,8 @@ rstce!gear_modification = rstce!gear_modification & "0a) corr gear 2 at transiti
 rstce.Update
 m = m + 1
 
-End If
-End If
+Else: End If
+Else: End If
 
 If rstbe!gear = 1 And rstde!gear = 2 And rstde!v > rstce!v And rstce!v >= 1 Then
 
@@ -5326,8 +5326,8 @@ rstde!gear_modification = rstde!gear_modification & "0b) corr gear 2 at transiti
 rstde.Update
 m = m + 1
 
-End If
-End If
+Else: End If
+Else: End If
 
 If rstbe!gear = 1 And rstee!gear = 2 And rstee!v > rstde!v And rstce!v >= 1 Then
 
@@ -5339,8 +5339,8 @@ rstee!gear_modification = rstee!gear_modification & "0c) corr gear 2 at transiti
 rstee.Update
 m = m + 1
 
-End If
-End If
+Else: End If
+Else: End If
 
 '#################################################################################################
 
@@ -5407,7 +5407,7 @@ n = n + 1
 End If
 rstce.Update
 
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -5477,7 +5477,7 @@ n = n + 1
 End If
 rstee.Update
 
-End If
+Else: End If
 
 
 '2b1) & 2b2) g1>=g2, g2>=g3, g4=g3-1, g5=g3,g6=g5, g7>=g6, g4->g3, last sub-paragraph of 4(a) of annex 2
@@ -5503,7 +5503,7 @@ If rstde!gear <= g_ref Then
 j1 = j1 + 1
 t1 = rstde!tim
 
-End If
+Else: End If
 
 
 Loop
@@ -5517,7 +5517,7 @@ Next k
 If rstce!tim <> rstde!tim - 1 Then
 MsgBox "Error2b1a " & rstce!tim & ", " & rstde!tim
 Exit Sub
-End If
+Else: End If
 
 i = 0
 
@@ -5532,7 +5532,7 @@ If rstde!gear <= g_ref Then
 j2 = j2 + 1
 t2 = rstde!tim
 
-End If
+Else: End If
 
 
 Loop
@@ -5546,7 +5546,7 @@ Next k
 If rstce!tim <> rstde!tim - 1 Then
 MsgBox "Error2b1b " & rstce!tim & ", " & rstde!tim
 Exit Sub
-End If
+Else: End If
 
 If j1 = 0 And j2 = 0 Then
 
@@ -5597,7 +5597,7 @@ n = n + 1
 End If
 rstde.Update
 
-End If
+Else: End If
 
 Loop
 
@@ -5610,9 +5610,9 @@ Loop
 If rstce!tim <> rstde!tim - 1 Then
 MsgBox "Error2b2 " & rstce!tim & ", " & rstde!tim
 Exit Sub
-End If
+Else: End If
 
-End If
+Else: End If
 
 
 '2b3) g1>=g2, g2>=g3, g4>=g3, g5>=g4, g6=g5, g7>=g6, g5->g4, last sub-paragraph of 4(a) of annex 2
@@ -5665,7 +5665,7 @@ If rstee!v = rstde!v Then
 
 i = i + 1
 
-End If
+Else: End If
 
 Next k
 
@@ -5678,7 +5678,7 @@ Next k
 If rstee!tim <> rstde!tim + 1 Then
 MsgBox "Error3a " & rstde!tim & ", " & rstee!tim
 Exit Sub
-End If
+Else: End If
 
 If i = 4 Then
 
@@ -5728,7 +5728,7 @@ End If
 
 
 
-End If
+Else: End If
 
 
 
@@ -5749,7 +5749,7 @@ flag_text7 = 1
 
 GoTo lap_4ab
 
-End If
+Else: End If
 
 
 
@@ -5813,7 +5813,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     
     t_start = rstce!tim
     
-    End If
+    Else: End If
     
     t_end_j = rstce!tim
             
@@ -5824,7 +5824,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     If i > 300 Then
     MsgBox "i = " & i & " at t = " & rstce!tim
     Stop
-    End If
+    Else: End If
     
     ti(i) = rstce!tim
     g_2s_i = rstce!gear
@@ -5832,7 +5832,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     t_end_j = rstce!tim
     
         
-    End If
+    Else: End If
     
     l = l + 1
         
@@ -5877,7 +5877,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
                       
         Loop
         
-        End If
+        Else: End If
         
         rstbe.MovePrevious
         rstce.MovePrevious
@@ -5900,7 +5900,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
         t_start = rstce!tim
         
                
-        End If
+        Else: End If
         
         
             
@@ -5936,7 +5936,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     
     GoTo weiter_i33
     
-    End If
+    Else: End If
         
         
 weiter_i32:
@@ -5958,7 +5958,7 @@ weiter_i32:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -5982,11 +5982,11 @@ weiter_i32:
     
     Stop
         
-    End If
+    Else: End If
     
     GoTo weiter_k32
     
-    End If
+    Else: End If
     
     
     If j <= 1 Then
@@ -6015,7 +6015,7 @@ weiter_i32:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -6051,12 +6051,12 @@ weiter_i32:
             rstce!gear_modification = rstce!gear_modification & "4_k13) check for lower gear ahead during acc, "
             ElseIf rstce!gear = g_2s_i Then
             rstce!gear_modification = rstce!gear_modification & "4_k13) gear modification not necessary, "
-            End If
+            Else: End If
                
         rstce.Update
         m = m + 1
         
-    End If
+    Else: End If
     
     l = l + 1
     
@@ -6066,7 +6066,7 @@ weiter_i32:
     
     Loop
     
-    End If
+    Else: End If
     
     GoTo weiter_k32
     
@@ -6089,12 +6089,12 @@ weiter_i32:
             rstce!gear_modification = rstce!gear_modification & "4_k13) check for lower gear ahead during acc, "
             ElseIf rstce!gear = g_2s_i Then
             rstce!gear_modification = rstce!gear_modification & "4_k13) gear modification not necessary, "
-            End If
+            Else: End If
                
         rstce.Update
         m = m + 1
         
-    End If
+    Else: End If
     
     l = l + 1
     
@@ -6135,7 +6135,7 @@ weiter_i33:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -6160,7 +6160,7 @@ rstde.MoveNext
 
 Loop
 
-End If
+Else: End If
 
 End If
 End If
@@ -6234,7 +6234,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     
     t_start = rstce!tim
     
-    End If
+    Else: End If
     
     t_end_j = rstce!tim
             
@@ -6245,7 +6245,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     If i > 300 Then
     MsgBox "i = " & i & " at t = " & rstce!tim
     Stop
-    End If
+    Else: End If
     
     ti(i) = rstce!tim
     g_2s_i = rstce!gear
@@ -6253,7 +6253,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     t_end_j = rstce!tim
     
         
-    End If
+    Else: End If
     
     l = l + 1
         
@@ -6298,7 +6298,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
                       
         Loop
         
-        End If
+        Else: End If
         
         rstbe.MovePrevious
         rstce.MovePrevious
@@ -6321,7 +6321,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
         t_start = rstce!tim
         
                
-        End If
+        Else: End If
         
         
             
@@ -6357,7 +6357,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     
     GoTo weiter_i3
     
-    End If
+    Else: End If
         
         
 weiter_i2:
@@ -6379,7 +6379,7 @@ weiter_i2:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -6403,11 +6403,11 @@ weiter_i2:
     
     Stop
         
-    End If
+    Else: End If
     
     GoTo weiter_k2
     
-    End If
+    Else: End If
     
     
     If j <= 1 Then
@@ -6436,7 +6436,7 @@ weiter_i2:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -6472,12 +6472,12 @@ weiter_i2:
             rstce!gear_modification = rstce!gear_modification & "4_k1) check for lower gear ahead during acc, "
             ElseIf rstce!gear = g_2s_i Then
             rstce!gear_modification = rstce!gear_modification & "4_k1) gear modification not necessary, "
-            End If
+            Else: End If
                
         rstce.Update
         m = m + 1
         
-    End If
+    Else: End If
     
     l = l + 1
     
@@ -6487,7 +6487,7 @@ weiter_i2:
     
     Loop
     
-    End If
+    Else: End If
     
     GoTo weiter_k2
     
@@ -6510,12 +6510,12 @@ weiter_i2:
             rstce!gear_modification = rstce!gear_modification & "4_k1) check for lower gear ahead during acc, "
             ElseIf rstce!gear = g_2s_i Then
             rstce!gear_modification = rstce!gear_modification & "4_k1) gear modification not necessary, "
-            End If
+            Else: End If
                
         rstce.Update
         m = m + 1
         
-    End If
+    Else: End If
     
     l = l + 1
     
@@ -6556,7 +6556,7 @@ weiter_i3:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -6581,7 +6581,7 @@ rstde.MoveNext
 
 Loop
 
-End If
+Else: End If
 
 End If
 End If
@@ -6654,7 +6654,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     If i > 300 Then
     MsgBox "i = " & i & " at t = " & rstce!tim
     Stop
-    End If
+    Else: End If
     
     ti(i) = rstce!tim
     g_2s_i = rstce!gear
@@ -6662,7 +6662,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     t_end_j = rstce!tim
     
         
-    End If
+    Else: End If
     
     l = l + 1
         
@@ -6686,7 +6686,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
     
     Stop
         
-    End If
+    Else: End If
     
     l = 0
     
@@ -6713,7 +6713,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
                       
         Loop
         
-        End If
+        Else: End If
         
         rstbe.MovePrevious
         rstce.MovePrevious
@@ -6730,7 +6730,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
         Loop
         
         
-        End If
+        Else: End If
         
         ti(0) = rstce!tim
         g_start = rstce!gear
@@ -6739,7 +6739,7 @@ If rstde!v > rstce!v And rstce!v >= 1 Then
         
         t_start = rstce!tim
         
-        End If
+        Else: End If
         
         
             
@@ -6795,7 +6795,7 @@ weiter_i1:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -6823,7 +6823,7 @@ weiter_i1:
             rstce!gear_modification = rstce!gear_modification & "4_i3) check for lower gear ahead during acc, "
             ElseIf rstce!gear = g_2s_i Then
             rstce!gear_modification = rstce!gear_modification & "4_i3) gear modification not necessary, "
-            End If
+            Else: End If
             
          
         rstce.Update
@@ -6861,7 +6861,7 @@ weiter_i1:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -6890,7 +6890,7 @@ weiter_i1:
         rstce.Update
         m = m + 1
         
-        End If
+        Else: End If
         
         l = l + 1
         
@@ -6923,7 +6923,7 @@ weiter_i1:
             rstce!gear_modification = rstce!gear_modification & "4_i1) check for lower gear ahead during acc, "
             ElseIf rstce!gear = g_2s_i Then
             rstce!gear_modification = rstce!gear_modification & "4_i1) gear modification not necessary, "
-            End If
+            Else: End If
                
         rstce.Update
         m = m + 1
@@ -6954,7 +6954,7 @@ rstde.MoveNext
 
 Loop
 
-End If
+Else: End If
 
 End If
 End If
@@ -6991,7 +6991,7 @@ If Forms![F calc gearshifts single vehicle].[Kontroll164] = False And m > 0 Then
 
 MsgBox "Modification Lap " & P & ", number of modifications = " & Text253
 
-End If
+Else: End If
 
 If m > 0 Then
 
@@ -7003,9 +7003,9 @@ If m_old < 2 Then
 
 GoTo weiter3
 
-End If
+Else: End If
 
-End If
+Else: End If
 
 'Stop
 
@@ -7044,7 +7044,7 @@ m = m + 1
 
 
 
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -7085,7 +7085,7 @@ n = n + 1
 End If
 rstce.Update
 
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -7093,7 +7093,7 @@ rstde.MoveNext
 
 Loop
 
-End If
+Else: End If
 
 
 
@@ -7262,7 +7262,7 @@ rstae.Close
 
 'MsgBox "The chosen vehicle class is 2 classes away from the appropriate class for the chosen vehicle_no!"
 
-'End If
+'Else: End If
 
 
 Kombinationsfeld64.Visible = True
@@ -7629,7 +7629,7 @@ ElseIf Rahmen36 = 3 Then
 rstae!Cycle = "NEDC"
 ElseIf Rahmen36 = 4 Then
 rstae!Cycle = "other cycle"
-End If
+Else: End If
 rstae.Update
 rstae.Close
 
@@ -7712,7 +7712,7 @@ rstce.edit
 rstce!error_description = rstce!error_description & "1) 232 -> 222, 323 -> 333, "
 rstce.Update
 
-End If
+Else: End If
 
 
 
@@ -7755,7 +7755,7 @@ rstde.edit
 rstde!error_description = rstde!error_description & "2) 6546 -> 6556, "
 rstde.Update
 
-End If
+Else: End If
 
 
 
@@ -7803,7 +7803,7 @@ rstde!error_description = rstde!error_description & "4) 133 -> 122, "
 rstde.Update
 
 
-End If
+Else: End If
 
 '5) ###############################################################################################
 
@@ -7818,7 +7818,7 @@ rstde!error_description = rstde!error_description & "5) 123 -> 122, "
 rstde.Update
 
 
-End If
+Else: End If
 
 
 '6) ####################################################################################################
@@ -7831,7 +7831,7 @@ rstce.edit
 rstce!error_description = rstce!error_description & "6) 232 -> 222, 323 -> 333, "
 rstce.Update
 
-End If
+Else: End If
 
 '7) ####################################################################################################
 
@@ -7843,7 +7843,7 @@ rstce.edit
 rstce!error_description = rstce!error_description & "7) 321 -> 311, "
 rstce.Update
 
-End If
+Else: End If
 
 
 rstbe.MoveNext
@@ -7889,7 +7889,7 @@ rstee.edit
 rstee!error_description = rstee!error_description & "8) 1223 -> 1222, "
 rstee.Update
 
-End If
+Else: End If
 
 '9) #############################################################################################################
 
@@ -7901,7 +7901,7 @@ rstee.edit
 rstee!error_description = rstee!error_description & "9) 3223 -> 3222, "
 rstee.Update
 
-End If
+Else: End If
 
 '10) ############################################################################################################
 
@@ -7917,7 +7917,7 @@ rstde.edit
 rstde!error_description = rstde!error_description & "10) 3443 -> 3333, "
 rstde.Update
 
-End If
+Else: End If
 
 '11) ##############################################################################################################
 
@@ -7933,7 +7933,7 @@ rstde.edit
 rstde!error_description = rstde!error_description & "11) 2244 -> 2233, "
 rstde.Update
 
-End If
+Else: End If
 
 
 rstbe.MoveNext
@@ -7988,7 +7988,7 @@ rstde.edit
 rstde!error_description = rstde!error_description & "12) 43300 -> 40000 or 43200 -> 40000, "
 rstde.Update
 
-End If
+Else: End If
 
 '13) ############################################################################################################
 
@@ -8004,7 +8004,7 @@ rstde.edit
 rstde!error_description = rstde!error_description & "13) 33110 -> 33000, 33220 -> 33000, "
 rstde.Update
 
-End If
+Else: End If
 
 '14) #############################################################################################################
 
@@ -8024,7 +8024,7 @@ rstee.edit
 rstee!error_description = rstee!error_description & "14) 34443 -> 33333, "
 rstee.Update
 
-End If
+Else: End If
 
 
 
@@ -8097,7 +8097,7 @@ rstfe!error_description = rstfe!error_description & "15) 344443 -> 333333, "
 rstfe.Update
 
 
-End If
+Else: End If
 
 '16) ####################################################################################################################
 
@@ -8114,7 +8114,7 @@ rstee!error_description = rstee!error_description & "16) 553322 -> 550022 or 550
 rstee.Update
 
 
-End If
+Else: End If
 
 '17) #####################################################################################################################
 
@@ -8127,7 +8127,7 @@ rstde!error_description = rstde!error_description & "17) 554332 -> 550332 or 553
 rstde.Update
 
 
-End If
+Else: End If
 
 
 '18) ####################################################################################################################
@@ -8148,7 +8148,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "18) 000123 -> 000111, "
 rstge.Update
 
-End If
+Else: End If
 
 '19) #####################################################################################################################
 
@@ -8161,7 +8161,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "19) 112224 -> 112223, "
 rstge.Update
 
-End If
+Else: End If
 
 '20) #######################################################################################################################
 
@@ -8174,7 +8174,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "20) 122234 -> 122233, "
 rstge.Update
 
-End If
+Else: End If
 
 '21) #########################################################################################################################
 
@@ -8187,7 +8187,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "21) 001113 -> 001112, "
 rstge.Update
 
-End If
+Else: End If
 
 '22) ##########################################################################################################################
 
@@ -8200,7 +8200,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "22) 011123 -> 011122, "
 rstge.Update
 
-End If
+Else: End If
 
 '23) ###########################################################################################################################
 
@@ -8220,7 +8220,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "23) 333556 -> 333444, "
 rstge.Update
 
-End If
+Else: End If
 
 
 
@@ -8303,7 +8303,7 @@ rstfe.edit
 rstfe!error_description = rstfe!error_description & "24) 344443 -> 333333, "
 rstfe.Update
 
-End If
+Else: End If
 
 '25) #######################################################################################################
 
@@ -8315,7 +8315,7 @@ rstce.edit
 rstce!error_description = rstce!error_description & "25) 503322 -> 533322, "
 rstce.Update
 
-End If
+Else: End If
 
 '26) ########################################################################################################
 
@@ -8349,7 +8349,7 @@ rstfe.Update
 
 End If
 
-End If
+Else: End If
 
 '27) #########################################################################################################
 
@@ -8377,7 +8377,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "27) 3444443 -> 3333333, "
 rstge.Update
 
-End If
+Else: End If
 
 '28) ###########################################################################################################
 
@@ -8391,25 +8391,25 @@ If rstde!g_max < g_1 Then
 
 g_1 = rstde!g_max
 
-End If
+Else: End If
 
 If rstee!g_max < g_1 Then
 
 g_1 = rstee!g_max
 
-End If
+Else: End If
 
 If rstfe!g_max < g_1 Then
 
 g_1 = rstfe!g_max
 
-End If
+Else: End If
 
 If rstge!g_max < g_1 Then
 
 g_1 = rstge!g_max
 
-End If
+Else: End If
 
 
 
@@ -8433,7 +8433,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "28) 5000001 -> 5222221, if v>=1, "
 rstge.Update
 
-End If
+Else: End If
 
 
 '29) ############################################################################################################
@@ -8450,7 +8450,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "29) 3334555 -> 3334445, "
 rstge.Update
 
-End If
+Else: End If
 
 '30) #############################################################################################################
 
@@ -8463,7 +8463,7 @@ rstge.edit
 rstge!error_description = rstge!error_description & "30) 3334455 -> 3334445, "
 rstge.Update
 
-End If
+Else: End If
 
 '31) ###################################################################################################################
 
@@ -8483,7 +8483,7 @@ rstee.edit
 rstee!error_description = rstee!error_description & "31) 5443221 -> 5002221, '5443222 -> 5002222, "
 rstee.Update
 
-End If
+Else: End If
 
 '32 #############################################################################################################################
 
@@ -8503,7 +8503,7 @@ rstee.edit
 rstee!error_description = rstee!error_description & "32) 3222000 -> 3000000, "
 rstee.Update
 
-End If
+Else: End If
 
 
 
@@ -8551,7 +8551,7 @@ rstbe.edit
 rstbe!error_description = rstbe!error_description & "34) check for gear 1 before stop, "
 rstbe.Update
 
-End If
+Else: End If
 
 
 weiter_stop_loop:
@@ -8570,11 +8570,11 @@ weiter_stop_loop:
         rstbe!error_description = Null
         rstbe.Update
         
-        End If
+        Else: End If
         
         Next i
         
-        End If
+        Else: End If
         
     GoTo weiter_stop
     
@@ -8596,7 +8596,7 @@ weiter_stop_loop:
         rstbe!error_description = rstbe!error_description & "34) check for gear 1 before stop, "
         rstbe.Update
         
-        End If
+        Else: End If
     
     GoTo weiter_stop_loop
     
@@ -8646,7 +8646,7 @@ If rstbe!gear < rstbe!g_min And rstbe!gear > 0 Then
         rstbe!error_description = rstbe!error_description & "35) check for gear below gear_min, "
         rstbe.Update
 
-End If
+Else: End If
 
 
 rstbe.MoveNext
@@ -8885,7 +8885,7 @@ rstce.MoveNext
 
 Loop
 
-		End If
+Else: End If
 
 
 rstbe.MoveFirst
@@ -8981,7 +8981,7 @@ If s108 = True Then
 
 DoCmd.OpenQuery "A TB_Pwot check", , acReadOnly
 
-	End If
+Else: End If
 
 s108 = False
 
@@ -9025,7 +9025,6 @@ Befehl28.Enabled = True
 
 
 End Sub
-
 
 Public Sub calculation_of_tolerances()
 Dim wrkWS1
@@ -9087,7 +9086,7 @@ If tol_min < 0 Then
 
 tol_min = 0
 
-End If
+Else: End If
 
 
 tol_max = rstae!v_cap + dv_base
@@ -9104,16 +9103,16 @@ If tol_min < 0 Then
 
 tol_min = 0
 
-End If
+Else: End If
 
 
-End If
+Else: End If
 
 If rstae!v_cap + dv_base > tol_max Then
 
 tol_max = rstae!v_cap + dv_base
 
-End If
+Else: End If
 
 
 rstae.MoveNext
@@ -9129,16 +9128,16 @@ If tol_min < 0 Then
 
 tol_min = 0
 
-End If
+Else: End If
 
 
-End If
+Else: End If
 
 If rstae!v_cap + dv_base > tol_max Then
 
 tol_max = rstae!v_cap + dv_base
 
-End If
+Else: End If
 
 
 rstae.MovePrevious
@@ -9209,7 +9208,7 @@ rstce!gearshift = 1
 rstce!downshift = True
 rstce.Update
 
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -9284,7 +9283,7 @@ If Lprop_wot < Lprop_crs Then
 
 Lprop_wot = Lprop_crs
 
-End If
+Else: End If
 
 If rstbe!P_rel < 0 Then
 
@@ -9362,7 +9361,6 @@ rstbe.Close
 
 End Sub
 
-	
 Public Sub numbering_g1()
 Dim wrkWS1
 Dim dbsDB1
@@ -10203,7 +10201,7 @@ rstge.edit
 rstge!ind_g0 = False
 rstge.Update
 
-End If
+Else: End If
 
 If rstfe!ind_g0 = True Then
 
@@ -10211,7 +10209,7 @@ rstfe.edit
 rstfe!ind_g0 = False
 rstfe.Update
 
-End If
+Else: End If
 
 If rstee!ind_g0 = True Then
 
@@ -10219,7 +10217,7 @@ rstee.edit
 rstee!ind_g0 = False
 rstee.Update
 
-End If
+Else: End If
 
 If rstde!ind_g0 = True Then
 
@@ -10227,7 +10225,7 @@ rstde.edit
 rstde!ind_g0 = False
 rstde.Update
 
-End If
+Else: End If
 
 If rstce!ind_g0 = True Then
 
@@ -10235,7 +10233,7 @@ rstce.edit
 rstce!ind_g0 = False
 rstce.Update
 
-End If
+Else: End If
 
 If rstbe!ind_g0 = True Then
 
@@ -10243,9 +10241,9 @@ rstbe.edit
 rstbe!ind_g0 = False
 rstbe.Update
 
-End If
+Else: End If
 
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -10401,7 +10399,7 @@ If downscale_factor > 0.01 And rstae!skip_downscaling = False Then
 
 perform_downscaling
 
-End If
+Else: End If
 
 DoCmd.OpenQuery "A gearshift_table v_cap"
 
@@ -10411,7 +10409,7 @@ If rstae!v_cap > 0 Then
 
 Calculate_speed_capped_cycle
 
-End If
+Else: End If
 
 ' calculation for EVAP purge cycle ##############################################################################################
 
@@ -10427,9 +10425,9 @@ If downscale_factor > 0.01 And rstae!skip_downscaling = False Then
 
 perform_downscaling
 
-End If
+Else: End If
 
-End If
+Else: End If
 
 DoCmd.OpenQuery "A gearshift_table v_cap"
 
@@ -10437,7 +10435,7 @@ If rstae!v_cap > 0 Then
 
 Calculate_speed_capped_cycle
 
-End If
+Else: End If
 
 
 ' calculation for NEDC ###############################################################################
@@ -10455,7 +10453,7 @@ ElseIf Rahmen36 = 4 Then
 DoCmd.OpenQuery "A gearshift_table random1"
 
 
-End If
+Else: End If
 
 
 weiter_NEDC_1:
@@ -10469,10 +10467,10 @@ If Rahmen183 = True Then
 
 DoCmd.OpenQuery "A gearshift_table corr_g_2_1_NEDC"
 
-End If
+Else: End If
 
 
-End If
+Else: End If
 
 
 
@@ -10502,7 +10500,7 @@ DoCmd.OpenQuery "A gearshift_table n_10 NEDC"
 GoTo weiter_NEDC
 
 
-End If
+Else: End If
 
 ' v is set to v_max, if v > v_max #####################################################################
 
@@ -10591,7 +10589,7 @@ rstbe!nc = rstae!idling_speed
 rstbe!clutch = "engaged, gear lever in neutral"
 rstbe.Update
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -10619,7 +10617,7 @@ rstbe!n_1 = n
 If n <= rstae!n_max1 Then
 rstbe!g_min = 1
 rstbe!g_max = 1
-End If
+Else: End If
 rstbe.Update
 
 rstie.MoveFirst
@@ -10637,7 +10635,7 @@ rstke.MoveNext
         
         Loop
         
-        End If
+        Else: End If
 
 
 If rstbe!n_1 <= rstie!n Then
@@ -10683,14 +10681,14 @@ Else
 
 If n < rstae!idling_speed Then
 n = rstae!idling_speed
-End If
+Else: End If
 
 rstbe.edit
 rstbe!n_2 = n
 If n <= rstae!n_max1 And rstae!ndv_1 * rstbe!v > rstae!n_max1 Then
 rstbe!g_min = 2
 rstbe!g_max = 2
-End If
+Else: End If
 
 rstbe.Update
 
@@ -10712,7 +10710,7 @@ If rstbe!n_2 > rstke!n Then
         
         Loop
         
-        End If
+        Else: End If
 
 If rstbe!n_2 <= rstie!n Then
 
@@ -10762,8 +10760,8 @@ rstbe!n_3 = n
 If IsNull(rstbe!g_min) Then
 If n <= rstae!n_max1 Or (rstae!gear_v_max = 3 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
 rstbe!g_min = 3
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.Update
 
@@ -10783,7 +10781,7 @@ If rstbe!n_3 > rstke!n Then
         
         Loop
         
-        End If
+        Else: End If
 
 Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_3 - rstie!n)
 
@@ -10829,8 +10827,8 @@ rstbe!n_4 = n
 If IsNull(rstbe!g_min) Then
 If n <= rstae!n_max1 Or (rstae!gear_v_max = 4 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
 rstbe!g_min = 4
-End If
-End If
+Else: End If
+Else: End If
 rstbe.Update
 
 rstie.MoveFirst
@@ -10848,7 +10846,7 @@ If rstbe!n_4 > rstke!n Then
         
         Loop
         
-        End If
+        Else: End If
 
 Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_4 - rstie!n)
 
@@ -10896,8 +10894,8 @@ rstbe!n_5 = n
 If IsNull(rstbe!g_min) Then
 If n <= rstae!n_max1 Or (rstae!gear_v_max = 5 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
 rstbe!g_min = 5
-End If
-End If
+Else: End If
+Else: End If
 rstbe.Update
 
 rstie.MoveFirst
@@ -10915,7 +10913,7 @@ If rstbe!n_5 > rstke!n Then
         
         Loop
         
-        End If
+        Else: End If
 
 Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_5 - rstie!n)
 
@@ -10963,8 +10961,8 @@ rstbe!n_6 = n
 If IsNull(rstbe!g_min) Then
 If n <= rstae!n_max1 Or (rstae!gear_v_max = 6 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
 rstbe!g_min = 6
-End If
-End If
+Else: End If
+Else: End If
 rstbe.Update
 
 rstie.MoveFirst
@@ -10982,7 +10980,7 @@ If rstbe!n_6 > rstke!n Then
         
         Loop
         
-        End If
+        Else: End If
 
 Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_6 - rstie!n)
 
@@ -11033,8 +11031,8 @@ rstbe!n_7 = n
 If IsNull(rstbe!g_min) Then
 If n <= rstae!n_max1 Or (rstae!gear_v_max = 7 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
 rstbe!g_min = 7
-End If
-End If
+Else: End If
+Else: End If
 rstbe.Update
 
 rstie.MoveFirst
@@ -11052,7 +11050,7 @@ If rstbe!n_7 > rstke!n Then
         
         Loop
         
-        End If
+        Else: End If
 
 Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_7 - rstie!n)
 
@@ -11102,8 +11100,8 @@ rstbe!n_8 = n
 If IsNull(rstbe!g_min) Then
 If n <= rstae!n_max1 Or (rstae!gear_v_max = 8 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
 rstbe!g_min = 8
-End If
-End If
+Else: End If
+Else: End If
 rstbe.Update
 
 rstie.MoveFirst
@@ -11121,7 +11119,7 @@ If rstbe!n_8 > rstke!n Then
         
         Loop
         
-        End If
+        Else: End If
 
 Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_8 - rstie!n)
 
@@ -11172,8 +11170,8 @@ rstbe!n_9 = n
 If IsNull(rstbe!g_min) Then
 If n <= rstae!n_max1 Or (rstae!gear_v_max = 9 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
 rstbe!g_min = 9
-End If
-End If
+Else: End If
+Else: End If
 rstbe.Update
 
 rstie.MoveFirst
@@ -11191,7 +11189,7 @@ If rstbe!n_9 > rstke!n Then
         
         Loop
         
-        End If
+        Else: End If
 
 Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_9 - rstie!n)
 
@@ -11243,8 +11241,8 @@ Else
         If IsNull(rstbe!g_min) Then
         If n <= rstae!n_max1 Or (rstae!gear_v_max = 10 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
         rstbe!g_min = 10
-        End If
-        End If
+        Else: End If
+        Else: End If
         rstbe.Update
         
         rstie.MoveFirst
@@ -11262,7 +11260,7 @@ Else
                 
                 Loop
                 
-        End If
+        Else: End If
         
         Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_10 - rstie!n)
         
@@ -11319,7 +11317,7 @@ DoCmd.OpenQuery "A gearshift_table n_kl_NEDC"
 GoTo weiter
 
 
-End If
+Else: End If
 
 ' Determination of the highest possible gear according to annex 2, paragraphs 3.3 and 3.5 ############################################################################
 
@@ -11336,7 +11334,7 @@ rstbe.edit
 rstbe!g_max = 10
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 ElseIf Not IsNull(rstbe!n_10) And Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim <= rstae!t_end_start_phase And ((rstbe!v * rstae!ndv_10 >= rstae!n_min_drive_start_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_10 >= rstae!n_min_drive_start_down And rstbe!a < a_thr)) Then
 
@@ -11345,10 +11343,10 @@ rstbe.edit
 rstbe!g_max = 10
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 
-End If
+Else: End If
 
 If Not IsNull(rstbe!n_9) And (IsNull(rstae!n_min_drive_start_up) Or (Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim > rstae!t_end_start_phase)) And ((rstbe!v * rstae!ndv_9 >= rstae!n_min_drive_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_9 >= rstae!n_min_drive_down And rstbe!a < a_thr)) Then
 
@@ -11357,7 +11355,7 @@ rstbe.edit
 rstbe!g_max = 9
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 ElseIf Not IsNull(rstbe!n_9) And Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim <= rstae!t_end_start_phase And ((rstbe!v * rstae!ndv_9 >= rstae!n_min_drive_start_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_9 >= rstae!n_min_drive_start_down And rstbe!a < a_thr)) Then
 
@@ -11366,9 +11364,9 @@ rstbe.edit
 rstbe!g_max = 9
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
-End If
+Else: End If
 
 If Not IsNull(rstbe!n_8) And (IsNull(rstae!n_min_drive_start_up) Or (Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim > rstae!t_end_start_phase)) And ((rstbe!v * rstae!ndv_8 >= rstae!n_min_drive_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_8 >= rstae!n_min_drive_down And rstbe!a < a_thr)) Then
 
@@ -11377,7 +11375,7 @@ rstbe.edit
 rstbe!g_max = 8
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 ElseIf Not IsNull(rstbe!n_8) And Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim <= rstae!t_end_start_phase And ((rstbe!v * rstae!ndv_8 >= rstae!n_min_drive_start_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_8 >= rstae!n_min_drive_start_down And rstbe!a < a_thr)) Then
 
@@ -11386,9 +11384,9 @@ rstbe.edit
 rstbe!g_max = 8
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
-End If
+Else: End If
 
 If Not IsNull(rstbe!n_7) And (IsNull(rstae!n_min_drive_start_up) Or (Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim > rstae!t_end_start_phase)) And ((rstbe!v * rstae!ndv_7 >= rstae!n_min_drive_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_7 >= rstae!n_min_drive_down And rstbe!a < a_thr)) Then
 
@@ -11397,7 +11395,7 @@ rstbe.edit
 rstbe!g_max = 7
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 ElseIf Not IsNull(rstbe!n_7) And Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim <= rstae!t_end_start_phase And ((rstbe!v * rstae!ndv_7 >= rstae!n_min_drive_start_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_7 >= rstae!n_min_drive_start_down And rstbe!a < a_thr)) Then
 
@@ -11406,9 +11404,9 @@ rstbe.edit
 rstbe!g_max = 7
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
-End If
+Else: End If
 
 If Not IsNull(rstbe!n_6) And (IsNull(rstae!n_min_drive_start_up) Or (Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim > rstae!t_end_start_phase)) And ((rstbe!v * rstae!ndv_6 >= rstae!n_min_drive_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_6 >= rstae!n_min_drive_down And rstbe!a < a_thr)) Then
 
@@ -11417,7 +11415,7 @@ rstbe.edit
 rstbe!g_max = 6
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 ElseIf Not IsNull(rstbe!n_6) And Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim <= rstae!t_end_start_phase And ((rstbe!v * rstae!ndv_6 >= rstae!n_min_drive_start_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_6 >= rstae!n_min_drive_start_down And rstbe!a < a_thr)) Then
 
@@ -11426,9 +11424,9 @@ rstbe.edit
 rstbe!g_max = 6
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
-End If
+Else: End If
 
 If Not IsNull(rstbe!n_5) And (IsNull(rstae!n_min_drive_start_up) Or (Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim > rstae!t_end_start_phase)) And ((rstbe!v * rstae!ndv_5 >= rstae!n_min_drive_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_5 >= rstae!n_min_drive_down And rstbe!a < a_thr)) Then
 
@@ -11437,7 +11435,7 @@ rstbe.edit
 rstbe!g_max = 5
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 ElseIf Not IsNull(rstbe!n_5) And Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim <= rstae!t_end_start_phase And ((rstbe!v * rstae!ndv_5 >= rstae!n_min_drive_start_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_5 >= rstae!n_min_drive_start_down And rstbe!a < a_thr)) Then
 
@@ -11446,9 +11444,9 @@ rstbe.edit
 rstbe!g_max = 5
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
-End If
+Else: End If
 
 If Not IsNull(rstbe!n_4) And (IsNull(rstae!n_min_drive_start_up) Or (Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim > rstae!t_end_start_phase)) And ((rstbe!v * rstae!ndv_4 >= rstae!n_min_drive_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_4 >= rstae!n_min_drive_down And rstbe!a < a_thr)) Then
 
@@ -11457,7 +11455,7 @@ rstbe.edit
 rstbe!g_max = 4
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 ElseIf Not IsNull(rstbe!n_4) And Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim <= rstae!t_end_start_phase And ((rstbe!v * rstae!ndv_4 >= rstae!n_min_drive_start_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_4 >= rstae!n_min_drive_start_down And rstbe!a < a_thr)) Then
 
@@ -11466,9 +11464,9 @@ rstbe.edit
 rstbe!g_max = 4
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
-End If
+Else: End If
 
 If Not IsNull(rstbe!n_3) And (IsNull(rstae!n_min_drive_start_up) Or (Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim > rstae!t_end_start_phase)) And ((rstbe!v * rstae!ndv_3 >= rstae!n_min_drive_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_3 >= rstae!n_min_drive_down And rstbe!a < a_thr)) Then
 
@@ -11477,7 +11475,7 @@ rstbe.edit
 rstbe!g_max = 3
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
 ElseIf Not IsNull(rstbe!n_3) And Not IsNull(rstae!n_min_drive_start_up) And rstbe!tim <= rstae!t_end_start_phase And ((rstbe!v * rstae!ndv_3 >= rstae!n_min_drive_start_up And rstbe!a >= a_thr) Or (rstbe!v * rstae!ndv_3 >= rstae!n_min_drive_start_down And rstbe!a < a_thr)) Then
 
@@ -11486,18 +11484,18 @@ rstbe.edit
 rstbe!g_max = 3
 rstbe.Update
 GoTo weiter_max
-End If
+Else: End If
 
-End If
+Else: End If
 
 If Not IsNull(rstbe!n_2) And rstbe!v * rstae!ndv_2 >= 0.9 * rstae!idling_speed Then
 rstbe.edit
 rstbe!g_max = 2
 If rstbe!g_min > 2 Then
 rstbe!g_min = 2
-End If
+Else: End If
 rstbe.Update
-End If
+Else: End If
 
 weiter_max:
 
@@ -11530,9 +11528,9 @@ rstde.edit
 rstde!g_max = 1
 rstde.Update
 
-End If
+Else: End If
 
-End If
+Else: End If
 
 If rstbe!g_max <= 1 And rstce!g_max = 1 And rstde!g_max = 2 And rstae!ndv_2 * rstde!v < 1.15 * rstae!idling_speed Then
 
@@ -11540,7 +11538,7 @@ rstde.edit
 rstde!g_max = 1
 rstde.Update
 
-End If
+Else: End If
 
 
 
@@ -11589,7 +11587,7 @@ rstbe.edit
 rstbe!g_max = 3
 rstbe.Update
 
-End If
+Else: End If
 
 ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 3 Then
 
@@ -11603,7 +11601,7 @@ rstbe.edit
 rstbe!g_max = 4
 rstbe.Update
 
-End If
+Else: End If
 
 ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 4 Then
 
@@ -11617,7 +11615,7 @@ rstbe.edit
 rstbe!g_max = 5
 rstbe.Update
 
-End If
+Else: End If
 
 ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 5 Then
 
@@ -11631,7 +11629,7 @@ rstbe.edit
 rstbe!g_max = 6
 rstbe.Update
 
-End If
+Else: End If
 
 ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 6 Then
 
@@ -11645,7 +11643,7 @@ rstbe.edit
 rstbe!g_max = 7
 rstbe.Update
 
-End If
+Else: End If
 
 ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 7 Then
 
@@ -11659,7 +11657,7 @@ rstbe.edit
 rstbe!g_max = 7
 rstbe.Update
 
-End If
+Else: End If
 
 ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 8 Then
 
@@ -11673,7 +11671,7 @@ rstbe.edit
 rstbe!g_max = 9
 rstbe.Update
 
-End If
+Else: End If
 
 ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 9 Then
 
@@ -11682,9 +11680,9 @@ rstbe.edit
 rstbe!g_max = 10
 rstbe.Update
 
-End If
+Else: End If
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -12053,7 +12051,7 @@ If Rahmen36 = 3 Then
 GoTo weiter_NEDC_2
 
 
-End If
+Else: End If
 
 
 
@@ -12124,7 +12122,7 @@ If P_tot > rstce!P_max And v >= 1 And n >= n_min_wot Then
         
         v_de = rstde!v
         
-        End If
+        Else: End If
     
     n_de = rstde!nc * v_de / rstde!v
     
@@ -12150,7 +12148,7 @@ If P_tot > rstce!P_max And v >= 1 And n >= n_min_wot Then
         
         Loop
         
-        End If
+        Else: End If
         
         If n_de = rstke!n Then
         
@@ -12185,7 +12183,7 @@ If P_tot > rstce!P_max And v >= 1 And n >= n_min_wot Then
     
     rstde.Update
     
-End If
+Else: End If
         
 loopend:
 
@@ -12360,7 +12358,7 @@ rstce.Update
 
 MsgBox "You chose a n_min_drive_up value which is higher than n_min_drive_start_up, please correct n_min_drive_start_up!"
 
-End If
+Else: End If
 
 rstce.Close
 
@@ -12506,9 +12504,9 @@ If Not rstae.EOF Then
 
 t_last_exhigh = rstae!t_last
 
-End If
+Else: End If
 
-End If
+Else: End If
 
 ElseIf rstae!cycle_part = 4 Then
 
@@ -12517,7 +12515,7 @@ t_last_high = 0
 
 t_last_exhigh = rstae!t_last
 
-End If
+Else: End If
 
 
 rstae.Close
@@ -12549,8 +12547,8 @@ rstae.MoveNext
 missing_time_exhigh3 = rstae!missing_time
 'MsgBox "missing_time_exhigh3 = " & missing_time_exhigh3
 
-End If
-End If
+Else: End If
+Else: End If
 
 ElseIf rstae!cycle_part = 3 Then
 
@@ -12564,7 +12562,7 @@ If Not rstae.EOF Then
 
 missing_time_exhigh = rstae!missing_time
 
-End If
+Else: End If
 
 ElseIf rstae!cycle_part = 4 Then
 
@@ -12573,7 +12571,7 @@ missing_time_high = 0
 
 missing_time_exhigh = rstae!missing_time
 
-End If
+Else: End If
 
 rstae.Close
 
@@ -12725,7 +12723,7 @@ rstbe!v = rstae!v_cap
 
 rstbe.Update
 
-End If
+Else: End If
 
 Loop
 
@@ -12851,7 +12849,7 @@ rstbe!v = rstae!v_cap
 
 rstbe.Update
 
-End If
+Else: End If
 
 Loop
 
@@ -12859,7 +12857,7 @@ GoTo cap_end
 
 '#################################################################
 
-End If
+Else: End If
 
 If t_last_high = 0 Then
 
@@ -13028,7 +13026,7 @@ rstbe!v = rstae!v_cap
 
 rstbe.Update
 
-End If
+Else: End If
 
 Loop
 
@@ -13057,7 +13055,7 @@ rstbe!v = rstae!v_cap
 
 rstbe.Update
 
-End If
+Else: End If
 
 Loop
 
@@ -13363,7 +13361,7 @@ If Rahmen36 = 3 Then
 GoTo weiter_NEDC_2
 
 
-End If
+Else: End If
 
 
 
@@ -13439,7 +13437,7 @@ rstbe!clutch = "engaged"
 
 rstbe.Update
 
-End If
+Else: End If
 
 rstbe.MoveNext
 
@@ -13470,7 +13468,7 @@ rstbe!g_max = 1
 rstbe!clutch = "disengaged"
 rstbe.Update
 
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -13577,14 +13575,14 @@ ElseIf rstbe!gear = 1 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
                           
             Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (n - rstie!n)
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
         
-    End If
+    Else: End If
     
     rstbe.edit
     
@@ -13596,13 +13594,13 @@ ElseIf rstbe!gear = 1 And rstbe!v >= 1 Then
         
         rstbe!clutch = "disengaged"
         
-        End If
+        Else: End If
         
         If (n < n_min_wot Or n < rstae!idling_speed * rstae!facc_g2) And rstbe!a >= 0 Then
                        
         rstbe!clutch = "undefined"
         
-        End If
+        Else: End If
         
                
         rstbe!nc = n
@@ -13645,14 +13643,14 @@ ElseIf rstbe!gear = 2 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
                           
             Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (n - rstie!n)
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
          
-    End If
+    Else: End If
     
     rstbe.edit
     
@@ -13664,13 +13662,13 @@ ElseIf rstbe!gear = 2 And rstbe!v >= 1 Then
         
         rstbe!clutch = "disengaged"
         
-        End If
+        Else: End If
         
         If (n < n_min_wot Or n < rstae!idling_speed * rstae!facc_g2) And rstbe!a >= 0 Then
                        
         rstbe!clutch = "undefined"
         
-        End If
+        Else: End If
         
         rstbe!nc = n
         rstbe!n_kl = Int(n / 10 + 0.5) * 10
@@ -13710,7 +13708,7 @@ ElseIf rstbe!gear = 3 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
             
                           
@@ -13718,7 +13716,7 @@ ElseIf rstbe!gear = 3 And rstbe!v >= 1 Then
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
    
-    End If
+    Else: End If
     
     rstbe.edit
     
@@ -13764,7 +13762,7 @@ ElseIf rstbe!gear = 4 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
             
                           
@@ -13772,7 +13770,7 @@ ElseIf rstbe!gear = 4 And rstbe!v >= 1 Then
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
    
-    End If
+    Else: End If
     
     rstbe.edit
     
@@ -13821,7 +13819,7 @@ ElseIf rstbe!gear = 5 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
             
                           
@@ -13829,7 +13827,7 @@ ElseIf rstbe!gear = 5 And rstbe!v >= 1 Then
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
    
-    End If
+    Else: End If
     
     rstbe.edit
     
@@ -13874,7 +13872,7 @@ ElseIf rstbe!gear = 6 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
             
                           
@@ -13882,7 +13880,7 @@ ElseIf rstbe!gear = 6 And rstbe!v >= 1 Then
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
    
-    End If
+    Else: End If
     
     rstbe.edit
     
@@ -13926,7 +13924,7 @@ ElseIf rstbe!gear = 7 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
             
                           
@@ -13934,7 +13932,7 @@ ElseIf rstbe!gear = 7 And rstbe!v >= 1 Then
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
    
-    End If
+    Else: End If
     
     rstbe.edit
     
@@ -13978,7 +13976,7 @@ ElseIf rstbe!gear = 8 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
             
                           
@@ -13986,7 +13984,7 @@ ElseIf rstbe!gear = 8 And rstbe!v >= 1 Then
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
    
-    End If
+    Else: End If
     
     rstbe.edit
             
@@ -14030,14 +14028,14 @@ ElseIf rstbe!gear = 9 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
                         
             Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (n - rstie!n)
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
    
-    End If
+    Else: End If
     
     rstbe.edit
      
@@ -14081,7 +14079,7 @@ ElseIf rstbe!gear = 10 And rstbe!v >= 1 Then
             
             Loop
             
-     End If
+     Else: End If
             
             
                           
@@ -14089,7 +14087,7 @@ ElseIf rstbe!gear = 10 And rstbe!v >= 1 Then
             Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
             
    
-    End If
+    Else: End If
     
     rstbe.edit
           
@@ -14102,7 +14100,7 @@ ElseIf rstbe!gear = 10 And rstbe!v >= 1 Then
             
         rstbe.Update
 
-End If
+Else: End If
 
 '###########################################################################################################
 
@@ -14111,7 +14109,7 @@ If flag3 = 1 Then
 
 GoTo weiter_flag3_1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -14149,7 +14147,7 @@ Else
 
 End If
 
-End If
+Else: End If
 
 weiter_flag3_1:
 
@@ -14186,7 +14184,7 @@ If rstbe!v >= 1 And rstce!v < 1 And (rstbe!gear = 0 Or rstbe!clutch = "disengage
     rstbe.MoveNext
     k = k - 1
     
-    End If
+    Else: End If
     
     For i = 1 To k
     
@@ -14198,7 +14196,7 @@ If rstbe!v >= 1 And rstce!v < 1 And (rstbe!gear = 0 Or rstbe!clutch = "disengage
     rstce!gear = 0
     rstce!gear_modification = rstce!gear_modification & "9d) correct gear to 0 before stop, "
     
-    End If
+    Else: End If
     
     rstce.Update
    
@@ -14269,7 +14267,7 @@ ElseIf n_min_drive_start_up > 2 * rstce!n_min_drive_set Then
 
 MsgBox "n_min_drive_start_up must not exceed 2*n_min_drive_set!"
 
-End If
+Else: End If
 
 Text230 = Null
 Text234 = Null
@@ -14415,7 +14413,7 @@ DoCmd.OpenQuery "A ST_check_tend_cold delete"
         
         End If
 
-    End If
+    Else: End If
 
 rstce.Close
 
@@ -14601,8 +14599,8 @@ rstce!gear_modification = rstce!gear_modification & "4c) other cycles, corr 424 
 rstce.Update
 m = m + 1
 
-End If
-End If
+Else: End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -14610,7 +14608,7 @@ rstde.MoveNext
 
 Loop
 
-End If
+Else: End If
 
 
 ' 4(c) of annex 2 #################################################################################################
@@ -14685,7 +14683,7 @@ rstce.Update
 If rstce!tim <> rstde!tim - 1 Then
 MsgBox "Error1 " & rstce!tim & ", " & rstde!tim
 Exit Sub
-End If
+Else: End If
 
 
 ElseIf i > 4 Then
@@ -14700,10 +14698,10 @@ If rstce!tim <> rstde!tim - 1 Then
 MsgBox "Error2 " & rstce!tim & ", " & rstde!tim
 
 Exit Sub
-End If
+Else: End If
 
 
-End If
+Else: End If
 
 ElseIf rstbe!gear > 0 And rstce!gear = rstbe!gear + 2 And rstde!gear = rstce!gear Then
 
@@ -14751,7 +14749,7 @@ rstce.Update
 If rstce!tim <> rstde!tim - 1 Then
 MsgBox "Error3"
 Exit Sub
-End If
+Else: End If
 
 
 ElseIf i > 4 Then
@@ -14765,12 +14763,12 @@ Next k
 If rstce!tim <> rstde!tim - 1 Then
 MsgBox "Error4"
 Exit Sub
-End If
+Else: End If
 
 
-End If
+Else: End If
 
-End If
+Else: End If
 
 '###########################################################################################################
 
@@ -14787,7 +14785,7 @@ n_4c = 1
 
 GoTo weiter_n_4c
 
-End If
+Else: End If
 
 
 ' end of 4(c) ###################################################################################################
@@ -14901,7 +14899,7 @@ rstce!gear_modification = rstce!gear_modification & "6_8) no upshift during dec,
 rstce.Update
 m = m + 1
 
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -15014,7 +15012,7 @@ If rstge!v < rstfe!v And rstfe!v < rstee!v And rstee!v < rstde!v And rstde!v < r
             rstge.Update
             m = m + 1
             
-            End If
+            Else: End If
             
             For i = 1 To k
             
@@ -15050,7 +15048,7 @@ If rstge!v < rstfe!v And rstfe!v < rstee!v And rstee!v < rstde!v And rstde!v < r
         If rstfe!tim - rstee!tim <> 1 Then
         MsgBox "6_1 ee " & rstee!tim & ", 6_1 fe " & rstfe!tim
         Exit Sub
-        End If
+        Else: End If
     
      ElseIf rstbe!gear = rstce!gear - 2 And (rstge!gear < rstce!gear Or rstfe!gear < rstce!gear) Then
     
@@ -15087,7 +15085,7 @@ If rstge!v < rstfe!v And rstfe!v < rstee!v And rstee!v < rstde!v And rstde!v < r
             rstge.Update
             m = m + 1
             
-            End If
+            Else: End If
             
             For i = 1 To k
             
@@ -15123,7 +15121,7 @@ If rstge!v < rstfe!v And rstfe!v < rstee!v And rstee!v < rstde!v And rstde!v < r
         If rstfe!tim - rstee!tim <> 1 Then
         MsgBox "6_2 ee " & rstee!tim & ", 6_2 fe " & rstfe!tim
         Exit Sub
-        End If
+        Else: End If
     
     
 
@@ -15152,11 +15150,11 @@ If rstge!v < rstfe!v And rstfe!v < rstee!v And rstee!v < rstde!v And rstde!v < r
         If rstfe!tim - rstee!tim <> 1 Then
         MsgBox "6_3 ee " & rstee!tim & ", 6_3 fe " & rstfe!tim
         Exit Sub
-        End If
+        Else: End If
     
     End If
     
-End If
+Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
@@ -15241,7 +15239,7 @@ weiter_stop_loop:
                
         Next i
         
-        End If
+        Else: End If
         
     GoTo weiter_stop
     
@@ -15262,7 +15260,7 @@ weiter_stop_loop:
     
     GoTo weiter3
     
-    End If
+    Else: End If
     
     v_2 = rstce!v
     
@@ -15276,7 +15274,7 @@ weiter_stop_loop:
         rstce.Update
         m = m + 1
         
-    End If
+    Else: End If
     
     GoTo weiter_stop_loop
     
@@ -15356,7 +15354,7 @@ rstfe!gear = rstge!gear
 rstfe!gear_modification = rstfe!gear_modification & "7a1b) i,i,i,g4<i,g5<=g4,g6<=g5 -> i,i,i,0,g6,g6, "
 If rstge!gear = 0 Then
 rstfe!clutch = "engaged, gear lever in neutral"
-End If
+Else: End If
 m = m + 1
 Else
 rstfe!gear_modification = rstfe!gear_modification & "7a1b) Necessary gear modification not possible, "
@@ -15365,8 +15363,8 @@ End If
 rstfe.Update
 
 
-End If
-End If
+Else: End If
+Else: End If
 
 
 rstbe.MoveNext
@@ -15537,8 +15535,8 @@ rstfe.Update
 
 End If
 
-End If
-End If
+Else: End If
+Else: End If
 
 
 rstbe.MoveNext
@@ -15604,7 +15602,7 @@ m = m + 1
 rstfe.Update
 
 
-End If
+Else: End If
 
 
 rstbe.MoveNext
@@ -15663,8 +15661,8 @@ m = m + 1
 rstce.Update
 
 
-End If
-End If
+Else: End If
+Else: End If
 
 
 rstbe.MoveNext
@@ -15740,7 +15738,7 @@ rstee!gear_modification = rstee!gear_modification & "8a) >x,>x,x,x,0,0,0 -> >x,>
 m = m + 1
 rstee.Update
 
-End If
+Else: End If
 
 
 '8) >x,>x,0,x,x,0,0 -> >x,>x,0,0,0,0,0, annex 2, section 4 (f)
@@ -15766,7 +15764,7 @@ rstfe.Update
 
 
 
-End If
+Else: End If
 
 
 
