@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 from pandas import IndexSlice as _ix
 
-from wltp import formulae, vmax
+from wltp import downscale, vmax
 
 from . import vehdb
 
@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 
 
 def test_v_max(h5db):
-    from wltp import formulae
     from . import conftest
 
     veh_samples = None
@@ -38,7 +37,7 @@ def test_v_max(h5db):
     # veh_samples = [31]  # [23]
 
     def make_v_maxes(vehnum, mdl: dict):
-        props, Pwot, n2vs = conftest.load_vehicle_data(h5db, vehnum)
+        props, Pwot, n2vs = vehdb.load_vehicle_data(h5db, vehnum)
         rec = vmax.calc_v_max(
             mdl, Pwot["Pwot"], n2vs, props.f0, props.f1, props.f2, 0.1
         )

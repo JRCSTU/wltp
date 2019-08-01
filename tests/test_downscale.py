@@ -15,19 +15,19 @@ import pandas as pd
 import pytest
 
 from wltp import model
-from wltp.formulae import (
+from wltp.downscale import (
     calc_downscale_factor,
     decide_wltc_class,
     downscale_by_recursing,
     downscale_by_scaling,
     downscale_class_velocity,
-    round1,
 )
+from wltp.invariants import round1
 
 log = logging.getLogger(__name__)
 
 
-def test_smoke():
+def test_smoke1():
     logging.getLogger().setLevel(logging.DEBUG)
 
     test_mass = 1577.3106
@@ -74,6 +74,18 @@ def test_smoke():
         # raise AssertionError(
         #     "Class(%s), f_dnscl(%s)" % (wclass, f_downscale)
         # )
+
+
+def test_smoke2():
+    wclasses = model._get_wltc_data()["classes"]
+    test_data = [
+        (pd.Series(wclass["cycle"]), wclass["downscale"]["phases"], f_downscale)
+        for wclass in wclasses.values()
+        for f_downscale in np.linspace(0.1, 1, 10)
+    ]
+
+    for (V, phases, f_downscale) in test_data:
+        downscale_class_velocity(V, f_downscale, phases)
 
 
 _wltc = model._get_wltc_data()

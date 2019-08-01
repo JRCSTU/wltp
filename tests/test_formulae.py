@@ -14,25 +14,12 @@ import pandas as pd
 import pytest
 
 from wltp import experiment, model
-from wltp.formulae import calc_default_resistance_coeffs, downscale_class_velocity
-from wltp import model, formulae
+from wltp.power import calc_default_resistance_coeffs
 
 from . import vehdb
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
-
-
-def test_smoke_downscaling():
-    wclasses = model._get_wltc_data()["classes"]
-    test_data = [
-        (pd.Series(wclass["cycle"]), wclass["downscale"]["phases"], f_downscale)
-        for wclass in wclasses.values()
-        for f_downscale in np.linspace(0.1, 1, 10)
-    ]
-
-    for (V, phases, f_downscale) in test_data:
-        downscale_class_velocity(V, f_downscale, phases)
 
 
 def testNparray2Bytes():

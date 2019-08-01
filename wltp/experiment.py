@@ -56,7 +56,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from . import formulae, model
+from . import invariants, power, pwot, vmax, downscale, model
 
 log = logging.getLogger(__name__)
 
@@ -141,7 +141,7 @@ class Experiment(object):
         if res_coeffs:
             (f0, f1, f2) = res_coeffs
         else:
-            (f0, f1, f2) = formulae.calc_default_resistance_coeffs(
+            (f0, f1, f2) = power.calc_default_resistance_coeffs(
                 test_mass, params["resistance_coeffs_regression_curves"]
             )
         f_inertial = params["f_inertial"]
@@ -168,14 +168,14 @@ class Experiment(object):
 
             ## Keep same columns/props, not to surprise post-processing scripts.
             #
-            V = cycle_run["v_class"] = formulae.round1(V, 1)
+            V = cycle_run["v_class"] = invariants.round1(V, 1)
             params["f_downscale"] = None
         else:
             ## Decide WLTC-class.
             #
             wltc_class = vehicle.get("wltc_class")
             if wltc_class is None:
-                wltc_class = formulae.decide_wltc_class(self.wltc, p_m_ratio, v_max)
+                wltc_class = downscale.decide_wltc_class(self.wltc, p_m_ratio, v_max)
                 vehicle["wltc_class"] = wltc_class
             else:
                 log.info("Found forced wltc_class(%s).", wltc_class)
@@ -196,12 +196,12 @@ class Experiment(object):
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
                 downsc_coeffs = dsc_data["factor_coeffs"]
-                f_downscale = formulae.calc_downscale_factor(
+                f_downscale = downscale.calc_downscale_factor(
                     p_max_values,
                     downsc_coeffs,
                     p_rated,
                     f_downscale_threshold,
-                    f_downscale_decimals,
+                    f_downscale_decimals,  # TODO: DROP f_downscale_decimals, in invariants
                     test_mass,
                     f0,
                     f1,
@@ -211,15 +211,15 @@ class Experiment(object):
                 params["f_downscale"] = f_downscale
 
             if f_downscale > 0:
-                V = formulae.downscale_class_velocity(V, f_downscale, phases)
+                V = downscale.downscale_class_velocity(V, f_downscale, phases)
 
-                V = formulae.round1(V, v_decimals)
+                V = invariants.round1(V, v_decimals)
 
             cycle_run["v_target"] = V
 
         V = cycle_run["v_target"]  # as Series
         A = calcAcceleration(V)
-        P_REQ = formulae.calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial)
+        P_REQ = power.calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial)
         cycle_run["a_target"] = A
         cycle_run["p_required"] = P_REQ
 

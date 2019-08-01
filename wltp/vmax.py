@@ -11,13 +11,13 @@ import functools as fnt
 import logging
 from collections import namedtuple
 from typing import List, Union
-from wltp import formulae
+from . import power, pwot
+from .invariants import v_decimals, v_step, vround
 
 
 import numpy as np
 import pandas as pd
 from pandalone import mappings, pandata
-from scipy import interpolate, optimize
 
 from .utils import make_xy_df
 
@@ -25,8 +25,6 @@ log = logging.getLogger(__name__)
 
 #: column names
 c = mappings.Pstep()
-v_decimals = 1
-_v_step = 10 ** -v_decimals
 
 
 #: Solution results of the equation finding the v-max of each gear:
@@ -34,11 +32,6 @@ _v_step = 10 ** -v_decimals
 #:   - g_max: the number of the gear producing v_max
 #:   - wot: intermediate curves for solving the equation
 VMaxRec = namedtuple("VMaxRec", "v_max  g_max determined_by_n_lim  wot")
-
-#: Not the rounding of the GTR, used for Vs already close to grid,
-#: e.g. to index with results from operations on the grid.
-#: TODO: move to formulae (or utils).
-vround = fnt.partial(formulae.round1, decimals=v_decimals)
 
 
 def gear_name(g):
@@ -55,51 +48,6 @@ def veh_name(g):
 
 def veh_names(vlist):
     return [veh_name(v) for v in vlist]
-
-
-def _interpolate_wot_on_v_grid(wot: pd.DataFrame):
-    """Return a new linearly interpolated df on v with v_decimals. """
-    V = wot[c.v]
-
-    ## Clip V-grid inside min/max of wot-N.
-    #
-    v_precision = 10 ** v_decimals
-    v_wot_min = vround(np.ceil(V.min() * v_precision) / v_precision)
-    v_wot_max = vround(np.floor(V.max() * v_precision) / v_precision)
-
-    ## Using np.arange() because np.linspace() steps are not reliably spaced,
-    #  and apply the GTR-rounding.
-    #
-    V_grid = vround(np.arange(v_wot_min, v_wot_max, _v_step))
-    assert V_grid.size, ("Empty wot?", v_wot_min, v_wot_max)
-    ## Add endpoint manually because np.arange() is not adding it reliably.
-    #
-    if V_grid[-1] != v_wot_max:
-        V_grid = np.hstack((V_grid, [v_wot_max]))
-
-    assert 0 <= V_grid[0] - V.min() < _v_step, (
-        "V-grid start below/too-far min(N_wot): ",
-        V.min(),
-        v_wot_min,
-        V_grid[0:7],
-        _v_step,
-    )
-    assert 0 <= V.max() - V_grid[-1] < _v_step, (
-        "V-grid end above/too-far max(N_wot): ",
-        V_grid[-7:],
-        v_wot_max,
-        V.max(),
-        _v_step,
-    )
-
-    def interp(C):
-        return interpolate.interp1d(V, C, copy=False, assume_sorted=True)(V_grid)
-
-    wot = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
-    ## Throw-away the interpolated v, it's inaccurate, use the "x" (v-grid) instead.
-    wot.index = wot[c.v] = V_grid
-
-    return wot
 
 
 def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
@@ -151,7 +99,7 @@ def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
                 "Solution is not the last positive p_remain:",
                 roots_head[0],
                 v_max,
-                wot.loc[v_max - 5 * _v_step : v_max + 5 * _v_step, c.p_remain],
+                wot.loc[v_max - 5 * v_step : v_max + 5 * v_step, c.p_remain],
             )
 
     return VMaxRec(v_max, None, determined_by_n_lim, wot)
@@ -176,9 +124,9 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
 
     """
     wot[c.v] = wot.index / n2v
-    wot[c.p_road_loads] = formulae.calc_road_load_power(wot[c.v], f0, f1, f2)
+    wot[c.p_road_loads] = power.calc_road_load_power(wot[c.v], f0, f1, f2)
     wot[c.p_remain] = wot[c.p_avail] - wot[c.p_road_loads]
-    grid_wot = _interpolate_wot_on_v_grid(wot)
+    grid_wot = pwot.interpolate_wot_on_v_grid(wot)
     return _find_p_remain_root(grid_wot)._replace(g_max=g)
 
 
