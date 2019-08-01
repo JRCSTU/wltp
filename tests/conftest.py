@@ -11,17 +11,6 @@ import pytest
 _h5db = "Notebooks/VehData/WltpGS-msaccess.h5"
 
 
-def _load_vehicle_data(h5db, vehnum):
-    iprops, Pwot = vehdb.load_vehicle(h5db, vehnum, "iprop", "pwot")
-    n2vs = vehdb.load_n2v_gear_ratios(iprops)
-    return iprops, Pwot, n2vs
-
-
-def _load_vehicles(h5db):
-    veh_nums = vehdb.all_vehnums(h5db)
-    return [_load_vehicle_data(h5db, vehnum) for vehnum in veh_nums]
-
-
 @pytest.fixture
 def h5db():
     return "Notebooks/VehData/WltpGS-msaccess.h5"

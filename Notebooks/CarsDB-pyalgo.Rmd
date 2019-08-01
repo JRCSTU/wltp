@@ -48,7 +48,7 @@ if proj_dir not in sys.path:
 
 import vehdb
 
-log = logging.getLogger('CarsDB-phase1a.ipynb')
+log = logging.getLogger('CarsDB-pyalgo.ipynb')
 logging.basicConfig(
     level=logging.INFO, 
     format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
@@ -60,17 +60,9 @@ logging.basicConfig(
 ## DEFINITIONS
 #
 inp_h5fname = 'VehData/WltpGS-msaccess.h5'
-out_h5fname = 'VehData/WltpGS-python.h5'
+out_h5fname = 'VehData/WltpGS-pyalgo.h5'
 # Test cars delivered by Heinz to ank on 4 Jun 2019
-heinzdb_fpath="VehData/WLTP_GS_calculation_28052019-116cars.accdb"
-xlfname = Path("VehData/vehicle_info-116.xlsx")
 c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
-```
-
-```{python}
-## PROVENANCE: discover how it came to be, at a later time
-#  (might take 10'')
-root_prov_info = vehdb.provenance_info(files=[heinzdb_fpath])
 ```
 
 ```{python}
@@ -86,7 +78,7 @@ vehdb.print_nodes(out_h5fname)
 def store_python_results(
     inph5,
     outh5,
-    vehile_nums: Seq[int]=None,
+    vehile_nums: Seq[int] = None,
     props_group_suffix="oprop",
     cycle_group_suffix="cycle",
     no_write=False,
@@ -105,7 +97,7 @@ def store_python_results(
     """
 
     def run_vehicles_with_pythons(h5db):
-        veh_nums =  vehdb.all_vehnums(h5db) if vehile_nums is None else vehile_nums
+        veh_nums = vehdb.all_vehnums(h5db) if vehile_nums is None else vehile_nums
         for vehnum in veh_nums:
             log.info("Processing veh(v%0.3i)...", vehnum)
             try:
@@ -117,28 +109,21 @@ def store_python_results(
     def store_vehicles(h5db, vehnum, oprops, cycle_run):
         if no_write:
             return
-        
+
         g = vehdb.vehnode(vehnum, props_group_suffix)
         h5db.put(g, pd.Series(oprops))
-        vehdb.provenir_h5node(
-            h5db,
-            g,
-            title="Wltp-run generated old pghase-1a python",
-            base=root_prov_info,
-        )
+        vehdb.provenir_h5node(h5db, g, title="Wltp-run generated old pghase-1a python")
 
         g = vehdb.vehnode(vehnum, cycle_group_suffix)
         h5db.put(g, cycle_run)
-        vehdb.provenir_h5node(
-            h5db, g, title="Wltp-run generated old phase-1a python", base=root_prov_info
-        )
+        vehdb.provenir_h5node(h5db, g, title="Wltp-run generated old phase-1a python")
 
     for vehnum, (oprops, cycle_run) in vehdb.do_h5(inph5, run_vehicles_with_pythons):
         vehdb.do_h5(outh5, store_vehicles, vehnum, oprops, cycle_run)
 
 
 with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname) as outh5:
-    store_python_results(inph5, outh5)#, [59])
+    store_python_results(inph5, outh5)  # , [59])
 ```
 
 ```{python}
@@ -147,7 +132,7 @@ vehdb.print_nodes(out_h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x100 HDF5: 135Mb-->24Mb in 20s.
+## COMPRESS x8 HDF5: 143Mb-->18Mb in ~6s.
 #
 # !ls -lh {out_h5fname}
 # !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:blosclz -o {out_h5fname}.tmp

@@ -38,20 +38,33 @@ def test_v_max(h5db):
     # veh_samples = [31]  # [23]
 
     def make_v_maxes(vehnum, mdl: dict):
-        iprops, Pwot, n2vs = conftest._load_vehicle_data(h5db, vehnum)
+        props, Pwot, n2vs = conftest.load_vehicle_data(h5db, vehnum)
         rec = vmax.calc_v_max(
-            mdl, Pwot["Pwot"], n2vs, iprops.f0, iprops.f1, iprops.f2, 0.1
+            mdl, Pwot["Pwot"], n2vs, props.f0, props.f1, props.f2, 0.1
         )
 
-        return (
-            iprops["v_max"],
-            rec.v_max,
-            iprops["ng_vmax"],
-            rec.g_max,
-            bool(iprops["vmax_determined_by_n_lim"]),
-            rec.determined_by_n_lim,
-            rec.wot,
+        return (props["v_max"], rec.v_max, props["gear_v_max"], rec.g_max, rec.wot)
+
+    def _package_wots_df(gear_wot_dfs):
+        assert gear_wot_dfs
+
+        ## Merge all index values into the index of the 1st DF,
+        #  or else, themerged-df contains n-gear dupes in each index-value.
+        #
+        # first_df, *rest_dfs = gear_wot_dfs.values()
+        # full_index = np.unique(np.hstack(df.index for df in gear_wot_dfs))
+        # first_df = first_df.reindex(full_index)
+        wots_df = pd.concat(
+            # [first_df] + rest_dfs,
+            gear_wot_dfs.values(),
+            axis=1,
+            # join="inner",
+            keys=vmax.gear_names(gear_wot_dfs.keys()),
+            names=["gear", "wot_item"],
+            verify_integrity=True,
         )
+
+        return wots_df
 
     veh_nums = vehdb.all_vehnums(h5db)
     if not isinstance(veh_samples, (list, tuple)):
@@ -60,7 +73,7 @@ def test_v_max(h5db):
     recs = [make_v_maxes(vehnum, {}) for vehnum in veh_samples]
     vehres = pd.DataFrame(
         recs,
-        columns="vmax_Heinz vmax_python gmax_Heinz gmax_python det_by_nlim_Heinz det_by_nlim_python wot".split(),
+        columns="vmax_Heinz  vmax_python  gmax_Heinz  gmax_python  wot".split(),
         index=vmax.veh_names(veh_samples),
     ).astype({"gmax_Heinz": "Int64", "gmax_python": "Int64"})
 
@@ -102,15 +115,15 @@ def test_v_max(h5db):
     vehres = vehres.dropna(axis=1)
     # npt.assert_array_equal(vmaxes["vmax_python"], vmaxes["vmax_Heinz"])
     aggregate_tol = 1e-4  # The digits copied from terminal.
-    assert (vehres["vmax_diff"] == 0).sum() == 77
     assert (
         vehres["vmax_diff"].describe()
-        - [116.0000, 0.1009, 0.2441, 0.0000, 0.0000, 0.0000, 0.1000, 1.5000]
+        - [125.0000, 0.0976, 0.2357, 0.0000, 0.0000, 0.0000, 0.1000, 1.5000]
         < aggregate_tol
     ).all()
-    assert (vehres["gmax_diff"] == 0).sum() == 105
     assert (
         vehres["gmax_diff"].describe()
-        - [116.0000, 0.0948, 0.2942, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000]
+        - [125.0000, 0.1040, 0.3065, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000]
         < aggregate_tol
     ).all()
+    assert (vehres["vmax_diff"] == 0).sum() == 81
+    assert (vehres["gmax_diff"] == 0).sum() == 112

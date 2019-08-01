@@ -111,7 +111,7 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
     info = deepcopy(_root_provenance)
 
     if base:
-        info.update(base)
+        info.update(deepcopy(base))
 
     info["ctime"] = _human_time()
 
@@ -236,7 +236,7 @@ def get_scalar_column(df, column):
     col = df[column]
     val = col.iloc[0]
 
-    assert col.isnull().all() or (col == val).all(), (column, df)
+    assert col.isnull().all() or (col == val).all(), (column, val, df[col != val, :])
 
     return val
 
@@ -392,16 +392,32 @@ def vehnode(vehnum=None, *suffix):
 # assert vehnode() ==  '/vehicles'
 
 
-def load_vehicle(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
+def load_vehicle_nodes(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
     "return vehicle's groups listed in `subnodes`"
 
     def func(h5db):
-        return [h5db.get(vehnode(vehnum, sn)) for sn in subnodes]
+        res = [h5db.get(vehnode(vehnum, sn)) for sn in subnodes]
+        return res if len(subnodes) > 1 else res[0]
 
-    return do_h5(h5, func)
+    res = do_h5(h5, func)
+    return res
 
 
-# props, pwot = load_vehicle(h5fname, vehnum, "props", "pwot")
+# props, pwot = load_vehicle_nodes(h5fname, vehnum, "prop", "wot")
+
+
+def load_vehicle_data(h5, vehnum):
+    """return the typical fata for a vehicle"""
+
+    def func(h5db):
+        props = load_vehicle_nodes(h5db, vehnum, "prop")
+        wot_vehnum = props["vehicle_no"]
+        wot = load_vehicle_nodes(h5db, wot_vehnum, "wot")
+        n2vs = load_n2v_gear_ratios(props)
+        return props, wot, n2vs
+
+    res = do_h5(h5, func)
+    return res
 
 
 def all_vehnums(h5) -> List[int]:
@@ -438,7 +454,7 @@ def load_n2v_gear_ratios(vehicle_iprops: Union[dict, pd.Series]):
 
 
 def run_pyalgo_on_Heinz_vehicle(
-    h5, vehnum, props_group_suffix="iprop", pwot_group_suffix="pwot"
+    h5, vehnum, props_group_suffix="prop", pwot_group_suffix="wot"
 ) -> Tuple[dict, pd.DataFrame]:
     """
     Quick'n dirty way to invoke python-algo (bc model will change).
@@ -450,11 +466,10 @@ def run_pyalgo_on_Heinz_vehicle(
     """
     from wltp.experiment import Experiment
 
-    props, pwot = load_vehicle(h5, vehnum, props_group_suffix, pwot_group_suffix)
+    props, wot, n2vs = load_vehicle_data(h5, vehnum)
 
-    n2vs = load_n2v_gear_ratios(props)
     norm_pwot = normalize_pwot(
-        pwot, props.idling_speed, props.rated_speed, props.rated_power
+        wot, props.idling_speed, props.rated_speed, props.rated_power
     )
     inverse_SM = 1.0 - props.SM
 
@@ -471,7 +486,7 @@ def run_pyalgo_on_Heinz_vehicle(
           test_mass:    {props.test_mass}
           n_rated:      {props.rated_speed}
           n_idle:       {props.idling_speed}
-          v_max:        {props.v_max_declared}
+          v_max:        {props.v_max}
         params:
           f_safety_margin: {inverse_SM}
         """

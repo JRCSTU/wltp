@@ -64,7 +64,7 @@ logging.basicConfig(
 ## DEFINITIONS
 #
 inp_h5fname = 'VehData/WltpGS-msaccess.h5'
-out_h5fname = 'VehData/WltpGS-python.h5'
+out_h5fname = 'VehData/WltpGS-pyalgo.h5'
 c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 ```
 
@@ -75,14 +75,8 @@ vehdb.print_nodes(out_h5fname)
 
 ```{python}
 def load_heinz_and_python_datasets(veh_nums=None):
-    ip1, p1, c1 = vehdb.merge_db_vehicle_subgroups(inp_h5fname, ("iprop", "oprop", "cycle"), veh_nums)
+    p1, c1 = vehdb.merge_db_vehicle_subgroups(inp_h5fname, ("prop", "cycle"), veh_nums)
     p2, c2 = vehdb.merge_db_vehicle_subgroups(out_h5fname, ("oprop", "cycle"), veh_nums)
-
-    ## Merge input & Output props from heinz db.
-    #
-    ip1.name, p1.name = "ab"  # da butare
-    p1 = pd.concat((ip1, p1), axis=0).sort_index()
-    p1 = p1[~p1.index.duplicated()]  # or else, pivot(unstack) fails below
 
     ## By the spec, V rounded to 2-digits,
     #  But exporting MSAccess --> Excel outputs garbage decimals!
@@ -96,7 +90,7 @@ p1, c1, p2, c2 = load_heinz_and_python_datasets()
 ```
 
 ```{python}
-list(p1.index.levels[1])
+print(columnize(list(p1.index.levels[1]), displaywidth=160))
 ```
 
 ```{python}
@@ -115,11 +109,12 @@ dataset_names = "Heinz Python".split()
 ```{python}
 ## Report PROP differences
 #
+#     ACCDB,  PYALGO
 equivalent_columns = [
     ("Description", None),
     ("test_mass", None),
     ("kerb_mass", None),
-    ("class", "wltc_class"),
+    ("vehicle_class", "wltc_class"),
     ("pmr_km", "pmr"),
     ("f_dsc_req", "f_downscale"),
     ("v_max", "v_max")
@@ -173,7 +168,7 @@ cc2[cols2 + ["f_downscale"]] = cc2[cols2 + ["f_downscale"]].astype("float64")
 
 equivalent_props = [
     ("Description", None),
-    ("class", None),
+    ("vehicle_class", None),
     ("pmr_km", None),
     ("f_dsc_req", "f_downscale"),
 ]
@@ -376,12 +371,4 @@ b[ix].plot(style='x', ax=ax2)
 
 ax2.grid(which='both')
 ax2.legend()
-```
-
-```{python}
- c1.loc['v001', :].shape
-```
-
-```{python}
-
 ```

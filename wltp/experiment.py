@@ -146,10 +146,15 @@ class Experiment(object):
             )
         f_inertial = params["f_inertial"]
 
-        ## TODO: real calc v_max.
-        #
         if v_max is None:
-            v_max = n_rated / gear_ratios[-1]
+            ## TODO: real calc v_max.
+            #
+            from . import vmax
+
+            # wot = vehicle["full_load_curve"]
+            # wot.index =n_idle + (n_rated * n_idle) * wot['n_norm']
+            # wot['p'] = n_idle + (n_rated * n_idle) * wot['n']
+            # v_max = vmax.calc_v_max({}, wot, gear_ratios, f0, f1, f2, 0.1)
 
         p_m_ratio = 1000 * p_rated / unladen_mass
         vehicle["pmr"] = p_m_ratio
