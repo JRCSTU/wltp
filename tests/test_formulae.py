@@ -14,7 +14,6 @@ import pandas as pd
 import pytest
 
 from wltp import experiment, model
-from wltp.power import calc_default_resistance_coeffs
 
 from . import vehdb
 
@@ -44,33 +43,3 @@ def testRegex2bytes():
     regex = br"\g1\g0|\g24\g66\g127"
 
     assert experiment.gearsregex(regex).pattern == b"\x81\x80|\x98\xc2\xff"
-
-
-def test_calc_default_resistance_coeffs():
-    tm = 1000  # test_mass
-
-    identity = (1, 0)
-    res = calc_default_resistance_coeffs(tm, [identity] * 3)
-    print(res)
-    assert res == (tm, tm, tm)
-
-    zero = (0, 0)
-    res = calc_default_resistance_coeffs(tm, [zero] * 3)
-    print(res)
-    assert res == (0, 0, 0)
-
-    a_num = 123
-    replace = (0, a_num)
-    res = calc_default_resistance_coeffs(tm, [replace] * 3)
-    print(res)
-    assert res == (a_num, a_num, a_num)
-
-
-def test_calc_default_resistance_coeffs_base_model():
-    tm = 1000  # test_mass
-
-    bm = model._get_model_base()
-    regression_curves = bm["params"]["resistance_coeffs_regression_curves"]
-    res = calc_default_resistance_coeffs(tm, regression_curves)
-    print(res)
-    assert len(res) == 3

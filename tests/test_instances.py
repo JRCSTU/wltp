@@ -26,7 +26,7 @@ from .goodvehicle import goodVehicle
 
 class InstancesTest(unittest.TestCase):
     def setUp(self):
-        self.goodVehicle_jsonTxt = """{"vehicle": {
+        self.goodVehicle_jsonTxt = """{
             "unladen_mass":1230,
             "test_mass":   1300,
             "v_max":   195,
@@ -37,7 +37,7 @@ class InstancesTest(unittest.TestCase):
             "gear_ratios":[120.5, 75, 50, 43, 33, 28],
             "resistance_coeffs":[100, 0.5, 0.04]
             %s
-        }}"""
+        }"""
 
     def checkModel_valid(self, mdl):
         def consume_errs(errs):
@@ -98,7 +98,7 @@ class InstancesTest(unittest.TestCase):
             raise
 
     def test_validate_wltc_data(self):
-        mdl = model._get_model_base()
+        mdl = model.get_model_base()
         mdl = model.merge(mdl, goodVehicle())
         validator = model.model_validator(validate_wltc_data=True, validate_schema=True)
 
@@ -137,15 +137,15 @@ class InstancesTest(unittest.TestCase):
                 )
 
     def testModelBase_plainInvalid(self):
-        mdl = model._get_model_base()
+        mdl = model.get_model_base()
 
         self.checkModel_invalid(mdl)
 
     def testModelBase_fullValid(self):
-        bmdl = model._get_model_base()
+        bmdl = model.get_model_base()
         json_txt = self.goodVehicle_jsonTxt % ("")
         mdl = json.loads(json_txt)
-        bmdl["vehicle"].update(goodVehicle()["vehicle"])
+        bmdl.update(goodVehicle())
 
         self.checkModel_valid(bmdl)
 
@@ -162,23 +162,26 @@ class InstancesTest(unittest.TestCase):
         )
 
     def testModelInstance_simplInstanceeFullLoadCurve(self):
-        json_txt = self.goodVehicle_jsonTxt % (
-            ', "full_load_curve":[[ 1,  1,  1,  1,  1,  1,  1,  1,  1],   [ 0.23,  0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23]]'
+        mdl = model.get_model_base()
+        mdl.update(goodVehicle())
+        mdl.update(
+            {
+                "full_load_curve": [
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23],
+                ]
+            }
         )
-        mdl = json.loads(json_txt)
 
         model.model_validator().validate(mdl)
-        self.assertNotEqual(
-            mdl["vehicle"]["full_load_curve"], model.default_load_curve()
-        )
+        self.assertNotEqual(mdl["full_load_curve"], model.default_load_curve())
 
     def testModelInstance_defaultLoadCurve(self):
-        json_txt = self.goodVehicle_jsonTxt % (
-            ', "full_load_curve":%s' % (utils.json_dumps(model.default_load_curve()))
-        )
-        mdl = json.loads(json_txt)
-        validator = model.model_validator()
+        mdl = model.get_model_base()
+        mdl.update(goodVehicle())
+        mdl.update({"full_load_curve": model.default_load_curve()})
 
+        validator = model.model_validator()
         validator.validate(mdl)
 
     def testFullLoadCurve_valid(self):
@@ -240,8 +243,8 @@ class InstancesTest(unittest.TestCase):
 
         for c in cases:
             mdl = goodVehicle()
-            mdl = model.merge(model._get_model_base(), mdl)
-            mdl["vehicle"]["full_load_curve"] = c
+            mdl = model.merge(model.get_model_base(), mdl)
+            mdl["full_load_curve"] = c
             self.checkModel_valid(mdl)
 
     def testFullLoadCurve_invalid(self):
@@ -260,45 +263,45 @@ class InstancesTest(unittest.TestCase):
         ]
 
         for c in cases:
-            mdl = model._get_model_base()
-            mdl = model.merge(model._get_model_base(), mdl)
-            del mdl["vehicle"]["full_load_curve"]
-            mdl["vehicle"]["full_load_curve"] = c
+            mdl = model.get_model_base()
+            mdl = model.merge(model.get_model_base(), mdl)
+            del mdl["full_load_curve"]
+            mdl["full_load_curve"] = c
             self.checkModel_invalid(mdl)
 
     def test_default_resistance_coeffs_missing(self):
         mdl = goodVehicle()
-        mdl = model.merge(model._get_model_base(), mdl)
+        mdl = model.merge(model.get_model_base(), mdl)
         self.checkModel_valid(mdl)
 
     def test_default_resistance_coeffs_None(self):
         mdl = goodVehicle()
-        mdl["vehicle"]["resistance_coeffs"] = None
-        mdl = model.merge(model._get_model_base(), mdl)
+        mdl["resistance_coeffs"] = None
+        mdl = model.merge(model.get_model_base(), mdl)
         self.checkModel_valid(mdl)
 
     def test_fields_array_or_single_like_gears_SingleNumber(self):
         from pandalone.pandata import set_jsonpointer
 
         mdl = goodVehicle()
-        ngears = len(mdl["vehicle"]["gear_ratios"])
+        ngears = len(mdl["gear_ratios"])
         fields_array_or_single_like_gears = [
             # JsonPath                   Values,                    AllowNone
-            ("/vehicle/n_min", [300, [350] * ngears], True),
-            ("/params/f_safety_margin", [3.14, [5.0] * ngears], False),
+            ("/n_min", [300, [350] * ngears], True),
+            ("/f_safety_margin", [3.14, [5.0] * ngears], False),
         ]
         for (field, values, allowNone) in fields_array_or_single_like_gears:
             for value in values if not allowNone else values + [None]:
                 mdl = goodVehicle()
                 set_jsonpointer(mdl, field, value)
-                mdl = model.merge(model._get_model_base(), mdl)
+                mdl = model.merge(model.get_model_base(), mdl)
                 self.checkModel_valid(mdl)
 
             ## Check len(gear) mismatch
             #
             mdl = goodVehicle()
             set_jsonpointer(mdl, field, [0.354] * (ngears + 1))
-            mdl = model.merge(model._get_model_base(), mdl)
+            mdl = model.merge(model.get_model_base(), mdl)
             self.checkModel_invalid(mdl)
 
 

@@ -463,23 +463,21 @@ def run_pyalgo_on_Heinz_vehicle(
 
     input_model = yaml_loads(
         f"""
-        vehicle:
-          gear_ratios:  {n2vs}
-          resistance_coeffs:
-            - {props.f0}
-            - {props.f1}
-            - {props.f2}
-          p_rated:      {props.rated_power}
-          unladen_mass: {props.kerb_mass}
-          test_mass:    {props.test_mass}
-          n_rated:      {props.rated_speed}
-          n_idle:       {props.idling_speed}
-          v_max:        {props.v_max}
-        params:
-          f_safety_margin: {inverse_SM}
+        gear_ratios:  {n2vs}
+        resistance_coeffs:
+        - {props.f0}
+        - {props.f1}
+        - {props.f2}
+        p_rated:      {props.rated_power}
+        unladen_mass: {props.kerb_mass}
+        test_mass:    {props.test_mass}
+        n_rated:      {props.rated_speed}
+        n_idle:       {props.idling_speed}
+        v_max:        {props.v_max}
+        f_safety_margin: {inverse_SM}
         """
     )
-    input_model["vehicle"]["full_load_curve"] = norm_pwot
+    input_model["full_load_curve"] = norm_pwot
 
     exp = Experiment(input_model)
     output_model = exp.run()
@@ -487,9 +485,9 @@ def run_pyalgo_on_Heinz_vehicle(
     ## Keep only *output* key-values, not to burden HDF data-model
     #  (excluding `driveability`, which is a list, and f0,f1,f2, addume were input).
     #
-    veh = output_model["vehicle"]
+    veh = output_model
     oprops = {
-        "f_downscale": output_model["params"]["f_downscale"],
+        "f_downscale": output_model["f_downscale"],
         "pmr": veh["pmr"],
         "wltc_class": veh["wltc_class"],
         "v_max": veh["v_max"],

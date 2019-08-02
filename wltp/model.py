@@ -51,7 +51,7 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 
-def _get_model_base():
+def get_model_base():
     """The base model for running a WLTC experiment.
 
     It contains some default values for the experiment (ie the default 'full-load-curve' for the vehicles),
@@ -315,44 +315,36 @@ def _get_model_base():
     default_load_curve = {"n_norm": n_norm, "p_norm": petrol}
 
     instance = {
-        "vehicle": {
-            "unladen_mass": None,
-            "test_mass": None,
-            "p_rated": None,
-            "n_rated": None,
-            "n_idle": None,
-            "n_min": None,
-            "gear_ratios": [],
-            "full_load_curve": default_load_curve,  # FIXME: Decide load_curve by engine-type!
-        },
-        "params": {
-            "resistance_coeffs_regression_curves": [
-                [1.40e-01, 7.86e-01],
-                [2.75e-05, -3.29e-02],
-                [1.11e-05, 2.03e-02],
-            ],
-            "f_downscale_threshold": 0.01,
-            "f_downscale_decimals": 3,
-            "driver_mass": 75,  # kg
-            "v_stopped_threshold": 1,  # km/h, <=
-            "f_inertial": 1.03,
-            "f_safety_margin": 0.9,  # TODO: this must change to 1-SM = 0.1
-            "f_n_min": 0.125,
-            "f_n_min_gear2": 0.9,
-            "f_n_clutch_gear2": [1.15, 0.03],
-            "wltc_data": _get_wltc_data(),
-        },
+        "unladen_mass": None,
+        "test_mass": None,
+        "p_rated": None,
+        "n_rated": None,
+        "n_idle": None,
+        "n_min": None,
+        "gear_ratios": [],
+        "full_load_curve": default_load_curve,  # FIXME: DROP default load curve from base model
+        "resistance_coeffs_regression_curves": [
+            [1.40e-01, 7.86e-01],
+            [2.75e-05, -3.29e-02],
+            [1.11e-05, 2.03e-02],
+        ],
+        "f_downscale_threshold": 0.01,
+        "f_downscale_decimals": 3,
+        "driver_mass": 75,  # kg
+        "v_stopped_threshold": 1,  # km/h, <=
+        "f_inertial": 1.03,
+        "f_safety_margin": 0.9,  # TODO: this must change to 1-SM = 0.1
+        "f_n_min": 0.125,
+        "f_n_min_gear2": 0.9,
+        "f_n_clutch_gear2": [1.15, 0.03],
+        "wltc_data": _get_wltc_data(),
     }
 
     return instance
 
 
-def default_vehicle():
-    return _get_model_base()["vehicle"]
-
-
 def default_load_curve():
-    return default_vehicle()["full_load_curve"]
+    return get_model_base()["full_load_curve"]
 
 
 def _get_wltc_data():
@@ -395,271 +387,257 @@ def _get_model_schema(additional_properties=False):
             f"""
 $schema: http://json-schema.org/draft-07/schema#
 $id: {_model_url}
-title: Json-schema describing the input for a WLTC experiment.
+title: Json-schema describing the input for a WLTC simulator.
 type: object
 additionalProperties: {additional_properties}
 required:
-- vehicle
+- test_mass
+- p_rated
+- n_rated
+- n_idle
+- gear_ratios
+- full_load_curve
+- driver_mass
+- v_stopped_threshold
+- f_inertial
+- f_safety_margin
+- f_n_min
+- f_n_min_gear2
+- f_n_clutch_gear2
+- wltc_data
+description: 
+  The vehicle attributes required for generating the WLTC velocity-profile
+  downscaling and gear-shifts.
 properties:
-  vehicle:
-    title: vehicle model
-    type: object
-    additionalProperties: {additional_properties}
-    required:
-    - test_mass
-    - p_rated
-    - n_rated
-    - n_idle
-    - gear_ratios
-    - full_load_curve
+  id:
+    title: Any identifier for the object
+    type:
+    - integer
+    - string
+  unladen_mass:
+    title: vehicle unladen mass
+    type:
+    - number
+    - 'null'
+    exclusiveMinimum: 0
+    description:
+      The mass (kg) of the vehicle without the driver, used to decide its class,
+      as defined in Annex-4
+  test_mass:
+    title: vehicle test mass
+    $ref: '#/definitions/positiveNumber'
     description: 
-      The vehicle attributes required for generating the WLTC velocity-profile
-      downscaling and gear-shifts.
-    properties:
-      id:
-        title: Any identifier for the object
-        type:
-        - integer
-        - string
-      unladen_mass:
-        title: vehicle unladen mass
-        type:
-        - number
-        - 'null'
-        exclusiveMinimum: 0
-        description:
-          The mass (kg) of the vehicle without the driver, used to decide its class,
-          as defined in Annex-4
-      test_mass:
-        title: vehicle test mass
-        $ref: '#/definitions/positiveNumber'
-        description: 
-          The test mass of the vehicle used in all calculations (kg),
-          as defined in Annex 4.2.1.3.1, pg 94.
-      v_max:
-        title: maximum vehicle velocity
-        type:
-        - number
-        - 'null'
-        exclusiveMinimum: 0
-        description: The calculcated maximum velocity, as defined in Annex 2-3.i.
-      p_rated:
-        title: maximum rated power
-        $ref: '#/definitions/positiveNumber'
-        description: 
-          The maximum rated engine power (kW) as declared by the manufacturer.
-      n_rated:
-        title: rated engine revolutions
-        $ref: '#/definitions/positiveNumber'
-        description: |2
-          The rated engine revolutions at which an engine develops its maximum power.
-          If the maximum power is developed over an engine revolutions range,
-          it is determined by the mean of this range.
-      n_idle:
-        title: idling revolutions
-        $ref: '#/definitions/positiveNumber'
-        description: The idling engine revolutions (Annex 1).
-      n_min:
-        title: minimum engine revolutions
-        type:
-        - array
-        - integer
-        - 'null'
-        description: |2
-          Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
-          or an array with the exact `n_min` for each gear (array must have length equal to gears).
+      The test mass of the vehicle used in all calculations (kg),
+      as defined in Annex 4.2.1.3.1, pg 94.
+  v_max:
+    title: maximum vehicle velocity
+    type:
+    - number
+    - 'null'
+    exclusiveMinimum: 0
+    description: The calculcated maximum velocity, as defined in Annex 2-3.i.
+  p_rated:
+    title: maximum rated power
+    $ref: '#/definitions/positiveNumber'
+    description: 
+      The maximum rated engine power (kW) as declared by the manufacturer.
+  n_rated:
+    title: rated engine revolutions
+    $ref: '#/definitions/positiveNumber'
+    description: |2
+      The rated engine revolutions at which an engine develops its maximum power.
+      If the maximum power is developed over an engine revolutions range,
+      it is determined by the mean of this range.
+  n_idle:
+    title: idling revolutions
+    $ref: '#/definitions/positiveNumber'
+    description: The idling engine revolutions (Annex 1).
+  n_min:
+    title: minimum engine revolutions
+    type:
+    - array
+    - integer
+    - 'null'
+    description: |2
+      Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
+      or an array with the exact `n_min` for each gear (array must have length equal to gears).
 
-          If unspecified, the minimum `n` for gears > 2 is determined by the following equation:
+      If unspecified, the minimum `n` for gears > 2 is determined by the following equation:
 
-              n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
-          
-          Higher values may be used if requested by the manufacturer, by setting this one.
-      gear_ratios:
-        title: gear ratios
-        $ref: '#/definitions/positiveNumbers'
-        maxItems: 24
-        minItems: 3
-        description: 
-          An array with the gear-ratios obtained by dividing engine-revolutions
-          (1/min) by vehicle-velocity (km/h).
-      resistance_coeffs:
-        title: driving resistance coefficients
-        type:
-        - 'null'
-        - array
-        items:
-          type: number
-        minItems: 3
-        maxItems: 3
-        description: |2
-          The 3 driving resistance coefficients f0, f1, f2,
-          in N, N/(km/h), and N/(km/h)² respectively (Annex 4).
+          n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
+      
+      Higher values may be used if requested by the manufacturer, by setting this one.
+  gear_ratios:
+    title: gear ratios
+    $ref: '#/definitions/positiveNumbers'
+    maxItems: 24
+    minItems: 3
+    description: 
+      An array with the gear-ratios obtained by dividing engine-revolutions
+      (1/min) by vehicle-velocity (km/h).
+  resistance_coeffs:
+    title: driving resistance coefficients
+    type:
+    - 'null'
+    - array
+    items:
+      type: number
+    minItems: 3
+    maxItems: 3
+    description: |2
+      The 3 driving resistance coefficients f0, f1, f2,
+      in N, N/(km/h), and N/(km/h)² respectively (Annex 4).
 
-          If not specified, they are determined based on `test_mass` from
-          a pre-calculated regression curve:
+      If not specified, they are determined based on `test_mass` from
+      a pre-calculated regression curve:
 
-              f0 = a00 * test_mass + a01,
-              f1 = a10 * test_mass + a11,
-              f2 = a20 * test_mass + a21,
+          f0 = a00 * test_mass + a01,
+          f1 = a10 * test_mass + a11,
+          f2 = a20 * test_mass + a21,
 
-          where `a00, ..., a22` specified in `/params`.
-      full_load_curve:
-        title: full load power curve
-        description: |2
-          An array/dict/dataframe holding the P_wot curve in (at least) 2 columns ('n', 'p')
-          or the normalized values ('n_norm', 'p_norm').
+      where `a00, ..., a22` specified in `/params`.
+  full_load_curve:
+    title: full load power curve
+    description: |2
+      An array/dict/dataframe holding the P_wot curve in (at least) 2 columns ('n', 'p')
+      or the normalized values ('n_norm', 'p_norm').
 
-          Example:
+      Example:
 
-              np.array([
-                  [ 600, 1000, ... 7000 ],
-                  [ 4, 10, ... 30 ]
-              ]).T
+          np.array([
+              [ 600, 1000, ... 7000 ],
+              [ 4, 10, ... 30 ]
+          ]).T
 
-          * The 1st column or `n` is the engine revolutions in min^-1:
-          * The 2nd column or `p` is the full-power load in kW:
+      * The 1st column or `n` is the engine revolutions in min^-1:
+      * The 2nd column or `p` is the full-power load in kW:
 
-          Normalized N/P Example:
+      Normalized N/P Example:
 
-              np.array([
-                  [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120 ],
-                  [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
-              ]).T
+          np.array([
+              [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120 ],
+              [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
+          ]).T
 
-          * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 1.20]:
+      * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 1.20]:
 
-                      n_norm = (n - n_idle) / (n_rated  - n_idle)
+                  n_norm = (n - n_idle) / (n_rated  - n_idle)
 
-          * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
-            within [0, 1]:
+      * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
+        within [0, 1]:
 
-                      p_norm = p / p_rated
-        type:
-        - object
-        - array
-        - 'null'
-      pmr:
-        title: Power to Unladen-Mass
-        description: Power/unladen-Mass ratio (W/kg).
+                  p_norm = p / p_rated
+    type:
+    - object
+    - array
+    - 'null'
+  pmr:
+    title: Power to Unladen-Mass
+    description: Power/unladen-Mass ratio (W/kg).
+    type: number
+  wltc_class:
+    description: 
+      The name of the WLTC-class (found within WLTC-data/classes) as
+      selected by the experiment.
+    type: string
+    enum:
+    - class1
+    - class2
+    - class3a
+    - class3b
+  resistance_coeffs_regression_curves:
+    description: 
+      Regression curve factors for calculating vehicle's `resistance_coeffs`
+      when missing.
+    type: array
+    minItems: 3
+    maxItems: 3
+    items:
+      type: array
+      minItems: 2
+      maxItems: 2
+      items:
         type: number
-      wltc_class:
-        description: 
-          The name of the WLTC-class (found within WLTC-data/classes) as
-          selected by the experiment.
-        type: string
-        enum:
-        - class1
-        - class2
-        - class3a
-        - class3b
-  params:
-    title: experiment parameters
-    type: object
-    additionalProperties: {additional_properties}
-    required:
-    - resistance_coeffs_regression_curves
-    - driver_mass
-    - v_stopped_threshold
-    - f_inertial
-    - f_safety_margin
-    - f_n_min
-    - f_n_min_gear2
-    - f_n_clutch_gear2
-    - wltc_data
-    properties:
-      resistance_coeffs_regression_curves:
-        description: 
-          Regression curve factors for calculating vehicle's `resistance_coeffs`
-          when missing.
-        type: array
-        minItems: 3
-        maxItems: 3
-        items:
-          type: array
-          minItems: 2
-          maxItems: 2
-          items:
-            type: number
-      f_downscale_threshold:
-        title: Downscale-factor threshold
-        description: 
-          The limit for the calculated `f_downscale` below which no downscaling
-          happens.
-        type:
-        - number
-        - 'null'
-        default: 0.01
-      f_downscale_decimals:
-        title: Downscale-factor rounding decimals
-        type:
-        - number
-        - 'null'
-        default: 3
-      driver_mass:
-        title: Driver's mass (kg)
-        description: |2
-          The mass (kg) of the vehicle's driver (Annex 1-3.2.6, p9), where: 
-        
-              Unladen_mass = Test_mass - driver_mass
-        type:
-        - number
-        - 'null'
-        default: 75
-      v_stopped_threshold:
-        description: Velocity (km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).
-        type:
-        - number
-        - 'null'
-        default: 1
-      f_inertial:
-        description: 
-          This is the `kr` inertial-factor used in the 2nd part of the
-          formula for calculating required-power (Annex 2-3.1, p71).
-        type:
-        - number
-        - 'null'
-        default: 1.03
-      f_safety_margin:
-        description: |2
-          Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).
-          If array, its length must match those of the `gear_ratios`.
-        type:
-        - array
-        - number
-        - 'null'
-        default: 0.9
-      f_n_min:
-        description: 
-          For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
-          `n_min` overriden by manufacturer)
-        type:
-        - number
-        - 'null'
-        default: 0.125
-      f_n_min_gear2:
-        description: Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.
-        type:
-        - number
-        - 'null'
-        default: 0.9
-      f_n_clutch_gear2:
-        description: |2
-          A 2-value number-array(f1, f2) controlling when to clutch gear-2:
-              N < n_clutch_gear2 := max(f1 * n_idle, f2 * n_range + n_idle),
-          unless "clutched"...
-        type:
-        - array
-        - 'null'
-        default:
-        - 1.15
-        - 0.03
-      f_downscale:
-        description: 
-          The downscaling-factor as calculated by the experiment 
-          (Annex 1-7.3, p68).
-        type: number
-      wltc_data:
-        $ref: {_wltc_url}
+  f_downscale_threshold:
+    title: Downscale-factor threshold
+    description: 
+      The limit for the calculated `f_downscale` below which no downscaling
+      happens.
+    type:
+    - number
+    - 'null'
+    default: 0.01
+  f_downscale_decimals:
+    title: Downscale-factor rounding decimals
+    type:
+    - number
+    - 'null'
+    default: 3
+  driver_mass:
+    title: Driver's mass (kg)
+    description: |2
+      The mass (kg) of the vehicle's driver (Annex 1-3.2.6, p9), where: 
+    
+          Unladen_mass = Test_mass - driver_mass
+    type:
+    - number
+    - 'null'
+    default: 75
+  v_stopped_threshold:
+    description: Velocity (km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).
+    type:
+    - number
+    - 'null'
+    default: 1
+  f_inertial:
+    description: 
+      This is the `kr` inertial-factor used in the 2nd part of the
+      formula for calculating required-power (Annex 2-3.1, p71).
+    type:
+    - number
+    - 'null'
+    default: 1.03
+  f_safety_margin:
+    description: |2
+      Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).
+      If array, its length must match those of the `gear_ratios`.
+    type:
+    - array
+    - number
+    - 'null'
+    default: 0.9
+  f_n_min:
+    description: 
+      For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
+      `n_min` overriden by manufacturer)
+    type:
+    - number
+    - 'null'
+    default: 0.125
+  f_n_min_gear2:
+    description: Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.
+    type:
+    - number
+    - 'null'
+    default: 0.9
+  f_n_clutch_gear2:
+    description: |2
+      A 2-value number-array(f1, f2) controlling when to clutch gear-2:
+          N < n_clutch_gear2 := max(f1 * n_idle, f2 * n_range + n_idle),
+      unless "clutched"...
+    type:
+    - array
+    - 'null'
+    default:
+    - 1.15
+    - 0.03
+  f_downscale:
+    description: 
+      The downscaling-factor as calculated by the experiment 
+      (Annex 1-7.3, p68).
+    type: number
+  wltc_data:
+    $ref: {_wltc_url}
   cycle_run: {{}}
 definitions:
   positiveInteger:
@@ -963,14 +941,14 @@ def validate_model(
     jsonschema.exceptions.ValidationError: None is not of type 'object'
     ...
 
-    >>> mdl = _get_model_base()
+    >>> mdl = get_model_base()
     >>> err_generator = validate_model(mdl, iter_errors=True)
     >>> sorted(err_generator, key=hash)
     [<ValidationError:
     ...
 
-    >>> mdl = _get_model_base()
-    >>> mdl["vehicle"].update({
+    >>> mdl = get_model_base()
+    >>> mdl.update({
     ...     "unladen_mass":1230,
     ...     "test_mass":   1300,
     ...     "p_rated": 110.625,
@@ -1014,8 +992,7 @@ def validate_model(
 
 
 def yield_load_curve_errors(mdl):
-    vehicle = mdl["vehicle"]
-    wot = vehicle["full_load_curve"]
+    wot = mdl["full_load_curve"]
     try:
         if not isinstance(wot, pd.DataFrame):
             wot = pd.DataFrame(wot)
@@ -1045,15 +1022,14 @@ def yield_load_curve_errors(mdl):
         if max(p_norm) > 1:
             log.warning("The full_load_curve must not exceed 1, found %f!", max(p_norm))
 
-        vehicle["full_load_curve"] = wot
+        mdl["full_load_curve"] = wot
     except (KeyError, PandasError) as ex:
         yield ValidationError("Invalid Full-load-curve, due to: %s" % ex, cause=ex)
 
 
 def yield_n_min_errors(mdl):
-    vehicle = mdl["vehicle"]
-    ngears = len(vehicle["gear_ratios"])
-    n_min = vehicle.get("n_min")
+    ngears = len(mdl["gear_ratios"])
+    n_min = mdl.get("n_min")
     if not n_min is None:
         try:
             if isinstance(n_min, Sized):
@@ -1063,15 +1039,14 @@ def yield_n_min_errors(mdl):
                         % (len(n_min), ngears)
                     )
             else:
-                vehicle["n_min"] = [n_min] * ngears
+                mdl["n_min"] = [n_min] * ngears
         except PandasError as ex:
             yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause=ex)
 
 
 def yield_safety_margin_errors(mdl):
-    params = mdl["params"]
-    f_safety_margin = params["f_safety_margin"]
-    ngears = len(mdl["vehicle"]["gear_ratios"])
+    f_safety_margin = mdl["f_safety_margin"]
+    ngears = len(mdl["gear_ratios"])
     try:
         if isinstance(f_safety_margin, Sized):
             if len(f_safety_margin) != ngears:
@@ -1080,14 +1055,13 @@ def yield_safety_margin_errors(mdl):
                     % (len(f_safety_margin), ngears)
                 )
         else:
-            params["f_safety_margin"] = [f_safety_margin] * ngears
+            mdl["f_safety_margin"] = [f_safety_margin] * ngears
     except PandasError as ex:
         yield ValidationError("Invalid 'gear_n_min', due to: %s" % ex, cause=ex)
 
 
 def yield_forced_cycle_errors(mdl, additional_properties):
-    params = mdl["params"]
-    forced_cycle = params.get("forced_cycle")
+    forced_cycle = mdl.get("forced_cycle")
     if not forced_cycle is None:
         try:
             if not isinstance(forced_cycle, pd.DataFrame):
@@ -1112,7 +1086,7 @@ def yield_forced_cycle_errors(mdl, additional_properties):
                     )
                     forced_cycle.columns = ["v"]
 
-            params["forced_cycle"] = forced_cycle
+            mdl["forced_cycle"] = forced_cycle
         except PandasError as ex:
             yield ValidationError("Invalid forced_cycle, due to: %s" % ex, cause=ex)
 
@@ -1120,5 +1094,6 @@ def yield_forced_cycle_errors(mdl, additional_properties):
 get_model_schema = _get_model_schema
 
 if __name__ == "__main__":
-    print("Model: %s" % json.dumps([_get_model_schema(), _get_wltc_schema()], indent=1))
-    print("Model: %s" % json.dumps(_get_model_base(), indent=1))
+    print(f"WLTC: \n{utils.yaml_dumps(_get_model_schema())}")
+    print(f"INPUT: \n{utils.yaml_dumps(_get_wltc_schema())}")
+    print(f"MODEL: \n{utils.yaml_dumps(get_model_base())}")

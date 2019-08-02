@@ -90,6 +90,7 @@ v1.0.0.dev5  (31-Jul-2019): PY3.5 only & real work!
 
   - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec.
   - break: cycle-part limits are plain lists-of-limits (not list-of-pairs).
+  - break: flatten model, merging `vehicle` & `params` properties up to root.
 
 - algo:
 

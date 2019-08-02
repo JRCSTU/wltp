@@ -9,13 +9,11 @@
 
 def goodVehicle():
     goodVehicle = {
-        "vehicle": {
-            "test_mass": 1500,
-            "p_rated": 100,
-            "n_rated": 5450,
-            "n_idle": 950,
-            # "n_min":   None,    # Can be overriden by manufacturer.
-            "gear_ratios": [120.5, 75, 50, 43, 37, 32],
-        }
+        "test_mass": 1500,
+        "p_rated": 100,
+        "n_rated": 5450,
+        "n_idle": 950,
+        # "n_min":   None,    # Can be overriden by manufacturer.
+        "gear_ratios": [120.5, 75, 50, 43, 37, 32],
     }
     return goodVehicle

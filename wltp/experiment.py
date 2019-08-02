@@ -95,7 +95,7 @@ class Experiment(object):
             validate_wltc_data=validate_wltc_data,
         )
 
-        self.wltc = self._model["params"]["wltc_data"]
+        self.wltc = self._model["wltc_data"]
 
     def run(self):
         """Invokes the main-calculations and extracts/update Model values!
@@ -103,13 +103,11 @@ class Experiment(object):
         @see: Annex 2, p 70
         """
 
-        model = self._model
-        vehicle = model["vehicle"]
-        params = model["params"]
+        mdl = self._model
 
         ## Prepare results
         #
-        cycle_run = model.get("cycle_run")
+        cycle_run = mdl.get("cycle_run")
         if cycle_run is None:
             cycle_run = pd.DataFrame()
         else:
@@ -119,7 +117,7 @@ class Experiment(object):
                 cycle_run.shape[0],
                 cycle_run.shape[1],
             )
-        model["cycle_run"] = cycle_run
+        mdl["cycle_run"] = cycle_run
 
         ## Ensure Time-steps start from 0 (not 1!).
         #
@@ -128,34 +126,37 @@ class Experiment(object):
 
         ## Extract vehicle attributes from model.
         #
-        test_mass = vehicle["test_mass"]
-        unladen_mass = vehicle.get("unladen_mass") or test_mass - params["driver_mass"]
-        p_rated = vehicle["p_rated"]
-        n_rated = vehicle["n_rated"]
-        n_idle = vehicle["n_idle"]
-        n_min_drive = vehicle["n_min"]
-        v_max = vehicle.get("v_max", None)
-        gear_ratios = vehicle["gear_ratios"]
-        res_coeffs = vehicle.get("resistance_coeffs")
+        test_mass = mdl["test_mass"]
+        unladen_mass = mdl.get("unladen_mass") or test_mass - mdl["driver_mass"]
+        p_rated = mdl["p_rated"]
+        n_rated = mdl["n_rated"]
+        n_idle = mdl["n_idle"]
+        n_min_drive = mdl["n_min"]
+        v_max = mdl.get("v_max", None)
+        gear_ratios = mdl["gear_ratios"]
+        res_coeffs = mdl.get("resistance_coeffs")
         if res_coeffs:
             (f0, f1, f2) = res_coeffs
-        else:
+        elif "resistance_coeffs_regression_curves" in mdl:
             (f0, f1, f2) = power.calc_default_resistance_coeffs(
-                test_mass, params["resistance_coeffs_regression_curves"]
+                test_mass, mdl["resistance_coeffs_regression_curves"]
             )
-        f_inertial = params["f_inertial"]
+        else:
+            raise ValueError("Missing resistance_coeffs!")
+
+        f_inertial = mdl["f_inertial"]
 
         if v_max is None:
             ## TODO: real calc v_max.
             v_max = 140
             # from . import vmax, utils
-            # wot = vehicle["full_load_curve"]
+            # wot = mdl["full_load_curve"]
             # wot.index =n_idle + (n_rated * n_idle) * wot['n_norm']
             # wot['p'] = n_idle + (n_rated * n_idle) * wot['n']
             # v_max = vmax.calc_v_max({}, wot, gear_ratios, f0, f1, f2, 1 - f_inertial)
 
         p_m_ratio = 1000 * p_rated / unladen_mass
-        vehicle["pmr"] = p_m_ratio
+        mdl["pmr"] = p_m_ratio
 
         forced_v_column = "v_target"
         V = cycle_run.get(forced_v_column)
@@ -167,14 +168,14 @@ class Experiment(object):
             ## Keep same columns/props, not to surprise post-processing scripts.
             #
             V = cycle_run["v_class"] = vround(V)
-            params["f_downscale"] = None
+            mdl["f_downscale"] = None
         else:
             ## Decide WLTC-class.
             #
-            wltc_class = vehicle.get("wltc_class")
+            wltc_class = mdl.get("wltc_class")
             if wltc_class is None:
                 wltc_class = downscale.decide_wltc_class(self.wltc, p_m_ratio, v_max)
-                vehicle["wltc_class"] = wltc_class
+                mdl["wltc_class"] = wltc_class
             else:
                 log.info("Found forced wltc_class(%s).", wltc_class)
 
@@ -186,10 +187,10 @@ class Experiment(object):
 
             ## Downscale velocity-profile.
             #
-            f_downscale = params.get("f_downscale")
+            f_downscale = mdl.get("f_downscale")
             if not f_downscale:
-                f_downscale_threshold = params["f_downscale_threshold"]
-                f_downscale_decimals = params["f_downscale_decimals"]
+                f_downscale_threshold = mdl["f_downscale_threshold"]
+                f_downscale_decimals = mdl["f_downscale_decimals"]
                 dsc_data = class_data["downscale"]
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
@@ -206,7 +207,7 @@ class Experiment(object):
                     f2,
                     f_inertial,
                 )
-                params["f_downscale"] = f_downscale
+                mdl["f_downscale"] = f_downscale
 
             if f_downscale > 0:
                 V = downscale.downscale_class_velocity(V, f_downscale, phases)
@@ -224,7 +225,7 @@ class Experiment(object):
         ## Run cycle to find internal matrices for all gears
         #    and (optionally) gearshifts.
         #
-        load_curve = vehicle["full_load_curve"]
+        load_curve = mdl["full_load_curve"]
         (
             GEARS_ORIG,
             CLUTCH,
@@ -243,7 +244,7 @@ class Experiment(object):
             n_rated,
             p_rated,
             load_curve,
-            params,
+            mdl,
         )
         cycle_run["clutch"] = CLUTCH  # TODO: Allow overridde clutch, etc.
         if "gears_orig" in cycle_run:
@@ -278,7 +279,7 @@ class Experiment(object):
         cycle_run["v_real"] = V_REAL
         cycle_run["driveability"] = driveability_issues
 
-        return model
+        return mdl
 
     #######################
     ##       MODEL       ##
@@ -289,9 +290,9 @@ class Experiment(object):
         return self._model
 
     def _set_model(self, mdl, skip_validation=False, validate_wltc_data=False):
-        from wltp.model import _get_model_base, merge
+        from wltp.model import get_model_base, merge
 
-        merged_model = _get_model_base()
+        merged_model = get_model_base()
         merge(merged_model, mdl)
         if not skip_validation:
             model.validate_model(merged_model, validate_wltc_data=validate_wltc_data)
@@ -787,7 +788,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
 
 
 def run_cycle(
-    V, A, P_REQ, gear_ratios, n_idle, n_min_drive, n_rated, p_rated, load_curve, params
+    V, A, P_REQ, gear_ratios, n_idle, n_min_drive, n_rated, p_rated, load_curve, mdl
 ):
     """Calculates gears, clutch and actual-velocity for the cycle (V).
     Initial calculations happen on engine_revs for all gears, for all time-steps of the cycle (_N_GEARS array).
@@ -809,23 +810,23 @@ def run_cycle(
     #
     n_range = n_rated - n_idle
 
-    f_n_max = params.get("f_n_max", 1.2)
+    f_n_max = mdl.get("f_n_max", 1.2)
     n_max = n_idle + f_n_max * n_range
 
     if n_min_drive is None:
-        f_n_min = params.get("f_n_min", 0.125)
+        f_n_min = mdl.get("f_n_min", 0.125)
         n_min_drive = n_idle + f_n_min * n_range
 
-    f_n_min_gear2 = params.get("f_n_min_gear2", 0.9)
+    f_n_min_gear2 = mdl.get("f_n_min_gear2", 0.9)
     n_min_gear2 = f_n_min_gear2 * n_idle
 
-    f_n_clutch_gear2 = params.get("f_n_clutch_gear2", [1.15, 0.03])
+    f_n_clutch_gear2 = mdl.get("f_n_clutch_gear2", [1.15, 0.03])
     n_clutch_gear2 = max(
         f_n_clutch_gear2[0] * n_idle, f_n_clutch_gear2[1] * n_range + n_idle
     )
 
-    p_safety_margin = params.get("f_safety_margin", 0.9)
-    v_stopped_threshold = params.get("v_stopped_threshold", 1)  # Km/h
+    p_safety_margin = mdl.get("f_safety_margin", 0.9)
+    v_stopped_threshold = mdl.get("v_stopped_threshold", 1)  # Km/h
 
     (_N_GEARS, _GEARS, _GEAR_RATIOS) = calcEngineRevs_required(
         V, gear_ratios, n_idle, v_stopped_threshold

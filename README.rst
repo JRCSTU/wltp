@@ -337,22 +337,17 @@ For information on the accepted model-data, check its :term:`JSON-schema`:
 
 .. doctest::
 
-    >>> model.json_dumps(model.model_schema(), indent=2)                                # doctest: +SKIP
-    {
-      "properties": {
-        "params": {
-          "properties": {
-            "f_n_min_gear2": {
-              "description": "Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.",
-              "type": [
-                "number",
-                "null"
-              ],
-              "default": 0.9
-            },
-            "v_stopped_threshold": {
-              "description": "Velocity (Km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).",
-              "type": [
+    >>> from wltp import utils
+    >>> utils.yaml_dumps(model.model_schema(), indent=2)                                # doctest: +SKIP
+    $schema: http://json-schema.org/draft-07/schema#
+    $id: /wltc
+    title: WLTC data
+    type: object
+    additionalProperties: false
+    required:
+    - classes
+    properties:
+    classes:
     ...
 
 

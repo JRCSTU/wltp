@@ -25,7 +25,7 @@ class Test(unittest.TestCase):
         exp = Experiment(mdl)
         mdl = exp._model
         self.assertTrue(
-            pd.DataFrame(mdl["vehicle"]["full_load_curve"]).equals(
+            pd.DataFrame(mdl["full_load_curve"]).equals(
                 pd.DataFrame(model.default_load_curve())
             )
         )
@@ -34,11 +34,11 @@ class Test(unittest.TestCase):
     def testOverlayOnInit(self):
         mdl = goodVehicle()
         nval = 6000
-        mdl2 = {"vehicle": {"n_rated": nval}}
+        mdl2 = {"n_rated": nval}
 
         exp = Experiment(mdl, mdl2)
         mdl = exp._model
-        self.assertEqual(mdl["vehicle"]["n_rated"], nval)
+        self.assertEqual(mdl["n_rated"], nval)
 
     def test_get_class_parts_limits_sorted(self):
         classes = model._get_wltc_data()["classes"]
