@@ -16,19 +16,33 @@ import numbers
 import re
 import sys
 from collections import namedtuple
+from contextvars import ContextVar
 from typing import Union
-from .invariants import vround
+
 import numpy as np
 import pandas as pd
 
+from . import io as wio
+from .invariants import vround
+
+
 log = logging.getLogger(__name__)
+
+#: column names as contextvar,
+#: that client code can change momentarily with::
+#:
+#:     with utils.ctxtvar(<this_module>.cols):
+#:         ...
+cols: ContextVar = wio.pstep_ctxvar(__name__)
 
 
 def decide_wltc_class(wltc_data, p_m_ratio, v_max):
     """Vehicle classification according to Annex 1-2. """
+    c = cols.get()
+
     class_limits = {
-        cl: (cd["pmr_limits"], cd.get("velocity_limits"))
-        for (cl, cd) in wltc_data["classes"].items()
+        cl: (cd[c.pmr_limits], cd.get(c.velocity_limits))
+        for (cl, cd) in wltc_data[c.classes].items()
     }
 
     for (cls, ((pmr_low, pmr_high), v_limits)) in class_limits.items():
@@ -63,11 +77,12 @@ def calc_downscale_factor(
 
     @see: Annex 1-7, p 68
     """
+    c = cols.get()
 
     ## Max required power at critical point.
     #
-    pmv = p_max_values["v"]
-    pma = p_max_values["a"]
+    pmv = p_max_values[c.v]
+    pma = p_max_values[c.a]
     p_req_max = (
         f0 * pmv + f1 * pmv ** 2 + f2 * pmv ** 3 + f_inertial * pma * pmv * test_mass
     ) / 3600.0
