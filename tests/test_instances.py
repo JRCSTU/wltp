@@ -10,6 +10,7 @@ Testing of the pure-tree data (just dictionary & lists), without the Model/Exper
 """
 
 import json
+from wltp import utils
 import unittest
 from timeit import timeit
 
@@ -173,7 +174,7 @@ class InstancesTest(unittest.TestCase):
 
     def testModelInstance_defaultLoadCurve(self):
         json_txt = self.goodVehicle_jsonTxt % (
-            ', "full_load_curve":%s' % (model.json_dumps(model.default_load_curve()))
+            ', "full_load_curve":%s' % (utils.json_dumps(model.default_load_curve()))
         )
         mdl = json.loads(json_txt)
         validator = model.model_validator()

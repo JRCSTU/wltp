@@ -98,6 +98,39 @@ def open_file_with_os(fpath):
     return
 
 
+def make_json_defaulter(pd_method):
+    import json
+    import numpy as np
+    from pandas.core.generic import NDFrame
+
+    def defaulter(o):
+        if isinstance(o, np.ndarray):
+            s = o.tolist()
+        elif isinstance(o, NDFrame):
+            if pd_method is None:
+                s = json.loads(pd.DataFrame.to_json(o))
+            else:
+                method = ops.methodcaller(pd_method)
+                s = "%s:%s" % (type(o).__name__, method(o))
+        else:
+            s = repr(o)
+        return s
+
+    return defaulter
+
+
+def json_dumps(obj, pd_method=None, **kwargs):
+    import json
+
+    return json.dumps(obj, default=make_json_defaulter(pd_method), **kwargs)
+
+
+def json_dump(obj, fp, pd_method=None, **kwargs):
+    import json
+
+    json.dump(obj, fp, default=make_json_defaulter(pd_method), **kwargs)
+
+
 def yaml_dump(o, fp):
     from ruamel import yaml
     from ruamel.yaml import YAML

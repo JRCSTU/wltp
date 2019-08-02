@@ -23,7 +23,6 @@ Example-code to get WLTP-data::
 
 import copy
 import itertools as it
-import json
 import logging
 import operator as ops
 from collections.abc import Mapping, Sized
@@ -52,36 +51,11 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 
-def make_json_defaulter(pd_method):
-    def defaulter(o):
-        if isinstance(o, np.ndarray):
-            s = o.tolist()
-        elif isinstance(o, NDFrame):
-            if pd_method is None:
-                s = json.loads(pd.DataFrame.to_json(o))
-            else:
-                method = ops.methodcaller(pd_method)
-                s = "%s:%s" % (type(o).__name__, method(o))
-        else:
-            s = repr(o)
-        return s
-
-    return defaulter
-
-
-def json_dumps(obj, pd_method=None, **kwargs):
-    return json.dumps(obj, default=make_json_defaulter(pd_method), **kwargs)
-
-
-def json_dump(obj, fp, pd_method=None, **kwargs):
-    json.dump(obj, fp, default=make_json_defaulter(pd_method), **kwargs)
-
-
 def _get_model_base():
     """The base model for running a WLTC experiment.
 
-    It contains some default values for the experiment (ie the default 'full-load-curve' for the vehicles).
-    But note that it this model is not valid - you need to override its attributes.
+    It contains some default values for the experiment (ie the default 'full-load-curve' for the vehicles),
+    but this model is not valid - you need to override its attributes.
 
     :return: a tree with the default values for the experiment.
     """

@@ -191,7 +191,7 @@ def main(argv=None):
         log.info(
             "Input Model(strict: %s): %s",
             opts.strict,
-            utils.Lazy(lambda: model.json_dumps(mdl, "to_string")),
+            utils.Lazy(lambda: utils.yaml_dumps(mdl)),
         )
         mdl = model.validate_model(mdl, additional_props)
 
@@ -533,7 +533,7 @@ def store_part_as_df(filespec, part):
             method = ops.methodcaller(filespec.io_method, filespec.file, **filespec.kws)
         method(part)
     else:
-        model.json_dump(part, filespec.file, pd_method=None, **filespec.kws)
+        utils.json_dump(part, filespec.file, pd_method=None, **filespec.kws)
 
 
 def store_model_parts(mdl, outfiles):
