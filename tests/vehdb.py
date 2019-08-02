@@ -1,21 +1,26 @@
-from typing import List, Tuple, Dict, Union, Callable, Any, Sequence as Seq
-import io, json, time, platform
+import io
+import json
+import logging
+import os
+import platform
+import shutil
+import subprocess as sbp
+import sys
+import time
+from copy import deepcopy
 from datetime import datetime
 from pathlib import Path, PurePosixPath
-from copy import deepcopy
-import logging
-import subprocess as sbp
-import os
-import qgrid
-import shutil
-import sys
-
+from typing import Any, Callable, Dict, List
+from typing import Sequence as Seq
+from typing import Tuple, Union
 
 import pandas as pd
 from pandas import HDFStore
+from pandas.api.types import is_numeric_dtype
+from pandas.core.generic import NDFrame
 
-from wltp.utils import yaml_loads, yaml_dumps
-
+import qgrid
+from wltp.utils import yaml_dumps, yaml_loads
 
 log = logging.getLogger(__name__)
 
@@ -225,9 +230,6 @@ def collect_nodes(
 #########################
 ## Pandas etc
 
-from pandas.core.generic import NDFrame
-from pandas.api.types import is_numeric_dtype
-
 
 def get_scalar_column(df, column):
     """
@@ -428,25 +430,6 @@ def all_vehnums(h5) -> List[int]:
     return do_h5(h5, func)
 
 
-def normalize_pwot(
-    pwot,
-    n_idle,
-    n_rated,
-    p_rated,
-    c_n="n",
-    c_p="Pwot",
-    c_n_norm="n_norm",
-    c_p_norm="p_norm",
-):
-    pwot = pwot.copy()
-    pwot[c_n] = pwot.index
-
-    pwot[c_n_norm] = (pwot[c_n] - n_idle) / (n_rated - n_idle)
-    pwot[c_p_norm] = pwot[c_p] / p_rated
-
-    return pwot[[c_n_norm, c_p_norm]]
-
-
 def load_n2v_gear_ratios(vehicle_iprops: Union[dict, pd.Series]):
     """Reads all valid `ndv_X` values from Heinz DB input-properties in HD5"""
     ng = vehicle_iprops["no_of_gears"]
@@ -464,13 +447,18 @@ def run_pyalgo_on_Heinz_vehicle(
     :return:
         the *out-props* key-values, and the *cycle_run* data-frame
     """
+    from pandalone.mappings import Pstep
+    from wltp import io as wio, pwot, utils
     from wltp.experiment import Experiment
 
     props, wot, n2vs = load_vehicle_data(h5, vehnum)
 
-    norm_pwot = normalize_pwot(
-        wot, props.idling_speed, props.rated_speed, props.rated_power
-    )
+    ## Map accdb columns: p_name --> 'Pwot'
+    #
+    with utils.ctxvar(pwot.cols, Pstep("", [("/p", "Pwot")])):
+        norm_pwot = pwot.normalize_pwot(
+            wot, props.idling_speed, props.rated_speed, props.rated_power
+        )
     inverse_SM = 1.0 - props.SM
 
     input_model = yaml_loads(

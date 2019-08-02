@@ -26,6 +26,24 @@ log = logging.getLogger(__name__)
 cols: ContextVar = wio.pstep_ctxvar(__name__)
 
 
+def normalize_pwot(pwot, n_idle, n_rated, p_rated):
+    c = cols.get()
+
+    pwot = pwot.copy()
+    pwot[c.n] = pwot.index
+
+    pwot[c.n_norm] = (pwot[c.n] - n_idle) / (n_rated - n_idle)
+    pwot[c.p_norm] = pwot[c.p] / p_rated
+
+    return pwot[[c.n_norm, c.p_norm]]
+
+
+def denormalize_pwot(pwot, n_idle, n_rated, p_rated):
+    c = cols.get()
+    # wot.index =n_idle + (n_rated * n_idle) * wot[c.n_norm]
+    # wot['p'] = n_idle + (n_rated * n_idle) * wot[c.n]
+
+
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):
     """Return a new linearly interpolated df on v with v_decimals. """
     c = cols.get()
