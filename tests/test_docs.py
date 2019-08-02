@@ -6,6 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
+import doctest
 import io
 import re
 import subprocess
@@ -77,3 +78,12 @@ class Doctest(unittest.TestCase):
                     "halt_level": 2  # 2=WARN, 1=INFO
                 },
             )
+
+
+class TestDoctest(unittest.TestCase):
+    def test_doctests(self):
+        failure_count, test_count = doctest.testmod(
+            wltp.model, optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
+        )
+        self.assertGreater(test_count, 0, (failure_count, test_count))
+        self.assertEqual(failure_count, 0, (failure_count, test_count))

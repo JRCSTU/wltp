@@ -6,7 +6,6 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-import doctest
 import sys
 import unittest
 from unittest.case import skip
@@ -17,15 +16,6 @@ import wltp
 
 from wltp.experiment import Experiment
 from .goodvehicle import goodVehicle
-
-
-class TestDoctest(unittest.TestCase):
-    def test_doctests(self):
-        failure_count, test_count = doctest.testmod(
-            wltp.model, optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
-        )
-        self.assertGreater(test_count, 0, (failure_count, test_count))
-        self.assertEqual(failure_count, 0, (failure_count, test_count))
 
 
 class Test(unittest.TestCase):
