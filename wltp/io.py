@@ -7,6 +7,26 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 
+#: Contains all path/column names used, after code has run code.
+_base_path = None
+
+
+def Pstep(name, *tags):
+    """Used for naming paths & column-names in dataframes"""
+    global _base_path
+
+    from pandalone import mappings
+
+    if _base_path is None:
+        _base_path = mappings.Pstep()
+
+    p = getattr(_base_path, name)
+    for t in tags:
+        p._tag(t)
+
+    return p
+
+
 def make_xy_df(data, xname=None, yname=None, auto_transpose=False) -> "pd.DataFrame":
     """
     Make a X-indexed df from 2D-matrix(lists/numpy), dict, df(1-or-2 cols) or series.

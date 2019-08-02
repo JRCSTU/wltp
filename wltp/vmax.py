@@ -23,7 +23,7 @@ from .invariants import v_decimals, v_step, vround
 log = logging.getLogger(__name__)
 
 #: column names
-c = mappings.Pstep()
+c = wio.Pstep(__name__)
 
 
 #: Solution results of the equation finding the v-max of each gear:
@@ -178,7 +178,7 @@ def calc_v_max(
 
         return wots_df
 
-    wot = make_xy_df(wot, xname=c.n, yname=c.p_wot, auto_transpose=True)
+    wot = wio.make_xy_df(wot, xname=c.n, yname=c.p_wot, auto_transpose=True)
     wot[c.n] = wot.index
     wot[c.p_avail] = wot[c.p_wot] * (1.0 - f_safety_margin)
 

@@ -12,15 +12,14 @@ import numpy as np
 import pandas as pd
 from scipy import interpolate, optimize
 
-from pandalone import mappings
-
 from .invariants import v_decimals, v_step, vround
+from . import io as wio
 
 
 log = logging.getLogger(__name__)
 
 #: column names
-c = mappings.Pstep()
+c = wio.Pstep(__name__)
 
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):
