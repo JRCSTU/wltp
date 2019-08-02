@@ -532,7 +532,9 @@ properties:
       full_load_curve:
         title: full load power curve
         description: |2
-          An array/dict/dataframe holding the P_wot curve in (at least) 2 columns
+          An array/dict/dataframe holding the P_wot curve in (at least) 2 columns ('n', 'p')
+          or the normalized values ('n_norm', 'p_norm').
+
           Example:
 
               np.array([
@@ -543,15 +545,7 @@ properties:
           * The 1st column or `n` is the engine revolutions in min^-1:
           * The 2nd column or `p` is the full-power load in kW:
 
-        type:
-        - object
-        - array
-        - 'null'
-      norm_full_load_curve:
-        title: full load power curve
-        description: |2
-          An array/dict/dataframe holding the full load power curve in (at least) 2 columns
-          Example:
+          Normalized N/P Example:
 
               np.array([
                   [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120 ],
