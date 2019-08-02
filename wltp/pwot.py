@@ -7,24 +7,31 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 import logging
+from contextvars import ContextVar
 
 import numpy as np
 import pandas as pd
 from scipy import interpolate, optimize
 
-from .invariants import v_decimals, v_step, vround
 from . import io as wio
-
+from .invariants import v_decimals, v_step, vround
 
 log = logging.getLogger(__name__)
 
-#: column names
-c = wio.Pstep(__name__)
+#: column names as contextvar,
+#: that client code can change momentarily with::
+#:
+#:     with utils.ctxtvar(<this_module>.cols):
+#:         ...
+cols: ContextVar = wio.pstep_ctxvar(__name__)
 
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):
     """Return a new linearly interpolated df on v with v_decimals. """
+    c = cols.get()
+
     assert wot.size
+
     V = wot[c.v]
 
     ## Clip V-grid inside min/max of wot-N.

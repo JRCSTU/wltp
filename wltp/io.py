@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2013-2019 European Commission (JRC);
+# Copyright 2019 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+import contextvars
+import pandas as pd
 
 
 #: Contains all path/column names used, after code has run code.
 _base_path = None
 
 
-def Pstep(name, *tags):
-    """Used for naming paths & column-names in dataframes"""
+def pstep_ctxvar(name, *tags) -> contextvars.ContextVar:
+    """Make a new Pstep (as contextvar to change temporarily change) for naming paths & column-names."""
     global _base_path
 
     from pandalone import mappings
@@ -24,18 +26,16 @@ def Pstep(name, *tags):
     for t in tags:
         p._tag(t)
 
-    return p
+    return contextvars.ContextVar(name, default=p)
 
 
-def make_xy_df(data, xname=None, yname=None, auto_transpose=False) -> "pd.DataFrame":
+def make_xy_df(data, xname=None, yname=None, auto_transpose=False) -> pd.DataFrame:
     """
     Make a X-indexed df from 2D-matrix(lists/numpy), dict, df(1-or-2 cols) or series.
 
     :param auto_transpose:
         If not empty, ensure longer dimension is the rows (axis-0).
     """
-    import pandas as pd
-
     try:
         df = data if isinstance(data, pd.DataFrame) else pd.DataFrame(data)
 

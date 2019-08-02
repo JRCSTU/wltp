@@ -6,6 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
+import contextlib
 import io
 import os
 import sys
@@ -124,3 +125,12 @@ def yaml_load(fp) -> Union[dict, list]:
 def yaml_loads(txt: str) -> Union[dict, list]:
     fp = io.StringIO(txt)
     return yaml_load(fp)
+
+
+@contextlib.contextmanager
+def ctxvar(var, value):
+    token = var.set(value)
+    try:
+        yield
+    finally:
+        var.reset(token)
