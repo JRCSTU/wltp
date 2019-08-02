@@ -14,9 +14,8 @@ from scipy import interpolate, optimize
 
 from pandalone import mappings
 
-from . import invariants
 from .invariants import v_decimals, v_step, vround
-from .utils import make_xy_df
+
 
 log = logging.getLogger(__name__)
 

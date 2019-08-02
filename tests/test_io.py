@@ -9,7 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from wltp import utils
+from wltp.io import make_xy_df
+
 
 _x = [0.1, 0.11]
 _y = [0.2, 0.21]
@@ -44,7 +45,7 @@ def yname(request):
     ],
 )
 def test_make_xy_df_simple(xy, xname, yname):
-    res = utils.make_xy_df(xy, xname, yname)
+    res = make_xy_df(xy, xname, yname)
     assert isinstance(res, pd.DataFrame)
     assert res.shape == (2, 1)
     assert res.values.T.tolist() == [_y]
@@ -71,9 +72,9 @@ def test_make_xy_df_simple(xy, xname, yname):
 def test_make_xy_df(make_xy_args, exp):
     if type(exp) is type and issubclass(exp, Exception):
         with pytest.raises(exp):
-            utils.make_xy_df(*make_xy_args)
+            make_xy_df(*make_xy_args)
     else:
-        res = utils.make_xy_df(*make_xy_args)
+        res = make_xy_df(*make_xy_args)
         assert isinstance(res, pd.DataFrame)
         assert exp.equals(res)
         assert res.columns == exp.columns
@@ -84,7 +85,7 @@ def test_make_xy_df(make_xy_args, exp):
     "xy, shape", [([], (0, 1)), ([[]], (1, 1)), ([[], []], (2, 1))]
 )
 def test_make_xy_df_empties(xy, xname, yname, shape):
-    res = utils.make_xy_df(xy, xname, yname)
+    res = make_xy_df(xy, xname, yname)
     assert not res.empty or xy == []
     assert res.shape == shape
     _check_labels(res, xname, yname)
@@ -93,4 +94,4 @@ def test_make_xy_df_empties(xy, xname, yname, shape):
 @pytest.mark.parametrize("xy", [1, [[1, 2, 3], [3, 4, 5], [5, 6, 7]]])
 def test_make_xy_df_errors(xy, xname, yname):
     with pytest.raises(ValueError, match="Invalid XY"):
-        utils.make_xy_df(xy, xname, yname)
+        make_xy_df(xy, xname, yname)

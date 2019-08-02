@@ -56,7 +56,8 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from . import invariants, power, pwot, vmax, downscale, model
+from . import io, invariants, power, pwot, vmax, downscale, model
+from .invariants import v_decimals, vround
 
 log = logging.getLogger(__name__)
 
@@ -125,8 +126,6 @@ class Experiment(object):
         cycle_run.reset_index()
         cycle_run.index.name = "t"
 
-        v_decimals = 1  # TODO: from model
-
         ## Extract vehicle attributes from model.
         #
         test_mass = vehicle["test_mass"]
@@ -148,13 +147,12 @@ class Experiment(object):
 
         if v_max is None:
             ## TODO: real calc v_max.
-            #
-            from . import vmax
-
+            v_max = 140
+            # from . import vmax, utils
             # wot = vehicle["full_load_curve"]
             # wot.index =n_idle + (n_rated * n_idle) * wot['n_norm']
             # wot['p'] = n_idle + (n_rated * n_idle) * wot['n']
-            # v_max = vmax.calc_v_max({}, wot, gear_ratios, f0, f1, f2, 0.1)
+            # v_max = vmax.calc_v_max({}, wot, gear_ratios, f0, f1, f2, 1 - f_inertial)
 
         p_m_ratio = 1000 * p_rated / unladen_mass
         vehicle["pmr"] = p_m_ratio
@@ -168,7 +166,7 @@ class Experiment(object):
 
             ## Keep same columns/props, not to surprise post-processing scripts.
             #
-            V = cycle_run["v_class"] = invariants.round1(V, 1)
+            V = cycle_run["v_class"] = vround(V)
             params["f_downscale"] = None
         else:
             ## Decide WLTC-class.
@@ -213,7 +211,7 @@ class Experiment(object):
             if f_downscale > 0:
                 V = downscale.downscale_class_velocity(V, f_downscale, phases)
 
-                V = invariants.round1(V, v_decimals)
+                V = vround(V)
 
             cycle_run["v_target"] = V
 

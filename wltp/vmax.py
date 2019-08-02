@@ -6,20 +6,19 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
-import itertools as itt
-import functools as fnt
 import logging
 from collections import namedtuple
 from typing import List, Union
-from . import power, pwot
-from .invariants import v_decimals, v_step, vround
-
 
 import numpy as np
 import pandas as pd
+
 from pandalone import mappings, pandata
 
-from .utils import make_xy_df
+from . import io as wio
+from . import power, pwot
+from .invariants import v_decimals, v_step, vround
+
 
 log = logging.getLogger(__name__)
 
