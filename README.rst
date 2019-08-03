@@ -3,8 +3,8 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
 |binder| |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |codestyle|
 
-:release:       1.0.0.dev5
-:date:          2019-07-31 15:37:43
+:release:       1.0.0.dev6
+:date:          2019-08-03 03:13:11
 :documentation: https://wltp.readthedocs.org/ (build-date: |today|)
 :source:        https://github.com/JRCSTU/wltp
 :pypi-repo:     https://pypi.python.org/pypi/wltp
@@ -112,7 +112,7 @@ with *pre-commit hook* for auto-formatting python-code with *black*:
     .. code-block:: bash
 
         $ wltp --version
-        1.0.0.dev5
+        1.0.0.dev6
 
         $ wltp --help
         ...
@@ -285,7 +285,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '1.0.0.dev5'
+    '1.0.0.dev6'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...
@@ -316,21 +316,19 @@ For instance:
 
     >>> from wltp import model
     >>> from wltp.experiment import Experiment
-    >>> from collections import OrderedDict as odic         ## It is handy to preserve keys-order.
 
-    >>> mdl = odic(
-    ...   vehicle = odic(
-    ...     unladen_mass = 1430,
-    ...     test_mass    = 1500,
-    ...     v_max        = 195,
-    ...     p_rated      = 100,
-    ...     n_rated      = 5450,
-    ...     n_idle       = 950,
-    ...     n_min        = None,                            ## Manufacturers my overridde it
-    ...     gear_ratios         = [120.5, 75, 50, 43, 37, 32],
-    ...     resistance_coeffs   = [100, 0.5, 0.04],
-    ...   )
-    ... )
+    >>> mdl = {
+    ...     "unladen_mass": 1430,
+    ...     "test_mass":    1500,
+    ...     "v_max":        195,
+    ...     "p_rated":      100,
+    ...     "n_rated":      5450,
+    ...     "n_idle":       950,
+    ...     "n_min":        None,                           ## Manufacturers my overridde it
+    ...     "gear_ratios":         [120.5, 75, 50, 43, 37, 32],
+    ...     "resistance_coeffs":   [100, 0.5, 0.04],
+    ... }
+    >>> mdl = model.upd_default_load_curve(mdl)                   ## need some WOT
 
 
 For information on the accepted model-data, check its :term:`JSON-schema`:
@@ -367,9 +365,10 @@ before running the experiment:
 
     >>> mdl = processor.model               ## Returns the validated model with filled-in defaults.
     >>> sorted(mdl)                         ## The "defaulted" model now includes the `params` branch.
-    ['params', 'vehicle']
-    >>> 'full_load_curve' in mdl['vehicle'] ## A default wot was also provided in the `vehicle`.
-    True
+    ['driver_mass', 'f_downscale_decimals', 'f_downscale_threshold', 'f_inertial', 'f_n_clutch_gear2', 
+     'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 'full_load_curve', 'gear_ratios', 'n_idle', 
+     'n_min', 'n_rated', 'p_rated', 'resistance_coeffs', 'test_mass', 'unladen_mass', 'v_max', 
+     'v_stopped_threshold', 'wltc_data']
 
 
 Now you can run the experiment:
@@ -378,7 +377,13 @@ Now you can run the experiment:
 
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-    ['cycle_run', 'params', 'vehicle']
+    ['cycle_run', 'driver_mass', 'f_downscale', 'f_downscale_decimals', 'f_downscale_threshold', 
+     'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 
+     'full_load_curve', 'gear_ratios', 'n_idle', 'n_min', 'n_rated', 'p_rated', 'pmr', 
+     'resistance_coeffs', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 
+     'wltc_class', 'wltc_data']
+
+
 
 
 To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:

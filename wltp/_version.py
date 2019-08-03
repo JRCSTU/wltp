@@ -1,3 +1,3 @@
 """Authoritative project's version-info"""
-__version__ = "1.0.0.dev5"  ## Semantic-version: Update identifiers also in README.rst.
-__updated__ = "2019-07-31 15:37:43"
+__version__ = "1.0.0.dev6"  ## Semantic-version: Update identifiers also in README.rst.
+__updated__ = "2019-08-03 03:13:11"
