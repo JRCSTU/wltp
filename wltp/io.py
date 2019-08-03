@@ -6,27 +6,34 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 import contextvars
+from typing import List
+
 import pandas as pd
+
+from pandalone import mappings
 
 
 #: Contains all path/column names used, after code has run code.
-_base_path = None
+#: Don't use it directly, but either
+#: - through context-vars to allow for redefinitions, or
+#: - call :func:`paths_collected()` at the end of a code run.
+_root_pstep = mappings.Pstep()
+
+#: The root-path wrapped in a context-var so that cloent code
+#: canm redfine paths & column names momentarily with::
+#:
+#:     with wio.pstep_factory.redined(<this_module>.cols):
+#:         ...
+pstep_factory = contextvars.ContextVar("root", default=_root_pstep)
 
 
-def pstep_ctxvar(name, *tags) -> contextvars.ContextVar:
-    """Make a new Pstep (as contextvar to change temporarily change) for naming paths & column-names."""
-    global _base_path
-
-    from pandalone import mappings
-
-    if _base_path is None:
-        _base_path = mappings.Pstep()
-
-    p = getattr(_base_path, name)
-    for t in tags:
-        p._tag(t)
-
-    return contextvars.ContextVar(name, default=p)
+def paths_collected(with_orig=False, tag=None) -> List[str]:
+    """
+    Return path/column names used, after code has run code.
+    
+    See :meth:`mappings.Pstep._paths`.
+    """
+    return _root_pstep._paths(with_orig, tag)
 
 
 def make_xy_df(data, xname=None, yname=None, auto_transpose=False) -> pd.DataFrame:

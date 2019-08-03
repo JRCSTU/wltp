@@ -7,6 +7,7 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 import contextlib
+import contextvars
 import io
 import os
 import sys
@@ -161,9 +162,9 @@ def yaml_loads(txt: str) -> Union[dict, list]:
 
 
 @contextlib.contextmanager
-def ctxvar(var, value):
+def ctxtvar_redefined(var: contextvars.ContextVar, value):
     token = var.set(value)
     try:
-        yield
+        yield value
     finally:
         var.reset(token)

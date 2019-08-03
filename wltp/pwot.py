@@ -7,7 +7,6 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 import logging
-from contextvars import ContextVar
 
 import numpy as np
 import pandas as pd
@@ -18,16 +17,9 @@ from .invariants import v_decimals, v_step, vround
 
 log = logging.getLogger(__name__)
 
-#: column names as contextvar,
-#: that client code can change momentarily with::
-#:
-#:     with utils.ctxtvar(<this_module>.cols):
-#:         ...
-cols: ContextVar = wio.pstep_ctxvar(__name__)
-
 
 def normalize_pwot(pwot, n_idle, n_rated, p_rated):
-    c = cols.get()
+    c = wio.pstep_factory.get().wot
 
     pwot = pwot.copy()
     pwot[c.n] = pwot.index
@@ -39,14 +31,14 @@ def normalize_pwot(pwot, n_idle, n_rated, p_rated):
 
 
 def denormalize_pwot(pwot, n_idle, n_rated, p_rated):
-    c = cols.get()
+    c = wio.pstep_factory.get().wot
     # wot.index =n_idle + (n_rated * n_idle) * wot[c.n_norm]
     # wot['p'] = n_idle + (n_rated * n_idle) * wot[c.n]
 
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):
     """Return a new linearly interpolated df on v with v_decimals. """
-    c = cols.get()
+    c = wio.pstep_factory.get().wot
 
     assert wot.size
 

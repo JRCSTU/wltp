@@ -8,7 +8,6 @@
 
 import logging
 from collections import namedtuple
-from contextvars import ContextVar
 from typing import List, Union
 
 import numpy as np
@@ -17,18 +16,10 @@ import pandas as pd
 from pandalone import mappings, pandata
 
 from . import io as wio
-from . import power, pwot
+from . import power, pwot, utils
 from .invariants import v_decimals, v_step, vround
 
 log = logging.getLogger(__name__)
-
-#: column names as contextvar,
-#: that client code can change momentarily with::
-#:
-#:     with utils.ctxtvar(<this_module>.cols):
-#:         ...
-cols: ContextVar = wio.pstep_ctxvar(__name__)
-
 
 #: Solution results of the equation finding the v-max of each gear:
 #:   - v_max: in kmh, or np.NAN if not found
@@ -50,7 +41,7 @@ def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
     :return:
         a :class:`VMaxRec` with v_max in kmh or np.NAN
     """
-    c = cols.get()
+    c = wio.pstep_factory.get().wot
 
     assert not wot.empty
     assert not wot.isnull().any(None), wot[wot.isnull()]
@@ -110,7 +101,7 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
         a :class:`VMaxRec` namedtuple.
 
     """
-    c = cols.get()
+    c = wio.pstep_factory.get().wot
 
     wot[c.v] = wot.index / n2v
     wot[c.p_road_loads] = power.calc_road_load_power(wot[c.v], f0, f1, f2)
@@ -143,7 +134,7 @@ def calc_v_max(
     :return:
         a :class:`VMaxRec` namedtuple.
     """
-    c = cols.get()
+    c = wio.pstep_factory.get().wot
 
     ng = len(gear_n2v_ratios)
 

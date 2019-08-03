@@ -12,14 +12,7 @@ Keep them separate for testability.
 """
 
 import logging
-import numbers
-import re
-import sys
-from collections import namedtuple
-from contextvars import ContextVar
-from typing import Union
 
-import numpy as np
 import pandas as pd
 
 from . import io as wio
@@ -28,17 +21,10 @@ from .invariants import vround
 
 log = logging.getLogger(__name__)
 
-#: column names as contextvar,
-#: that client code can change momentarily with::
-#:
-#:     with utils.ctxtvar(<this_module>.cols):
-#:         ...
-cols: ContextVar = wio.pstep_ctxvar(__name__)
-
 
 def decide_wltc_class(wltc_data, p_m_ratio, v_max):
     """Vehicle classification according to Annex 1-2. """
-    c = cols.get()
+    c = wio.pstep_factory.get().cycle_data
 
     class_limits = {
         cl: (cd[c.pmr_limits], cd.get(c.velocity_limits))
@@ -77,7 +63,7 @@ def calc_downscale_factor(
 
     @see: Annex 1-7, p 68
     """
-    c = cols.get()
+    c = wio.pstep_factory.get().cycle_run
 
     ## Max required power at critical point.
     #

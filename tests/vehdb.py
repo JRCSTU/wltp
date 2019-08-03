@@ -18,10 +18,11 @@ import pandas as pd
 from pandas import HDFStore
 from pandas.api.types import is_numeric_dtype
 from pandas.core.generic import NDFrame
+from pandalone.mappings import Pstep
 
 import qgrid
 from wltp import io as wio
-from wltp.utils import yaml_dumps, yaml_loads
+from wltp import utils
 
 
 log = logging.getLogger(__name__)
@@ -71,7 +72,9 @@ def _python_describe():
         info["type"] = "conda"
 
         try:
-            info["env"] = yaml_loads(_cmd("conda", "env", "export", "-n", condaenv))
+            info["env"] = utils.yaml_loads(
+                _cmd("conda", "env", "export", "-n", condaenv)
+            )
         except Exception as ex:
             log.warning("Cannot conda-env-export due to: %s", ex)
             info["env"] = "Cannot conde-env-export due to: %s" % ex
@@ -146,7 +149,7 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
 # prov_info = nbu.provenance_info(files=[h5fname])
 # prov_info = nbu.provenance_info(files=['sfdsfd'], base=prov_info)
 # prov_info = nbu.provenance_info(files=['ggg'], repos=['../wltp.git'], base=prov_info)
-# print(nbu.yaml_dumps(prov_info))
+# print(nbu.utils.yaml_dumps(prov_info))
 
 
 #########################
@@ -209,7 +212,7 @@ def provenir_h5node(
             h5file.set_node_attr(node, "TITLE", title)
         prov_info = provenance_info(files=files, repos=repos, base=base)
 
-        provenance = yaml_dumps(prov_info)
+        provenance = utils.yaml_dumps(prov_info)
         h5file.set_node_attr(node, "provenance", provenance)
 
     return do_h5(h5, func)
@@ -449,7 +452,6 @@ def run_pyalgo_on_Heinz_vehicle(
     :return:
         the *out-props* key-values, and the *cycle_run* data-frame
     """
-    from pandalone.mappings import Pstep
     from wltp import io as wio, pwot, utils
     from wltp.experiment import Experiment
 
@@ -457,13 +459,13 @@ def run_pyalgo_on_Heinz_vehicle(
 
     ## Map accdb columns: p_name --> 'Pwot'
     #
-    with utils.ctxvar(pwot.cols, Pstep("", [("/p", "Pwot")])):
+    with utils.ctxtvar_redefined(wio.pstep_factory, Pstep("", [("/wot/p", "Pwot")])):
         norm_pwot = pwot.normalize_pwot(
             wot, props.idling_speed, props.rated_speed, props.rated_power
         )
     inverse_SM = 1.0 - props.SM
 
-    input_model = yaml_loads(
+    input_model = utils.yaml_loads(
         f"""
         gear_ratios:  {n2vs}
         resistance_coeffs:
