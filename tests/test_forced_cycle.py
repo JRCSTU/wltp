@@ -8,12 +8,13 @@
 
 import logging
 import unittest
-from wltp.experiment import Experiment
-from tests.goodvehicle import goodVehicle
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+from tests.goodvehicle import goodVehicle
+
+from wltp.experiment import Experiment, model
 
 try:
     from pandas.core.common import PandasError
@@ -39,6 +40,7 @@ class TestForcedCycle(unittest.TestCase):
 
     def test_two_ramps_smoke_test(self):
         mdl = goodVehicle()
+        mdl = model.upd_resistance_coeffs_regression_curves(mdl)
 
         V = np.hstack((np.r_[0:100:2], np.r_[100:0:-2]))
         mdl["cycle_run"] = {"v_target": V}

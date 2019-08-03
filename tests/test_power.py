@@ -33,6 +33,7 @@ def test_calc_default_resistance_coeffs_base_model():
     tm = 1000  # test_mass
 
     bm = model.get_model_base()
+    model.upd_resistance_coeffs_regression_curves(bm)
     regression_curves = bm["resistance_coeffs_regression_curves"]
     res = calc_default_resistance_coeffs(tm, regression_curves)
     print(res)

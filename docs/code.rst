@@ -34,21 +34,20 @@ Schema
     type: object
     additionalProperties: false
     required:
-      - test_mass
-      - p_rated
-      - n_rated
-      - n_idle
-      - gear_ratios
-      - full_load_curve
-      - resistance_coeffs_regression_curves
-      - driver_mass
-      - v_stopped_threshold
-      - f_inertial
-      - f_safety_margin
-      - f_n_min
-      - f_n_min_gear2
-      - f_n_clutch_gear2
-      - wltc_data
+    - test_mass
+    - p_rated
+    - n_rated
+    - n_idle
+    - gear_ratios
+    - full_load_curve
+    - driver_mass
+    - v_stopped_threshold
+    - f_inertial
+    - f_safety_margin
+    - f_n_min
+    - f_n_min_gear2
+    - f_n_clutch_gear2
+    - wltc_data
     description: The vehicle attributes required for generating the WLTC velocity-profile
       downscaling and gear-shifts.
     properties:
@@ -63,13 +62,13 @@ Schema
         - number
         - 'null'
         exclusiveMinimum: 0
-        description: The mass (kg) of the vehicle without the driver, used to decide
-          its class, as defined in Annex-4
+        description: The mass (kg) of the vehicle without the driver, used to decide its
+          class, as defined in Annex-4
       test_mass:
         title: vehicle test mass
         $ref: '#/definitions/positiveNumber'
-        description: The test mass of the vehicle used in all calculations (kg), as
-          defined in Annex 4.2.1.3.1, pg 94.
+        description: The test mass of the vehicle used in all calculations (kg), as defined
+          in Annex 4.2.1.3.1, pg 94.
       v_max:
         title: maximum vehicle velocity
         type:
@@ -140,6 +139,7 @@ Schema
         description: |
           An array/dict/dataframe holding the P_wot curve in (at least) 2 columns ('n', 'p')
           or the normalized values ('n_norm', 'p_norm').
+    <BLANKLINE>
           Example:
     <BLANKLINE>
               np.array([
@@ -174,8 +174,8 @@ Schema
         description: Power/unladen-Mass ratio (W/kg).
         type: number
       wltc_class:
-        description: The name of the WLTC-class (found within WLTC-data/classes) as
-          selected by the experiment.
+        description: The name of the WLTC-class (found within WLTC-data/classes) as selected
+          by the experiment.
         type: string
         enum:
         - class1
@@ -211,7 +211,7 @@ Schema
       driver_mass:
         title: Driver's mass (kg)
         description: |
-          The mass (kg) of the vehicle's driver (Annex 1-3.2.6, p9), where: 
+          The mass (kg) of the vehicle's driver (Annex 1-3.2.6, p9), where:
     <BLANKLINE>
               Unladen_mass = Test_mass - driver_mass
         type:
@@ -226,8 +226,8 @@ Schema
         - 'null'
         default: 1
       f_inertial:
-        description: This is the `kr` inertial-factor used in the 2nd part of the
-          formula for calculating required-power (Annex 2-3.1, p71).
+        description: This is the `kr` inertial-factor used in the 2nd part of the formula
+          for calculating required-power (Annex 2-3.1, p71).
         type:
         - number
         - 'null'
@@ -266,8 +266,8 @@ Schema
         - 1.15
         - 0.03
       f_downscale:
-        description: The downscaling-factor as calculated by the experiment (Annex
-          1-7.3, p68).
+        description: The downscaling-factor as calculated by the experiment (Annex 1-7.3,
+          p68).
         type: number
       wltc_data:
         $ref: /wltc
@@ -287,6 +287,7 @@ Schema
         type: array
         items:
           $ref: '#/definitions/positiveNumber'
+    <BLANKLINE>
 
 
 Automatic tests

@@ -138,6 +138,7 @@ class InstancesTest(unittest.TestCase):
 
     def testModelBase_plainInvalid(self):
         mdl = model.get_model_base()
+        model.upd_default_load_curve(mdl)
 
         self.checkModel_invalid(mdl)
 
@@ -174,12 +175,19 @@ class InstancesTest(unittest.TestCase):
         )
 
         model.model_validator().validate(mdl)
-        self.assertNotEqual(mdl["full_load_curve"], model.default_load_curve())
+        dwot = model.upd_default_load_curve({})["full_load_curve"]
+
+        self.assertNotEqual(mdl["full_load_curve"], dwot)
 
     def testModelInstance_defaultLoadCurve(self):
         mdl = model.get_model_base()
         mdl.update(goodVehicle())
-        mdl.update({"full_load_curve": model.default_load_curve()})
+        model.upd_default_load_curve(mdl)
+
+        validator = model.model_validator()
+        validator.validate(mdl)
+
+        model.upd_default_load_curve(mdl, "diesel")
 
         validator = model.model_validator()
         validator.validate(mdl)
@@ -265,7 +273,6 @@ class InstancesTest(unittest.TestCase):
         for c in cases:
             mdl = model.get_model_base()
             mdl = model.merge(model.get_model_base(), mdl)
-            del mdl["full_load_curve"]
             mdl["full_load_curve"] = c
             self.checkModel_invalid(mdl)
 

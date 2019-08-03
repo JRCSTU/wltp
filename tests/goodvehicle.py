@@ -8,6 +8,8 @@
 
 
 def goodVehicle():
+    from wltp import model
+
     goodVehicle = {
         "test_mass": 1500,
         "p_rated": 100,
@@ -16,4 +18,6 @@ def goodVehicle():
         # "n_min":   None,    # Can be overriden by manufacturer.
         "gear_ratios": [120.5, 75, 50, 43, 37, 32],
     }
+    goodVehicle = model.upd_default_load_curve(goodVehicle)
+
     return goodVehicle
