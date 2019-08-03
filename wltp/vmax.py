@@ -34,7 +34,7 @@ cols: ContextVar = wio.pstep_ctxvar(__name__)
 #:   - v_max: in kmh, or np.NAN if not found
 #:   - g_max: the number of the gear producing v_max
 #:   - wot: intermediate curves for solving the equation
-VMaxRec = namedtuple("VMaxRec", "v_max  g_max determined_by_n_lim  wot")
+VMaxRec = namedtuple("VMaxRec", "v_max  g_max  wot")
 
 
 def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
@@ -56,10 +56,8 @@ def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
     assert not wot.isnull().any(None), wot[wot.isnull()]
     assert (wot.index == wot[c.v]).all(), wot.loc[wot.index != wot[c.v], :]
 
-    determined_by_n_lim = False
     if (wot[c.p_remain] > 0).all():
         v_max = wot.index[-1]  # v @ max n
-        determined_by_n_lim = True
     else:
         v_max = np.NAN
         ## Zero-crossings of p_remain are marked as sign-changes,
@@ -91,7 +89,7 @@ def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
                 wot.loc[v_max - 5 * v_step : v_max + 5 * v_step, c.p_remain],
             )
 
-    return VMaxRec(v_max, None, determined_by_n_lim, wot)
+    return VMaxRec(v_max, None, wot)
 
 
 def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
