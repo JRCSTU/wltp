@@ -37,22 +37,6 @@ cols: ContextVar = wio.pstep_ctxvar(__name__)
 VMaxRec = namedtuple("VMaxRec", "v_max  g_max determined_by_n_lim  wot")
 
 
-def gear_name(g):
-    return f"g{g}"
-
-
-def gear_names(glist):
-    return [gear_name(g) for g in glist]
-
-
-def veh_name(g):
-    return f"v{g}"
-
-
-def veh_names(vlist):
-    return [veh_name(v) for v in vlist]
-
-
 def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
     """
     Find the velocity (the "x") where `p_remain` (the "y") down-crosses zero,
@@ -181,7 +165,7 @@ def calc_v_max(
         wots_df = pd.concat(
             gear_wot_dfs,
             axis=1,
-            keys=gear_names(range(ng, ng - len(gear_wot_dfs) - 1, -1)),
+            keys=wio.gear_names(range(ng, ng - len(gear_wot_dfs) - 1, -1)),
             names=["gear", "wot_item"],
             verify_integrity=True,
         )

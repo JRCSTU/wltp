@@ -17,6 +17,7 @@ import pytest
 from pandas import IndexSlice as _ix
 
 from wltp import downscale, vmax
+from wltp.io import gear_names, veh_names
 
 from . import vehdb
 
@@ -58,7 +59,7 @@ def test_v_max(h5db):
             gear_wot_dfs.values(),
             axis=1,
             # join="inner",
-            keys=vmax.gear_names(gear_wot_dfs.keys()),
+            keys=gear_names(gear_wot_dfs.keys()),
             names=["gear", "wot_item"],
             verify_integrity=True,
         )
@@ -73,11 +74,11 @@ def test_v_max(h5db):
     vehres = pd.DataFrame(
         recs,
         columns="vmax_Heinz  vmax_python  gmax_Heinz  gmax_python  wot".split(),
-        index=vmax.veh_names(veh_samples),
+        index=veh_names(veh_samples),
     ).astype({"gmax_Heinz": "Int64", "gmax_python": "Int64"})
 
     wots_df = pd.concat(
-        vehres["wot"].values, keys=vmax.veh_names(veh_samples), names=["vehicle"]
+        vehres["wot"].values, keys=veh_names(veh_samples), names=["vehicle"]
     )
     vehres = vehres.drop("wot", axis=1)
 

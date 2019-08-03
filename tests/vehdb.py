@@ -20,7 +20,9 @@ from pandas.api.types import is_numeric_dtype
 from pandas.core.generic import NDFrame
 
 import qgrid
+from wltp import io as wio
 from wltp.utils import yaml_dumps, yaml_loads
+
 
 log = logging.getLogger(__name__)
 
@@ -384,7 +386,7 @@ vehs_root = PurePosixPath("/vehicles")
 def vehnode(vehnum=None, *suffix):
     p = vehs_root
     if vehnum is not None:
-        p = vehs_root / ("v%0.3d" % int(vehnum))
+        p = vehs_root / (wio.veh_name(vehnum))
     return str(p.joinpath(*suffix))
 
 

@@ -74,3 +74,19 @@ def make_xy_df(data, xname=None, yname=None, auto_transpose=False) -> pd.DataFra
         return df
     except Exception as ex:
         raise ValueError(f"Invalid XY input(type: {type(data)}), due to: {ex}") from ex
+
+
+def veh_name(g):
+    return "v%0.3d" % int(g)
+
+
+def veh_names(vlist):
+    return [veh_name(v) for v in vlist]
+
+
+def gear_name(g):
+    return f"g{g}"
+
+
+def gear_names(glist):
+    return [gear_name(g) for g in glist]
