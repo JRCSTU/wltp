@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright 2013-2019 European Commission (JRC);
+# Licensed under the EUPL (the 'Licence');
+# You may not use this work except in compliance with the Licence.
+# You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+from pathlib import Path
+import pytest
+
+import papermill as pm
+
+
+@pytest.fixture(params=["CarsDB-pyalgo.ipynb"])
+def notebook(request):
+    nbfname = request.param
+    nbfpath = Path(__file__).parents[1] / "Notebooks" / nbfname
+    return nbfpath.resolve()
+
+
+@pytest.fixture
+def out_notebook(notebook, tmp_path):
+    return tmp_path / notebook.name
+
+
+def test_run_notebooks(notebook, out_notebook):
+    pm.execute_notebook(
+        str(notebook),
+        str(out_notebook),
+        cwd="Notebooks",
+        parameters={"skip_h5_write": True},
+        progress_bar=False,
+    )

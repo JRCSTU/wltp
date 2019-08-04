@@ -121,6 +121,7 @@ test_reqs = [
     "matplotlib",
     "coveralls",
     "openpyxl",  # for pandas to write excel-files
+    "papermill",
     "pytest",
     "pytest-cov",
     "sphinx",
