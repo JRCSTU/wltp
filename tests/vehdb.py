@@ -413,7 +413,7 @@ def load_vehicle_nodes(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
 # props, pwot = load_vehicle_nodes(h5fname, vehnum, "prop", "wot")
 
 
-def load_vehicle_data(h5, vehnum):
+def load_vehicle_accdb_inputs(h5, vehnum):
     """return the typical fata for a vehicle"""
 
     def func(h5db):
@@ -455,7 +455,7 @@ def run_pyalgo_on_Heinz_vehicle(
     from wltp import io as wio, pwot, utils
     from wltp.experiment import Experiment
 
-    props, wot, n2vs = load_vehicle_data(h5, vehnum)
+    props, wot, n2vs = load_vehicle_accdb_inputs(h5, vehnum)
 
     ## Map accdb columns: p_name --> 'Pwot'
     #
