@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
-def test_v_max(h5db):
+def test_v_max(h5_accdb):
     from . import conftest
 
     veh_samples = None
@@ -38,7 +38,7 @@ def test_v_max(h5db):
     # veh_samples = [31]  # [23]
 
     def make_v_maxes(vehnum):
-        props, wot, n2vs = vehdb.load_vehicle_accdb_inputs(h5db, vehnum)
+        props, wot, n2vs = vehdb.load_vehicle_accdb_inputs(h5_accdb, vehnum)
         wot = wot.rename({"Pwot": "p"}, axis=1)
         rec = vmax.calc_v_max(wot, n2vs, props.f0, props.f1, props.f2, 0.1)
 
@@ -65,7 +65,7 @@ def test_v_max(h5db):
 
         return wots_df
 
-    veh_nums = vehdb.all_vehnums(h5db)
+    veh_nums = vehdb.all_vehnums(h5_accdb)
     if not isinstance(veh_samples, (list, tuple)):
         veh_samples = random.sample(veh_nums, veh_samples) if veh_samples else veh_nums
 
