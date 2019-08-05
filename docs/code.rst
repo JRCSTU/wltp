@@ -267,6 +267,8 @@ Schema
       f_downscale:
         description: The downscaling-factor as calculated by the experiment (Annex 1-7.3,
           p68).
+
+          Set it to 0 to disable downscaling, (or to any other value to force it).
         type: number
       wltc_data:
         $ref: /wltc
