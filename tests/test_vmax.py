@@ -42,7 +42,7 @@ def test_v_max(h5db):
         wot = wot.rename({"Pwot": "p"}, axis=1)
         rec = vmax.calc_v_max(wot, n2vs, props.f0, props.f1, props.f2, 0.1)
 
-        return (props["v_max"], rec.v_max, props["gear_v_max"], rec.g_max, rec.wot)
+        return (props["v_max"], rec.v_max, props["gear_v_max"], rec.g_v_max, rec.wot)
 
     def _package_wots_df(gear_wot_dfs):
         assert gear_wot_dfs

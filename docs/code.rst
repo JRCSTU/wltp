@@ -75,7 +75,21 @@ Schema
         - number
         - 'null'
         exclusiveMinimum: 0
-        description: The calculcated maximum velocity, as defined in Annex 2-2.i.
+        description: (OUT) The calculcated maximum velocity, as defined in Annex 2-2.i.
+      n_v_max:
+        title: engine speed for maximum vehicle velocity
+        type:
+        - number
+        - 'null'
+        exclusiveMinimum: 0
+        description: (OUT) The engine speed for `v_max`.
+      g_v_max:
+        title: gear for maximum vehicle velocity
+        type:
+        - number
+        - 'null'
+        exclusiveMinimum: 0
+        description: (OUT) The gear for achieving `v_max`.
       p_rated:
         title: maximum rated power
         $ref: '#/definitions/positiveNumber'
@@ -265,9 +279,9 @@ Schema
         - 1.15
         - 0.03
       f_downscale:
-        description: The downscaling-factor as calculated by the experiment (Annex 1-7.3,
-          p68).
-
+        description: |
+          The downscaling-factor as calculated by the experiment (Annex 1-8.3).
+    <BLANKLINE>
           Set it to 0 to disable downscaling, (or to any other value to force it).
         type: number
       wltc_data:

@@ -32,10 +32,10 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
     * In the :doc:`CHANGES`.
     * Presented in the diagrams of the :doc:`metrics` section.
     * Imprinted in the :mod:`~tests.test_wltp_db` test-case
-      which automatically compares, on each build, the mean RPMs & Gears of this program 
-      against Heinz's *phase-1a* (end of 2014) MSAccess, 
+      which automatically compares, on each build, the mean RPMs & Gears of this program
+      against Heinz's *phase-1a* (end of 2014) MSAccess,
       for a pre-determined set of *Heinz-db* vehicles.
-      Currently, genrated mean-RPMs differ from Heinz-db < 0.5% and 
+      Currently, genrated mean-RPMs differ from Heinz-db < 0.5% and
       gears < 5% for a 1800-step class-3 cycle.
 
 .. _end-opening:
@@ -79,7 +79,7 @@ The *Input & Output DataModels* are instances of :dfn:`pandas-model`, trees of s
 
 Quick-start
 -----------
-`Launch it in binder <https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md>`_, 
+`Launch it in binder <https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md>`_,
 or install it locally (below).
 
 .. Note::
@@ -99,7 +99,7 @@ Or in case you need the very latest from *master* branch :
 
 
 For development, clone this repository, and install it in *develop-mode*,
-with *extras* ensuring all needed dependencies are installed and 
+with *extras* ensuring all needed dependencies are installed and
 with *pre-commit hook* for auto-formatting python-code with *black*:
 
 .. code-block:: shell
@@ -365,7 +365,7 @@ before running the experiment:
 
     >>> mdl = processor.model               ## Returns the validated model with filled-in defaults.
     >>> sorted(mdl)                         ## The "defaulted" model now includes the `params` branch.
-    ['driver_mass', 'f_downscale_decimals', 'f_downscale_threshold', 'f_inertial', 'f_n_clutch_gear2', 
+    ['driver_mass', 'f_downscale_decimals', 'f_downscale_threshold', 'f_inertial', 'f_n_clutch_gear2',
      'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 'gear_ratios', 'n_idle', 'n_min', 'n_rated',
      'p_rated', 'resistance_coeffs', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold',
      'wltc_data', 'wot']
@@ -377,10 +377,10 @@ Now you can run the experiment:
 
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-    ['cycle_run', 'driver_mass', 'f_downscale', 'f_downscale_decimals', 'f_downscale_threshold', 
-     'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 
-     'gear_ratios', 'n_idle', 'n_min', 'n_rated', 'p_rated', 'pmr', 
-     'resistance_coeffs', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 
+    ['cycle_run', 'driver_mass', 'f_downscale', 'f_downscale_decimals', 'f_downscale_threshold',
+     'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin',
+     'g_v_max', 'gear_ratios', 'n_idle', 'n_min', 'n_rated', 'n_v_max', 'p_rated', 'pmr',
+     'resistance_coeffs', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold',
      'wltc_class', 'wltc_data', 'wot']
 
 
@@ -473,11 +473,11 @@ This project is hosted in **github**.
 To provide feedback about bugs and errors or questions and requests for enhancements,
 use `github's Issue-tracker <https://github.com/JRCSTU/wltp/issues>`_.
 
-Remember to install and arm a *pre-commit* hook with *black* 
+Remember to install and arm a *pre-commit* hook with *black*
 to auto-format you python-code (see "Quick-start", above).
 
 
-Run test-cases with *pytest*, or call this helper-script to check also 
+Run test-cases with *pytest*, or call this helper-script to check also
 the doctests, coverage & the site:
 
 .. code-block:: shell
