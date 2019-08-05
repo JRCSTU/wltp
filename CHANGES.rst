@@ -52,6 +52,9 @@ Questions to Heinz
     * In Annex-2.g, `v_max3` is actually :math:`(n/v)(ng_{\bold{vmax}}) \times V_{max,vehicle}`,
       correct?
 
+* Downscale: vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
+  while the GTR write downscale only if that threshold excheeded;  why?
+
 
 .. _todos-list:
 

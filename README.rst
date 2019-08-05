@@ -377,11 +377,12 @@ Now you can run the experiment:
 
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-    ['cycle_run', 'driver_mass', 'f_downscale', 'f_downscale_decimals', 'f_downscale_threshold',
-     'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin',
+    ['cycle_run', 'driver_mass', 'f_downscale', 'f_downscale_decimals', 'f_downscale_threshold', 
+     'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin',
      'g_v_max', 'gear_ratios', 'n_idle', 'n_min', 'n_rated', 'n_v_max', 'p_rated', 'pmr',
-     'resistance_coeffs', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold',
-     'wltc_class', 'wltc_data', 'wot']
+     'resistance_coeffs', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class',
+     'wltc_data', 'wot']
+
 
 
 

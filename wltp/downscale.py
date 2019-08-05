@@ -78,7 +78,7 @@ def calc_downscale_factor(
 
     if r_max >= r0:
         f_downscale = a1 * r_max + b1
-        f_downscale = round1(f_downscale, f_downscale_decimals)
+        f_downscale = f_downscale_orig = round1(f_downscale, f_downscale_decimals)
 
         ## ATTENTION:
         #  By the spec, f_downscale MUST be > 0.01 to apply,
@@ -87,9 +87,9 @@ def calc_downscale_factor(
         if f_downscale <= f_downscale_threshold:
             f_downscale = 0
     else:
-        f_downscale = 0
+        f_downscale = f_downscale_orig = 0
 
-    return f_downscale
+    return f_downscale, f_downscale_orig
 
 
 def downscale_class_velocity(V: pd.Series, f_downscale, phases) -> pd.Series:

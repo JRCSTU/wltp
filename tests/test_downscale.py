@@ -50,7 +50,7 @@ def test_smoke1():
     phases = dsc_data["phases"]
     p_max_values = dsc_data["p_max_values"]
     downsc_coeffs = dsc_data["factor_coeffs"]
-    f_downscale = calc_downscale_factor(
+    f_downscale, _orig_f = calc_downscale_factor(
         p_max_values,
         downsc_coeffs,
         p_rated,

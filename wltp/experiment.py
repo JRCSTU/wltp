@@ -192,7 +192,7 @@ class Experiment(object):
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
                 downsc_coeffs = dsc_data["factor_coeffs"]
-                f_downscale = downscale.calc_downscale_factor(
+                f_downscale, f_dscl_orig = downscale.calc_downscale_factor(
                     p_max_values,
                     downsc_coeffs,
                     p_rated,
@@ -205,6 +205,7 @@ class Experiment(object):
                     f_inertial,
                 )
                 mdl["f_downscale"] = f_downscale
+                mdl["f_dscl_orig"] = f_dscl_orig
 
             if f_downscale > 0:
                 V = downscale.downscale_class_velocity(V, f_downscale, phases)
