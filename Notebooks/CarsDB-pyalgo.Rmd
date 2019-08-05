@@ -17,6 +17,13 @@ jupyter:
 It builds an an [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5) 
 with the *outputs* (`oprop`, `cycle`) from this *wltp* library.
 
+```{python tags=c("parameters")}
+### Cell tagged as `parameters` for *papermill*.
+#
+skip_h5_write = False
+del_h5_on_start = False
+```
+
 ```{python}
 ## To autoreload codein python files here.
 # %load_ext autoreload
@@ -67,7 +74,8 @@ c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 
 ```{python}
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
-# !rm -f {out_h5fname}
+if del_h5_on_start:
+    !rm -f {out_h5fname}
 ```
 
 ```{python}
@@ -123,7 +131,7 @@ def store_python_results(
 
 
 with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname) as outh5:
-    store_python_results(inph5, outh5)  # , [59])
+    store_python_results(inph5, outh5, no_write=skip_h5_write)#, vehile_nums=[59])
 ```
 
 ```{python}
@@ -132,10 +140,11 @@ vehdb.print_nodes(out_h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x8 HDF5: 143Mb-->18Mb in ~6s.
-#
-# !ls -lh {out_h5fname}
-# !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:blosclz -o {out_h5fname}.tmp
-# !mv  {out_h5fname}.tmp {out_h5fname}
-# !ls -lh {out_h5fname}
+if not skip_h5_write:
+    ## COMPRESS x8 HDF5: 143Mb-->18Mb in ~6s.
+    #
+    !ls -lh {out_h5fname}
+    !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:blosclz -o {out_h5fname}.tmp
+    !mv  {out_h5fname}.tmp {out_h5fname}
+    !ls -lh {out_h5fname}
 ```
