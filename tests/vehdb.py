@@ -457,12 +457,10 @@ def run_pyalgo_on_Heinz_vehicle(
 
     props, wot, n2vs = load_vehicle_accdb_inputs(h5, vehnum)
 
-    ## Map accdb columns: p_name --> 'Pwot'
-    #
-    with utils.ctxtvar_redefined(wio.pstep_factory, Pstep("", [("/wot/p", "Pwot")])):
-        norm_pwot = pwot.normalize_pwot(
-            wot, props.idling_speed, props.rated_speed, props.rated_power
-        )
+    ## Map accdb columns: p --> 'Pwot'
+    wot = wot.rename({"Pwot": "p"}, axis=1)
+    wot["n"] = wot.index
+
     inverse_SM = 1.0 - props.SM
 
     input_model = utils.yaml_loads(
@@ -481,7 +479,7 @@ def run_pyalgo_on_Heinz_vehicle(
         f_safety_margin: {inverse_SM}
         """
     )
-    input_model["full_load_curve"] = norm_pwot
+    input_model["full_load_curve"] = wot
 
     exp = Experiment(input_model)
     output_model = exp.run()

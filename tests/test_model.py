@@ -26,7 +26,9 @@ class Test(unittest.TestCase):
         mdl = exp._model
         defwot = model.upd_default_load_curve({})["full_load_curve"]
         self.assertTrue(
-            pd.DataFrame(mdl["full_load_curve"]).equals(pd.DataFrame(defwot))
+            pd.DataFrame(mdl["full_load_curve"][["n_norm", "p_norm"]]).equals(
+                pd.DataFrame(defwot)
+            )
         )
 
     @skip("Cascade-models disabled")  ##TODO: Re-enable when pandel works.

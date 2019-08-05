@@ -168,7 +168,6 @@ Schema
         type:
         - object
         - array
-        - 'null'
       pmr:
         title: Power to Unladen-Mass
         description: Power/unladen-Mass ratio (W/kg).

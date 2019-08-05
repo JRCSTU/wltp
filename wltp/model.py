@@ -37,6 +37,7 @@ from pandas.core.generic import NDFrame
 
 from pandalone.pandata import PandelVisitor
 
+from . import io as wio
 from . import utils
 from .cycles import class1, class2, class3
 
@@ -331,7 +332,6 @@ properties:
     type:
     - object
     - array
-    - 'null'
   pmr:
     title: Power to Unladen-Mass
     description: Power/unladen-Mass ratio (W/kg).
@@ -794,39 +794,69 @@ def validate_model(
 
 
 def yield_load_curve_errors(mdl):
+    from . import pwot
+
+    c = wio.pstep_factory.get()
+    w = wio.pstep_factory.get().wot
+
     wot = mdl.get("full_load_curve")
-    if wot is None:
+    if any(i is None for i in [wot, mdl[c.n_idle], mdl[c.n_rated], mdl[c.p_rated]]):
         # bail out, jsonschema errors already reported.
         return
 
     try:
         if not isinstance(wot, pd.DataFrame):
             wot = pd.DataFrame(wot)
-        if wot.shape[0] < wot.shape[1]:
+
+        if wot.empty:
+            yield ValidationError(f"Empty WOT: {mdl.get('full_load_curve')}!")
+            return
+
+        if wot.shape[0] <= 2 and wot.shape[0] < wot.shape[1]:
             wot = wot.T
 
         cols = wot.columns
         if wot.shape[1] == 1:
-            if cols[0] != "p_norm":
+            ## Only assume columns if column-names are defaults.
+            #
+            if cols[0] != w.p and cols[0] == 0:
                 log.warning(
-                    "Assuming the single-column(%s) to be the `p_norm` and the index the `n_norm`.",
-                    cols[0],
+                    "Assuming the single-column WOT to be the `%s` and the index the `%s`.",
+                    w.n,
+                    w.p,
                 )
-                cols = ["p_norm"]
+                cols = ["p"]
                 wot.columns = cols
-            wot["n_norm"] = wot.index
-            wot = wot[["n_norm", "p_norm"]]
+            wot[w.n] = wot.index
+            wot = wot[[w.n, w.p]]
         elif wot.shape[1] == 2:
-            if not all(isinstance(i, str) for i in cols):
-                wot.columns = ["n_norm", "p_norm"]
+            ## Only assume columns if column-names are defaults.
+            #
+            if tuple(cols) == (0, 1):
+                wot.columns = [w.n, w.p]
+                log.warning("Assuming the 2-column WOT to be: %s, %s", *wot.columns)
 
-        p_norm = wot["p_norm"]
-        if min(p_norm) < 0:
+        wot = pwot.denorm_wot(mdl, wot)
+        wot = pwot.norm_wot(mdl, wot)
+
+        n = wot[w.n]
+        if min(n) < 0:
             yield ValidationError(
-                "The full_load_curve must not contain negative power(%f)!" % min(p_norm)
+                "The full_load_curve must not contain negative engine speed(%f)!"
+                % min(n)
             )
+
+        p = wot[w.p]
+        if min(p) < 0:
+            yield ValidationError(
+                "The full_load_curve must not contain negative power(%f)!" % min(p)
+            )
+
+        p_norm = wot[w.p_norm]
         if max(p_norm) > 1:
-            log.warning("The full_load_curve must not exceed 1, found %f!", max(p_norm))
+            log.warning(
+                "The full_load_curve must not exceed `p_rated`, found %f!", max(p_norm)
+            )
 
         mdl["full_load_curve"] = wot
     except (KeyError, PandasError) as ex:

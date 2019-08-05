@@ -10,6 +10,9 @@ import logging
 
 import numpy as np
 import pandas as pd
+from graphkit import compose as gk_compose
+from graphkit import operation as gk_op
+from graphkit.modifiers import optional as gk_opt
 from scipy import interpolate, optimize
 
 from . import io as wio
@@ -18,31 +21,61 @@ from .invariants import v_decimals, v_step, vround
 log = logging.getLogger(__name__)
 
 
-def normalize_pwot(pwot, n_idle, n_rated, p_rated):
-    c = wio.pstep_factory.get().wot
-
-    pwot = pwot.copy()
-    pwot[c.n] = pwot.index
-
-    pwot[c.n_norm] = (pwot[c.n] - n_idle) / (n_rated - n_idle)
-    pwot[c.p_norm] = pwot[c.p] / p_rated
-
-    return pwot[[c.n_norm, c.p_norm]]
+def denormalize_n(wot_df: pd.DataFrame, n_idle, n_rated):
+    w = wio.pstep_factory.get().wot
+    wot_df[w.n] = n_idle + (n_rated * n_idle) * wot_df[w.n_norm]
+    return wot_df
 
 
-def denormalize_pwot(pwot, n_idle, n_rated, p_rated):
-    c = wio.pstep_factory.get().wot
-    # wot.index =n_idle + (n_rated * n_idle) * wot[c.n_norm]
-    # wot['p'] = n_idle + (n_rated * n_idle) * wot[c.n]
+def denormalize_p(wot_df: pd.DataFrame, p_rated):
+    w = wio.pstep_factory.get().wot
+    wot_df[w.p] = p_rated * wot_df[w.p_norm]
+    return wot_df
+
+
+def denorm_wot(mdl, wot_df):
+    c = wio.pstep_factory.get()
+    w = wio.pstep_factory.get().wot
+
+    if w.n not in wot_df:
+        wot_df = denormalize_n(wot_df, mdl[c.n_idle], mdl[c.n_rated])
+    if w.p not in wot_df:
+        wot_df = denormalize_p(wot_df, mdl[c.p_rated])
+
+    return wot_df
+
+
+def normalize_n(wot_df: pd.DataFrame, n_idle, n_rated):
+    w = wio.pstep_factory.get().wot
+    wot_df[w.n_norm] = (wot_df[w.n] - n_idle) / (n_rated - n_idle)
+    return wot_df
+
+
+def normalize_p(wot_df: pd.DataFrame, p_rated):
+    w = wio.pstep_factory.get().wot
+    wot_df[w.p_norm] = wot_df[w.p] / p_rated
+    return wot_df
+
+
+def norm_wot(mdl, wot_df):
+    c = wio.pstep_factory.get()
+    w = wio.pstep_factory.get().wot
+
+    if w.n_norm not in wot_df:
+        wot_df = normalize_n(wot_df, mdl[c.n_idle], mdl[c.n_rated])
+    if w.p_norm not in wot_df:
+        wot_df = normalize_p(wot_df, mdl[c.p_rated])
+
+    return wot_df
 
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):
     """Return a new linearly interpolated df on v with v_decimals. """
-    c = wio.pstep_factory.get().wot
+    w = wio.pstep_factory.get().wot
 
     assert wot.size
 
-    V = wot[c.v]
+    V = wot[w.v]
 
     ## Clip V-grid inside min/max of wot-N.
     #
@@ -80,6 +113,6 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame):
 
     wot = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
     ## Throw-away the interpolated v, it's inaccurate, use the "x" (v-grid) instead.
-    wot.index = wot[c.v] = V_grid
+    wot.index = wot[w.v] = V_grid
 
     return wot
