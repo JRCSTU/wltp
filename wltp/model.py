@@ -134,7 +134,7 @@ def upd_default_load_curve(mdl, engine_type="petrol"):
     n_norm = np.arange(0.0, 1.21, 0.01)
     #        petrol = np.polyval([-1.0411, 1.3853, -0.5647, 1.1107, 0.0967], n_norm).tolist()
     #        diesel = np.polyval([-0.909, 1.9298, -2.2212, 2.088, 0.095], n_norm).tolist()
-    mdl["full_load_curve"] = {"n_norm": n_norm, "p_norm": wots[engine_type]}
+    mdl["wot"] = {"n_norm": n_norm, "p_norm": wots[engine_type]}
 
     return mdl
 
@@ -198,7 +198,7 @@ required:
 - n_rated
 - n_idle
 - gear_ratios
-- full_load_curve
+- wot
 - driver_mass
 - v_stopped_threshold
 - f_inertial
@@ -298,10 +298,10 @@ properties:
           f2 = a20 * test_mass + a21,
 
       where `a00, ..., a22` specified in `/params`.
-  full_load_curve:
-    title: full load power curve
+  wot:
+    title: wide open throttle curves
     description: |2
-      An array/dict/dataframe holding the P_wot curve in (at least) 2 columns ('n', 'p')
+      An array/dict/dataframe holding the full load power curves for (at least) 2 columns ('n', 'p')
       or the normalized values ('n_norm', 'p_norm').
 
       Example:
@@ -799,7 +799,7 @@ def yield_load_curve_errors(mdl):
     c = wio.pstep_factory.get()
     w = wio.pstep_factory.get().wot
 
-    wot = mdl.get("full_load_curve")
+    wot = mdl.get("wot")
     if any(i is None for i in [wot, mdl[c.n_idle], mdl[c.n_rated], mdl[c.p_rated]]):
         # bail out, jsonschema errors already reported.
         return
@@ -809,7 +809,7 @@ def yield_load_curve_errors(mdl):
             wot = pd.DataFrame(wot)
 
         if wot.empty:
-            yield ValidationError(f"Empty WOT: {mdl.get('full_load_curve')}!")
+            yield ValidationError(f"Empty WOT: {mdl.get('wot')}!")
             return
 
         if wot.shape[0] <= 2 and wot.shape[0] < wot.shape[1]:
@@ -842,23 +842,20 @@ def yield_load_curve_errors(mdl):
         n = wot[w.n]
         if min(n) < 0:
             yield ValidationError(
-                "The full_load_curve must not contain negative engine speed(%f)!"
-                % min(n)
+                "The wot must not contain negative engine speed(%f)!" % min(n)
             )
 
         p = wot[w.p]
         if min(p) < 0:
             yield ValidationError(
-                "The full_load_curve must not contain negative power(%f)!" % min(p)
+                "The wot must not contain negative power(%f)!" % min(p)
             )
 
         p_norm = wot[w.p_norm]
         if max(p_norm) > 1:
-            log.warning(
-                "The full_load_curve must not exceed `p_rated`, found %f!", max(p_norm)
-            )
+            log.warning("The wot must not exceed `p_rated`, found %f!", max(p_norm))
 
-        mdl["full_load_curve"] = wot
+        mdl["wot"] = wot
     except (KeyError, PandasError) as ex:
         yield ValidationError("Invalid Full-load-curve, due to: %s" % ex, cause=ex)
 

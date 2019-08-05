@@ -39,7 +39,7 @@ Schema
     - n_rated
     - n_idle
     - gear_ratios
-    - full_load_curve
+    - wot
     - driver_mass
     - v_stopped_threshold
     - f_inertial
@@ -134,10 +134,10 @@ Schema
               f2 = a20 * test_mass + a21,
     <BLANKLINE>
           where `a00, ..., a22` specified in `/params`.
-      full_load_curve:
-        title: full load power curve
+      wot:
+        title: wide open throttle curves
         description: |
-          An array/dict/dataframe holding the P_wot curve in (at least) 2 columns ('n', 'p')
+          An array/dict/dataframe holding the full load power curves for (at least) 2 columns ('n', 'p')
           or the normalized values ('n_norm', 'p_norm').
     <BLANKLINE>
           Example:

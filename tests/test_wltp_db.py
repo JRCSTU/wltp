@@ -929,7 +929,7 @@ def _run_the_experiments(
         veh["v_max"] = row["v_max"]
         ngears = int(row["no_of_gears"])
         veh["gear_ratios"] = list(row["ndv_1" : "ndv_%s" % ngears])  #'ndv_1'
-        veh["full_load_curve"] = _select_wot(wots, row["IDcat"] == 2)
+        veh["wot"] = _select_wot(wots, row["IDcat"] == 2)
 
         if transplant_original_gears:
             log.warning(">>> Transplanting gears from Heinz's!")

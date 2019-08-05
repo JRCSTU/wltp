@@ -479,7 +479,7 @@ def run_pyalgo_on_Heinz_vehicle(
         f_safety_margin: {inverse_SM}
         """
     )
-    input_model["full_load_curve"] = wot
+    input_model["wot"] = wot
 
     exp = Experiment(input_model)
     output_model = exp.run()

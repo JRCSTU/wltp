@@ -150,7 +150,7 @@ class Experiment(object):
             ## TODO: real calc v_max.
             v_max = 140
             # from . import vmax, utils
-            # wot = mdl["full_load_curve"]
+            # wot = mdl["wot"]
             # wot.index =n_idle + (n_rated * n_idle) * wot['n_norm']
             # wot['p'] = n_idle + (n_rated * n_idle) * wot['n']
             # v_max = vmax.calc_v_max({}, wot, gear_ratios, f0, f1, f2, 1 - f_inertial)
@@ -225,7 +225,7 @@ class Experiment(object):
         ## Run cycle to find internal matrices for all gears
         #    and (optionally) gearshifts.
         #
-        load_curve = mdl["full_load_curve"]
+        load_curve = mdl["wot"]
         (
             GEARS_ORIG,
             CLUTCH,

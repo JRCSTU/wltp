@@ -157,7 +157,7 @@ class InstancesTest(unittest.TestCase):
 
         self.assertRaisesRegex(
             jsonschema.ValidationError,
-            "'full_load_curve' is a required property",
+            "'wot' is a required property",
             validator.validate,
             mdl,
         )
@@ -167,7 +167,7 @@ class InstancesTest(unittest.TestCase):
         mdl.update(goodVehicle())
         mdl.update(
             {
-                "full_load_curve": [
+                "wot": [
                     [1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23, 0.23],
                 ]
@@ -175,9 +175,9 @@ class InstancesTest(unittest.TestCase):
         )
 
         model.model_validator().validate(mdl)
-        dwot = model.upd_default_load_curve({})["full_load_curve"]
+        dwot = model.upd_default_load_curve({})["wot"]
 
-        self.assertNotEqual(mdl["full_load_curve"], dwot)
+        self.assertNotEqual(mdl["wot"], dwot)
 
     def testModelInstance_defaultLoadCurve(self):
         mdl = model.get_model_base()
@@ -252,7 +252,7 @@ class InstancesTest(unittest.TestCase):
         for c in cases:
             mdl = goodVehicle()
             mdl = model.merge(model.get_model_base(), mdl)
-            mdl["full_load_curve"] = c
+            mdl["wot"] = c
             self.checkModel_valid(mdl)
 
     def testFullLoadCurve_invalid(self):
@@ -273,7 +273,7 @@ class InstancesTest(unittest.TestCase):
         for c in cases:
             mdl = model.get_model_base()
             mdl = model.merge(model.get_model_base(), mdl)
-            mdl["full_load_curve"] = c
+            mdl["wot"] = c
             self.checkModel_invalid(mdl)
 
     def test_default_resistance_coeffs_missing(self):
