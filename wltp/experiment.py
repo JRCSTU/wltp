@@ -132,7 +132,6 @@ class Experiment(object):
         n_rated = mdl["n_rated"]
         n_idle = mdl["n_idle"]
         n_min_drive = mdl["n_min"]
-        v_max = mdl.get("v_max", None)
         gear_ratios = mdl["gear_ratios"]
         res_coeffs = mdl.get("resistance_coeffs")
         if res_coeffs:
@@ -144,16 +143,11 @@ class Experiment(object):
         else:
             raise ValueError("Missing resistance_coeffs!")
 
+        wot = mdl["wot"]
         f_inertial = mdl["f_inertial"]
 
-        if v_max is None:
-            ## TODO: real calc v_max.
-            v_max = 140
-            # from . import vmax, utils
-            # wot = mdl["wot"]
-            # wot.index =n_idle + (n_rated * n_idle) * wot['n_norm']
-            # wot['p'] = n_idle + (n_rated * n_idle) * wot['n']
-            # v_max = vmax.calc_v_max({}, wot, gear_ratios, f0, f1, f2, 1 - f_inertial)
+        v_max_rec = vmax.calc_v_max(wot, gear_ratios, f0, f1, f2, 1 - f_inertial)
+        v_max = v_max_rec.v_max
 
         p_m_ratio = 1000 * p_rated / unladen_mass
         mdl["pmr"] = p_m_ratio
@@ -225,7 +219,6 @@ class Experiment(object):
         ## Run cycle to find internal matrices for all gears
         #    and (optionally) gearshifts.
         #
-        load_curve = mdl["wot"]
         (
             GEARS_ORIG,
             CLUTCH,
@@ -235,16 +228,7 @@ class Experiment(object):
             _N_NORMS,
             driveability_issues,
         ) = run_cycle(
-            V,
-            A,
-            P_REQ,
-            gear_ratios,
-            n_idle,
-            n_min_drive,
-            n_rated,
-            p_rated,
-            load_curve,
-            mdl,
+            V, A, P_REQ, gear_ratios, n_idle, n_min_drive, n_rated, p_rated, wot, mdl
         )
         cycle_run["clutch"] = CLUTCH  # TODO: Allow overridde clutch, etc.
         if "gears_orig" in cycle_run:

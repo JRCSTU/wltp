@@ -153,9 +153,8 @@ def calc_v_max(
 
         return wots_df
 
-    wot = wio.make_xy_df(wot, xname=c.n, yname=c.p_wot, auto_transpose=True)
     wot[c.n] = wot.index
-    wot[c.p_avail] = wot[c.p_wot] * (1.0 - f_safety_margin)
+    wot[c.p_avail] = wot[c.p] * (1.0 - f_safety_margin)
 
     ## Scan gears from high --> low-4 but stop at most on 2nd gear.
     #  TODO: apply selective logic for ng-x gears from Heinz-DB?

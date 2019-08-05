@@ -237,7 +237,7 @@ properties:
     - number
     - 'null'
     exclusiveMinimum: 0
-    description: The calculcated maximum velocity, as defined in Annex 2-3.i.
+    description: The calculcated maximum velocity, as defined in Annex 2-2.i.
   p_rated:
     title: maximum rated power
     $ref: '#/definitions/positiveNumber'
