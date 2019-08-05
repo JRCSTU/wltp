@@ -111,19 +111,11 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
 
 
 def calc_v_max(
-    mdl: dict,
-    wot: Union[pd.Series, pd.DataFrame],
-    gear_n2v_ratios,
-    f0,
-    f1,
-    f2,
-    f_safety_margin,
+    wot: Union[pd.Series, pd.DataFrame], gear_n2v_ratios, f0, f1, f2, f_safety_margin
 ) -> VMaxRec:
     """
     Finds the maximum velocity achieved by all gears.
 
-    :param mdl: 
-        store solution wot (see code where)
     :param wot:
         A a 2D-matrix(lists/numpy), dict, df(1-or-2 cols) or series 
         containing the corresponding P(kW) value for each N in its index,

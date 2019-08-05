@@ -37,11 +37,9 @@ def test_v_max(h5db):
     # veh_samples = [38]  # diff vmax order higher 1st
     # veh_samples = [31]  # [23]
 
-    def make_v_maxes(vehnum, mdl: dict):
+    def make_v_maxes(vehnum):
         props, Pwot, n2vs = vehdb.load_vehicle_accdb_inputs(h5db, vehnum)
-        rec = vmax.calc_v_max(
-            mdl, Pwot["Pwot"], n2vs, props.f0, props.f1, props.f2, 0.1
-        )
+        rec = vmax.calc_v_max(Pwot["Pwot"], n2vs, props.f0, props.f1, props.f2, 0.1)
 
         return (props["v_max"], rec.v_max, props["gear_v_max"], rec.g_max, rec.wot)
 
@@ -70,7 +68,7 @@ def test_v_max(h5db):
     if not isinstance(veh_samples, (list, tuple)):
         veh_samples = random.sample(veh_nums, veh_samples) if veh_samples else veh_nums
 
-    recs = [make_v_maxes(vehnum, {}) for vehnum in veh_samples]
+    recs = [make_v_maxes(vehnum) for vehnum in veh_samples]
     vehres = pd.DataFrame(
         recs,
         columns="vmax_Heinz  vmax_python  gmax_Heinz  gmax_python  wot".split(),
