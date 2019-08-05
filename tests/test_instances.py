@@ -294,8 +294,7 @@ class InstancesTest(unittest.TestCase):
         ngears = len(mdl["gear_ratios"])
         fields_array_or_single_like_gears = [
             # JsonPath                   Values,                    AllowNone
-            ("/n_min", [300, [350] * ngears], True),
-            ("/f_safety_margin", [3.14, [5.0] * ngears], False),
+            ("/n_min", [300, [350] * ngears], True)
         ]
         for (field, values, allowNone) in fields_array_or_single_like_gears:
             for value in values if not allowNone else values + [None]:

@@ -144,15 +144,16 @@ class Experiment(object):
             raise ValueError("Missing resistance_coeffs!")
 
         wot = mdl["wot"]
-        f_inertial = mdl["f_inertial"]
+        f_safety_margin = mdl["f_safety_margin"]
 
-        v_max_rec = vmax.calc_v_max(wot, gear_ratios, f0, f1, f2, 1 - f_inertial)
+        v_max_rec = vmax.calc_v_max(wot, gear_ratios, f0, f1, f2, f_safety_margin)
         mdl["v_max"] = v_max = v_max_rec.v_max
         mdl["n_v_max"] = v_max_rec.n_v_max
         mdl["g_v_max"] = v_max_rec.g_v_max
 
         p_m_ratio = 1000 * p_rated / unladen_mass
         mdl["pmr"] = p_m_ratio
+        f_inertial = mdl["f_inertial"]
 
         forced_v_column = "v_target"
         V = cycle_run.get(forced_v_column)
@@ -455,7 +456,7 @@ def calcPower_available(
     #     intrerp_f       = interp1d(load_curve[0], load_curve[1], kind='linear', bounds_error=False, fill_value=0, copy=False)
     #     P_WOT           = intrerp_f(_N_NORMS)
     safety_margins = np.tile(p_safety_margin, (_N_GEARS.shape[1], 1)).T
-    _P_AVAILS = _P_WOTS * safety_margins * p_rated
+    _P_AVAILS = _P_WOTS * (1 - safety_margins) * p_rated  # TODO: impl ASM
 
     return (_P_AVAILS, _N_NORMS)
 
@@ -811,8 +812,10 @@ def run_cycle(
         f_n_clutch_gear2[0] * n_idle, f_n_clutch_gear2[1] * n_range + n_idle
     )
 
-    p_safety_margin = mdl.get("f_safety_margin", 0.9)
-    v_stopped_threshold = mdl.get("v_stopped_threshold", 1)  # Km/h
+    p_safety_margin = mdl.get("f_safety_margin", 0.1)  # TODO: model-defaulter
+    v_stopped_threshold = mdl.get(
+        "v_stopped_threshold", 1
+    )  # Km/h,   # TODO: model-defaulter
 
     (_N_GEARS, _GEARS, _GEAR_RATIOS) = calcEngineRevs_required(
         V, gear_ratios, n_idle, v_stopped_threshold

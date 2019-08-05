@@ -240,20 +240,18 @@ Schema
         default: 1
       f_inertial:
         description: This is the `kr` inertial-factor used in the 2nd part of the formula
-          for calculating required-power (Annex 2-3.1, p71).
+          for calculating required-power (Annex 2-3.1).
         type:
         - number
         - 'null'
         default: 1.03
       f_safety_margin:
         description: |
-          Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).
-          If array, its length must match those of the `gear_ratios`.
+          Safety-margin(SM) factor for load-curve (Annex 2-3.4).
         type:
-        - array
         - number
         - 'null'
-        default: 0.9
+        default: 0.1
       f_n_min:
         description: For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
           `n_min` overriden by manufacturer)

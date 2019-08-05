@@ -461,8 +461,6 @@ def run_pyalgo_on_Heinz_vehicle(
     wot = wot.rename({"Pwot": "p"}, axis=1)
     wot["n"] = wot.index
 
-    inverse_SM = 1.0 - props.SM
-
     input_model = utils.yaml_loads(
         f"""
         gear_ratios:  {n2vs}
@@ -476,7 +474,7 @@ def run_pyalgo_on_Heinz_vehicle(
         n_rated:      {props.rated_speed}
         n_idle:       {props.idling_speed}
         v_max:        {props.v_max}
-        f_safety_margin: {inverse_SM}
+        f_safety_margin: {props.SM}
         """
     )
     input_model["wot"] = wot

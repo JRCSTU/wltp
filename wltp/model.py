@@ -74,7 +74,7 @@ def get_model_base():
         "driver_mass": 75,  # kg
         "v_stopped_threshold": 1,  # km/h, <=
         "f_inertial": 1.03,
-        "f_safety_margin": 0.9,  # TODO: this must change to 1-SM = 0.1
+        "f_safety_margin": 0.1,
         "f_n_min": 0.125,
         "f_n_min_gear2": 0.9,
         "f_n_clutch_gear2": [1.15, 0.03],
@@ -407,20 +407,18 @@ properties:
   f_inertial:
     description:
       This is the `kr` inertial-factor used in the 2nd part of the
-      formula for calculating required-power (Annex 2-3.1, p71).
+      formula for calculating required-power (Annex 2-3.1).
     type:
     - number
     - 'null'
     default: 1.03
   f_safety_margin:
     description: |2
-      Safety-margin factor for load-curve due to transitional effects (Annex 2-3.3, p72).
-      If array, its length must match those of the `gear_ratios`.
+      Safety-margin(SM) factor for load-curve (Annex 2-3.4).
     type:
-    - array
     - number
     - 'null'
-    default: 0.9
+    default: 0.1
   f_n_min:
     description:
       For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
@@ -788,7 +786,6 @@ def validate_model(
         validator.iter_errors(mdl),
         yield_load_curve_errors(mdl),
         yield_n_min_errors(mdl),
-        yield_safety_margin_errors(mdl),
         yield_forced_cycle_errors(mdl, additional_properties),
     ]
     errors = it.chain(*[v for v in validators if not v is None])
@@ -890,22 +887,6 @@ def yield_n_min_errors(mdl):
                 mdl["n_min"] = [n_min] * ngears
         except PandasError as ex:
             yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause=ex)
-
-
-def yield_safety_margin_errors(mdl):
-    f_safety_margin = mdl["f_safety_margin"]
-    ngears = len(mdl["gear_ratios"])
-    try:
-        if isinstance(f_safety_margin, Sized):
-            if len(f_safety_margin) != ngears:
-                yield ValidationError(
-                    "Length mismatch of f_safety_margin(%s) != gear_ratios(%s)!"
-                    % (len(f_safety_margin), ngears)
-                )
-        else:
-            mdl["f_safety_margin"] = [f_safety_margin] * ngears
-    except PandasError as ex:
-        yield ValidationError("Invalid 'gear_n_min', due to: %s" % ex, cause=ex)
 
 
 def yield_forced_cycle_errors(mdl, additional_properties):
