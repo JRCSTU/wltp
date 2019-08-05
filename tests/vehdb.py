@@ -413,8 +413,8 @@ def load_vehicle_nodes(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
 # props, pwot = load_vehicle_nodes(h5fname, vehnum, "prop", "wot")
 
 
-def load_vehicle_accdb_inputs(h5, vehnum):
-    """return the typical fata for a vehicle"""
+def load_vehicle_accdb_inputs(h5, vehnum) -> Tuple[pd.Series, pd.DataFrame, list]:
+    """return the typical data for a vehicle in accdc: io-props, wot, n2vs"""
 
     def func(h5db):
         props = load_vehicle_nodes(h5db, vehnum, "prop")
@@ -427,7 +427,7 @@ def load_vehicle_accdb_inputs(h5, vehnum):
     return res
 
 
-def all_vehnums(h5) -> List[int]:
+def all_vehnums(h5) -> List[int]:  # TODO: rename to all_cases()
     def func(h5db):
         vehnums = [int(g._v_name[1:]) for g in h5db._handle.iter_nodes(vehnode())]
         return sorted(vehnums)
@@ -480,20 +480,23 @@ def run_pyalgo_on_Heinz_vehicle(
     input_model["wot"] = wot
 
     exp = Experiment(input_model)
-    output_model = exp.run()
+    veh = exp.run()
 
     ## Keep only *output* key-values, not to burden HDF data-model
     #  (excluding `driveability`, which is a list, and f0,f1,f2, addume were input).
     #
-    veh = output_model
+    # oprops = {k: v for k, v in veh if np.isscalar(v)}
     oprops = {
-        "f_downscale": output_model["f_downscale"],
         "pmr": veh["pmr"],
-        "wltc_class": veh["wltc_class"],
+        "n95_low": veh["n95_low"],
+        "n95_high": veh["n95_high"],
         "v_max": veh["v_max"],
+        "wltc_class": veh["wltc_class"],
+        "f_dscl_orig": veh["f_dscl_orig"],
+        "f_downscale": veh["f_downscale"],
     }
 
-    cycle_run = output_model["cycle_run"]
+    cycle_run = veh["cycle_run"]
     # Drop `driveability` arrays, not to burden HDF data-model.
     cycle_run = cycle_run.drop("driveability", axis=1)
     ## Gears are `int8`, and h5 pickles them.

@@ -144,6 +144,9 @@ class Experiment(object):
             raise ValueError("Missing resistance_coeffs!")
 
         wot = mdl["wot"]
+        n95_low, n95_high = pwot.calc_n95(wot, n_rated)
+        mdl["n95_low"], mdl["n95_high"] = n95_low, n95_high
+
         f_safety_margin = mdl["f_safety_margin"]
 
         v_max_rec = vmax.calc_v_max(wot, gear_ratios, f0, f1, f2, f_safety_margin)

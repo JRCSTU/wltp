@@ -115,9 +115,10 @@ equivalent_columns = [
     ("test_mass", None),
     ("kerb_mass", None),
     ("vehicle_class", "wltc_class"),
-    ("pmr_km", "pmr"),
+    #("pmr_km", "pmr"),
     ("f_dsc_req", "f_downscale"),
-    ("v_max", "v_max")
+    ("v_max", "v_max"),
+    ("n_max1", "n95_high"),
 ]
 
 cdf = sr_cmpr.compare((p1, p2), equivalent_columns, dataset_names)
@@ -171,6 +172,7 @@ equivalent_props = [
     ("vehicle_class", None),
     ("pmr_km", None),
     ("f_dsc_req", "f_downscale"),
+    ("n_max1", "n95_high"),
 ]
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
 ```
