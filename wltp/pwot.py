@@ -10,9 +10,6 @@ import logging
 
 import numpy as np
 import pandas as pd
-from graphkit import compose as gk_compose
-from graphkit import operation as gk_op
-from graphkit.modifiers import optional as gk_opt
 from scipy import interpolate, optimize
 
 from . import io as wio
