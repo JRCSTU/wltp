@@ -7,6 +7,7 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 import logging
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
@@ -30,7 +31,7 @@ def denormalize_p(wot_df: pd.DataFrame, p_rated):
     return wot_df
 
 
-def denorm_wot(mdl, wot_df):
+def denorm_wot(mdl, wot_df: pd.DataFrame):
     c = wio.pstep_factory.get()
     w = wio.pstep_factory.get().wot
 
@@ -54,7 +55,7 @@ def normalize_p(wot_df: pd.DataFrame, p_rated):
     return wot_df
 
 
-def norm_wot(mdl, wot_df):
+def norm_wot(mdl, wot_df: pd.DataFrame):
     c = wio.pstep_factory.get()
     w = wio.pstep_factory.get().wot
 
@@ -66,11 +67,56 @@ def norm_wot(mdl, wot_df):
     return wot_df
 
 
+def pre_proc_wot(mdl, wot):
+    """Ensure wot contains p,n, p_nor, n_norm columns."""
+    w = wio.pstep_factory.get().wot
+
+    if not isinstance(wot, pd.DataFrame):
+        wot = pd.DataFrame(wot)
+
+    if wot.empty:
+        raise ValueError(f"Empty WOT: {mdl.get('wot')}!")
+
+    if wot.shape[0] <= 2 and wot.shape[0] < wot.shape[1]:
+        wot = wot.T
+
+    cols = wot.columns
+    if wot.shape[1] == 1:
+        ## Only assume columns if column-names are defaults.
+        #
+        if cols[0] != w.p and cols[0] == 0:
+            log.warning(
+                "Assuming the single-column WOT to be the `%s` and the index the `%s`.",
+                w.n,
+                w.p,
+            )
+            cols = [w.p]
+            wot.columns = cols
+        wot[w.n] = wot.index
+        wot = wot[[w.n, w.p]]
+    elif wot.shape[1] == 2:
+        ## Only assume columns if column-names are defaults.
+        #
+        if tuple(cols) == (0, 1):
+            wot.columns = [w.n, w.p]
+            log.warning("Assuming the 2-column WOT to be: %s, %s", *wot.columns)
+
+    if not any(c in wot.columns for c in [w.n, w.n_norm]):
+        raise ValueError(f"Wot is missing one of: {w.n}, {w.n_norm}")
+    if not any(c in wot.columns for c in [w.p, w.p_norm]):
+        raise ValueError(f"Wot is missing one of: {w.p}, {w.p_norm}")
+
+    wot = denorm_wot(mdl, wot)
+    wot = norm_wot(mdl, wot)
+
+    return wot
+
+
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):
     """Return a new linearly interpolated df on v with v_decimals. """
     w = wio.pstep_factory.get().wot
 
-    assert wot.size
+    assert wot.size, "Empty wot!"
 
     V = wot[w.v]
 
@@ -108,8 +154,50 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame):
     def interp(C):
         return interpolate.interp1d(V, C, copy=False, assume_sorted=True)(V_grid)
 
-    wot = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
+    wot_grid = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
     ## Throw-away the interpolated v, it's inaccurate, use the "x" (v-grid) instead.
-    wot.index = wot[w.v] = V_grid
+    wot_grid.index = wot_grid[w.v] = V_grid
 
-    return wot
+    return wot_grid
+
+
+def calc_n95(wot: pd.DataFrame, n_rated) -> Tuple[float, float]:
+    """
+    Find wot's n95_low/high (Annex 2-2.g).
+
+    Split `P_norm` in 2 sections around `n_rated`, and interpolate separately
+    each section.  
+    
+    :return:
+        a tuple with (low, hgh); both can be np.NAN if failed to find (error info-logged)
+    """
+    w = wio.pstep_factory.get().wot
+
+    assert wot.size, "Empty wot!"
+    assert not set([w.n, w.p_norm]) - set(wot.columns), (
+        "Wot missing columns:",
+        [w.n, w.p_norm],
+        wot.columns,
+    )
+    assert wot[w.n].min() < n_rated <= wot[w.n].max()
+
+    def interp_n95(label, P, N_norm):
+        n_intep = interpolate.interp1d(P, N_norm, copy=False, assume_sorted=True)
+        try:
+            n95 = n_intep(0.95).item()
+        except Exception as ex:
+            if isinstance(ex, ValueError) and str(ex).startswith("A value in x_new"):
+                log.info(f"Cannot find n95_{label} due to: {ex}")
+                n95 = np.NAN
+            else:
+                raise
+        return n95
+
+    wot_low = wot.loc[wot[w.n] <= n_rated, :]
+    n95_low = interp_n95("low", wot_low[w.p_norm], wot_low[w.n])
+
+    # INVERSED so ``interp1d(assume_sorted=True)`` does not blow.
+    wot_high = wot.loc[wot[w.n] >= n_rated, :].iloc[::-1]
+    n95_high = interp_n95("high", wot_high[w.p_norm], wot_high[w.n])
+
+    return n95_low, n95_high

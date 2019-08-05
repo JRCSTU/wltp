@@ -817,40 +817,12 @@ def yield_load_curve_errors(mdl):
         return
 
     try:
-        if not isinstance(wot, pd.DataFrame):
-            wot = pd.DataFrame(wot)
+        wot = pwot.pre_proc_wot(mdl, wot)
+    except Exception as ex:
+        yield ValidationError("Invalid Full-load-curve, due to: %s" % ex, cause=ex)
+        return
 
-        if wot.empty:
-            yield ValidationError(f"Empty WOT: {mdl.get('wot')}!")
-            return
-
-        if wot.shape[0] <= 2 and wot.shape[0] < wot.shape[1]:
-            wot = wot.T
-
-        cols = wot.columns
-        if wot.shape[1] == 1:
-            ## Only assume columns if column-names are defaults.
-            #
-            if cols[0] != w.p and cols[0] == 0:
-                log.warning(
-                    "Assuming the single-column WOT to be the `%s` and the index the `%s`.",
-                    w.n,
-                    w.p,
-                )
-                cols = ["p"]
-                wot.columns = cols
-            wot[w.n] = wot.index
-            wot = wot[[w.n, w.p]]
-        elif wot.shape[1] == 2:
-            ## Only assume columns if column-names are defaults.
-            #
-            if tuple(cols) == (0, 1):
-                wot.columns = [w.n, w.p]
-                log.warning("Assuming the 2-column WOT to be: %s, %s", *wot.columns)
-
-        wot = pwot.denorm_wot(mdl, wot)
-        wot = pwot.norm_wot(mdl, wot)
-
+    try:
         n = wot[w.n]
         if min(n) < 0:
             yield ValidationError(
