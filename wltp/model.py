@@ -816,9 +816,14 @@ def yield_load_curve_errors(mdl):
         return
 
     try:
-        mdl["wot"] = wot = pwot.preproc_wot(mdl, wot)
+        mdl["wot"] = wot = pwot.parse_wot(wot)
     except Exception as ex:
-        yield ValidationError("Invalid Full-load-curve, due to: %s" % ex, cause=ex)
+        yield ValidationError("Failed parsing wot due to: %s" % ex, cause=ex)
+
+    try:
+        wot = pwot.validate_wot(mdl, wot)
+    except Exception as ex:
+        yield ValidationError("Invalid wot due to: %s" % ex, cause=ex)
 
 
 def yield_n_min_errors(mdl):

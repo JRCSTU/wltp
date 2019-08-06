@@ -5,6 +5,8 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+import re
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -43,7 +45,7 @@ def test_preproc_wot_equals(mdl, xy):
 
 
 @pytest.mark.parametrize(
-    "xy, err",
+    "wot, err",
     [
         (1, ValueError("DataFrame constructor not properly called!")),
         ([1, 2, 5], ValueError("Wot is missing one of: n")),
@@ -57,7 +59,6 @@ def test_preproc_wot_equals(mdl, xy):
         ([], ValueError("Empty WOT:")),
         ([[]], ValueError("Empty WOT:")),
         ([[], []], ValueError("Empty WOT:")),
-        ([[1, 2], [3, 4]], ValueError("Too few points in wot")),
         (pd.DataFrame({"n": [1, 2, 3]}), ValueError("Wot is missing one of: p")),
         (pd.DataFrame({"n_norm": [1, 2, 3]}), ValueError("Wot is missing one of: p")),
         (
@@ -65,18 +66,47 @@ def test_preproc_wot_equals(mdl, xy):
             ValueError("Wot is missing one of: n"),
         ),
         (
-            pd.DataFrame({"n": [700, 2000, 5000], "p_norm": [0.1, 12, 0.8]}),
-            ValueError(),
-        ),
-        (
             pd.DataFrame({"a": [1, 2, 3], "b": [1, 2, 3]}),
             ValueError("Wot is missing one of: n"),
         ),
     ],
 )
-def test_preproc_wot_errors(mdl, xy, err):
+def test_parse_wot_errors(mdl, wot, err):
     with pytest.raises(type(err), match=str(err)):
-        print(pwot.preproc_wot(mdl, xy))
+        print(pwot.parse_wot(wot))
+
+
+@pytest.mark.parametrize(
+    "wot, n_idle, n_rated, p_rated, err",
+    [
+        # ([[1, 2], [3, 4]], None, None, None, ValueError("Too few points in wot")),
+        (
+            {"p": _P, "n": _N},
+            None,
+            None,
+            100,
+            ValueError(re.escape("wot(P) much lower than p_rated(100)!")),
+        ),
+        (
+            {"p": _P, "n": _N},
+            None,
+            None,
+            20,
+            ValueError(re.escape("wot(P) much bigger than p_rated(20)!")),
+        ),
+    ],
+)
+def test_validate_wot_errors(mdl, wot, n_idle, n_rated, p_rated, err):
+    if n_idle is not None:
+        mdl["n_idle"] = n_idle
+    if n_rated is not None:
+        mdl["n_rated"] = n_rated
+    if p_rated is not None:
+        mdl["p_rated"] = p_rated
+
+    wot = pwot.parse_wot(wot)
+    with pytest.raises(type(err), match=str(err)):
+        print(pwot.validate_wot(mdl, wot))
 
 
 @pytest.mark.parametrize(

@@ -67,16 +67,23 @@ def norm_wot(mdl, wot_df: pd.DataFrame):
     return wot_df
 
 
-def preproc_wot(mdl, wot) -> pd.DataFrame:
-    """
-    Make a df from 2D-matrix(lists/numpy), dict, df(1-or-2 cols) or series,
-
-    ensuring the result wot contains one of `p`, `p_norm`, and `n`, `n_norm` columns.
-    """
+def _wot_defs() -> Tuple:
     c = wio.pstep_factory.get()
     w = wio.pstep_factory.get().wot
     n_columns = set([w.n, w.n_norm])
     p_columns = set([w.p, w.p_norm])
+    return c, w, n_columns, p_columns
+
+
+def parse_wot(wot) -> pd.DataFrame:
+    """
+    Make a wot-df from 2D-matrix(lists/numpy), dict, df(1-or-2 cols) or series,
+
+    ensuring the result wot contains one of `p`, `p_norm`, and `n`, `n_norm` columns.
+
+    Use if from interactive code to quickly feed algo with some tabular wot.
+    """
+    _, w, n_columns, p_columns = _wot_defs()
 
     wot_orig = wot
 
@@ -141,6 +148,19 @@ def preproc_wot(mdl, wot) -> pd.DataFrame:
     if not bool(wot_columns & p_columns):
         raise ValueError(f"Wot is missing one of: {w.p}, {w.p_norm}")
 
+    return wot
+
+
+def validate_wot(mdl: pd.DataFrame, wot) -> pd.DataFrame:
+    """Higher-level validation of the wot-curves with repect to model."""
+    c, w, n_columns, p_columns = _wot_defs()
+
+    wot_columns = set(wot.columns)
+    if not bool(wot_columns & n_columns):
+        raise ValueError(f"Wot is missing one of: {w.n}, {w.n_norm}")
+    if not bool(wot_columns & p_columns):
+        raise ValueError(f"Wot is missing one of: {w.p}, {w.p_norm}")
+
     wot = denorm_wot(mdl, wot)
     wot = norm_wot(mdl, wot)
 
@@ -164,6 +184,18 @@ def preproc_wot(mdl, wot) -> pd.DataFrame:
         raise ValueError(f"wot(N) starts much lower than n_idle({n_idle})!\n{wot}")
     if wot[w.n].max() < n_rated <= wot[w.n].max():
         raise ValueError(f"n_rated({n_rated}) is not within wot(N)!\n{wot}")
+
+    return wot
+
+
+def preproc_wot(mdl, wot) -> pd.DataFrame:
+    """
+    Parses & validates wot from string or other matrix format 
+    
+    see  :func:`parse_wot()`
+    """
+    wot = parse_wot(wot)
+    wot = validate_wot(mdl, wot)
 
     return wot
 
