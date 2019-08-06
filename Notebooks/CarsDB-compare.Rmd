@@ -162,14 +162,9 @@ equivalent_series = [
 ]
 cols1, cols2 = zip(*equivalent_series)
 cols1, cols2 = list(cols1), list(cols2)
-cc1 = pd.concat((p1.unstack(), c1[cols1].abs().mean(level=0)), axis=1)
-cc2 = pd.concat((p2.unstack(), c2[cols2].abs().mean(level=0)), axis=1)
-
-## Convert props to numerics
-cc1[cols1 + ["pmr_km", "f_dsc_req"]] = cc1[cols1 + ["pmr_km", "f_dsc_req"]].astype(
-    "float64"
-)
-cc2[cols2 + ["f_downscale"]] = cc2[cols2 + ["f_downscale"]].astype("float64")
+## Concat props to col-aggregates & convert prop-cols to numerics
+cc1 = pd.concat((p1.unstack().infer_objects(), c1[cols1].abs().mean(level=0)), axis=1)
+cc2 = pd.concat((p2.unstack().infer_objects(), c2[cols2].abs().mean(level=0)), axis=1)
 
 equivalent_props = [
     ("Description", None),
