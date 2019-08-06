@@ -87,10 +87,14 @@ def load_heinz_and_python_datasets(veh_nums=None):
     return p1, c1, p2, c2
 
 p1, c1, p2, c2 = load_heinz_and_python_datasets()
+p1 = p1.unstack(); p2 = p2.unstack()
 ```
 
 ```{python}
-print(columnize(list(p1.index.levels[1]), displaywidth=160))
+print(
+    columnize(list(p1.columns), displaywidth=160),
+    columnize(list(p2.columns), displaywidth=160),
+)
 ```
 
 ```{python}
@@ -103,7 +107,7 @@ display(
 
 ```{python}
 sr_cmpr = vehdb.Comparator(lambda d, c: d[:, c], no_styling=True)
-dataset_names = "Heinz Python".split()
+dataset_names = "accdb Python".split()
 ```
 
 ```{python}
@@ -121,7 +125,7 @@ equivalent_columns = [
     ("n_max1", "n95_high"),
 ]
 
-cdf = sr_cmpr.compare((p1, p2), equivalent_columns, dataset_names)
+cdf = sr_cmpr.compare((p1.stack(), p2.stack()), equivalent_columns, dataset_names)
 ## Workaround qgrid's hate for hierarchical-columns:
 #  https://github.com/quantopian/qgrid/issues/18#issuecomment-149321165
 cdf.columns = [' '.join(col).strip() for col in cdf.columns.values]
@@ -131,7 +135,7 @@ display(vehdb.grid(cdf, fitcols=False, cwidth=100),)
 
 ```{python}
 print(columnize(list(c1.columns), displaywidth=160))
-print(c2.columns)
+print(p2.columns, c2.columns)
 ```
 
 ```{python}
@@ -174,6 +178,11 @@ equivalent_props = [
     ("f_dsc_req", "f_downscale"),
     ("n_max1", "n95_high"),
 ]
+display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
+```
+
+```{python}
+cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
 ```
 

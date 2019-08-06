@@ -14,18 +14,20 @@ from typing import Any, Callable, Dict, List
 from typing import Sequence as Seq
 from typing import Tuple, Union
 
+import numpy as np
 import pandas as pd
 from pandas import HDFStore
+from pandas import IndexSlice as idx
 from pandas.api.types import is_numeric_dtype
 from pandas.core.generic import NDFrame
-from pandalone.mappings import Pstep
 
 import qgrid
+from pandalone.mappings import Pstep
 from wltp import io as wio
 from wltp import utils
 
-
 log = logging.getLogger(__name__)
+EPS = sys.float_info.epsilon
 
 
 def _human_time(unixtime: int = None) -> str:
@@ -260,6 +262,7 @@ class Comparator:
     def __init__(
         self,
         col_accesor: Callable[[NDFrame, str], NDFrame],
+        *,
         no_diff_prcnt=False,
         diff_colname="diffs",
         diff_bar_kw={"align": "mid", "color": ["#d65f5f", "#5fba7d"]},
@@ -269,8 +272,8 @@ class Comparator:
         :param col_accessor:
             how to pick a column from an ndframe
         :param no_diff_prcnt:
-            if this is falsy, and all equivalent columns are numerics,
-            result dataframe contains an extra *diff* column.
+            if this is falsy, the result dataframe contains an extra *diff prcnt* column
+            if the respective equivalent-columns are numerics.
         :param diff_colname`:
             how to name the extra *diff* column (does nothing for when not generated)
         :param diff_bar_kw:
@@ -303,21 +306,41 @@ class Comparator:
 
         if not self.no_diff_prcnt and all(is_numeric_dtype(d) for d in picked_cols):
             d0, *drest = picked_cols
-
             picked_cols = [d0]
             for d in drest:
-                picked_cols.extend((d, 100 * (d0 - d) / d0))
+                picked_cols.extend((d, d0 - d))
 
-            dataset_names = dataset_names + ["diffs[%]"]
+            dataset_names = dataset_names + ["diff"]
 
         return pd.concat(picked_cols, axis=1, keys=dataset_names)
+
+    def _col_0(self, equiv_colnames):
+        return next(iter(zip(*equiv_colnames)))
+
+    def _concat_datasets(
+        self,
+        datasets,
+        equiv_colnames: Seq[Seq[str]],
+        dataset_names: Seq[str],
+        keys: Seq[str],
+    ):
+        return pd.concat(
+            (
+                self._pick_n_diff_columns(datasets, cols, dataset_names)
+                for cols in equiv_colnames
+            ),
+            axis=1,
+            keys=keys,
+        )
 
     def compare(
         self,
         datasets: Seq,
         equiv_colnames: Seq[Seq[str]],
         dataset_names: Seq[str],
+        *,
         no_styling=None,
+        describe=False,
     ):
         """
         List side-by-side same-kind columns (with different names) from many datasets,
@@ -340,18 +363,15 @@ class Comparator:
         if no_styling is None:
             no_styling = self.no_styling
 
-        col_level_0 = list(zip(*equiv_colnames))[0]
-        df = pd.concat(
-            (
-                self._pick_n_diff_columns(datasets, cols, dataset_names)
-                for cols in equiv_colnames
-            ),
-            axis=1,
-            keys=col_level_0,
-        )
+        col_0 = self._col_0(equiv_colnames)
+        df = self._concat_datasets(datasets, equiv_colnames, dataset_names, keys=col_0)
+        if describe:
+            nonzeros = (df != 0).sum().to_frame().T
+            nonzeros.index = ["nonzero"]
+            df = pd.concat((df.describe(), nonzeros), axis=0)
 
         if self.diff_bar_kw and not no_styling:
-            df = self._styled_with_diff_bars(df, col_level_0)
+            df = self._styled_with_diff_bars(df, col_0)
         return df
 
     def _styled_with_diff_bars(self, df, col_level_0):
