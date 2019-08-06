@@ -461,7 +461,7 @@ def run_pyalgo_on_Heinz_vehicle(
     wot = wot.rename({"Pwot": "p"}, axis=1)
     wot["n"] = wot.index
 
-    input_model = utils.yaml_loads(
+    input_model: dict = utils.yaml_loads(
         f"""
         gear_ratios:  {n2vs}
         resistance_coeffs:

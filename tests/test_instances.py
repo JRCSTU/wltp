@@ -192,69 +192,6 @@ class InstancesTest(unittest.TestCase):
         validator = model.model_validator()
         validator.validate(mdl)
 
-    def testFullLoadCurve_valid(self):
-        import numpy as np
-        import pandas as pd
-
-        flc = np.array([[0.01, 0.5, 1, 1.2], [0.11, 0.77, 1, 0.88]])
-        cases = [
-            flc.tolist(),
-            flc.T.tolist(),
-            flc,
-            flc.T,
-            {"n_norm": flc[0], "p_norm": flc[1]},
-            {
-                "n_norm": flc[0],
-                "p_norm": flc[1],
-                "foo": [1, 2, 3, 4],
-                "bar": [0, 0, 0, 4],
-            },
-            {
-                "foo": [1, 2, 3, 4],
-                "bar": [0, 0, 0, 0],
-                "n_norm": flc[0],
-                "p_norm": flc[1],
-            },
-            {
-                "foo": [1, 2, 3, 4],
-                "n_norm": flc[0],
-                "bar": [0, 0, 0, 0],
-                "p_norm": flc[1],
-            },
-            pd.Series(flc[1], index=flc[0]),
-            pd.DataFrame({"n_norm": flc[0], "p_norm": flc[1]}),
-            pd.DataFrame(
-                {
-                    "n_norm": flc[0],
-                    "p_norm": flc[1],
-                    "foo": [1, 2, 3, 4],
-                    "bar": [0, 0, 0, 0],
-                }
-            ),
-            pd.DataFrame(
-                {
-                    "foo": [1, 2, 3, 4],
-                    "bar": [0, 0, 0, 0],
-                    "n_norm": flc[0],
-                    "p_norm": flc[1],
-                }
-            ),
-            pd.DataFrame(
-                {
-                    "foo": [1, 2, 3, 4],
-                    "n_norm": flc[0],
-                    "bar": [0, 0, 0, 0],
-                    "p_norm": flc[1],
-                }
-            ),
-        ]
-
-        for c in cases:
-            mdl = goodVehicle()
-            mdl = model.merge(model.get_model_base(), mdl)
-            mdl["wot"] = c
-            self.checkModel_valid(mdl)
-
     def testFullLoadCurve_invalid(self):
         import numpy as np
         import pandas as pd

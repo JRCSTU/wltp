@@ -809,38 +809,15 @@ def yield_load_curve_errors(mdl):
     from . import pwot
 
     c = wio.pstep_factory.get()
-    w = wio.pstep_factory.get().wot
 
     wot = mdl.get("wot")
-    if any(i is None for i in [wot, mdl[c.n_idle], mdl[c.n_rated], mdl[c.p_rated]]):
+    if wot is None or mdl is None:
         # bail out, jsonschema errors already reported.
         return
 
     try:
-        wot = pwot.pre_proc_wot(mdl, wot)
+        mdl["wot"] = wot = pwot.pre_proc_wot(mdl, wot)
     except Exception as ex:
-        yield ValidationError("Invalid Full-load-curve, due to: %s" % ex, cause=ex)
-        return
-
-    try:
-        n = wot[w.n]
-        if min(n) < 0:
-            yield ValidationError(
-                "The wot must not contain negative engine speed(%f)!" % min(n)
-            )
-
-        p = wot[w.p]
-        if min(p) < 0:
-            yield ValidationError(
-                "The wot must not contain negative power(%f)!" % min(p)
-            )
-
-        p_norm = wot[w.p_norm]
-        if max(p_norm) > 1:
-            log.warning("The wot must not exceed `p_rated`, found %f!", max(p_norm))
-
-        mdl["wot"] = wot
-    except (KeyError, PandasError) as ex:
         yield ValidationError("Invalid Full-load-curve, due to: %s" % ex, cause=ex)
 
 

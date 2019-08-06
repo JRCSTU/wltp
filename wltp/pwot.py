@@ -73,14 +73,22 @@ def pre_proc_wot(mdl, wot) -> pd.DataFrame:
 
     ensuring the result wot contains one of `p`, `p_norm`, and `n`, `n_norm` columns.
     """
+    c = wio.pstep_factory.get()
     w = wio.pstep_factory.get().wot
 
-    input_was_pandas = isinstance(wot, (pd.DataFrame, pd.Series))
+    wot_orig = wot
+    n_in_index = False
+    if (
+        isinstance(wot, (pd.DataFrame, pd.Series))
+        and (wot.index != range(len(wot.index))).any()
+    ):
+        n_in_index = True
+
     if not isinstance(wot, pd.DataFrame):
         wot = pd.DataFrame(wot)
 
     if wot.empty:
-        raise ValueError(f"Empty WOT: {mdl.get('wot')}!")
+        raise ValueError(f"Empty WOT: {wot_orig}!")
 
     if wot.shape[0] <= 2 and wot.shape[0] < wot.shape[1]:
         wot = wot.T
@@ -89,7 +97,7 @@ def pre_proc_wot(mdl, wot) -> pd.DataFrame:
     #
     if (
         wot.shape[1] == 1
-        and input_was_pandas
+        and n_in_index
         and (wot.columns[0] == 0 or wot.columns[0] in (w.p, w.p_norm))
     ):
         if wot.columns[0] == 0:
@@ -99,9 +107,10 @@ def pre_proc_wot(mdl, wot) -> pd.DataFrame:
         log.warning(
             "Assuming single-column WOT to be `%s` with index `%s`.", *wot.columns
         )
+
+    ## Accept 2-columns if column-names were unamed.
+    #
     elif wot.shape[1] == 2:
-        ## Accept 2-columns if column-names were unamed.
-        #
         if tuple(wot.columns) == (0, 1):
             wot.columns = [w.n, w.p]
             log.warning("Assuming the 2-column WOT to be: %s, %s", *wot.columns)
@@ -113,6 +122,27 @@ def pre_proc_wot(mdl, wot) -> pd.DataFrame:
 
     wot = denorm_wot(mdl, wot)
     wot = norm_wot(mdl, wot)
+
+    if wot.shape[0] < 3:
+        raise ValueError(f"Too few points in wot!\n  At least 3 rows needed:\n{wot}")
+
+    ## Higher-level checks in actual data
+    #
+    n_rated = mdl[c.n_rated]
+    n_idle = mdl[c.n_idle]
+    p_rated = mdl[c.p_rated]
+
+    if wot[w.p].min() < 0:
+        raise ValueError(f"wot(P) reaches negatives({wot[w.p].min()})!\n{wot}")
+    if wot[w.p_norm].max() > 1.05:
+        raise ValueError(f"wot(P) much bigger than p_rated({p_rated})!\n{wot}")
+    if wot[w.p_norm].max() < 0.95:
+        raise ValueError(f"wot(P) much lower than p_rated({p_rated})!\n{wot}")
+
+    if wot[w.n_norm].min() < -0.1:
+        raise ValueError(f"wot(N) starts much lower than n_idle({n_idle})!\n{wot}")
+    if wot[w.n].max() < n_rated <= wot[w.n].max():
+        raise ValueError(f"n_rated({n_rated}) is not within wot(N)!\n{wot}")
 
     return wot
 
@@ -173,6 +203,8 @@ def calc_n95(wot: pd.DataFrame, n_rated) -> Tuple[float, float]:
     Split `P_norm` in 2 sections around `n_rated`, and interpolate separately
     each section.  
     
+    :wot:
+        Must contain `n` & `p_norm`.
     :return:
         a tuple with (low, hgh); both can be np.NAN if failed to find (error info-logged)
     """
