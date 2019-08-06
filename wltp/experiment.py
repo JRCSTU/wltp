@@ -219,7 +219,7 @@ class Experiment(object):
 
         ## Remaining n_max values
         #
-        last_n2v = gear_ratios[-1]
+        last_n2v = gear_ratios[mdl["g_v_max"] - 1]
         mdl["n_max2"] = last_n2v * cycle_run["v_class"].max()
         mdl["n_max3"] = last_n2v * mdl["v_max"]
         mdl["n_max"] = max(mdl["n95_high"], mdl["n_max2"], mdl["n_max3"])
