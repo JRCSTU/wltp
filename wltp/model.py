@@ -816,7 +816,7 @@ def yield_load_curve_errors(mdl):
         return
 
     try:
-        mdl["wot"] = wot = pwot.pre_proc_wot(mdl, wot)
+        mdl["wot"] = wot = pwot.preproc_wot(mdl, wot)
     except Exception as ex:
         yield ValidationError("Invalid Full-load-curve, due to: %s" % ex, cause=ex)
 

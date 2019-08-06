@@ -34,11 +34,11 @@ def mdl():
         pd.Series(dict(_NP.tolist())),
     ],
 )
-def test_pre_proc_wot_equals(mdl, xy):
-    got = pwot.pre_proc_wot(mdl, xy)
+def test_preproc_wot_equals(mdl, xy):
+    got = pwot.preproc_wot(mdl, xy)
     assert isinstance(got, pd.DataFrame) and got.shape == (3, 4)
     got = got.reset_index(drop=True)
-    exp = pwot.pre_proc_wot(mdl, pd.DataFrame(_NP, columns=["n", "p"]))
+    exp = pwot.preproc_wot(mdl, pd.DataFrame(_NP, columns=["n", "p"]))
     assert (got == exp).all(None)
 
 
@@ -74,9 +74,9 @@ def test_pre_proc_wot_equals(mdl, xy):
         ),
     ],
 )
-def test_pre_proc_wot_errors(mdl, xy, err):
+def test_preproc_wot_errors(mdl, xy, err):
     with pytest.raises(type(err), match=str(err)):
-        print(pwot.pre_proc_wot(mdl, xy))
+        print(pwot.preproc_wot(mdl, xy))
 
 
 @pytest.mark.parametrize(
@@ -98,7 +98,7 @@ def test_pre_proc_wot_errors(mdl, xy, err):
     ],
 )
 def test_pre_proc_high_level(mdl, wot):
-    pwot.pre_proc_wot(mdl, wot)
+    pwot.preproc_wot(mdl, wot)
 
 
 def test_calc_n95(h5_accdb):
@@ -120,7 +120,7 @@ def test_calc_n95(h5_accdb):
         )
         wot = wot.rename({"Pwot": "p", "Pwot_norm": "p_norm"}, axis=1)
         wot["n"] = wot.index
-        wot = pwot.pre_proc_wot(
+        wot = pwot.preproc_wot(
             props.rename({"idling_speed": "n_idle", "rated_speed": "n_rated"}), wot
         )
         n95 = pwot.calc_n95(wot, props["n_rated"])

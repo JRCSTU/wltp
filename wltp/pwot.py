@@ -67,7 +67,7 @@ def norm_wot(mdl, wot_df: pd.DataFrame):
     return wot_df
 
 
-def pre_proc_wot(mdl, wot) -> pd.DataFrame:
+def preproc_wot(mdl, wot) -> pd.DataFrame:
     """
     Make a df from 2D-matrix(lists/numpy), dict, df(1-or-2 cols) or series,
 
