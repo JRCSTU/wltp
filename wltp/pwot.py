@@ -67,10 +67,15 @@ def norm_wot(mdl, wot_df: pd.DataFrame):
     return wot_df
 
 
-def pre_proc_wot(mdl, wot):
-    """Ensure wot contains p,n, p_nor, n_norm columns."""
+def pre_proc_wot(mdl, wot) -> pd.DataFrame:
+    """
+    Make a df from 2D-matrix(lists/numpy), dict, df(1-or-2 cols) or series,
+
+    ensuring the result wot contains one of `p`, `p_norm`, and `n`, `n_norm` columns.
+    """
     w = wio.pstep_factory.get().wot
 
+    input_was_pandas = isinstance(wot, (pd.DataFrame, pd.Series))
     if not isinstance(wot, pd.DataFrame):
         wot = pd.DataFrame(wot)
 
@@ -80,24 +85,24 @@ def pre_proc_wot(mdl, wot):
     if wot.shape[0] <= 2 and wot.shape[0] < wot.shape[1]:
         wot = wot.T
 
-    cols = wot.columns
-    if wot.shape[1] == 1:
-        ## Only assume columns if column-names are defaults.
-        #
-        if cols[0] != w.p and cols[0] == 0:
-            log.warning(
-                "Assuming the single-column WOT to be the `%s` and the index the `%s`.",
-                w.n,
-                w.p,
-            )
-            cols = [w.p]
-            wot.columns = cols
+    ## Accept a 1-column df if column-names were unamed or one of the p columnns.
+    #
+    if (
+        wot.shape[1] == 1
+        and input_was_pandas
+        and (wot.columns[0] == 0 or wot.columns[0] in (w.p, w.p_norm))
+    ):
+        if wot.columns[0] == 0:
+            wot.columns = [w.p]
         wot[w.n] = wot.index
-        wot = wot[[w.n, w.p]]
+        wot = wot[wot.columns[::-1]]
+        log.warning(
+            "Assuming single-column WOT to be `%s` with index `%s`.", *wot.columns
+        )
     elif wot.shape[1] == 2:
-        ## Only assume columns if column-names are defaults.
+        ## Accept 2-columns if column-names were unamed.
         #
-        if tuple(cols) == (0, 1):
+        if tuple(wot.columns) == (0, 1):
             wot.columns = [w.n, w.p]
             log.warning("Assuming the 2-column WOT to be: %s, %s", *wot.columns)
 
@@ -182,6 +187,11 @@ def calc_n95(wot: pd.DataFrame, n_rated) -> Tuple[float, float]:
     assert wot[w.n].min() < n_rated <= wot[w.n].max()
 
     def interp_n95(label, P, N_norm):
+        if len(P) < 2:
+            wot_location = "below" if label == "low" else "above"
+            raise ValueError(
+                f"BAD wot, too few points {wot_location} n_rated({n_rated})!\n {wot}"
+            )
         n_intep = interpolate.interp1d(P, N_norm, copy=False, assume_sorted=True)
         try:
             n95 = n_intep(0.95).item()
