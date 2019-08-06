@@ -151,14 +151,14 @@ cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
 # # UNCOMMENT next line to FETCH new vehicles.
 p1, c1, p2, c2 = load_heinz_and_python_datasets()
 equivalent_series = [
-#     ("v_orig", "v_class"),
-#     ("v_downscale", "v_target"),
-#     ("a", "a_target"),
+    ("v_orig", "v_class"),
+    ("v_downscale", "v_target"),
+    #("a", "a_target"),
     #("P_tot", "p_required"),
     #("P_max", "p_available"),
     #("g_max", "gears_orig"),
     #("gear", "gears"),
-   ("nc", "rpm"),
+    ("nc", "rpm"),
 ]
 cols1, cols2 = zip(*equivalent_series)
 cols1, cols2 = list(cols1), list(cols2)

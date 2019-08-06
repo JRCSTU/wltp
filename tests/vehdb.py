@@ -264,7 +264,7 @@ class Comparator:
         col_accesor: Callable[[NDFrame, str], NDFrame],
         *,
         no_diff_prcnt=False,
-        diff_colname="diffs",
+        diff_colname="diff",
         diff_bar_kw={"align": "mid", "color": ["#d65f5f", "#5fba7d"]},
         no_styling=False,
     ):
@@ -310,9 +310,9 @@ class Comparator:
             for d in drest:
                 picked_cols.extend((d, d0 - d))
 
-            dataset_names = dataset_names + ["diff"]
+            dataset_names = dataset_names + [self.diff_colname]
 
-        return pd.concat(picked_cols, axis=1, keys=dataset_names)
+        return pd.concat(picked_cols, axis=1, keys=dataset_names, sort=True)
 
     def _col_0(self, equiv_colnames):
         return next(iter(zip(*equiv_colnames)))
@@ -368,22 +368,33 @@ class Comparator:
         if describe:
             nonzeros = (df != 0).sum().to_frame().T
             nonzeros.index = ["nonzero"]
+            ## Aggregate on absolute-diffs.
+            df.loc[:, idx[:, self.diff_colname]] = df.loc[
+                :, idx[:, self.diff_colname]
+            ].abs()
             df = pd.concat((df.describe(), nonzeros), axis=0)
+            df = df.drop("count", axis=0)
 
-        if self.diff_bar_kw and not no_styling:
-            df = self._styled_with_diff_bars(df, col_0)
+            if self.diff_bar_kw and not no_styling:
+                df = self._styled_with_diff_bars(df, col_0)
+        else:
+            if self.diff_bar_kw and not no_styling:
+                df = self._styled_with_diff_bars(df, col_0)
         return df
 
     def _styled_with_diff_bars(self, df, col_level_0):
         style = df.style
         for c in col_level_0:
-            diff_idx = (c, "diffs[%]")
-            try:
-                df[diff_idx]
-            except Exception:
-                "Ok, `diff[%]` column missing"
+            if "nonzero" in df.index:
+                diff_idx = idx[:"max", idx[c, self.diff_colname]]
             else:
-                style = style.bar(subset=[diff_idx], **self.diff_bar_kw)
+                diff_idx = idx[:, idx[c, self.diff_colname]]
+            try:
+                df.loc[diff_idx]
+            except Exception:
+                "Ok, `diff` column missing"
+            else:
+                style = style.bar(subset=diff_idx, **self.diff_bar_kw)
 
         return style
 
