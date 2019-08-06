@@ -511,6 +511,8 @@ def run_pyalgo_on_Heinz_vehicle(
         "n95_low": veh["n95_low"],
         "n95_high": veh["n95_high"],
         "v_max": veh["v_max"],
+        "n_v_max": veh["n_v_max"],
+        "g_v_max": veh["g_v_max"],
         "wltc_class": veh["wltc_class"],
         "f_dscl_orig": veh["f_dscl_orig"],
         "f_downscale": veh["f_downscale"],
