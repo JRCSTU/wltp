@@ -49,8 +49,6 @@ Questions to Heinz
     * Why some times down to ng-3 others ng-2, etc?  Why not scan fro top for max-v?
       Is it possible a lower gear to have lower v_max and next lower to have v_max high again??
       is there a 3-geared car with v_max@gear-1??
-    * In Annex-2.g, `v_max3` is actually :math:`(n/v)(ng_{\bold{vmax}}) \times V_{max,vehicle}`,
-      correct?
 
 * Downscale: vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
   while the GTR write downscale only if that threshold excheeded;  why?

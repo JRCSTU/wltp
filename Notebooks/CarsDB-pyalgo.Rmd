@@ -120,11 +120,11 @@ def store_python_results(
 
         g = vehdb.vehnode(vehnum, props_group_suffix)
         h5db.put(g, pd.Series(oprops))
-        vehdb.provenir_h5node(h5db, g, title="Wltp-run generated old pghase-1a python")
+        vehdb.provenir_h5node(h5db, g, title="Pyalgo generated")
 
         g = vehdb.vehnode(vehnum, cycle_group_suffix)
         h5db.put(g, cycle_run)
-        vehdb.provenir_h5node(h5db, g, title="Wltp-run generated old phase-1a python")
+        vehdb.provenir_h5node(h5db, g, title="Pyalgo generated")
 
     for vehnum, (oprops, cycle_run) in vehdb.do_h5(inph5, run_vehicles_with_pythons):
         vehdb.do_h5(outh5, store_vehicles, vehnum, oprops, cycle_run)
@@ -141,7 +141,7 @@ vehdb.print_nodes(out_h5fname)
 ```{python}
 # %%time
 if not skip_h5_write:
-    ## COMPRESS x8 HDF5: 143Mb-->18Mb in ~6s.
+    ## COMPRESS x8 HDF5: 218Mb-->93Mb in ~12s.
     #
     !ls -lh {out_h5fname}
     !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:blosclz -o {out_h5fname}.tmp

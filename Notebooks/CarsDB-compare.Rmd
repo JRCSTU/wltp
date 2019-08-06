@@ -58,6 +58,8 @@ logging.basicConfig(
     format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
     datefmt='%Y-%m-%d,%H:%M:%S',
 )
+
+pd.set_option("display.max_columns", 32)
 ```
 
 ```{python}
@@ -91,10 +93,8 @@ p1 = p1.unstack(); p2 = p2.unstack()
 ```
 
 ```{python}
-print(
-    columnize(list(p1.columns), displaywidth=160),
-    columnize(list(p2.columns), displaywidth=160),
-)
+print(columnize(list(p1.columns), displaywidth=160))
+print(columnize(list(p2.columns), displaywidth=160))
 ```
 
 ```{python}
@@ -107,7 +107,7 @@ display(
 
 ```{python}
 sr_cmpr = vehdb.Comparator(lambda d, c: d[:, c], no_styling=True)
-dataset_names = "accdb Python".split()
+dataset_names = "accdb Python".split()  # Must sort with "diff" column.
 ```
 
 ```{python}
@@ -151,14 +151,14 @@ cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
 # # UNCOMMENT next line to FETCH new vehicles.
 p1, c1, p2, c2 = load_heinz_and_python_datasets()
 equivalent_series = [
-    ("v_orig", "v_class"),
-    ("v_downscale", "v_target"),
-    ("a", "a_target"),
-    ("P_tot", "p_required"),
-    ("g_max", "gears_orig"),
-    ("gear", "gears"),
-    ("P_max", "p_available"),
-    ("nc", "rpm"),
+#     ("v_orig", "v_class"),
+#     ("v_downscale", "v_target"),
+#     ("a", "a_target"),
+    #("P_tot", "p_required"),
+    #("P_max", "p_available"),
+    #("g_max", "gears_orig"),
+    #("gear", "gears"),
+   ("nc", "rpm"),
 ]
 cols1, cols2 = zip(*equivalent_series)
 cols1, cols2 = list(cols1), list(cols2)
@@ -175,14 +175,27 @@ equivalent_props = [
     ("Description", None),
     ("vehicle_class", None),
     ("pmr_km", None),
+    ("no_of_gears", None),
     ("f_dsc_req", "f_downscale"),
+    ("v_max", "v_max"),
+    ("n_vmax", "n_v_max"),
+    ('gear_v_max', 'g_v_max'),
     ("n_max1", "n95_high"),
+    ("n_max2", "n_max2"),
+    ("n_max3", "n_max3"),
 ]
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
 ```
 
 ```{python}
-cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
+display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
+```
+
+```{python}
+display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
+```
+
+```{python}
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
 ```
 

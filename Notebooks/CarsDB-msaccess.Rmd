@@ -24,6 +24,13 @@ with the the *vehicle inputs* & *outpus* (`prop`, `wot`, `cycle`) from accdb.
 ## to inspect and get help on the HDF5 file
 ...read instructions on the `README.md` and consult the `HDF5-API.ipynb` notebook.
 
+```{python tags=c("parameters")}
+### Cell tagged as `parameters` for *papermill*.
+#
+skip_h5_write = False
+del_h5_on_start = False  # overriden by `skip_h5_write=True`
+```
+
 ```{python}
 ## To autoreload codein python files here.
 # %load_ext autoreload
@@ -92,7 +99,8 @@ c_case_id = c_case
 
 ```{python}
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
-# !rm -f {h5fname}
+if not skip_h5_write and del_h5_on_start:
+    !rm -f {h5fname}
 ```
 
 ```{python}
@@ -228,25 +236,27 @@ def store_results_per_car(
         props[c_SM] = SM
 
         props_group = vehdb.vehnode(case, props_group_suffix)
-        h5db.put(props_group, pd.Series(props))
-        vehdb.provenir_h5node(
-            h5db,
-            props_group,
-            title="Input specs & scalar results produced by Heinz's MSAccess db",
-            base=base,
-        )
+        if not skip_h5_write:
+            h5db.put(props_group, pd.Series(props))
+            vehdb.provenir_h5node(
+                h5db,
+                props_group,
+                title="Input specs & scalar results produced by Heinz's MSAccess db",
+                base=base,
+            )
 
 
         ## Store CYCLE
         #
         cycle_group = vehdb.vehnode(case, cycle_group_suffix)
-        h5db.put(cycle_group, outdf)
-        vehdb.provenir_h5node(
-            h5db,
-            cycle_group,
-            title="Cycle-run produced by Heinz's MSAccess db",
-            base=base,
-        )
+        if not skip_h5_write:
+            h5db.put(cycle_group, outdf)
+            vehdb.provenir_h5node(
+                h5db,
+                cycle_group,
+                title="Cycle-run produced by Heinz's MSAccess db",
+                base=base,
+            )
 
 with vehdb.openh5(h5fname) as h5db:
     store_results_per_car(h5db, results_df)
@@ -261,8 +271,9 @@ vehdb.print_nodes(h5fname)
 ## COMPRESS x4 HDF5: 338Mb --> 89Mb in ~10s.
 #
 # !ls -lh {h5fname}
-# !ptrepack  {h5fname}  --complevel=9 --complib=blosc:blosclz -o {h5fname}.tmp
-# !mv  {h5fname}.tmp {h5fname}
+if not skip_h5_write:
+    !ptrepack  {h5fname}  --complevel=9 --complib=blosc:blosclz -o {h5fname}.tmp
+    !mv  {h5fname}.tmp {h5fname}
 # !ls -lh {h5fname}
 ```
 

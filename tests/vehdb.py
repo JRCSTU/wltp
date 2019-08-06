@@ -458,7 +458,7 @@ def all_vehnums(h5) -> List[int]:  # TODO: rename to all_cases()
 def load_n2v_gear_ratios(vehicle_iprops: Union[dict, pd.Series]):
     """Reads all valid `ndv_X` values from Heinz DB input-properties in HD5"""
     ng = vehicle_iprops["no_of_gears"]
-    return [vehicle_iprops["ndv_%i" % g] for g in range(1, ng + 1)]
+    return [vehicle_iprops[f"ndv_{g}"] for g in range(1, ng + 1)]
 
 
 def run_pyalgo_on_Heinz_vehicle(
@@ -513,6 +513,10 @@ def run_pyalgo_on_Heinz_vehicle(
         "v_max": veh["v_max"],
         "n_v_max": veh["n_v_max"],
         "g_v_max": veh["g_v_max"],
+        "g_v_max": veh["g_v_max"],
+        "n_max2": veh["n_max2"],
+        "n_max3": veh["n_max3"],
+        "n_max": veh["n_max"],
         "wltc_class": veh["wltc_class"],
         "f_dscl_orig": veh["f_dscl_orig"],
         "f_downscale": veh["f_downscale"],
