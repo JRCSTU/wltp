@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 def denormalize_n(wot_df: pd.DataFrame, n_idle, n_rated):
     w = wio.pstep_factory.get().wot
-    wot_df[w.n] = n_idle + (n_rated * n_idle) * wot_df[w.n_norm]
+    wot_df[w.n] = n_idle + (n_rated - n_idle) * wot_df[w.n_norm]
     return wot_df
 
 
