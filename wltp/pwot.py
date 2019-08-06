@@ -75,14 +75,19 @@ def pre_proc_wot(mdl, wot) -> pd.DataFrame:
     """
     c = wio.pstep_factory.get()
     w = wio.pstep_factory.get().wot
+    n_columns = set([w.n, w.n_norm])
+    p_columns = set([w.p, w.p_norm])
 
     wot_orig = wot
-    n_in_index = False
+
+    ## Any pandas with index other than 1,2,3...
+    #
+    something_in_index = False
     if (
         isinstance(wot, (pd.DataFrame, pd.Series))
         and (wot.index != range(len(wot.index))).any()
     ):
-        n_in_index = True
+        something_in_index = True
 
     if not isinstance(wot, pd.DataFrame):
         wot = pd.DataFrame(wot)
@@ -97,8 +102,8 @@ def pre_proc_wot(mdl, wot) -> pd.DataFrame:
     #
     if (
         wot.shape[1] == 1
-        and n_in_index
-        and (wot.columns[0] == 0 or wot.columns[0] in (w.p, w.p_norm))
+        and something_in_index
+        and (wot.columns[0] == 0 or wot.columns[0] in p_columns)
     ):
         if wot.columns[0] == 0:
             wot.columns = [w.p]
@@ -115,9 +120,25 @@ def pre_proc_wot(mdl, wot) -> pd.DataFrame:
             wot.columns = [w.n, w.p]
             log.warning("Assuming the 2-column WOT to be: %s, %s", *wot.columns)
 
-    if not any(c in wot.columns for c in [w.n, w.n_norm]):
+    ## If ony Ps given and index exists,
+    #  assume for Ns, respecting its name.
+    #
+    wot_columns = set(wot.columns)
+    if (
+        something_in_index
+        and bool(wot_columns & p_columns)
+        and not bool(wot_columns & n_columns)
+    ):
+        if wot.index.name is None:
+            log.warning("Assuming WOT.index as `n`.")
+            wot[w.n] = wot.index
+        elif wot.index.name in n_columns:
+            wot[wot.index.name] = wot.index
+
+    wot_columns = set(wot.columns)
+    if not bool(wot_columns & n_columns):
         raise ValueError(f"Wot is missing one of: {w.n}, {w.n_norm}")
-    if not any(c in wot.columns for c in [w.p, w.p_norm]):
+    if not bool(wot_columns & p_columns):
         raise ValueError(f"Wot is missing one of: {w.p}, {w.p_norm}")
 
     wot = denorm_wot(mdl, wot)

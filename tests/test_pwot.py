@@ -12,9 +12,9 @@ from tests import vehdb
 
 from wltp import pwot
 
-_x = [500, 2000, 5000]
-_y = [10, 78, 60]
-_xy = np.array([_x, _y]).T
+_N = [500, 2000, 5000]
+_P = [10, 78, 60]
+_NP = np.array([_N, _P]).T
 
 
 @pytest.fixture
@@ -25,20 +25,20 @@ def mdl():
 @pytest.mark.parametrize(
     "xy",
     [
-        _xy,
-        _xy.T,
-        _xy.tolist(),
-        _xy.T.tolist(),
-        pd.DataFrame(_xy),
-        pd.DataFrame(_y, index=_x),
-        pd.Series(dict(_xy.tolist())),
+        _NP,
+        _NP.T,
+        _NP.tolist(),
+        _NP.T.tolist(),
+        pd.DataFrame(_NP),
+        pd.DataFrame(_P, index=_N),
+        pd.Series(dict(_NP.tolist())),
     ],
 )
 def test_pre_proc_wot_equals(mdl, xy):
     got = pwot.pre_proc_wot(mdl, xy)
     assert isinstance(got, pd.DataFrame) and got.shape == (3, 4)
     got = got.reset_index(drop=True)
-    exp = pwot.pre_proc_wot(mdl, pd.DataFrame(_xy, columns=["n", "p"]))
+    exp = pwot.pre_proc_wot(mdl, pd.DataFrame(_NP, columns=["n", "p"]))
     assert (got == exp).all(None)
 
 
@@ -50,8 +50,8 @@ def test_pre_proc_wot_equals(mdl, xy):
         ([[1], [2], [5]], ValueError("Wot is missing one of: n")),
         ([[1, 2, 5]], ValueError("Wot is missing one of: n")),
         ([[1, 2, 3], [3, 4, 5], [5, 6, 7]], ValueError("Wot is missing one of: n")),
-        ({"p": _y}, ValueError("Wot is missing one of: n")),
-        ({"p": _y, "other": _x}, ValueError("Wot is missing one of: n")),
+        ({"p": _P}, ValueError("Wot is missing one of: n")),
+        ({"p": _P, "other": _N}, ValueError("Wot is missing one of: n")),
         ({}, ValueError("Empty WOT:")),
         ((), ValueError("Empty WOT:")),
         ([], ValueError("Empty WOT:")),
@@ -82,14 +82,19 @@ def test_pre_proc_wot_errors(mdl, xy, err):
 @pytest.mark.parametrize(
     "wot",
     [
-        {"p": _y, "n": _x},
-        pd.DataFrame({"p": _y}, index=_x),
-        pd.DataFrame({"p_norm": [0.1, 1, 0.8]}, index=_x),
-        pd.DataFrame({"p": _y}, index=_x),
-        pd.DataFrame({"p": _y, "n_norm": [0.1, 1, 1.3]}),
+        {"p": _P, "n": _N},
+        pd.DataFrame({"p": _P}, index=_N),
+        pd.DataFrame({"p_norm": [0.1, 1, 0.8]}, index=_N),
+        pd.DataFrame({"p": _P}, index=_N),
+        pd.DataFrame({"p": _P, "n_norm": [0.1, 1, 1.3]}),
         pd.DataFrame({"n": [700, 2000, 5000], "p_norm": [0.1, 1, 0.8], "extra": 0}),
-        pd.Series(_y, name="p", index=_x),
-        pd.Series([0.1, 1, 0.8], name="p_norm", index=_x),
+        pd.Series(_P, name="p", index=_N),
+        pd.Series([0.1, 1, 0.8], name="p_norm", index=_N),
+        pd.DataFrame({"p_norm": [0.1, 1, 0.8], "extra": 0, "extra2": 0}, index=_N),
+        pd.DataFrame({"p": _P, "n": _N, "extr": 0}).set_index("n"),
+        # pd.DataFrame(
+        #     {"p": _P, "n_norm": [0.1, 1, 1.3], "extr": 0, "extr2": 1}
+        # ).set_index("n_norm"),
     ],
 )
 def test_pre_proc_high_level(mdl, wot):
