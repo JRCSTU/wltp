@@ -110,19 +110,20 @@ def test_v_max(h5_accdb):
         "display.float_format",
         "{:0.4f}".format,
     ):
-        print(f"\n++++\n{vehres.describe()}")
+        print(f"\n++++\n{vehres.describe().T}")
     vehres = vehres.dropna(axis=1)
     # npt.assert_array_equal(vmaxes["vmax_python"], vmaxes["vmax_Heinz"])
     aggregate_tol = 1e-4  # The digits copied from terminal.
     assert (
         vehres["vmax_diff"].describe()
-        - [125.0000, 0.0976, 0.2357, 0.0000, 0.0000, 0.0000, 0.1000, 1.5000]
+        - [125.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000]
         < aggregate_tol
     ).all()
     assert (
         vehres["gmax_diff"].describe()
-        - [125.0000, 0.1040, 0.3065, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000]
+        - [125.0000, 0.0480, 0.2146, 0.0000, 0.0000, 0.0000, 0.0000, 1.0000]
         < aggregate_tol
     ).all()
-    assert (vehres["vmax_diff"] == 0).sum() == 81
-    assert (vehres["gmax_diff"] == 0).sum() == 112
+    assert (vehres["vmax_diff"] == 0).sum() == 125 and (
+        vehres["gmax_diff"] == 0
+    ).sum() == 119
