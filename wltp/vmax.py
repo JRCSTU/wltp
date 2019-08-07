@@ -89,7 +89,7 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
     The `v_max` for a gear `g` is the solution of :math:`0.1 * P_{avail}(g) = P_{road_loads}`.
 
     :param df:
-        A dataframe containing at least `c.p_avail` column in kW,
+        A dataframe containing at least `p_avail` column in kW,
         indexed by N in min^-1.
         NOTE: the power must already have been **reduced** by safety-margin,
         
@@ -155,7 +155,9 @@ def calc_v_max(
         return wots_df
 
     wot[c.n] = wot.index
-    wot[c.p_avail] = wot[c.p] * (1 - f_safety_margin)
+    wot[c.p_avail] = pwot.calc_p_available(
+        wot[c.p], ASM=0, f_safety_margin=f_safety_margin
+    )
 
     ## Scan gears from top --> (top - 4) but stop at most on 2nd gear.
     #

@@ -7,15 +7,18 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 import logging
-from typing import Tuple
+from numbers import Number
+from typing import Tuple, Union
 
 import numpy as np
 import pandas as pd
+from pandas.core.generic import NDFrame
 from scipy import interpolate, optimize
 
 from . import io as wio
 from .invariants import v_decimals, v_step, vround
 
+Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
 
 
@@ -198,6 +201,23 @@ def preproc_wot(mdl, wot) -> pd.DataFrame:
     wot = validate_wot(mdl, wot)
 
     return wot
+
+
+def calc_p_available(P: Column, ASM: Column, f_safety_margin) -> Column:
+    """
+    Calculate `p_available` acording to Annex 2-3.4.
+
+    :param P: 
+        in kW
+    :param ASM: 
+        in % (e.g. 0.10, 0.35)
+    :return: 
+        in kW
+    """
+    w = wio.pstep_factory.get().wot
+
+    total_reduction = 1 - f_safety_margin - ASM
+    return P * total_reduction
 
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):

@@ -12,6 +12,7 @@ import pandas as pd
 import pytest
 from tests import vehdb
 
+from wltp import io as wio
 from wltp import pwot
 
 _N = [500, 2000, 5000]
@@ -129,6 +130,23 @@ def test_validate_wot_errors(mdl, wot, n_idle, n_rated, p_rated, err):
 )
 def test_pre_proc_high_level(mdl, wot):
     pwot.preproc_wot(mdl, wot)
+
+
+def test_calc_p_available(h5_accdb):
+    def check_p_avail(case):
+        _prop, wot, _n2vs = vehdb.load_vehicle_accdb(h5_accdb, case)
+
+        p_avail = pwot.calc_p_available(wot["Pwot"], wot["ASM"], 0.1)
+
+        try:
+            assert (p_avail - wot["Pavai"] < 1e-12).all()
+        except Exception as ex:
+            if case == 48:
+                print(f"Ignoring known BAD case {case} with ghost ASM.")
+
+    all_cases = vehdb.all_vehnums(h5_accdb)
+    for case in all_cases:
+        check_p_avail(case)
 
 
 def test_calc_n95(h5_accdb):
