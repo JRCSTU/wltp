@@ -190,3 +190,27 @@ def test_calc_n95(h5_accdb):
         ]
     )
     assert (df.describe().values - exp < aggregate_tol).all(None)
+
+
+def test_interpolate_wot_on_v_grid(h5_accdb):
+    def interpolate_veh(case):
+        _prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, case)
+
+        wot = wot[["Pwot", "ASM"]]
+        wot["n"] = wot.index
+
+        return pwot.interpolate_wot_on_v_grid2(wot, n2vs)
+
+    all_cases = vehdb.all_vehnums(h5_accdb)
+    results = {wio.veh_name(case): interpolate_veh(case) for case in all_cases}
+    df = pd.concat(
+        results.values(),
+        axis=0,
+        keys=results.keys(),
+        names=["vehicle", "v"],
+        verify_integrity=True,
+    )
+    assert df.index.names == ["vehicle", "v"]
+    assert (df.index.levels[0] == wio.veh_names(all_cases)).all()
+    assert df.columns.names == ["gear", "wot_item"]
+    assert not (set("n Pwot ASM".split()) - set(df.columns.levels[1]))
