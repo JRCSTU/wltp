@@ -80,7 +80,7 @@ TODOs
 Changelog
 =========
 
-v1.0.0.dev7  (5-Aug-2019): PY3.5 only & real work!
+v1.0.0.dev8  (7-Aug-2019): PY3.5 only & real work!
 --------------------------------------------------
 - Drop support for Python 2.7 & <3.6, due to `f"string:`, among others...
   The supported Pythons `covers 84% of 2018 Python-3 installations (71% of Pythons in total)
@@ -104,7 +104,11 @@ v1.0.0.dev7  (5-Aug-2019): PY3.5 only & real work!
 - algo:
 
   - Drop Slope, cannot work with downscaling.
-  - FEAT: VMAX calculation.
+  - FEAT: VMAX & NMAX calculations:
+    - all `v_max` match *accdb*, but 6 cases missmatch `g_v_max` (out of 125 cases).
+    - many minor mismatches on `n_max1/2/3`.
+    
+  - FEAT: VMAX calculation;  all match *accdb*, but 6 cases missmatch `g_v_max` (out of 125 cases).
   - UPD: DOWNSCALING to recent formulas & constants, and document them.
     Still scaled (not recursive), none can reproduce exactly MsAccess.
   - Start PANDA-izing calculations (from numpy-arrays + rogue indices).
