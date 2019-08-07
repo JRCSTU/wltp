@@ -220,9 +220,11 @@ class Experiment(object):
 
         ## Remaining n_max values
         #
-        last_n2v = gear_ratios[mdl["g_v_max"] - 1]
-        mdl["n_max2"] = last_n2v * cycle_run["v_class"].max()
-        mdl["n_max3"] = last_n2v * mdl["v_max"]
+        #  NOTE: In Annex 2-2.g, it is confusing g_top with g_v_max;
+        #  the later stack betters against accdb results.
+        g_max_n2v = gear_ratios[mdl["g_v_max"] - 1]
+        mdl["n_max2"] = g_max_n2v * cycle_run["v_class"].max()
+        mdl["n_max3"] = g_max_n2v * mdl["v_max"]
         mdl["n_max"] = max(mdl["n95_high"], mdl["n_max2"], mdl["n_max3"])
 
         V = cycle_run["v_target"]  # as Series
