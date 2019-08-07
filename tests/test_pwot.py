@@ -135,7 +135,7 @@ def test_calc_n95(h5_accdb):
     results = []
     visited_wots = set()
     for case in vehdb.all_vehnums(h5_accdb):
-        (props, wot, _a) = vehdb.load_vehicle_accdb_inputs(h5_accdb, case)
+        (props, wot, _a) = vehdb.load_vehicle_accdb(h5_accdb, case)
         vehnum = props["vehicle_no"]
         if vehnum in visited_wots:
             continue

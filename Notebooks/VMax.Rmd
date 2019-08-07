@@ -80,7 +80,7 @@ c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 
 ```{python}
 def read_veh(vehnum, silent=False):
-    ac_props, wot, _ = vehdb.load_vehicle_accdb_inputs(inp_h5fname, vehnum)
+    ac_props, wot, _ = vehdb.load_vehicle_accdb(inp_h5fname, vehnum)
     py_props, _, gwots = vehdb.load_vehicle_pyalgo(out_h5fname, vehnum)
 
     if not silent:

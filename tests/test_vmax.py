@@ -38,7 +38,7 @@ def test_v_max(h5_accdb):
     # veh_samples = [31]  # [23]
 
     def make_v_maxes(vehnum):
-        props, wot, n2vs = vehdb.load_vehicle_accdb_inputs(h5_accdb, vehnum)
+        props, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, vehnum)
         wot = wot.rename({"Pwot": "p"}, axis=1)
         rec = vmax.calc_v_max(wot, n2vs, props.f0, props.f1, props.f2, 0.1)
 
