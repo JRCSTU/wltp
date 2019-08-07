@@ -157,24 +157,22 @@ def calc_v_max(
     wot[c.n] = wot.index
     wot[c.p_avail] = wot[c.p] * (1 - f_safety_margin)
 
-    ## Scan gears from high --> low-4 but stop at most on 2nd gear.
-    #  TODO: apply selective logic for ng-x gears from Heinz-DB?
+    ## Scan gears from top --> (top - 4) but stop at most on 2nd gear.
     #
-    rec_prev = rec_vmax = None
-    recs: List[VMaxRec] = []
     gears_from_top = list(reversed(list(enumerate(gear_n2v_ratios, 1))))
-    ## Exclude 1st gear and stop on 4th gear from top (as per GTR).
     gears_to_scan = gears_from_top[:-1][:4]
-    for g, n2v in gears_to_scan:
-        rec = _calc_gear_v_max(g, wot.copy(), n2v, f0, f1, f2)
-        recs.append(rec)
-        ## It is `<=`` in Heinz-db.
-        if rec_prev and not np.isnan(rec.v_max) and rec.v_max <= rec_prev.v_max:
-            rec_vmax = rec_prev
-            break
-        rec_prev = rec
+    assert gears_from_top, ("Too few gear-ratios?", gear_n2v_ratios)
+
+    recs = [
+        _calc_gear_v_max(g, wot.copy(), n2v, f0, f1, f2) for g, n2v in gears_to_scan
+    ]
 
     gear_wots_df = _package_wots_df([r.wot for r in recs])
-    if rec_vmax:
+    vmaxes = pd.Series(r.v_max for r in recs)
+
+    if not np.isnan(vmaxes.max()):
+        rec_vmax = recs[vmaxes.idxmax()]
+
         return rec_vmax._replace(wot=gear_wots_df)
+
     raise ValueError("Cannot find v_max!\n  Insufficient power??", gear_wots_df, wot)
