@@ -158,7 +158,7 @@ equivalent_series = [
     #("P_max", "p_available"),
     #("g_max", "gears_orig"),
     #("gear", "gears"),
-    ("nc", "rpm"),
+   ("nc", "rpm"),
 ]
 cols1, cols2 = zip(*equivalent_series)
 cols1, cols2 = list(cols1), list(cols2)
@@ -183,11 +183,8 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 ```
 
 ```{python}
+# Repeat, to compare while coding.
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
-```
-
-```{python}
-display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
 ```
 
 ```{python}

@@ -76,27 +76,27 @@ c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
 #vehdb.print_nodes(out_h5fname)
 ```
 
-```{python}
-vehnum = 21 # 3 # -1
-ac_props, wot, _ = vehdb.load_vehicle_accdb_inputs(inp_h5fname, vehnum)
-py_props, _, gwots = vehdb.load_vehicle_pyalgo(out_h5fname, vehnum)
-del _
+## Good case
 
-display(ac_props[['no_of_gears', 'gear_v_max', 'v_max']],
-   '',
-    py_props
-)
-ax=None
-ax = gwots.loc[:, ('g6 g5 g4'.split(),'p_avail')].plot(ax=ax)
-gwots.loc[:, ('g6 g5 g4'.split(),'p_road_loads')].plot(ax=ax)
+```{python}
+def read_veh(vehnum, silent=False):
+    ac_props, wot, _ = vehdb.load_vehicle_accdb_inputs(inp_h5fname, vehnum)
+    py_props, _, gwots = vehdb.load_vehicle_pyalgo(out_h5fname, vehnum)
+
+    if not silent:
+        display(ac_props[["no_of_gears", "gear_v_max", "v_max"]], "", py_props)
+        ax = None
+        ax = gwots.loc[:, ("g6 g5 g4".split(), "p_avail")].plot(ax=ax)
+        gwots.loc[:, ("g6 g5 g4".split(), "p_road_loads")].plot(ax=ax)
+
+    return ac_props, py_props, wot, gwots
+
+
+ac_props, py_props, wot, gwots = read_veh(21)
 ```
 
 ```{python}
 display(wot)
-```
-
-```{python}
-# %matplotlib inline
 ```
 
 ```{python}
@@ -133,5 +133,26 @@ disp_gwots(ac_props, py_props, gwots, 6)
 ```
 
 ```{python}
+disp_gwots(ac_props, py_props, gwots, 5)
+```
+
+## BAD case
+```
+         v_max  g_vmax
+accdb:   141.1       6
+pyalgo:  141.1       5
+```
+Strangely, accdb finds the correct `v_max`, but `g6` does not seem to cross `P_res` at that point...
+
+```{python}
+ac_props, py_props, wot, gwots = read_veh(25)
+```
+
+```{python}
+plot_gwots(ac_props, py_props, gwots, 6, 5)
+```
+
+```{python}
+disp_gwots(ac_props, py_props, gwots, 6)
 disp_gwots(ac_props, py_props, gwots, 5)
 ```
