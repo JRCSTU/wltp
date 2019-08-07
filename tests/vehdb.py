@@ -502,6 +502,7 @@ def run_pyalgo_on_Heinz_vehicle(
     ## Map accdb columns: p --> 'Pwot'
     wot = wot.rename({"Pwot": "p"}, axis=1)
     wot["n"] = wot.index
+    wot = wot["p  Twot  ASM".split()]  # keep less columns to reduce h5db size.
 
     input_model: dict = utils.yaml_loads(
         f"""
