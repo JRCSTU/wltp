@@ -445,7 +445,7 @@ def load_vehicle_nodes(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
 
 
 def load_vehicle_accdb_inputs(h5, vehnum) -> Tuple[pd.Series, pd.DataFrame, list]:
-    """return the typical data for a vehicle in accdc: io-props, wot, n2vs"""
+    """return the typical data for a vehicle in accdc: props, wot, n2vs"""
 
     def func(h5db):
         props = load_vehicle_nodes(h5db, vehnum, "prop")
@@ -453,6 +453,16 @@ def load_vehicle_accdb_inputs(h5, vehnum) -> Tuple[pd.Series, pd.DataFrame, list
         wot = load_vehicle_nodes(h5db, wot_vehnum, "wot")
         n2vs = load_n2v_gear_ratios(props)
         return props, wot, n2vs
+
+    res = do_h5(h5, func)
+    return res
+
+
+def load_vehicle_pyalgo(h5, vehnum) -> Tuple[pd.Series, pd.DataFrame, list]:
+    """return the typical data for a vehicle in pyalgo: props, cycle, wots_vmax"""
+
+    def func(h5db):
+        return load_vehicle_nodes(h5db, vehnum, "oprop", "cycle", "wots_vmax")
 
     res = do_h5(h5, func)
     return res
@@ -474,14 +484,15 @@ def load_n2v_gear_ratios(vehicle_iprops: Union[dict, pd.Series]):
 
 def run_pyalgo_on_Heinz_vehicle(
     h5, vehnum, props_group_suffix="prop", pwot_group_suffix="wot"
-) -> Tuple[dict, pd.DataFrame]:
+) -> Tuple[dict, pd.DataFrame, pd.DataFrame]:
     """
     Quick'n dirty way to invoke python-algo (bc model will change).
      
     :param h5:
         the `WltpGs-msaccess.h5` file (path or h5db) to read input from 
     :return:
-        the *out-props* key-values, and the *cycle_run* data-frame
+        the *out-props* key-values, the *cycle_run* data-frame, 
+        and the grid-wots constructed to solve v_max.
     """
     from wltp import io as wio, pwot, utils
     from wltp.experiment import Experiment
@@ -511,29 +522,29 @@ def run_pyalgo_on_Heinz_vehicle(
     input_model["wot"] = wot
 
     exp = Experiment(input_model)
-    veh = exp.run()
+    mdl = exp.run()
 
     ## Keep only *output* key-values, not to burden HDF data-model
     #  (excluding `driveability`, which is a list, and f0,f1,f2, addume were input).
     #
     # oprops = {k: v for k, v in veh if np.isscalar(v)}
     oprops = {
-        "pmr": veh["pmr"],
-        "n95_low": veh["n95_low"],
-        "n95_high": veh["n95_high"],
-        "v_max": veh["v_max"],
-        "n_v_max": veh["n_v_max"],
-        "g_v_max": veh["g_v_max"],
-        "g_v_max": veh["g_v_max"],
-        "n_max2": veh["n_max2"],
-        "n_max3": veh["n_max3"],
-        "n_max": veh["n_max"],
-        "wltc_class": veh["wltc_class"],
-        "f_dscl_orig": veh["f_dscl_orig"],
-        "f_downscale": veh["f_downscale"],
+        "pmr": mdl["pmr"],
+        "n95_low": mdl["n95_low"],
+        "n95_high": mdl["n95_high"],
+        "v_max": mdl["v_max"],
+        "n_v_max": mdl["n_v_max"],
+        "g_v_max": mdl["g_v_max"],
+        "g_v_max": mdl["g_v_max"],
+        "n_max2": mdl["n_max2"],
+        "n_max3": mdl["n_max3"],
+        "n_max": mdl["n_max"],
+        "wltc_class": mdl["wltc_class"],
+        "f_dscl_orig": mdl["f_dscl_orig"],
+        "f_downscale": mdl["f_downscale"],
     }
 
-    cycle_run = veh["cycle_run"]
+    cycle_run = mdl["cycle_run"]
     # Drop `driveability` arrays, not to burden HDF data-model.
     cycle_run = cycle_run.drop("driveability", axis=1)
     ## Gears are `int8`, and h5 pickles them.
@@ -541,11 +552,11 @@ def run_pyalgo_on_Heinz_vehicle(
     for badtype_col in "gears gears_orig".split():
         cycle_run[badtype_col] = cycle_run[badtype_col].astype("int64")
 
-    return oprops, cycle_run
+    return oprops, cycle_run, mdl["wots_vmax"]
 
 
-# oprops, cycle = nbu.run_pyalgo_on_Heinz_vehicle(inp_h5fname, 14)
-# display(oprops, cycle)
+# oprops, cycle, wots_vmax = nbu.run_pyalgo_on_Heinz_vehicle(inp_h5fname, 14)
+# display(oprops, cycle, wots_vmax)
 
 
 def merge_db_vehicle_subgroups(

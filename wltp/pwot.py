@@ -239,10 +239,15 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame):
         v_step,
     )
 
-    def interp(C):
-        return interpolate.interp1d(V, C, copy=False, assume_sorted=True)(V_grid)
+    def interpolate_on_grid(col_values):
+        return interpolate.interp1d(V, col_values, copy=True, assume_sorted=True)(
+            V_grid
+        )
 
-    wot_grid = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
+    wot_grid = pd.DataFrame(
+        {name: interpolate_on_grid(vals) for name, vals in wot.iteritems()}
+    )
+
     ## Throw-away the interpolated v, it's inaccurate, use the "x" (v-grid) instead.
     wot_grid.index = wot_grid[w.v] = V_grid
 

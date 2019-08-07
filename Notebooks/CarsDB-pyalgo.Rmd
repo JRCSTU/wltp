@@ -89,6 +89,7 @@ def store_python_results(
     vehile_nums: Seq[int] = None,
     props_group_suffix="oprop",
     cycle_group_suffix="cycle",
+    wots_vmax_group_suffix="wots_vmax",
     no_write=False,
 ):
     """
@@ -114,7 +115,7 @@ def store_python_results(
                 log.error("V%0.3i failed: %s", vehnum, ex)
                 raise ex
 
-    def store_vehicles(h5db, vehnum, oprops, cycle_run):
+    def store_vehicles(h5db, vehnum, oprops, cycle_run, wots_vmax):
         if no_write:
             return
 
@@ -126,8 +127,12 @@ def store_python_results(
         h5db.put(g, cycle_run)
         vehdb.provenir_h5node(h5db, g, title="Pyalgo generated")
 
-    for vehnum, (oprops, cycle_run) in vehdb.do_h5(inph5, run_vehicles_with_pythons):
-        vehdb.do_h5(outh5, store_vehicles, vehnum, oprops, cycle_run)
+        g = vehdb.vehnode(vehnum, wots_vmax_group_suffix)
+        h5db.put(g, wots_vmax)
+        vehdb.provenir_h5node(h5db, g, title="Pyalgo generated")
+
+    for vehnum, pyalgo_outs in vehdb.do_h5(inph5, run_vehicles_with_pythons):
+        vehdb.do_h5(outh5, store_vehicles, vehnum, *pyalgo_outs)
 
 
 with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname) as outh5:

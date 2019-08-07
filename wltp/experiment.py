@@ -153,6 +153,7 @@ class Experiment(object):
         mdl["v_max"] = v_max = v_max_rec.v_max
         mdl["n_v_max"] = v_max_rec.n_v_max
         mdl["g_v_max"] = v_max_rec.g_v_max
+        mdl["wots_vmax"] = v_max_rec.wot
 
         p_m_ratio = 1000 * p_rated / unladen_mass
         mdl["pmr"] = p_m_ratio
