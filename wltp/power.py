@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 def calc_road_load_power(V, f0, f1, f2):
     """
-    The power required to overcome vehicle-resistances for various velocities, 
+    The `p_resist` required to overcome vehicle-resistances for various velocities, 
     
     as defined in Annex 2-2.i (calculate `V_max_vehicle`).
     """

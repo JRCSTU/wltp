@@ -87,7 +87,7 @@ def read_veh(vehnum, silent=False):
         display(ac_props[["no_of_gears", "gear_v_max", "v_max"]], "", py_props)
         ax = None
         ax = gwots.loc[:, ("g6 g5 g4".split(), "p_avail")].plot(ax=ax)
-        gwots.loc[:, ("g6 g5 g4".split(), "p_road_loads")].plot(ax=ax)
+        gwots.loc[:, ("g6 g5 g4".split(), "p_resist")].plot(ax=ax)
 
     return ac_props, py_props, wot, gwots
 
@@ -108,7 +108,7 @@ def plot_gwots(ac_props, py_props, gwots, g, bottom_g, *, offset=2):
     g_max = py_props["g_v_max"]
     g_max_acc = ac_props["gear_v_max"]
     v_range = idx[v_max - offset : v_max + offset]
-    ax = gwots.loc[v_range, (f"g{g}", "p_road_loads")].plot(
+    ax = gwots.loc[v_range, (f"g{g}", "p_resist")].plot(
         linewidth=3
     )
     ax = gwots.loc[v_range, (slice(f"g{g_top}", f"g{bottom_g}"), "p_avail")].plot(ax=ax)
@@ -142,7 +142,7 @@ disp_gwots(ac_props, py_props, gwots, 5)
 accdb:   141.1       6
 pyalgo:  141.1       5
 ```
-Strangely, accdb finds the correct `v_max`, but `g6` does not seem to cross `P_res` at that point...
+Strangely, accdb finds the correct `v_max`, but `g6` does not seem to cross `p_resist` at that point...
 
 ```{python}
 ac_props, py_props, wot, gwots = read_veh(25)

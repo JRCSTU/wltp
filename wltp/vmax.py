@@ -106,8 +106,8 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
 
     wot[c.v] = wot.index / n2v
     grid_wot = pwot.interpolate_wot_on_v_grid(wot)
-    grid_wot[c.p_road_loads] = power.calc_road_load_power(grid_wot[c.v], f0, f1, f2)
-    grid_wot[c.p_remain] = grid_wot[c.p_avail] - grid_wot[c.p_road_loads]
+    grid_wot[c.p_resist] = power.calc_road_load_power(grid_wot[c.v], f0, f1, f2)
+    grid_wot[c.p_remain] = grid_wot[c.p_avail] - grid_wot[c.p_resist]
     return _find_p_remain_root(grid_wot)._replace(g_v_max=g)
 
 
