@@ -7,6 +7,7 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """formulae for engine power & revolutions and gear-box"""
 import logging
+from collections import namedtuple
 from collections.abc import Mapping
 from numbers import Number
 from typing import Tuple, Union
@@ -17,7 +18,7 @@ from pandas.core.generic import NDFrame
 from scipy import interpolate
 
 from . import io as wio
-from .invariants import v_decimals, v_step, vround
+from .invariants import v_decimals, v_step, vround, nround1, nround10
 
 Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
@@ -416,3 +417,57 @@ def calc_n95(wot: pd.DataFrame, n_rated) -> Tuple[float, float]:
     n95_high = interp_n95("high", wot_high[w.p_norm], wot_high[w.n])
 
     return n95_low, n95_high
+
+
+#: temporary use this till gear-ratios become a table (like wot).
+NMinDrives = namedtuple(
+    "NMinDrives",
+    (
+        "n_min_drive1",
+        "n_min_drive2_up",
+        "n_min_drive2_stand",
+        "n_min_drive2",
+        "n_min_drive_set",
+        "n_min_drive_up",
+        "n_min_drive_up_start",
+        "n_min_drive_down",
+        "n_min_drive_down_start",
+    ),
+)
+
+
+def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDrives:
+    """
+    Calculate minimum revolutions according to Annex 2-2.k.
+
+    Assumes model has been validated, but
+    not yet called :func:`wltp.model.yield_n_min_errors()`.
+
+    """
+    # TODO: accept ARRAY `n_min_drive`
+    c = wio.pstep_factory.get()
+
+    n_idle = nround10(n_idle)
+    n_min_drive_set = n_idle + 0.125 * (n_rated - n_idle)
+
+    n_min_drive_up = mdl.get(c.n_min_drive_up, n_min_drive_set)
+    n_min_drive_up_start = mdl.get(c.n_min_drive_up_start, n_min_drive_up)
+
+    n_min_drive_down = mdl.get(c.n_min_drive_down, n_min_drive_set)
+    n_min_drive_down_start = mdl.get(c.n_min_drive_down_start, n_min_drive_down)
+
+    nmins = NMinDrives(
+        n_min_drive1=n_idle,
+        n_min_drive2_up=1.15 * n_idle,
+        n_min_drive2_stand=n_idle,
+        n_min_drive2=0.9 * n_idle,
+        n_min_drive_set=n_min_drive_set,
+        n_min_drive_up=n_min_drive_up,
+        n_min_drive_up_start=n_min_drive_up_start,
+        n_min_drive_down=n_min_drive_down,
+        n_min_drive_down_start=n_min_drive_down_start,
+    )
+
+    nmins = NMinDrives(*(n and nround1(n) for n in nmins))
+
+    return nmins

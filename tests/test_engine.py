@@ -5,6 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+import itertools as itt
 import re
 
 import numpy as np
@@ -12,8 +13,8 @@ import pandas as pd
 import pytest
 from tests import vehdb
 
-from wltp import io as wio
 from wltp import engine
+from wltp import io as wio
 
 _N = [500, 2000, 5000]
 _P = [10, 78, 60]
@@ -214,3 +215,29 @@ def test_interpolate_wot_on_v_grid(h5_accdb):
     assert (df.index.levels[0] == wio.veh_names(all_cases)).all()
     assert df.columns.names == ["gear", "wot_item"]
     assert not (set("n Pwot ASM".split()) - set(df.columns.levels[1]))
+
+
+def test_n_mins_smoke():
+
+    base = engine.calc_fixed_n_min_drives({}, 500, 4000)
+
+    results = [base]
+    for values in itt.product([None, 1], [None, 2], [None, 3], [None, 4]):
+        mdl = dict(
+            zip(
+                (
+                    "n_min_drive_up",
+                    "n_min_drive_up_start",
+                    "n_min_drive_down",
+                    "n_min_drive_down_start",
+                ),
+                values,
+            )
+        )
+        res = engine.calc_fixed_n_min_drives(mdl, 500, 4000)
+        results.append(res)
+
+    ## They must all produce diffetrent value.
+    #
+    for v1, v2 in itt.permutations(results, 2):
+        assert v1 != v2

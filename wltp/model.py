@@ -37,7 +37,7 @@ from pandas.core.generic import NDFrame
 
 from pandalone.pandata import PandelVisitor
 
-from . import gearbox
+from . import engine
 from . import io as wio
 from . import engine, utils
 from .cycles import class1, class2, class3
@@ -892,7 +892,7 @@ def yield_n_min_errors(mdl):
         return
 
     try:
-        nmins = gearbox.calc_fixed_n_min_drives(mdl, mdl[c.n_idle], mdl[c.n_rated])
+        nmins = engine.calc_fixed_n_min_drives(mdl, mdl[c.n_idle], mdl[c.n_rated])
         for n in (
             c.n_min_drive_up,
             c.n_min_drive_up_start,
