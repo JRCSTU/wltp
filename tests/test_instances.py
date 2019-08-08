@@ -132,10 +132,12 @@ class InstancesTest(unittest.TestCase):
             assert prev_start == len(cycle)
 
     def test_wltc_validate_checksums(self):
-        wltc = datamodel.get_wltc_data()
+        for cl in datamodel.get_class_names():
+            ## Test below the helper api in datamodel.
+            #
+            cycle = datamodel.get_class_v_cycle(cl)
+            cd = datamodel.get_class(cl)
 
-        for cl, cd in wltc["classes"].items():
-            cycle = np.array(cd["v_cycle"])
             numsum = cycle.sum()
             checksum = cd["checksum"]
             self.assertAlmostEqual(numsum, checksum)

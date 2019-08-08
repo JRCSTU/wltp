@@ -119,8 +119,9 @@ v1.0.0.dev8  (7-Aug-2019): PY3.5 only & real work!
   - break: cycle-part limits are plain lists-of-limits (not list-of-pairs).
   - break: flatten model, merging `vehicle` & `params` properties up to root.
   - drop: don't add a sample WOT in base_model if not given.
-  - Inverse safety margin from 0.9 --> 0.1, and stop supporting ngear array 
+  - break: Inverse safety margin from 0.9 --> 0.1, and stop supporting ngear array 
     (had been left like that since the phase 1a).
+  - feat: add helper API funcs to get WLTC class data (e.g. `v_cycle`, limits, etc).
 
 - algo:
 

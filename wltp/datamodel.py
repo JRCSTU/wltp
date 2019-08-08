@@ -27,6 +27,7 @@ import logging
 import operator as ops
 from collections.abc import Mapping, Sized
 from textwrap import dedent
+from typing import Union
 
 import jsonschema
 import numpy as np
@@ -39,7 +40,7 @@ from pandalone.pandata import PandelVisitor
 
 from . import engine
 from . import io as wio
-from . import engine, utils
+from . import utils
 from .cycles import class1, class2, class3
 
 try:
@@ -153,7 +154,8 @@ def upd_resistance_coeffs_regression_curves(mdl):
 def get_wltc_data():
     """The WLTC-data required to run an experiment (the class-cycles and their attributes)..
 
-    Prefer to access wltc-data through :samp:`{datamodel}['wltc_data']`.
+    Prefer to access wltc-data through :func:`get_class()`, or 
+    from :samp:`{datamodel}['wltc_data']`,
 
     :return: a tree
     """
@@ -668,21 +670,43 @@ def get_class_part_names(cls_name=None):
     return part_names
 
 
-def get_class_parts_limits(cls_name, mdl=None, edges=False):
-    """
-    Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
+def get_class_names(mdl=None) -> pd.DataFrame:
+    wltc_data = get_wltc_data() if mdl is None else mdl["wltc_data"]
+    return list(wltc_data["classes"].keys())
 
-    :param str cls_name: one of 'class1', ..., 'class3b'
-    :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`get_wltc_data()`
-    :param edges: when `True`, embeds internal limits inside [0, ..., len]
-    :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
+
+def get_class(class_id: Union[str, int], mdl=None) -> dict:
+    """
+    Fetch the wltc-data for a specific class.
+
+    :param class_id: 
+        one of 'class1', ..., 'class3b' or its index 0,1, ... 3
     """
     if mdl:
         wltc_data = mdl["wltc_data"]
     else:
         wltc_data = get_wltc_data()
 
-    cls = wltc_data["classes"][cls_name]
+    classes = wltc_data["classes"]
+    if isinstance(class_id, int):
+        class_name = list(classes.keys())[class_id]
+    else:
+        class_name = class_id
+
+    return classes[class_name]
+
+
+def get_class_parts_limits(class_id: Union[str, int], mdl=None, edges=False):
+    """
+    Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
+
+    :param class_id: 
+        one of 'class1', ..., 'class3b' or its index 0,1, ... 3
+    :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`get_wltc_data()`
+    :param edges: when `True`, embeds internal limits inside [0, ..., len]
+    :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
+    """
+    cls = get_class(class_id)
     part_limits = cls["parts"]
     if edges:
         part_limits.insert(0, 0)
@@ -691,11 +715,12 @@ def get_class_parts_limits(cls_name, mdl=None, edges=False):
     return part_limits
 
 
-def get_class_parts_index(cls_name, index=None, mdl=None):
+def get_class_parts_index(cls_id: Union[str, int], index=None, mdl=None):
     """
     Returns an array equally sized as `index` with zero-based ints denoting the part each second of the cycle belong to.
 
-    :param str cls_name: one of 'class1', ..., 'class3b'
+    :param class_id: 
+        one of 'class1', ..., 'class3b' or its index 0,1, ... 3
     :param list/array index: (Optional) the index to "segment" into parts, defaults to 1Hz class's index
     :return: a numpy-array of integers with length equal to `index`, or if not given,
                         the default length of the requested class otherwise
@@ -720,7 +745,7 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
         (1478, 1801]  28869.8
 
     """
-    limits = get_class_parts_limits(cls_name, mdl=mdl, edges=True)
+    limits = get_class_parts_limits(cls_id, mdl=mdl, edges=True)
     limits = np.array(limits).astype(np.int)
 
     if index:
@@ -748,6 +773,25 @@ def get_class_pmr_limits(mdl=None, edges=False):
         pmr_limits = pmr_limits[1:-1]  ## Exclude 0 and inf
 
     return pmr_limits
+
+
+def get_class_v_cycle(class_id: Union[int, str], mdl=None) -> pd.Series:
+    """
+    Fetch the `v-cycle` for a class with the proper `t` in index.
+
+    :param class_id: 
+        one of 'class1', ..., 'class3b' or its index 0,1, ... 3
+    :return:
+        a series containing :math:`length + 1` samples, numbered from 0 to `length`, 
+        where `length` is the duration of the cycle in seconds.
+    """
+    cls = get_class(class_id)
+    V = cls["v_cycle"]
+
+    V = pd.Series(V, name="v_cycle")
+    V.index.name = "t"
+
+    return V
 
 
 def merge(a, b, path=[]):
