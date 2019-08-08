@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 #
 # Copyright 2013-2019 European Commission (JRC);
 # Licensed under the EUPL (the 'Licence');
@@ -24,13 +24,14 @@ or::
 def csvcolumns8to2(inp, inpfname, out, outfname):
     import pandas as pd
 
-    sys.stderr.write('Transforming to 2-columns: inp(%s) --> out(%s)\n' % (inpfname, outfname))
+    sys.stderr.write(
+        "Transforming to 2-columns: inp(%s) --> out(%s)\n" % (inpfname, outfname)
+    )
 
-    xls     = pd.ExcelFile(inp)
-    sheets  = xls.sheet_names
-    df      = xls.parse(sheets[0])
-    df      = df.convert_objects(convert_numeric=True)
-
+    xls = pd.ExcelFile(inp)
+    sheets = xls.sheet_names
+    df = xls.parse(sheets[0])
+    df = df.convert_objects(convert_numeric=True)
 
     ## Use numpy to split and join by 2-columns.
     #
@@ -42,25 +43,22 @@ def csvcolumns8to2(inp, inpfname, out, outfname):
     df = df[pd.notnull(df[0])]
     df = df.sort(0, axis=0)
 
-    df[[0]] = df[[0]].astype(int) # Time
+    df[[0]] = df[[0]].astype(int)  # Time
 
-    df.to_csv(out, header=False, index=False, encoding='latin')
-
-
+    df.to_csv(out, header=False, index=False, encoding="latin")
 
 
-if (__name__ == '__main__'):
+if __name__ == "__main__":
     import sys
     import os
 
     inp = sys.stdin
-    inpfname = '<stdin>'
+    inpfname = "<stdin>"
     out = sys.stdout
-    outfname = '<stdout>'
-    if (len(sys.argv) >= 2):
+    outfname = "<stdout>"
+    if len(sys.argv) >= 2:
         inpfname = inp = os.path.abspath(sys.argv[1])
-    if (len(sys.argv) >= 3):
+    if len(sys.argv) >= 3:
         outfname = out = os.path.abspath(sys.argv[2])
 
     csvcolumns8to2(inp, inpfname, out, outfname)
-

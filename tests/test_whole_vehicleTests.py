@@ -63,8 +63,8 @@ class ExperimentWholeVehs(unittest.TestCase):
             with io.open(tmpfname, "wb") as tmpfile:
                 pickle.dump(tabular, tmpfile)
 
-    def _plotResults(self, model):
-        cycle = model["cycle_run"]
+    def _plotResults(self, mdl):
+        cycle = mdl["cycle_run"]
         gears = cycle["gears"]
         target = cycle["v_target"]
         realv = cycle["v_real"]
@@ -79,14 +79,14 @@ class ExperimentWholeVehs(unittest.TestCase):
     def testGoodVehicle(self, plot_results=False):
         logging.getLogger().setLevel(logging.DEBUG)
 
-        model = goodVehicle()
+        mdl = goodVehicle()
 
-        experiment = Experiment(model)
-        model = experiment.run()
-        self.assertTrue("cycle_run" in model, 'No result "cycle" in Model: %s' % model)
+        experiment = Experiment(mdl)
+        mdl = experiment.run()
+        self.assertTrue("cycle_run" in mdl, 'No result "cycle" in Model: %s' % mdl)
 
         print("DRIVEABILITY: \n%s" % experiment.driveability_report())
-        cycle = model["cycle_run"]
+        cycle = mdl["cycle_run"]
         gears = cycle["gears"]
         print(
             "G1: %s, G2: %s"
@@ -96,9 +96,9 @@ class ExperimentWholeVehs(unittest.TestCase):
         self._compare_exp_results(cycle, "goodveh", self.run_comparison)
 
         if plot_results:
-            print(model["cycle_run"])
-            # print([_get_wltc_data()['classes']['class3b']['cycle_run'][k] for k in model['cycle_run']['driveability_issues'].keys()])
-            self._plotResults(model)
+            print(mdl["cycle_run"])
+            # print([_get_wltc_data()['classes']['class3b']['cycle_run'][k] for k in mdl['cycle_run']['driveability_issues'].keys()])
+            self._plotResults(mdl)
 
             np.set_printoptions(edgeitems=16)
             # print(driveability_issues)
@@ -107,29 +107,29 @@ class ExperimentWholeVehs(unittest.TestCase):
             plt.show()
 
     def testUnderPowered(self, plot_results=False):
-        model = goodVehicle()
-        model["vehicle"]["p_rated"] = 50
+        mdl = goodVehicle()
+        mdl["vehicle"]["p_rated"] = 50
 
-        experiment = Experiment(model)
-        model = experiment.run()
+        experiment = Experiment(mdl)
+        mdl = experiment.run()
         print("DRIVEABILITY: \n%s" % experiment.driveability_report())
-        self._compare_exp_results(model["cycle_run"], "unpower1", self.run_comparison)
+        self._compare_exp_results(mdl["cycle_run"], "unpower1", self.run_comparison)
 
-        model = goodVehicle()
-        veh = model["vehicle"]
+        mdl = goodVehicle()
+        veh = mdl["vehicle"]
         veh["test_mass"] = 1000
         veh["unladen_mass"] = veh["test_mass"] - driver_weight
         veh["p_rated"] = 80
         veh["v_max"] = 120
         veh["gear_ratios"] = [120.5, 95, 72, 52]
 
-        experiment = Experiment(model)
-        model = experiment.run()
+        experiment = Experiment(mdl)
+        mdl = experiment.run()
         print("DRIVEABILITY: \n%s" % experiment.driveability_report())
-        self._compare_exp_results(model["cycle_run"], "unpower2", self.run_comparison)
+        self._compare_exp_results(mdl["cycle_run"], "unpower2", self.run_comparison)
 
         if plot_results:
-            self._plotResults(model)
+            self._plotResults(mdl)
             plt.show()
 
 

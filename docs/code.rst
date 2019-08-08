@@ -25,11 +25,11 @@ Schema
 
 .. doctest:: model_text
 
-    >>> from wltp import model, utils
-    >>> schema = model._get_model_schema()
+    >>> from wltp import datamodel, utils
+    >>> schema = datamodel._get_model_schema()
     >>> print(utils.yaml_dumps(schema))
     $schema: http://json-schema.org/draft-07/schema#
-    $id: /model
+    $id: /data
     title: Json-schema describing the input for a WLTC simulator.
     type: object
     additionalProperties: false

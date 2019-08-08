@@ -10,7 +10,7 @@ from matplotlib import cbook, cm, pyplot as plt
 from matplotlib.colors import Normalize
 from numpy import ma
 from numpy import polyfit, polyval
-from wltp import model
+from wltp import datamodel
 
 import math
 import numpy as np
@@ -103,7 +103,7 @@ def fit_straight_line(x, y):
 
 
 def plot_class_limits(axis, y):
-    class_limits = model.get_class_pmr_limits()
+    class_limits = datamodel.get_class_pmr_limits()
     for limit in class_limits:
         plt.axvline(limit, color="y", linewidth=2)
 
@@ -144,7 +144,7 @@ def plot_class_limits(axis, y):
 
 
 # def plot_class_parts_limits(axis, cls, y):
-#    class_limits = model.get_class_parts_limits(cls)
+#    class_limits = datamodel.get_class_parts_limits(cls)
 #    for limit in class_limits:
 #        plt.axvline(limit, color='y', linewidth=2)
 

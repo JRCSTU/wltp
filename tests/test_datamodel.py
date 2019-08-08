@@ -11,7 +11,7 @@ import unittest
 from unittest.case import skip
 
 import pandas as pd
-from wltp import model
+from wltp import datamodel
 import wltp
 
 from wltp.experiment import Experiment
@@ -24,7 +24,7 @@ class Test(unittest.TestCase):
 
         exp = Experiment(mdl)
         mdl = exp._model
-        defwot = model.upd_default_load_curve({})["wot"]
+        defwot = datamodel.upd_default_load_curve({})["wot"]
         self.assertTrue(
             pd.DataFrame(mdl["wot"][["n_norm", "p_norm"]]).equals(pd.DataFrame(defwot))
         )
@@ -40,17 +40,19 @@ class Test(unittest.TestCase):
         self.assertEqual(mdl["n_rated"], nval)
 
     def test_get_class_parts_limits_sorted(self):
-        classes = model._get_wltc_data()["classes"]
+        classes = datamodel._get_wltc_data()["classes"]
         class_limits = {
-            cls: model.get_class_parts_limits(cls, edges=True) for cls in classes.keys()
+            cls: datamodel.get_class_parts_limits(cls, edges=True)
+            for cls in classes.keys()
         }
         for (cls, l) in class_limits.items():
             self.assertSequenceEqual(l, sorted(l), "Class(%s): Unsorted!" % cls)
 
     def test_get_class_parts_limits_with_edges(self):
-        classes = model._get_wltc_data()["classes"]
+        classes = datamodel._get_wltc_data()["classes"]
         class_limits = {
-            cls: model.get_class_parts_limits(cls, edges=True) for cls in classes.keys()
+            cls: datamodel.get_class_parts_limits(cls, edges=True)
+            for cls in classes.keys()
         }
         for (cls, l) in class_limits.items():
             self.assertEqual(l[0], 0, "Class(%s): Left-edge not 0!" % cls)
@@ -62,11 +64,11 @@ class Test(unittest.TestCase):
             )
 
     def test_get_class_pmr_limits(self):
-        l = model.get_class_pmr_limits()
+        l = datamodel.get_class_pmr_limits()
         self.assertSequenceEqual(l, [22, 34])
 
     def test_get_class_pmr_limits_with_edges(self):
-        pmr_limits = model.get_class_pmr_limits(edges=True)
+        pmr_limits = datamodel.get_class_pmr_limits(edges=True)
         self.assertEqual(pmr_limits[0], 0, "Left-edge not 0!")
         self.assertEqual(pmr_limits[-1], float("inf"), "PMR-limit: Right-edge not INF!")
 

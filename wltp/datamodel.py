@@ -8,11 +8,11 @@
 """
 Defines schema, defaults and validations for data consumed/produced by :class:`~wltp.experiment.Experiment`.
 
-The model-instance is managed by :class:`pandel.Pandel`.
+The datamodel-instance is managed by :class:`pandel.Pandel`.
 
 Example-code to get WLTP-data::
 
-    from wltp.model  import _get_wltc_data
+    from wltp.datamodel  import _get_wltc_data
     cycle_data = _get_wltc_data()
 
     for cls, value in cycle_data['classes'].items():
@@ -153,7 +153,7 @@ def upd_resistance_coeffs_regression_curves(mdl):
 def _get_wltc_data():
     """The WLTC-data required to run an experiment (the class-cycles and their attributes)..
 
-    Prefer to access wltc-data through :samp:`{model}['wltc_data']`.
+    Prefer to access wltc-data through :samp:`{datamodel}['wltc_data']`.
 
     :return: a tree
     """
@@ -172,7 +172,7 @@ def _get_wltc_data():
     return wltc_data
 
 
-_model_url = "/model"
+_model_url = "/data"
 _cached_model_schema = None
 _wltc_url = "/wltc"
 _cached_wltc_schema = None
@@ -610,7 +610,7 @@ definitions:
             type: array
             description: triplet (start, tip, end); start & end remain unchanged
             items:
-              $ref: model#definitions/positiveInteger
+              $ref: data#definitions/positiveInteger
             maxItems: 3
             minItems: 3
             additionalItems: false
@@ -702,15 +702,15 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
 
     Get class-checksums example::
 
-        >>> from wltp import model
+        >>> from wltp import datamodel
         >>> import pandas as pd
 
         >>> cls = 'class2'
-        >>> part_limits = model.get_class_parts_index(cls)
+        >>> part_limits = datamodel.get_class_parts_index(cls)
         >>> part_limits
         array([   0,  590, 1023, 1478, 1801])
 
-        >>> cls_data = model._get_wltc_data()['classes'][cls]
+        >>> cls_data = datamodel._get_wltc_data()['classes'][cls]
         >>> cycle = pd.DataFrame(cls_data['cycle'])
         >>> cycle.groupby(pd.cut(cycle.index, part_limits)).sum()
                             0

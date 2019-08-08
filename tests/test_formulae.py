@@ -13,7 +13,7 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 
-from wltp import experiment, model
+from wltp import experiment
 
 from . import vehdb
 

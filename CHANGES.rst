@@ -21,10 +21,10 @@ The following matrix shows these correspondences:
 | 0.0.9   | Un-precise GTR phase-1a     |
 |         | (diffs explained below)     |
 +---------+-----------------------------+
-| 0.1.x   | GTR phase-1a                |
-|         | (TODO)                      |
+| 0.1.x   | GTR phase-1a,               |
+|         | (roughly valid till ~2016   |
 +---------+-----------------------------+
-| 1.x.x   | GTR phase 1b [TDB]          |
+| 1.x.x   | GTR phase 2 [TDB]           |
 +---------+-----------------------------+
 
 

@@ -438,7 +438,7 @@ def plot_diffs_with_heinz(
 
         resfiles_date = min([os.path.getmtime(file) for file in outfiles])
         checkfiles = [
-            "../model.py",
+            "../datamodel.py",
             "../experiment.py",
             os.path.join(samples_dir, "sample_vehicles.csv"),
         ]

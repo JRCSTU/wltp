@@ -8,7 +8,7 @@
 
 import os
 import sys
-from wltp import plots, model
+from wltp import plots, datamodel
 from tests import test_wltp_db as wltpdb
 
 from matplotlib import pyplot as plt, cm
@@ -17,7 +17,7 @@ import pandas as pd
 
 
 classes = ["class1", "class2", "class3b"]
-part_names = model.get_class_part_names()
+part_names = datamodel.get_class_part_names()
 
 
 def class_name_from_num(cls_num):
@@ -62,7 +62,7 @@ def data_meanN_gears(cls_num):
             class_num = vehdata.loc[veh_num, "class"]
         except KeyError:
             continue
-        parts = model.get_class_parts_limits(cls_name, edges=True)
+        parts = datamodel.get_class_parts_limits(cls_name, edges=True)
 
         g_data = means_by_parts(df_g, ["gears", "rpm"], cols_out)
         h_data = means_by_parts(df_h, ["gear", "n"], cols_out)
@@ -86,7 +86,7 @@ def plot(cls_num):
     assert len(cols) == 4, cols
 
     parts = zip(
-        model.get_class_part_names(),
+        datamodel.get_class_part_names(),
         [
             dict(
                 data_fmt="1",

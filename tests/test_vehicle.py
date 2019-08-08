@@ -6,7 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 from wltp.vehicle import calc_default_resistance_coeffs
-from wltp import model
+from wltp import datamodel
 
 
 def test_calc_default_resistance_coeffs():
@@ -32,8 +32,8 @@ def test_calc_default_resistance_coeffs():
 def test_calc_default_resistance_coeffs_base_model():
     tm = 1000  # test_mass
 
-    bm = model.get_model_base()
-    model.upd_resistance_coeffs_regression_curves(bm)
+    bm = datamodel.get_model_base()
+    datamodel.upd_resistance_coeffs_regression_curves(bm)
     regression_curves = bm["resistance_coeffs_regression_curves"]
     res = calc_default_resistance_coeffs(tm, regression_curves)
     print(res)

@@ -5,7 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""The core that accepts a vehicle-model and wltc-classes, runs the simulation and updates the model with results (downscaled velocity & gears-profile).
+"""The core that accepts a vehicle-model and wltc-classes, runs the simulation and updates the model with results.
 
 .. Attention:: The documentation of this core module has several issues and needs work.
 
@@ -45,7 +45,7 @@ _N_GEARS:  floats (#gears X #cycle_steps)
 _GEARS_YES:  boolean (#gears X #cycle_steps)
     One row per gear having ``True`` wherever gear is possible for each step.
 
-.. Seealso:: :mod:`model` for in/out schemas
+.. Seealso:: :mod:`~datamodel` for in/out schemas
 """
 
 import logging
@@ -56,7 +56,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from . import io, invariants, vehicle, engine, vmax, downscale, model
+from . import io, invariants, vehicle, engine, vmax, downscale, datamodel
 from .invariants import v_decimals, vround
 
 log = logging.getLogger(__name__)
@@ -82,15 +82,17 @@ class Experiment(object):
     See :mod:`wltp.experiment` for documentation.
     """
 
-    def __init__(self, model, skip_model_validation=False, validate_wltc_data=False):
+    def __init__(self, mdl, skip_model_validation=False, validate_wltc_data=False):
         """
-        :param model:                 trees (formed by dicts & lists) holding the experiment data.
-        :param skip_model_validation:  when true, does not validate the model.
+        :param mdl:
+            trees (formed by dicts & lists) holding the experiment data.
+        :param skip_model_validation:
+            when true, does not validate the model.
         """
 
         self.dtype = np.float64
         self._set_model(
-            model,
+            mdl,
             skip_validation=skip_model_validation,
             validate_wltc_data=validate_wltc_data,
         )
@@ -291,12 +293,14 @@ class Experiment(object):
         return self._model
 
     def _set_model(self, mdl, skip_validation=False, validate_wltc_data=False):
-        from wltp.model import get_model_base, merge
+        from wltp.datamodel import get_model_base, merge
 
         merged_model = get_model_base()
         merge(merged_model, mdl)
         if not skip_validation:
-            model.validate_model(merged_model, validate_wltc_data=validate_wltc_data)
+            datamodel.validate_model(
+                merged_model, validate_wltc_data=validate_wltc_data
+            )
         self._model = merged_model
 
     def driveability_report(self):

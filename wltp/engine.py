@@ -439,7 +439,7 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
     Calculate minimum revolutions according to Annex 2-2.k.
 
     Assumes model has been validated, but
-    not yet called :func:`wltp.model.yield_n_min_errors()`.
+    not yet called :func:`~datamodel.yield_n_min_errors()`.
 
     """
     # TODO: accept ARRAY `n_min_drive`

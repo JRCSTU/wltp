@@ -83,7 +83,7 @@ class Doctest(unittest.TestCase):
 class TestDoctest(unittest.TestCase):
     def test_doctests(self):
         failure_count, test_count = doctest.testmod(
-            wltp.model, optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
+            wltp.datamodel, optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
         )
         self.assertGreater(test_count, 0, (failure_count, test_count))
         self.assertEqual(failure_count, 0, (failure_count, test_count))

@@ -149,7 +149,7 @@ def _is_file_up_to_date(result_file, other_dependency_files=()):
     if _sources_latest_date is None:
         source_fnames = [
             __file__,
-            "../../model.py",
+            "../../datamodel.py",
             "../../experiment.py",
             vehs_data_inp_fname,
         ]
@@ -917,8 +917,8 @@ def _run_the_experiments(
             inp_df.loc[ix] = out_df.loc[ix]
             continue
 
-        model = goodVehicle()
-        veh = model["vehicle"]
+        mdl = goodVehicle()
+        veh = mdl["vehicle"]
 
         veh["test_mass"] = row["test_mass"]
         veh["unladen_mass"] = row["kerb_mass"]
@@ -935,18 +935,18 @@ def _run_the_experiments(
             log.warning(">>> Transplanting gears from Heinz's!")
             df_h = _read_heinz_file(veh_num)
 
-            model["cycle_run"] = {"gears_orig": df_h["g_max"].values}
+            mdl["cycle_run"] = {"gears_orig": df_h["g_max"].values}
 
         try:
-            experiment = Experiment(model)
-            model = experiment.run()
+            experiment = Experiment(mdl)
+            mdl = experiment.run()
         except Exception as ex:
             log.warning("VEHICLE_FAILED(%s): %s", veh_num, str(ex))
             failed_vehicles += 1
             continue
         else:
-            params = model["params"]
-            veh = model["vehicle"]
+            params = mdl["params"]
+            veh = mdl["vehicle"]
 
             inp_df.loc[ix, "pmr"] = veh["pmr"]
             inp_df.loc[ix, "wltc_class"] = veh["wltc_class"]
@@ -954,7 +954,7 @@ def _run_the_experiments(
 
             # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
             # heinz:         't', 'km_h', 'stg', 'gear'
-            cycle_df = pd.DataFrame(model["cycle_run"])
+            cycle_df = pd.DataFrame(mdl["cycle_run"])
 
             _compare_exp_results(cycle_df, outfname, compare_results)
 

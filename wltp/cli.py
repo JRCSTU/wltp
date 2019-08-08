@@ -20,7 +20,7 @@ import ast
 from distutils.spawn import find_executable
 import json
 from textwrap import dedent
-from wltp import model, experiment, utils, __version__ as prog_ver
+from wltp import datamodel, experiment, utils, __version__ as prog_ver
 import pandalone.pandata as pandel
 from jsonschema.exceptions import RefResolutionError
 from pandas.core.generic import NDFrame
@@ -193,7 +193,7 @@ def main(argv=None):
             opts.strict,
             utils.Lazy(lambda: utils.yaml_dumps(mdl)),
         )
-        mdl = model.validate_model(mdl, additional_props)
+        mdl = datamodel.validate_model(mdl, additional_props)
 
         mdl = experiment.Experiment(mdl).run()
 
@@ -487,7 +487,7 @@ def load_model_part(mdl, filespec):
 
 def assemble_model(infiles, model_overrides):
 
-    mdl = model.get_model_base()
+    mdl = datamodel.get_model_base()
 
     for filespec in infiles:
         try:

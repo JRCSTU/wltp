@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 from jsonschema.exceptions import ValidationError
 
-from wltp import model
+from wltp import datamodel
 from .goodvehicle import goodVehicle
 
 
@@ -44,18 +44,24 @@ class InstancesTest(unittest.TestCase):
                 self.assertIsNone(e, e)
 
         try:
-            model.validate_model(mdl, iter_errors=False)
-            consume_errs(model.validate_model(mdl, iter_errors=True))
-            model.validate_model(mdl, additional_properties=False)
-            model.validate_model(mdl, additional_properties=True)
+            datamodel.validate_model(mdl, iter_errors=False)
+            consume_errs(datamodel.validate_model(mdl, iter_errors=True))
+            datamodel.validate_model(mdl, additional_properties=False)
+            datamodel.validate_model(mdl, additional_properties=True)
             consume_errs(
-                model.validate_model(mdl, iter_errors=True, additional_properties=True)
+                datamodel.validate_model(
+                    mdl, iter_errors=True, additional_properties=True
+                )
             )
             consume_errs(
-                model.validate_model(mdl, iter_errors=True, additional_properties=False)
+                datamodel.validate_model(
+                    mdl, iter_errors=True, additional_properties=False
+                )
             )
-            model.validate_model(mdl, iter_errors=False, additional_properties=True)
-            model.validate_model(mdl, iter_errors=False, additional_properties=False)
+            datamodel.validate_model(mdl, iter_errors=False, additional_properties=True)
+            datamodel.validate_model(
+                mdl, iter_errors=False, additional_properties=False
+            )
         except:
             print("Model failed: ", mdl)
             raise
@@ -63,31 +69,37 @@ class InstancesTest(unittest.TestCase):
     def checkModel_invalid(self, mdl):
         ex = jsonschema.ValidationError
         try:
-            self.assertRaises(ex, model.validate_model, mdl, iter_errors=False)
-            errs = list(model.validate_model(mdl, iter_errors=True))
+            self.assertRaises(ex, datamodel.validate_model, mdl, iter_errors=False)
+            errs = list(datamodel.validate_model(mdl, iter_errors=True))
             self.assertGreater(len(errs), 0, errs)
             self.assertRaises(
-                ex, model.validate_model, mdl, additional_properties=False
+                ex, datamodel.validate_model, mdl, additional_properties=False
             )
-            self.assertRaises(ex, model.validate_model, mdl, additional_properties=True)
+            self.assertRaises(
+                ex, datamodel.validate_model, mdl, additional_properties=True
+            )
             errs = list(
-                model.validate_model(mdl, iter_errors=True, additional_properties=True)
+                datamodel.validate_model(
+                    mdl, iter_errors=True, additional_properties=True
+                )
             )
             self.assertGreater(len(errs), 0, errs)
             errs = list(
-                model.validate_model(mdl, iter_errors=True, additional_properties=False)
+                datamodel.validate_model(
+                    mdl, iter_errors=True, additional_properties=False
+                )
             )
             self.assertGreater(len(errs), 0, errs)
             self.assertRaises(
                 ex,
-                model.validate_model,
+                datamodel.validate_model,
                 mdl,
                 iter_errors=False,
                 additional_properties=True,
             )
             self.assertRaises(
                 ex,
-                model.validate_model,
+                datamodel.validate_model,
                 mdl,
                 iter_errors=False,
                 additional_properties=False,
@@ -97,18 +109,20 @@ class InstancesTest(unittest.TestCase):
             raise
 
     def test_validate_wltc_data(self):
-        mdl = model.get_model_base()
-        mdl = model.merge(mdl, goodVehicle())
-        validator = model.model_validator(validate_wltc_data=True, validate_schema=True)
+        mdl = datamodel.get_model_base()
+        mdl = datamodel.merge(mdl, goodVehicle())
+        validator = datamodel.model_validator(
+            validate_wltc_data=True, validate_schema=True
+        )
 
         validator.validate(mdl)
 
     def test_wltc_validate_class_parts(self):
-        wltc = model._get_wltc_data()
+        wltc = datamodel._get_wltc_data()
 
         for cl, cd in wltc["classes"].items():
             cycle = cd["cycle"]
-            parts = model.get_class_parts_limits(cl, edges=True)
+            parts = datamodel.get_class_parts_limits(cl, edges=True)
             prev_start = -1
             for start in parts:
                 assert 0 <= start <= len(cycle)
@@ -118,7 +132,7 @@ class InstancesTest(unittest.TestCase):
             assert prev_start == len(cycle)
 
     def test_wltc_validate_checksums(self):
-        wltc = model._get_wltc_data()
+        wltc = datamodel._get_wltc_data()
 
         for cl, cd in wltc["classes"].items():
             cycle = np.array(cd["cycle"])
@@ -126,7 +140,7 @@ class InstancesTest(unittest.TestCase):
             checksum = cd["checksum"]
             self.assertAlmostEqual(numsum, checksum)
 
-            parts = model.get_class_parts_limits(cl)
+            parts = datamodel.get_class_parts_limits(cl)
             cycle_parts = np.split(cycle, parts)
             for partnum, (pchk, cpart) in enumerate(
                 zip(cd["part_checksums"], cycle_parts)
@@ -136,15 +150,15 @@ class InstancesTest(unittest.TestCase):
                 )
 
     def testModelBase_plainInvalid(self):
-        mdl = model.get_model_base()
-        model.upd_default_load_curve(mdl)
+        mdl = datamodel.get_model_base()
+        datamodel.upd_default_load_curve(mdl)
 
         self.checkModel_invalid(mdl)
 
     def testModelInstance_missingLoadCurve(self):
         json_txt = self.goodVehicle_jsonTxt % ("")
         mdl = json.loads(json_txt)
-        validator = model.model_validator()
+        validator = datamodel.model_validator()
 
         self.assertRaisesRegex(
             jsonschema.ValidationError,
@@ -154,7 +168,7 @@ class InstancesTest(unittest.TestCase):
         )
 
     def testModelInstance_simplInstanceeFullLoadCurve(self):
-        mdl = model.get_model_base()
+        mdl = datamodel.get_model_base()
         mdl.update(goodVehicle())
         mdl.update(
             {
@@ -165,22 +179,22 @@ class InstancesTest(unittest.TestCase):
             }
         )
 
-        model.model_validator().validate(mdl)
-        dwot = model.upd_default_load_curve({})["wot"]
+        datamodel.model_validator().validate(mdl)
+        dwot = datamodel.upd_default_load_curve({})["wot"]
 
         self.assertNotEqual(mdl["wot"], dwot)
 
     def testModelInstance_defaultLoadCurve(self):
-        mdl = model.get_model_base()
+        mdl = datamodel.get_model_base()
         mdl.update(goodVehicle())
-        model.upd_default_load_curve(mdl)
+        datamodel.upd_default_load_curve(mdl)
 
-        validator = model.model_validator()
+        validator = datamodel.model_validator()
         validator.validate(mdl)
 
-        model.upd_default_load_curve(mdl, "diesel")
+        datamodel.upd_default_load_curve(mdl, "diesel")
 
-        validator = model.model_validator()
+        validator = datamodel.model_validator()
         validator.validate(mdl)
 
     def testFullLoadCurve_invalid(self):
@@ -199,20 +213,20 @@ class InstancesTest(unittest.TestCase):
         ]
 
         for c in cases:
-            mdl = model.get_model_base()
-            mdl = model.merge(model.get_model_base(), mdl)
+            mdl = datamodel.get_model_base()
+            mdl = datamodel.merge(datamodel.get_model_base(), mdl)
             mdl["wot"] = c
             self.checkModel_invalid(mdl)
 
     def test_default_resistance_coeffs_missing(self):
         mdl = goodVehicle()
-        mdl = model.merge(model.get_model_base(), mdl)
+        mdl = datamodel.merge(datamodel.get_model_base(), mdl)
         self.checkModel_valid(mdl)
 
     def test_default_resistance_coeffs_None(self):
         mdl = goodVehicle()
         mdl["resistance_coeffs"] = None
-        mdl = model.merge(model.get_model_base(), mdl)
+        mdl = datamodel.merge(datamodel.get_model_base(), mdl)
         self.checkModel_valid(mdl)
 
 

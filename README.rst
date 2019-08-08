@@ -145,15 +145,24 @@ Project files and folders
 The files and folders of the project are listed below::
 
     +--bin/               ## (shell-scripts) Utilities & preprocessing of WLTC data on GTR and the wltp_db
-    |   +--run_tests.sh   ## (script) Executes all TestCases
-    +--wltp/              ## (package) The python-code of the calculator
-    |   +--cycles/        ## (package) The python-code for the WLTC data
-    |   +--model          ## (module) Describes the data and their schema for the calculation
-    |   +--experiment     ## (module) The calculator
-    |   +--plots          ## (module) Diagram-plotting code and utilities
-    +--tests/             ## (package) Test-cases and the wltp_db
-    +--docs/              ## Documentation folder
-    |   +--pyplots/       ## (scripts) Plot the metric diagrams embeded in the README
+    |   +--bumpver.py     ## (script) Update project's version-string
+    +--wltp/              ## (package) python-code of the calculator
+    |   +--cycles/        ## (package) code & data for the WLTC data
+    |   +--experiment     ## top-level code running the algo
+    |   +--datamodel      ## schemas & defaults for data of algo
+    |   +--engine         ## formulae for engine power & revolutions and gear-box
+    |   +--vehicle        ## formulae for cyle/vehicle dynamics
+    |   +--vmax           ## formulae estimating `v_max` from wot
+    |   +--downscale      ## formulae downscaling cycles based on pmr/test_mass ratio
+    |   +--plots          ## (ABANDONED) formulae downscaling cycles based on pmr/test_mass ratio
+    |   +--idgears        ## (ABANDONED) reconstructs the gears-profile by identifying the actual gears
+    |   +--invariants     ## idenmpotent utils related to physics/engineering
+    |   +--utils          ## software utils unrelated to physics or engineering
+    |   +--cli            ## (ABANDONED) entry-point for running pyalgo from command-line
+    +--tests/             ## (package) Test-TestCases
+        +--vehdb          ## Utils for manipulating h5db with accdb & pyalgo cases.
+    +--docs/              ## (folder) documentation
+    |   +--pyplots/       ## (DEPRECATED by notebooks) scripts plotting the metric diagrams embeded in the README
     +--Notebooks/         ## Jupyter notebooks for running & comparing results (see `Notebooks/README.md`)
     +--setup.py           ## (script) The entry point for `setuptools`, installing, testing, etc
     +--requirements/      ## (txt-files) Various pip-dependencies for tools.
@@ -314,7 +323,7 @@ For instance:
 
 .. doctest::
 
-    >>> from wltp import model
+    >>> from wltp import datamodel
     >>> from wltp.experiment import Experiment
 
     >>> mdl = {
@@ -328,7 +337,7 @@ For instance:
     ...     "gear_ratios":         [120.5, 75, 50, 43, 37, 32],
     ...     "resistance_coeffs":   [100, 0.5, 0.04],
     ... }
-    >>> mdl = model.upd_default_load_curve(mdl)                   ## need some WOT
+    >>> mdl = datamodel.upd_default_load_curve(mdl)                   ## need some WOT
 
 
 For information on the accepted model-data, check its :term:`JSON-schema`:
@@ -336,7 +345,7 @@ For information on the accepted model-data, check its :term:`JSON-schema`:
 .. doctest::
 
     >>> from wltp import utils
-    >>> utils.yaml_dumps(model.model_schema(), indent=2)                                # doctest: +SKIP
+    >>> utils.yaml_dumps(datamodel.model_schema(), indent=2)                                # doctest: +SKIP
     $schema: http://json-schema.org/draft-07/schema#
     $id: /wltc
     title: WLTC data
@@ -537,7 +546,7 @@ of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it s
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
 Then use the :file:`devtools/buildwltcclass.py` to construct the respective python-vars into the
-:mod:`wltp/model.py` sources.
+:mod:`wltp/datamodel.py` sources.
 
 
 Data-files generated from Steven Heinz's ms-access ``vehicle info`` db-table can be processed

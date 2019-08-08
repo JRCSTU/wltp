@@ -22,9 +22,9 @@ class ExperimentPerf(unittest.TestCase):
         nexp = 100
         start = time.time()
         for _ in range(nexp):
-            model = goodVehicle()
+            mdl = goodVehicle()
 
-            experiment = Experiment(model)
+            experiment = Experiment(mdl)
 
             experiment.run()
 
