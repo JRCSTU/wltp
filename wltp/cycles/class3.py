@@ -37,7 +37,7 @@ def class_data_a():
         },
         "checksum": 83496.9,
         "part_checksums": [11140.3, 16995.7, 25646.0, 29714.9],
-        "cycle": [
+        "v_cycle": [
             0.0,
             0.0,
             0.0,
@@ -3659,7 +3659,7 @@ def class_data_b():
         {
             "checksum": 83758.6,
             "part_checksums": [11140.3, 17121.2, 25782.2, 29714.9],
-            "cycle": cycle,
+            "v_cycle": cycle,
             "velocity_limits": [120, float("inf")],  ## Km/h [low, high)
         }
     )

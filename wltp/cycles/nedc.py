@@ -13,7 +13,7 @@ def cycle_data():
     """
     data = {
         "parts": [[0, 780], [781, 1179]],
-        "cycle": [
+        "v_cycle": [
             0.0,
             0.0,
             0.0,

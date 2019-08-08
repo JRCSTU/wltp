@@ -573,7 +573,7 @@ definitions:
     - pmr_limits
     - parts
     - downscale
-    - cycle
+    - v_cycle
     properties:
       pmr_limits:
         title: PMR (low, high]
@@ -643,7 +643,7 @@ definitions:
         type: array
         items:
           type: number
-      cycle:
+      v_cycle:
         type: array
         items:
           type: number
@@ -686,7 +686,7 @@ def get_class_parts_limits(cls_name, mdl=None, edges=False):
     part_limits = cls["parts"]
     if edges:
         part_limits.insert(0, 0)
-        part_limits.append(len(cls["cycle"]))
+        part_limits.append(len(cls["v_cycle"]))
 
     return part_limits
 
@@ -711,8 +711,8 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
         array([   0,  590, 1023, 1478, 1801])
 
         >>> cls_data = datamodel.get_wltc_data()['classes'][cls]
-        >>> cycle = pd.DataFrame(cls_data['cycle'])
-        >>> cycle.groupby(pd.cut(cycle.index, part_limits)).sum()
+        >>> V = pd.DataFrame(cls_data['v_cycle'])
+        >>> V.groupby(pd.cut(V.index, part_limits)).sum()
                             0
         (0, 590]      11162.2
         (590, 1023]   17054.3

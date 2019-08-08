@@ -42,7 +42,7 @@ def test_smoke1():
     wltc = datamodel.get_wltc_data()
     wltc_class = decide_wltc_class(wltc, p_rated / test_mass, v_max)
     class_data = wltc["classes"][wltc_class]
-    V = pd.Series(class_data["cycle"])
+    V = pd.Series(class_data["v_cycle"])
 
     f_downscale_threshold = 0.01  # TODO: get it from schema-default
     f_downscale_decimals = 3  # TODO: get it from schema-default
@@ -79,7 +79,7 @@ def test_smoke1():
 def test_smoke2():
     wclasses = datamodel.get_wltc_data()["classes"]
     test_data = [
-        (pd.Series(wclass["cycle"]), wclass["downscale"]["phases"], f_downscale)
+        (pd.Series(wclass["v_cycle"]), wclass["downscale"]["phases"], f_downscale)
         for wclass in wclasses.values()
         for f_downscale in np.linspace(0.1, 1, 10)
     ]
@@ -114,7 +114,7 @@ def test_recurse_vs_scaling(wclass):
     ]
     v_decimals = 1
     class_data = _wltc["classes"][wclass]
-    V = pd.Series(class_data["cycle"])
+    V = pd.Series(class_data["v_cycle"])
     phases = class_data["downscale"]["phases"]
 
     bad_accuracies, bad_rounds = {}, {}

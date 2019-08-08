@@ -36,7 +36,7 @@ def class_data():
         },
         "checksum": 81536.9,
         "part_checksums": [11162.2, 17054.3, 24450.6],
-        "cycle": [
+        "v_cycle": [
             0.0,
             0.0,
             0.0,

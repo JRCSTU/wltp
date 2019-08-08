@@ -26,7 +26,7 @@ def make_class_fig(class_name, class_data):
 
     ## Get cycle-data
     #
-    c = np.array(class_data["cycle"])
+    c = np.array(class_data["v_cycle"])
     a = 1000 * np.gradient(c) / 3600
     t = np.arange(0, len(c))
     part_limits = class_data["parts"]

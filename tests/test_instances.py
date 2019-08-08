@@ -121,7 +121,7 @@ class InstancesTest(unittest.TestCase):
         wltc = datamodel.get_wltc_data()
 
         for cl, cd in wltc["classes"].items():
-            cycle = cd["cycle"]
+            cycle = cd["v_cycle"]
             parts = datamodel.get_class_parts_limits(cl, edges=True)
             prev_start = -1
             for start in parts:
@@ -135,7 +135,7 @@ class InstancesTest(unittest.TestCase):
         wltc = datamodel.get_wltc_data()
 
         for cl, cd in wltc["classes"].items():
-            cycle = np.array(cd["cycle"])
+            cycle = np.array(cd["v_cycle"])
             numsum = cycle.sum()
             checksum = cd["checksum"]
             self.assertAlmostEqual(numsum, checksum)

@@ -183,7 +183,7 @@ class Experiment(object):
                 log.info("Found forced wltc_class(%s).", wltc_class)
 
             class_data = self.wltc["classes"][wltc_class]
-            V = np.asarray(class_data["cycle"], dtype=self.dtype)
+            V = np.asarray(class_data["v_cycle"], dtype=self.dtype)
 
             cycle_run["v_class"] = V  # rounded already
             V = cycle_run["v_class"]  # to get cycle's index
