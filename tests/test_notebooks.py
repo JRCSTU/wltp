@@ -12,7 +12,14 @@ import papermill as pm
 
 
 # "CarsDB-accdb.ipynb" is deadly slow (~5').
-@pytest.fixture(params=["CarsDB-pyalgo.ipynb", "CarsDB-compare.ipynb", "VMax.ipynb"])
+@pytest.fixture(
+    params=[
+        pytest.param("CarsDB-accdb.ipynb", marks=pytest.mark.slow),
+        "CarsDB-pyalgo.ipynb",
+        "CarsDB-compare.ipynb",
+        "VMax.ipynb",
+    ]
+)
 def notebook(request):
     nbfname = request.param
     nbfpath = Path(__file__).parents[1] / "Notebooks" / nbfname

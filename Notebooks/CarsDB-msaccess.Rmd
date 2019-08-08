@@ -218,14 +218,15 @@ def store_results_per_car(
         pwot, SM = extract_SM_from_pwot(pwot)
         assert SM and pwot.size, (case, vehnum, SM, pwot)
         pwot_node = vehdb.vehnode(vehnum, wot_group_suffix)
-        h5db.put(pwot_node, pwot)
-        vehdb.provenir_h5node(
-            h5db,
-            pwot_node,
-            title="Full-load-curve of the test-car, as delivered by Heinz on 13 May 2019",
-            files=[wots_excel[0]],
-            base=base,
-        )
+        if not skip_h5_write:
+            h5db.put(pwot_node, pwot)
+            vehdb.provenir_h5node(
+                h5db,
+                pwot_node,
+                title="Full-load-curve of the test-car, as delivered by Heinz on 13 May 2019",
+                files=[wots_excel[0]],
+                base=base,
+            )
 
 
         ## Store INP/OUT props
