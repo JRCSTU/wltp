@@ -16,7 +16,7 @@ import pandas as pd
 from pandalone import mappings, pandata
 
 from . import io as wio
-from . import power, pwot, utils
+from . import power, engine, utils
 from .invariants import v_decimals, v_step, vround
 
 log = logging.getLogger(__name__)
@@ -105,7 +105,7 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
     c = wio.pstep_factory.get().wot
 
     wot[c.v] = wot.index / n2v
-    grid_wot = pwot.interpolate_wot_on_v_grid(wot)
+    grid_wot = engine.interpolate_wot_on_v_grid(wot)
     grid_wot[c.p_resist] = power.calc_road_load_power(grid_wot[c.v], f0, f1, f2)
     grid_wot[c.p_remain] = grid_wot[c.p_avail] - grid_wot[c.p_resist]
     return _find_p_remain_root(grid_wot)._replace(g_v_max=g)
@@ -155,7 +155,7 @@ def calc_v_max(
         return wots_df
 
     wot[c.n] = wot.index
-    wot[c.p_avail] = pwot.calc_p_available(
+    wot[c.p_avail] = engine.calc_p_available(
         wot[c.p], ASM=0, f_safety_margin=f_safety_margin
     )
 

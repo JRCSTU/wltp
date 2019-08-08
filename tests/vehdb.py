@@ -441,7 +441,7 @@ def load_vehicle_nodes(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
     return res
 
 
-# props, pwot = load_vehicle_nodes(h5fname, vehnum, "prop", "wot")
+# props, wot = load_vehicle_nodes(h5fname, vehnum, "prop", "wot")
 
 
 def load_vehicle_accdb(h5, vehnum) -> Tuple[pd.Series, pd.DataFrame, list]:
@@ -494,7 +494,7 @@ def run_pyalgo_on_Heinz_vehicle(
         the *out-props* key-values, the *cycle_run* data-frame, 
         and the grid-wots constructed to solve v_max.
     """
-    from wltp import io as wio, pwot, utils
+    from wltp import io as wio, engine, utils
     from wltp.experiment import Experiment
 
     props, wot, n2vs = load_vehicle_accdb(h5, vehnum)

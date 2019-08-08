@@ -39,7 +39,7 @@ from pandalone.pandata import PandelVisitor
 
 from . import gearbox
 from . import io as wio
-from . import pwot, utils
+from . import engine, utils
 from .cycles import class1, class2, class3
 
 try:
@@ -869,12 +869,12 @@ def yield_load_curve_errors(mdl):
         return
 
     try:
-        mdl["wot"] = wot = pwot.parse_wot(wot)
+        mdl["wot"] = wot = engine.parse_wot(wot)
     except Exception as ex:
         yield ValidationError("Failed parsing wot due to: %s" % ex, cause=ex)
 
     try:
-        wot = pwot.validate_wot(mdl, wot)
+        wot = engine.validate_wot(mdl, wot)
     except Exception as ex:
         yield ValidationError("Invalid wot due to: %s" % ex, cause=ex)
 

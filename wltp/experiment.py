@@ -56,7 +56,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from . import io, invariants, power, pwot, vmax, downscale, model
+from . import io, invariants, power, engine, vmax, downscale, model
 from .invariants import v_decimals, vround
 
 log = logging.getLogger(__name__)
@@ -144,7 +144,7 @@ class Experiment(object):
             raise ValueError("Missing resistance_coeffs!")
 
         wot = mdl["wot"]
-        n95_low, n95_high = pwot.calc_n95(wot, n_rated)
+        n95_low, n95_high = engine.calc_n95(wot, n_rated)
         mdl["n95_low"], mdl["n95_high"] = n95_low, n95_high
 
         f_safety_margin = mdl["f_safety_margin"]
