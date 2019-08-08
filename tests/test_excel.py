@@ -8,8 +8,7 @@
 from unittest.case import skipIf
 import tempfile
 
-"""Check xlwings excel functionality.
-"""
+"""(ABANDONED) Check xlwings excel functionality. """
 
 import unittest
 import logging
