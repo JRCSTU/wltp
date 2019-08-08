@@ -56,7 +56,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from . import io, invariants, power, engine, vmax, downscale, model
+from . import io, invariants, vehicle, engine, vmax, downscale, model
 from .invariants import v_decimals, vround
 
 log = logging.getLogger(__name__)
@@ -137,7 +137,7 @@ class Experiment(object):
         if res_coeffs:
             (f0, f1, f2) = res_coeffs
         elif "resistance_coeffs_regression_curves" in mdl:
-            (f0, f1, f2) = power.calc_default_resistance_coeffs(
+            (f0, f1, f2) = vehicle.calc_default_resistance_coeffs(
                 test_mass, mdl["resistance_coeffs_regression_curves"]
             )
         else:
@@ -229,7 +229,7 @@ class Experiment(object):
 
         V = cycle_run["v_target"]  # as Series
         A = calcAcceleration(V)
-        P_REQ = power.calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial)
+        P_REQ = vehicle.calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial)
         cycle_run["a_target"] = A
         cycle_run["p_required"] = P_REQ
 

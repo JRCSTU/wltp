@@ -5,7 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-from wltp.power import calc_default_resistance_coeffs
+from wltp.vehicle import calc_default_resistance_coeffs
 from wltp import model
 
 
