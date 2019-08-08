@@ -148,6 +148,60 @@ Schema
               f2 = a20 * test_mass + a21,
     <BLANKLINE>
           where `a00, ..., a22` specified in `/params`.
+      n_min_drive1:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
+      n_min_drive2_up:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
+      n_min_drive2_stand:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
+      n_min_drive2:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
+      n_min_drive_set:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
+      n_min_drive_up:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
+      n_min_drive_up_start:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
+      n_min_drive_down:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
+      n_min_drive_down_start:
+        description: see Annex 2-2.k
+        type:
+        - integer
+        - 'null'
+        exclusiveMinimum: 0
       wot:
         title: wide open throttle curves
         description: |

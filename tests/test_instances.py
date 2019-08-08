@@ -20,7 +20,6 @@ import pandas as pd
 from jsonschema.exceptions import ValidationError
 
 from wltp import model
-
 from .goodvehicle import goodVehicle
 
 
@@ -223,29 +222,6 @@ class InstancesTest(unittest.TestCase):
         mdl["resistance_coeffs"] = None
         mdl = model.merge(model.get_model_base(), mdl)
         self.checkModel_valid(mdl)
-
-    def test_fields_array_or_single_like_gears_SingleNumber(self):
-        from pandalone.pandata import set_jsonpointer
-
-        mdl = goodVehicle()
-        ngears = len(mdl["gear_ratios"])
-        fields_array_or_single_like_gears = [
-            # JsonPath                   Values,                    AllowNone
-            ("/n_min", [300, [350] * ngears], True)
-        ]
-        for (field, values, allowNone) in fields_array_or_single_like_gears:
-            for value in values if not allowNone else values + [None]:
-                mdl = goodVehicle()
-                set_jsonpointer(mdl, field, value)
-                mdl = model.merge(model.get_model_base(), mdl)
-                self.checkModel_valid(mdl)
-
-            ## Check len(gear) mismatch
-            #
-            mdl = goodVehicle()
-            set_jsonpointer(mdl, field, [0.354] * (ngears + 1))
-            mdl = model.merge(model.get_model_base(), mdl)
-            self.checkModel_invalid(mdl)
 
 
 if __name__ == "__main__":

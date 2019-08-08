@@ -54,6 +54,14 @@ def round1(n, decimals=0):
     return np.floor(multiplier * n + 0.5) / multiplier
 
 
-#: Not the rounding of the GTR, used for Vs already close to grid,
+#: The rounding of the GTR, used for Vs already close to grid,
 #: e.g. to index with results from operations on the grid.
 vround = functools.partial(round1, decimals=v_decimals)
+
+#: The GTR rounding for N (RPM) to integer precision,
+#: e.g. for ``n_min_drive_set``.
+nround1 = lambda n: int(round1(n, 0))
+
+#: The GTR rounding for N (RPM) to the nearest 10 RPMs precision,
+#: e.g. for ``n_idle``.
+nround10 = lambda n: int(round1(n, -1))

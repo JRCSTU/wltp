@@ -37,8 +37,9 @@ from pandas.core.generic import NDFrame
 
 from pandalone.pandata import PandelVisitor
 
+from . import gearbox
 from . import io as wio
-from . import utils
+from . import pwot, utils
 from .cycles import class1, class2, class3
 
 try:
@@ -312,6 +313,60 @@ properties:
           f2 = a20 * test_mass + a21,
 
       where `a00, ..., a22` specified in `/params`.
+  n_min_drive1:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
+  n_min_drive2_up:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
+  n_min_drive2_stand:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
+  n_min_drive2:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
+  n_min_drive_set:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
+  n_min_drive_up:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
+  n_min_drive_up_start:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
+  n_min_drive_down:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
+  n_min_drive_down_start:
+    description: see Annex 2-2.k
+    type:
+    - integer
+    - 'null'
+    exclusiveMinimum: 0
   wot:
     title: wide open throttle curves
     description: |2
@@ -806,13 +861,11 @@ def validate_model(
 
 
 def yield_load_curve_errors(mdl):
-    from . import pwot
-
     c = wio.pstep_factory.get()
 
     wot = mdl.get("wot")
     if wot is None or mdl is None:
-        # bail out, jsonschema errors already reported.
+        # Bail out, jsonschema errors already reported.
         return
 
     try:
@@ -827,20 +880,32 @@ def yield_load_curve_errors(mdl):
 
 
 def yield_n_min_errors(mdl):
-    ngears = len(mdl["gear_ratios"])
-    n_min = mdl.get("n_min")
-    if not n_min is None:
-        try:
-            if isinstance(n_min, Sized):
-                if len(n_min) != ngears:
-                    yield ValidationError(
-                        "Length mismatch of n_min(%s) != gear_ratios(%s)!"
-                        % (len(n_min), ngears)
-                    )
-            else:
-                mdl["n_min"] = [n_min] * ngears
-        except PandasError as ex:
-            yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause=ex)
+    # TODO: accept ARRAY `n_min_drive`
+    # TODO: min(Nwot) <= n_min_drive_set
+    # NOTE: cannot check `t_start` is in stop-gap, wltc-class decision not made yet.
+
+    c = wio.pstep_factory.get()
+    # g = wio.pstep_factory.get().gears
+
+    if not c.n_idle in mdl or c.n_rated in mdl:
+        # Bail out, jsonschema errors already reported.
+        return
+
+    try:
+        nmins = gearbox.calc_fixed_n_min_drives(mdl, mdl[c.n_idle], mdl[c.n_rated])
+        for n in (
+            c.n_min_drive_up,
+            c.n_min_drive_up_start,
+            c.n_min_drive_down,
+            c.n_min_drive_down_start,
+        ):
+            n_mdl = mdl.get(n)
+            if n_mdl is not None and n_mdl < nmins.n_min_drive_set:
+                yield ValidationError(
+                    f"`{n}` must be higher than `{c.n_min_drive_set}`({nmins.n_min_drive_set})!"
+                )
+    except PandasError as ex:
+        yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause=ex)
 
 
 def yield_forced_cycle_errors(mdl, additional_properties):
