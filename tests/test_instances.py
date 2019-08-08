@@ -141,14 +141,6 @@ class InstancesTest(unittest.TestCase):
 
         self.checkModel_invalid(mdl)
 
-    def testModelBase_fullValid(self):
-        bmdl = model.get_model_base()
-        json_txt = self.goodVehicle_jsonTxt % ("")
-        mdl = json.loads(json_txt)
-        bmdl.update(goodVehicle())
-
-        self.checkModel_valid(bmdl)
-
     def testModelInstance_missingLoadCurve(self):
         json_txt = self.goodVehicle_jsonTxt % ("")
         mdl = json.loads(json_txt)

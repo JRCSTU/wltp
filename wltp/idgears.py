@@ -8,6 +8,9 @@
 """
 Detects vehile's gear-ratios from cycle-data and reconstructs the gears-profile by identifying the actual gears used.
 
+.. NOTE::
+    NOT RELLEVANT to generation of wltp cyles.
+
 The following terms and arguments are used throughout this module:
 
 gear-ratio(s):

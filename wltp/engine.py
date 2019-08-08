@@ -216,8 +216,6 @@ def calc_p_available(P: Column, ASM: Column, f_safety_margin) -> Column:
     :return: 
         in kW
     """
-    w = wio.pstep_factory.get().wot
-
     total_reduction = 1 - f_safety_margin - ASM
     return P * total_reduction
 

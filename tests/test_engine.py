@@ -142,8 +142,10 @@ def test_calc_p_available(h5_accdb):
         try:
             assert (p_avail - wot["Pavai"] < 1e-12).all()
         except Exception as ex:
-            if case == 48:
+            if isinstance(ex, AssertionError) and case == 48:
                 print(f"Ignoring known BAD case {case} with ghost ASM.")
+            else:
+                raise
 
     all_cases = vehdb.all_vehnums(h5_accdb)
     for case in all_cases:

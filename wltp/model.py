@@ -861,8 +861,6 @@ def validate_model(
 
 
 def yield_load_curve_errors(mdl):
-    c = wio.pstep_factory.get()
-
     wot = mdl.get("wot")
     if wot is None or mdl is None:
         # Bail out, jsonschema errors already reported.
