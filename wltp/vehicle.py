@@ -8,6 +8,9 @@
 """formulae for cyle/vehicle dynamics"""
 import logging
 
+import pandas as pd
+
+from . import io as wio
 
 log = logging.getLogger(__name__)
 
@@ -44,3 +47,13 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
     f2 = a[2][0] * test_mass + a[2][1]
 
     return (f0, f1, f2)
+
+
+def begin_cycle_df(V: pd.DataFrame, gwots: pd.DataFrame) -> pd.DataFrame:
+    t = wio.pstep_factory.get().cycle_run
+    i = wio.pstep_factory.get()
+    w = wio.pstep_factory.get().wot
+
+    cycle_run = pd.merge(V, gwots, left_on=t.v, right_on=w.v)
+
+    return cycle_run

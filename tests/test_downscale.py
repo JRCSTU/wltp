@@ -39,7 +39,7 @@ def test_smoke1():
     f_inertial = 1.03  # TODO: get it from schema-default
     ## Decide WLTC-class.
     #
-    wltc = datamodel._get_wltc_data()
+    wltc = datamodel.get_wltc_data()
     wltc_class = decide_wltc_class(wltc, p_rated / test_mass, v_max)
     class_data = wltc["classes"][wltc_class]
     V = pd.Series(class_data["cycle"])
@@ -77,7 +77,7 @@ def test_smoke1():
 
 
 def test_smoke2():
-    wclasses = datamodel._get_wltc_data()["classes"]
+    wclasses = datamodel.get_wltc_data()["classes"]
     test_data = [
         (pd.Series(wclass["cycle"]), wclass["downscale"]["phases"], f_downscale)
         for wclass in wclasses.values()
@@ -88,7 +88,7 @@ def test_smoke2():
         downscale_class_velocity(V, f_downscale, phases)
 
 
-_wltc = datamodel._get_wltc_data()
+_wltc = datamodel.get_wltc_data()
 
 
 @pytest.mark.parametrize("wclass", _wltc["classes"])

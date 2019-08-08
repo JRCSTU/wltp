@@ -118,7 +118,7 @@ class InstancesTest(unittest.TestCase):
         validator.validate(mdl)
 
     def test_wltc_validate_class_parts(self):
-        wltc = datamodel._get_wltc_data()
+        wltc = datamodel.get_wltc_data()
 
         for cl, cd in wltc["classes"].items():
             cycle = cd["cycle"]
@@ -132,7 +132,7 @@ class InstancesTest(unittest.TestCase):
             assert prev_start == len(cycle)
 
     def test_wltc_validate_checksums(self):
-        wltc = datamodel._get_wltc_data()
+        wltc = datamodel.get_wltc_data()
 
         for cl, cd in wltc["classes"].items():
             cycle = np.array(cd["cycle"])

@@ -12,8 +12,8 @@ The datamodel-instance is managed by :class:`pandel.Pandel`.
 
 Example-code to get WLTP-data::
 
-    from wltp.datamodel  import _get_wltc_data
-    cycle_data = _get_wltc_data()
+    from wltp.datamodel  import get_wltc_data
+    cycle_data = get_wltc_data()
 
     for cls, value in cycle_data['classes'].items():
         cycle = np.array(value['cycle'])
@@ -79,7 +79,7 @@ def get_model_base():
         "f_n_min": 0.125,
         "f_n_min_gear2": 0.9,
         "f_n_clutch_gear2": [1.15, 0.03],
-        "wltc_data": _get_wltc_data(),
+        "wltc_data": get_wltc_data(),
     }
 
     return instance
@@ -150,7 +150,7 @@ def upd_resistance_coeffs_regression_curves(mdl):
     return mdl
 
 
-def _get_wltc_data():
+def get_wltc_data():
     """The WLTC-data required to run an experiment (the class-cycles and their attributes)..
 
     Prefer to access wltc-data through :samp:`{datamodel}['wltc_data']`.
@@ -661,7 +661,7 @@ def get_class_part_names(cls_name=None):
     part_names = ["Low", "Medium", "High", "ExtraHigh"]
 
     if cls_name:
-        wltc_data = _get_wltc_data()
+        wltc_data = get_wltc_data()
         cls = wltc_data["classes"][cls_name]
         part_names = part_names[: len(cls["parts"])]
 
@@ -673,14 +673,14 @@ def get_class_parts_limits(cls_name, mdl=None, edges=False):
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
 
     :param str cls_name: one of 'class1', ..., 'class3b'
-    :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`_get_wltc_data()`
+    :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`get_wltc_data()`
     :param edges: when `True`, embeds internal limits inside [0, ..., len]
     :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
     """
     if mdl:
         wltc_data = mdl["wltc_data"]
     else:
-        wltc_data = _get_wltc_data()
+        wltc_data = get_wltc_data()
 
     cls = wltc_data["classes"][cls_name]
     part_limits = cls["parts"]
@@ -710,7 +710,7 @@ def get_class_parts_index(cls_name, index=None, mdl=None):
         >>> part_limits
         array([   0,  590, 1023, 1478, 1801])
 
-        >>> cls_data = datamodel._get_wltc_data()['classes'][cls]
+        >>> cls_data = datamodel.get_wltc_data()['classes'][cls]
         >>> cycle = pd.DataFrame(cls_data['cycle'])
         >>> cycle.groupby(pd.cut(cycle.index, part_limits)).sum()
                             0
@@ -733,14 +733,14 @@ def get_class_pmr_limits(mdl=None, edges=False):
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
 
-    :param mdl: the mdl to parse wltc_data from, if omitted, parses the results of :func:`_get_wltc_data()`
+    :param mdl: the mdl to parse wltc_data from, if omitted, parses the results of :func:`get_wltc_data()`
     :param edges: when `True`, embeds internal limits into (0, len)
     :return: a list with the pmr-limits (2 numbers)
     """
     if mdl:
         wltc_data = mdl["wltc_data"]
     else:
-        wltc_data = _get_wltc_data()
+        wltc_data = get_wltc_data()
 
     pmr_limits_pairs = [cls["pmr_limits"] for cls in wltc_data["classes"].values()]
     pmr_limits = sorted(set(it.chain(*pmr_limits_pairs)))

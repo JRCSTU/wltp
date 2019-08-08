@@ -97,7 +97,7 @@ class ExperimentWholeVehs(unittest.TestCase):
 
         if plot_results:
             print(mdl["cycle_run"])
-            # print([_get_wltc_data()['classes']['class3b']['cycle_run'][k] for k in mdl['cycle_run']['driveability_issues'].keys()])
+            # print([get_wltc_data()['classes']['class3b']['cycle_run'][k] for k in mdl['cycle_run']['driveability_issues'].keys()])
             self._plotResults(mdl)
 
             np.set_printoptions(edgeitems=16)

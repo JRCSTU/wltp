@@ -40,7 +40,7 @@ class Test(unittest.TestCase):
         self.assertEqual(mdl["n_rated"], nval)
 
     def test_get_class_parts_limits_sorted(self):
-        classes = datamodel._get_wltc_data()["classes"]
+        classes = datamodel.get_wltc_data()["classes"]
         class_limits = {
             cls: datamodel.get_class_parts_limits(cls, edges=True)
             for cls in classes.keys()
@@ -49,7 +49,7 @@ class Test(unittest.TestCase):
             self.assertSequenceEqual(l, sorted(l), "Class(%s): Unsorted!" % cls)
 
     def test_get_class_parts_limits_with_edges(self):
-        classes = datamodel._get_wltc_data()["classes"]
+        classes = datamodel.get_wltc_data()["classes"]
         class_limits = {
             cls: datamodel.get_class_parts_limits(cls, edges=True)
             for cls in classes.keys()
