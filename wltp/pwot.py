@@ -7,13 +7,14 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
 import logging
+from collections.abc import Mapping
 from numbers import Number
 from typing import Tuple, Union
 
 import numpy as np
 import pandas as pd
 from pandas.core.generic import NDFrame
-from scipy import interpolate, optimize
+from scipy import interpolate
 
 from . import io as wio
 from .invariants import v_decimals, v_step, vround
@@ -34,7 +35,7 @@ def denormalize_p(wot_df: pd.DataFrame, p_rated):
     return wot_df
 
 
-def denorm_wot(mdl, wot_df: pd.DataFrame):
+def denorm_wot(mdl: Mapping, wot_df: pd.DataFrame):
     c = wio.pstep_factory.get()
     w = wio.pstep_factory.get().wot
 
@@ -58,7 +59,7 @@ def normalize_p(wot_df: pd.DataFrame, p_rated):
     return wot_df
 
 
-def norm_wot(mdl, wot_df: pd.DataFrame):
+def norm_wot(mdl: Mapping, wot_df: pd.DataFrame):
     c = wio.pstep_factory.get()
     w = wio.pstep_factory.get().wot
 
@@ -154,7 +155,7 @@ def parse_wot(wot) -> pd.DataFrame:
     return wot
 
 
-def validate_wot(mdl: pd.DataFrame, wot) -> pd.DataFrame:
+def validate_wot(mdl: Mapping, wot: pd.DataFrame) -> pd.DataFrame:
     """Higher-level validation of the wot-curves with repect to model."""
     c, w, n_columns, p_columns = _wot_defs()
 
@@ -191,7 +192,7 @@ def validate_wot(mdl: pd.DataFrame, wot) -> pd.DataFrame:
     return wot
 
 
-def preproc_wot(mdl, wot) -> pd.DataFrame:
+def preproc_wot(mdl: Mapping, wot) -> pd.DataFrame:
     """
     Parses & validates wot from string or other matrix format 
     
