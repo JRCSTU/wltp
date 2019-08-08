@@ -109,10 +109,13 @@ v1.0.0.dev8  (7-Aug-2019): PY3.5 only & real work!
   move all TCs out of main-sources.
 - Depend on *pandalone* which has updated *jsonschema-v3* validator
   (draft4-->draft7).
-- Start grouping functionalities in separate modules (e.g. `downscale`, `vmax`, etc).
+- Start grouping functionalities in separate modules 
+  (e.g. `engine`, `vehicle`, `vmax`, `downscale`, etc).
 - model:
 
+  - BREAK: renamed module ``wltp.model --> wltp.datamodel``. 
   - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec.
+  - break: V-traces is renamed from `cycle --> v_cycle`. 
   - break: cycle-part limits are plain lists-of-limits (not list-of-pairs).
   - break: flatten model, merging `vehicle` & `params` properties up to root.
   - drop: don't add a sample WOT in base_model if not given.

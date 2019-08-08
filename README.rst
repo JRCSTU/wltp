@@ -3,8 +3,8 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
 |binder| |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |codestyle|
 
-:release:       1.0.0.dev8
-:date:          2019-08-07 17:10:40
+:release:       1.0.0.dev9
+:date:          2019-08-08 16:44:35
 :documentation: https://wltp.readthedocs.org/ (build-date: |today|)
 :source:        https://github.com/JRCSTU/wltp
 :pypi-repo:     https://pypi.python.org/pypi/wltp
@@ -112,7 +112,7 @@ with *pre-commit hook* for auto-formatting python-code with *black*:
     .. code-block:: bash
 
         $ wltp --version
-        1.0.0.dev8
+        1.0.0.dev9
 
         $ wltp --help
         ...
@@ -294,7 +294,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '1.0.0.dev8'
+    '1.0.0.dev9'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...
