@@ -129,6 +129,8 @@ test_reqs = [
     ## For notebooks
     #
     "papermill",
+    "jupytext",
+    "blackcellmagic",
     "qgrid",
     "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
     "columnize",

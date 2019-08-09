@@ -22,10 +22,8 @@ cat > ~/.inputrc <<-'EOF'
 	"\e[B":history-search-forward
 EOF
 
-# Convert Rmd files into Ipynbs
-jupytext --to ipynb Notebooks/*.Rmd
-# Fix "ipynb" later than Rmd" error on launch
-rm Notebooks/*.Rmd
+## Re-create `*.ipynb` files from the paired `*.Rmd` files.
+./Notebooks/recreate_ipynbs.sh
 
 # # Install a JupyterLab extensions
 jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
