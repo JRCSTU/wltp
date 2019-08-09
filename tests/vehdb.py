@@ -405,7 +405,7 @@ def grid(df, fitcols=True, cwidth=None):
 
     grid_opts = {"forceFitColumns": fitcols}
     if not fitcols and cwidth is None:
-        cwith = 86
+        cwidth = 86
     if cwidth is not None:
         grid_opts["defaultColumnWidth"] = cwidth
 
