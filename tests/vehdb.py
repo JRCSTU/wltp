@@ -436,7 +436,7 @@ def load_vehicle_nodes(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
 
     def func(h5db):
         res = [h5db.get(vehnode(vehnum, sn)) for sn in subnodes]
-        return res if len(subnodes) > 1 else res[0]
+        return res[0] if len(subnodes) == 1 else res
 
     res = do_h5(h5, func)
     return res
@@ -561,7 +561,7 @@ def run_pyalgo_on_Heinz_vehicle(
 
 
 def merge_db_vehicle_subgroups(
-    h5: Union[str, HDFStore], vehicle_subgroups: Union[str, Seq[str]], veh_nums=None
+    h5: Union[str, HDFStore], *vehicle_subgroups: str, veh_nums=None
 ) -> Union[NDFrame, List[NDFrame]]:
     """
     Merge HDF-subgroup(s) from all vehicles into an Indexed-DataFrame(s)
@@ -592,10 +592,6 @@ def merge_db_vehicle_subgroups(
 
         return data_collected
 
-    singular_input = isinstance(vehicle_subgroups, str)
-    if singular_input:
-        vehicle_subgroups = (vehicle_subgroups,)
-
     data_collected = do_h5(h5, func)
 
     dicts_to_merge = [dict(d) for d in data_collected]
@@ -603,4 +599,4 @@ def merge_db_vehicle_subgroups(
         pd.concat(d.values(), keys=d.keys()).sort_index() for d in dicts_to_merge
     ]
 
-    return index_dfs[0] if singular_input else index_dfs
+    return index_dfs[0] if len(index_dfs) == 1 else index_dfs

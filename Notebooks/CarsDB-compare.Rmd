@@ -77,8 +77,8 @@ vehdb.print_nodes(out_h5fname)
 
 ```{python}
 def load_heinz_and_python_datasets(veh_nums=None):
-    p1, c1 = vehdb.merge_db_vehicle_subgroups(inp_h5fname, ("prop", "cycle"), veh_nums)
-    p2, c2 = vehdb.merge_db_vehicle_subgroups(out_h5fname, ("oprop", "cycle"), veh_nums)
+    p1, c1 = vehdb.merge_db_vehicle_subgroups(inp_h5fname, "prop", "cycle", veh_nums=veh_nums)
+    p2, c2 = vehdb.merge_db_vehicle_subgroups(out_h5fname, "oprop", "cycle", veh_nums=veh_nums)
 
     ## By the spec, V rounded to 2-digits,
     #  But exporting MSAccess --> Excel outputs garbage decimals!
