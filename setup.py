@@ -162,7 +162,7 @@ setup(
     project_urls={
         "Documentation": "https://wltp.readthedocs.io/",
         "Sources": "https://github.com/JRCSTU/wltp",
-        "Bug Tracker": "https://github.com/JRCSTU/wltp/issues",
+        "Demo": "https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md",
     },
     license="European Union Public Licence 1.1 or later (EUPL 1.1+)",
     keywords=[

@@ -7,6 +7,7 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 :date:          2019-08-08 16:44:35
 :documentation: https://wltp.readthedocs.org/ (build-date: |today|)
 :source:        https://github.com/JRCSTU/wltp
+:live-demo:     https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md
 :pypi-repo:     https://pypi.python.org/pypi/wltp
 :keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifts,
                 rpm, simulation, simulator, standard, vehicle, vehicles, wltc, nedc
