@@ -7,15 +7,28 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """formulae for cyle/vehicle dynamics"""
 import logging
+from numbers import Number
+from typing import Union
 
+import numpy as np
 import pandas as pd
+from pandas.core.generic import NDFrame
 
 from . import io as wio
 
+Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
 
 
-def calc_road_load_power(V, f0, f1, f2):
+def mass_in_running_order_2_unladen_mass(mro, driver_mass):
+    return mro - driver_mass
+
+
+def unladen_mass_2_mass_in_running_order(unladen_mass, driver_mass):
+    return unladen_mass + driver_mass
+
+
+def calc_road_load_power(V: Column, f0, f1, f2):
     """
     The `p_resist` required to overcome vehicle-resistances for various velocities, 
     

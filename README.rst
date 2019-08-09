@@ -611,12 +611,27 @@ Glossary
         The family of pre-defined *driving-cycles* corresponding to vehicles with different
         :abbr:`PMR (Power to Mass Ratio)`. Classes 1,2, 3a & 3b are split in 2, 4, 4 and 4 *parts* respectively.
 
-    Unladen mass
-        *UM* or *Curb weight*, the weight of the vehicle in running order minus
-        the mass of the driver.
+    mro
+    Mass in running order
+        The mass of the vehicle, with its fuel tank(s) filled to at least 90 per cent
+        of its or their capacity/capacities, including the mass of the driver and the liquids,
+        fitted with the standard equipment in accordance with the manufacturer’s specifications and,
+        where they are fitted, the mass of the bodywork, the cabin,
+        the coupling and the spare wheel(s) as well as the tools when they are fitted.
 
+    UM
+    Kerb mass
+    Curb weight
+    Unladen mass
+        The `Mass in running order` minus the `Driver mass`.
+
+    Driver weight
+    Driver mass
+        75 kgr
+
+    TM
     Test mass
-        *TM*, the representative weight of the vehicle used as input for the calculations of the simulation,
+        The representative weight of the vehicle used as input for the calculations of the simulation,
         derived by interpolating between high and low values for the |CO2|-family of the vehicle.
 
     Downscaling
