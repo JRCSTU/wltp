@@ -942,10 +942,15 @@ def yield_n_min_errors(mdl):
             c.n_min_drive_down_start,
         ):
             n_mdl = mdl.get(n)
-            if n_mdl is not None and n_mdl < nmins.n_min_drive_set:
-                yield ValidationError(
-                    f"`{n}` must be higher than `{c.n_min_drive_set}`({nmins.n_min_drive_set})!"
-                )
+            if n_mdl is not None:
+                if n_mdl < nmins.n_min_drive_set:
+                    yield ValidationError(
+                        f"`{n}`({n_mdl}) must be higher than `{c.n_min_drive_set}`({nmins.n_min_drive_set})!"
+                    )
+                if n_mdl > 2 * nmins.n_min_drive_set:
+                    yield ValidationError(
+                        f"`{n}`({n_mdl}) must be lower than 2 x `{c.n_min_drive_set}`({nmins.n_min_drive_set})!"
+                    )
     except PandasError as ex:
         yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause=ex)
 
