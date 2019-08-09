@@ -147,7 +147,7 @@ dev_reqs = (
         "pylint",
         "mypy",
         # for VSCode autoformatting
-        "black ; python_version > '3.5'",
+        "black; python_version > '3.5'",
         # for git autoformatting
         "pre-commit",
         # for VSCode RST linting
@@ -216,6 +216,7 @@ setup(
     #    },
     python_requires=">=3.6",
     install_requires=[
+        "contextvars; python_version < '3.7'",
         "jsonschema",
         "numpy",
         "pandas",
