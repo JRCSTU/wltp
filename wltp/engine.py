@@ -14,70 +14,61 @@ from typing import Tuple, Union
 
 import numpy as np
 import pandas as pd
+from jsonschema import ValidationError
 from pandas.core.generic import NDFrame
 from scipy import interpolate
 
 from . import io as wio
-from .invariants import v_decimals, v_step, vround, nround1, nround10
+from .invariants import nround1, nround10, v_decimals, v_step, vround
 
 Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
 
 
-def denormalize_n(wot_df: pd.DataFrame, n_idle, n_rated):
+def _denormalize_n(wot_df: pd.DataFrame, n_idle, n_rated):
     w = wio.pstep_factory.get().wot
     wot_df[w.n] = n_idle + (n_rated - n_idle) * wot_df[w.n_norm]
     return wot_df
 
 
-def denormalize_p(wot_df: pd.DataFrame, p_rated):
+def _denormalize_p(wot_df: pd.DataFrame, p_rated):
     w = wio.pstep_factory.get().wot
     wot_df[w.p] = p_rated * wot_df[w.p_norm]
     return wot_df
 
 
-def denorm_wot(mdl: Mapping, wot_df: pd.DataFrame):
-    c = wio.pstep_factory.get()
+def denorm_wot(wot_df: pd.DataFrame, n_idle, n_rated, p_rated):
     w = wio.pstep_factory.get().wot
 
     if w.n not in wot_df:
-        wot_df = denormalize_n(wot_df, mdl[c.n_idle], mdl[c.n_rated])
+        wot_df = _denormalize_n(wot_df, n_idle, n_rated)
     if w.p not in wot_df:
-        wot_df = denormalize_p(wot_df, mdl[c.p_rated])
+        wot_df = _denormalize_p(wot_df, p_rated)
 
     return wot_df
 
 
-def normalize_n(wot_df: pd.DataFrame, n_idle, n_rated):
+def _normalize_n(wot_df: pd.DataFrame, n_idle, n_rated):
     w = wio.pstep_factory.get().wot
     wot_df[w.n_norm] = (wot_df[w.n] - n_idle) / (n_rated - n_idle)
     return wot_df
 
 
-def normalize_p(wot_df: pd.DataFrame, p_rated):
+def _normalize_p(wot_df: pd.DataFrame, p_rated):
     w = wio.pstep_factory.get().wot
     wot_df[w.p_norm] = wot_df[w.p] / p_rated
     return wot_df
 
 
-def norm_wot(mdl: Mapping, wot_df: pd.DataFrame):
-    c = wio.pstep_factory.get()
+def norm_wot(wot_df: pd.DataFrame, n_idle, n_rated, p_rated):
     w = wio.pstep_factory.get().wot
 
     if w.n_norm not in wot_df:
-        wot_df = normalize_n(wot_df, mdl[c.n_idle], mdl[c.n_rated])
+        wot_df = _normalize_n(wot_df, n_idle, n_rated)
     if w.p_norm not in wot_df:
-        wot_df = normalize_p(wot_df, mdl[c.p_rated])
+        wot_df = _normalize_p(wot_df, p_rated)
 
     return wot_df
-
-
-def _wot_defs() -> Tuple:
-    c = wio.pstep_factory.get()
-    w = wio.pstep_factory.get().wot
-    n_columns = set([w.n, w.n_norm])
-    p_columns = set([w.p, w.p_norm])
-    return c, w, n_columns, p_columns
 
 
 def parse_wot(wot) -> pd.DataFrame:
@@ -88,7 +79,9 @@ def parse_wot(wot) -> pd.DataFrame:
 
     Use if from interactive code to quickly feed algo with some tabular wot.
     """
-    _, w, n_columns, p_columns = _wot_defs()
+    w = wio.pstep_factory.get().wot
+    n_columns = set([w.n, w.n_norm])
+    p_columns = set([w.p, w.p_norm])
 
     wot_orig = wot
 
@@ -156,54 +149,43 @@ def parse_wot(wot) -> pd.DataFrame:
     return wot
 
 
-def validate_wot(mdl: Mapping, wot: pd.DataFrame) -> pd.DataFrame:
+def validate_wot(wot: pd.DataFrame, n_idle, n_rated, p_rated) -> pd.DataFrame:
     """Higher-level validation of the wot-curves with repect to model."""
-    d, w, n_columns, p_columns = _wot_defs()
-
-    wot_columns = set(wot.columns)
-    if not bool(wot_columns & n_columns):
-        raise ValueError(f"Wot is missing one of: {w.n}, {w.n_norm}")
-    if not bool(wot_columns & p_columns):
-        raise ValueError(f"Wot is missing one of: {w.p}, {w.p_norm}")
-
-    wot = denorm_wot(mdl, wot)
-    wot = norm_wot(mdl, wot)
+    w = wio.pstep_factory.get().wot
 
     if wot.shape[0] < 3:
-        raise ValueError(f"Too few points in wot!\n  At least 3 rows needed:\n{wot}")
-
-    ## Higher-level checks in actual data
-    #
-    n_idle = mdl[d.n_idle]
-    n_rated = mdl[d.n_rated]
-    p_rated = mdl[d.p_rated]
+        yield ValidationError(
+            f"Too few points in wot!\n  At least 3 rows needed:\n{wot}"
+        )
 
     if any(i is None for i in (n_idle, n_rated, p_rated)):
         # These should have been caught by jsonschema.
         return wot
 
     if wot[w.p].min() < 0:
-        raise ValueError(f"wot(P) reaches negatives({wot[w.p].min()})!\n{wot}")
+        yield ValidationError(f"wot(P) reaches negatives({wot[w.p].min()})!\n{wot}")
     if wot[w.p_norm].max() > 1.05:
-        raise ValueError(f"wot(P) much bigger than p_rated({p_rated})!\n{wot}")
+        yield ValidationError(
+            f"`p_wot_max`({wot[w.p].max()}) much bigger than p_rated({p_rated})!\n{wot}"
+        )
     if wot[w.p_norm].max() < 0.95:
-        raise ValueError(f"wot(P) much lower than p_rated({p_rated})!\n{wot}")
+        yield ValidationError(
+            f"`p_wot_max`({wot[w.p].max()}) much lower than p_rated({p_rated})!\n{wot}"
+        )
 
     if wot[w.n_norm].min() < -0.1:
-        raise ValueError(f"wot(N) starts much lower than n_idle({n_idle})!\n{wot}")
+        yield ValidationError(f"wot(N) starts much lower than n_idle({n_idle})!\n{wot}")
     if wot[w.n].max() < n_rated <= wot[w.n].max():
-        raise ValueError(f"n_rated({n_rated}) is not within wot(N)!\n{wot}")
+        yield ValidationError(f"n_rated({n_rated}) is not within wot(N)!\n{wot}")
 
     ASM = wot.get(w.ASM)
     if ASM is not None:
         if (ASM < 0).any():
-            raise ValueError(f"`{w.ASM}` must not be reach negatives! \n{ASM}")
+            yield ValidationError(f"`{w.ASM}` must not be reach negatives! \n{ASM}")
         if ASM.max() > 0.5 * p_rated:
-            raise ValueError(
+            ValidationError(
                 f"`{w.ASM}_max`({ASM.max()}) must stay below 0.5 x `{d.p_rated}`({p_rated})!"
             )
-
-    return wot
 
 
 def preproc_wot(mdl: Mapping, wot) -> pd.DataFrame:
@@ -212,8 +194,19 @@ def preproc_wot(mdl: Mapping, wot) -> pd.DataFrame:
     
     see  :func:`parse_wot()`
     """
+    d = wio.pstep_factory.get()
+
     wot = parse_wot(wot)
-    wot = validate_wot(mdl, wot)
+
+    n_idle = mdl[d.n_idle]
+    n_rated = mdl[d.n_rated]
+    p_rated = mdl[d.p_rated]
+
+    wot = denorm_wot(wot, n_idle, n_rated, p_rated)
+    wot = norm_wot(wot, n_idle, n_rated, p_rated)
+
+    for err in validate_wot(wot, n_idle, n_rated, p_rated):
+        raise err
 
     return wot
 

@@ -11,6 +11,7 @@ import re
 import numpy as np
 import pandas as pd
 import pytest
+from jsonschema import ValidationError
 from tests import vehdb
 
 from wltp import engine
@@ -86,29 +87,31 @@ def test_parse_wot_errors(mdl, wot, err):
             {"p": _P, "n": _N},
             None,
             None,
-            100,
-            ValueError(re.escape("wot(P) much lower than p_rated(100)!")),
+            92,
+            ValidationError(re.escape("`p_wot_max`(78) much lower than p_rated(92)!")),
         ),
         (
             {"p": _P, "n": _N},
             None,
             None,
-            20,
-            ValueError(re.escape("wot(P) much bigger than p_rated(20)!")),
+            22,
+            ValidationError(re.escape("`p_wot_max`(78) much bigger than p_rated(22)!")),
         ),
     ],
 )
 def test_validate_wot_errors(mdl, wot, n_idle, n_rated, p_rated, err):
-    if n_idle is not None:
-        mdl["n_idle"] = n_idle
-    if n_rated is not None:
-        mdl["n_rated"] = n_rated
-    if p_rated is not None:
-        mdl["p_rated"] = p_rated
-
     wot = engine.parse_wot(wot)
+    if n_idle is None:
+        n_idle = mdl["n_idle"]
+    if n_rated is None:
+        n_rated = mdl["n_rated"]
+    if p_rated is None:
+        p_rated = mdl["p_rated"]
+    wot = engine.denorm_wot(wot, n_idle, n_rated, p_rated)
+    wot = engine.norm_wot(wot, n_idle, n_rated, p_rated)
     with pytest.raises(type(err), match=str(err)):
-        print(engine.validate_wot(mdl, wot))
+        for err in engine.validate_wot(wot, n_idle, n_rated, p_rated):
+            raise err
 
 
 @pytest.mark.parametrize(

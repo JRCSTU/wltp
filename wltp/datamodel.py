@@ -905,6 +905,8 @@ def validate_model(
 
 
 def yield_load_curve_errors(mdl):
+    d = wio.pstep_factory.get()
+
     wot = mdl.get("wot")
     if wot is None or mdl is None:
         # Bail out, jsonschema errors already reported.
@@ -916,9 +918,24 @@ def yield_load_curve_errors(mdl):
         yield ValidationError("Failed parsing wot due to: %s" % ex, cause=ex)
 
     try:
-        wot = engine.validate_wot(mdl, wot)
+        n_idle = mdl[d.n_idle]
+        n_rated = mdl[d.n_rated]
+        p_rated = mdl[d.p_rated]
+
+        wot = engine.denorm_wot(wot, n_idle, n_rated, p_rated)
+        wot = engine.norm_wot(wot, n_idle, n_rated, p_rated)
+    except KeyError as ex:
+        ## Jsonschema checked them already.
+        yield ValidationError(
+            f"Cannot validate further wot, missing rated values from inputs! {ex}"
+        )
+        return
     except Exception as ex:
-        yield ValidationError("Invalid wot due to: %s" % ex, cause=ex)
+        yield ValidationError(f"Failed (de)normalizing wot due to: {ex}")
+        return
+
+    for err in engine.validate_wot(wot, n_idle, n_rated, p_rated):
+        raise err
 
 
 def yield_n_min_errors(mdl):
