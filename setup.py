@@ -131,6 +131,7 @@ test_reqs = [
     "papermill",
     "jupytext",
     "blackcellmagic",
+    "ipympl",
     "qgrid",
     "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
     "columnize",
