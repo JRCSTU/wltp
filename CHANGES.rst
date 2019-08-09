@@ -38,7 +38,7 @@ Known deficiencies
   leading to reduced rpm's for low-powered vehicles.
 * Clutching-points and therefore engine-speed are very preliminary
   (ie ``rpm`` when starting from stop might be < ``n_idle``).
-
+* Many checks are missing, e.g. not checking if `p_rated` if "close" to `p_wot_max`.
 
 .. _todos-list:
 

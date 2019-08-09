@@ -158,7 +158,7 @@ def parse_wot(wot) -> pd.DataFrame:
 
 def validate_wot(mdl: Mapping, wot: pd.DataFrame) -> pd.DataFrame:
     """Higher-level validation of the wot-curves with repect to model."""
-    c, w, n_columns, p_columns = _wot_defs()
+    d, w, n_columns, p_columns = _wot_defs()
 
     wot_columns = set(wot.columns)
     if not bool(wot_columns & n_columns):
@@ -174,9 +174,13 @@ def validate_wot(mdl: Mapping, wot: pd.DataFrame) -> pd.DataFrame:
 
     ## Higher-level checks in actual data
     #
-    n_rated = mdl[c.n_rated]
-    n_idle = mdl[c.n_idle]
-    p_rated = mdl[c.p_rated]
+    n_idle = mdl[d.n_idle]
+    n_rated = mdl[d.n_rated]
+    p_rated = mdl[d.p_rated]
+
+    if any(i is None for i in (n_idle, n_rated, p_rated)):
+        # These should have been caught by jsonschema.
+        return wot
 
     if wot[w.p].min() < 0:
         raise ValueError(f"wot(P) reaches negatives({wot[w.p].min()})!\n{wot}")
@@ -189,6 +193,15 @@ def validate_wot(mdl: Mapping, wot: pd.DataFrame) -> pd.DataFrame:
         raise ValueError(f"wot(N) starts much lower than n_idle({n_idle})!\n{wot}")
     if wot[w.n].max() < n_rated <= wot[w.n].max():
         raise ValueError(f"n_rated({n_rated}) is not within wot(N)!\n{wot}")
+
+    ASM = wot.get(w.ASM)
+    if ASM is not None:
+        if (ASM < 0).any():
+            raise ValueError(f"`{w.ASM}` must not be reach negatives! \n{ASM}")
+        if ASM.max() > 0.5 * p_rated:
+            raise ValueError(
+                f"`{w.ASM}_max`({ASM.max()}) must stay below 0.5 x `{d.p_rated}`({p_rated})!"
+            )
 
     return wot
 
@@ -312,8 +325,8 @@ def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     :param df:
         A df containing at least `n` (in RPM); any other column gets instepolated.
 
-        .. note:: 
-            do not include non-linear columns (e.g. p_resistances(v^2))
+        .. Attention:: 
+            Do not include non-linear columns (e.g. p_resistances(v^2))
             because those interpolated values would be highly inaccurate!
 
     :return:
@@ -346,9 +359,8 @@ def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
             )(V_grid)
 
         wot_grid = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
-        ## Throw-away any interpolated v, it's inaccurate, use the "x" (v-grid) instead.
-        wot_grid[w.v] = V_grid
-        wot_grid.set_index(w.v)
+        wot_grid.index = V_grid
+        wot_grid.index.name = w.v
 
         return wot_grid
 
