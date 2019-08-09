@@ -121,11 +121,17 @@ test_reqs = [
     "matplotlib",
     "coveralls",
     "openpyxl",  # for pandas to write excel-files
-    "papermill",
     "pytest",
     "pytest-cov",
     "sphinx",
+    "tables",  # pandas-IO for h5
     "twine",  # for PyPi long-description check
+    ## For notebooks
+    #
+    "papermill",
+    "qgrid",
+    "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
+    "columnize",
 ]
 dev_reqs = (
     test_reqs

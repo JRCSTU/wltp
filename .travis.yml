@@ -20,8 +20,18 @@ script:
     - |
         if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
             echo "+++ Checking all TCs, DTs & Coverage....";
-            pytest --doctest-glob=README.rst --doctest-modules \
-                 --cov=wltp.experiment --cov=wltp.model  --cov=wltp.utils --cov=wltp.cycles \
+            pytest --doctest-glob=README.rst \
+                --doctest-modules \
+                --cov=wltp.experiment \
+                --cov=wltp.datamodel \
+                --cov=wltp.engine \
+                --cov=wltp.vehicle \
+                --cov=wltp.vmax \
+                --cov=wltp.downscale \
+                --cov=wltp.invariants \
+                --cov=wltp.io \
+                --cov=wltp.utils \
+                --cov=wltp.cycles
         else
             echo "+++ Checking only TCs....";
             pytest

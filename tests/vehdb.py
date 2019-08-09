@@ -21,7 +21,6 @@ from pandas import IndexSlice as idx
 from pandas.api.types import is_numeric_dtype
 from pandas.core.generic import NDFrame
 
-import qgrid
 from pandalone.mappings import Pstep
 from wltp import io as wio
 from wltp import utils
@@ -402,6 +401,8 @@ class Comparator:
 ## Fix too-small columns when too many,
 # from: https://github.com/quantopian/qgrid/issues/171#issuecomment-365489567
 def grid(df, fitcols=True, cwidth=None):
+    import qgrid
+
     grid_opts = {"forceFitColumns": fitcols}
     if not fitcols and cwidth is None:
         cwith = 86
