@@ -7,12 +7,12 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """formulae for cyle/vehicle dynamics"""
 import logging
-from numbers import Number
 from typing import Union
 
 import numpy as np
 import pandas as pd
 from pandas.core.generic import NDFrame
+from numbers import Number
 
 from . import io as wio
 
@@ -20,33 +20,21 @@ Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
 
 
-def mass_in_running_order_2_unladen_mass(mro, driver_mass):
-    return mro - driver_mass
-
-
-def unladen_mass_2_mass_in_running_order(unladen_mass, driver_mass):
-    return unladen_mass + driver_mass
-
-
-def calc_road_load_power(V: Column, f0, f1, f2):
+def calc_acceleration(V: Column) -> np.ndarray:
     """
-    The `p_resist` required to overcome vehicle-resistances for various velocities, 
+    Acordign to formula in Annex 2-3.1
     
-    as defined in Annex 2-2.i (calculate `V_max_vehicle`).
-    """
-    VV = V * V
-    VVV = VV * V
-    return (f0 * V + f1 * VV + f2 * VVV) / 3600.0
+    :return:
+        in m/s^2
 
-
-def calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial):
+        .. Attention:: 
+            the result in the last sample is NAN!
+    
     """
+    A = np.diff(V) / 3.6
+    A = np.append(A, np.NAN)  # Restore element lost by diff().
 
-    @see: Annex 2-3.1
-    """
-    return (
-        calc_road_load_power(V, f0, f1, f2) + (f_inertial * A * V * test_mass) / 3600.0
-    )
+    return A
 
 
 def calc_default_resistance_coeffs(test_mass, regression_curves):
@@ -62,3 +50,13 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
     f2 = a[2][0] * test_mass + a[2][1]
 
     return (f0, f1, f2)
+
+
+def begin_cycle_df(V: pd.DataFrame, gwots: pd.DataFrame) -> pd.DataFrame:
+    t = wio.pstep_factory.get().cycle_run
+    i = wio.pstep_factory.get()
+    w = wio.pstep_factory.get().wot
+
+    cycle_run = pd.merge(V, gwots, left_on=t.v, right_on=w.v)
+
+    return cycle_run
