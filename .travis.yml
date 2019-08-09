@@ -34,6 +34,7 @@ script:
                 --cov=wltp.io \
                 --cov=wltp.utils \
                 --cov=wltp.cycles
+            pytest -m slow
         else
             echo "+++ Checking only TCs....";
             pytest
