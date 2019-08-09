@@ -41,21 +41,21 @@ Known deficiencies
 
 Questions to Heinz
 ==================
-* VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20new%20vehicle.form.vbs>`_:
-    * Is this the `v_max` used for class 3a/b decision?
-    * L3358-L3360: is this rounding needed because of
+- VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20new%20vehicle.form.vbs>`_:
+    - Is this the `v_max` used for class 3a/b decision?
+    - L3358-L3360: is this rounding needed because of
       accumulation of rounding errors?
-    * L2835:
-    * Why some times down to ng-3 others ng-2, etc?  Why not scan fro top for max-v?
+    - L2835:
+    - Why some times down to ng-3 others ng-2, etc?  Why not scan fro top for max-v?
       Is it possible a lower gear to have lower v_max and next lower to have v_max high again??
       is there a 3-geared car with v_max@gear-1??
-    * In Annex-2.g, `v_max3` is actually :math:`(n/v)(ng_{\bold{vmax}}) \times V_{max,vehicle}`,
+    - In Annex-2.g, `v_max3` is actually :math:`(n/v)(ng_{\bold{vmax}}) \times V_{max,vehicle}`,
       correct?
 
-* Downscale: vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
+- Downscale: vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
   while the GTR write downscale only if that threshold excheeded;  why?
-* p_avail: case 48 seems like ASM has been used in the 1st 4 values,
-  but all ASM values are 0.  Why?
+- p_avail: case 48 seems like ASM has been used in the 1st 4 values,
+  but all ASM values are 0.  Why?::
 
          n        Pwot  p_avail_expected       Pavai  ASM     ratio
       1330   33.719761         30.347785   26.975809  0.0  1.125000
@@ -72,6 +72,11 @@ Questions to Heinz
       6400  221.168123        199.051311  199.051311  0.0  1.000000
       6600  213.980159        192.582143  192.582143  0.0  1.000000
       6800  207.931546        187.138391  187.138391  0.0  1.000000
+
+- Why is `acc`, `dec` & `cruise` calculated on the "japanese" acceleration trace `a2`?
+  Why are they using 0.278 as threshold value 
+  (i.e. `A gearshift_table cruise.query.txt#L3 
+  <https://github.com/ankostis/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/A%20gearshift_table%20cruise.query.txt#L3>`_)?
 
 
 .. _todos-list:
