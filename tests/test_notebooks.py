@@ -31,11 +31,11 @@ def out_notebook(notebook, tmp_path):
     return tmp_path / notebook.name
 
 
-def test_run_notebooks(notebook, out_notebook):
+def test_run_notebooks(notebook, out_notebook, h5_write):
     pm.execute_notebook(
         str(notebook),
         str(out_notebook),
         cwd="Notebooks",
-        parameters={"skip_h5_write": True, "del_h5_on_start": False},
+        parameters={"skip_h5_write": h5_write, "del_h5_on_start": False},
         progress_bar=False,
     )

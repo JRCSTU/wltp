@@ -22,6 +22,8 @@ script:
     - |
         if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
             echo "+++ Checking all TCs, DTs & Coverage....";
+            # To update pyalgo.h5
+            pytest -m slow --h5-write
             pytest --doctest-glob=README.rst \
                 --doctest-modules \
                 --cov=wltp.experiment \
@@ -34,7 +36,6 @@ script:
                 --cov=wltp.io \
                 --cov=wltp.utils \
                 --cov=wltp.cycles
-            pytest -m slow
         else
             echo "+++ Checking only TCs....";
             pytest

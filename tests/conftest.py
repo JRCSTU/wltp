@@ -11,6 +11,20 @@ import pytest
 from tests import vehdb
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--h5-write",
+        action="store_true",
+        default=False,
+        help="update h5db files (default: false)",
+    )
+
+
+@pytest.fixture
+def h5_write(request):
+    return request.config.getoption("--h5-write")
+
+
 @pytest.fixture
 def h5_accdb():
     return str(Path("Notebooks/VehData/WltpGS-msaccess.h5").resolve())
