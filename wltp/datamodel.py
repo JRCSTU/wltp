@@ -943,33 +943,37 @@ def yield_n_min_errors(mdl):
     # TODO: min(Nwot) <= n_min_drive_set
     # NOTE: cannot check `t_start` is in stop-gap, wltc-class decision not made yet.
 
-    c = wio.pstep_factory.get()
+    d = wio.pstep_factory.get()
     # g = wio.pstep_factory.get().gears
 
-    if not c.n_idle in mdl or c.n_rated in mdl:
+    if not d.n_idle in mdl or d.n_rated in mdl:
         # Bail out, jsonschema errors already reported.
         return
 
     try:
-        nmins = engine.calc_fixed_n_min_drives(mdl, mdl[c.n_idle], mdl[c.n_rated])
+        nmins = engine.calc_fixed_n_min_drives(mdl, mdl[d.n_idle], mdl[d.n_rated])
         for n in (
-            c.n_min_drive_up,
-            c.n_min_drive_up_start,
-            c.n_min_drive_down,
-            c.n_min_drive_down_start,
+            d.n_min_drive_up,
+            d.n_min_drive_up_start,
+            d.n_min_drive_down,
+            d.n_min_drive_down_start,
         ):
             n_mdl = mdl.get(n)
             if n_mdl is not None:
                 if n_mdl < nmins.n_min_drive_set:
                     yield ValidationError(
-                        f"`{n}`({n_mdl}) must be higher than `{c.n_min_drive_set}`({nmins.n_min_drive_set})!"
+                        f"`{n}`({n_mdl}) must be higher than `{d.n_min_drive_set}`({nmins.n_min_drive_set})!"
                     )
                 if n_mdl > 2 * nmins.n_min_drive_set:
                     yield ValidationError(
-                        f"`{n}`({n_mdl}) must be lower than 2 x `{c.n_min_drive_set}`({nmins.n_min_drive_set})!"
+                        f"`{n}`({n_mdl}) must be lower than 2 x `{d.n_min_drive_set}`({nmins.n_min_drive_set})!"
                     )
+
+        for k, v in nmins._asdict().items():
+            mdl[k] = v
+
     except PandasError as ex:
-        yield ValidationError("Invalid 'n_min', due to: %s" % ex, cause=ex)
+        yield ValidationError("Invalid n_mins, due to: %s" % ex, cause=ex)
 
 
 def yield_forced_cycle_errors(mdl, additional_properties):

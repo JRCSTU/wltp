@@ -105,6 +105,7 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
     c = wio.pstep_factory.get().wot
 
     wot[c.v] = wot.index / n2v
+    ## TODO: reuse grid-intep from engine in vmax!
     grid_wot = engine.interpolate_wot_on_v_grid(wot)
     grid_wot[c.p_resist] = vehicle.calc_road_load_power(grid_wot[c.v], f0, f1, f2)
     grid_wot[c.p_remain] = grid_wot[c.p_avail] - grid_wot[c.p_resist]
@@ -171,10 +172,13 @@ def calc_v_max(
 
     gear_wots_df = _package_wots_df([r.wot for r in recs])
     vmaxes = pd.Series(r.v_max for r in recs)
-
-    if not np.isnan(vmaxes.max()):
-        rec_vmax = recs[vmaxes.idxmax()]
-
-        return rec_vmax._replace(wot=gear_wots_df)
-
+    vmax = vmaxes.max()
+    if not np.isnan(vmax):
+        ## Scan from the bottom, AGAINST(!) the GTR,
+        #  becasue it maches better accdb.
+        #
+        for rec_vmax in recs:
+            if rec_vmax.v_max == vmax:
+                return rec_vmax._replace(wot=gear_wots_df)
+        assert False
     raise ValueError("Cannot find v_max!\n  Insufficient power??", gear_wots_df, wot)
