@@ -177,22 +177,23 @@ def test_calc_n95(h5_accdb):
         wot = engine.preproc_wot(
             props.rename({"idling_speed": "n_idle", "rated_speed": "n_rated"}), wot
         )
-        n95 = engine.calc_n95(wot, props["n_rated"])
+        n95 = engine.calc_n95(wot, props["n_rated"], props["p_rated"])
         results.append(n95)
 
     df = pd.DataFrame(results, columns=["n95_low", "n95_high"], dtype="float64")
 
+    # print(df.describe().values)
     aggregate_tol = 1e-4  # The digits copied from terminal.
     exp = np.array(
         [
-            [116.000000, 114.000000],
-            [3656.111890, 4735.274406],
-            [1337.230406, 1381.795505],
-            [1680.000000, 2897.440521],
-            [2837.637128, 3750.681455],
-            [3215.018842, 4141.843972],
-            [4512.500000, 5902.652680],
-            [7843.724404, 8817.602708],
+            [116.0, 116.0],
+            [3656.11189008, 4784.66622629],
+            [1337.23040635, 1428.79658641],
+            [1680.0, 2897.4405215],
+            [2837.63712814, 3750.68145459],
+            [3215.01884177, 4142.35055724],
+            [4512.5, 6000.03571429],
+            [7843.72440418, 8817.60270757],
         ]
     )
     assert (df.describe().values - exp < aggregate_tol).all(None)

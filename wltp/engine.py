@@ -373,7 +373,7 @@ def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     return wot_grid
 
 
-def calc_n95(wot: pd.DataFrame, n_rated) -> Tuple[float, float]:
+def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: Number) -> Tuple[float, float]:
     """
     Find wot's n95_low/high (Annex 2-2.g).
 
@@ -405,9 +405,23 @@ def calc_n95(wot: pd.DataFrame, n_rated) -> Tuple[float, float]:
         try:
             n95 = n_intep(0.95).item()
         except Exception as ex:
-            if isinstance(ex, ValueError) and str(ex).startswith("A value in x_new"):
-                log.info(f"Cannot find n95_{label} due to: {ex}")
-                n95 = np.NAN
+            ## Not all WOTs drop again below 95% at top-n.
+            #  Accept top-n as `n_max` in such cases (by the GTR);
+            # for all others, scream - they should be badly shaped wots.
+            #
+            if (
+                label == "high"
+                and isinstance(ex, ValueError)
+                and str(ex).startswith("A value in x_new")
+            ):
+                log.info(
+                    "The wot does not drop below 95%% x p_rated(%s) at top n_wot_max(%s);"
+                    " assumng n95_high := n_wot_max-->p(%s).",
+                    p_rated,
+                    wot[w.n].max(),
+                    wot[w.p].iloc[-1],
+                )
+                n95 = wot[w.n].max()
             else:
                 raise
         return n95
