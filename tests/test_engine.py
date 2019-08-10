@@ -109,9 +109,17 @@ def test_validate_wot_errors(mdl, wot, n_idle, n_rated, p_rated, err):
         p_rated = mdl["p_rated"]
     wot = engine.denorm_wot(wot, n_idle, n_rated, p_rated)
     wot = engine.norm_wot(wot, n_idle, n_rated, p_rated)
+    n_min_drive_set = None
     with pytest.raises(type(err), match=str(err)):
-        for err in engine.validate_wot(wot, n_idle, n_rated, p_rated):
-            raise err
+        for verr in engine.validate_wot(wot, n_idle, n_rated, p_rated, n_min_drive_set):
+            raise verr
+
+    n_min_drive_set = n_idle + 0.125 * (n_rated - n_idle)
+    with pytest.raises(type(err), match=str(err)):
+        for verr in engine.validate_wot(wot, n_idle, n_rated, p_rated, n_min_drive_set):
+            raise verr
+
+    ## Needs more tests.
 
 
 @pytest.mark.parametrize(

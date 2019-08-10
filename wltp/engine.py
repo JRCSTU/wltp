@@ -149,7 +149,9 @@ def parse_wot(wot) -> pd.DataFrame:
     return wot
 
 
-def validate_wot(wot: pd.DataFrame, n_idle, n_rated, p_rated) -> pd.DataFrame:
+def validate_wot(
+    wot: pd.DataFrame, n_idle, n_rated, p_rated, n_min_drive_set
+) -> pd.DataFrame:
     """Higher-level validation of the wot-curves with repect to model."""
     w = wio.pstep_factory.get().wot
 
@@ -173,6 +175,10 @@ def validate_wot(wot: pd.DataFrame, n_idle, n_rated, p_rated) -> pd.DataFrame:
             f"`p_wot_max`({wot[w.p].max()}) much lower than p_rated({p_rated})!\n{wot}"
         )
 
+    if n_min_drive_set and wot[w.n].min() > n_min_drive_set:
+        yield ValidationError(
+            f"wot(N) starts above n_min_drive_set({n_min_drive_set})!\n{wot}"
+        )
     if wot[w.n_norm].min() < -0.1:
         yield ValidationError(f"wot(N) starts much lower than n_idle({n_idle})!\n{wot}")
     if wot[w.n].max() < n_rated <= wot[w.n].max():
@@ -205,7 +211,7 @@ def preproc_wot(mdl: Mapping, wot) -> pd.DataFrame:
     wot = denorm_wot(wot, n_idle, n_rated, p_rated)
     wot = norm_wot(wot, n_idle, n_rated, p_rated)
 
-    for err in validate_wot(wot, n_idle, n_rated, p_rated):
+    for err in validate_wot(wot, n_idle, n_rated, p_rated, mdl.get(d.n_min_drive_set)):
         raise err
 
     return wot
@@ -227,7 +233,12 @@ def calc_p_available(P: Column, ASM: Column, f_safety_margin) -> Column:
 
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):
-    """Return a new linearly interpolated df on v with v_decimals. """
+    """
+    Interpolated wot on a v-grid from v_min_wot --> v_max_wot, rounded. 
+    
+    :param wot:
+        must contain aat least `v` column
+    """
     w = wio.pstep_factory.get().wot
 
     assert wot.size, "Empty wot!"

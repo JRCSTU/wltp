@@ -883,8 +883,8 @@ def validate_model(
     )
     validators = [
         validator.iter_errors(mdl),
-        yield_load_curve_errors(mdl),
         yield_n_min_errors(mdl),
+        yield_load_curve_errors(mdl),
         yield_forced_cycle_errors(mdl, additional_properties),
     ]
     errors = it.chain(*[v for v in validators if not v is None])
@@ -934,7 +934,8 @@ def yield_load_curve_errors(mdl):
         yield ValidationError(f"Failed (de)normalizing wot due to: {ex}")
         return
 
-    for err in engine.validate_wot(wot, n_idle, n_rated, p_rated):
+    n_min_drive_set = mdl.get(d.n_min_drive_set)
+    for err in engine.validate_wot(wot, n_idle, n_rated, p_rated, n_min_drive_set):
         raise err
 
 
@@ -949,6 +950,11 @@ def yield_n_min_errors(mdl):
     if not d.n_idle in mdl or d.n_rated in mdl:
         # Bail out, jsonschema errors already reported.
         return
+
+    if mdl[d.n_rated] <= mdl[d.n_idle]:
+        yield ValidationError(
+            f"n_idle({mdl[d.n_idle]}) is higher than n_rated({mdl[d.n_rated]}!"
+        )
 
     try:
         nmins = engine.calc_fixed_n_min_drives(mdl, mdl[d.n_idle], mdl[d.n_rated])
