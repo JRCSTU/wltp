@@ -227,7 +227,7 @@ class Experiment(object):
         g_max_n2v = gear_ratios[mdl["g_v_max"] - 1]
         mdl["n_max2"] = g_max_n2v * cycle_run["v_class"].max()
         mdl["n_max3"] = g_max_n2v * mdl["v_max"]
-        mdl["n_max"] = max(mdl["n95_high"], mdl["n_max2"], mdl["n_max3"])
+        mdl["n_max"] = engine.calc_n_max(mdl["n95_high"], mdl["n_max2"], mdl["n_max3"])
 
         V = cycle_run["v_target"]  # as Series
         A = calcAcceleration(V)
