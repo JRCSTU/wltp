@@ -38,21 +38,6 @@ def calc_acceleration(V: Column) -> np.ndarray:
     return A
 
 
-def calc_default_resistance_coeffs(test_mass, regression_curves):
-    """
-    Approximating typical P_resistance based on vehicle test-mass.
-
-    The regression-curves are in the model `resistance_coeffs_regression_curves`.
-    Use it for rough results if you are missing the real vehicle data.
-    """
-    a = regression_curves
-    f0 = a[0][0] * test_mass + a[0][1]
-    f1 = a[1][0] * test_mass + a[1][1]
-    f2 = a[2][0] * test_mass + a[2][1]
-
-    return (f0, f1, f2)
-
-
 def emerge_cycle(
     V: pd.Series, gwots: pd.DataFrame, long_phase_duration: int
 ) -> pd.DataFrame:
