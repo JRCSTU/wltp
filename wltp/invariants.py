@@ -58,10 +58,18 @@ def round1(n, decimals=0):
 #: e.g. to index with results from operations on the grid.
 vround = functools.partial(round1, decimals=v_decimals)
 
+
+def asint(n):
+    if hasattr(n, "astype"):
+        return n.astype("int")
+    else:
+        return int(round1(n, 0))
+
+
 #: The GTR rounding for N (RPM) to integer precision,
 #: e.g. for ``n_min_drive_set``.
-nround1 = lambda n: int(round1(n, 0))
+nround1 = lambda n: asint(round1(n, 0))
 
 #: The GTR rounding for N (RPM) to the nearest 10 RPMs precision,
 #: e.g. for ``n_idle``.
-nround10 = lambda n: int(round1(n, -1))
+nround10 = lambda n: asint(round1(n, -1))
