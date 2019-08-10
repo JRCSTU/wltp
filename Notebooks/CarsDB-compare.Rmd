@@ -76,20 +76,27 @@ vehdb.print_nodes(out_h5fname)
 ```
 
 ```{python}
+from wltp.invariants import vround, nround1
+
 def load_heinz_and_python_datasets(veh_nums=None):
     p1, c1 = vehdb.merge_db_vehicle_subgroups(inp_h5fname, "prop", "cycle", veh_nums=veh_nums)
     p2, c2 = vehdb.merge_db_vehicle_subgroups(out_h5fname, "oprop", "cycle", veh_nums=veh_nums)
 
+    ## Originally fetched as 2-levels (veh, item) MultiIndex Series.
+    p1 = p1.unstack(); p2 = p2.unstack()
+    
     ## By the spec, V rounded to 2-digits,
     #  But exporting MSAccess --> Excel outputs garbage decimals!
     #
     v_cols = "v v_orig v_cap v_downscale".split()
-    c1[v_cols] = c1[v_cols].round(1)
+    c1[v_cols] = vround(c1[v_cols])
 
+    ## accdb does not oofer `n_max`.(?)
+    p1['n_max'] = nround1(p1['n_max1 n_max2 n_max3'.split()].max(axis=1))
+    
     return p1, c1, p2, c2
 
 p1, c1, p2, c2 = load_heinz_and_python_datasets()
-p1 = p1.unstack(); p2 = p2.unstack()
 ```
 
 ```{python}
@@ -163,12 +170,12 @@ equivalent_series = [
 cols1, cols2 = zip(*equivalent_series)
 cols1, cols2 = list(cols1), list(cols2)
 ## Concat props to col-aggregates & convert prop-cols to numerics
-cc1 = pd.concat((p1.unstack().infer_objects(), c1[cols1].abs().mean(level=0)), axis=1)
-cc2 = pd.concat((p2.unstack().infer_objects(), c2[cols2].abs().mean(level=0)), axis=1)
+cc1 = pd.concat((p1.infer_objects(), c1[cols1].abs().mean(level=0)), axis=1)
+cc2 = pd.concat((p2.infer_objects(), c2[cols2].abs().mean(level=0)), axis=1)
 
 equivalent_props = [
     ("Description", None),
-    ("vehicle_class", None),
+    ("vehicle_class", 'wltc_class'),
     ("pmr_km", None),
     ("no_of_gears", None),
     ("f_dsc_req", "f_downscale"),
@@ -178,6 +185,7 @@ equivalent_props = [
     ("n_max1", "n95_high"),
     ("n_max2", "n_max2"),
     ("n_max3", "n_max3"),
+    ("n_max", "n_max"),
 ]
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
 ```
