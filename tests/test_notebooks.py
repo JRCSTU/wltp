@@ -36,6 +36,6 @@ def test_run_notebooks(notebook, out_notebook, h5_write):
         str(notebook),
         str(out_notebook),
         cwd="Notebooks",
-        parameters={"skip_h5_write": h5_write, "del_h5_on_start": False},
+        parameters={"skip_h5_write": not h5_write, "del_h5_on_start": False},
         progress_bar=False,
     )
