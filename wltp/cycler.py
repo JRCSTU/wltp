@@ -53,7 +53,20 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
     return (f0, f1, f2)
 
 
-def emerge_cycle(V: pd.Series, gwots: pd.DataFrame, n2vs) -> pd.DataFrame:
+def emerge_cycle(
+    V: pd.Series, gwots: pd.DataFrame, long_phase_duration: int
+) -> pd.DataFrame:
+    """
+    
+    From: https://datascience.stackexchange.com/a/22105/79324
+    :param long_phase_duration:
+        (positive) considere *at least* that many conjecutive samples as belonging 
+        to a `long_{stop/acc/cruise/dec}` generated column, eg::
+        
+                    v: [0,3,3,3,5,8,8,4,0,0,0]
+            cruise(2): [0,1,1,1,0,1,1,0,0,0,0]
+        if 0,unspecified (might break)
+    """
     c = wio.pstep_factory.get().cycle
 
     cycle = gwots.reindex(V)
@@ -68,10 +81,19 @@ def emerge_cycle(V: pd.Series, gwots: pd.DataFrame, n2vs) -> pd.DataFrame:
     A = cycle[c.a_cycle]
     RUN = cycle[c.run]
 
+    def make_long_phase_mask(col):
+        first_value = col[0]
+        grouper = (col != col.shift(fill_value=first_value)).cumsum()
+        return col & col.groupby(grouper).transform("count").gt(long_phase_duration - 1)
+
     cycle[c.stop] = ~RUN
+    cycle[c.stop_long] = make_long_phase_mask(cycle[c.stop])
     cycle[c.acc] = RUN & (A > 0)
+    cycle[c.acc_long] = make_long_phase_mask(cycle[c.acc])
     cycle[c.cruise] = RUN & (A == 0)
+    cycle[c.cruise_long] = make_long_phase_mask(cycle[c.cruise])
     cycle[c.dec] = RUN & (A < 0)
+    cycle[c.dec_long] = make_long_phase_mask(cycle[c.dec])
 
     return cycle
 
