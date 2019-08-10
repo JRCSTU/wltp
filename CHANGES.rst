@@ -347,6 +347,9 @@ Questions to Heinz
       is there a 3-geared car with v_max@gear-1??
     - In Annex-2.g, `v_max3` is actually :math:`(n/v)(ng_{\bold{vmax}}) \times V_{max,vehicle}`,
       correct?
+    - Cannot match accdb `v_max` for vehicles 42, 48, 52, 53?
+    - There are 5 cases where both top gears can reach the same `v_max`/
+      Accdb takes the lower one, is this on purpose?
 
 - Downscale: vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
   while the GTR write downscale only if that threshold excheeded;  why?
@@ -373,3 +376,11 @@ Questions to Heinz
   Why are they using 0.278 as threshold value 
   (i.e. `A gearshift_table cruise.query.txt#L3 
   <https://github.com/ankostis/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/A%20gearshift_table%20cruise.query.txt#L3>`_)?
+
+- `n_max2`: veh041 seems to calculate `n_max_cycle` based on class2
+  and not from class1 where it belongs::
+
+      v_class1_max(64.4) * n2v_4(90.3) = 5815.31
+      v_class2_max(123.1) * n2v_4(90.3) = 11115.93  # value in accdb
+  
+  How is that possible?
