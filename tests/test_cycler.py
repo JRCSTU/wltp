@@ -9,20 +9,28 @@ import itertools as itt
 
 import pandas as pd
 import pytest
+from tests import vehdb
 
-from wltp import cycler, datamodel
+from wltp import cycler, datamodel, engine
 from wltp.vehicle import calc_default_resistance_coeffs
+
+
+@pytest.fixture
+def gwots():
+    ## Need a 2-level multiindex columns for swaplevel().
+    return pd.DataFrame({("the items", "the gears"): []})
 
 
 @pytest.mark.parametrize(
     "wltc_class, long_phase_duration", itt.product(range(4), (1, 2, 4))
 )
 def test_emerge_cycle_long_phase_duration_1_is_identical(
-    wltc_class, long_phase_duration
+    wltc_class, long_phase_duration, gwots
 ):
-    long_phase_duration = 1
     V = datamodel.get_class_v_cycle(wltc_class)
-    cycle = cycler.emerge_cycle(V, pd.DataFrame([]), long_phase_duration)
+    cycle = cycler.emerge_cycle(
+        V, V, V, gwots, long_phase_duration=1, up_threshold=-0.1389
+    )
     assert all(
         (cycle[cname] != cycle[f"{cname}_long"]).sum() == 0
         for cname in "stop acc cruise dec".split()
@@ -46,15 +54,28 @@ def test_emerge_cycle_long_phase_duration_1_is_identical(
         (3, 7, [10, 98, 66, 113]),
     ],
 )
-def test_emerge_cycle_long_phase_duration(wltc_class, long_phase_duration, exp):
+def test_emerge_cycle_long_phase_duration(wltc_class, long_phase_duration, exp, gwots):
     V = datamodel.get_class_v_cycle(wltc_class)
-    cycle = cycler.emerge_cycle(V, pd.DataFrame([]), long_phase_duration)
+    cycle = cycler.emerge_cycle(
+        V, V, V, gwots, long_phase_duration, up_threshold=-0.1389
+    )
     missmatches = [
         (cycle[cname] != cycle[f"{cname}_long"]).sum()
         for cname in "stop acc cruise dec".split()
     ]
     # print(missmatches)
     assert missmatches == exp
+
+
+@pytest.mark.parametrize("wltc_class", range(4))
+def test_emerge_cycle_concat_wots_smoketest(h5_accdb, wltc_class):
+    prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, 125)
+    renames = vehdb.accdb_renames()
+    prop = prop.rename(renames)
+    wot = wot[["Pwot", "ASM"]].rename(renames, axis=1)
+    wot["n"] = wot.index
+
+    gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
 
 
 def test_flatten_columns():
