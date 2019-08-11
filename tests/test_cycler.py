@@ -57,7 +57,7 @@ def test_emerge_cycle_long_phase_duration_1_is_identical(
 def test_emerge_cycle_long_phase_duration(wltc_class, long_phase_duration, exp, gwots):
     V = datamodel.get_class_v_cycle(wltc_class)
     cycle = cycler.emerge_cycle(
-        V, V, V, gwots, long_phase_duration, up_threshold=-0.1389
+        V, V, V, gwots, long_phase_duration=long_phase_duration, up_threshold=-0.1389
     )
     missmatches = [
         (cycle[cname] != cycle[f"{cname}_long"]).sum()
@@ -65,6 +65,15 @@ def test_emerge_cycle_long_phase_duration(wltc_class, long_phase_duration, exp, 
     ]
     # print(missmatches)
     assert missmatches == exp
+
+
+@pytest.mark.parametrize("wltc_class, exp", [(0, 12), (1, 9), (2, 9), (3, 9)])
+def test_emerge_cycle_init(wltc_class, exp, gwots):
+    V = datamodel.get_class_v_cycle(wltc_class)
+    cycle = cycler.emerge_cycle(
+        V, V, V, gwots, long_phase_duration=2, up_threshold=-0.1389
+    )
+    assert cycle.init.sum() == exp
 
 
 @pytest.mark.parametrize("wltc_class", range(4))
@@ -76,6 +85,9 @@ def test_emerge_cycle_concat_wots_smoketest(h5_accdb, wltc_class):
     wot["n"] = wot.index
 
     gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
+    assert (
+        gwots.shape[0] > wot.shape[0] and gwots.shape[1] == len(n2vs) * wot.shape[1]
+    ), f"\nwot:\n{wot}\ngwot:\n{gwots}"
 
 
 def test_flatten_columns():

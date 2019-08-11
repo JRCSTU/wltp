@@ -92,6 +92,9 @@ def emerge_cycle(
     def make_long_phase_mask(col):
         first_value = col.iloc[0]  # Ignore diff before 1st sample.
         grouper = (col != col.shift(fill_value=first_value)).cumsum()
+        # NOTE: git warns: pandas/core/indexes/base.py:2890: FutureWarning:
+        # elementwise comparison failed; returning scalar instead,
+        # but in the future will perform elementwise comparison
         return col & col.groupby(grouper).transform("count").gt(long_phase_duration - 1)
 
     cycle[c.stop] = ~RUN
@@ -103,6 +106,9 @@ def emerge_cycle(
     cycle[c.dec] = RUN & (A < 0)
     cycle[c.dec_long] = make_long_phase_mask(cycle[c.dec])
     cycle[c.up] = A > up_threshold
+
+    ## Mark start from standstill, Annex 2-3.2 about.
+    cycle[c.init] = (V == 0) & (A == 0) & (A.shift(-1) != 0)
 
     cycle.columns = pd.MultiIndex.from_product(
         (cycle.columns, ("",)), names=("item", "gear")
