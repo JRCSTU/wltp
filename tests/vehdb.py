@@ -600,3 +600,19 @@ def merge_db_vehicle_subgroups(
     ]
 
     return index_dfs[0] if len(index_dfs) == 1 else index_dfs
+
+
+def accdb_renames():
+    """
+    Renames to use accdb inputs (props, wots) into pyalgo to be used like::
+    
+        props.unstack().rename(accdb_prop_renames())
+    """
+    return {
+        "idling_speed": "n_idle",
+        "rated_speed": "n_rated",
+        "rated_power": "p_rated",
+        "kerb_mass": "unladen_mass",
+        "vehicle_class": "wltc_class",
+        "Pwot": "p",
+    }
