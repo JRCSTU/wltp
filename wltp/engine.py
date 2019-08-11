@@ -451,7 +451,7 @@ def calc_n_max(n_max1, n_max2, n_max3):
     n_max = max(n_max1, n_max2, n_max3)
     assert np.isfinite(n_max), ("All `n_max` are NANs?", n_max1, n_max2, n_max3, n_max)
 
-    return nround1(n_max)
+    return n_max
 
 
 #: temporary use this till gear-ratios become a table (like wot).
