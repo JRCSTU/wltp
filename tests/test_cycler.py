@@ -90,6 +90,11 @@ def test_emerge_cycle_concat_wots_smoketest(h5_accdb, wltc_class):
     ), f"\nwot:\n{wot}\ngwot:\n{gwots}"
 
 
+def test_cycle_add_p_avail_for_gears_smoketest(h5_accdb):
+    gwots = pd.DataFrame({("p", "g1"): [], ("ASM", "g1"): []})
+    cycler.cycle_add_p_avail_for_gears(gwots, 1, SM=0.1)
+
+
 def test_flatten_columns():
     cols = pd.MultiIndex.from_tuples([("a", "aa"), ("b", "")], names=("gear", "item"))
     fcols = cycler.flatten_cycle_columns(cols)

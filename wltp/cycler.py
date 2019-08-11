@@ -121,12 +121,18 @@ def emerge_cycle(
 
 
 def cycle_add_p_avail_for_gears(cycle: pd.DataFrame, ng, SM) -> pd.DataFrame:
+    """
+    
+    :param cycle:
+        a  df with 2-level multindex columns, having at least ('p', 'g1') & ('ASM', 'g1'))
+        for gears 1 to `ng`.`
+    """
     w = wio.pstep_factory.get().wot
 
     for gear in range(1, ng + 1):
         gear = wio.gear_name(gear)
-        cycle.loc[:, (gear, w.p_avail)] = engine.calc_p_available(
-            cycle.loc[:, (gear, w.p)], cycle[(gear, w.ASM)], SM
+        cycle.loc[:, (w.p_avail, gear)] = engine.calc_p_available(
+            cycle.loc[:, (w.p, gear)], cycle[(w.ASM, gear)], SM
         )
 
     return cycle
