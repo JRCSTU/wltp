@@ -30,15 +30,11 @@ The following matrix shows these correspondences:
 
 Known deficiencies
 ==================
-* (!) Driveability-rules not ordered as defined in the latest task-force meeting.
-* (!) The driveability-rules when speeding down to a halt is broken, and human-drivers should improvise.
-* (!) The ``n_min_drive`` is not calculated as defined in the latest task-force meeting,
-  along with other recent updates.
-* (!) The ``n_max`` is calculated for ALL GEARS, resulting in "clipped" velocity-profiles,
-  leading to reduced rpm's for low-powered vehicles.
-* Clutching-points and therefore engine-speed are very preliminary
-  (ie ``rpm`` when starting from stop might be < ``n_idle``).
+* (!) Driveability-tules are missing - for their implementation,
+  the values for calculating "initial-gear" must be trusted first,
+  or else no validation is possible.
 * Many checks are missing, e.g. not checking if `p_rated` if "close" to `p_wot_max`.
+* n_min_drive does not yet accept array of values for G > 2 e.g. for `n_min_drive_up_start`.
 
 .. _todos-list:
 
@@ -47,6 +43,7 @@ TODOs
 * Update cmd-line; add UI front-ends.
 * Use a model-explorer to autocomplete excel-cells.
 * Automatically calculate masses from H & L vehicles.
+* datamodel: validate in 2 steps: jsonschema, populate missing values & validate
 * datamodel: Enhance model-preprocessing by interleaving "octapus" merging stacked-models
   between validation stages.
 * datamodel: finalize data-schema (renaming columns and adding ``name`` fields in major blocks).
@@ -69,17 +66,17 @@ v1.0.0.dev8  (7-Aug-2019): PY3.5 only & real work!
   move all TCs out of main-sources.
 - Depend on *pandalone* which has updated *jsonschema-v3* validator
   (draft4-->draft7).
-- Start grouping functionalities in separate modules 
+- Start grouping functionalities in separate modules
   (e.g. `engine`, `vehicle`, `vmax`, `downscale`, etc).
 - datamodel:
 
-  - BREAK: renamed module ``wltp.model --> wltp.datamodel``. 
+  - BREAK: renamed module ``wltp.model --> wltp.datamodel``.
   - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec.
-  - break: V-traces is renamed from `cycle --> v_cycle`. 
+  - break: V-traces is renamed from `cycle --> v_cycle`.
   - break: cycle-part limits are plain lists-of-limits (not list-of-pairs).
   - break: flatten model, merging `vehicle` & `params` properties up to root.
   - drop: don't add a sample WOT in base_model if not given.
-  - break: Inverse safety margin from 0.9 --> 0.1, and stop supporting ngear array 
+  - break: Inverse safety margin from 0.9 --> 0.1, and stop supporting ngear array
     (had been left like that since the phase 1a).
   - feat: add helper API funcs to get WLTC class data (e.g. `v_cycle`, limits, etc).
 
@@ -89,7 +86,7 @@ v1.0.0.dev8  (7-Aug-2019): PY3.5 only & real work!
   - FEAT: VMAX & NMAX calculations:
     - all `v_max` match *accdb*, but 6 cases missmatch `g_v_max` (out of 125 cases).
     - many minor mismatches on `n_max1/2/3`.
-    
+
   - FEAT: VMAX calculation;  all match *accdb*, but 6 cases missmatch `g_v_max` (out of 125 cases).
   - UPD: DOWNSCALING to recent formulas & constants, and document them.
     Still scaled (not recursive), none can reproduce exactly MsAccess.
@@ -335,21 +332,40 @@ v0.0.0, 11-Dec-2013: Inception stage
 ------------------------------------
 * Mostly setup.py work, README and help.
 
+
 Questions to Heinz
 ==================
+- n_min:
+  - GTR 2.g has a conflict between `ng` and  `ng_vmax`: the formula says `ng`
+    while the "legend" below speaks only about `ng_vmax`.
+    The later makes sense from engineering standpoint and also stacks betters
+    against accdb results.
+    - So the formula actually must become :math:`(n/v)(ng_{\bold{vmax}}) \times V_{max,vehicle}`,
+      correct?
+    - Related to Q on v_max "ties", below, should in those cases consider
+      the "from the lower gear achieving v_max", to assume the same logic?
+
+  - What is the meaning of the -0.1389 threshold in Annex 2-2.k?
+    Is it used anywhere in the accdb?
+
 - VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20new%20vehicle.form.vbs>`_:
     - Is this the `v_max` used for class 3a/b decision?
     - L3358-L3360: is this rounding needed because of
       accumulation of rounding errors?
     - L2835:
-    - Why some times down to ng-3 others ng-2, etc?  Why not scan fro top for max-v?
-      Is it possible a lower gear to have lower v_max and next lower to have v_max high again??
-      is there a 3-geared car with v_max@gear-1??
-    - In Annex-2.g, `v_max3` is actually :math:`(n/v)(ng_{\bold{vmax}}) \times V_{max,vehicle}`,
-      correct?
-    - Cannot match accdb `v_max` for vehicles 42, 48, 52, 53?
+    - The GTR reaches only down to `ng-2` while accdb reached `ng-3`.
+      - Why?
+      - Why some times reach down to ng-3 others ng-2, etc?
+      - Why not simply scan from top for max-v?
+      - Is it possible a lower gear to have lower v_max and next lower to have v_max high again?
+      - Is there a 3-geared car with v_max@gear-1?
+
     - There are 5 cases where both top gears can reach the same `v_max`/
-      Accdb takes the lower one, is this on purpose?
+      Accdb seems to take the lower one, but the GTR suggest the opposite
+      - Which is the vmax-gear on ties?
+      -From which one should derive `n_min_3`?
+
+    - Cannot match accdb `v_max` for vehicles 42, 48, 52, 53?
 
 - Downscale: vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
   while the GTR write downscale only if that threshold excheeded;  why?
@@ -373,14 +389,15 @@ Questions to Heinz
       6800  207.931546        187.138391  187.138391  0.0  1.000000
 
 - Why is `acc`, `dec` & `cruise` calculated on the "japanese" acceleration trace `a2`?
-  Why are they using 0.278 as threshold value 
-  (i.e. `A gearshift_table cruise.query.txt#L3 
+  What is this 0.278 as threshold value they are using?
+  (i.e. `A gearshift_table cruise.query.txt#L3
   <https://github.com/ankostis/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/A%20gearshift_table%20cruise.query.txt#L3>`_)?
 
-- `n_max2`: veh041 seems to calculate `n_max_cycle` based on class2
-  and not from class1 where it belongs::
+- n_max:
+  - veh041 seems to calculate `n_max_cycle` (`n_max2`) based on class2
+    and not from class1, where it belongs::
 
-      v_class1_max(64.4) * n2v_4(90.3) = 5815.31
-      v_class2_max(123.1) * n2v_4(90.3) = 11115.93  # value in accdb
-  
-  How is that possible?
+        v_class1_max(64.4) * n2v_4(90.3) = 5815.31
+        v_class2_max(123.1) * n2v_4(90.3) = 11115.93  # value in accdb
+
+    How is that possible?
