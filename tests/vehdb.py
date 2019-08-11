@@ -537,6 +537,7 @@ def run_pyalgo_on_Heinz_vehicle(
         "v_max": mdl["v_max"],
         "n_v_max": mdl["n_v_max"],
         "g_v_max": mdl["g_v_max"],
+        "n_max1": mdl["n_max1"],
         "n_max2": mdl["n_max2"],
         "n_max3": mdl["n_max3"],
         "n_max": mdl["n_max"],
