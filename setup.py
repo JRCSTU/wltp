@@ -126,6 +126,7 @@ test_reqs = [
     "sphinx",
     "tables",  # pandas-IO for h5
     "twine",  # for PyPi long-description check
+    "ipdb",  # for `pytest --pdb` (set in `setup.cfg`)
     ## For notebooks
     #
     "papermill",
