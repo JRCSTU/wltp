@@ -57,9 +57,9 @@ def test_decelstop(wltc_class):
     assert n_decelstops == n_stops
 
 
-# TODO: move `t_start` checkj in validations pipeline.
+# TODO: move `t_end_cold` checkj in validations pipeline.
 @pytest.mark.parametrize(
-    "wltc_class, t_start, err",
+    "wltc_class, t_end_cold, err",
     zip(
         range(4),
         (800, 150),
@@ -69,14 +69,14 @@ def test_decelstop(wltc_class):
         ),
     ),
 )
-def test_validate_t_start(wltc_class, t_start, err):
+def test_validate_t_start(wltc_class, t_end_cold, err):
     V = datamodel.get_class_v_cycle(wltc_class)
     wltc_parts = datamodel.get_class_parts_limits(wltc_class)
 
     cb = CycleBuilder(V)
     cb.cycle = cycler.CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
     with pytest.raises(type(err), match=str(err)):
-        for err in cb.validate_nims_t_start(t_start, wltc_parts):
+        for err in cb.validate_nims_t_cold_en(t_end_cold, wltc_parts):
             raise err
 
 
@@ -94,6 +94,7 @@ def test_flatten_columns():
 def test_full_build_smoketest(h5_accdb):
     vehnum = 8
     veh_class = 3  # v008's class
+    t_cold_end = 470  # stop in all classes
     prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, vehnum)
     renames = vehdb.accdb_renames()
     prop = prop.rename(renames)
@@ -106,6 +107,8 @@ def test_full_build_smoketest(h5_accdb):
     cm = cycler.CycleMarker()
     cb = cycler.CycleBuilder(V)
     cb.cycle = cm.add_phase_markers(cb.cycle, cb.V, cb.A)
+    for err in cb.validate_nims_t_cold_en(t_cold_end, wltc_parts):
+        raise err
     cb.cycle = cm.add_class_phase_markers(cb.cycle, wltc_parts)
 
     gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)

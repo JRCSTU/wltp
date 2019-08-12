@@ -202,7 +202,7 @@ Schema
         - integer
         - 'null'
         exclusiveMinimum: 0
-      t_start:
+      t_end_cold:
         description: see Annex 2-2.k about n_mins
         type:
         - integer

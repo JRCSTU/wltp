@@ -489,7 +489,7 @@ NMinDrives = namedtuple(
         "n_min_drive_up_start",
         "n_min_drive_down",
         "n_min_drive_down_start",
-        "t_start",
+        "t_end_cold",
     ),
 )
 
@@ -514,7 +514,7 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
     n_min_drive_down = mdl.get(d.n_min_drive_down, n_min_drive_set)
     n_min_drive_down_start = mdl.get(d.n_min_drive_down_start, n_min_drive_down)
 
-    t_start = mdl.get(d.t_start, 0)
+    t_end_cold = mdl.get(d.t_end_cold, 0)
 
     nmins = NMinDrives(
         n_min_drive1=n_idle,
@@ -526,7 +526,7 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
         n_min_drive_up_start=n_min_drive_up_start,
         n_min_drive_down=n_min_drive_down,
         n_min_drive_down_start=n_min_drive_down_start,
-        t_start=t_start,
+        t_end_cold=t_end_cold,
     )
 
     nmins = NMinDrives(*(n and nround1(n) for n in nmins))

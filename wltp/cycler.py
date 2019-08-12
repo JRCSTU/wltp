@@ -46,6 +46,10 @@ def calc_acceleration(V: Column) -> np.ndarray:
 
 
 class CycleBuilder:
+    """
+    Specific choreography of method-calls required, see TCs & notebooks.
+    """
+
     ## Default `safety_margin` redundant here, but facilitates test code.
     SM: float = 0.1
     multi_column_separator: str = "."
@@ -116,19 +120,32 @@ class CycleBuilder:
 
         self.cycle = cycle
 
-    # TODO: incorporate `validate_nims_t_start()`  in validations pipeline.
-    def validate_nims_t_start(self, t_start: int, wltc_parts: Seq[int]):
+    # TODO: incorporate `validate_nims_t_cold_en()`  in validations pipeline.
+    def validate_nims_t_cold_en(self, t_end_cold: int, wltc_parts: Seq[int]):
         c = wio.pstep_factory.get().cycle
 
-        if t_start:
-            if t_start > wltc_parts[0]:
+        if t_end_cold:
+            if t_end_cold > wltc_parts[0]:
                 yield ValidationError(
-                    "f`t_start`({t_start}) must finish before the 1st cycle-part(t_end={wltc_parts[0]})!"
+                    "f`t_end_cold`({t_end_cold}) must finish before the 1st cycle-part(t_end={wltc_parts[0]})!"
                 )
-            if not self.cycle[c.stop].iloc[t_start]:
+            if not self.cycle[c.stop].iloc[t_end_cold]:
                 yield ValidationError(
-                    "f`t_start`({t_start}) must finish on a cycle stop(v={self.V.iloc[t_start]})!"
+                    "f`t_end_cold`({t_end_cold}) must finish on a cycle stop(v={self.V.iloc[t_end_cold]})!"
                 )
+
+    def colidx_pairs(self, item: Union[str, Seq[str]], gnames: Seq[str] = None):
+        if gnames is None:
+            gnames = self.gnames
+        if isinstance(item, str):
+            item = (item,)
+        return pd.MultiIndex.from_tuples(itt.product(item, gnames))
+
+    def colidx_pairs1(self, item: str, gear_idx: Seq[int]):
+        return self.colidx_pairs(item, [self.gnames[i] for i in gear_idx])
+
+    def colidx_pairs2(self, item: str, gears: Seq[int]):
+        return self.colidx_pairs(item, [self.gnames[i - 1] for i in gears])
 
     def flatten_columns(self, columns):
         sep = self.multi_column_separator

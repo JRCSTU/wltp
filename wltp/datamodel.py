@@ -370,7 +370,7 @@ properties:
     - integer
     - 'null'
     exclusiveMinimum: 0
-  t_start:
+  t_end_cold:
     description: see Annex 2-2.k about n_mins
     type:
     - integer
@@ -932,7 +932,7 @@ def yield_load_curve_errors(mdl):
 def yield_n_min_errors(mdl):
     # TODO: accept ARRAY `n_min_drive`
     # TODO: min(Nwot) <= n_min_drive_set
-    # NOTE: cannot check `t_start` is in stop-gap, wltc-class decision not made yet.
+    # NOTE: cannot check `t_end_cold` is in stop-gap, wltc-class decision not made yet.
 
     d = wio.pstep_factory.get()
     # g = wio.pstep_factory.get().gears

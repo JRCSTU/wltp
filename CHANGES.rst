@@ -33,7 +33,8 @@ Known deficiencies
 * (!) Driveability-tules are missing - for their implementation,
   the values for calculating "initial-gear" must be trusted first,
   or else no validation is possible.
-* Many checks are missing, e.g. not checking if `p_rated` if "close" to `p_wot_max`.
+* Some extra sanity checks apply e.g. check if `p_rated` is "close enough" to `p_wot_max`,
+  while others maybe missing.
 * n_min_drive does not yet accept array of values for G > 2 e.g. for `n_min_drive_up_start`.
 
 .. _todos-list:
@@ -354,6 +355,8 @@ Questions to Heinz
 
     - The "up" phase is also defined for V >= 1kmh, only, correct
       (but not stated in the GTR)?
+  - `t_end_start_phase` is not included in the test-scpreasheets.
+
 
 - VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20new%20vehicle.form.vbs>`_:
 
