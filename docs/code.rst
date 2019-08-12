@@ -202,6 +202,11 @@ Schema
         - integer
         - 'null'
         exclusiveMinimum: 0
+      t_start:
+        description: see Annex 2-2.k about n_mins
+        type:
+        - integer
+        minimum: 0
       wot:
         title: wide open throttle curves
         description: |
