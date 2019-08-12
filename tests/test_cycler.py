@@ -9,6 +9,7 @@ import itertools as itt
 
 import pandas as pd
 import pytest
+from jsonschema import ValidationError
 from tests import vehdb
 
 from wltp import cycler, datamodel, engine, vehicle
@@ -44,7 +45,7 @@ def test_cycle_init_flag(wltc_class, exp, gwots):
 
 
 @pytest.mark.parametrize("wltc_class", range(4))
-def test_decelstop(h5_accdb, wltc_class):
+def test_decelstop(wltc_class):
     V = datamodel.get_class_v_cycle(wltc_class)
     cb = CycleBuilder(V)
     cycle = cycler.CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
@@ -54,6 +55,29 @@ def test_decelstop(h5_accdb, wltc_class):
     assert n_decelstops < n_decels
     ##  The initial stop has no deceleration before it BUT no diff >0 either!
     assert n_decelstops == n_stops
+
+
+# TODO: move `t_start` checkj in validations pipeline.
+@pytest.mark.parametrize(
+    "wltc_class, t_start, err",
+    zip(
+        range(4),
+        (800, 150),
+        (
+            ValidationError("before the 1st cycle-part"),
+            ValidationError("on a cycle stop"),
+        ),
+    ),
+)
+def test_validate_t_start(wltc_class, t_start, err):
+    V = datamodel.get_class_v_cycle(wltc_class)
+    wltc_parts = datamodel.get_class_parts_limits(wltc_class)
+
+    cb = CycleBuilder(V)
+    cb.cycle = cycler.CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    with pytest.raises(type(err), match=str(err)):
+        for err in cb.validate_nims_t_start(t_start, wltc_parts):
+            raise err
 
 
 def test_flatten_columns():

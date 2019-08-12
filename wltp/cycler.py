@@ -10,14 +10,15 @@ import dataclasses
 import itertools as itt
 import logging
 from numbers import Number
-from typing import List, Sequence as Seq
+from typing import List
+from typing import Sequence as Seq
 from typing import Union
 
 import numpy as np
 import pandas as pd
+from jsonschema import ValidationError
 from pandas.core.generic import NDFrame
 
-from . import engine
 from . import io as wio
 
 Column = Union[NDFrame, np.ndarray, Number]
@@ -112,6 +113,20 @@ class CycleBuilder:
         cycle = cycle.set_index(c.t, drop=False)
 
         self.cycle = cycle
+
+    # TODO: incorporate `validate_nims_t_start()`  in validations pipeline.
+    def validate_nims_t_start(self, t_start: int, wltc_parts: Seq[int]):
+        c = wio.pstep_factory.get().cycle
+
+        if t_start:
+            if t_start > wltc_parts[0]:
+                yield ValidationError(
+                    "f`t_start`({t_start}) must finish before the 1st cycle-part(t_end={wltc_parts[0]})!"
+                )
+            if not self.cycle[c.stop].iloc[t_start]:
+                yield ValidationError(
+                    "f`t_start`({t_start}) must finish on a cycle stop(v={self.V.iloc[t_start]})!"
+                )
 
     def flatten_columns(self, columns):
         sep = self.multi_column_separator
