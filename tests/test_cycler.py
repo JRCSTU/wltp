@@ -44,17 +44,16 @@ def test_cycle_init_flag(wltc_class, exp, gwots):
 
 
 @pytest.mark.parametrize("wltc_class", range(4))
-def test_emerge_cycle_concat_wots_smoketest(h5_accdb, wltc_class):
-    prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, 125)
-    renames = vehdb.accdb_renames()
-    prop = prop.rename(renames)
-    wot = wot.rename(renames, axis=1)
-    wot["n"] = wot.index
-
-    gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
-    assert (
-        gwots.shape[0] > wot.shape[0] and gwots.shape[1] == len(n2vs) * wot.shape[1]
-    ), f"\nwot:\n{wot}\ngwot:\n{gwots}"
+def test_decelstop(h5_accdb, wltc_class):
+    V = datamodel.get_class_v_cycle(wltc_class)
+    cb = CycleBuilder(V)
+    cycle = cycler.CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    n_stops = (cycle["stop"].astype(int).diff() < 0).sum(None)
+    n_decels = (cycle["decel"].astype(int).diff() < 0).sum(None)
+    n_decelstops = (cycle["decelstop"].astype(int).diff() < 0).sum(None)
+    assert n_decelstops < n_decels
+    ##  The initial stop has no deceleration before it BUT no diff >0 either!
+    assert n_decelstops == n_stops
 
 
 def test_flatten_columns():

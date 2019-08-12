@@ -37,6 +37,7 @@ def calc_acceleration(V: Column) -> np.ndarray:
     """
     A = np.diff(V) / 3.6
     A = np.append(A, np.NAN)  # Restore element lost by diff().
+    # Panda code same with the above: ``(-V.diff(-1))```
 
     return A
 
@@ -48,9 +49,11 @@ class CycleBuilder:
 
     #: The instance that is built.
     cycle: pd.DataFrame
-    #: A column within `cycle` to use in subsequent calculations.
+    #: A column within `cycle` populated from the last `velocity` given in the cstor.
+    #: to use in subsequent calculations.
     V: pd.Series
-    #: A column derived from `V`, also within `cycle`, to use in subsequent calculations.
+    #: A column derived from :ivar:`V`, also within `cycle`, populated on construction,
+    #: and used in subsequent calculations.
     A: pd.Series
 
     gnames: List[str]
@@ -72,7 +75,7 @@ class CycleBuilder:
 
         vars(self).update(kwargs)
 
-        ## Ensure time (index of velocities) is the 1st column.
+        ## Ensure time index of velocities is the 1st column.
         cycle = pd.DataFrame(
             dict([(c.t, velocities[0].index), *((v.name, v) for v in velocities)])
         )
@@ -200,6 +203,22 @@ class CycleMarker:
             col |= col.shift()
         return col
 
+    def _identify_last_decel_before_stop(self, cycle):
+        last_decel_sample_before_stop = cycle.decel & cycle.stop
+        decels = cycle.decel
+        decels_grouper = (decels != decels.shift()).cumsum()
+        decelstop = (
+            decels.groupby(decels_grouper)
+            .transform(
+                lambda decel_group: decel_group.count()
+                if (decel_group & last_decel_sample_before_stop).any()
+                else 0
+            )
+            .gt(0)
+        )
+
+        return decelstop
+
     def add_phase_markers(
         self, cycle: pd.DataFrame, V: pd.Series, A: pd.Series
     ) -> pd.DataFrame:
@@ -236,6 +255,8 @@ class CycleMarker:
 
         ## Annex 2-2.k (n_min_drive).
         cycle[c.up] = phase(A >= self.up_threshold)
+
+        cycle[c.decelstop] = self._identify_last_decel_before_stop(cycle)
 
         cycle.columns = pd.MultiIndex.from_product(
             (cycle.columns, ("",)), names=("item", "gear")
