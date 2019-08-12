@@ -36,8 +36,10 @@ def paths_collected(with_orig=False, tag=None) -> List[str]:
     return _root_pstep._paths(with_orig, tag)
 
 
-def veh_name(g):
-    return "v%0.3d" % int(g)
+def veh_name(v):
+    n = pstep_factory.get().names
+    v = int(v)
+    return f"{n.v}{v:0>3d}"
 
 
 def veh_names(vlist):
@@ -45,7 +47,8 @@ def veh_names(vlist):
 
 
 def gear_name(g):
-    return f"g{g}"
+    n = pstep_factory.get().names
+    return f"{n.g}{g}"
 
 
 def gear_names(glist):
