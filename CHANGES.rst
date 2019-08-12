@@ -374,7 +374,7 @@ Questions to Heinz
 
   - There are 5 cases where both top gears can reach the same `v_max`/
     Accdb seems to take the lower one, but the GTR suggest the opposite
-    
+
     - Which is the vmax-gear on ties?
     -From which one should derive `n_min_3`?
 
@@ -424,5 +424,7 @@ Questions to Heinz
          'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0]
         'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0]
          'decel': [0,0,0,0,0,0,0,1,1,1,0,0,0]
+            'up': [0,0,1,1,1,1,1,1,0,1,1,1,1],
+          'init': [1,0,0,0,0,0,0,0,0,0,0,0,0],
 
     So actually there cannot exist a 2-sample phase, correct?

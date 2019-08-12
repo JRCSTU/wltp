@@ -13,7 +13,7 @@ from jsonschema import ValidationError
 from tests import vehdb
 
 from wltp import cycler, datamodel, engine, vehicle
-from wltp.cycler import CycleBuilder, CycleMarker
+from wltp.cycler import CycleBuilder, PhaseMarker
 from wltp.vehicle import calc_default_resistance_coeffs
 
 
@@ -26,13 +26,13 @@ def gwots():
 def test_identify_conjecutive_truths_repeat_threshold_1_is_identical():
     V = datamodel.get_class_v_cycle(0)
     A = -V.diff(-1)
-    cm = CycleMarker(phase_repeat_threshold=1)
+    pm = PhaseMarker(phase_repeat_threshold=1)
 
     col1 = (V > 1) & (A < 0)
-    col2 = cm._identify_conjecutive_truths((V > 1) & (A < 0), right_edge=False)
+    col2 = pm._identify_conjecutive_truths((V > 1) & (A < 0), right_edge=False)
     assert col2.equals(col1)
 
-    col2 = cm._identify_conjecutive_truths((V > 1) & (A < 0), right_edge=True)
+    col2 = pm._identify_conjecutive_truths((V > 1) & (A < 0), right_edge=True)
     assert col2.equals(col1 | col1.shift())
 
 
@@ -40,7 +40,7 @@ def test_identify_conjecutive_truths_repeat_threshold_1_is_identical():
 def test_cycle_init_flag(wltc_class, exp, gwots):
     V = datamodel.get_class_v_cycle(wltc_class)
     cb = CycleBuilder(V)
-    CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
     assert cb.cycle.init.sum() == exp
 
 
@@ -48,7 +48,7 @@ def test_cycle_init_flag(wltc_class, exp, gwots):
 def test_decelstop(wltc_class):
     V = datamodel.get_class_v_cycle(wltc_class)
     cb = CycleBuilder(V)
-    cycle = cycler.CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    cycle = cycler.PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
     n_stops = (cycle["stop"].astype(int).diff() < 0).sum(None)
     n_decels = (cycle["decel"].astype(int).diff() < 0).sum(None)
     n_decelstops = (cycle["decelstop"].astype(int).diff() < 0).sum(None)
@@ -74,7 +74,7 @@ def test_validate_t_start(wltc_class, t_end_cold, err):
     wltc_parts = datamodel.get_class_parts_limits(wltc_class)
 
     cb = CycleBuilder(V)
-    cb.cycle = cycler.CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    cb.cycle = cycler.PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
     with pytest.raises(type(err), match=str(err)):
         for err in cb.validate_nims_t_cold_en(t_end_cold, wltc_parts):
             raise err
@@ -104,12 +104,12 @@ def test_full_build_smoketest(h5_accdb):
     V = datamodel.get_class_v_cycle(veh_class)
     wltc_parts = datamodel.get_class_parts_limits(veh_class)
 
-    cm = cycler.CycleMarker()
+    pm = cycler.PhaseMarker()
     cb = cycler.CycleBuilder(V)
-    cb.cycle = cm.add_phase_markers(cb.cycle, cb.V, cb.A)
+    cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
     for err in cb.validate_nims_t_cold_en(t_cold_end, wltc_parts):
         raise err
-    cb.cycle = cm.add_class_phase_markers(cb.cycle, wltc_parts)
+    cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
 
     gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
     gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
