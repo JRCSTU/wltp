@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 from tests import vehdb
 
-from wltp import cycler, datamodel, engine
+from wltp import cycler, datamodel, engine, vehicle
 from wltp.cycler import CycleBuilder, CycleMarker
 from wltp.vehicle import calc_default_resistance_coeffs
 
@@ -48,7 +48,7 @@ def test_emerge_cycle_concat_wots_smoketest(h5_accdb, wltc_class):
     prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, 125)
     renames = vehdb.accdb_renames()
     prop = prop.rename(renames)
-    wot = wot[["Pwot", "ASM"]].rename(renames, axis=1)
+    wot = wot.rename(renames, axis=1)
     wot["n"] = wot.index
 
     gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
@@ -66,3 +66,35 @@ def test_flatten_columns():
     assert cols.names == infcols.names
     with pytest.raises(AssertionError, match="MultiIndex?"):
         cb.inflate_columns(cols)
+
+
+def test_full_build_smoketest(h5_accdb):
+    vehnum = 8
+    prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, vehnum)
+    renames = vehdb.accdb_renames()
+    prop = prop.rename(renames)
+    wot = wot.rename(renames, axis=1)
+    wot["n"] = wot.index
+
+    gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
+    gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
+    V = datamodel.get_class_v_cycle(3)  # v008's class
+
+    cb = cycler.CycleBuilder(V)
+    cb.cycle = cycler.CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+
+    kr = 1.03
+    SM = 0.1
+    cb.cycle["p_req"] = vehicle.calc_power_required(
+        cb.V, cb.A, prop.test_mass, prop.f0, prop.f1, prop.f2, kr
+    )
+    cb.add_wots(gwots)
+
+    acc_cycle = vehdb.load_vehicle_nodes(h5_accdb, vehnum, "cycle")
+
+    diffs = {}
+
+    def cmpr_cols(c1, c2):
+        diffs[c1.name] = (c1 - c2).abs()
+
+    acc_cycle["P_tot"], "p_required"

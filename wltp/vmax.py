@@ -23,10 +23,10 @@ log = logging.getLogger(__name__)
 
 #: Solution results of the equation finding the v-max of each gear:
 #:   - v_max: in kmh, or np.NAN if not found
-#:   - n_v_max: the number of the gear producing v_max
-#:   - g_v_max: the engine speed producing v_max
+#:   - n_vmax: the number of the gear producing v_max
+#:   - g_vmax: the engine speed producing v_max
 #:   - wot: intermediate curves for solving the equation
-VMaxRec = namedtuple("VMaxRec", "v_max  n_v_max  g_v_max  wot")
+VMaxRec = namedtuple("VMaxRec", "v_max  n_vmax  g_vmax  wot")
 
 
 def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
@@ -109,7 +109,7 @@ def _calc_gear_v_max(g, wot: pd.DataFrame, n2v, f0, f1, f2) -> VMaxRec:
     grid_wot = engine.interpolate_wot_on_v_grid(wot)
     grid_wot[c.p_resist] = vehicle.calc_road_load_power(grid_wot[c.v], f0, f1, f2)
     grid_wot[c.p_remain] = grid_wot[c.p_avail] - grid_wot[c.p_resist]
-    return _find_p_remain_root(grid_wot)._replace(g_v_max=g)
+    return _find_p_remain_root(grid_wot)._replace(g_vmax=g)
 
 
 def calc_v_max(

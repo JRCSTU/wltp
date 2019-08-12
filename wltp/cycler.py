@@ -10,7 +10,7 @@ import dataclasses
 import itertools as itt
 import logging
 from numbers import Number
-from typing import Sequence as Seq
+from typing import List, Sequence as Seq
 from typing import Union
 
 import numpy as np
@@ -52,6 +52,8 @@ class CycleBuilder:
     V: pd.Series
     #: A column derived from `V`, also within `cycle`, to use in subsequent calculations.
     A: pd.Series
+
+    gnames: List[str]
 
     def __init__(self, *velocities: pd.Series, **kwargs):
         """
@@ -100,6 +102,8 @@ class CycleBuilder:
             (isinstance(i, pd.DataFrame) for i in (cycle, gwots))
         ) and isinstance(gwots, pd.DataFrame), locals()
 
+        self.ng = len(gwots.columns.levels[0])
+        self.gnames = wio.gear_names(range(1, self.ng + 1))
         gwots = gwots.reindex(self.V).swaplevel(axis=1).sort_index(axis=1)
         cycle = pd.concat((cycle.set_index(self.V), gwots), axis=1, sort=False)
         cycle = cycle.set_index(c.t, drop=False)
@@ -171,6 +175,8 @@ class CycleMarker:
         ...      'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0],
         ...     'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0],
         ...      'decel': [0,0,0,0,0,0,0,1,1,1,0,0,0],
+        ...         'up': [0,0,1,1,1,1,1,1,0,1,1,1,1],
+        ...       'init': [1,0,0,0,0,0,0,0,0,0,0,0,0],
         ... })
 
         >>> A = (-cycle.v).diff(-1)  # GTR's acceleration definition
@@ -236,41 +242,3 @@ class CycleMarker:
         )
 
         return cycle
-
-
-def calc_allowed_n(cycle, ng: int, n_max1, n_max2, n_max3, nmins: engine.NMinDrives):
-    """
-    Translating conditions in the Annex 2: 2.k, 3.2, 3.3 & 3.5:
-
-    ```
-    (0) v < 1                     : g = 0, n = n_idle               # 3.2, but start-from_standstill
-    (p) gear  >  2                : p_avail >= p_req                # 3.5
-    (a) gear  <  g_v_max          : n_min  ≤  n  ≤  n95_max         # 3.3, n_min by 2.k
-    (b)          g_v_max  ≤  gear : n_min  ≤  n  ≤  n_max_cycle     # 3.3, n_min by 2.k
-    (c) gear 1                    : always, clutch if n < n_idle    # 3.3
-
-    ```
-    """
-    d = wio.pstep_factory.get()
-    c = wio.pstep_factory.get().cycle
-    gnames = wio.gear_names(range(1, ng + 1))
-
-    def two_level_index(item: str, gears: Seq[int]):
-        gnames2 = [gnames[i] for i in gears]
-        return pd.MultiIndex.from_tuples(itt.product((item,), gnames2))
-
-    ## (p) rule
-    #
-    p_req = cycle["p_req"].to_frame()
-    p_avail = cycle["p_avail"].sort_index(axis=1)
-    p_ok = p_avail.fillna(0).values >= p_req.fillna(0).values
-    ## 1st gear always p_capable
-    p_ok[:, 0] = True
-    ## Append flags into cycle
-    #
-    new_columns = two_level_index(c.p_ok, range(ng))
-    p_ok_df = pd.DataFrame(p_ok, columns=new_columns)
-    cycle = pd.concat((cycle, p_ok_df), axis=1)
-
-    ## (a) rule
-    #

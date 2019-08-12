@@ -84,10 +84,10 @@ v1.0.0.dev8  (7-Aug-2019): PY3.5 only & real work!
 
   - Drop Slope, cannot work with downscaling.
   - FEAT: VMAX & NMAX calculations:
-    - all `v_max` match *accdb*, but 6 cases missmatch `g_v_max` (out of 125 cases).
+    - all `v_max` match *accdb*, but 6 cases missmatch `g_vmax` (out of 125 cases).
     - many minor mismatches on `n_max1/2/3`.
 
-  - FEAT: VMAX calculation;  all match *accdb*, but 6 cases missmatch `g_v_max` (out of 125 cases).
+  - FEAT: VMAX calculation;  all match *accdb*, but 6 cases missmatch `g_vmax` (out of 125 cases).
   - UPD: DOWNSCALING to recent formulas & constants, and document them.
     Still scaled (not recursive), none can reproduce exactly MsAccess.
   - Start PANDA-izing calculations (from numpy-arrays + rogue indices).

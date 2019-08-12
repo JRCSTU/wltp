@@ -153,8 +153,8 @@ class Experiment(object):
 
         v_max_rec = vmax.calc_v_max(wot, gear_ratios, f0, f1, f2, f_safety_margin)
         mdl["v_max"] = v_max = v_max_rec.v_max
-        mdl["n_v_max"] = v_max_rec.n_v_max
-        mdl["g_v_max"] = v_max_rec.g_v_max
+        mdl["n_vmax"] = v_max_rec.n_vmax
+        mdl["g_vmax"] = v_max_rec.g_vmax
         mdl["wots_vmax"] = v_max_rec.wot
 
         p_m_ratio = 1000 * p_rated / unladen_mass
@@ -222,10 +222,10 @@ class Experiment(object):
 
         ## Remaining n_max values
         #
-        g_max_n2v = gear_ratios[mdl["g_v_max"] - 1]
+        g_max_n2v = gear_ratios[mdl["g_vmax"] - 1]
         #  NOTE: `n95_high` is not rounded based on v, like the rest n_mins.
         mdl["n_max1"] = mdl["n95_high"]
-        #  NOTE: In Annex 2-2.g, it is confusing g_top with g_v_max;
+        #  NOTE: In Annex 2-2.g, it is confusing g_top with g_vmax;
         #  the later stack betters against accdb results.
         mdl["n_max2"] = g_max_n2v * cycle_run["v_class"].max()
         mdl["n_max3"] = g_max_n2v * mdl["v_max"]

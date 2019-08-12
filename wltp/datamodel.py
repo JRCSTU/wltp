@@ -241,14 +241,14 @@ properties:
     - 'null'
     exclusiveMinimum: 0
     description: (OUT) The calculcated maximum velocity, as defined in Annex 2-2.i.
-  n_v_max:
+  n_vmax:
     title: engine speed for maximum vehicle velocity
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
     description: (OUT) The engine speed for `v_max`.
-  g_v_max:
+  g_vmax:
     title: gear for maximum vehicle velocity
     type:
     - number
