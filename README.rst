@@ -28,11 +28,11 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
     its results are not "correct" by the standard, and no WLTP dyno-tests should rely
     currently on them.
 
-    Some of the known deficiencies are described in these places:
+    Some of the known limitations are described in these places:
 
     * In the :doc:`CHANGES`.
-    * Presented in the diagrams of the :doc:`metrics` section.
-    * Imprinted in the :mod:`~tests.test_wltp_db` test-case
+    * Presented in notebooks.
+    * (OUTDATED) Imprinted in the :mod:`~tests.test_wltp_db` test-case
       which automatically compares, on each build, the mean RPMs & Gears of this program
       against Heinz's *phase-1a* (end of 2014) MSAccess,
       for a pre-determined set of *Heinz-db* vehicles.
@@ -151,15 +151,17 @@ The files and folders of the project are listed below::
     |   +--cycles/        ## (package) code & data for the WLTC data
     |   +--experiment     ## top-level code running the algo
     |   +--datamodel      ## schemas & defaults for data of algo
+    |   +--cycler         ## code for generating the cycle
     |   +--engine         ## formulae for engine power & revolutions and gear-box
     |   +--vehicle        ## formulae for cyle/vehicle dynamics
     |   +--vmax           ## formulae estimating `v_max` from wot
     |   +--downscale      ## formulae downscaling cycles based on pmr/test_mass ratio
-    |   +--plots          ## (ABANDONED) formulae downscaling cycles based on pmr/test_mass ratio
-    |   +--idgears        ## (ABANDONED) reconstructs the gears-profile by identifying the actual gears
-    |   +--invariants     ## idenmpotent utils related to physics/engineering
+    |   +--invariants     ## definitions & idenmpotent formulae for physics/engineering
+    |   +--io             ## utilities for starting-up, parsing, naming and spitting data
     |   +--utils          ## software utils unrelated to physics or engineering
-    |   +--cli            ## (ABANDONED) entry-point for running pyalgo from command-line
+    |   +--cli            ## (OUTDATED) command-line entry-point for launching this wltp tool
+    |   +--plots          ## (OUTDATED) code for plotting diagrams related to wltp cycles & results
+    |   +--idgears        ## (OUTDATED) reconstructs the gears-profile by identifying the actual gears
     +--tests/             ## (package) Test-TestCases
         +--vehdb          ## Utils for manipulating h5db with accdb & pyalgo cases.
     +--docs/              ## (folder) documentation

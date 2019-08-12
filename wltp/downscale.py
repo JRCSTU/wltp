@@ -5,11 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""
-Pure calculations for physical/mathematical part of wltp-GS.
-
-Keep them separate for testability.
-"""
+"""formulae downscaling cycles based on pmr/test_mass ratio """
 
 import logging
 

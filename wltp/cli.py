@@ -5,7 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""The command-line entry-point for using all functionality of wltp tool.
+"""*(OUTDATED)* command-line entry-point for launching this wltp tool
 
 .. Seealso::
     :func:`main()`

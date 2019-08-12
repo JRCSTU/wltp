@@ -5,7 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-
+"""*(OUTDATED)* code for plotting diagrams related to wltp cycles & results"""
 from matplotlib import cbook, cm, pyplot as plt
 from matplotlib.colors import Normalize
 from numpy import ma

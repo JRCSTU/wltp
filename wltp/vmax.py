@@ -5,7 +5,11 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+"""
+formulae estimating `v_max` from wot
 
+The `v_max` is found by the maximum gear where `p_avail` intersects `p_required`.
+"""
 import logging
 from collections import namedtuple
 from typing import List, Union

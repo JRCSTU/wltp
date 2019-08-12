@@ -6,7 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """
-Detects vehile's gear-ratios from cycle-data and reconstructs the gears-profile by identifying the actual gears used.
+*(OUTDATED, irrelevant)* Detects vehile's gear-ratios from cycle-data and reconstructs the gears-profile by identifying the actual gears used.
 
 .. NOTE::
     NOT RELLEVANT to generation of wltp cyles.

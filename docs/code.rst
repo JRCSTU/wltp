@@ -5,8 +5,18 @@ The core of the simulator is composed from the following modules:
 .. currentmodule:: wltp
 .. autosummary::
 
-    model
+    datamodel
     experiment
+    cycler
+    engine
+    vehicle
+    vmax
+    downscale
+    invariants
+    io
+    utils
+    cli
+    plots
     idgears
 
 
@@ -15,10 +25,66 @@ Module: :mod:`wltp.experiment`
 .. automodule:: wltp.experiment
     :members:
 
-Module: :mod:`wltp.model`
+Module: :mod:`wltp.datamodel`
 -------------------------
-.. automodule:: wltp.model
+.. automodule:: wltp.datamodel
     :members:
+
+Module: :mod:`wltp.cycler`
+-------------------------
+.. automodule:: wltp.cycler
+    :members:
+
+Module: :mod:`wltp.engine`
+-------------------------
+.. automodule:: wltp.engine
+    :members:
+
+Module: :mod:`wltp.vehicle`
+-------------------------
+.. automodule:: wltp.vehicle
+    :members:
+
+Module: :mod:`wltp.vmax`
+-------------------------
+.. automodule:: wltp.vmax
+    :members:
+
+Module: :mod:`wltp.downscale`
+-------------------------
+.. automodule:: wltp.downscale
+    :members:
+
+Module: :mod:`wltp.invariants`
+-------------------------
+.. automodule:: wltp.invariants
+    :members:
+
+Module: :mod:`wltp.io`
+-------------------------
+.. automodule:: wltp.io
+    :members:
+
+Module: :mod:`wltp.utils`
+-------------------------
+.. automodule:: wltp.utils
+    :members:
+
+Module: :mod:`wltp.cli`
+-------------------------
+.. automodule:: wltp.cli
+    :members:
+
+Module: :mod:`wltp.plots`
+-------------------------
+.. automodule:: wltp.plots
+    :members:
+
+Module: :mod:`wltp.idgears`
+-------------------------
+.. automodule:: wltp.idgears
+    :members:
+
 
 Schema
 ^^^^^^

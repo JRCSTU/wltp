@@ -5,7 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""The core that accepts a vehicle-model and wltc-classes, runs the simulation and updates the model with results.
+"""*(TO BE DEFUNCT)* The core that accepts a vehicle-model and wltc-classes, runs the simulation and updates the model with results.
 
 .. Attention:: The documentation of this core module has several issues and needs work.
 
