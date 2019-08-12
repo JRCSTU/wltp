@@ -10,7 +10,7 @@ import dataclasses
 import itertools as itt
 import logging
 from numbers import Number
-from typing import List
+from typing import Iterable, List
 from typing import Sequence as Seq
 from typing import Union
 
@@ -18,8 +18,10 @@ import numpy as np
 import pandas as pd
 from jsonschema import ValidationError
 from pandas.core.generic import NDFrame
+from toolz import itertoolz as itz
 
 from . import io as wio
+from .engine import NMinDrives
 
 Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
@@ -245,7 +247,7 @@ class CycleMarker:
         c = wio.pstep_factory.get().cycle
 
         assert all(i is not None for i in (cycle, V, A)), (
-            "Null in input:",
+            "Null in inputs:",
             cycle,
             V,
             A,
@@ -276,5 +278,35 @@ class CycleMarker:
         cycle.columns = pd.MultiIndex.from_product(
             (cycle.columns, ("",)), names=("item", "gear")
         )
+
+        return cycle
+
+    def add_class_phase_markers(
+        self, cycle: pd.DataFrame, wltc_parts: Iterable[int], *, right_edge=True
+    ) -> pd.DataFrame:
+        """
+        Adds low/mid/hight/extra high boolean index into cycle, named as p1, ...
+
+        :param cycle:
+            assumes indexed by time
+        :param wltc_parts:
+            must include edges (see :func:`~datamodel.get_class_parts_limits()`)
+        """
+        c = wio.pstep_factory.get().cycle
+
+        assert all(i is not None for i in (cycle, wltc_parts)), (
+            "Null in inputs:",
+            cycle,
+            wltc_parts,
+        )
+        assert isinstance(wltc_parts, Iterable), wltc_parts
+
+        for n, (start, end) in enumerate(itz.sliding_window(2, wltc_parts), 1):
+            idx = start <= cycle.index
+            if right_edge:
+                idx &= cycle.index <= end
+            else:
+                idx &= cycle.index < end
+            cycle[wio.class_part_name(n)] = idx
 
         return cycle

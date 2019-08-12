@@ -50,3 +50,8 @@ def gear_name(g):
 
 def gear_names(glist):
     return [gear_name(g) for g in glist]
+
+
+def class_part_name(part_index):
+    n = pstep_factory.get().names
+    return f"{n.phase_}{part_index}"
