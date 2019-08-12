@@ -261,7 +261,7 @@ class CycleBuilder:
         cycle.columns = self.flatten_columns(cycle.columns)
         return cycle
 
-    def __init__(self, *velocities: pd.Series, **kwargs):
+    def __init__(self, *velocities: Union[pd.Series, pd.DataFrame], **kwargs):
         """
         Initialize :ivar:`cycle` with the given velocities and acceleration of the last one.
 
@@ -269,8 +269,25 @@ class CycleBuilder:
             *named* series, e.g. from :func:`~datamodel.get_class_v_cycle()`,
             all sharing the same time-index  The last one is assumed to be the
             "target" velocity for the rest of the cycle methods.
+
+            If they are a (dataframe, series, series), they are assigned in 
+            :ivar:`cycle`, :ivar:`V` and :ivar:`A` respectively, and 
+            no other procesing happens.
         """
         c = wio.pstep_factory.get().cycle
+
+        if len(velocities) == 3:
+            cycle, V, A = velocities
+            if (
+                isinstance(cycle, pd.DataFrame)
+                and isinstance(V, pd.Series)
+                and isinstance(A, pd.Series)
+            ):
+                self.cycle = cycle
+                self.V = V
+                self.A = A
+
+                return
 
         assert velocities and all(
             (isinstance(i, pd.Series) and i.name and not i.empty for i in velocities)
