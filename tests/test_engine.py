@@ -255,3 +255,8 @@ def test_n_mins_smoke():
     #
     for v1, v2 in itt.permutations(results, 2):
         assert v1 != v2
+
+
+def test_calc_p_avail_in_gwots_smoketest(h5_accdb):
+    gwots = pd.DataFrame({("g1", "p"): [], ("g1", "ASM"): []})
+    engine.calc_p_avail_in_gwots(gwots, SM=0.1)

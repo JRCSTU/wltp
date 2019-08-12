@@ -234,11 +234,13 @@ def calc_p_available(P: Column, ASM: Column, f_safety_margin) -> Column:
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame):
     """
+    DEPRECATED, use by vmax only
     Interpolated wot on a v-grid from v_min_wot --> v_max_wot, rounded. 
     
     :param wot:
         must contain aat least `v` column
     """
+    ## DEPRECATE when vmax switch to `...grid2()` below.
     w = wio.pstep_factory.get().wot
 
     assert wot.size, "Empty wot!"
@@ -384,6 +386,26 @@ def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     return wot_grid
 
 
+def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
+    """
+    .. attention:
+        Must not interpolate along with wot on grid, or great INNACCURACIES.
+
+    :param gwots:
+        a  df with 2-level multindex columns, having at least (`g1`, 'p') & ('g1', 'ASM'))
+        for each gears (as retuned by :func:`interpolate_wot_on_v_grid2()`).
+    """
+    w = wio.pstep_factory.get().wot
+
+    for gear in gwots.columns.levels[0]:
+        gwots.loc[:, (gear, w.p_avail)] = calc_p_available(
+            gwots.loc[:, (gear, w.p)], gwots[(gear, w.ASM)], SM
+        )
+    gwots = gwots.sort_index(axis=1)
+
+    return gwots
+
+
 def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: Number) -> Tuple[float, float]:
     """
     Find wot's n95_low/high (Annex 2-2.g).
@@ -480,16 +502,16 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
 
     """
     # TODO: accept ARRAY `n_min_drive`
-    c = wio.pstep_factory.get()
+    d = wio.pstep_factory.get()
 
     n_idle = nround10(n_idle)
     n_min_drive_set = n_idle + 0.125 * (n_rated - n_idle)
 
-    n_min_drive_up = mdl.get(c.n_min_drive_up, n_min_drive_set)
-    n_min_drive_up_start = mdl.get(c.n_min_drive_up_start, n_min_drive_up)
+    n_min_drive_up = mdl.get(d.n_min_drive_up, n_min_drive_set)
+    n_min_drive_up_start = mdl.get(d.n_min_drive_up_start, n_min_drive_up)
 
-    n_min_drive_down = mdl.get(c.n_min_drive_down, n_min_drive_set)
-    n_min_drive_down_start = mdl.get(c.n_min_drive_down_start, n_min_drive_down)
+    n_min_drive_down = mdl.get(d.n_min_drive_down, n_min_drive_set)
+    n_min_drive_down_start = mdl.get(d.n_min_drive_down_start, n_min_drive_down)
 
     nmins = NMinDrives(
         n_min_drive1=n_idle,
@@ -506,3 +528,8 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
     nmins = NMinDrives(*(n and nround1(n) for n in nmins))
 
     return nmins
+
+
+def nmins_from_model(mdl):
+    """Repopulates the :class:`NMinDrives` from a (validated) datamodel."""
+    return NMinDrives(**{field: mdl[field] for field in NMinDrives._fields})

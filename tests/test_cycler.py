@@ -12,6 +12,7 @@ import pytest
 from tests import vehdb
 
 from wltp import cycler, datamodel, engine
+from wltp.cycler import CycleBuilder, CycleMarker
 from wltp.vehicle import calc_default_resistance_coeffs
 
 
@@ -21,59 +22,25 @@ def gwots():
     return pd.DataFrame({("the items", "the gears"): []})
 
 
-@pytest.mark.parametrize(
-    "wltc_class, long_phase_duration", itt.product(range(4), (1, 2, 4))
-)
-def test_emerge_cycle_long_phase_duration_1_is_identical(
-    wltc_class, long_phase_duration, gwots
-):
-    V = datamodel.get_class_v_cycle(wltc_class)
-    cycle = cycler.emerge_cycle(
-        V, V, V, gwots, long_phase_duration=1, up_threshold=-0.1389
-    )
-    assert all(
-        (cycle[cname] != cycle[f"{cname}_long"]).sum() == 0
-        for cname in "stop acc cruise dec".split()
-    )
+def test_identify_conjecutive_truths_repeat_threshold_1_is_identical():
+    V = datamodel.get_class_v_cycle(0)
+    A = -V.diff(-1)
+    cm = CycleMarker(phase_repeat_threshold=1)
 
+    col1 = (V > 1) & (A < 0)
+    col2 = cm._identify_conjecutive_truths((V > 1) & (A < 0), right_edge=False)
+    assert col2.equals(col1)
 
-@pytest.mark.parametrize(
-    "wltc_class, long_phase_duration, exp",
-    [
-        # duration=2
-        (0, 2, [0, 4, 29, 2]),
-        (1, 2, [0, 4, 23, 1]),
-        (2, 2, [0, 3, 34, 5]),
-        (3, 2, [0, 0, 31, 4]),
-        # duration=4
-        (0, 4, [0, 4, 45, 2]),
-        (1, 4, [0, 11, 45, 5]),
-        (2, 4, [0, 15, 63, 19]),
-        (3, 4, [0, 14, 62, 20]),
-        # duration=7: stop must start to differ
-        (3, 7, [10, 98, 66, 113]),
-    ],
-)
-def test_emerge_cycle_long_phase_duration(wltc_class, long_phase_duration, exp, gwots):
-    V = datamodel.get_class_v_cycle(wltc_class)
-    cycle = cycler.emerge_cycle(
-        V, V, V, gwots, long_phase_duration=long_phase_duration, up_threshold=-0.1389
-    )
-    missmatches = [
-        (cycle[cname] != cycle[f"{cname}_long"]).sum()
-        for cname in "stop acc cruise dec".split()
-    ]
-    # print(missmatches)
-    assert missmatches == exp
+    col2 = cm._identify_conjecutive_truths((V > 1) & (A < 0), right_edge=True)
+    assert col2.equals(col1 | col1.shift())
 
 
 @pytest.mark.parametrize("wltc_class, exp", [(0, 12), (1, 9), (2, 9), (3, 9)])
-def test_emerge_cycle_init(wltc_class, exp, gwots):
+def test_cycle_init_flag(wltc_class, exp, gwots):
     V = datamodel.get_class_v_cycle(wltc_class)
-    cycle = cycler.emerge_cycle(
-        V, V, V, gwots, long_phase_duration=2, up_threshold=-0.1389
-    )
-    assert cycle.init.sum() == exp
+    cb = CycleBuilder(V)
+    CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    assert cb.cycle.init.sum() == exp
 
 
 @pytest.mark.parametrize("wltc_class", range(4))
@@ -90,16 +57,12 @@ def test_emerge_cycle_concat_wots_smoketest(h5_accdb, wltc_class):
     ), f"\nwot:\n{wot}\ngwot:\n{gwots}"
 
 
-def test_cycle_add_p_avail_for_gears_smoketest(h5_accdb):
-    gwots = pd.DataFrame({("p", "g1"): [], ("ASM", "g1"): []})
-    cycler.cycle_add_p_avail_for_gears(gwots, 1, SM=0.1)
-
-
 def test_flatten_columns():
+    cb = CycleBuilder(pd.Series([1, 2], name="yy"))
     cols = pd.MultiIndex.from_tuples([("a", "aa"), ("b", "")], names=("gear", "item"))
-    fcols = cycler.flatten_cycle_columns(cols)
-    infcols = cycler.inflate_cycle_columns(fcols)
+    fcols = cb.flatten_columns(cols)
+    infcols = cb.inflate_columns(fcols)
     assert cols.equals(infcols)
     assert cols.names == infcols.names
     with pytest.raises(AssertionError, match="MultiIndex?"):
-        cycler.inflate_cycle_columns(cols)
+        cb.inflate_columns(cols)
