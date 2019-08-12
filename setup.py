@@ -217,6 +217,7 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "contextvars; python_version < '3.7'",
+        "dataclasses; python_version < '3.7'",
         "jsonschema",
         "numpy",
         "pandas",
