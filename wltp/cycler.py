@@ -337,12 +337,16 @@ class CycleBuilder:
     def validate_nims_t_cold_en(self, t_end_cold: int, wltc_parts: Seq[int]):
         c = wio.pstep_factory.get().cycle
 
+        t_phase1_end = wltc_parts[0]
+        if t_phase1_end == 0:  # wltc_parts had edges
+            t_phase1_end = wltc_parts[1]
+
         if t_end_cold:
-            if t_end_cold > wltc_parts[0]:
+            if t_end_cold > t_phase1_end:
                 yield ValidationError(
-                    "f`t_end_cold`({t_end_cold}) must finish before the 1st cycle-part(t_end={wltc_parts[0]})!"
+                    f"`t_end_cold`({t_end_cold}) must finish before the 1st cycle-part(t_phase_end={t_phase1_end})!"
                 )
             if not self.cycle[c.stop].iloc[t_end_cold]:
                 yield ValidationError(
-                    "f`t_end_cold`({t_end_cold}) must finish on a cycle stop(v={self.V.iloc[t_end_cold]})!"
+                    f"`t_end_cold`({t_end_cold}) must finish on a cycle stop(v={self.V.iloc[t_end_cold]})!"
                 )
