@@ -93,18 +93,23 @@ def test_flatten_columns():
 
 def test_full_build_smoketest(h5_accdb):
     vehnum = 8
+    veh_class = 3  # v008's class
     prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, vehnum)
     renames = vehdb.accdb_renames()
     prop = prop.rename(renames)
     wot = wot.rename(renames, axis=1)
     wot["n"] = wot.index
 
+    V = datamodel.get_class_v_cycle(veh_class)
+    wltc_parts = datamodel.get_class_parts_limits(veh_class)
+
+    cm = cycler.CycleMarker()
+    cb = cycler.CycleBuilder(V)
+    cb.cycle = cm.add_phase_markers(cb.cycle, cb.V, cb.A)
+    cb.cycle = cm.add_class_phase_markers(cb.cycle, wltc_parts)
+
     gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
     gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
-    V = datamodel.get_class_v_cycle(3)  # v008's class
-
-    cb = cycler.CycleBuilder(V)
-    cb.cycle = cycler.CycleMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
 
     kr = 1.03
     SM = 0.1
