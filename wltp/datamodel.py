@@ -720,19 +720,21 @@ def get_class_parts_limits(class_id: Union[str, int], mdl=None, edges=False):
     >>> cls = 'class2'
     >>> part_limits = datamodel.get_class_parts_limits(cls)
     >>> part_limits
-    [590, 1023, 1478]
+    [589, 1022, 1477]
     >>> part_limits = datamodel.get_class_parts_limits(cls, edges=True)
     >>> part_limits
-    [0,  590, 1023, 1478, 1801]
+    [0,  589, 1022, 1477, 1801]
 
+    And these are the limits for acceleration-dependent items:
+    
     >>> cls_data = datamodel.get_wltc_data()['classes'][cls]
     >>> V = pd.DataFrame(cls_data['v_cycle'])
     >>> V.groupby(pd.cut(V.index, part_limits)).sum()
                         0
-    (0, 590]      11162.2
-    (590, 1023]   17054.3
-    (1023, 1478]  24450.6
-    (1478, 1801]  28869.8
+    (0, 589]      11162.2
+    (589, 1022]   17054.3
+    (1022, 1477]  24450.6
+    (1477, 1801]  28869.8
 
     """
     cls = get_class(class_id)
