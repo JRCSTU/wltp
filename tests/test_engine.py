@@ -236,7 +236,7 @@ def test_n_mins_smoke():
     base = engine.calc_fixed_n_min_drives({}, 500, 4000)
 
     results = [base]
-    for values in itt.product([None, 1], [None, 2], [None, 3], [None, 4]):
+    for values in itt.product([None, 1], [None, 2], [None, 3], [None, 4], [None, 5]):
         mdl = dict(
             zip(
                 (
@@ -244,6 +244,7 @@ def test_n_mins_smoke():
                     "n_min_drive_up_start",
                     "n_min_drive_down",
                     "n_min_drive_down_start",
+                    "t_end_cold",
                 ),
                 values,
             )
@@ -251,10 +252,10 @@ def test_n_mins_smoke():
         res = engine.calc_fixed_n_min_drives(mdl, 500, 4000)
         results.append(res)
 
-    ## They must all produce diffetrent value.
+    ## They must not be any null.
     #
-    for v1, v2 in itt.permutations(results, 2):
-        assert v1 != v2
+    for _i, nmins in enumerate(results):
+        assert (np.isfinite(i) for i in nmins)
 
 
 def test_calc_p_avail_in_gwots_smoketest(h5_accdb):

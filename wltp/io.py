@@ -9,6 +9,7 @@
 import contextvars
 from typing import List
 
+import numpy as np
 import pandas as pd
 
 from pandalone import mappings
@@ -35,6 +36,15 @@ def paths_collected(with_orig=False, tag=None) -> List[str]:
     See :meth:`mappings.Pstep._paths`.
     """
     return _root_pstep._paths(with_orig, tag)
+
+
+def getdval(mdl, key, default):
+    """Returns `default` if `key` not in `mdl` or value is None/NAN"""
+    if key in mdl:
+        val = mdl[key]
+        if val is not None and (not np.isscalar(val) or not np.isnan(val)):
+            return val
+    return default
 
 
 def veh_name(v):
