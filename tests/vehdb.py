@@ -22,6 +22,7 @@ from pandas.api.types import is_numeric_dtype
 from pandas.core.generic import NDFrame
 
 from pandalone.mappings import Pstep
+from wltp import datamodel
 from wltp import io as wio
 from wltp import utils
 
@@ -483,6 +484,40 @@ def load_n2v_gear_ratios(vehicle_iprops: Union[dict, pd.Series]):
     return [vehicle_iprops[f"ndv_{g}"] for g in range(1, ng + 1)]
 
 
+def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
+    """
+    :param props:
+        may have been renamed with :func:`accdb_renames()`
+    """
+    assert isinstance(n2vs, list)
+
+    mdl: dict = datamodel.get_model_base()
+    mdl["resistance_coeffs"] = [props.f0, props.f1, props.f2]
+    mdl["p_rated"] = props.get("n_rated", props.rated_power)
+    mdl["unladen_mass"] = props.get("unladen_mass", props.kerb_mass)
+    mdl["test_mass"] = props.test_mass
+    mdl["n_rated"] = props.get("n_rate", props.rated_speed)
+    mdl["n_idle"] = props.get("n_idle", props.idling_speed)
+    mdl["v_max"] = props.get("", props.v_max)
+    # mdl['n_min_drive']=           props.n_min_drive
+    # mdl['n_min_drive_set']=       props.n_min_drive_set
+    mdl["n_min_drive_up"] = props.n_min_drive_up
+    mdl["n_min_drive_down"] = props.n_min_drive_down
+    mdl["n_min_drive_start_up"] = props.n_min_drive_start_up
+    mdl["n_min_drive_start_down"] = props.n_min_drive_start_down
+    mdl["t_end_cold"] = props.t_end_start_phase
+    mdl["f_safety_margin"] = props.SM
+
+    renames = accdb_renames()
+    wot = wot.rename(renames, axis=1)
+    wot["n"] = wot.index
+    mdl["wot"] = wot
+
+    mdl["gear_ratios"] = n2vs
+
+    return mdl
+
+
 def run_pyalgo_on_Heinz_vehicle(
     h5, vehnum, props_group_suffix="prop", pwot_group_suffix="wot"
 ) -> Tuple[dict, pd.DataFrame, pd.DataFrame]:
@@ -500,30 +535,10 @@ def run_pyalgo_on_Heinz_vehicle(
 
     props, wot, n2vs = load_vehicle_accdb(h5, vehnum)
 
-    ## Map accdb columns: p --> 'Pwot'
-    wot = wot.rename({"Pwot": "p"}, axis=1)
-    wot["n"] = wot.index
-    wot = wot["p  Twot  ASM".split()]  # keep less columns to reduce h5db size.
-
-    input_model: dict = utils.yaml_loads(
-        f"""
-        gear_ratios:  {n2vs}
-        resistance_coeffs:
-        - {props.f0}
-        - {props.f1}
-        - {props.f2}
-        p_rated:      {props.rated_power}
-        unladen_mass: {props.kerb_mass}
-        test_mass:    {props.test_mass}
-        n_rated:      {props.rated_speed}
-        n_idle:       {props.idling_speed}
-        v_max:        {props.v_max}
-        f_safety_margin: {props.SM}
-        """
-    )
-    input_model["wot"] = wot
-
-    exp = Experiment(input_model)
+    mdl = mdl_from_accdb(props, wot, n2vs)
+    datamodel.validate_model(mdl, additional_properties=True)
+    exp = Experiment(mdl, skip_model_validation=True)
+    exp = Experiment(mdl)
     mdl = exp.run()
 
     ## Keep only *output* key-values, not to burden HDF data-model
