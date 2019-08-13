@@ -55,7 +55,7 @@ except ImportError:
 log = logging.getLogger(__name__)
 
 
-def get_model_base():
+def get_model_base() -> dict:
     """The base model for running a WLTC experiment.
 
     It contains some default values for the experiment
@@ -276,7 +276,7 @@ properties:
     title: minimum engine revolutions
     type:
     - array
-    - integer
+    - number
     - 'null'
     description: |2
       Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
@@ -319,61 +319,62 @@ properties:
   n_min_drive1:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive2_up:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive2_stand:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive2:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_set:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_up:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_up_start:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_down:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_down_start:
     description: see Annex 2-2.k
     type:
-    - integer
+    - number
     - 'null'
     exclusiveMinimum: 0
   t_end_cold:
     description: see Annex 2-2.k about n_mins
     type:
-    - integer
+    - number
+    - 'null'
     minimum: 0
   wot:
     title: wide open throttle curves
@@ -831,6 +832,7 @@ def model_validator(
     return validator
 
 
+## TODO: drop yield-error method, locality of errors is lost on debug.
 def validate_model(
     mdl,
     additional_properties=False,

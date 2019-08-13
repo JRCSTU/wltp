@@ -175,7 +175,7 @@ Schema
         title: minimum engine revolutions
         type:
         - array
-        - integer
+        - number
         - 'null'
         description: |
           Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
@@ -217,61 +217,62 @@ Schema
       n_min_drive1:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       n_min_drive2_up:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       n_min_drive2_stand:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       n_min_drive2:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       n_min_drive_set:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       n_min_drive_up:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       n_min_drive_up_start:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       n_min_drive_down:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       n_min_drive_down_start:
         description: see Annex 2-2.k
         type:
-        - integer
+        - number
         - 'null'
         exclusiveMinimum: 0
       t_end_cold:
         description: see Annex 2-2.k about n_mins
         type:
-        - integer
+        - number
+        - 'null'
         minimum: 0
       wot:
         title: wide open throttle curves

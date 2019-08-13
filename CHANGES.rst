@@ -44,7 +44,8 @@ TODOs
 * Update cmd-line; add UI front-ends.
 * Use a model-explorer to autocomplete excel-cells.
 * Automatically calculate masses from H & L vehicles.
-* datamodel: validate in 2 steps: jsonschema, populate missing values & validate
+* datamodel: validate in 2 steps: jsonschema, populate missing values & validate;
+  drop yield-error method, locality of errors is lost on debug.
 * datamodel: Enhance model-preprocessing by interleaving "octapus" merging stacked-models
   between validation stages.
 * datamodel: finalize data-schema (renaming columns and adding ``name`` fields in major blocks).
