@@ -13,12 +13,16 @@ found inside the source-distribution:
 * :file:`devtools/printwltcclass.py`
 * :file:`devtools/csvcolumns8to2.py`
 """
+import pandas as pd
+
+import wltp.io as wio
 
 
 def class_data_a():
     """
     Cycles for vehicles with :abbr:`PMR` > 34 W/kg and max-velocity < 120 km/h.
     """
+    c = wio.pstep_factory.get().cycle
 
     data = {
         "pmr_limits": [34, float("inf")],  ## PMR (low, high]
@@ -37,7 +41,7 @@ def class_data_a():
         },
         "checksum": 83496.9,
         "part_checksums": [11140.3, 16995.7, 25646.0, 29714.9],
-        "v_cycle": [
+        "v_cycle": pd.Series([
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 1.7, 5.4, 9.9, 13.1,
             16.9, 21.7, 26.0, 27.5, 28.1, 28.3, 28.8, 29.1, 30.8, 31.9, 34.1, 36.6, 39.1, 41.3, 42.5,
             43.3, 43.9, 44.4, 44.5, 44.2, 42.7, 39.9, 37.0, 34.6, 32.3, 29.0, 25.1, 22.2, 20.9, 20.4,
@@ -159,8 +163,9 @@ def class_data_a():
             79.1, 77.4, 75.1, 72.3, 69.1, 65.9, 62.7, 59.7, 57.0, 54.6, 52.2, 49.7, 46.8, 43.5, 39.9,
             36.4, 33.2, 30.5, 28.3, 26.3, 24.4, 22.5, 20.5, 18.2, 15.5, 12.3, 8.7, 5.2, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0
-        ],
+        ], name=c.v_cycle),
     }
+    data['v_cycle'].index.name = c.t
 
     return data
 
@@ -169,8 +174,9 @@ def class_data_b():
     """
     Cycles for vehicles with :abbr:`PMR` > 34 W/kg and max-velocity >= 120 km/h.
     """
+    c = wio.pstep_factory.get().cycle
 
-    cycle = [
+    cycle = pd.Series([
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 1.7, 5.4, 9.9, 13.1,
             16.9, 21.7, 26.0, 27.5, 28.1, 28.3, 28.8, 29.1, 30.8, 31.9, 34.1, 36.6, 39.1, 41.3, 42.5,
             43.3, 43.9, 44.4, 44.5, 44.2, 42.7, 39.9, 37.0, 34.6, 32.3, 29.0, 25.1, 22.2, 20.9, 20.4,
@@ -292,7 +298,8 @@ def class_data_b():
             79.1, 77.4, 75.1, 72.3, 69.1, 65.9, 62.7, 59.7, 57.0, 54.6, 52.2, 49.7, 46.8, 43.5, 39.9,
             36.4, 33.2, 30.5, 28.3, 26.3, 24.4, 22.5, 20.5, 18.2, 15.5, 12.3, 8.7, 5.2, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0
-    ]
+    ], name=c.v_cycle)
+    cycle.index.name = c.t
 
     data = class_data_a()
     data.update(

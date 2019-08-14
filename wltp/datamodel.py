@@ -731,7 +731,7 @@ def get_class_parts_limits(class_id: Union[str, int], mdl=None, edges=False):
     >>> cls_data = datamodel.get_wltc_data()['classes'][cls]
     >>> V = pd.DataFrame(cls_data['v_cycle'])
     >>> V.groupby(pd.cut(V.index, part_limits)).sum()
-                        0
+                  v_cycle
     (0, 589]      11162.2
     (589, 1022]   17054.3
     (1022, 1477]  24450.6
@@ -780,9 +780,7 @@ def get_class_v_cycle(class_id: Union[int, str], mdl=None) -> pd.Series:
     """
     cls = get_class(class_id)
     V = cls["v_cycle"]
-
-    V = pd.Series(V, name="v_cycle")
-    V.index.name = "t"
+    assert isinstance(V, pd.Series)
 
     return V
 
