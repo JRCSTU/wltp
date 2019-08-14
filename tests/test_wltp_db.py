@@ -922,7 +922,9 @@ def _run_the_experiments(
 
         veh["test_mass"] = row["test_mass"]
         veh["unladen_mass"] = row["kerb_mass"]
-        veh["resistance_coeffs"] = list(row["f0_real":"f2_real"])
+        veh["f0"] = row["f0_real"]
+        veh["f1"] = row["f1_real"]
+        veh["f2"] = row["f2_real"]
         veh["p_rated"] = row["rated_power"]
         veh["n_rated"] = row["rated_speed"]
         veh["n_idle"] = int(row["idling_speed"])

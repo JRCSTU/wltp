@@ -520,7 +520,9 @@ def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
     assert isinstance(n2vs, list)
 
     mdl: dict = datamodel.get_model_base()
-    mdl["resistance_coeffs"] = [props.f0, props.f1, props.f2]
+    mdl["f0"] = props.f0
+    mdl["f1"] = props.f1
+    mdl["f2"] = props.f2
     mdl["unladen_mass"] = props.get("unladen_mass", props.kerb_mass)
     mdl["test_mass"] = props.test_mass
     mdl["p_rated"] = props.get("p_rated", props.rated_power)

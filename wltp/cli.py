@@ -82,7 +82,9 @@ def main(argv=None):
             "n_idle":   950,
             "n_min":    None, # Can be overriden by manufacturer.
             "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
-            "resistance_coeffs":[100, 0.5, 0.04],
+            "f0": 100,
+            "f1": 0.5,
+            "f2": 0.04,
         }
 
     then the following examples:

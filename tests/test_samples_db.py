@@ -237,7 +237,9 @@ def _run_the_experiments(
 
         veh["test_mass"] = row["test_mass"]
         veh["unladen_mass"] = veh["test_mass"] - driver_weight
-        veh["resistance_coeffs"] = list(row["f0":"f2"])
+        veh["f0"] = row["f0"]
+        veh["f1"] = row["f1"]
+        veh["f2"] = row["f2"]
         veh["p_rated"] = row["rated_power"]
         veh["n_rated"] = row["rated_speed"]
         veh["n_idle"] = int(row["idling_speed"])

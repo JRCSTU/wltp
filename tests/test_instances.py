@@ -10,16 +10,17 @@ Testing of the pure-tree data (just dictionary & lists), without the Model/Exper
 """
 
 import json
-from wltp import utils
 import unittest
 from timeit import timeit
 
 import jsonschema
 import numpy as np
 import pandas as pd
+import pytest
 from jsonschema.exceptions import ValidationError
 
-from wltp import datamodel
+from wltp import datamodel, utils
+
 from .goodvehicle import goodVehicle
 
 
@@ -34,7 +35,9 @@ class InstancesTest(unittest.TestCase):
             "n_idle":  950,
             "n_min":   500,
             "gear_ratios":[120.5, 75, 50, 43, 33, 28],
-            "resistance_coeffs":[100, 0.5, 0.04]
+            "f0": 100,
+            "f1": 0.5,
+            "f2": 0.04
             %s
         }"""
 
@@ -227,9 +230,10 @@ class InstancesTest(unittest.TestCase):
 
     def test_default_resistance_coeffs_None(self):
         mdl = goodVehicle()
-        mdl["resistance_coeffs"] = None
+        mdl["f0"] = mdl["f1"] = mdl["f1"] = None
         mdl = datamodel.merge(datamodel.get_model_base(), mdl)
-        self.checkModel_valid(mdl)
+        with pytest.raises(ValidationError, match="None is not of type 'number'"):
+            self.checkModel_valid(mdl)
 
 
 if __name__ == "__main__":

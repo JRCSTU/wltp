@@ -193,27 +193,21 @@ Schema
         minItems: 3
         description: An array with the gear-ratios obtained by dividing engine-revolutions
           (1/min) by vehicle-velocity (km/h).
-      resistance_coeffs:
-        title: driving resistance coefficients
+      f0:
+        title: driving resistance coefficient f0
         type:
-        - 'null'
-        - array
-        items:
-          type: number
-        minItems: 3
-        maxItems: 3
-        description: |
-          The 3 driving resistance coefficients f0, f1, f2,
-          in N, N/(km/h), and N/(km/h)² respectively (Annex 4).
-    <BLANKLINE>
-          If not specified, they are determined based on `test_mass` from
-          a pre-calculated regression curve:
-    <BLANKLINE>
-              f0 = a00 * test_mass + a01,
-              f1 = a10 * test_mass + a11,
-              f2 = a20 * test_mass + a21,
-    <BLANKLINE>
-          where `a00, ..., a22` specified in `/params`.
+        - number
+        description: The driving resistance coefficient f0, in N (Annex 4).
+      f1:
+        title: driving resistance coefficient f1
+        type:
+        - number
+        description: The driving resistance coefficient f1, in N/(km/h) (Annex 4).
+      f2:
+        title: driving resistance coefficient f2
+        type:
+        - number
+        description: The driving resistance coefficient f2, in N/(km/h)² (Annex 4).
       n_min_drive1:
         description: see Annex 2-2.k
         type:

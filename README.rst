@@ -338,7 +338,9 @@ For instance:
     ...     "n_idle":       950,
     ...     "n_min":        None,                           ## Manufacturers my overridde it
     ...     "gear_ratios":         [120.5, 75, 50, 43, 37, 32],
-    ...     "resistance_coeffs":   [100, 0.5, 0.04],
+    ...     "f0":   100,
+    ...     "f1":   0.5,
+    ...     "f2":   0.04,
     ... }
     >>> mdl = datamodel.upd_default_load_curve(mdl)                   ## need some WOT
 
@@ -377,10 +379,10 @@ before running the experiment:
 
     >>> mdl = processor.model               ## Returns the validated model with filled-in defaults.
     >>> sorted(mdl)                         ## The "defaulted" model now includes the `params` branch.
-    ['driver_mass', 'f_downscale_decimals', 'f_downscale_threshold', 'f_inertial', 'f_n_clutch_gear2',
-     'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 'gear_ratios', 'n_idle', 'n_min', 'n_rated',
-     'p_rated', 'resistance_coeffs', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold',
-     'wltc_data', 'wot']
+    ['driver_mass', 'f0', 'f1', 'f2', 'f_downscale_decimals', 'f_downscale_threshold',
+     'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin',
+     'gear_ratios', 'n_idle', 'n_min', 'n_rated', 'p_rated', 'test_mass', 'unladen_mass',
+     'v_max', 'v_stopped_threshold', 'wltc_data', 'wot']
 
 
 Now you can run the experiment:
@@ -389,11 +391,12 @@ Now you can run the experiment:
 
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-    ['cycle_run', 'driver_mass', 'f_downscale', 'f_downscale_decimals', 'f_downscale_threshold',
-     'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin',
-     'g_vmax', 'gear_ratios', 'n95_high', 'n95_low', 'n_idle', 'n_max', 'n_max1', 'n_max2', 'n_max3',
-     'n_min', 'n_rated', 'n_vmax', 'p_rated', 'pmr', 'resistance_coeffs', 'test_mass', 'unladen_mass',
-     'v_max', 'v_stopped_threshold', 'wltc_class', 'wltc_data', 'wot', 'wots_vmax']
+    ['cycle_run', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
+     'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min',
+     'f_n_min_gear2', 'f_safety_margin', 'g_vmax', 'gear_ratios', 'n95_high', 'n95_low',
+     'n_idle', 'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_rated', 'n_vmax', 'p_rated',
+     'pmr', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class',
+     'wltc_data', 'wot', 'wots_vmax']
 
 
 

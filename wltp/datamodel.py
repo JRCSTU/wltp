@@ -295,27 +295,21 @@ properties:
     description:
       An array with the gear-ratios obtained by dividing engine-revolutions
       (1/min) by vehicle-velocity (km/h).
-  resistance_coeffs:
-    title: driving resistance coefficients
+  f0:
+    title: driving resistance coefficient f0
     type:
-    - 'null'
-    - array
-    items:
-      type: number
-    minItems: 3
-    maxItems: 3
-    description: |2
-      The 3 driving resistance coefficients f0, f1, f2,
-      in N, N/(km/h), and N/(km/h)² respectively (Annex 4).
-
-      If not specified, they are determined based on `test_mass` from
-      a pre-calculated regression curve:
-
-          f0 = a00 * test_mass + a01,
-          f1 = a10 * test_mass + a11,
-          f2 = a20 * test_mass + a21,
-
-      where `a00, ..., a22` specified in `/params`.
+    - number
+    description: The driving resistance coefficient f0, in N (Annex 4).
+  f1:
+    title: driving resistance coefficient f1
+    type:
+    - number
+    description: The driving resistance coefficient f1, in N/(km/h) (Annex 4).
+  f2:
+    title: driving resistance coefficient f2
+    type:
+    - number
+    description: The driving resistance coefficient f2, in N/(km/h)² (Annex 4).
   n_min_drive1:
     description: see Annex 2-2.k
     type:
@@ -861,7 +855,9 @@ def validate_model(
     ...     "n_idle":  950,
     ...     "n_min":   500,
     ...     "gear_ratios":[120.5, 75, 50, 43, 33, 28],
-    ...     "resistance_coeffs":[100, 0.5, 0.04],
+    ...     "f0": 100,
+    ...     "f1": 0.5,
+    ...     "f2": 0.04,
     ... })
     >>> mdl = upd_default_load_curve(mdl);
     >>> err_generator = validate_model(mdl, iter_errors=True)

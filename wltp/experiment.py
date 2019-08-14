@@ -135,10 +135,15 @@ class Experiment(object):
         n_idle = mdl["n_idle"]
         n_min_drive = mdl["n_min"]
         gear_ratios = mdl["gear_ratios"]
-        res_coeffs = mdl.get("resistance_coeffs")
-        if res_coeffs:
-            (f0, f1, f2) = res_coeffs
-        elif "resistance_coeffs_regression_curves" in mdl:
+        f0 = mdl.get("f0")
+        f1 = mdl.get("f1")
+        f2 = mdl.get("f2")
+        if all(f is not None for f in (f0, f1, f2)):
+            pass
+        elif (
+            all(f is None for f in (f0, f1, f2))
+            and "resistance_coeffs_regression_curves" in mdl
+        ):
             (f0, f1, f2) = vehicle.calc_default_resistance_coeffs(
                 test_mass, mdl["resistance_coeffs_regression_curves"]
             )
