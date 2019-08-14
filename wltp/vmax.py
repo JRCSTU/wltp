@@ -178,10 +178,9 @@ def calc_v_max(
     vmaxes = pd.Series(r.v_max for r in recs)
     vmax = vmaxes.max()
     if not np.isnan(vmax):
-        ## Scan from the bottom, AGAINST(!) the GTR,
-        #  becasue it maches better accdb.
+        ## Scan from the top, by the GTR.
         #
-        for rec_vmax in recs:
+        for rec_vmax in recs[::-1]:
             if rec_vmax.v_max == vmax:
                 return rec_vmax._replace(wot=gear_wots_df)
         assert False
