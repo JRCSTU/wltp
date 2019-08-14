@@ -356,8 +356,6 @@ Questions to Heinz
 
     - The "up" phase is also defined for V >= 1kmh, only, correct
       (but not stated in the GTR)?
-  - `t_end_start_phase` is not included in the test-scpreasheets.
-
 
 - VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20new%20vehicle.form.vbs>`_:
 
