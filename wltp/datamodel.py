@@ -788,7 +788,7 @@ def get_class_v_cycle(class_id: Union[int, str], mdl=None) -> pd.Series:
 def merge(a, b, path=[]):
     """'merges b into a"""
 
-    for key in b:
+    for key in b.keys():
         bv = b[key]
         if key in a:
             av = a[key]
