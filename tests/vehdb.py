@@ -484,6 +484,22 @@ def load_n2v_gear_ratios(vehicle_iprops: Union[dict, pd.Series]):
     return [vehicle_iprops[f"ndv_{g}"] for g in range(1, ng + 1)]
 
 
+def accdb_renames():
+    """
+    Renames to use accdb inputs (props, wots) into pyalgo to be used like::
+    
+        props.unstack().rename(accdb_prop_renames())
+    """
+    return {
+        "idling_speed": "n_idle",
+        "rated_speed": "n_rated",
+        "rated_power": "p_rated",
+        "kerb_mass": "unladen_mass",
+        "vehicle_class": "wltc_class",
+        "Pwot": "p",
+    }
+
+
 def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
     """
     :param props:
@@ -493,10 +509,10 @@ def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
 
     mdl: dict = datamodel.get_model_base()
     mdl["resistance_coeffs"] = [props.f0, props.f1, props.f2]
-    mdl["p_rated"] = props.get("n_rated", props.rated_power)
     mdl["unladen_mass"] = props.get("unladen_mass", props.kerb_mass)
     mdl["test_mass"] = props.test_mass
-    mdl["n_rated"] = props.get("n_rate", props.rated_speed)
+    mdl["p_rated"] = props.get("p_rated", props.rated_power)
+    mdl["n_rated"] = props.get("n_rated", props.rated_speed)
     mdl["n_idle"] = props.get("n_idle", props.idling_speed)
     mdl["v_max"] = props.get("", props.v_max)
     # mdl['n_min_drive']=           props.n_min_drive
@@ -616,19 +632,3 @@ def merge_db_vehicle_subgroups(
     ]
 
     return index_dfs[0] if len(index_dfs) == 1 else index_dfs
-
-
-def accdb_renames():
-    """
-    Renames to use accdb inputs (props, wots) into pyalgo to be used like::
-    
-        props.unstack().rename(accdb_prop_renames())
-    """
-    return {
-        "idling_speed": "n_idle",
-        "rated_speed": "n_rated",
-        "rated_power": "p_rated",
-        "kerb_mass": "unladen_mass",
-        "vehicle_class": "wltc_class",
-        "Pwot": "p",
-    }
