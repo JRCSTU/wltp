@@ -220,7 +220,7 @@ Schema
         - number
         - 'null'
         exclusiveMinimum: 0
-      n_min_drive2_stand:
+      n_min_drive2_decelstop:
         description: see Annex 2-2.k
         type:
         - number
