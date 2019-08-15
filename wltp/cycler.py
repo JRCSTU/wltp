@@ -410,14 +410,9 @@ class CycleBuilder:
 
         ## (p) rule
         #
-        p_req = cycle[c.p_req].to_frame()
-        p_avail = cycle[c.p_avail].sort_index(axis=1)
-        ok_p = p_avail.fillna(0).values >= p_req.fillna(0).values
-        ## 1st gear always p_capable
-        ok_p[:, 0] = True
-        ok_p = pd.DataFrame(
-            ok_p, columns=self.colidx_pairs2(c.p_ok, range(self.ng)), index=cycle[c.t]
-        )
+        p_req = cycle[c.p_req].fillna(0).values.reshape(-1, 1)
+        pidx_above_g2 = self.colidx_pairs(c.p_avail, gears_above_g2)
+        ok_p = cycle.loc[:, pidx_above_g2].fillna(0) >= p_req
 
         ## (a-MAX) rule
         #
