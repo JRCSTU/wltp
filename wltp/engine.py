@@ -482,7 +482,7 @@ NMinDrives = namedtuple(
     (
         "n_min_drive1",
         "n_min_drive2_up",
-        "n_min_drive2_decelstop",
+        "n_min_drive2_stopdecel",
         "n_min_drive2",
         "n_min_drive_set",
         "n_min_drive_up",
@@ -519,7 +519,7 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
     nmins = NMinDrives(
         n_min_drive1=n_idle,
         n_min_drive2_up=1.15 * n_idle,
-        n_min_drive2_decelstop=n_idle,
+        n_min_drive2_stopdecel=n_idle,
         n_min_drive2=0.9 * n_idle,
         n_min_drive_set=n_min_drive_set,
         n_min_drive_up=n_min_drive_up,

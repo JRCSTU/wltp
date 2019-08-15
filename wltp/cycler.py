@@ -117,11 +117,11 @@ class PhaseMarker:
             col |= col.shift()
         return col
 
-    def _identify_last_decel_before_stop(self, cycle):
+    def _identify_decel_before_stop(self, cycle):
         last_decel_sample_before_stop = cycle.decel & cycle.stop
         decels = cycle.decel
         decels_grouper = (decels != decels.shift()).cumsum()
-        decelstop = (
+        stopdecel = (
             decels.groupby(decels_grouper)
             .transform(
                 lambda decel_group: decel_group.count()
@@ -131,7 +131,7 @@ class PhaseMarker:
             .gt(0)
         )
 
-        return decelstop
+        return stopdecel
 
     def add_phase_markers(
         self, cycle: pd.DataFrame, V: pd.Series, A: pd.Series
@@ -170,7 +170,7 @@ class PhaseMarker:
         ## Annex 2-2.k (n_min_drive).
         cycle[c.up] = phase(A >= self.up_threshold)
 
-        cycle[c.decelstop] = self._identify_last_decel_before_stop(cycle)
+        cycle[c.stopdecel] = self._identify_decel_before_stop(cycle)
 
         cycle.columns = pd.MultiIndex.from_product(
             (cycle.columns, ("",)), names=("item", "gear")
@@ -369,27 +369,31 @@ class CycleBuilder:
     ):
         """
         Heavy lifting calculations for "initial gear described in Annex 2: 2.k, 3.2, 3.3 & 3.5.
-        
+
         .. NOTE::
-            Prefer calling higher-level :func:`add_allowed_n_flags()`, but 
+            Prefer calling higher-level :func:`add_allowed_n_flags()`, but
             keept it public, for testability & experimentation.
 
-        Conditions consolidated & ordered like that:
+        Conditions consolidated & ordered like that::
 
-        ```
-          RULE      CONDITION                ALLOWED GEAR           COMMENTS
-        ==========  =======================  =====================  ========================================
-        p                  p_avail >= p_req  g > 2                  # 3.5
-        a-MAX                   n ≤ n95_max  g < g_vmax             # 3.3
-        b-MAX               n ≤ n_max_cycle  g_vmax ≤ g             # 3.3
-        min-up/dn       n_mid_drive_set ≤ n  g > 2                  # 3.3 & 2.k (up/dn based on A ≷ -0.1389)
-        min-2iii           0.9 * n_idle ≤ n  g = 2                  # 3.3 & 2.k
-        min-2ii      n_idle ≤ n, decel-stop  g = 2                  # 3.3 & 2.k
-        min-2i          1.15 * n_idle  ≤  n  g = 2 <-- 1            # 3.3 & 2.k (driveability-rule !??)
-        c                            always  g = 1,                 # 3.3 & & 2.k.1 (n ≤ n95_max also apply)
-        c                        n < n_idle  n/clutch modifs                                          
-        0                 v < 1, n = n_idle  g = 0                  # 3.2, but start-from_standstill
-        ```
+          0  RULE      CONDITION                ALLOWED GEAR           COMMENTS
+          ==========  =======================  =====================  ============================================
+          p                  p_avail >= p_req  g > 2                  # 3.5
+
+                                        ... AND ...
+
+          a-MAX                   n ≤ n95_max  g < g_vmax             # 3.3
+          b-MAX               n ≤ n_max_cycle  g_vmax ≤ g             # 3.3
+
+                                        ... AND ...
+
+          min-up/dn       n_mid_drive_set ≤ n  g > 2                  # 3.3 & 2.k (up/dn on A ≷ -0.1389, hot/cold)
+          min-2ii       n_idle ≤ n, stopdecel  g = 2                  # 3.3 & 2.k (stopdecel)
+          min-2iii           0.9 * n_idle ≤ n  g = 2 + clutch          # 3.3 & 2.k
+          min-2i          1.15 * n_idle  ≤  n  g = 2 <-- 1            # 3.3 & 2.k (NOT HERE, needs init-gear!??)
+          c                            always  g = 1,                 # 3.3 & & 2.k.1 (n ≤ n95_max also apply)
+          c                        n < n_idle  n/clutch modifs
+          0                 v < 1, n = n_idle  g = 0                  # 3.2, but start-from_standstill
         """
         c = wio.pstep_factory.get().cycle
         cycle = self.cycle
@@ -469,20 +473,20 @@ class CycleBuilder:
 
         ## (min-2ii, min-2iiI) rules:
         #
-        decelstop = cycle[c.decelstop]
+        stopdecel = cycle[c.stopdecel]
         nidx_g2 = (c.n, g2)
         #
         # min-2ii           n_idle ≤ n, decel-stop  g = 2
         #
-        ok_min_n_g2 = cycle.loc[~decelstop, nidx_g2] >= nmins.n_min_drive2
-        ok_min_n_g2.name = (c.ok_min_n_g2, g2)
+        ok_min_n_g2_stopdecel = (
+            cycle.loc[stopdecel, nidx_g2] >= nmins.n_min_drive2_stopdecel
+        )
+        ok_min_n_g2_stopdecel.name = (c.ok_min_n_g2_stopdecel, g2)  # it's a series
         #
         # min-2iii rule:     0.9 * n_idle ≤ n  g = 2
         #
-        ok_min_n_g2_decelstop = (
-            cycle.loc[decelstop, nidx_g2] >= nmins.n_min_drive2_decelstop
-        )
-        ok_min_n_g2_decelstop.name = (c.ok_min_n_g2_decelstop, g2)
+        ok_min_n_g2 = cycle.loc[~stopdecel, nidx_g2] >= nmins.n_min_drive2
+        ok_min_n_g2.name = (c.ok_min_n_g2, g2)  # it's a series
 
         flag_columns = (
             ok_p,
@@ -492,8 +496,8 @@ class CycleBuilder:
             ok_min_n_colds_dns,
             ok_min_n_hots_ups,
             ok_min_n_hots_dns,
-            ok_min_n_g2.to_frame(),
-            ok_min_n_g2_decelstop.to_frame(),
+            ok_min_n_g2,
+            ok_min_n_g2_stopdecel,
         )
         return pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0)
 

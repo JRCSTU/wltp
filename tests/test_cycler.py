@@ -45,16 +45,16 @@ def test_cycle_init_flag(wltc_class, exp, gwots):
 
 
 @pytest.mark.parametrize("wltc_class", range(4))
-def test_decelstop(wltc_class):
+def test_stopdecel(wltc_class):
     V = datamodel.get_class_v_cycle(wltc_class)
     cb = CycleBuilder(V)
     cycle = cycler.PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
     n_stops = (cycle["stop"].astype(int).diff() < 0).sum(None)
     n_decels = (cycle["decel"].astype(int).diff() < 0).sum(None)
-    n_decelstops = (cycle["decelstop"].astype(int).diff() < 0).sum(None)
-    assert n_decelstops < n_decels
+    n_stopdecels = (cycle["stopdecel"].astype(int).diff() < 0).sum(None)
+    assert n_stopdecels < n_decels
     ##  The initial stop has no deceleration before it BUT no diff >0 either!
-    assert n_decelstops == n_stops
+    assert n_stopdecels == n_stops
 
 
 # TODO: move `t_end_cold` checkj in validations pipeline.
