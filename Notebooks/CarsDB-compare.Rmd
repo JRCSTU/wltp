@@ -370,3 +370,11 @@ if not b[ix].empty:
 ax2.grid(which='both')
 ax2.legend()
 ```
+
+# Museum
+
+```{python}
+## Is clutch-undefined only used for gear 1?  NO< also for g2.
+display(c1.loc[c1.clutch=='undefined', 'gear'].value_counts())
+#display(c1.loc[c1.clutch=='undefined', ['v', 'a', 'g_max', 'clutch']])
+```
