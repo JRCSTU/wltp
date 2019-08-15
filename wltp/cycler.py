@@ -27,6 +27,16 @@ Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
 
 
+def timelens(cond, shift=1):
+    """Include earlier + later values for some condition index.
+    
+    Utility for when reviewing cycle trace "events", to look at them in context.
+    """
+    for i in range(shift):
+        cond |= cond.shift(i - 1) | cond.shift(i + 1)
+    return cond
+
+
 def calc_acceleration(V: Column) -> np.ndarray:
     """
     Acordign to formula in Annex 2-3.1
@@ -218,17 +228,19 @@ class CycleBuilder:
 
     gnames: List[str]
 
-    def colidx_pairs(self, item: Union[str, Seq[str]], gnames: Seq[str] = None):
+    def colidx_pairs(self, item: Union[str, Seq[str]], gnames: Iterable[str] = None):
         if gnames is None:
             gnames = self.gnames
         if isinstance(item, str):
             item = (item,)
         return pd.MultiIndex.from_tuples(itt.product(item, gnames))
 
-    def colidx_pairs1(self, item: str, gear_idx: Seq[int]):
+    def colidx_pairs1(self, item: str, gear_idx: Iterable[int]):
+        """Using gear indixes ie 0, 1, 2"""
         return self.colidx_pairs(item, [self.gnames[i] for i in gear_idx])
 
-    def colidx_pairs2(self, item: str, gears: Seq[int]):
+    def colidx_pairs2(self, item: str, gears: Iterable[int]):
+        """Using gear ids ie 1, 2, 3"""
         return self.colidx_pairs(item, [self.gnames[i - 1] for i in gears])
 
     def flatten_columns(self, columns):
@@ -270,8 +282,8 @@ class CycleBuilder:
             all sharing the same time-index  The last one is assumed to be the
             "target" velocity for the rest of the cycle methods.
 
-            If they are a (dataframe, series, series), they are assigned in 
-            :ivar:`cycle`, :ivar:`V` and :ivar:`A` respectively, and 
+            If they are a (dataframe, series, series), they are assigned in
+            :ivar:`cycle`, :ivar:`V` and :ivar:`A` respectively, and
             no other procesing happens.
         """
         c = wio.pstep_factory.get().cycle
@@ -350,3 +362,116 @@ class CycleBuilder:
                 yield ValidationError(
                     f"`t_end_cold`({t_end_cold}) must finish on a cycle stop(v={self.V.iloc[t_end_cold]})!"
                 )
+
+    def calc_allowed_n(
+        self, *, g_vmax: int, n95_max: float, n_max_cycle: float, nmins: NMinDrives
+    ):
+        """
+        Conditions consolidated & ordered, as interpreted from Annex 2: 2.k, 3.2, 3.3 & 3.5:
+
+        ```
+          RULE      CONDITION                ALLOWED GEAR           COMMENTS
+        ==========  =======================  =====================  ========================================
+        p                  p_avail >= p_req  g > 2                  # 3.5
+        a-MAX                   n ≤ n95_max  g < g_vmax             # 3.3
+        b-MAX               n ≤ n_max_cycle  g_vmax ≤ g             # 3.3
+        min-up/dn       n_mid_drive_set ≤ n  g > 2                  # 3.3 & 2.k (up/dn based on A ≷ -0.1389)
+        min-2iii           0.9 * n_idle ≤ n  g = 2                  # 3.3 & 2.k
+        c                            always  g = 1,                 # 3.3 & & 2.k.1 (n ≤ n95_max also apply)
+        c                        n < n_idle  n/clutch modifs                                          
+        min-2ii      n_idle ≤ n, decel-stop  g = 2                  # 3.3 & 2.k
+        min-2i          1.15 * n_idle  ≤  n  g = 2 <-- 1            # 3.3 & 2.k (driveability-rule !??)
+        0                 v < 1, n = n_idle  g = 0                  # 3.2, but start-from_standstill
+        ```
+        """
+        c = wio.pstep_factory.get().cycle
+        cycle = self.cycle
+        assert all(i for i in (g_vmax, n95_max, n_max_cycle, nmins)), (
+            "Null inputs:",
+            g_vmax,
+            n95_max,
+            n_max_cycle,
+        )
+        gears_above_g2 = range(2 + 1, self.ng + 1)
+        gears_below_gvmax = range(1, g_vmax)
+        gears_from_gvmax = range(g_vmax, self.ng + 1)
+
+        ## (p) rule
+        #
+        p_req = cycle[c.p_req].to_frame()
+        p_avail = cycle[c.p_avail].sort_index(axis=1)
+        ok_p = p_avail.fillna(0).values >= p_req.fillna(0).values
+        ## 1st gear always p_capable
+        ok_p[:, 0] = True
+        ok_p = pd.DataFrame(
+            ok_p, columns=self.colidx_pairs2(c.p_ok, range(self.ng)), index=cycle[c.t]
+        )
+
+        ## (a-MAX) rule
+        #
+        nidx_below_gvmax = self.colidx_pairs2(c.n, gears_below_gvmax)
+        ok_max_n_gears_below_gvmax = cycle.loc[:, nidx_below_gvmax] < n95_max
+        ok_max_n_gears_below_gvmax.columns = self.colidx_pairs2(
+            c.ok_max_n_gears_below_gvmax, gears_below_gvmax
+        )
+
+        ## (b-MAX) rule
+        #
+        nidx_above_gvmax = self.colidx_pairs2(c.n, gears_from_gvmax)
+        # if nidx_above_gvmax:
+        ok_max_n_gears_from_gvmax = cycle.loc[:, nidx_above_gvmax] < n_max_cycle
+        ok_max_n_gears_from_gvmax.columns = self.colidx_pairs2(
+            c.ok_max_n_gears_from_gvmax, gears_from_gvmax
+        )
+
+        ## (min up/dn cold/hot) rules
+        #
+        nidx_above_g2 = self.colidx_pairs2(c.n, gears_above_g2)
+        t_colds = cycle[c.t] <= nmins.t_end_cold
+        t_hots = ~t_colds
+        a_ups = cycle[c.up]
+        a_dns = a_ups
+
+        ok_min_n_colds_ups = (
+            cycle.loc[t_colds & a_ups, nidx_above_g2] >= nmins.n_min_drive_up_start
+        )
+        ok_min_n_colds_ups.columns = self.colidx_pairs2(
+            c.ok_min_n_colds_ups, gears_above_g2
+        )
+
+        ok_min_n_colds_dns = (
+            cycle.loc[t_colds & a_dns, nidx_above_g2] >= nmins.n_min_drive_dn_start
+        )
+        ok_min_n_colds_dns.columns = self.colidx_pairs2(
+            c.ok_min_n_colds_dns, gears_above_g2
+        )
+
+        ok_min_n_hots_ups = (
+            cycle.loc[t_hots & a_ups, nidx_above_g2] >= nmins.n_min_drive_up_start
+        )
+        ok_min_n_hots_ups.columns = self.colidx_pairs2(
+            c.ok_min_n_hots_ups, gears_above_g2
+        )
+
+        ok_min_n_hots_dns = (
+            cycle.loc[t_hots & a_dns, nidx_above_g2] >= nmins.n_min_drive_dn_start
+        )
+        ok_min_n_hots_dns.columns = self.colidx_pairs2(
+            c.ok_min_n_hots_dns, gears_above_g2
+        )
+
+        ## Append flags into cycle
+        #
+        ok_n = pd.concat(
+            (
+                ok_p,
+                ok_max_n_gears_below_gvmax,
+                ok_max_n_gears_from_gvmax,
+                ok_min_n_colds_ups,
+                ok_min_n_colds_dns,
+                ok_min_n_hots_ups,
+                ok_min_n_hots_dns,
+            )
+        )
+        cycle = pd.concat((cycle, ok_n), axis=1)
+        # return ok_n
