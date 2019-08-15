@@ -256,7 +256,7 @@ Schema
         - number
         - 'null'
         exclusiveMinimum: 0
-      n_min_drive_down_start:
+      n_min_drive_dn_start:
         description: see Annex 2-2.k
         type:
         - number
