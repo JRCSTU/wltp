@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 
 def timelens(cond, shift=1):
     """Include earlier + later values for some condition index.
-    
+
     Utility for when reviewing cycle trace "events", to look at them in context.
     """
     for i in range(shift):
@@ -117,19 +117,25 @@ class PhaseMarker:
             col |= col.shift()
         return col
 
-    def _identify_decel_before_stop(self, cycle):
-        last_decel_sample_before_stop = cycle.decel & cycle.stop
-        decels = cycle.decel
-        decels_grouper = (decels != decels.shift()).cumsum()
-        stopdecel = (
-            decels.groupby(decels_grouper)
-            .transform(
-                lambda decel_group: decel_group.count()
-                if (decel_group & last_decel_sample_before_stop).any()
-                else 0
-            )
-            .gt(0)
-        )
+    def _accel_after_init(self, cycle, c_accel, c_init):
+        assert c_accel in cycle and c_init in cycle, locals()
+
+        def count_good_rows(group):
+            # print(group.index.min(),group.index.max(), (group[c_accel] & group[c_init]).any(None), '\n', group)
+            return group.count() if group[c_init].any(None) else 0
+
+        repeats_grouper = (cycle[c_accel] != cycle[c_accel].shift()).cumsum()
+        initaccel = cycle.groupby(repeats_grouper).transform(count_good_rows) > 0
+
+        return initaccel
+
+    def _decel_before_stop(self, decels, stops):
+        def count_good_rows(group):
+            return group.count() if (group & last_decel_sample_before_stop).any() else 0
+
+        last_decel_sample_before_stop = decels & stops
+        repeats_grouper = (decels != decels.shift()).cumsum()
+        stopdecel = decels.groupby(repeats_grouper).transform(count_good_rows) > 0
 
         return stopdecel
 
@@ -150,8 +156,15 @@ class PhaseMarker:
             A,
         )
 
-        ## Mark start from standstill, Annex 2-3.2 about.
+        ## Init phase (start from standstill, Annex 2-3.2) starts
+        #  for any v > 0 (not v > 0.1 kmh),
+        #  so must not use the pre-calculated accel/stop phases below.
+        #
+        cycle[c.accel_raw] = A > 0
         cycle[c.init] = (V == 0) & (A == 0) & (A.shift(-1) != 0)
+        # cycle[c.initaccel] = self._accel_after_init(
+        #     cycle[[c.accel_raw, c.init]], c.accel_raw, c.init
+        # )
 
         ## Annex 2-4
         #
@@ -170,7 +183,7 @@ class PhaseMarker:
         ## Annex 2-2.k (n_min_drive).
         cycle[c.up] = phase(A >= self.up_threshold)
 
-        cycle[c.stopdecel] = self._identify_decel_before_stop(cycle)
+        cycle[c.stopdecel] = self._decel_before_stop(cycle[c.decel], cycle[c.stop])
 
         cycle.columns = pd.MultiIndex.from_product(
             (cycle.columns, ("",)), names=("item", "gear")
@@ -189,8 +202,6 @@ class PhaseMarker:
         :param wltc_parts:
             must include edges (see :func:`~datamodel.get_class_parts_limits()`)
         """
-        c = wio.pstep_factory.get().cycle
-
         assert all(i is not None for i in (cycle, wltc_parts)), (
             "Null in inputs:",
             cycle,
@@ -414,7 +425,7 @@ class CycleBuilder:
 
         ## (p) rule
         #
-        p_req = cycle[c.p_req].fillna(0).values.reshape(-1, 1)
+        p_req = cycle[c.p_req].fillna(1).values.reshape(-1, 1)
         pidx_above_g2 = self.colidx_pairs(c.p_avail, gears_above_g2)
         ok_p = cycle.loc[:, pidx_above_g2].fillna(0) >= p_req
 
@@ -437,11 +448,11 @@ class CycleBuilder:
 
         ## (min up/dn cold/hot) rules
         #
-        nidx_above_g2 = self.colidx_pairs(c.n, gears_above_g2)
         t_colds = cycle[c.t] <= nmins.t_end_cold
         t_hots = ~t_colds
         a_ups = cycle[c.up]
         a_dns = ~a_ups
+        nidx_above_g2 = self.colidx_pairs(c.n, gears_above_g2)
 
         ok_min_n_colds_ups = (
             cycle.loc[t_colds & a_ups, nidx_above_g2] >= nmins.n_min_drive_up_start
@@ -488,6 +499,8 @@ class CycleBuilder:
         ok_min_n_g2 = cycle.loc[~stopdecel, nidx_g2] >= nmins.n_min_drive2
         ok_min_n_g2.name = (c.ok_min_n_g2, g2)  # it's a series
 
+        # FIXME: missing n<min_drive for g1
+
         flag_columns = (
             ok_p,
             ok_max_n_gears_below_gvmax,
@@ -499,32 +512,68 @@ class CycleBuilder:
             ok_min_n_g2,
             ok_min_n_g2_stopdecel,
         )
-        return pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0)
+        flags = pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0)
+        flags.columns.names = ("item", "gear")
+
+        return flags
+
+    def _combine_gear_flags(self, flags):
+        c = wio.pstep_factory.get().cycle
+
+        flagcols = flags.columns
+
+        and_flags = []
+        if c.p_ok in flagcols:
+            and_flags.append(flags[c.p_ok])
+
+        # Only one of n-max rules apply for every gear.
+        assert (c.ok_max_n_gears_below_gvmax in flags) ^ (
+            (c.ok_max_n_gears_from_gvmax in flags)
+        ), flagcols
+        if c.ok_max_n_gears_below_gvmax in flagcols:
+            # a regular gear...
+            and_flags.append(flags[c.ok_max_n_gears_below_gvmax])
+        else:
+            # an overrdive gear...
+            and_flags.append(flags[c.ok_max_n_gears_from_gvmax])
+
+        if c.ok_min_n_colds_ups in flagcols:  # not g1, g2
+            and_flags.append(
+                (
+                    flags[c.ok_min_n_colds_ups]
+                    | flags[c.ok_min_n_colds_dns]
+                    | flags[c.ok_min_n_hots_ups]
+                    | flags[c.ok_min_n_hots_dns]
+                ).fillna(False)
+            )
+        elif c.ok_min_n_g2 in flagcols:
+            and_flags.append(flags[c.ok_min_n_g2] | flags[c.ok_min_n_g2_stopdecel])
+
+        final_flags = and_flags[False].fillna(False)
+        assert isinstance(
+            final_flags, pd.DataFrame
+        )  # bc there is still the 2nd level "gear"
+        for i in and_flags[1:]:
+            assert isinstance(i, pd.DataFrame)  # ... bc the same as above
+            final_flags &= i.fillna(False)
+
+        g = flagcols[0][1]
+        final_flags.columns = [(c.ok_n_final, g)]
+
+        return final_flags
 
     def combine_allowed_n_flags(self, allowed_n_flags: pd.Series):
         """
         ORs together all N-allowed flags.
 
         .. NOTE::
-            Prefer calling higher-level :func:`add_allowed_n_flags()`, but 
+            Prefer> calling higher-level :func:`add_allowed_n_flags()`, but
             keept it public, for testability & experimentation.
         """
-        c = wio.pstep_factory.get().cycle
 
-        def combine_2_flags(col1, col2):
-            return col1.fillna(False) | col2.fillna(False)
-
-        def combine_gear_flags(flags):
-            g = flags.columns.levels[1][0]
-
-            combined_flags = fnt.reduce(
-                combine_2_flags, (i[1] for i in flags.iteritems())
-            )
-            combined_flags.name = (c.ok_n_final, g)
-
-            return combined_flags
-
-        final_ok_n = allowed_n_flags.groupby(axis=1, level=1).apply(combine_gear_flags)
+        final_ok_n = allowed_n_flags.groupby(axis=1, level="gear").apply(
+            self._combine_gear_flags
+        )
 
         return final_ok_n
 
@@ -533,7 +582,7 @@ class CycleBuilder:
         Calculates & appends into cycle allowed n
 
         :param keep_flags:
-            whether to keep intermediary flag columns, 
+            whether to keep intermediary flag columns,
             or just the final decision for each gear.
         """
         final_ok_n = self.combine_allowed_n_flags(allowed_n_flags)
