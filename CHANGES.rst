@@ -338,49 +338,48 @@ v0.0.0, 11-Dec-2013: Inception stage
 
 Questions to Heinz
 ==================
-- n_min:
+n_min:
+------
+- In `F calc gearshifts single vehicle.form.vbs(line: 11590) 
+  <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20calc%20gearshifts%20single%20vehicle.form.vbs#L11590>`_
+  
+  - why is it checking the next sample after the gear-shift if it is still 2?::
 
-  - GTR 2.g has a conflict between `ng` and  `ng_vmax`: the formula says `ng`
-    while the "legend" below speaks only about `ng_vmax`.
-    The later makes sense from engineering standpoint and also stacks betters
-    against accdb results.
+        If rstbe!g_max = 1 And rstce!g_max = 2 And rstde!g_max = 2 And rstae!ndv_2 * rstce!v < 1.15 * rstae!idling_speed Then
 
-    - So the formula actually must become :math:`(n/v)(ng_{\textbf{vmax}}) \times V_{max,vehicle}`,
-      correct?
-    - Related to Q on v_max "ties", below, should in those cases consider
-      the "from the lower gear achieving v_max", to assume the same logic?
+  - Is this written in the GTR?
+  - Don't these kind of checks belong to driveability-rules??
 
-  - What is the meaning of the -0.1389 threshold in Annex 2-2.k?
-    Is it used anywhere in the accdb?
-  - Regarding the exact boundaries of the "up" phase, is it based on the same logic as
-    for accel/decel/cruise phases of Annex 2-4, correct?
+- Regarding the -0.1389 `n_min_up` threshold in Annex 2-2.k, i cannot find its use in the accdb?
+- Regarding the exact boundaries of the "up" phase, is it based on the same logic as
+  for accel/decel/cruise phases of Annex 2-4, correct?  Specifically, 
+  does it also end the last sample (including it)?
 
-    - The "up" phase is also defined for V >= 1kmh, only, correct
-      (but not stated in the GTR)?
 
-- VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20new%20vehicle.form.vbs>`_:
-
+VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20new%20vehicle.form.vbs>`_:
+---------------------------------------------------------------------------------------------------------------------------------------------
   - Is this the `v_max` used for class 3a/b decision?
-  - L3358-L3360: is this rounding needed because of
-    accumulation of rounding errors?
+  - L3358-L3360: is this rounding needed because of `accumulation of rounding errors
+    <https://stackoverflow.com/a/3448855/548792>`_?
+    (since this n-value is derived from rounded v-values)
   - L2835:
-  - The GTR reaches only down to `ng-2` while accdb reached `ng-3`.
+  - While searching for `v_max`, the GTR asks to reach down to `ng-2` only,
 
-    - Why?
-    - Why some times reach down to ng-3 others ng-2, etc?
-    - Why not simply scan from top for max-v?
-    - Is it possible a lower gear to have lower v_max and next lower to have v_max high again?
-    - Is there a 3-geared car with v_max@gear-1?
+    - Why accdb almost always reaches down to `ng-3`?
+    - Why is it reaching sometimes down to ng-3, and others down to ng-2?
+    - Is it possible that a lower gear can have lower `v_max` and next lower to have `v_max` high again?  NO
+    - Is there a 3-geared car with v_max@gear-1?  NO
+    - So would a method that starts scanning from top and stops on the first `v_max` value 
+      that is lower than the previous (and get the prevous) work?
 
   - There are 5 cases where both top gears can reach the same `v_max`/
     Accdb seems to take the lower one, but the GTR suggest the opposite
 
-    - Which is the vmax-gear on ties?
-    -From which one should derive `n_min_3`?
 
-  - Cannot match accdb `v_max` for vehicles 42, 48, 52, 53?
+Downscale: 
+----------
 
-- Downscale: vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
+- vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
   while the GTR write downscale only if that threshold excheeded;  why?
 - p_avail: case 48 seems like ASM has been used in the 1st 4 values,
   but all ASM values are 0.  Why?::
@@ -411,7 +410,8 @@ Questions to Heinz
 
     How is that possible?
 
-- Driveability rules:
+Driveability rules:
+-------------------
 
   - Why is `acc`, `dec` & `cruise` calculated on the "japanese" acceleration trace `a2`?
     What is this 0.278 as threshold value they are using?
