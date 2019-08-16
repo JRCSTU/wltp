@@ -1,0 +1,207 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,Rmd
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.1'
+      jupytext_version: 1.2.1
+  kernelspec:
+    display_name: Python 3
+    language: python
+    name: python3
+---
+
+Running a cycle for a vehicle in the h5db, step-by-step.
+
+```{python}
+## To autoreload codein python files here.
+# %load_ext autoreload
+# %autoreload 2
+
+## Add %%black at the top of a cell, and re-evaluate it, 
+# to format it before git-commits, and ease diffs.
+# %load_ext blackcellmagic
+```
+
+```{python}
+from typing import Union, List, Callable, Any, Sequence as Seq
+import io
+import itertools as itt
+import logging
+from pathlib import Path, PurePosixPath as P
+import sys
+
+from columnize import columnize
+import numpy as np
+import pandas as pd
+from pandas import HDFStore, IndexSlice as idx
+from pandas.core.generic import NDFrame
+from matplotlib import pyplot as plt
+from pandalone.mappings import Pstep
+import qgrid
+
+import wltp
+from wltp.experiment import Experiment
+from wltp import datamodel, io as wio, engine, vmax, vehicle, cycler
+
+## Add tests/ into `sys.path` to import `vehdb` module.
+#
+proj_dir = str(Path(wltp.__file__).parents[1] / "tests")
+if proj_dir not in sys.path:
+    sys.path.insert(0, proj_dir)
+
+import vehdb
+
+idx = pd.IndexSlice
+log = logging.getLogger("VMax.ipynb")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s",
+    datefmt="%Y-%m-%d,%H:%M:%S",
+)
+
+pd.set_option("display.max_columns", 64)
+```
+
+```{python}
+h5 = "VehData/WltpGS-msaccess.h5"
+prop, wot, n2vs = vehdb.load_vehicle_accdb(h5, 1)
+acc_cycle = vehdb.load_vehicle_nodes(h5, 1, 'cycle')
+```
+
+```{python}
+print(list(prop.index))
+```
+
+```{python}
+#renames = vehdb.accdb_renames()
+#prop = prop.rename(renames)
+mdl = vehdb.mdl_from_accdb(prop, wot, n2vs)
+datamodel.validate_model(mdl, additional_properties='true')
+wot = mdl['wot']
+```
+
+```{python}
+print(list(acc_cycle.columns))
+print(list(mdl.keys()))
+```
+
+```{python}
+gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
+gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
+```
+
+```{python}
+V = datamodel.get_class_v_cycle(3)
+```
+
+```{python}
+cb = cycler.CycleBuilder(V)
+pm = cycler.PhaseMarker()
+cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
+cb.cycle.select_dtypes(bool).sum()
+```
+
+```{python}
+# %pdb on
+```
+
+```{python}
+wltc_parts = datamodel.get_class_parts_limits(3, edges=True)
+cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
+```
+
+```{python}
+t_cold_end = 470  # gap for all classes
+for err in cb.validate_nims_t_cold_en(t_cold_end, wltc_parts):
+    raise err
+```
+
+```{python}
+kr = 1.03
+SM = 0.1
+cb.cycle['p_req'] = vehicle.calc_power_required(cb.V, cb.A, prop.test_mass, prop.f0, prop.f1, prop.f2, kr)
+```
+
+```{python}
+cb.add_wots(gwots)
+```
+
+```{python}
+acc_cycle = vehdb.load_vehicle_nodes(h5, 8, 'cycle')
+print(list(acc_cycle.columns))
+```
+
+```{python}
+## INPUTS testing N_OK selection
+#
+c = wio.pstep_factory.get().cycle
+
+cycle = cb.cycle
+
+ng = 6
+n95_max = engine.calc_n95(wot, mdl["n_rated"], mdl["p_rated"])[0]
+v_max_cycle = cb.V.max()
+vmax_rec = vmax.calc_v_max(wot, n2vs, mdl["f0"], mdl["f1"], prop["f2"], 0.1)
+g_vmax = vmax_rec.g_vmax
+n2v_vmax = n2vs[g_vmax - 1]
+n_max_cycle = v_max_cycle * n2v_vmax
+n_max_cycle = v_max_cycle * n2v_vmax
+nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
+```
+
+```{python}
+n_ok = cb.calc_allowed_n_flags(g_vmax=g_vmax, n95_max=n95_max, n_max_cycle=n_max_cycle, nmins=nmins)
+n_ok.sum()
+```
+
+```{python}
+n_ok = cb.calc_allowed_n_flags(g_vmax=g_vmax, n95_max=n95_max, n_max_cycle=n_max_cycle, nmins=nmins)
+n_ok.sum()
+```
+
+```{python}
+cb.combine_allowed_n_flags(n_ok).sum()
+```
+
+```{python}
+n_ok.head(100)
+```
+
+## Museum
+
+```{python}
+## The only place where gear=0 with clutch dissengaged.
+acc_cycle.loc[(acc_cycle.gear == 0) & (acc_cycle.clutch != 'engaged, gear lever in neutral'), ['gear', 'clutch']]
+```
+
+```{python}
+## Is clutch-undefined only used for gear 1?
+acc_cycle.loc[cycler.timelens(acc_cycle.clutch=='undefined'), ['v', 'a', 'gear', 'clutch']]
+```
+
+```{python}
+## Show that acc/dec/cruise are "gradient" with threshold 0.278.
+acc_cycle.loc[:100, ['a2', 'acc', 'cruise', 'dec']].astype(int).plot()
+acc_cycle.loc[:100, 'v'].plot(secondary_y=True)
+```
+
+```{python}
+cycle = pd.DataFrame({
+           'v': [0,0,3,3,5,8,8,8,6,4,5,6,6],
+       'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0],
+      'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0],
+       'decel': [0,0,0,0,0,0,0,1,1,1,0,0,0],
+          'up': [0,0,1,1,1,1,1,1,0,1,1,1,1],
+        'init': [1,0,0,0,0,0,0,0,0,0,0,0,0],
+})
+pm = cycler.PhaseMarker()
+def phase(cond):
+    return pm._identify_conjecutive_truths((cycle.v > 1) & cond, True).astype(int)
+A = (-cycle.v.astype(int)).diff(-1)  # GTR's acceleration definition
+assert (phase(A > 0) == cycle.accel).all()
+assert (phase(A == 0) == cycle.cruise).all()
+assert (phase(A < 0) == cycle.decel).all()
+```
