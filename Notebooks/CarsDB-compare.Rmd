@@ -378,3 +378,10 @@ ax2.legend()
 display(c1.loc[c1.clutch=='undefined', 'gear'].value_counts())
 #display(c1.loc[c1.clutch=='undefined', ['v', 'a', 'g_max', 'clutch']])
 ```
+
+```{python}
+# c2 = c2.loc[c2.index != 'v116']
+# p2 = p2.loc[p2.index != 'v116']
+# p2.to_excel('pyalgo_props-1.0.0.dev10.xlsx')
+# c2.to_excel('pyalgo_cycles-1.0.0.dev10.xlsx')
+```
