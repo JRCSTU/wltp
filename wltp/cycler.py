@@ -122,10 +122,13 @@ class PhaseMarker:
 
         def count_good_rows(group):
             # print(group.index.min(),group.index.max(), (group[c_accel] & group[c_init]).any(None), '\n', group)
-            return group.count() if group[c_init].any(None) else 0
+            return group.count() if group.any() else 0
 
         repeats_grouper = (cycle[c_accel] != cycle[c_accel].shift()).cumsum()
-        initaccel = cycle.groupby(repeats_grouper).transform(count_good_rows) > 0
+        initaccel = (
+            cycle[c_init].shift(1).groupby(repeats_grouper).transform(count_good_rows)
+            > 0
+        )
 
         return initaccel
 
@@ -161,10 +164,6 @@ class PhaseMarker:
         #  so must not use the pre-calculated accel/stop phases below.
         #
         cycle[c.accel_raw] = A > 0
-        cycle[c.init] = (V == 0) & (A == 0) & (A.shift(-1) != 0)
-        # cycle[c.initaccel] = self._accel_after_init(
-        #     cycle[[c.accel_raw, c.init]], c.accel_raw, c.init
-        # )
 
         ## Annex 2-4
         #
@@ -176,14 +175,19 @@ class PhaseMarker:
 
         #
         cycle[c.stop] = ~RUN
-        cycle[c.accel] = phase(A > 0)
+        cycle[c.accel] = phase(cycle[c.accel_raw])
         cycle[c.cruise] = phase(A == 0)
-        cycle[c.decel] = phase(A < 0)
+        cycle[c.decel] = phase(~cycle[c.accel_raw])
+
+        cycle[c.init] = (V == 0) & (A == 0) & (A.shift(-1) != 0)
+
+        cycle[c.initaccel] = self._accel_after_init(
+            cycle[[c.accel_raw, c.init]], c.accel_raw, c.init
+        )
+        cycle[c.stopdecel] = self._decel_before_stop(cycle[c.decel], cycle[c.stop])
 
         ## Annex 2-2.k (n_min_drive).
         cycle[c.up] = phase(A >= self.up_threshold)
-
-        cycle[c.stopdecel] = self._decel_before_stop(cycle[c.decel], cycle[c.stop])
 
         cycle.columns = pd.MultiIndex.from_product(
             (cycle.columns, ("",)), names=("item", "gear")
