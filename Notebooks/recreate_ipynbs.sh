@@ -7,4 +7,3 @@
 jupytext --to ipynb Notebooks/*.Rmd
 # Fix "ipynb" later than Rmd" error on launch
 rm Notebooks/*.Rmd
-

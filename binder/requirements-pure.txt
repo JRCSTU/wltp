@@ -13,6 +13,7 @@ jsonschema
 jupytext
 matplotlib
 pandalone >= 0.3
+papermill
 pip
 qgrid
 ruamel.yaml
