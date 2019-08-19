@@ -16,6 +16,7 @@ import papermill as pm
     params=[
         pytest.param("CarsDB-accdb.ipynb", marks=pytest.mark.slower),
         pytest.param("CarsDB-pyalgo.ipynb", marks=pytest.mark.slow),
+        "RunVehicle.ipynb",
         "CarsDB-compare.ipynb",
         "VMax.ipynb",
     ]

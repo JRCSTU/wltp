@@ -13,7 +13,8 @@ jupyter:
     name: python3
 ---
 
-Running a cycle for a vehicle in the h5db, step-by-step.
+## Develop `wltp/cycler.py`
+(WIP) run a vehicle from the h5db, step-by-step.
 
 ```{python}
 ## To autoreload codein python files here.
@@ -105,10 +106,6 @@ cb.cycle.select_dtypes(bool).sum()
 ```
 
 ```{python}
-# %pdb on
-```
-
-```{python}
 wltc_parts = datamodel.get_class_parts_limits(3, edges=True)
 cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
 ```
@@ -183,7 +180,7 @@ acc_cycle.loc[cycler.timelens(acc_cycle.clutch=='undefined'), ['v', 'a', 'gear',
 ```
 
 ```{python}
-## Show that acc/dec/cruise are "gradient" with threshold 0.278.
+## AccDB: note that acc/dec/cruise are "gradients", with threshold 0.278.
 acc_cycle.loc[:100, ['a2', 'acc', 'cruise', 'dec']].astype(int).plot()
 acc_cycle.loc[:100, 'v'].plot(secondary_y=True)
 ```

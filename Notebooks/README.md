@@ -11,9 +11,11 @@ Notebooks for processing UNECE's WLTP reference implementations in Python and MS
 - The original files of the algo (document & MSAccess db).
 - Notebooks to process the vehicle data, build HDF5-dbm launch the algo, etc::
 
+      RunVehicle.ipynb            sample code to run sample vehicle data
       CarsDB-msaccess.ipynb       populate h5db with Heinz test-car input & output
       CarsDB-pyalgo.ipynb         populate h5db with results from the old python code
       CarsDB-compare.ipynb        print comparison results for cars in the h5db
+      CarsDB-cycler.ipynb         (WIP) run a vehicle from the h5db, step-by-step.
       HDF5-APIh-help.ipynb        list usefull HDF5 methods
       ../tests/vehdb.py           support code for reading & validating vehicles from HD5 files
       *.Rmd                       R-markdown git-tracked files paired with *.ipynb notebooks

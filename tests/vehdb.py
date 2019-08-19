@@ -568,7 +568,6 @@ def run_pyalgo_on_Heinz_vehicle(
     mdl = mdl_from_accdb(props, wot, n2vs)
     datamodel.validate_model(mdl, additional_properties=True)
     exp = Experiment(mdl, skip_model_validation=True)
-    exp = Experiment(mdl)
     mdl = exp.run()
 
     ## Keep only *output* key-values, not to burden HDF data-model
