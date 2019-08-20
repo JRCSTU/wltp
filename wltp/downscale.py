@@ -14,7 +14,6 @@ import pandas as pd
 from . import io as wio
 from .invariants import round1
 
-
 log = logging.getLogger(__name__)
 
 
@@ -148,6 +147,15 @@ def downscale_by_recursing(V, f_downscale, phases):
 def downscale_by_scaling(V: pd.Series, f_downscale, phases) -> pd.Series:
     """
     Multiply the UP/DOWN phases with 2 factors (no recurse, against the Spec).
+
+    Example, for class-3:
+
+    .. math::
+
+        V_{dsc}[1520:1725] = V[1520] + (V[1520:1725] - V[1520]) \times (1 - f_{dsc})
+
+        V_{dsc}[1526:1743] = V[1743] + (V[1526:1743] - V[1743]) \times f_{corr}
+
     """
     V_DSC = V.copy()
     (t0, t1, t2) = phases
