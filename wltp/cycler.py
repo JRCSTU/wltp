@@ -99,12 +99,15 @@ class PhaseMarker:
                     'init': [1,0,0,0,0,0,0,0,0,0,0,0,0],
             })
             pm = PhaseMarker()
+            
             def phase(cond):
                 return pm._identify_conjecutive_truths((cycle.v > 1) & cond, True).astype(int)
+
+            RUN = cycle['v'] >= 1
             A = (-cycle.v).diff(-1)  # GTR's acceleration definition
-            assert (phase(A > 0) == cycle.accel).all()
-            assert (phase(A == 0) == cycle.cruise).all()
-            assert (phase(A < 0) == cycle.decel).all()
+            assert (phase(RUN & (A > 0)) == cycle.accel).all()
+            assert (phase(RUN & (A == 0)) == cycle.cruise).all()
+            assert (phase(RUN & (A < 0)) == cycle.decel).all()
 
         Adapted from: https://datascience.stackexchange.com/a/22105/79324
         """
@@ -171,24 +174,24 @@ class PhaseMarker:
         RUN = cycle[c.run]
         #
         def phase(cond):
-            return self._identify_conjecutive_truths(RUN & cond, right_edge=True)
+            return self._identify_conjecutive_truths(cond, right_edge=True)
 
         ## Driveability rule phases
         #
         cycle[c.stop] = ~RUN
-        cycle[c.accel] = phase(cycle[c.accel_raw])
-        cycle[c.cruise] = phase(A == 0)
-        cycle[c.decel] = phase(~cycle[c.accel_raw])
+        cycle[c.accel] = phase(RUN & cycle[c.accel_raw])
+        cycle[c.cruise] = phase(RUN & (A == 0))
+        cycle[c.decel] = phase(RUN & ~cycle[c.accel_raw])
 
         cycle[c.init] = (V == 0) & (A == 0) & (A.shift(-1) != 0)
 
-        cycle[c.initaccel] = self._accel_after_init(
-            cycle[[c.accel_raw, c.init]], c.accel_raw, c.init
+        cycle[c.initaccel] = phase(
+            self._accel_after_init(cycle[[c.accel_raw, c.init]], c.accel_raw, c.init)
         )
         cycle[c.stopdecel] = self._decel_before_stop(cycle[c.decel], cycle[c.stop])
 
         ## Annex 2-2.k (n_min_drive).
-        cycle[c.up] = phase(A >= self.up_threshold)
+        cycle[c.up] = phase(RUN & (A >= self.up_threshold))
 
         cycle.columns = pd.MultiIndex.from_product(
             (cycle.columns, ("",)), names=("item", "gear")
@@ -408,7 +411,7 @@ class CycleBuilder:
           MINn-ud/hc      n_mid_drive_set ≤ n  g > 2                  # 3.3 & 2k (up/dn on A ≷ -0.1389, hot/cold)
           MINn-2ii      n_idle ≤ n, stopdecel  g = 2                  # 3.3 & 2k (stopdecel)
           MINn-2iii          0.9 * n_idle ≤ n  g = 2 + clutch         # 3.3 & 2k
-          c_init                    initaccel  g = 1                  # 3.2 & 3.3c (also n ≤ n95_max apply)
+          c_initacell               initaccel  g = 1                  # 3.2 & 3.3c (also n ≤ n95_max apply)
           c_a            1.0 ≤ v & !initaccel  g = 1                  # 3.3c (also n ≤ n95_max apply)
 
                                       ... NOT HERE:
@@ -492,12 +495,12 @@ class CycleBuilder:
             c.ok_min_n_hots_dns, gears_above_g2
         )
 
-        ## (min-2ii, min-2iiI) rules:
+        ## Gear-2 rules:
         #
         stopdecel = cycle[c.stopdecel]
         nidx_g2 = (c.n, g2)
         #
-        # min-2ii           n_idle ≤ n, decel-stop  g = 2
+        # MINn-2ii           n_idle ≤ n, decel-stop  g = 2
         #
         ok_min_n_g2_stopdecel = (
             cycle.loc[stopdecel, nidx_g2] >= nmins.n_min_drive2_stopdecel
@@ -512,12 +515,18 @@ class CycleBuilder:
         ok_min_n_g2 = cycle.loc[~stopdecel, nidx_g2] >= nmins.n_min_drive2
         ok_min_n_g2.name = (c.ok_min_n_g2, g2)  # it's a shorter series
 
-        ## (c) rule min_n for for g1
+        ## Gear-1 rules
         #
         g1 = self.gnames[1 - 1]  # note this is not a list!
-        nidx_g1 = (c.n, g1)
         #
-        ok_min_n_g1 = cycle[nidx_g1] >= nmins.n_min_drive1
+        # (c_initaccel) rule
+        #
+        ok_min_n_g1_initaccel = cycle[c.initaccel].copy()
+        ok_min_n_g1_initaccel.name = (c.ok_min_n_g1_initaccel, g1)
+        #
+        # c_a rule:     1.0 ≤ v & !initaccel
+        #
+        ok_min_n_g1 = ~cycle[c.initaccel] & cycle[c.run]
         ok_min_n_g1.name = (c.ok_min_n_g1, g1)  # it's a series
 
         flag_columns = (
@@ -535,6 +544,7 @@ class CycleBuilder:
             ok_min_n_g2_stopdecel,
             # .. AND ...
             ok_min_n_g1,
+            ok_min_n_g1_initaccel,
         )
         flags = (
             pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0) * 1
@@ -587,7 +597,9 @@ class CycleBuilder:
             assert c.ok_min_n_g1 not in flagcols, flagcols
             flags_to_AND.append(gflags[c.ok_min_n_g2] | gflags[c.ok_min_n_g2_stopdecel])
         elif c.ok_min_n_g1 in flagcols:
-            flags_to_AND.append(gflags[c.ok_min_n_g1])
+            flags_to_AND.append(gflags[c.ok_min_n_g1] | gflags[c.ok_min_n_g1_initaccel])
+        else:
+            assert False, ("Illegal falgs:", gflags)
 
         final_flags = flags_to_AND[0]
 
