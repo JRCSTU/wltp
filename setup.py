@@ -224,6 +224,7 @@ setup(
         "pandalone >=0.3",
         "ruamel.yaml",
         "scipy",
+        "toolz",
     ],
     tests_require=test_reqs,
     extras_require={

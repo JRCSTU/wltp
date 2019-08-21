@@ -21,5 +21,6 @@ scipy
 seaborn
 sphinx
 tables              # called `pytables` in conda
+toolz
 xlrd
 xonsh               # (optional) a python-like shell
