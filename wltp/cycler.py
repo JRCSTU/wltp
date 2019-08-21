@@ -441,6 +441,7 @@ class CycleBuilder:
         p_req = cycle[c.p_req].fillna(1).values.reshape(-1, 1)
         pidx_above_g2 = self.colidx_pairs(c.p_avail, gears_above_g2)
         ok_p = cycle.loc[:, pidx_above_g2].fillna(0) >= p_req
+        ok_p.columns = self.colidx_pairs(c.ok_p, gears_above_g2)
 
         ## (MAXn-a) rule
         #
@@ -565,8 +566,8 @@ class CycleBuilder:
         gflags = gflags.fillna(0).astype(bool)
 
         flags_to_AND = []
-        if c.p_ok in flagcols:
-            flags_to_AND.append(gflags[c.p_ok])
+        if c.ok_p in flagcols:
+            flags_to_AND.append(gflags[c.ok_p])
 
         # Check only one of n-max rules apply for every gear.
         assert (c.ok_max_n_gears_below_gvmax in gflags) ^ (
