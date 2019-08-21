@@ -15,13 +15,69 @@ from timeit import timeit
 
 import jsonschema
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
 import pytest
 from jsonschema.exceptions import ValidationError
+from toolz import itertoolz as itz
 
 from wltp import datamodel, utils
 
 from .goodvehicle import goodVehicle
+
+
+def _calc_wltc_checksums(offset, length):
+    from wltp.cycles import crc_velocity
+
+    def calc_v_sums(V, prev=(0, 0)):
+        return (prev[0] + V.sum(), crc_velocity(V, prev[1]))
+
+    results = []
+
+    def calc_class_sums(cl):
+        V = datamodel.get_class_v_cycle(cl)
+        cycle_parts = datamodel.get_class_parts_limits(cl, edges=True)
+
+        prev = (0, 0)
+        for partno, (start, end) in enumerate(itz.sliding_window(2, cycle_parts)):
+            start += offset
+            end += offset + length
+            sums = calc_v_sums(V.loc[start:end])
+            cums = calc_v_sums(V.loc[start:end], prev)
+            results.append((cl, f"part-{partno+1}", *sums, *cums))
+            prev = cums
+
+        return results
+
+    for cl in datamodel.get_class_names():
+        calc_class_sums(cl)
+
+    df = pd.DataFrame(
+        results, columns="class part SUM CRC cumSUM cumCRC".split()
+    ).set_index(["class", "part"])
+
+    return df
+
+
+def test_wltc_checksums():
+    from wltp.cycles import cycle_checksums
+
+    dfs_dict = {
+        "V": _calc_wltc_checksums(0, 0),
+        "V_A1": _calc_wltc_checksums(0, -1),
+        "V_A2": _calc_wltc_checksums(1, -1),
+    }
+    import io
+
+    dfs = pd.concat(dfs_dict.values(), keys=dfs_dict.keys(), axis=1)
+
+    def dfs_to_csv(dfs):
+        sio = io.StringIO()
+        dfs.to_csv(sio, sep="\t")
+        return "\n" + sio.getvalue()
+
+    # print(dfs_to_csv(dfs))
+    npt.assert_allclose(dfs, cycle_checksums())
 
 
 class InstancesTest(unittest.TestCase):
