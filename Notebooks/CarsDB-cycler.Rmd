@@ -101,13 +101,20 @@ V = datamodel.get_class_v_cycle(3)
 ```{python}
 cb = cycler.CycleBuilder(V)
 pm = cycler.PhaseMarker()
-cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
-cb.cycle.select_dtypes(bool).sum()
 ```
 
 ```{python}
 wltc_parts = datamodel.get_class_parts_limits(3, edges=True)
 cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
+```
+
+```{python}
+cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
+cb.cycle.select_dtypes(bool).sum()
+```
+
+```{python}
+cb.cycle.iloc[7:66]
 ```
 
 ```{python}
@@ -132,7 +139,7 @@ print(list(acc_cycle.columns))
 ```
 
 ```{python}
-## INPUTS testing N_OK selection
+## INPUTS testing ok_rules2 selection
 #
 c = wio.pstep_factory.get().cycle
 
@@ -150,21 +157,42 @@ nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
 ```
 
 ```{python}
-n_ok = cb.calc_allowed_n_flags(g_vmax=g_vmax, n95_max=n95_max, n_max_cycle=n_max_cycle, nmins=nmins)
-n_ok.sum()
+ok_rules = cb.calc_initial_gear_flags(g_vmax=g_vmax, n95_max=n95_max, n_max_cycle=n_max_cycle, nmins=nmins)
+ok_rules.sum()
 ```
 
 ```{python}
-n_ok = cb.calc_allowed_n_flags(g_vmax=g_vmax, n95_max=n95_max, n_max_cycle=n_max_cycle, nmins=nmins)
-n_ok.sum()
+ok_gear = cb.combine_initial_gear_flags(ok_rules)
+ok_gear.sum()
 ```
 
 ```{python}
-cb.combine_allowed_n_flags(n_ok).sum()
+from ipywidgets import interact, interactive, fixed, interact_manual, widgets
+
+max_zoom = 24
+ok_rules2 = ok_rules.fillna(False) * (np.arange(ok_rules.shape[1]) + 1)
+ok_gear2 = ok_gear * (np.arange(ok_gear.shape[1]) + ok_rules.shape[1] + 1)
+
+@interact(gear=cb.gnames, zoom=(1, max_zoom, 1), pan=(0, max_zoom, 1))
+def plot_gear(gear='g2', zoom=15, pan=10):
+    ax = None
+    mul_ok_gear = ok_rules2.shape[1] + 2
+    
+    clen = len(cb.cycle)
+    viewlen = int(clen / zoom)
+    offset = int(pan * (clen - viewlen) / max_zoom)
+    scale = idx[offset : offset + viewlen]
+    ax = cb.cycle.loc[scale, "v_cycle"].plot(ax=ax, secondary_y=True, linewidth=4, figsize=(16,9))
+    ax = ok_rules2.loc[:, idx[:, gear]].iloc[scale].plot(ax=ax)
+    ax = (ok_gear2 * mul_ok_gear).loc[scale].plot(ax=ax, linewidth=3)
 ```
 
 ```{python}
-n_ok.head(100)
+cb.add_columns(ok_rules, ok_gear)
+```
+
+```{python}
+cb.cycle.iloc[-20:]
 ```
 
 ## Museum

@@ -173,6 +173,7 @@ class PhaseMarker:
         def phase(cond):
             return self._identify_conjecutive_truths(RUN & cond, right_edge=True)
 
+        ## Driveability rule phases
         #
         cycle[c.stop] = ~RUN
         cycle[c.accel] = phase(cycle[c.accel_raw])
@@ -379,36 +380,41 @@ class CycleBuilder:
                     f"`t_end_cold`({t_end_cold}) must finish on a cycle stop(v={self.V.iloc[t_end_cold]})!"
                 )
 
-    def calc_allowed_n_flags(
+    def calc_initial_gear_flags(
         self, *, g_vmax: int, n95_max: float, n_max_cycle: float, nmins: NMinDrives
-    ):
+    ) -> pd.DataFrame:
         """
-        Heavy lifting calculations for "initial gear described in Annex 2: 2.k, 3.2, 3.3 & 3.5.
+        Heavy lifting calculations for "initial gear" rules of Annex 2: 2.k, 3.2, 3.3 & 3.5.
 
-        .. NOTE::
-            Prefer calling higher-level :func:`add_allowed_n_flags()`, but
-            keept it public, for testability & experimentation.
-
+        :return:
+            a dataframe with *nullable* dtype ``Int8`` (for storage efficiency)
+            and hierarchical columns, with `1` wherever a gear is allowed,
+            for a specific rule (different sets of rules per gear).
+            Push it to :meth:`combine_initial_gear_flags()`.
+            
         Conditions consolidated & ordered like that::
 
           0  RULE      CONDITION                ALLOWED GEAR           COMMENTS
           ==========  =======================  =====================  ============================================
-          p                  p_avail >= p_req  g > 2                  # 3.5
+          ok-p               p_avail >= p_req  g > 2                  # 3.5
 
                                         ... AND ...
 
-          a-MAX                   n ≤ n95_max  g < g_vmax             # 3.3
-          b-MAX               n ≤ n_max_cycle  g_vmax ≤ g             # 3.3
+          MAXn-a                  n ≤ n95_max  g < g_vmax             # 3.3
+          MAXn-b              n ≤ n_max_cycle  g_vmax ≤ g             # 3.3
 
                                         ... AND ...
 
-          min-up/dn       n_mid_drive_set ≤ n  g > 2                  # 3.3 & 2.k (up/dn on A ≷ -0.1389, hot/cold)
-          min-2ii       n_idle ≤ n, stopdecel  g = 2                  # 3.3 & 2.k (stopdecel)
-          min-2iii           0.9 * n_idle ≤ n  g = 2 + clutch          # 3.3 & 2.k
-          min-2i          1.15 * n_idle  ≤  n  g = 2 <-- 1            # 3.3 & 2.k (NOT HERE, needs init-gear!??)
-          c                            always  g = 1,                 # 3.3 & & 2.k.1 (n ≤ n95_max also apply)
-          c                        n < n_idle  n/clutch modifs
-          0                 v < 1, n = n_idle  g = 0                  # 3.2, but start-from_standstill
+          MINn-ud/hc      n_mid_drive_set ≤ n  g > 2                  # 3.3 & 2k (up/dn on A ≷ -0.1389, hot/cold)
+          MINn-2ii      n_idle ≤ n, stopdecel  g = 2                  # 3.3 & 2k (stopdecel)
+          MINn-2iii          0.9 * n_idle ≤ n  g = 2 + clutch         # 3.3 & 2k
+          c_init                    initaccel  g = 1                  # 3.2 & 3.3c (also n ≤ n95_max apply)
+          c_a            1.0 ≤ v & !initaccel  g = 1                  # 3.3c (also n ≤ n95_max apply)
+
+                                      ... NOT HERE:
+          min-2i          1.15 * n_idle  ≤  n  g = 2 <-- 1            # 3.3 & 2k, driveabilty (needs init-gear)
+          c_b                      n < n_idle  n/clutch modifs        # 3.3 & 2k1, driveability!
+          stop              !initaccel, v < 1  g = 0, n = n_idle      # 3.2
         """
         c = wio.pstep_factory.get().cycle
         cycle = self.cycle
@@ -427,13 +433,13 @@ class CycleBuilder:
         gears_below_gvmax = self.gnames[: g_vmax - 1]
         gears_from_gvmax = self.gnames[g_vmax - 1 :]
 
-        ## (p) rule
+        ## (ok-p) rule
         #
         p_req = cycle[c.p_req].fillna(1).values.reshape(-1, 1)
         pidx_above_g2 = self.colidx_pairs(c.p_avail, gears_above_g2)
         ok_p = cycle.loc[:, pidx_above_g2].fillna(0) >= p_req
 
-        ## (a-MAX) rule
+        ## (MAXn-a) rule
         #
         nidx_below_gvmax = self.colidx_pairs(c.n, gears_below_gvmax)
         ok_max_n_gears_below_gvmax = cycle.loc[:, nidx_below_gvmax] < n95_max
@@ -441,7 +447,7 @@ class CycleBuilder:
             c.ok_max_n_gears_below_gvmax, gears_below_gvmax
         )
 
-        ## (b-MAX) rule
+        ## (MAXn-b) rule
         #
         nidx_above_gvmax = self.colidx_pairs(c.n, gears_from_gvmax)
         # if nidx_above_gvmax:
@@ -450,7 +456,7 @@ class CycleBuilder:
             c.ok_max_n_gears_from_gvmax, gears_from_gvmax
         )
 
-        ## (min up/dn cold/hot) rules
+        ## (MINn-ud/hc) rules
         #
         t_colds = cycle[c.t] <= nmins.t_end_cold
         t_hots = ~t_colds
@@ -496,104 +502,130 @@ class CycleBuilder:
         ok_min_n_g2_stopdecel = (
             cycle.loc[stopdecel, nidx_g2] >= nmins.n_min_drive2_stopdecel
         )
-        ok_min_n_g2_stopdecel.name = (c.ok_min_n_g2_stopdecel, g2)  # it's a series
+        ok_min_n_g2_stopdecel.name = (
+            c.ok_min_n_g2_stopdecel,
+            g2,
+        )  # it's a shorter series
         #
         # min-2iii rule:     0.9 * n_idle ≤ n  g = 2
         #
         ok_min_n_g2 = cycle.loc[~stopdecel, nidx_g2] >= nmins.n_min_drive2
-        ok_min_n_g2.name = (c.ok_min_n_g2, g2)  # it's a series
+        ok_min_n_g2.name = (c.ok_min_n_g2, g2)  # it's a shorter series
 
-        # FIXME: missing n<min_drive for g1
+        ## (c) rule min_n for for g1
+        #
+        g1 = self.gnames[1 - 1]  # note this is not a list!
+        nidx_g1 = (c.n, g1)
+        #
+        ok_min_n_g1 = cycle[nidx_g1] >= nmins.n_min_drive1
+        ok_min_n_g1.name = (c.ok_min_n_g1, g1)  # it's a series
 
         flag_columns = (
             ok_p,
+            # .. AND ...
             ok_max_n_gears_below_gvmax,
             ok_max_n_gears_from_gvmax,
+            # .. AND ...
             ok_min_n_colds_ups,
             ok_min_n_colds_dns,
             ok_min_n_hots_ups,
             ok_min_n_hots_dns,
+            # .. AND ...
             ok_min_n_g2,
             ok_min_n_g2_stopdecel,
+            # .. AND ...
+            ok_min_n_g1,
         )
-        flags = pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0)
+        flags = (
+            pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0) * 1
+        ).astype("Int8")
         flags.columns.names = ("item", "gear")
 
         return flags
 
-    def _combine_gear_flags(self, flags):
+    def _combine_gear_flags(self, gflags):
+        """
+
+        :param gflags:
+            the initial-gear rule flags grouped for one specific gear
+        """
         c = wio.pstep_factory.get().cycle
 
-        flagcols = flags.columns
+        flagcols = gflags.columns
+        gflags = gflags.fillna(0).astype(bool)
 
-        and_flags = []
+        flags_to_AND = []
         if c.p_ok in flagcols:
-            and_flags.append(flags[c.p_ok])
+            flags_to_AND.append(gflags[c.p_ok])
 
-        # Only one of n-max rules apply for every gear.
-        assert (c.ok_max_n_gears_below_gvmax in flags) ^ (
-            (c.ok_max_n_gears_from_gvmax in flags)
+        # Check only one of n-max rules apply for every gear.
+        assert (c.ok_max_n_gears_below_gvmax in gflags) ^ (
+            (c.ok_max_n_gears_from_gvmax in gflags)
         ), flagcols
-        if c.ok_max_n_gears_below_gvmax in flagcols:
+        max_n_colname = (
             # a regular gear...
-            and_flags.append(flags[c.ok_max_n_gears_below_gvmax])
-        else:
+            c.ok_max_n_gears_below_gvmax
+            if c.ok_max_n_gears_below_gvmax in flagcols
             # an overrdive gear...
-            and_flags.append(flags[c.ok_max_n_gears_from_gvmax])
+            else c.ok_max_n_gears_from_gvmax
+        )
+        flags_to_AND.append(gflags[max_n_colname])
 
         if c.ok_min_n_colds_ups in flagcols:  # not g1, g2
-            and_flags.append(
+            assert (
+                c.ok_min_n_g2 not in flagcols and c.ok_min_n_g1 not in flagcols
+            ), flagcols
+            flags_to_AND.append(
                 (
-                    flags[c.ok_min_n_colds_ups]
-                    | flags[c.ok_min_n_colds_dns]
-                    | flags[c.ok_min_n_hots_ups]
-                    | flags[c.ok_min_n_hots_dns]
-                ).fillna(False)
+                    gflags[c.ok_min_n_colds_ups]
+                    | gflags[c.ok_min_n_colds_dns]
+                    | gflags[c.ok_min_n_hots_ups]
+                    | gflags[c.ok_min_n_hots_dns]
+                )
             )
         elif c.ok_min_n_g2 in flagcols:
-            and_flags.append(flags[c.ok_min_n_g2] | flags[c.ok_min_n_g2_stopdecel])
+            assert c.ok_min_n_g1 not in flagcols, flagcols
+            flags_to_AND.append(gflags[c.ok_min_n_g2] | gflags[c.ok_min_n_g2_stopdecel])
+        elif c.ok_min_n_g1 in flagcols:
+            flags_to_AND.append(gflags[c.ok_min_n_g1])
 
-        final_flags = and_flags[False].fillna(False)
-        assert isinstance(
-            final_flags, pd.DataFrame
-        )  # bc there is still the 2nd level "gear"
-        for i in and_flags[1:]:
-            assert isinstance(i, pd.DataFrame)  # ... bc the same as above
-            final_flags &= i.fillna(False)
+        final_flags = flags_to_AND[0]
+
+        # It is a dataframe bc there is still the 2nd level "gear"
+        assert isinstance(final_flags, pd.DataFrame)
+        for i in flags_to_AND[1:]:
+            assert isinstance(i, pd.DataFrame), i  # ... bc the same as above
+            assert i.shape[1] == 1, i
+            final_flags &= i
+
+        assert (
+            isinstance(final_flags, pd.DataFrame) and final_flags.shape[1] == 1
+        ), final_flags
+
+        ## To series, or else, groupby does nothing!!
+        final_flags = final_flags.iloc[:, 0]
 
         g = flagcols[0][1]
-        final_flags.columns = [(c.ok_n_final, g)]
+        final_flags.name = g
 
+        ## To series, or else, groupby does nothing!!
         return final_flags
 
-    def combine_allowed_n_flags(self, allowed_n_flags: pd.Series):
+    def combine_initial_gear_flags(self, flags: pd.Series):
+        """Merge together all N-allowed flags using AND+OR boolean logic. """
+        c = wio.pstep_factory.get().cycle
+
+        final_ok = flags.groupby(axis=1, level="gear").apply(self._combine_gear_flags)
+        final_ok.columns = pd.MultiIndex.from_product(((c.ok_gear,), final_ok.columns))
+
+        return final_ok
+
+    def add_columns(self, *columns: Union[pd.DataFrame, pd.Series]):
         """
-        ORs together all N-allowed flags.
+        Concatenate more columns into :data:`cycle`.
 
-        .. NOTE::
-            Prefer> calling higher-level :func:`add_allowed_n_flags()`, but
-            keept it public, for testability & experimentation.
+        :param columns:
+            must have appropriate columns, ie. 2-level (item, gear).
         """
-
-        final_ok_n = allowed_n_flags.groupby(axis=1, level="gear").apply(
-            self._combine_gear_flags
-        )
-
-        return final_ok_n
-
-    def add_allowed_n_flags(self, allowed_n_flags, keep_flags=True):
-        """
-        Calculates & appends into cycle allowed n
-
-        :param keep_flags:
-            whether to keep intermediary flag columns,
-            or just the final decision for each gear.
-        """
-        final_ok_n = self.combine_allowed_n_flags(allowed_n_flags)
-
-        cycle_dfs = [self.cycle]
-        if keep_flags:
-            cycle_dfs.append(allowed_n_flags)
-        cycle_dfs.append(final_ok_n)
-
+        cycle_dfs = [self.cycle, *columns]
         self.cycle = pd.concat(cycle_dfs, axis=1)
