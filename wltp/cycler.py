@@ -186,8 +186,6 @@ class PhaseMarker:
         cycle[c.cruise] = phase(RUN & (A == 0))
         cycle[c.decel] = phase(RUN & ~cycle[c.accel_raw])
 
-        cycle[c.init] = (V == 0) & (A == 0) & (A.shift(-1) != 0)
-
         cycle[c.initaccel] = self._accel_after_init(V, cycle[c.accel_raw])
         cycle[c.stopdecel] = self._decel_before_stop(cycle[c.decel], cycle[c.stop])
 
