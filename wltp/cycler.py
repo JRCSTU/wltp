@@ -91,12 +91,13 @@ class PhaseMarker:
 
             from cycler import PhaseMarker
             cycle = pd.DataFrame({
-                    'v': [0,0,3,3,5,8,8,8,6,4,5,6,6],
-                'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0],
-                'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0],
-                'decel': [0,0,0,0,0,0,0,1,1,1,0,0,0],
-                    'up': [0,0,1,1,1,1,1,1,0,1,1,1,1],
-                    'init': [1,0,0,0,0,0,0,0,0,0,0,0,0],
+                        'v': [0,0,3,3,5,8,8,8,6,4,5,6,6,5,0,0],
+                    'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0],
+                'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0],
+                    'decel': [0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,0],
+                    'up': [0,0,1,1,1,1,1,1,0,1,1,1,1,0,0,0],
+                'initaccel': [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                'stopdecel': [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0],
             })
             pm = PhaseMarker()
             
@@ -120,18 +121,20 @@ class PhaseMarker:
             col |= col.shift()
         return col
 
-    def _accel_after_init(self, cycle, c_accel, c_init):
-        assert c_accel in cycle and c_init in cycle, locals()
-
+    def _accel_after_init(self, V, accel):
         def count_good_rows(group):
             # print(group.index.min(),group.index.max(), (group[c_accel] & group[c_init]).any(None), '\n', group)
-            return group.count() if group.any() else 0
+            return (
+                group.count()
+                if (group.iloc[1:] > 0).all() and group.iloc[0] == 0
+                else 0
+            )
 
-        repeats_grouper = (cycle[c_accel] != cycle[c_accel].shift()).cumsum()
-        initaccel = (
-            cycle[c_init].shift(1).groupby(repeats_grouper).transform(count_good_rows)
-            > 0
-        )
+        repeats_grouper = (accel != accel.shift()).cumsum()
+        initaccel = V.groupby(repeats_grouper).transform(count_good_rows) > 0
+
+        ## Shift -1 for Annex 2-3.2, +1 for phase definitions @ 4.
+        initaccel |= initaccel.shift(-1) | initaccel.shift(1)
 
         return initaccel
 
@@ -185,14 +188,13 @@ class PhaseMarker:
 
         cycle[c.init] = (V == 0) & (A == 0) & (A.shift(-1) != 0)
 
-        cycle[c.initaccel] = phase(
-            self._accel_after_init(cycle[[c.accel_raw, c.init]], c.accel_raw, c.init)
-        )
+        cycle[c.initaccel] = self._accel_after_init(V, cycle[c.accel_raw])
         cycle[c.stopdecel] = self._decel_before_stop(cycle[c.decel], cycle[c.stop])
 
         ## Annex 2-2.k (n_min_drive).
         cycle[c.up] = phase(RUN & (A >= self.up_threshold))
 
+        # NOTE: this will fail if applied twice!
         cycle.columns = pd.MultiIndex.from_product(
             (cycle.columns, ("",)), names=("item", "gear")
         )

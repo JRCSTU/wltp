@@ -36,12 +36,13 @@ def test_identify_conjecutive_truths_repeat_threshold_1_is_identical():
     assert col2.equals(col1 | col1.shift())
 
 
-@pytest.mark.parametrize("wltc_class, exp", [(0, 12), (1, 9), (2, 9), (3, 9)])
-def test_cycle_init_flag(wltc_class, exp, gwots):
+@pytest.mark.parametrize("wltc_class, exp", [(0, 320), (1, 300), (2, 160), (3, 158)])
+def test_cycle_initaccel(wltc_class, exp, gwots):
     V = datamodel.get_class_v_cycle(wltc_class)
     cb = CycleBuilder(V)
     PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
-    assert cb.cycle.init.sum() == exp
+    print(cb.cycle.initaccel.sum())
+    assert cb.cycle.initaccel.sum() == exp
 
 
 @pytest.mark.parametrize("wltc_class", range(4))
