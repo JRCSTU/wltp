@@ -55,7 +55,9 @@ def _calc_wltc_checksums(offset, length, calc_sum=True):
         calc_class_sums(cl)
 
     columns = (
-        "class part SUM CRC cum_SUM cum_CRC" if calc_sum else "class part CRC cum_CRC"
+        "class part SUM CRC32 cum_SUM cum_CRC32"
+        if calc_sum
+        else "class part CRC32 cum_CRC32"
     )
     df = pd.DataFrame(results, columns=columns.split()).set_index(["class", "part"])
 
@@ -80,7 +82,14 @@ def test_wltc_checksums():
         return "\n" + sio.getvalue()
 
     print(dfs_to_csv(dfs))
-    npt.assert_allclose(dfs, cycle_checksums())
+
+    exp = cycle_checksums()
+
+    crc_idx = [1, 3, 4, 5, 6, 7]
+    assert dfs.iloc[:, crc_idx].equals(exp.iloc[:, crc_idx])
+
+    sum_idx = [0, 2]
+    npt.assert_allclose(dfs.iloc[:, sum_idx], exp.iloc[:, sum_idx])
 
 
 class InstancesTest(unittest.TestCase):
