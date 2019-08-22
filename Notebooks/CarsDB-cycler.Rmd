@@ -114,10 +114,6 @@ cb.cycle.select_dtypes(bool).sum()
 ```
 
 ```{python}
-cb.cycle.iloc[7:66]
-```
-
-```{python}
 t_cold_end = 470  # gap for all classes
 for err in cb.validate_nims_t_cold_en(t_cold_end, wltc_parts):
     raise err
@@ -198,8 +194,8 @@ cb.cycle.iloc[-20:]
 ## Museum
 
 ```{python}
-## The only place where gear=0 with clutch dissengaged.
-acc_cycle.loc[(acc_cycle.gear == 0) & (acc_cycle.clutch != 'engaged, gear lever in neutral'), ['gear', 'clutch']]
+from wltp.cycles import cycle_checksums
+cycle_checksums()
 ```
 
 ```{python}

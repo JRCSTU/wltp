@@ -26,11 +26,13 @@ from wltp import datamodel, utils
 from .goodvehicle import goodVehicle
 
 
-def _calc_wltc_checksums(offset, length):
+def _calc_wltc_checksums(offset, length, calc_sum=True):
     from wltp.cycles import crc_velocity
 
     def calc_v_sums(V, prev=(0, 0)):
-        return (prev[0] + V.sum(), crc_velocity(V, prev[1]))
+        if calc_sum:
+            return (prev[0] + V.sum(), crc_velocity(V, prev[1]))
+        return (crc_velocity(V, prev[0]),)
 
     results = []
 
@@ -52,9 +54,10 @@ def _calc_wltc_checksums(offset, length):
     for cl in datamodel.get_class_names():
         calc_class_sums(cl)
 
-    df = pd.DataFrame(
-        results, columns="class part SUM CRC cumSUM cumCRC".split()
-    ).set_index(["class", "part"])
+    columns = (
+        "class part SUM CRC cum_SUM cum_CRC" if calc_sum else "class part CRC cum_CRC"
+    )
+    df = pd.DataFrame(results, columns=columns.split()).set_index(["class", "part"])
 
     return df
 
@@ -64,8 +67,8 @@ def test_wltc_checksums():
 
     dfs_dict = {
         "V": _calc_wltc_checksums(0, 0),
-        "V_A1": _calc_wltc_checksums(0, -1),
-        "V_A2": _calc_wltc_checksums(1, -1),
+        "V_A1": _calc_wltc_checksums(0, -1, calc_sum=False),
+        "V_A2": _calc_wltc_checksums(1, -1, calc_sum=False),
     }
     import io
 
@@ -73,10 +76,10 @@ def test_wltc_checksums():
 
     def dfs_to_csv(dfs):
         sio = io.StringIO()
-        dfs.to_csv(sio, sep="\t")
+        dfs.to_csv(sio, sep="\t", float_format="%.1f")
         return "\n" + sio.getvalue()
 
-    # print(dfs_to_csv(dfs))
+    print(dfs_to_csv(dfs))
     npt.assert_allclose(dfs, cycle_checksums())
 
 
