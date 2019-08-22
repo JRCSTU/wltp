@@ -220,7 +220,7 @@ setup(
         "dataclasses; python_version < '3.7'",
         "jsonschema",
         "numpy",
-        "pandas",
+        "pandas !=0.25.1",  # 23 TC failures: https://travis-ci.org/ankostis/wltp/jobs/575537134
         "pandalone >=0.3",
         "ruamel.yaml",
         "scipy",
