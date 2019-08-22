@@ -9,16 +9,6 @@
 Defines schema, defaults and validations for data consumed/produced by :class:`~wltp.experiment.Experiment`.
 
 The datamodel-instance is managed by :class:`pandel.Pandel`.
-
-Example-code to get WLTP-data::
-
-    from wltp.datamodel  import get_wltc_data
-    cycle_data = get_wltc_data()
-
-    for cls, value in cycle_data['classes'].items():
-        cycle = np.array(value['cycle'])
-        print('%s: \n%s' % (cls, cycle))
-
 """
 
 import copy

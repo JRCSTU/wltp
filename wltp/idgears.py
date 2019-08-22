@@ -58,7 +58,7 @@ from scipy import signal
 
 def dequantize_unstabbleMean(df, method="linear"):
     """
-    :param str method: see :method:`pd.DataFrame.interpolate()` that is used to fill-in column-values that are held constant
+    :param str method: see :meth:`pd.DataFrame.interpolate()` that is used to fill-in column-values that are held constant
     """
     edges = df.diff()
 
@@ -80,7 +80,7 @@ def dequantize(df, method="linear"):
     """
     Tries to undo results of a non-constant sampling rate (ie due to indeterministic buffering).
 
-    :param str method: see :method:`pd.DataFrame.interpolate()` that is used to fill-in column-values that are held constant
+    :param str method: see :meth:`pd.DataFrame.interpolate()` that is used to fill-in column-values that are held constant
 
     .. Note::
         The results wil never have a flat section, so checking for some value (ie 0)

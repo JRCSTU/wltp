@@ -101,7 +101,7 @@ v1.0.0.dev10  (16-Aug-2019): PY3.5 only & real work!
 
 - Build & dev-dependencies enhancements.
 
-  - fix: update to pandas-0.25_ (July 2019).
+  - fix: update to pandas-0.25.0 (July 2019).
 
 - style: auto-format python files with |black|_  using |pre-commit|_.
 

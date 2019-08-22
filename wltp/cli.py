@@ -56,8 +56,8 @@ log = _init_logging(DEFAULT_LOG_LEVEL)
 def main(argv=None):
     """Calculates an engine-map by fitting data-points vectors, use --help for gettting help.
 
-    REMARKS:
-    --------
+    REMARKS::
+
         * All string-values are case-sensitive.
         * Boolean string-values are case insensitive:
             False  : false, off, no,  == 0
@@ -71,8 +71,9 @@ def main(argv=None):
             @=     : parsed as python (with eval())
 
     EXAMPLES:
-    ---------
-    Assuming a 'vehicle.json' file like this:
+
+    Assuming a 'vehicle.json' file like this::
+
         {
             "unladen_mass":1230,
             "test_mass":   1300,
@@ -87,7 +88,7 @@ def main(argv=None):
             "f2": 0.04,
         }
 
-    then the following examples:
+    then the following examples::
 
         ## Calculate and print fitted engine map's parameters
         #     for a petrol vehicle with the above engine-point's CSV-table:
@@ -114,13 +115,14 @@ def main(argv=None):
 
 
     Now, if input vectors are in 2 separate files, the 1st, 'engine_1.xlsx',
-    having 5 columns with different headers than expected, like this:
+    having 5 columns with different headers than expected, like this::
+
         OTHER1   OTHER2       N        "Fuel waste"   OTHER3
         0       -1            12       0.14           "some text"
         ...
 
     and the 2nd having 2 columns with no headers at all and
-    the 1st column being 'Pnorm', then it, then use the following command:
+    the 1st column being 'Pnorm', then it, then use the following command::
 
         >> %(prog)s -O engine_map -m fuel=petrol \\
                 -I=engine_1.xlsx sheetname+=0 \\

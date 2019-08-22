@@ -242,7 +242,7 @@ class CycleBuilder:
     #: A column within `cycle` populated from the last `velocity` given in the cstor.
     #: to use in subsequent calculations.
     V: pd.Series
-    #: A column derived from :ivar:`V`, also within `cycle`, populated on construction,
+    #: A column derived from :attr:`V`, also within `cycle`, populated on construction,
     #: and used in subsequent calculations.
     A: pd.Series
 
@@ -288,14 +288,14 @@ class CycleBuilder:
         return pd.MultiIndex.from_tuples(tuples, names=["gear", "item"])
 
     def flat(self) -> pd.DataFrame:
-        """return the :ivar:`cycle` with flattened columns"""
+        """return the :attr:`cycle` with flattened columns"""
         cycle = self.cycle.copy()
         cycle.columns = self.flatten_columns(cycle.columns)
         return cycle
 
     def __init__(self, *velocities: Union[pd.Series, pd.DataFrame], **kwargs):
         """
-        Initialize :ivar:`cycle` with the given velocities and acceleration of the last one.
+        Initialize :attr:`cycle` with the given velocities and acceleration of the last one.
 
         :param velocities:
             *named* series, e.g. from :func:`~datamodel.get_class_v_cycle()`,
@@ -303,7 +303,7 @@ class CycleBuilder:
             "target" velocity for the rest of the cycle methods.
 
             If they are a (dataframe, series, series), they are assigned in
-            :ivar:`cycle`, :ivar:`V` and :ivar:`A` respectively, and
+            :attr:`cycle`, :attr:`V` and :attr:`A` respectively, and
             no other procesing happens.
         """
         c = wio.pstep_factory.get().cycle

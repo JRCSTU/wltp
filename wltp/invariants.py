@@ -17,7 +17,7 @@ v_step = 10 ** -v_decimals
 def round1(n, decimals=0):
     """
      Rounding with the Access DB method (all ties half-up: 0.5 --> 1).
-    
+
     TIP: Double rounding might be needed to achive stability on ties with long decimals
     (see downscale scale vs recurse)
 
@@ -27,6 +27,7 @@ def round1(n, decimals=0):
         Number of decimal places to round to (default: 0).
         If decimals is negative, it specifies the number of positions to the left of the decimal point.
         `None` means keep it as it is.
+
     >>> round1(2.5, None)
     2.5
     >>> round1(2.5)
@@ -39,7 +40,7 @@ def round1(n, decimals=0):
            0.3,  1.3,  2.3,  3.4, 4.4,  5.4,  6.4])
     >>> round1([0.49999999999999994, 5000000000000001.0, -2.4, 2.4])
      array([ 1.e+00,  5.e+15, -2.e+00,  2.e+00])
-    
+
     .. seealso:: https://en.wikipedia.org/wiki/Rounding#Round_half_to_even
     .. seealso:: https://en.wikipedia.org/wiki/Rounding#Double_rounding
     """
