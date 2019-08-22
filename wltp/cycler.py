@@ -228,6 +228,11 @@ class PhaseMarker:
         return cycle
 
 
+#: The value representing NANs in "bool" int8 arrays
+#: (Int8 cannot write in HDF5 by *tables* lib)
+NANFLAG = -1
+
+
 class CycleBuilder:
     """
     Specific choreography of method-calls required, see TCs & notebooks.
@@ -390,8 +395,9 @@ class CycleBuilder:
         Heavy lifting calculations for "initial gear" rules of Annex 2: 2.k, 3.2, 3.3 & 3.5.
 
         :return:
-            a dataframe with *nullable* dtype ``Int8`` (for storage efficiency)
-            and hierarchical columns, with `1` wherever a gear is allowed,
+            a dataframe with *nullable* dtype ``int8`` with -1 for NANs 
+            (for storage efficiency) and hierarchical columns, 
+            with :const:`NANFLAG`(1) wherever a gear is allowed,
             for a specific rule (different sets of rules per gear).
             Push it to :meth:`combine_initial_gear_flags()`.
             
@@ -548,8 +554,10 @@ class CycleBuilder:
             ok_min_n_g1_initaccel,
         )
         flags = (
-            pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0) * 1
-        ).astype("Int8")
+            (pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0) * 1)
+            .fillna(NANFLAG)
+            .astype("int8")
+        )
         flags.columns.names = ("item", "gear")
 
         return flags
@@ -563,7 +571,7 @@ class CycleBuilder:
         c = wio.pstep_factory.get().cycle
 
         flagcols = gflags.columns
-        gflags = gflags.fillna(0).astype(bool)
+        gflags = gflags[gflags == NANFLAG].fillna(0).astype(bool)
 
         flags_to_AND = []
         if c.ok_p in flagcols:
