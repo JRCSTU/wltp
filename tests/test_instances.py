@@ -9,6 +9,7 @@
 Testing of the pure-tree data (just dictionary & lists), without the Model/Experiment classes.
 """
 
+import io
 import json
 import unittest
 from timeit import timeit
@@ -19,20 +20,32 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 from jsonschema.exceptions import ValidationError
+from pandas import IndexSlice as idx
 from toolz import itertoolz as itz
 
-from wltp import datamodel, utils
+from wltp import cycles, datamodel, utils
 
 from .goodvehicle import goodVehicle
 
 
 def _calc_wltc_checksums(offset, length, calc_sum=True):
-    from wltp.cycles import crc_velocity
-
     def calc_v_sums(V, prev=(0, 0)):
+        v = V
+        if (
+            # If running for V (not VAs) ...
+            length == 0
+            # ... and cumulative from previous part
+            and prev[0] != 0
+        ):
+            # Skip overlapping sample from 2nd part and on.
+            v = V.iloc[1:]
+
+        if prev is None:
+            prev = (0, 0)
+
         if calc_sum:
-            return (prev[0] + V.sum(), crc_velocity(V, prev[1]))
-        return (crc_velocity(V, prev[0]),)
+            return (prev[0] + v.sum(), cycles.crc_velocity(v, prev[1], full=True))
+        return (cycles.crc_velocity(v, prev[0], full=True),)
 
     results = []
 
@@ -65,31 +78,85 @@ def _calc_wltc_checksums(offset, length, calc_sum=True):
 
 
 def test_wltc_checksums():
-    from wltp.cycles import cycle_checksums
-
+    """
+    
+    ... NOTE:: 
+        The printouts in this TC generate the table 
+        in :func:`wltp/cycles/cycles.cycle_checksums()`.
+    """
     dfs_dict = {
         "V": _calc_wltc_checksums(0, 0),
         "V_A1": _calc_wltc_checksums(0, -1, calc_sum=False),
         "V_A2": _calc_wltc_checksums(1, -1, calc_sum=False),
     }
-    import io
 
     dfs = pd.concat(dfs_dict.values(), keys=dfs_dict.keys(), axis=1)
 
-    def dfs_to_csv(dfs):
+    def as_csv_txt(dfs):
         sio = io.StringIO()
         dfs.to_csv(sio, sep="\t", float_format="%.1f")
         return "\n" + sio.getvalue()
 
-    print(dfs_to_csv(dfs))
+    exp = cycles.cycle_checksums(full=True)
 
-    exp = cycle_checksums()
+    ## UNCOMMENT this to printout CRCs.
+    #
+    # print(as_csv_txt(dfs))
+    # print(as_csv_txt(exp))
 
     crc_idx = [1, 3, 4, 5, 6, 7]
     assert dfs.iloc[:, crc_idx].equals(exp.iloc[:, crc_idx])
 
     sum_idx = [0, 2]
     npt.assert_allclose(dfs.iloc[:, sum_idx], exp.iloc[:, sum_idx])
+
+
+def test_indetify_checksums_works_with_all_CRCs():
+    def run_assertions(crc):
+        assert cycles.identify_cycle_v_crc(crc) == exp
+        assert cycles.identify_cycle_v_crc(crc.lower()) == exp
+        assert cycles.identify_cycle_v_crc(crc.upper()) == exp
+        assert cycles.identify_cycle_v_crc(int(crc, 16)) == exp
+
+    wltc_class = 0
+    V = datamodel.get_class_v_cycle(wltc_class)
+    crc = cycles.crc_velocity(V)
+    exp = ("class1", None, "V")
+
+    run_assertions(crc)
+
+    crc = cycles.crc_velocity(V, full=True)
+    run_assertions(crc)
+
+
+@pytest.mark.parametrize(
+    "wltc_class, exp",
+    [
+        (0, ("class1", None, "V")),
+        (1, ("class2", None, "V")),
+        (2, ("class3a", None, "V")),
+        (3, ("class3b", None, "V")),
+    ],
+)
+def test_full_cycles_in_wltc_checksums(wltc_class, exp):
+    V = datamodel.get_class_v_cycle(wltc_class)
+    assert cycles.identify_cycle_v(V) == exp
+
+
+@pytest.mark.parametrize(
+    "indexer, exp",
+    [
+        (idx[:1022], ("class1", "PART-2", "V")),
+        (idx[:589], ("class1", "part-1", "V")),
+        (idx[1:589], ("class1", "part-1", "V_A2")),  # 1st & 3rd parts are identical
+        (idx[1:590], (None, None, None)),
+        (idx[1023:], ("class1", "part-1", "V_A2")),
+        (idx[1:], ("class1", None, "V_A2")),
+    ],
+)
+def test_identify_wltc_checksums(indexer, exp):
+    V = datamodel.get_class_v_cycle(0)
+    assert cycles.identify_cycle_v(V.loc[indexer]) == exp
 
 
 class InstancesTest(unittest.TestCase):
