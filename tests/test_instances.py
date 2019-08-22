@@ -87,7 +87,7 @@ def test_wltc_checksums():
     dfs_dict = {
         "V": _calc_wltc_checksums(0, 0),
         "V_A1": _calc_wltc_checksums(0, -1, calc_sum=False),
-        "V_A2": _calc_wltc_checksums(1, -1, calc_sum=False),
+        "V_A2": _calc_wltc_checksums(1, 0, calc_sum=False),
     }
 
     dfs = pd.concat(dfs_dict.values(), keys=dfs_dict.keys(), axis=1)
@@ -148,9 +148,9 @@ def test_full_cycles_in_wltc_checksums(wltc_class, exp):
     [
         (idx[:1022], ("class1", "PART-2", "V")),
         (idx[:589], ("class1", "part-1", "V")),
-        (idx[1:589], ("class1", "part-1", "V_A2")),  # 1st & 3rd parts are identical
-        (idx[1:590], (None, None, None)),
-        (idx[1023:], ("class1", "part-1", "V_A2")),
+        (idx[1:589], ("class1", "part-3", "V_A2")),  # 1st & 3rd parts are identical
+        (idx[1:590], ("class1", "part-1", "V_A2")),
+        (idx[1023:], ("class1", "part-3", "V_A2")),
         (idx[1:], ("class1", None, "V_A2")),
     ],
 )
