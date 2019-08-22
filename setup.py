@@ -135,6 +135,7 @@ test_reqs = [
     "qgrid",
     "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
     "columnize",
+    "wheel",
 ]
 dev_reqs = (
     test_reqs
@@ -142,7 +143,6 @@ dev_reqs = (
     + plot_reqs
     + excel_reqs
     + [
-        "wheel",
         "twine",
         "pylint",
         "mypy",

@@ -1,0 +1,75 @@
+# CI on Windows via appveyor
+# This file was based on Olivier Grisel's python-appveyor-demo
+
+environment:
+
+    matrix:
+         # a sampling of
+        - PYTHON: "C:\\Python36-x64"
+          PYTHON_VERSION: "3.6"
+          PYTHON_ARCH: "64"
+          IS_CONDA: "true"
+
+        - PYTHON: "C:\\Python37-x64"
+          PYTHON_VERSION: "3.7"
+          PYTHON_ARCH: "64"
+          IS_CONDA: "false"
+
+# matrix:
+#     allow_failures:
+#         - PYTHON_VERSION: 3.8
+
+install:
+    - ps: ./bin/install_python.ps1
+
+    # Prepend newly installed Python to the PATH of this build (this cannot be
+    #   done from inside the powershell script as it would require to restart
+    #   the parent CMD process).
+    - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+
+    ## Print python-version and architecture for debugging .
+    #
+    - |
+        python --version
+        python -c "import struct; print(struct.calcsize('P') * 8)"
+
+    - pip --disable-pip-version-check install -e .[test]
+
+
+    # - "python setup.py develop" ## NO, pip installed in "develop' mode, above.
+    - python setup.py build
+    - ps: ./Notebooks/recreate_ipynbs.sh
+
+build: false
+
+test_script:
+    # To create `pyalgo.h5` file.
+    - pytest -m slow --h5-write
+
+    -   IF "%PYTHON_VERSION%"=="3.7" (
+            echo "+++ Checking more..." &
+            pytest
+        ) ELSE (
+            echo "+++ Checking only TCs...." &
+            pytest
+        )
+
+    - ps: |
+        echo "+++ Checking README for PyPy...."
+        bin\check_readme.ps1
+
+    - |
+        echo "+++ Checking site...."
+        python setup.py build_sphinx
+
+    - |
+        echo "+++  Checking archives for PyPI repo..."
+        python setup.py sdist bdist_wheel
+
+    - |
+        echo "+++ Checking install...."
+        python setup.py install
+
+## Needs repo-token and this would be different per user.
+#on_success:
+#    - IF "%PYTHON_VERSION%"=="3.7" (coveralls)
