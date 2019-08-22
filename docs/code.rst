@@ -26,42 +26,42 @@ Module: :mod:`wltp.experiment`
     :members:
 
 Module: :mod:`wltp.datamodel`
--------------------------
+-----------------------------
 .. automodule:: wltp.datamodel
     :members:
 
 Module: :mod:`wltp.cycler`
--------------------------
+--------------------------
 .. automodule:: wltp.cycler
     :members:
 
 Module: :mod:`wltp.engine`
--------------------------
+--------------------------
 .. automodule:: wltp.engine
     :members:
 
 Module: :mod:`wltp.vehicle`
--------------------------
+---------------------------
 .. automodule:: wltp.vehicle
     :members:
 
 Module: :mod:`wltp.vmax`
--------------------------
+------------------------
 .. automodule:: wltp.vmax
     :members:
 
 Module: :mod:`wltp.downscale`
--------------------------
+-----------------------------
 .. automodule:: wltp.downscale
     :members:
 
 Module: :mod:`wltp.invariants`
--------------------------
+------------------------------
 .. automodule:: wltp.invariants
     :members:
 
 Module: :mod:`wltp.io`
--------------------------
+----------------------
 .. automodule:: wltp.io
     :members:
 
@@ -71,7 +71,7 @@ Module: :mod:`wltp.utils`
     :members:
 
 Module: :mod:`wltp.cli`
--------------------------
+-----------------------
 .. automodule:: wltp.cli
     :members:
 
@@ -81,7 +81,7 @@ Module: :mod:`wltp.plots`
     :members:
 
 Module: :mod:`wltp.idgears`
--------------------------
+---------------------------
 .. automodule:: wltp.idgears
     :members:
 
