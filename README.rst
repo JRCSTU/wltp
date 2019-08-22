@@ -1,7 +1,7 @@
 ################################################################
 wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
-|binder| |dev-status| |build-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |codestyle|
+|binder| |dev-status| |build-status| |appveyor-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |codestyle|
 
 :release:       1.0.0.dev10
 :date:          2019-08-16 12:56:44
@@ -614,9 +614,9 @@ Glossary
 
     WLTC
         The family of pre-defined *driving-cycles* corresponding to vehicles with different
-        :abbr:`PMR (Power to Mass Ratio)`. Classes 1,2, 3a & 3b are split in 2, 4, 4 and 4 *parts* respectively.
+        :abbr:`PMR (Power to Mass Ratio)`. Classes 1,2, 3a/b are split in 3, 4 and 4 *parts* respectively.
 
-    mro
+    MRO
     Mass in running order
         The mass of the vehicle, with its fuel tank(s) filled to at least 90 per cent
         of its or their capacity/capacities, including the mass of the driver and the liquids,
@@ -687,6 +687,11 @@ Glossary
     :alt: Integration-build status
     :scale: 100%
     :target: https://travis-ci.org/JRCSTU/wltp/builds
+
+.. |appveyor-status| image:: https://ci.appveyor.com/api/projects/status/0e2dcudyuku1w1gd?svg=true
+    :alt: Apveyor build status (Windows)
+    :scale: 100%
+    :target: https://ci.appveyor.com/project/JRCSTU/wltp
 
 .. |cover-status| image:: https://coveralls.io/repos/JRCSTU/wltp/badge.png?branch=master
     :target: https://coveralls.io/r/JRCSTU/wltp?branch=master
