@@ -56,7 +56,17 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from . import io, invariants, vehicle, engine, vmax, downscale, datamodel
+from . import (
+    io as wio,
+    cycles,
+    invariants,
+    vehicle,
+    engine,
+    vmax,
+    downscale,
+    datamodel,
+    cycler,
+)
 from .invariants import v_decimals, vround
 
 log = logging.getLogger(__name__)
@@ -90,7 +100,6 @@ class Experiment(object):
             when true, does not validate the model.
         """
 
-        self.dtype = np.float64
         self._set_model(
             mdl,
             skip_validation=skip_model_validation,
@@ -104,6 +113,8 @@ class Experiment(object):
 
         @see: Annex 2, p 70
         """
+        m = wio.pstep_factory.get()
+        c = wio.pstep_factory.get().cycle
 
         mdl = self._model
 
@@ -173,9 +184,9 @@ class Experiment(object):
                 "Found forced velocity in %r with %s valus.", forced_v_column, len(V)
             )
 
-            ## Keep same columns/props, not to surprise post-processing scripts.
-            #
-            V = cycle_run["v_class"] = vround(V)
+            V = pd.Series(V, name=c.v_target)
+            wltc_class, _part, _kind = cycles.identify_cycle_v(V)
+            cb = cycler.CycleBuilder(V)
             mdl["f_downscale"] = None
         else:
             ## Decide WLTC-class.
@@ -187,11 +198,9 @@ class Experiment(object):
             else:
                 log.info("Found forced wltc_class(%s).", wltc_class)
 
-            class_data = self.wltc["classes"][wltc_class]
-            V = np.asarray(class_data["v_cycle"], dtype=self.dtype)
-
-            cycle_run["v_class"] = V  # rounded already
-            V = cycle_run["v_class"]  # to get cycle's index
+            class_data = datamodel.get_class(wltc_class, mdl=self._model)
+            V = datamodel.get_class_v_cycle(wltc_class, mdl=self._model)
+            assert isinstance(V, pd.Series), V
 
             ## Downscale velocity-profile.
             #
@@ -219,11 +228,43 @@ class Experiment(object):
                 mdl["f_dscl_orig"] = f_dscl_orig
 
             if f_downscale > 0:
-                V = downscale.downscale_class_velocity(V, f_downscale, phases)
+                V_dsc_raw = downscale.downscale_class_velocity(V, f_downscale, phases)
+                V_dsc_raw.name = c.v_dsc_raw
 
-                V = vround(V)
+                V_dsc = vround(V)
+                V_dsc.name = c.v_target
 
-            cycle_run["v_target"] = V
+                V_target = V_dsc.copy()
+                V_target.name = c.v_target
+
+                cb = cycler.CycleBuilder(V, V_dsc_raw, V_dsc, V_target)
+                V = V_target
+            else:
+                V_target = V.copy()
+                V_target.name = c.v_target
+
+                cb = cycler.CycleBuilder(V, V_target)
+                V = V_target
+
+        assert isinstance(V, pd.Series), V
+
+        pm = cycler.PhaseMarker()
+
+        if wltc_class:
+            wltc_parts = datamodel.get_class_parts_limits(
+                wltc_class, edges=True, mdl=self._model
+            )
+            cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
+
+        cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
+
+        cb.cycle["p_req"] = vehicle.calc_power_required(
+            cb.V, cb.A, test_mass, f0, f1, f2, f_inertial
+        )
+
+        gwots = engine.interpolate_wot_on_v_grid2(wot, gear_ratios)
+        gwots = engine.calc_p_avail_in_gwots(gwots, SM=f_safety_margin)
+        cb.add_wots(gwots)
 
         ## Remaining n_max values
         #
@@ -232,62 +273,18 @@ class Experiment(object):
         mdl["n_max1"] = mdl["n95_high"]
         #  NOTE: In Annex 2-2.g, it is confusing g_top with g_vmax;
         #  the later stack betters against accdb results.
-        mdl["n_max2"] = g_max_n2v * cycle_run["v_class"].max()
+        mdl["n_max2"] = n_max_cycle = g_max_n2v * cb.V.max()
         mdl["n_max3"] = g_max_n2v * mdl["v_max"]
         mdl["n_max"] = engine.calc_n_max(mdl["n_max1"], mdl["n_max2"], mdl["n_max3"])
 
-        V = cycle_run["v_target"]  # as Series
-        A = calcAcceleration(V)
-        P_REQ = vehicle.calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial)
-        cycle_run["a_target"] = A
-        cycle_run["p_required"] = P_REQ
-
-        ## Run cycle to find internal matrices for all gears
-        #    and (optionally) gearshifts.
-        #
-        (
-            GEARS_ORIG,
-            CLUTCH,
-            _GEAR_RATIOS,
-            _N_GEARS,
-            _P_AVAILS,
-            _N_NORMS,
-            driveability_issues,
-        ) = run_cycle(
-            V, A, P_REQ, gear_ratios, n_idle, n_min_drive, n_rated, p_rated, wot, mdl
+        nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
+        ok_flags = cb.calc_initial_gear_flags(
+            g_vmax=mdl["g_vmax"], n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
         )
-        cycle_run["clutch"] = CLUTCH  # TODO: Allow overridde clutch, etc.
-        if "gears_orig" in cycle_run:
-            forced_gears = cycle_run["gears_orig"].values
-            log.info("Found forced gears(x%i).", forced_gears.size)
-            if GEARS_ORIG.max() != len(gear_ratios):
-                raise ValueError(
-                    "Forced gears(%s) specify gears(%i) > num_of_gears(%i)"
-                    % (forced_gears.shape, GEARS_ORIG.max(), len(gear_ratios))
-                )
-            GEARS_ORIG = forced_gears
-        else:
-            cycle_run["gears_orig"] = GEARS_ORIG
+        ok_gears = cb.combine_initial_gear_flags(ok_flags)
+        cb.add_columns(ok_flags, ok_gears)
 
-        ## Apply Driveability-rules.
-        #
-        GEARS = GEARS_ORIG.copy()
-        applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues)
-
-        ## Calculate Real quantities.
-        #
-        P_AVAIL = _P_AVAILS[GEARS - 1, range(len(V))]
-        N_NORM = _N_NORMS[GEARS - 1, range(len(V))]
-        RPM = _N_GEARS[GEARS - 1, range(len(V))]
-        V_REAL = RPM / _GEAR_RATIOS[GEARS - 1, range(len(V))]
-        RPM[RPM < n_idle] = n_idle
-
-        cycle_run["p_available"] = P_AVAIL
-        cycle_run["gears"] = GEARS
-        cycle_run["rpm"] = RPM
-        cycle_run["rpm_norm"] = N_NORM
-        cycle_run["v_real"] = V_REAL
-        cycle_run["driveability"] = driveability_issues
+        mdl[m.cycle_run] = cb.cycle
 
         return mdl
 

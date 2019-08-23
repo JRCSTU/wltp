@@ -391,12 +391,13 @@ Now you can run the experiment:
 
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-    ['cycle_run', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
-     'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min',
-     'f_n_min_gear2', 'f_safety_margin', 'g_vmax', 'gear_ratios', 'n95_high', 'n95_low',
-     'n_idle', 'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_rated', 'n_vmax', 'p_rated',
-     'pmr', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class',
-     'wltc_data', 'wot', 'wots_vmax']
+      ['cycle_run', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
+       'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2',
+       'f_safety_margin', 'g_vmax', 'gear_ratios', 'n95_high', 'n95_low', 'n_idle', 'n_max', 'n_max1',
+       'n_max2', 'n_max3', 'n_min', 'n_rated', 'n_vmax', 'p_rated', 'pmr', 'test_mass',
+       'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class', 'wltc_data', 'wot', 'wots_vmax']
+
+
 
 
 
@@ -405,17 +406,30 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
 
 .. doctest::
 
-    >>> import pandas as pd
+    >>> import pandas as pd, wltp.cycler as cycler
     >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
     >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
-    (1801, 12)
-    >>> df.columns
-    Index(['v_class', 'v_target', 'a_target', 'p_required', 'clutch', 'gears_orig',
-           'p_available', 'gears', 'rpm', 'rpm_norm', 'v_real', 'driveability'],
-           dtype='object')
-    >>> 'Mean engine_speed: %s' % df.rpm.mean()
+    (1801, 84)
+    >>> cycler.flatten_columns(df.columns)
+    ['t', 'v_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
+     'stop', 'accel', 'cruise', 'decel', 'initaccel', 'stopdecel', 'up', 'p_req', 'n/g1', 'n/g2', 'n/g3',
+     'n/g4', 'n/g5', 'n/g6', 'n_norm/g1', 'n_norm/g2', 'n_norm/g3', 'n_norm/g4', 'n_norm/g5',
+     'n_norm/g6', 'p/g1', 'p/g2', 'p/g3', 'p/g4', 'p/g5', 'p/g6', 'p_avail/g1', 'p_avail/g2',
+     'p_avail/g3', 'p_avail/g4', 'p_avail/g5', 'p_avail/g6', 'p_norm/g1', 'p_norm/g2', 'p_norm/g3',
+     'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_max_n_gears_below_gvmax/g1',
+     'ok_max_n_gears_below_gvmax/g2', 'ok_max_n_gears_below_gvmax/g3', 'ok_max_n_gears_below_gvmax/g4',
+     'ok_max_n_gears_below_gvmax/g5', 'ok_max_n_gears_from_gvmax/g6', 'ok_min_n_colds_dns/g3',
+     'ok_min_n_colds_dns/g4', 'ok_min_n_colds_dns/g5', 'ok_min_n_colds_dns/g6', 'ok_min_n_colds_ups/g3',
+     'ok_min_n_colds_ups/g4', 'ok_min_n_colds_ups/g5', 'ok_min_n_colds_ups/g6', 'ok_min_n_g1/g1',
+     'ok_min_n_g1_initaccel/g1', 'ok_min_n_g2/g2', 'ok_min_n_g2_stopdecel/g2', 'ok_min_n_hots_dns/g3',
+     'ok_min_n_hots_dns/g4', 'ok_min_n_hots_dns/g5', 'ok_min_n_hots_dns/g6', 'ok_min_n_hots_ups/g3',
+     'ok_min_n_hots_ups/g4', 'ok_min_n_hots_ups/g5', 'ok_min_n_hots_ups/g6', 'ok_p/g3', 'ok_p/g4',
+     'ok_p/g5', 'ok_p/g6', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3', 'ok_gear/g4', 'ok_gear/g5',
+     'ok_gear/g6']
+
+    >>> 'Mean engine_speed: %s' % df.n.mean()                                       # doctest: +SKIP
     'Mean engine_speed: 1908.9266796224322'
-    >>> df.describe()
+    >>> df.describe()                                                               # doctest: +SKIP
                v_class     v_target  ...     rpm_norm       v_real
     count  1801.000000  1801.000000  ...  1801.000000  1801.000000
     mean     46.361410    46.361410  ...     0.209621    50.235126

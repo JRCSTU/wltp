@@ -82,14 +82,13 @@ def test_validate_t_start(wltc_class, t_end_cold, err):
 
 
 def test_flatten_columns():
-    cb = CycleBuilder(pd.Series([1, 2], name="yy"))
     cols = pd.MultiIndex.from_tuples([("a", "aa"), ("b", "")], names=("gear", "item"))
-    fcols = cb.flatten_columns(cols)
-    infcols = cb.inflate_columns(fcols)
+    fcols = cycler.flatten_columns(cols)
+    infcols = cycler.inflate_columns(fcols)
     assert cols.equals(infcols)
     assert cols.names == infcols.names
     with pytest.raises(AssertionError, match="MultiIndex?"):
-        cb.inflate_columns(cols)
+        cycler.inflate_columns(cols)
 
 
 def test_full_build_smoketest(h5_accdb):

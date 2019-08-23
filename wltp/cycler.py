@@ -228,6 +228,28 @@ class PhaseMarker:
         return cycle
 
 
+def flatten_columns(columns, sep="/"):
+    def join_column_names(name_or_tuple):
+        if isinstance(name_or_tuple, tuple):
+            return sep.join(n for n in name_or_tuple if n)
+        return name_or_tuple
+
+    return [join_column_names(names) for names in columns.to_flat_index()]
+
+
+def inflate_columns(columns, levels=2, sep="/"):
+    def split_column_name(name):
+        assert isinstance(name, str), ("Inflating Multiindex?", columns)
+        names = name.split(sep)
+        if len(names) < levels:
+            nlevels_missing = levels - len(names)
+            names.extend([""] * nlevels_missing)
+        return names
+
+    tuples = [split_column_name(names) for names in columns]
+    return pd.MultiIndex.from_tuples(tuples, names=["gear", "item"])
+
+
 #: The value representing NANs in "bool" int8 arrays
 #: (Int8 cannot write in HDF5 by *tables* lib)
 NANFLAG = -1
@@ -268,34 +290,10 @@ class CycleBuilder:
         """Using gear ids ie 1, 2, 3"""
         return self.colidx_pairs(item, [self.gnames[i - 1] for i in gears])
 
-    def flatten_columns(self, columns):
-        sep = self.multi_column_separator
-
-        def join_column_names(name_or_tuple):
-            if isinstance(name_or_tuple, tuple):
-                return sep.join(n for n in name_or_tuple if n)
-            return name_or_tuple
-
-        return [join_column_names(names) for names in columns.to_flat_index()]
-
-    def inflate_columns(self, columns, levels=2):
-        sep = self.multi_column_separator
-
-        def split_column_name(name):
-            assert isinstance(name, str), ("Inflating Multiindex?", columns)
-            names = name.split(sep)
-            if len(names) < levels:
-                nlevels_missing = levels - len(names)
-                names.extend([""] * nlevels_missing)
-            return names
-
-        tuples = [split_column_name(names) for names in columns]
-        return pd.MultiIndex.from_tuples(tuples, names=["gear", "item"])
-
     def flat(self) -> pd.DataFrame:
         """return the :attr:`cycle` with flattened columns"""
         cycle = self.cycle.copy()
-        cycle.columns = self.flatten_columns(cycle.columns)
+        cycle.columns = flatten_columns(cycle.columns, sep=self.multi_column_separator)
         return cycle
 
     def __init__(self, *velocities: Union[pd.Series, pd.DataFrame], **kwargs):

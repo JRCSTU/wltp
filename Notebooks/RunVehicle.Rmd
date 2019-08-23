@@ -27,6 +27,12 @@ Quick'n Dirty sample code for running a cycle on user-defined vehicle data.
 ```
 
 ```{python}
+## If you change that, restart kernel and clear all outpouts before running it
+# #%matplotlib widget
+# %matplotlib inline
+```
+
+```{python}
 ##################################################
 ## Set PYTHONPATH and import relevant libraries ##
 ##################################################
@@ -183,6 +189,6 @@ print(sorted(mdl.keys()))
 ```
 
 ```{python}
-ax = mdl['cycle_run'][['v_class', 'v_target']].plot()
-ax = mdl['cycle_run'][['p_required', 'p_available']].plot(ax=ax, secondary_y=True)
+ax = mdl['cycle_run'][['v_cycle', 'v_target']].plot()
+ax = mdl['cycle_run'][['p_req', 'p_avail']].plot(ax=ax, secondary_y=True)
 ```

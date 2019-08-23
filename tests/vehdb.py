@@ -591,12 +591,11 @@ def run_pyalgo_on_Heinz_vehicle(
     }
 
     cycle_run = mdl["cycle_run"]
-    # Drop `driveability` arrays, not to burden HDF data-model.
-    cycle_run = cycle_run.drop("driveability", axis=1)
+
     ## Gears are `int8`, and h5 pickles them.
     #
-    for badtype_col in "gears gears_orig".split():
-        cycle_run[badtype_col] = cycle_run[badtype_col].astype("int64")
+    for badtype_col in cycle_run.select_dtypes("Int8"):
+        cycle_run[badtype_col] = cycle_run[badtype_col].fillna(-1).astype("int8")
 
     return oprops, cycle_run, mdl["wots_vmax"]
 

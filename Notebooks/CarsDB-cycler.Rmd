@@ -27,6 +27,12 @@ jupyter:
 ```
 
 ```{python}
+## If you change that, restart kernel and clear all outpouts before running it
+# #%matplotlib widget
+# %matplotlib inline
+```
+
+```{python}
 from typing import Union, List, Callable, Any, Sequence as Seq
 import io
 import itertools as itt
@@ -135,14 +141,14 @@ print(list(acc_cycle.columns))
 ```
 
 ```{python}
-## INPUTS testing ok_rules2 selection
+## INPUTS testing ok_flags2 selection
 #
 c = wio.pstep_factory.get().cycle
 
 cycle = cb.cycle
 
 ng = 6
-n95_max = engine.calc_n95(wot, mdl["n_rated"], mdl["p_rated"])[0]
+n95_high = engine.calc_n95(wot, mdl["n_rated"], mdl["p_rated"])[0]
 v_max_cycle = cb.V.max()
 vmax_rec = vmax.calc_v_max(wot, n2vs, mdl["f0"], mdl["f1"], prop["f2"], 0.1)
 g_vmax = vmax_rec.g_vmax
@@ -153,38 +159,39 @@ nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
 ```
 
 ```{python}
-ok_rules = cb.calc_initial_gear_flags(g_vmax=g_vmax, n95_max=n95_max, n_max_cycle=n_max_cycle, nmins=nmins)
-ok_rules.sum()
+ok_flags = cb.calc_initial_gear_flags(g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins)
+ok_flags.sum()
 ```
 
 ```{python}
-ok_gear = cb.combine_initial_gear_flags(ok_rules)
-ok_gear.sum()
+ok_gears = cb.combine_initial_gear_flags(ok_flags)
+ok_gears.sum()
 ```
 
 ```{python}
 from ipywidgets import interact, interactive, fixed, interact_manual, widgets
 
 max_zoom = 24
-ok_rules2 = ok_rules.fillna(False) * (np.arange(ok_rules.shape[1]) + 1)
-ok_gear2 = ok_gear * (np.arange(ok_gear.shape[1]) + ok_rules.shape[1] + 1)
+ok_flags2 = ok_flags.fillna(False) * (np.arange(ok_flags.shape[1]) + 1)
+ok_gear2 = ok_gears * (np.arange(ok_gears.shape[1]) + ok_flags.shape[1] + 1)
 
 @interact(gear=cb.gnames, zoom=(1, max_zoom, 1), pan=(0, max_zoom, 1))
 def plot_gear(gear='g2', zoom=15, pan=10):
     ax = None
-    mul_ok_gear = ok_rules2.shape[1] + 2
+    
+    mul_ok_gear = ok_flags2.shape[1] + 2
     
     clen = len(cb.cycle)
     viewlen = int(clen / zoom)
     offset = int(pan * (clen - viewlen) / max_zoom)
     scale = idx[offset : offset + viewlen]
-    ax = cb.cycle.loc[scale, "v_cycle"].plot(ax=ax, secondary_y=True, linewidth=4, figsize=(16,9))
-    ax = ok_rules2.loc[:, idx[:, gear]].iloc[scale].plot(ax=ax)
+    ax = cb.cycle.loc[scale, "v_cycle"].plot(ax=ax, secondary_y=True, linewidth=4, figsize=(20,8))
+    ax = ok_flags2.loc[:, idx[:, gear]].iloc[scale].plot(ax=ax)
     ax = (ok_gear2 * mul_ok_gear).loc[scale].plot(ax=ax, linewidth=3)
 ```
 
 ```{python}
-cb.add_columns(ok_rules, ok_gear)
+cb.add_columns(ok_flags, ok_gears)
 ```
 
 ```{python}

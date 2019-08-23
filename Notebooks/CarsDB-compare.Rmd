@@ -41,6 +41,7 @@ from pandas.core.generic import NDFrame
 from matplotlib import pyplot as plt
 import qgrid
 import wltp
+from wltp import cycler
 from wltp.experiment import Experiment
 
 ## Add tests/ into `sys.path` to import `vehdb` module.
@@ -158,15 +159,18 @@ cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
 # # UNCOMMENT next line to FETCH new vehicles.
 p1, c1, p2, c2 = load_heinz_and_python_datasets()
 equivalent_series = [
-    ("v_orig", "v_class"),
+    ("v_orig", "v_cycle"),
     ("v_downscale", "v_target"),
     #("a", "a_target"),
     #("P_tot", "p_required"),
     #("P_max", "p_available"),
     #("g_max", "gears_orig"),
     #("gear", "gears"),
-   ("nc", "rpm"),
+   #("nc", "n"),
 ]
+
+c2.columns = cycler.flatten_columns(c2.columns)
+
 cols1, cols2 = zip(*equivalent_series)
 cols1, cols2 = list(cols1), list(cols2)
 ## Concat props to col-aggregates & convert prop-cols to numerics
@@ -313,26 +317,26 @@ def plot_xy_diffs_arrows(
 ```
 
 ```{python}
-# %matplotlib inline
+# # %matplotlib inline
 
-plt.close(); plt.figure()
-plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "nc", 'pmr', 'rpm'], 
-                     data_label="n in min-1", ref_label="HeinzDb",
-#             data_fmt="+k", data_kws={},
-#             diff_label=None, diff_fmt="-r", diff_cmap=cm.hsv, diff_kws={}, #@UndefinedVariable cm.PiYG
-#             title='N', 
-                     x_label='PMR', 
-                     y_label='N_mean',
-#             axes_tuple=None,
-#             mark_sections=None
-                    )
+# plt.close(); plt.figure()
+# plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "v_orig", "pmr", "v_cycle"],  #"nc", 'pmr', 'rpm'], 
+#                      data_label="n in min-1", ref_label="HeinzDb",
+# #             data_fmt="+k", data_kws={},
+# #             diff_label=None, diff_fmt="-r", diff_cmap=cm.hsv, diff_kws={}, #@UndefinedVariable cm.PiYG
+# #             title='N', 
+#                      x_label='PMR', 
+#                      y_label='N_mean',
+# #             axes_tuple=None,
+# #             mark_sections=None
+#                     )
 ```
 
 ```{python}
 from scipy.stats import pearsonr
 
 def get_similarity(a, b):
-    return pearsonr(a, b), a.abs().mean(), b.abs().mean()
+    return pearsonr(a.fillna(-1), b.fillna(-1)), a.abs().mean(), b.abs().mean()
 
 #get_similarityc1.loc[veh, col1], c2.loc[veh, col2])
 ```
@@ -342,7 +346,7 @@ def get_similarity(a, b):
 
 _fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(12,8))
 
-veh, col1, col2 = 'v001 P_tot p_required'.split()
+veh, col1, col2 = 'v001 P_tot p_req'.split()
 tol = 0.00001
 a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
 ix = 100*(a-b).abs()/a.max() > tol 
@@ -357,7 +361,7 @@ ax1.legend()
 
 #ax2 = ax.twinx()
 
-col1, col2 = 'a a_target'.split()
+col1, col2 = 'a a'.split()
 a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
 ix = (a-b).abs()/a.max() > 0.8e-6
 display(get_similarity(a, b))
