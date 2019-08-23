@@ -392,14 +392,16 @@ def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
         Must not interpolate along with wot on grid, or great INNACCURACIES.
 
     :param gwots:
-        a  df with 2-level multindex columns, having at least (`g1`, 'p') & ('g1', 'ASM'))
-        for each gears (as retuned by :func:`interpolate_wot_on_v_grid2()`).
+        a  df with 2-level multindex columns, having at least (`g1`, 'p'), and
+        optionally ('g1', 'ASM')) for each gears 
+        (as retuned by :func:`interpolate_wot_on_v_grid2()`).
     """
     w = wio.pstep_factory.get().wot
 
     for gear in gwots.columns.levels[0]:
+        ASM = gwots[(gear, w.ASM)] if (gear, w.ASM) in gwots else 0
         gwots.loc[:, (gear, w.p_avail)] = calc_p_available(
-            gwots.loc[:, (gear, w.p)], gwots[(gear, w.ASM)], SM
+            gwots.loc[:, (gear, w.p)], ASM, SM
         )
     gwots = gwots.sort_index(axis=1)
 
