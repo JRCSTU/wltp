@@ -136,6 +136,15 @@ From within the project directory, run one of these commands to install it:
 
     See: :ref:`cmd-line-usage`
 
+- Recreate jupyter notebooks from the paired ``*.Rmd`` files
+  (only these files are stored in git-repo).
+
+- Run pyalgo on all AccDB cars to re-create the H5 file
+  needed for ``CarsDB-compare`` notebook, etc:: 
+
+      ./Notebooks/recreate_pyalgo_h5.sh
+
+
 Usage:
 ^^^^^^
 .. code-block:: python

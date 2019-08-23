@@ -25,18 +25,14 @@ EOF
 # # Install a JupyterLab extensions
 jupyter labextension install @jupyter-widgets/jupyterlab-manager qgrid jupyter-matplotlib
 
-## Re-create `*.ipynb` files from the paired `*.Rmd` files.
-./Notebooks/recreate_ipynbs.sh
-
 # `papermill` cmd below needs `wltp` installed on PYTHONPATH.
 pip install -e .[test]
 
+## Re-create `*.ipynb` files from the paired `*.Rmd` files.
+./Notebooks/recreate_ipynbs.sh
 ## Populate pyalgo DB
-papermill Notebooks/CarsDB-pyalgo.ipynb /tmp/CarsDB-pyalgo.ipynb \
-	--cwd Notebooks \
-    -p skip_h5_write False \
-    -p del_h5_on_start False
-	
+./Notebooks/recreate_pyalgo_h5.sh
+
 
 ## Import the workspace into JupyterLab
 #  From https://github.com/ian-r-rose/binder-workspace-demo/
