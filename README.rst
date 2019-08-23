@@ -31,13 +31,8 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
     Some of the known limitations are described in these places:
 
     * In the :doc:`CHANGES`.
-    * Presented in notebooks.
-    * (OUTDATED) Imprinted in the :mod:`~tests.test_wltp_db` test-case
-      which automatically compares, on each build, the mean RPMs & Gears of this program
-      against Heinz's *phase-1a* (end of 2014) MSAccess,
-      for a pre-determined set of *Heinz-db* vehicles.
-      Currently, genrated mean-RPMs differ from Heinz-db < 0.5% and
-      gears < 5% for a 1800-step class-3 cycle.
+    * Compare results with AccDB in ``Notebooks/CarsDB-compare.ipynb`` notebook
+      (launch it in *binder* to view it).
 
 .. _end-opening:
 .. contents:: Table of Contents
@@ -56,18 +51,18 @@ and any warnings.  It does not calculate any |CO2| emissions.
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
-               .---------------------.                         .----------------------------.
-              ;   Input-DataModel   ;                         ;      Output-DataModel       ;
-             ;---------------------;                         ;----------------------------;
-            ; +--vehicle          ;     ____________        ; +---...                    ;
-           ;  +--params          ;     |            |      ;  +--cycle_run:             ;
-          ;       +--wltc_data  ;  ==> |   Cycle    | ==> ;      t  v_class gear ...   ;
-         ;                     ;       | Generator  |    ;      --------------------  ;
-        ;                     ;        |____________|   ;       00      0.0    1     ;
-       ;                     ;                         ;        01      1.3    1    ;
-      ;                     ;                         ;         02      5.5    1   ;
-     ;                     ;                         ;          ...               ;
-    '---------------------'                         '----------------------------.
+             .------------------.                         .---------------------------.
+             :  Input-DataModel :                         :      Output-DataModel     :
+             ;------------------;                         ;---------------------------;
+            ; +--test_mass     ;     ____________        ; +---...                   ;
+           ;  +--n_idle       ;     |            |      ;  +--cycle_run:            ;
+          ;   +--f0..        ;  ==> |   Cycle    | ==> ;      t  v_class gear      ;
+         ;    ...           ;       | Generator  |    ;      -------------------  ;
+        ;                  ;        |____________|   ;       00      0.0    1    ;
+       ;                  ;                         ;        01      1.3    1   ;
+      ;                  ;                         ;         02      5.5    1  ;
+     ;                  ;                         ;          ...              ;
+    '------------------'                         '---------------------------'
 
 The *Input & Output DataModels* are instances of :dfn:`pandas-model`, trees of strings and numbers, assembled with:
 
@@ -80,64 +75,106 @@ The *Input & Output DataModels* are instances of :dfn:`pandas-model`, trees of s
 
 Quick-start
 -----------
-`Launch it in binder <https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md>`_,
-or install it locally (below).
+- Launch the example *jupyter notebooks* `in a binder inmstance 
+  <https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md>`_.
 
-.. Note::
-    The program runs on **Python-3.6+** and requires **numpy/scipy** and **pandas** libraries
-    When pip-installing,  use `--pre` if version-string has a build-suffix.
+- Otherwise, install it locally, preferably from the sources (instructions below).
 
-.. code-block:: shell
+Prerequisites:
+^^^^^^^^^^^^^^
+**Python-3.6+** is required and **Pytrhon-3.7** recommended.
+It requires **numpy/scipy** and **pandas** libraries with native backends.
 
-    pip install wltp
-    wltp --version
+.. Tip::
+    On *Windows*, it is preferable to use the `*miniconda* <https://docs.conda.io/en/latest/miniconda.html>`_
+    distribution; although its `conda` command adds another layer of complexity on top of ``pip``,
+    unlike standard Python, it has pre-built all native libraries required
+    (e.g. **numpy/scipy** and **pandas**).
 
-Or in case you need the very latest from *master* branch :
+    If nevertheless you choose the *standard Python*, and some packages fail to build when `pip`-installing them, 
+    download these packages from `Gohlke's "Unofficial Windows Binaries"
+    <https://www.lfd.uci.edu/~gohlke/pythonlibs/>`_ and install them manually with::
+    
+        pip install <package-file-v1.2.3.whl>
 
-.. code-block:: shell
+Download:
+^^^^^^^^^
+Download the sources,
 
-    pip install https://github.com/JRCSTU/wltp.git
+- either with *git*, by giving this command to the terminal::
+
+      git clone https://github.com/JRCSTU/wltp/ --depth=1
+
+- or download and extract the project-archive from the release page:
+  https://github.com/JRCSTU/wltp/archive/v1.0.0.dev10.zip
 
 
-For development, clone this repository, and install it in *develop-mode*,
-with *extras* ensuring all needed dependencies are installed and
-with *pre-commit hook* for auto-formatting python-code with *black*:
+Install:
+^^^^^^^^
+From within the project directory, run one of these commands to install it:
 
-.. code-block:: shell
+- for standard python, installing with ``pip`` is enough (but might)::
 
-    cd {repo-folder}
-    pip install -e .[dev]
-    pre-commit install
+      pip install -e .[test]
 
-:Cmd-line:
-    .. code-block:: bash
+- for *conda*, prefer to install the conda-packages listed in :file:`Notebooks/conda/conda-reqs.txt`,
+  before running the same `pip` command, like this::
 
-        $ wltp --version
-        1.0.0.dev10
+      conda install  --override-channels -c ankostis -c conda-forge -c defaults --file Notebooks/conda/conda-reqs.txt
+      pip install -e .[dev]
 
-        $ wltp --help
+
+- Check installation:
+
+  .. code-block:: bash
+  
+      $ wltp --version
+      1.0.0.dev10
+  
+      $ wltp --help
         ...
 
     See: :ref:`cmd-line-usage`
 
-:Excel:
-    .. code-block:: bash
+Usage:
+^^^^^^
+.. code-block:: python
 
-        $ wltp --excelrun                       ## Windows & OS X only
+    import pandas as pd
+    from wltp import datamodel
+    from wltp.experiment import Experiment
 
-    See: :ref:`excel-usage`
+    inp_mdl = datamodel.get_model_base()
+    inp_mdl.update({
+        "unladen_mass": None,
+        "test_mass": 1100,  # in kg
+        "p_rated": 95.3,  # in kW
+        "n_rated": 3000,  # in RPM
+        "n_idle": 600,
+        "gear_ratios": [122.88, 75.12, 50.06, 38.26, 33.63],
+        
+        ## For giving absolute P numbers, 
+        #  rename `p_norm` column to `p`.
+        #
+        "wot": pd.DataFrame(
+            [[600, 0.1], 
+            [2500, 1], 
+            [3500, 1], 
+            [5000, 0.7]], columns=["n", "p_norm"]
+        ),
+        'f0': 395.78,
+        'f1': 0,
+        'f2': 0.15,
+    })
+    datamodel.validate_model(inp_mdl, additional_properties=True)
+    exp = Experiment(inp_mdl, skip_model_validation=True)
 
-:Python-code:
-    .. code-block:: python
+    # exp = Experiment(inp_mdl)
+    out_mdl = exp.run()
+    print(f"Available values: \n{list(out_mdl.keys())}")
+    print(f"Cycle: \n{out_mdl['cycle_run']}")
 
-        from wltp.experiment import Experiment
-
-        input_model = { ... }           ## See also "Python Usage" for model contents.
-        exp = Experiment(input_model)
-        output_model = exp.run()
-        print('Results: \n%s' % output_model['cycle_run'])
-
-    See: :ref:`python-usage`
+See: :ref:`python-usage`
 
 
 
@@ -220,7 +257,7 @@ for which you want to override the ``n_idle`` only, run the following:
 
 Excel usage
 -----------
-.. Attention:: Excel-integration requires Python 3 and *Windows* or *OS X*!
+.. Attention:: OUTDATED!!! Excel-integration requires Python 3 and *Windows* or *OS X*!
 
 In *Windows* and *OS X* you may utilize the excellent `xlwings <http://xlwings.org/quickstart/>`_ library
 to use Excel files for providing input and output to the experiment.
@@ -468,32 +505,6 @@ For more examples, download the sources and check the test-cases
 found under the :file:`/tests/` folder.
 
 
-
-
-IPython notebook usage
-----------------------
-The list of *IPython notebooks* for wltp is maintained at the `wiki <https://github.com/JRCSTU/wltp/wiki>`_
-of the project.
-
-Requirements
-^^^^^^^^^^^^
-In order to run them interactively, ensure that the following requirements are satisfied:
-
-a. A `ipython-notebook server <http://ipython.org/notebook.html>`_ >= v2.x.x is installed for  *python-3*,
-   it is up, and running.
-b. The *wltp* is installed on your system.
-
-Instructions
-^^^^^^^^^^^^
-* Visit each *notebook* from the wiki-list that you wish to run and **download** it as :file:`ipynb` file
-  from the menu (:menuselection:`File|Download as...|IPython Notebook(.ipynb)`).
-* Locate the downloaded file with your *file-browser* and **drag n' drop** it on the landing page
-  of your notebook's server (the one with the folder-list).
-
-
-Enjoy!
-
-
 .. _begin-contribute:
 
 Getting Involved
@@ -597,7 +608,8 @@ Development team
     * Heinz Steven (test-data, validation and review)
     * Georgios Fontaras (simulation, physics & engineering support)
     * Alessandro Marotta (policy support)
-
+    * Jelica Pavlovic (policy support)
+    * Eckhard Schlichte (discussions & advice)
 
 
 .. _begin-glossary:
