@@ -1,3 +1,7 @@
+## Temp files 
+*.bak
+*.BAK
+
 ## Python: https://github.com/github/gitignore/blob/master/Python.gitignore
 ##
 *.py[cod]
@@ -105,4 +109,4 @@ cover/
 
 ## User must regenerate to ensure fresh results
 #  and note burden GitHub/bandwidth. 
-/Notebooks/VehData/WltpGS-python.h5*
+/Notebooks/VehData/WltpGS-pyalgo.h5*
