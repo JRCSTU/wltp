@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 from pandas import IndexSlice as _ix
 
-from wltp import downscale, vmax
+from wltp import engine, downscale, vmax
 from wltp.io import gear_names, veh_names
 
 from . import vehdb
@@ -40,7 +40,10 @@ def test_v_max(h5_accdb):
     def make_v_maxes(vehnum):
         props, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, vehnum)
         wot = wot.rename({"Pwot": "p"}, axis=1)
-        rec = vmax.calc_v_max(wot, n2vs, props.f0, props.f1, props.f2, 0.1)
+        wot["n"] = wot.index
+        gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
+        gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
+        rec = vmax.calc_v_max(gwots, props.f0, props.f1, props.f2)
 
         return (props["v_max"], rec.v_max, props["gear_v_max"], rec.g_vmax, rec.wot)
 

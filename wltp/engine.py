@@ -154,6 +154,7 @@ def validate_wot(
 ) -> pd.DataFrame:
     """Higher-level validation of the wot-curves with repect to model."""
     w = wio.pstep_factory.get().wot
+    d = wio.pstep_factory.get().wot
 
     if wot.shape[0] < 3:
         yield ValidationError(
@@ -232,62 +233,6 @@ def calc_p_available(P: Column, ASM: Column, f_safety_margin) -> Column:
     return P * total_reduction
 
 
-def interpolate_wot_on_v_grid(wot: pd.DataFrame):
-    """
-    DEPRECATED, use by vmax only
-    Interpolated wot on a v-grid from v_min_wot --> v_max_wot, rounded. 
-    
-    :param wot:
-        must contain aat least `v` column
-    """
-    ## DEPRECATE when vmax switch to `...grid2()` below.
-    w = wio.pstep_factory.get().wot
-
-    assert wot.size, "Empty wot!"
-
-    V = wot[w.v]
-
-    ## Clip V-grid inside min/max of wot-N.
-    #
-    vmul = 10 ** v_decimals
-    v_wot_min = vround(np.ceil(V.min() * vmul) / vmul)
-    v_wot_max = vround(np.floor(V.max() * vmul) / vmul)
-
-    ## Using np.arange() because np.linspace() steps are not reliably spaced,
-    #  and apply the GTR-rounding.
-    #
-    V_grid = vround(np.arange(v_wot_min, v_wot_max, v_step))
-    assert V_grid.size, ("Empty wot?", v_wot_min, v_wot_max)
-    ## Add endpoint manually because np.arange() is not adding it reliably.
-    #
-    if V_grid[-1] != v_wot_max:
-        V_grid = np.hstack((V_grid, [v_wot_max]))
-
-    assert 0 <= V_grid[0] - V.min() < v_step, (
-        "V-grid start below/too-far min(N_wot): ",
-        V.min(),
-        v_wot_min,
-        V_grid[0:7],
-        v_step,
-    )
-    assert 0 <= V.max() - V_grid[-1] < v_step, (
-        "V-grid end above/too-far max(N_wot): ",
-        V_grid[-7:],
-        v_wot_max,
-        V.max(),
-        v_step,
-    )
-
-    def interp(C):
-        return interpolate.interp1d(V, C, copy=False, assume_sorted=True)(V_grid)
-
-    wot_grid = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
-    ## Throw-away the interpolated v, it's inaccurate, use the "x" (v-grid) instead.
-    wot_grid.index = wot_grid[w.v] = V_grid
-
-    return wot_grid
-
-
 def _make_v_grid(v_wot_min: float, v_wot_max: float) -> np.ndarray:
     assert v_wot_min < v_wot_max, f"Unsorted wot? {v_wot_min}, {v_wot_max}"
 
@@ -301,7 +246,7 @@ def _make_v_grid(v_wot_min: float, v_wot_max: float) -> np.ndarray:
     #  and apply the GTR-rounding.
     #
     V_grid = vround(np.arange(v_wot_min2, v_wot_max2, v_step))
-    assert V_grid.size, ("Empty wot?", v_wot_min, v_wot_max)
+    assert V_grid.size, ("Empty WOT?", v_wot_min, v_wot_max, v_wot_min2, v_wot_max2)
     ## Add endpoint manually because np.arange() is not adding it reliably.
     #
     if V_grid[-1] != v_wot_max:
@@ -341,7 +286,7 @@ def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     """
     w = wio.pstep_factory.get().wot
 
-    assert wot.size, "Empty wot!"
+    assert wot.size, ("Empty WOT!", wot)
 
     N = wot[w.n]
     n_wot_min, n_wot_max = N.min(), N.max()
@@ -422,7 +367,7 @@ def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: Number) -> Tuple[float, f
     """
     w = wio.pstep_factory.get().wot
 
-    assert wot.size, "Empty wot!"
+    assert wot.size, ("Empty WOT!", wot)
     assert not set([w.n, w.p_norm]) - set(wot.columns), (
         "Wot missing columns:",
         [w.n, w.p_norm],

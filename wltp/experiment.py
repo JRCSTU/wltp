@@ -167,7 +167,10 @@ class Experiment(object):
 
         f_safety_margin = mdl["f_safety_margin"]
 
-        v_max_rec = vmax.calc_v_max(wot, gear_ratios, f0, f1, f2, f_safety_margin)
+        gwots = engine.interpolate_wot_on_v_grid2(wot, gear_ratios)
+        gwots = engine.calc_p_avail_in_gwots(gwots, SM=f_safety_margin)
+
+        v_max_rec = vmax.calc_v_max(gwots, f0, f1, f2)
         mdl["v_max"] = v_max = v_max_rec.v_max
         mdl["n_vmax"] = v_max_rec.n_vmax
         mdl["g_vmax"] = v_max_rec.g_vmax
@@ -262,8 +265,6 @@ class Experiment(object):
             cb.V, cb.A, test_mass, f0, f1, f2, f_inertial
         )
 
-        gwots = engine.interpolate_wot_on_v_grid2(wot, gear_ratios)
-        gwots = engine.calc_p_avail_in_gwots(gwots, SM=f_safety_margin)
         cb.add_wots(gwots)
 
         ## Remaining n_max values
