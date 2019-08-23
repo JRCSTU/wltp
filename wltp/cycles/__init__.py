@@ -57,33 +57,46 @@ def cycle_checksums(full=False) -> pd.DataFrame:
     """
     import io
     from textwrap import dedent
+    from pandas import IndexSlice as idx
 
     ## As printed by :func:`tests.test_instances.test_wltc_checksums()``
     table_csv = dedent(
         """
-        		V	V	V	V	V_A1	V_A1	V_A2	V_A2
-        		SUM	CRC32	cum_SUM	cum_CRC32	CRC32	cum_CRC32	CRC32	cum_CRC32
+        checksum		CRC32	CRC32	CRC32	CRC32	CRC32	CRC32	SUM	SUM
+        accumulation		by_phase	by_phase	by_phase	cummulative	cummulative	cummulative	by_phase	cummulative
+        phasing		V	V_A1	V_A2	V	V_A1	V_A2	V	V
         class	part								
-        class1	part-1	11988.4	9840D3E9	11988.4	9840D3E9	4438BBA3	4438BBA3	155E6130	155E6130
-        class1	part-2	17162.8	8C342DB0	29151.2	DCF2D584	8C8D3B61	90BEA9C	A26AA013	27BC6DCC
-        class1	part-3	11988.4	9840D3E9	41139.6	6D1D7DF5	9840D3E9	6D1D7DF5	97DBE17C	F523E31C
-        class2	part-1	11162.2	85914C5F	11162.2	85914C5F	CDD16179	CDD16179	C771FB0A	C771FB0A
-        class2	part-2	17054.3	312DBBFF	28216.5	A0103D21	391AA607	606EFF7B	CCE778B1	5A1D33C8
-        class2	part-3	24450.6	81CD4DA6	52667.1	28FBF6C3	E29E35E8	926135F3	57BF4874	EC74F119
-        class2	part-4	28869.8	8994F1E9	81536.9	474B3569	8994F1E9	474B3569	2181BF4D	F70F32D3
-        class3a	part-1	11140.3	48E5AA11	11140.3	48E5AA11	910CE01B	910CE01B	E0E213B8	E0E213B8
-        class3a	part-2	16995.7	14945FDD	28136.0	403DF278	D93BFCA7	24879CA6	CC323D49	3ABFEAD9
-        class3a	part-3	25646.0	8B3B20BE	53782.0	D7708FF4	9887E03D	3F6732E0	E6A7C73E	55AA673E
-        class3a	part-4	29714.9	F9621B4F	83496.9	9BCE354C	F9621B4F	9BCE354C	517755EB	2B8A32F6
-        class3b	part-1	11140.3	48E5AA11	11140.3	48E5AA11	910CE01B	910CE01B	E0E213B8	E0E213B8
-        class3b	part-2	17121.2	AF1D2C10	28261.5	FBB481B5	E50188F1	18BDE8F0	7B6A0F45	8DE7D8D5
-        class3b	part-3	25782.2	15F6364D	54043.7	43BC555F	A779B4D1	B997EE4D	2DE25EDC	7E5FAD1A
-        class3b	part-4	29714.9	F9621B4F	83758.6	639BD037	F9621B4F	639BD037	517755EB	D3DFD78D
+        class1	part-1	9840D3E9	4438BBA3	155E6130	9840D3E9	4438BBA3	155E6130	11988.4	11988.4
+        class1	part-2	8C342DB0	8C8D3B61	A26AA013	DCF2D584	90BEA9C	27BC6DCC	17162.8	29151.2
+        class1	part-3	9840D3E9	9840D3E9	97DBE17C	6D1D7DF5	6D1D7DF5	F523E31C	11988.4	41139.6
+        class2	part-1	85914C5F	CDD16179	C771FB0A	85914C5F	CDD16179	C771FB0A	11162.2	11162.2
+        class2	part-2	312DBBFF	391AA607	CCE778B1	A0103D21	606EFF7B	5A1D33C8	17054.3	28216.5
+        class2	part-3	81CD4DA6	E29E35E8	57BF4874	28FBF6C3	926135F3	EC74F119	24450.6	52667.1
+        class2	part-4	8994F1E9	8994F1E9	2181BF4D	474B3569	474B3569	F70F32D3	28869.8	81536.9
+        class3a	part-1	48E5AA11	910CE01B	E0E213B8	48E5AA11	910CE01B	E0E213B8	11140.3	11140.3
+        class3a	part-2	14945FDD	D93BFCA7	CC323D49	403DF278	24879CA6	3ABFEAD9	16995.7	28136.0
+        class3a	part-3	8B3B20BE	9887E03D	E6A7C73E	D7708FF4	3F6732E0	55AA673E	25646.0	53782.0
+        class3a	part-4	F9621B4F	F9621B4F	517755EB	9BCE354C	9BCE354C	2B8A32F6	29714.9	83496.9
+        class3b	part-1	48E5AA11	910CE01B	E0E213B8	48E5AA11	910CE01B	E0E213B8	11140.3	11140.3
+        class3b	part-2	AF1D2C10	E50188F1	7B6A0F45	FBB481B5	18BDE8F0	8DE7D8D5	17121.2	28261.5
+        class3b	part-3	15F6364D	A779B4D1	2DE25EDC	43BC555F	B997EE4D	7E5FAD1A	25782.2	54043.7
+        class3b	part-4	F9621B4F	F9621B4F	517755EB	639BD037	639BD037	D3DFD78D	29714.9	83758.6
         """
     )
-    df = pd.read_csv(io.StringIO(table_csv), sep="\t", header=[0, 1], index_col=[0, 1])
+    df = pd.read_csv(
+        io.StringIO(table_csv), sep="\t", header=[0, 1, 2], index_col=[0, 1]
+    )
     if not full:
-        df.update(df.iloc[:, [1, 3, 4, 5, 6, 7]].apply(lambda sr: sr.str[:4]))
+
+        def clip_crc(sr):
+            try:
+                sr = sr.str[:4]
+            except AttributeError:
+                # AttributeError('Can only use .str accessor with string values...
+                pass
+            return sr
+
+        df = df.groupby(level="checksum", axis=1).transform(clip_crc)
 
     return df
 
@@ -97,7 +110,7 @@ def identify_cycle_v_crc(
     crc = hex(crc).upper()
     crc = crc[2:6]
 
-    crcs = cycle_checksums(full=False).iloc[:, [1, 3, 4, 5, 6, 7]]
+    crcs = cycle_checksums(full=False)["CRC32"]
     matches = crcs == crc
     if matches.any(None):
         ## Fetch 1st from top-left.
@@ -106,14 +119,14 @@ def identify_cycle_v_crc(
             if flags.any():
                 index = np.asscalar(next(iter(np.argwhere(flags))))
                 cycle, part = crcs.index[index]
-                va_kind, cum_kind = col
-                if "cum_" in cum_kind:
-                    if index in [2, 6, 10, 14]:  # is it a final part?
+                accum, phasing = col
+                if accum == "cummulative":
+                    if index in [2, 6, 10, 14]:  # is it a final cycle-part?
                         part = None
                     else:
                         part = part.upper()
 
-                return (cycle, part, va_kind)
+                return (cycle, part, phasing)
         else:
             assert False, ("Impossible find:", crc, crcs)
     return (None, None, None)

@@ -67,12 +67,19 @@ def _calc_wltc_checksums(offset, length, calc_sum=True):
     for cl in datamodel.get_class_names():
         calc_class_sums(cl)
 
-    columns = (
-        "class part SUM CRC32 cum_SUM cum_CRC32"
-        if calc_sum
-        else "class part CRC32 cum_CRC32"
-    )
-    df = pd.DataFrame(results, columns=columns.split()).set_index(["class", "part"])
+    columns = ["class", "part", 2, 3]
+    if calc_sum:
+        columns.extend([4, 5])
+    df = pd.DataFrame(results, columns=columns).set_index(["class", "part"])
+    if calc_sum:
+        df.columns = (
+            ("by_phase", "SUM"),
+            ("by_phase", "CRC32"),
+            ("cummulative", "SUM"),
+            ("cummulative", "CRC32"),
+        )
+    else:
+        df.columns = (("by_phase", "CRC32"), ("cummulative", "CRC32"))
 
     return df
 
@@ -91,6 +98,8 @@ def test_wltc_checksums():
     }
 
     dfs = pd.concat(dfs_dict.values(), keys=dfs_dict.keys(), axis=1)
+    dfs = dfs.swaplevel(0, 2, axis=1).sort_index(level=0, axis=1)
+    dfs.columns.names = "checksum accumulation phasing".split()
 
     def as_csv_txt(dfs):
         sio = io.StringIO()
@@ -101,32 +110,27 @@ def test_wltc_checksums():
 
     ## UNCOMMENT this to printout CRCs.
     #
-    # print(as_csv_txt(dfs))
-    # print(as_csv_txt(exp))
+    print(as_csv_txt(dfs))
+    print(as_csv_txt(exp))
 
     crc_idx = [1, 3, 4, 5, 6, 7]
-    assert dfs.iloc[:, crc_idx].equals(exp.iloc[:, crc_idx])
+    assert dfs["CRC32"].equals(exp["CRC32"])
 
     sum_idx = [0, 2]
-    npt.assert_allclose(dfs.iloc[:, sum_idx], exp.iloc[:, sum_idx])
+    npt.assert_allclose(dfs["SUM"], exp["SUM"])
 
 
-def test_indetify_checksums_works_with_all_CRCs():
-    def run_assertions(crc):
-        assert cycles.identify_cycle_v_crc(crc) == exp
-        assert cycles.identify_cycle_v_crc(crc.lower()) == exp
-        assert cycles.identify_cycle_v_crc(crc.upper()) == exp
-        assert cycles.identify_cycle_v_crc(int(crc, 16)) == exp
-
+@pytest.mark.parametrize("full", (True, False))
+def test_identify_checksums_works_with_all_CRCs(full):
     wltc_class = 0
     V = datamodel.get_class_v_cycle(wltc_class)
-    crc = cycles.crc_velocity(V)
+    crc = cycles.crc_velocity(V, full=full)
     exp = ("class1", None, "V")
 
-    run_assertions(crc)
-
-    crc = cycles.crc_velocity(V, full=True)
-    run_assertions(crc)
+    assert cycles.identify_cycle_v_crc(crc) == exp
+    assert cycles.identify_cycle_v_crc(crc.lower()) == exp
+    assert cycles.identify_cycle_v_crc(crc.upper()) == exp
+    assert cycles.identify_cycle_v_crc(int(crc, 16)) == exp
 
 
 @pytest.mark.parametrize(
