@@ -232,6 +232,21 @@ def provenir_h5node(
     return do_h5(h5, func)
 
 
+def provenance_h5node(h5: Union[str, HDFStore], node):
+    """Get provenance-infos from some existing H5 node.
+    
+    """
+
+    def func(h5db):
+        h5file = h5db._handle
+        title = h5file.get_node_attr(node, "TITLE")
+        provenance = h5file.get_node_attr(node, "provenance")
+
+        return f"TITLE: {title}\n{provenance}"
+
+    return do_h5(h5, func)
+
+
 def collect_nodes(
     h5: Union[str, HDFStore], predicate: Callable[[str], Any], start_in="/"
 ) -> List[str]:
