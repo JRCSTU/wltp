@@ -189,9 +189,9 @@ def validate_wot(
     if ASM is not None:
         if (ASM < 0).any():
             yield ValidationError(f"`{w.ASM}` must not be reach negatives! \n{ASM}")
-        if ASM.max() > 0.5 * p_rated:
+        if ASM.max() > 0.5:
             ValidationError(
-                f"`{w.ASM}_max`({ASM.max()}) must stay below 0.5 x `{d.p_rated}`({p_rated})!"
+                f"`{w.ASM}`` must stay below 50%, peaked at ({ASM.max()}!\n{wot}"
             )
 
 
