@@ -10,7 +10,7 @@ import logging
 from collections import namedtuple
 from collections.abc import Mapping
 from numbers import Number
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -218,16 +218,19 @@ def preproc_wot(mdl: Mapping, wot) -> pd.DataFrame:
     return wot
 
 
-def calc_p_available(P: Column, ASM: Column, f_safety_margin) -> Column:
+def calc_p_available(P: Column, f_safety_margin, ASM: Optional[Column] = 0) -> Column:
     """
     Calculate `p_available` acording to Annex 2-3.4.
 
     :param P: 
-        in kW
+        power (usually from WOT)
+    :param f_safety_margin: 
+        usually 0.1
     :param ASM: 
-        in % (e.g. 0.10, 0.35)
+        in % (e.g. 0.10, 0.35), not enforcing any of GTR's restrictions
+        (e.g. <= 50%)
     :return: 
-        in kW
+        same units as `P`
     """
     total_reduction = 1 - f_safety_margin - ASM
     return P * total_reduction
@@ -346,8 +349,11 @@ def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
 
     for gear in gwots.columns.levels[0]:
         ASM = gwots[(gear, w.ASM)] if (gear, w.ASM) in gwots else 0
+        gwots.loc[:, (gear, w.p_avail_stable)] = calc_p_available(
+            gwots.loc[:, (gear, w.p)], SM, 0
+        )
         gwots.loc[:, (gear, w.p_avail)] = calc_p_available(
-            gwots.loc[:, (gear, w.p)], ASM, SM
+            gwots.loc[:, (gear, w.p)], SM, ASM
         )
     gwots = gwots.sort_index(axis=1)
 

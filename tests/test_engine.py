@@ -149,7 +149,7 @@ def test_calc_p_available(h5_accdb):
     def check_p_avail(case):
         _prop, wot, _n2vs = vehdb.load_vehicle_accdb(h5_accdb, case)
 
-        p_avail = engine.calc_p_available(wot["Pwot"], wot["ASM"], 0.1)
+        p_avail = engine.calc_p_available(wot["Pwot"], 0.1, wot["ASM"])
 
         try:
             assert (p_avail - wot["Pavai"] < 1e-12).all()

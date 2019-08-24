@@ -455,14 +455,15 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     >>> import pandas as pd, wltp.cycler as cycler
     >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
     >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
-    (1801, 84)
+    (1801, 90)
     >>> cycler.flatten_columns(df.columns)
     ['t', 'v_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
      'stop', 'accel', 'cruise', 'decel', 'initaccel', 'stopdecel', 'up', 'p_req', 'n/g1', 'n/g2', 'n/g3',
      'n/g4', 'n/g5', 'n/g6', 'n_norm/g1', 'n_norm/g2', 'n_norm/g3', 'n_norm/g4', 'n_norm/g5',
      'n_norm/g6', 'p/g1', 'p/g2', 'p/g3', 'p/g4', 'p/g5', 'p/g6', 'p_avail/g1', 'p_avail/g2',
-     'p_avail/g3', 'p_avail/g4', 'p_avail/g5', 'p_avail/g6', 'p_norm/g1', 'p_norm/g2', 'p_norm/g3',
-     'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_max_n_gears_below_gvmax/g1',
+     'p_avail/g3', 'p_avail/g4', 'p_avail/g5', 'p_avail/g6', 'p_avail_stable/g1', 'p_avail_stable/g2',
+     'p_avail_stable/g3', 'p_avail_stable/g4', 'p_avail_stable/g5', 'p_avail_stable/g6', 'p_norm/g1',
+     'p_norm/g2', 'p_norm/g3', 'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_max_n_gears_below_gvmax/g1',
      'ok_max_n_gears_below_gvmax/g2', 'ok_max_n_gears_below_gvmax/g3', 'ok_max_n_gears_below_gvmax/g4',
      'ok_max_n_gears_below_gvmax/g5', 'ok_max_n_gears_from_gvmax/g6', 'ok_min_n_colds_dns/g3',
      'ok_min_n_colds_dns/g4', 'ok_min_n_colds_dns/g5', 'ok_min_n_colds_dns/g6', 'ok_min_n_colds_ups/g3',
