@@ -12,9 +12,10 @@ import numpy as np
 import pandas as pd
 import pytest
 from jsonschema import ValidationError
+from numpy import testing as npt
 from tests import vehdb
 
-from wltp import engine
+from wltp import engine, invariants
 from wltp import io as wio
 
 _N = [500, 2000, 5000]
@@ -207,6 +208,16 @@ def test_calc_n95(h5_accdb):
     assert (df.describe().values - exp < aggregate_tol).all(None)
 
 
+@pytest.mark.parametrize(
+    "start, end, nsamples",
+    [(1, 2, 11), (1, 10, 91), (1.23, 1.44, 2), (1.29, 1.45, 2), (1.201, 1.46, 2)],
+)
+def test_make_v_grid(start, end, nsamples):
+    grid = engine._make_v_grid(start, end)
+    assert len(grid) == nsamples
+    npt.assert_allclose(grid, invariants.vround(grid))
+
+
 def test_interpolate_wot_on_v_grid(h5_accdb):
     def interpolate_veh(case):
         _prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, case)
@@ -229,6 +240,7 @@ def test_interpolate_wot_on_v_grid(h5_accdb):
     assert (df.index.levels[0] == wio.veh_names(all_cases)).all()
     assert df.columns.names == ["gear", "wot_item"]
     assert not (set("n Pwot ASM".split()) - set(df.columns.levels[1]))
+    npt.assert_allclose(df.index.levels[1], invariants.vround(df.index.levels[1]))
 
 
 def test_n_mins_smoke():

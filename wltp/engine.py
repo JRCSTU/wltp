@@ -249,8 +249,8 @@ def _make_v_grid(v_wot_min: float, v_wot_max: float) -> np.ndarray:
     assert V_grid.size, ("Empty WOT?", v_wot_min, v_wot_max, v_wot_min2, v_wot_max2)
     ## Add endpoint manually because np.arange() is not adding it reliably.
     #
-    if V_grid[-1] != v_wot_max:
-        V_grid = np.hstack((V_grid, [v_wot_max]))
+    if V_grid[-1] != v_wot_max2:
+        V_grid = np.hstack((V_grid, [v_wot_max2]))
 
     assert 0 <= V_grid[0] - v_wot_min < v_step, (
         "V-grid start below/too-far min(N_wot): ",
@@ -287,6 +287,7 @@ def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     w = wio.pstep_factory.get().wot
 
     assert wot.size, ("Empty WOT!", wot)
+    assert np.all(np.diff(n2v_ratios) < 0), ("Unsorted N2Vs?", n2v_ratios)
 
     N = wot[w.n]
     n_wot_min, n_wot_max = N.min(), N.max()
