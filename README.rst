@@ -142,7 +142,7 @@ From within the project directory, run one of these commands to install it:
 - Run pyalgo on all AccDB cars to re-create the H5 file
   needed for ``CarsDB-compare`` notebook, etc:: 
 
-      ./Notebooks/recreate_pyalgo_h5.sh
+      jupytext --sync /Notebooks/*.Rmd
 
 
 Usage:
