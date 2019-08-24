@@ -110,7 +110,7 @@ def store_python_results(
         for vehnum in veh_nums:
             log.info("Processing veh(v%0.3i)...", vehnum)
             try:
-                yield vehnum, vehdb.run_pyalgo_on_Heinz_vehicle(inph5, vehnum)
+                yield vehnum, vehdb.run_pyalgo_on_accdb_vehicle(inph5, vehnum)
             except Exception as ex:
                 log.error("V%0.3i failed: %s", vehnum, ex)
                 raise ex

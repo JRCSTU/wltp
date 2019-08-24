@@ -506,7 +506,7 @@ def all_vehnums(h5) -> List[int]:  # TODO: rename to all_cases()
 
 
 def load_n2v_gear_ratios(vehicle_iprops: Union[dict, pd.Series]):
-    """Reads all valid `ndv_X` values from Heinz DB input-properties in HD5"""
+    """Reads all valid `ndv_X` values from AccDB input-properties in HD5"""
     ng = vehicle_iprops["no_of_gears"]
     return [vehicle_iprops[f"ndv_{g}"] for g in range(1, ng + 1)]
 
@@ -563,7 +563,7 @@ def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
     return mdl
 
 
-def run_pyalgo_on_Heinz_vehicle(
+def run_pyalgo_on_accdb_vehicle(
     h5, vehnum, props_group_suffix="prop", pwot_group_suffix="wot"
 ) -> Tuple[dict, pd.DataFrame, pd.DataFrame]:
     """
@@ -615,7 +615,7 @@ def run_pyalgo_on_Heinz_vehicle(
     return oprops, cycle_run, mdl["wots_vmax"]
 
 
-# oprops, cycle, wots_vmax = nbu.run_pyalgo_on_Heinz_vehicle(inp_h5fname, 14)
+# oprops, cycle, wots_vmax = nbu.run_pyalgo_on_accdb_vehicle(inp_h5fname, 14)
 # display(oprops, cycle, wots_vmax)
 
 
