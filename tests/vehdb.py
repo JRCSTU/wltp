@@ -589,13 +589,14 @@ def run_pyalgo_on_accdb_vehicle(
     #  (excluding `driveability`, which is a list, and f0,f1,f2, addume were input).
     #
     # oprops = {k: v for k, v in veh if np.isscalar(v)}
-    oprops = {
+    out_mdl = {
         "pmr": mdl["pmr"],
         "n95_low": mdl["n95_low"],
         "n95_high": mdl["n95_high"],
         "v_max": mdl["v_max"],
         "n_vmax": mdl["n_vmax"],
         "g_vmax": mdl["g_vmax"],
+        "is_n_lim_vmax": mdl["is_n_lim_vmax"],
         "n_max1": mdl["n_max1"],
         "n_max2": mdl["n_max2"],
         "n_max3": mdl["n_max3"],
@@ -612,7 +613,7 @@ def run_pyalgo_on_accdb_vehicle(
     for badtype_col in cycle_run.select_dtypes("Int8"):
         cycle_run[badtype_col] = cycle_run[badtype_col].fillna(-1).astype("int8")
 
-    return oprops, cycle_run, mdl["wots_vmax"]
+    return out_mdl, cycle_run, mdl["wots_vmax"]
 
 
 # oprops, cycle, wots_vmax = nbu.run_pyalgo_on_accdb_vehicle(inp_h5fname, 14)

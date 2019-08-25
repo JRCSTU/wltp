@@ -439,8 +439,8 @@ Now you can run the experiment:
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
       ['cycle_run', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
        'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2',
-       'f_safety_margin', 'g_vmax', 'gear_ratios', 'n95_high', 'n95_low', 'n_idle', 'n_max', 'n_max1',
-       'n_max2', 'n_max3', 'n_min', 'n_rated', 'n_vmax', 'p_rated', 'pmr', 'test_mass',
+       'f_safety_margin', 'g_vmax', 'gear_ratios', 'is_n_lim_vmax', 'n95_high', 'n95_low', 'n_idle',
+       'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_rated', 'n_vmax', 'p_rated', 'pmr', 'test_mass',
        'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class', 'wltc_data', 'wot', 'wots_vmax']
 
 

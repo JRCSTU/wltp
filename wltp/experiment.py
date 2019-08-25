@@ -175,6 +175,7 @@ class Experiment(object):
         mdl["v_max"] = v_max = v_max_rec.v_max
         mdl["n_vmax"] = v_max_rec.n_vmax
         mdl["g_vmax"] = v_max_rec.g_vmax
+        mdl["is_n_lim_vmax"] = v_max_rec.is_n_lim
         mdl["wots_vmax"] = v_max_rec.wot
 
         p_m_ratio = 1000 * p_rated / unladen_mass

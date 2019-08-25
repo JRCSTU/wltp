@@ -37,8 +37,9 @@ log = logging.getLogger(__name__)
 #: - ``v_max``: in kmh; np.NAN if not found
 #: - ``n_vmax``: the engine speed producing v_max; np.NAN if not found
 #: - ``g_vmax``: the number of the gear producing v_max
+#: - ``is_n_lim``: true if max-WOT(n) reached for VMax (ie. `p_avail_stable` always > `p_resist`)
 #: - ``wot``: intermediate curves on grid-V used to solve the equation
-VMaxRec = namedtuple("VMaxRec", "v_max  n_vmax  g_vmax wot")
+VMaxRec = namedtuple("VMaxRec", "v_max  n_vmax  g_vmax  is_n_lim  wot")
 
 
 def _find_p_remain_root(
@@ -55,8 +56,6 @@ def _find_p_remain_root(
         A df indexed by grid `v` with (at least) `p_remain_stable` column.
     :return:
         a :class:`VMaxRec` with v_max in kmh or np.NAN
-
-    .. TODO:: Add flag in out-mdl noting if max-WOT reached for VMax. 
     """
     w = wio.pstep_factory.get().wot
 
@@ -74,7 +73,7 @@ def _find_p_remain_root(
         n_v_max = wot.loc[:, w.n].iloc[-1]
 
         assert not (np.isnan(v_max) or np.isnan(n_v_max)), locals()
-        rec = VMaxRec(v_max, n_v_max, gid, wot)
+        rec = VMaxRec(v_max, n_v_max, gid, True, wot)
     else:
         v_max = np.NAN
 
@@ -110,9 +109,9 @@ def _find_p_remain_root(
                 v_max,
                 wot.loc[v_max - 5 * v_step : v_max + 5 * v_step, w.p_remain_stable],
             )
-            rec = VMaxRec(v_max, n_v_max, gid, wot)
+            rec = VMaxRec(v_max, n_v_max, gid, False, wot)
         else:
-            rec = VMaxRec(np.NAN, np.NAN, gid, wot)
+            rec = VMaxRec(np.NAN, np.NAN, gid, False, wot)
 
     return rec
 

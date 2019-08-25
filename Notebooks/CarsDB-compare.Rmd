@@ -131,6 +131,7 @@ equivalent_columns = [
     ("f_dsc_req", "f_downscale"),
     ("v_max", "v_max"),
     ("n_max1", "n95_high"),
+    #("???", "is_n_lim_vmax")
 ]
 
 cdf = sr_cmpr.compare((p1.stack(), p2.stack()), equivalent_columns, dataset_names)
@@ -139,6 +140,8 @@ cdf = sr_cmpr.compare((p1.stack(), p2.stack()), equivalent_columns, dataset_name
 cdf.columns = [' '.join(col).strip() for col in cdf.columns.values]
 
 display(vehdb.grid(cdf, fitcols=False, cwidth=100),)
+# with pd.option_context('max_rows', 130):
+#     display(cdf)
 ```
 
 ```{python}
