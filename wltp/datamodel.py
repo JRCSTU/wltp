@@ -394,6 +394,13 @@ properties:
     type:
     - object
     - array
+  grid_wots:
+    description: |2
+      A dataframe with 2-level columns (item, gear)
+      - `p_avail_stable`: reduced by safety-margin, but not by ASM
+      - `p_avail`: reduced by both SM & ASM
+      - `p_resist`: road loads power
+      - `p_req`: road loads & cycle power
   pmr:
     title: Power to Unladen-Mass
     description: Power/unladen-Mass ratio (W/kg).
@@ -918,9 +925,15 @@ def yield_load_curve_errors(mdl):
 
 
 def yield_n_min_errors(mdl):
-    # TODO: accept ARRAY `n_min_drive`
     # TODO: min(Nwot) <= n_min_drive_set
-    # NOTE: cannot check `t_end_cold` is in stop-gap, wltc-class decision not made yet.
+    """
+    .. TODO:: 
+      Support ARRAY for `n_min_drive_up/dn`.
+    .. TODO:: 
+      cannot Checking of `t_end_cold` is in stop-gap during datamodel-validation; 
+      wltc-class decision not made yet.
+    
+    """
 
     d = wio.pstep_factory.get()
     # g = wio.pstep_factory.get().gears

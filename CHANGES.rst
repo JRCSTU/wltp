@@ -52,6 +52,7 @@ TODOs
 * model/core: Accept units on all quantities.
 * core: Move calculations as class-methods to provide for overriding certain parts of the algorithm.
 * core: execute part of the calculation-graph based on the the data given/asked.
+.. todolist::
 
 
 Changelog

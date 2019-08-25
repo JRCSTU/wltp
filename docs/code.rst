@@ -336,6 +336,13 @@ Schema
         type:
         - object
         - array
+      grid_wots:
+        description: |
+          A dataframe with 2-level columns (item, gear)
+          - `p_avail_stable`: reduced by safety-margin, but not by ASM
+          - `p_avail`: reduced by both SM & ASM
+          - `p_resist`: road loads power
+          - `p_req`: road loads & cycle power
       pmr:
         title: Power to Unladen-Mass
         description: Power/unladen-Mass ratio (W/kg).
