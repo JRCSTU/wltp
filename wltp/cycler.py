@@ -260,8 +260,6 @@ class CycleBuilder:
     Specific choreography of method-calls required, see TCs & notebooks.
     """
 
-    ## Default `safety_margin` redundant here, but facilitates test code.
-    SM: float = 0.1
     multi_column_separator: str = "."
 
     #: The instance that is built.
