@@ -50,6 +50,7 @@ from pandalone.mappings import Pstep
 import qgrid
 
 import wltp
+from wltp import engine
 from wltp.experiment import Experiment
 from wltp import datamodel, io as wio, engine, vmax, vehicle, cycler
 
@@ -98,6 +99,7 @@ print(list(mdl.keys()))
 ```{python}
 gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
 gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
+p_resist = vehicle.calc_road_load_power(gwots.index, mdl["f0"], mdl["f1"], prop["f2"])
 ```
 
 ```{python}
@@ -150,7 +152,7 @@ cycle = cb.cycle
 ng = 6
 n95_high = engine.calc_n95(wot, mdl["n_rated"], mdl["p_rated"])[0]
 v_max_cycle = cb.V.max()
-vmax_rec = vmax.calc_v_max(gwots, mdl["f0"], mdl["f1"], prop["f2"])
+vmax_rec = vmax.calc_v_max(gwots, p_resist)
 g_vmax = vmax_rec.g_vmax
 n2v_vmax = n2vs[g_vmax - 1]
 n_max_cycle = v_max_cycle * n2v_vmax
@@ -175,7 +177,7 @@ max_zoom = 24
 ok_flags2 = ok_flags.fillna(False) * (np.arange(ok_flags.shape[1]) + 1)
 ok_gear2 = ok_gears * (np.arange(ok_gears.shape[1]) + ok_flags.shape[1] + 1)
 
-@interact(gear=cb.gnames, zoom=(1, max_zoom, 1), pan=(0, max_zoom, 1))
+@interact(gear=cb.gidx.gnames, zoom=(1, max_zoom, 1), pan=(0, max_zoom, 1))
 def plot_gear(gear='g2', zoom=15, pan=10):
     ax = None
     

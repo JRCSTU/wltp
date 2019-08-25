@@ -46,7 +46,7 @@ from pandas.core.generic import NDFrame
 from matplotlib import pyplot as plt
 import qgrid
 import wltp
-from wltp import vmax, engine
+from wltp import io as wio, vmax, engine, vehicle, vmax, cycler
 from wltp.experiment import Experiment
 
 ## Add tests/ into `sys.path` to import `vehdb` module.
@@ -101,7 +101,8 @@ def read_veh(vehnum, silent=False):
     return ac_props, py_props, wot, gwots
 
 
-ac_props, py_props, wot, gwots = read_veh(21)
+caseno = 21
+ac_props, py_props, wot, gwots = read_veh(caseno)
 ```
 
 ```{python}
@@ -160,8 +161,8 @@ def read_veh(vehnum, silent=False):
 
     return ac_props, py_props, wot, gwots, n2vs
 
-
-ac_props, py_props, wot, gwots, n2vs = read_veh(48)
+caseno = 48
+ac_props, py_props, wot, gwots, n2vs = read_veh(caseno)
 ```
 
 ```{python}
@@ -211,7 +212,8 @@ pyalgo:  141.1       5
 Strangely, accdb finds the correct `v_max`, but `g6` does not seem to cross `p_resist` at that point...
 
 ```{python}
-ac_props, py_props, wot, gwots, n2vs = read_veh(25)
+caseno = 25
+ac_props, py_props, wot, gwots, n2vs = read_veh(caseno)
 ```
 
 ```{python}
@@ -226,22 +228,25 @@ disp_gwots(ac_props, py_props, gwots, 5)
 ## Manual run
 
 ```{python}
-from wltp import engine, vmax
-```
-
-```{python}
-vehnum = 64
-ac_props, wot, n2vs = vehdb.load_vehicle_accdb(inp_h5fname, vehnum)
+caseno = 64
+# caseno = 48  # maxWOT 
+# caseno = 20  # maxWOT last gear  
+ac_props, wot, n2vs = vehdb.load_vehicle_accdb(inp_h5fname, caseno)
 wot = wot.rename(vehdb.accdb_renames(), axis=1)
 wot['n'] = wot.index
 ac_props = ac_props.rename(vehdb.accdb_renames())
 gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
 gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
-# gwots['v'] = gwots.index BRAK
+p_resist = vehicle.calc_road_load_power(gwots.index, ac_props.f0, ac_props.f1, ac_props.f2)
 ```
 
 ```{python}
-vmax.calc_v_max(gwots, ac_props.f0, ac_props.f1, ac_props.f2)
+w=wio.pstep_factory.get()
+gidx = wio.GearMultiIndexer(gwots)
+
+rec = vmax.calc_v_max(gwots, p_resist)
+print(f"VMAX: {rec.v_max}, G_VMAX: {rec.g_vmax}")
+display(rec.wot[f"g{rec.g_vmax}"])
 ```
 
 # Museum

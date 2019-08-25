@@ -41,7 +41,7 @@ from pandas.core.generic import NDFrame
 from matplotlib import pyplot as plt
 import qgrid
 import wltp
-from wltp import cycler
+from wltp import io as wio, cycler
 from wltp.experiment import Experiment
 
 ## Add tests/ into `sys.path` to import `vehdb` module.
@@ -169,7 +169,7 @@ equivalent_series = [
    #("nc", "n"),
 ]
 
-c2.columns = cycler.flatten_columns(c2.columns)
+c2.columns = wio.flatten_columns(c2.columns)
 
 cols1, cols2 = zip(*equivalent_series)
 cols1, cols2 = list(cols1), list(cols2)

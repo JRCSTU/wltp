@@ -9,6 +9,13 @@
 formulae estimating `v_max` from wot
 
 The `v_max` is found by the maximum gear where `p_avail_stable` intersects `p_resist`.
+
+.. Note::
+    Heinz accepted a shortcut of the vmax discovery procedure, roughly implemented here: 
+    scan 3 gear from top, and stop on first having `v_max` less-or-equal than previous, 
+    and accept `v_max` from that previous gear.
+    Writen "roughly" because all 3 gears are calculated, and then filtering the greatest one. 
+
 """
 import logging
 from collections import namedtuple
@@ -26,40 +33,56 @@ from .invariants import v_decimals, v_step, vround
 log = logging.getLogger(__name__)
 
 #: Solution results of the equation finding the v-max of each gear:
-#:   - v_max: in kmh, or np.NAN if not found
-#:   - n_vmax: the engine speed producing v_max
-#:   - g_vmax: the number (or the name) of the gear producing v_max
-#:   - wot: intermediate curves for solving the equation
-VMaxRec = namedtuple("VMaxRec", "v_max  n_vmax  g_vmax  wot")
+#:
+#: - ``v_max``: in kmh; np.NAN if not found
+#: - ``n_vmax``: the engine speed producing v_max; np.NAN if not found
+#: - ``g_vmax``: the number of the gear producing v_max
+#: - ``wot``: intermediate curves on grid-V used to solve the equation
+VMaxRec = namedtuple("VMaxRec", "v_max  n_vmax  g_vmax wot")
 
 
-def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
+def _find_p_remain_root(
+    gid: int, wot: pd.DataFrame, p_resist: Union[pd.Series, np.ndarray]
+) -> VMaxRec:
     """
-    Find the velocity (the "x") where `p_remain` (the "y") down-crosses zero,
+    Find the velocity (the "x") where `p_avail` (the "y") crosses `p_resist`,
     
-    rounded towards the part of wot where p_remain > 0
+    rounded towards the part of wot where ``p_remain > 0``
     (like MSAccess in e.g. `F new vehicle.form.vbs#L3273`)
-    or v @ max p_wot, if p_remain is always positive.
+    or v @ max p_wot, if `p_remain` is always positive.
 
-    :param wot: 
-        grid-interpolated df indexed by v with (at least): p_remain
+    :param gear_gwot:
+        A df indexed by grid `v` with (at least) `p_remain_stable` column.
     :return:
         a :class:`VMaxRec` with v_max in kmh or np.NAN
+
+    .. TODO:: Add flag in out-mdl noting if max-WOT reached for VMax. 
     """
     w = wio.pstep_factory.get().wot
 
     assert not wot.empty
-    wot = wot.dropna(axis=0, how="any", subset=[w.p_remain]).copy()
 
-    if (wot[w.p_remain] > 0).all():
+    wot = wot.copy()  # or else warn, when appending columns.
+
+    wot[w.p_resist] = p_resist
+    # Drop NANs for max_WOT case below to work, and save space.
+    wot = wot.dropna(subset=(w.p_avail_stable,))
+    wot[w.p_remain_stable] = wot[w.p_avail_stable] - wot[w.p_resist]
+
+    if (wot[w.p_remain_stable] > 0).all():
         v_max = wot.index[-1]  # v @ max n
+        n_v_max = wot.loc[:, w.n].iloc[-1]
+
+        assert not (np.isnan(v_max) or np.isnan(n_v_max)), locals()
+        rec = VMaxRec(v_max, n_v_max, gid, wot)
     else:
         v_max = np.NAN
+
         ## Zero-crossings of p_remain are marked as sign-changes,
         #  particularly interested in "down-crosses":
         #   -1: drop from positive to 0 (perfect match!)
         #   -2: drop from positive to negative
-        wot[w.sign_p_remain] = np.sign(wot[w.p_remain])
+        wot[w.sign_p_remain] = np.sign(wot[w.p_remain_stable])
 
         ## diff-periods:
         #   ofs=+1: diff with prev-element so zero-crossing is marked on high-index (after cross)
@@ -71,62 +94,47 @@ def _find_p_remain_root(wot: pd.DataFrame) -> VMaxRec:
         offs = -1
         wot[w.zero_crosings] = offs * wot[w.sign_p_remain].diff(periods=offs).fillna(0)
         # ... search for down-crossings only.
+        # roots_head = wot.index[wot[w.zero_crosings].lt(0, fill_value=0)]  # if no `fill_value` all NANs.
         roots_head = wot.index[wot[w.zero_crosings] < 0]
         # ... and capture v @ lowest of them (where p_remain is either 0 or still positive)
         if roots_head.size > 0:
             v_max = roots_head[0]  # Plain rounding, alreaydy close to grid.
+            n_v_max = wot.loc[v_max, w.n]
+
+            assert not (np.isnan(v_max) or np.isnan(n_v_max)), locals()
             assert v_max == vround(v_max), (v_max, vround(v_max))
-            _i = wot.loc[roots_head[0] :, w.p_remain].iteritems()
+            _i = wot.loc[roots_head[0] :, w.p_remain_stable].iteritems()
             assert next(_i)[1] > 0 and next(_i)[1] <= 0, (
                 "Solution is not the last positive p_remain:",
                 roots_head[0],
                 v_max,
-                wot.loc[v_max - 5 * v_step : v_max + 5 * v_step, w.p_remain],
+                wot.loc[v_max - 5 * v_step : v_max + 5 * v_step, w.p_remain_stable],
             )
+            rec = VMaxRec(v_max, n_v_max, gid, wot)
+        else:
+            rec = VMaxRec(np.NAN, np.NAN, gid, wot)
 
-    return VMaxRec(v_max, wot.loc[v_max, w.n], None, wot)
-
-
-def _calc_gear_v_max(gear_gwot: pd.DataFrame, f0, f1, f2) -> VMaxRec:
-    """
-    The `v_max` for some gear `g` is the solution of :math:`0.1 * P_{avail}(g) = P_{road_loads}`.
-
-    :param gear_gwot:
-        grid-interpolated WOT for some gear, indexed by `v` with (at least) 
-        `p_avail_stable` column (in kW); the `p_avail_stable` must have already been **reduced** 
-        by safety-margin, but not by ASM.
-        
-        .. attention:: it appends columns in this dataframe.
-        
-    :return:
-        a :class:`VMaxRec` namedtuple.
-
-    """
-    w = wio.pstep_factory.get().wot
-
-    # TODO: Cal `p-resit` outside of vmax, only once.
-    gear_gwot[w.p_resist] = vehicle.calc_road_load_power(gear_gwot.index, f0, f1, f2)
-    gear_gwot[w.p_remain] = gear_gwot[w.p_avail_stable] - gear_gwot[w.p_resist]
-    return _find_p_remain_root(gear_gwot)
+    return rec
 
 
-def calc_v_max(grid_wots: Union[pd.Series, pd.DataFrame], f0, f1, f2) -> VMaxRec:
+def calc_v_max(
+    gwots: Union[pd.Series, pd.DataFrame], p_resist: Union[pd.Series, pd.DataFrame]
+) -> VMaxRec:
     """
     Finds the maximum velocity achieved by all gears.
 
-    :param grid_wots:
-        a dataframe of wot columns indexed by a grid of rounded velocities,
-        as generated by :func:`~engine.interpolate_wot_on_v_grid2()`, and
+    :param gwots:
+        a dataframe containing (at least) `p_avail_stable` column, 
+        indexed by a grid of rounded velocities,
+        as generated by :func:`~engine.interpolate_wot_on_v_grid2()`, and 
         augmented by `:func:`~engine.calc_p_avail_in_gwots()` (in kW).
-
-        It must contain (at least) `p_avail_stable` & `p_resist` columns (in kW); 
-        the `p_avail_stable` must have already been **reduced** by safety-margin, but not by ASM.
+    :param p-resist:
     :return:
         a :class:`VMaxRec` namedtuple.
-    """
-    c = wio.pstep_factory.get().wot
 
-    ng = len(grid_wots.columns.levels[0])
+    """
+    gidx = wio.GearMultiIndexer(gwots)
+    ng = gidx.ng
 
     def _package_wots_df(recs):
         ## Merge all index values into the index of the 1st DF,
@@ -143,38 +151,41 @@ def calc_v_max(grid_wots: Union[pd.Series, pd.DataFrame], f0, f1, f2) -> VMaxRec
             [r.wot for r in recs],
             axis=1,
             keys=[wio.gear_name(r.g_vmax) for r in recs],
-            names=["gear", "wot_item"],
+            names=["item", "gear"],
             verify_integrity=True,
         )
 
         return wots_df
 
     def gear_gwot(gi):
-        return grid_wots.loc[:, wio.gear_name(gi)].copy()
+        gridwot = gwots.loc[:, (slice(None), wio.gear_name(gi))]
+        gridwot.columns = gridwot.columns.levels[0]
+        return gridwot
 
-    ## Scan gears from top --> (top - 4) but stop at most on 2nd gear.
+    ## Scan gears from top --> (top - 3) but stop above the 1st gear.
     #
-    gears_from_top = list(reversed(range(1, ng + 1)))
-    gears_to_scan = gears_from_top[:-1][:4]
-    assert gears_from_top, ("Too few gear-ratios?", ng)
+    gids_from_top = list(reversed(range(1, ng + 1)))
+    gids_to_scan = gids_from_top[:-1][:4]
+    assert gids_from_top, ("Too few gear-ratios?", ng, gidx.gnames)
 
-    recs = [
-        _calc_gear_v_max(gear_gwot(gi), f0, f1, f2)._replace(g_vmax=gi)
-        for gi in gears_to_scan
-    ]
+    all_recs = []
+    ok_rec = None
+    for gid in gids_to_scan:
+        rec = _find_p_remain_root(gid, gear_gwot(gid), p_resist)
+        all_recs.append(rec)
 
-    gear_wots_df = _package_wots_df(recs)
-    vmaxes = pd.Series(r.v_max for r in recs)
-    vmax = vmaxes.max()
-    if not np.isnan(vmax):
-        ## Scan from the top, by the GTR.
-        #
-        for rec_vmax in recs[::-1]:
-            if rec_vmax.v_max == vmax:
-                return rec_vmax._replace(wot=gear_wots_df)
-        assert False
-    raise ValueError(
-        "Cannot find v_max!\n  Insufficient power??",
-        gear_wots_df.head(),
-        grid_wots.head(),
-    )
+        if ok_rec and (np.isnan(rec.v_max) or rec.v_max <= ok_rec.v_max):
+            break
+
+        if not np.isnan(rec.v_max):
+            ok_rec = rec
+    else:
+        gear_wots_df = _package_wots_df(all_recs)
+        raise ValueError(
+            "Cannot find v_max!\n  Insufficient power??",
+            gear_wots_df.head(),
+            gwots.head(),
+        )
+
+    gear_wots_df = _package_wots_df(all_recs)
+    return ok_rec._replace(wot=gear_wots_df)

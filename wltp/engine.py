@@ -285,6 +285,7 @@ def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
 
     :return:
         the wot interpolated on a v-grid accomodating all gears
+        with 2-level columns (item, gear)
     
     """
     w = wio.pstep_factory.get().wot
@@ -328,9 +329,9 @@ def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
         wot_grids.values(),
         axis=1,
         keys=wot_grids.keys(),
-        names=["gear", "wot_item"],
+        names=["gear", "item"],
         verify_integrity=True,
-    )
+    ).swaplevel(axis=1)
 
     return wot_grid
 
@@ -344,17 +345,18 @@ def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
         a  df with 2-level multindex columns, having at least (`g1`, 'p'), and
         optionally ('g1', 'ASM')) for each gears 
         (as retuned by :func:`interpolate_wot_on_v_grid2()`).
+
+    .. TODO:: Encapsulate GridWots in a class, like Cycler.
     """
     w = wio.pstep_factory.get().wot
 
-    for gear in gwots.columns.levels[0]:
+    # TODO: vectorize
+    for gear in wio.GearMultiIndexer(gwots).gnames:
         ASM = gwots[(gear, w.ASM)] if (gear, w.ASM) in gwots else 0
-        gwots.loc[:, (gear, w.p_avail_stable)] = calc_p_available(
-            gwots.loc[:, (gear, w.p)], SM, 0
-        )
-        gwots.loc[:, (gear, w.p_avail)] = calc_p_available(
-            gwots.loc[:, (gear, w.p)], SM, ASM
-        )
+        P = gwots.loc[:, (w.p, gear)]
+
+        gwots.loc[:, (w.p_avail_stable, gear)] = calc_p_available(P, SM, 0)
+        gwots.loc[:, (w.p_avail, gear)] = calc_p_available(P, SM, ASM)
     gwots = gwots.sort_index(axis=1)
 
     return gwots

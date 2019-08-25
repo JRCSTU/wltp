@@ -238,8 +238,8 @@ def test_interpolate_wot_on_v_grid(h5_accdb):
     )
     assert df.index.names == ["vehicle", "v"]
     assert (df.index.levels[0] == wio.veh_names(all_cases)).all()
-    assert df.columns.names == ["gear", "wot_item"]
-    assert not (set("n Pwot ASM".split()) - set(df.columns.levels[1]))
+    assert df.columns.names == ["item", "gear"]
+    assert not (set("n Pwot ASM".split()) - set(df.columns.levels[0]))
     npt.assert_allclose(df.index.levels[1], invariants.vround(df.index.levels[1]))
 
 
@@ -271,5 +271,5 @@ def test_n_mins_smoke():
 
 
 def test_calc_p_avail_in_gwots_smoketest(h5_accdb):
-    gwots = pd.DataFrame({("g1", "p"): [], ("g1", "ASM"): []})
+    gwots = pd.DataFrame({("p", "g1"): [], ("ASM", "g1"): []})
     engine.calc_p_avail_in_gwots(gwots, SM=0.1)

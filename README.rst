@@ -452,11 +452,11 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
 
 .. doctest::
 
-    >>> import pandas as pd, wltp.cycler as cycler
+    >>> import pandas as pd, wltp.cycler as cycler, wltp.io as wio
     >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
     >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
     (1801, 90)
-    >>> cycler.flatten_columns(df.columns)
+    >>> wio.flatten_columns(df.columns)
     ['t', 'v_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
      'stop', 'accel', 'cruise', 'decel', 'initaccel', 'stopdecel', 'up', 'p_req', 'n/g1', 'n/g2', 'n/g3',
      'n/g4', 'n/g5', 'n/g6', 'n_norm/g1', 'n_norm/g2', 'n_norm/g3', 'n_norm/g4', 'n_norm/g5',

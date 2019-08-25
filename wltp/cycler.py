@@ -7,8 +7,8 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """code for generating the cycle"""
 import dataclasses
-import itertools as itt
 import functools as fnt
+import itertools as itt
 import logging
 from numbers import Number
 from typing import Iterable, List
@@ -21,6 +21,7 @@ from jsonschema import ValidationError
 from pandas.core.generic import NDFrame
 from toolz import itertoolz as itz
 
+from . import engine
 from . import io as wio
 from .engine import NMinDrives
 
@@ -228,28 +229,6 @@ class PhaseMarker:
         return cycle
 
 
-def flatten_columns(columns, sep="/"):
-    def join_column_names(name_or_tuple):
-        if isinstance(name_or_tuple, tuple):
-            return sep.join(n for n in name_or_tuple if n)
-        return name_or_tuple
-
-    return [join_column_names(names) for names in columns.to_flat_index()]
-
-
-def inflate_columns(columns, levels=2, sep="/"):
-    def split_column_name(name):
-        assert isinstance(name, str), ("Inflating Multiindex?", columns)
-        names = name.split(sep)
-        if len(names) < levels:
-            nlevels_missing = levels - len(names)
-            names.extend([""] * nlevels_missing)
-        return names
-
-    tuples = [split_column_name(names) for names in columns]
-    return pd.MultiIndex.from_tuples(tuples, names=["gear", "item"])
-
-
 #: The value representing NANs in "bool" int8 arrays
 #: (Int8 cannot write in HDF5 by *tables* lib)
 NANFLAG = -1
@@ -260,8 +239,6 @@ class CycleBuilder:
     Specific choreography of method-calls required, see TCs & notebooks.
     """
 
-    multi_column_separator: str = "."
-
     #: The instance that is built.
     cycle: pd.DataFrame
     #: A column within `cycle` populated from the last `velocity` given in the cstor.
@@ -271,28 +248,7 @@ class CycleBuilder:
     #: and used in subsequent calculations.
     A: pd.Series
 
-    gnames: List[str]
-
-    def colidx_pairs(self, item: Union[str, Seq[str]], gnames: Iterable[str] = None):
-        if gnames is None:
-            gnames = self.gnames
-        if isinstance(item, str):
-            item = (item,)
-        return pd.MultiIndex.from_tuples(itt.product(item, gnames))
-
-    def colidx_pairs1(self, item: str, gear_idx: Iterable[int]):
-        """Using gear indixes ie 0, 1, 2"""
-        return self.colidx_pairs(item, [self.gnames[i] for i in gear_idx])
-
-    def colidx_pairs2(self, item: str, gears: Iterable[int]):
-        """Using gear ids ie 1, 2, 3"""
-        return self.colidx_pairs(item, [self.gnames[i - 1] for i in gears])
-
-    def flat(self) -> pd.DataFrame:
-        """return the :attr:`cycle` with flattened columns"""
-        cycle = self.cycle.copy()
-        cycle.columns = flatten_columns(cycle.columns, sep=self.multi_column_separator)
-        return cycle
+    gidx: wio.GearMultiIndexer
 
     def __init__(self, *velocities: Union[pd.Series, pd.DataFrame], **kwargs):
         """
@@ -358,16 +314,23 @@ class CycleBuilder:
             (isinstance(i, pd.DataFrame) for i in (cycle, gwots))
         ) and isinstance(gwots, pd.DataFrame), locals()
 
-        self.ng = len(gwots.columns.levels[0])
-        self.gnames = wio.gear_names(range(1, self.ng + 1))
-        gwots = gwots.reindex(self.V).swaplevel(axis=1).sort_index(axis=1)
+        self.gidx = wio.GearMultiIndexer(gwots)
+        gwots = gwots.reindex(self.V).sort_index(axis=1)
         cycle = pd.concat((cycle.set_index(self.V), gwots), axis=1, sort=False)
         cycle = cycle.set_index(c.t, drop=False)
 
         self.cycle = cycle
 
-    # TODO: incorporate `validate_nims_t_cold_en()`  in validations pipeline.
+    def flat(self, df) -> pd.DataFrame:
+        """return a copy of :attr:`cycle` passed through :func:`flatten_columns()`"""
+        cycle = self.cycle.copy()
+        cycle.columns = wio.flatten_columns(cycle.columns)
+        return cycle
+
     def validate_nims_t_cold_en(self, t_end_cold: int, wltc_parts: Seq[int]):
+        """
+        .. TODO:: Incorporate `validate_nims_t_cold_en()`  in validations pipeline.
+        """
         c = wio.pstep_factory.get().cycle
 
         t_phase1_end = wltc_parts[0]
@@ -423,6 +386,7 @@ class CycleBuilder:
         """
         c = wio.pstep_factory.get().cycle
         cycle = self.cycle
+        gidx = self.gidx
 
         assert all(i for i in (g_vmax, n95_max, n_max_cycle, nmins)), (
             "Null inputs:",
@@ -433,32 +397,32 @@ class CycleBuilder:
 
         ## Note: using array-indices below (:= gear_index - 1)
         #
-        g2 = self.gnames[2 - 1]  # note this is not a list!
-        gears_above_g2 = self.gnames[2:]
-        gears_below_gvmax = self.gnames[: g_vmax - 1]
-        gears_from_gvmax = self.gnames[g_vmax - 1 :]
+        g2 = gidx.gnames[2 - 1]  # note this is not a list!
+        gears_above_g2 = gidx.gnames[2:]
+        gears_below_gvmax = gidx.gnames[: g_vmax - 1]
+        gears_from_gvmax = gidx.gnames[g_vmax - 1 :]
 
         ## (ok-p) rule
         #
         p_req = cycle[c.p_req].fillna(1).values.reshape(-1, 1)
-        pidx_above_g2 = self.colidx_pairs(c.p_avail, gears_above_g2)
+        pidx_above_g2 = gidx.colidx_pairs(c.p_avail, gears_above_g2)
         ok_p = cycle.loc[:, pidx_above_g2].fillna(0) >= p_req
-        ok_p.columns = self.colidx_pairs(c.ok_p, gears_above_g2)
+        ok_p.columns = gidx.colidx_pairs(c.ok_p, gears_above_g2)
 
         ## (MAXn-a) rule
         #
-        nidx_below_gvmax = self.colidx_pairs(c.n, gears_below_gvmax)
+        nidx_below_gvmax = gidx.colidx_pairs(c.n, gears_below_gvmax)
         ok_max_n_gears_below_gvmax = cycle.loc[:, nidx_below_gvmax] < n95_max
-        ok_max_n_gears_below_gvmax.columns = self.colidx_pairs(
+        ok_max_n_gears_below_gvmax.columns = gidx.colidx_pairs(
             c.ok_max_n_gears_below_gvmax, gears_below_gvmax
         )
 
         ## (MAXn-b) rule
         #
-        nidx_above_gvmax = self.colidx_pairs(c.n, gears_from_gvmax)
+        nidx_above_gvmax = gidx.colidx_pairs(c.n, gears_from_gvmax)
         # if nidx_above_gvmax:
         ok_max_n_gears_from_gvmax = cycle.loc[:, nidx_above_gvmax] < n_max_cycle
-        ok_max_n_gears_from_gvmax.columns = self.colidx_pairs(
+        ok_max_n_gears_from_gvmax.columns = gidx.colidx_pairs(
             c.ok_max_n_gears_from_gvmax, gears_from_gvmax
         )
 
@@ -468,33 +432,33 @@ class CycleBuilder:
         t_hots = ~t_colds
         a_ups = cycle[c.up]
         a_dns = ~a_ups
-        nidx_above_g2 = self.colidx_pairs(c.n, gears_above_g2)
+        nidx_above_g2 = gidx.colidx_pairs(c.n, gears_above_g2)
 
         ok_min_n_colds_ups = (
             cycle.loc[t_colds & a_ups, nidx_above_g2] >= nmins.n_min_drive_up_start
         )
-        ok_min_n_colds_ups.columns = self.colidx_pairs(
+        ok_min_n_colds_ups.columns = gidx.colidx_pairs(
             c.ok_min_n_colds_ups, gears_above_g2
         )
 
         ok_min_n_colds_dns = (
             cycle.loc[t_colds & a_dns, nidx_above_g2] >= nmins.n_min_drive_dn_start
         )
-        ok_min_n_colds_dns.columns = self.colidx_pairs(
+        ok_min_n_colds_dns.columns = gidx.colidx_pairs(
             c.ok_min_n_colds_dns, gears_above_g2
         )
 
         ok_min_n_hots_ups = (
             cycle.loc[t_hots & a_ups, nidx_above_g2] >= nmins.n_min_drive_up_start
         )
-        ok_min_n_hots_ups.columns = self.colidx_pairs(
+        ok_min_n_hots_ups.columns = gidx.colidx_pairs(
             c.ok_min_n_hots_ups, gears_above_g2
         )
 
         ok_min_n_hots_dns = (
             cycle.loc[t_hots & a_dns, nidx_above_g2] >= nmins.n_min_drive_dn_start
         )
-        ok_min_n_hots_dns.columns = self.colidx_pairs(
+        ok_min_n_hots_dns.columns = gidx.colidx_pairs(
             c.ok_min_n_hots_dns, gears_above_g2
         )
 
@@ -520,7 +484,7 @@ class CycleBuilder:
 
         ## Gear-1 rules
         #
-        g1 = self.gnames[1 - 1]  # note this is not a list!
+        g1 = gidx.gnames[1 - 1]  # note this is not a list!
         #
         # (c_initaccel) rule
         #

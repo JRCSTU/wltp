@@ -16,7 +16,7 @@ import pandas as pd
 import pytest
 from pandas import IndexSlice as _ix
 
-from wltp import engine, downscale, vmax
+from wltp import engine, vehicle, downscale, vmax
 from wltp.io import gear_names, veh_names
 
 from . import vehdb
@@ -43,7 +43,10 @@ def test_v_max(h5_accdb):
         wot["n"] = wot.index
         gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
         gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
-        rec = vmax.calc_v_max(gwots, props.f0, props.f1, props.f2)
+        p_resist = vehicle.calc_road_load_power(
+            gwots.index, props.f0, props.f1, props.f2
+        )
+        rec = vmax.calc_v_max(gwots, p_resist)
 
         return (props["v_max"], rec.v_max, props["gear_v_max"], rec.g_vmax, rec.wot)
 
@@ -62,7 +65,7 @@ def test_v_max(h5_accdb):
             axis=1,
             # join="inner",
             keys=gear_names(gear_wot_dfs.keys()),
-            names=["gear", "wot_item"],
+            names=["item", "gear"],
             verify_integrity=True,
         )
 
@@ -129,4 +132,4 @@ def test_v_max(h5_accdb):
     ).all()
     assert (vehres["vmax_diff"] == 0).sum() == 125 and (
         vehres["gmax_diff"] == 0
-    ).sum() == 114
+    ).sum() == 119

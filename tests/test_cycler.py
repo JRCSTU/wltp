@@ -12,7 +12,9 @@ import pytest
 from jsonschema import ValidationError
 from tests import vehdb
 
-from wltp import cycler, datamodel, engine, vehicle
+from wltp import cycler, datamodel, engine
+from wltp import io as wio
+from wltp import vehicle
 from wltp.cycler import CycleBuilder, PhaseMarker
 from wltp.vehicle import calc_default_resistance_coeffs
 
@@ -58,7 +60,6 @@ def test_stopdecel(wltc_class):
     assert n_stopdecels == n_stops
 
 
-# TODO: move `t_end_cold` checkj in validations pipeline.
 @pytest.mark.parametrize(
     "wltc_class, t_end_cold, err",
     zip(
@@ -71,6 +72,9 @@ def test_stopdecel(wltc_class):
     ),
 )
 def test_validate_t_start(wltc_class, t_end_cold, err):
+    """
+    .. TODO:: move `t_end_cold` checkj in validations pipeline.
+    """
     V = datamodel.get_class_v_cycle(wltc_class)
     wltc_parts = datamodel.get_class_parts_limits(wltc_class)
 
@@ -83,12 +87,13 @@ def test_validate_t_start(wltc_class, t_end_cold, err):
 
 def test_flatten_columns():
     cols = pd.MultiIndex.from_tuples([("a", "aa"), ("b", "")], names=("gear", "item"))
-    fcols = cycler.flatten_columns(cols)
-    infcols = cycler.inflate_columns(fcols)
+
+    fcols = wio.flatten_columns(cols)
+    infcols = wio.inflate_columns(fcols)
     assert cols.equals(infcols)
     assert cols.names == infcols.names
     with pytest.raises(AssertionError, match="MultiIndex?"):
-        cycler.inflate_columns(cols)
+        wio.inflate_columns(cols)
 
 
 def test_full_build_smoketest(h5_accdb):
@@ -111,11 +116,14 @@ def test_full_build_smoketest(h5_accdb):
         raise err
     cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
 
+    SM = 0.1
     gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
-    gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
+    gwots = engine.calc_p_avail_in_gwots(gwots, SM=SM)
+    gwots["p_resist"] = vehicle.calc_road_load_power(
+        gwots.index, prop.f0, prop.f1, prop.f2
+    )
 
     kr = 1.03
-    SM = 0.1
     cb.cycle["p_req"] = vehicle.calc_power_required(
         cb.V, cb.A, prop.test_mass, prop.f0, prop.f1, prop.f2, kr
     )
