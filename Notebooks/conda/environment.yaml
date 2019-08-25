@@ -159,5 +159,3 @@ dependencies:
     - backports-shutil-get-terminal-size==1.0.0
     - blackcellmagic==0.0.2
     - columnize==0.3.9
-prefix: /home/ankostis/miniconda3/envs/jupyter
-
