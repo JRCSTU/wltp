@@ -77,9 +77,9 @@ def yield_rst_only_markup(lines):
         (r"\.\. plot::", r".. plot:"),
         (r"\.\. seealso", r"info"),
         (r"\.\. glossary", r"rubric"),
-        (r"\.\. figure::", r".. "),
-        (r"\.\. image::", r".. "),
-        (r"\.\. dispatcher", r"code-block"),
+        (r"\.\. default-role::", r".. default-role:"),
+        (r"\.\. dispatcher::", r"code-block"),
+        (r"\.\. todo::", r".. note:: TODO"),
         # Other
         #
         (r"\|version\|", r"x.x.x"),

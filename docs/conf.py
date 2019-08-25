@@ -139,6 +139,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.extlinks",
     "sphinx.ext.todo",
+    "sphinx.ext.autosectionlabel",
     "matplotlib.sphinxext.plot_directive",
 ]
 

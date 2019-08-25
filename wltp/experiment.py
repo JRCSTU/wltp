@@ -45,7 +45,7 @@ _N_GEARS:  floats (#gears X #cycle_steps)
 _GEARS_YES:  boolean (#gears X #cycle_steps)
     One row per gear having ``True`` wherever gear is possible for each step.
 
-.. Seealso:: :mod:`~datamodel` for in/out schemas
+.. Seealso:: :mod:`~,datamodel` for in/out schemas
 """
 
 import logging

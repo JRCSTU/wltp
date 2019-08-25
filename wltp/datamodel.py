@@ -6,7 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """
-Defines schema, defaults and validations for data consumed/produced by :class:`~wltp.experiment.Experiment`.
+Defines schema, defaults and validations for data consumed/produced by :class:`~.experiment.Experiment`.
 
 The datamodel-instance is managed by :class:`pandel.Pandel`.
 """

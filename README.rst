@@ -64,18 +64,12 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
      ;                  ;                         ;          ...              ;
     '------------------'                         '---------------------------'
 
-The *Input & Output DataModels* are instances of :dfn:`pandas-model`, trees of strings and numbers, assembled with:
-
-- sequences,
-- dictionaries,
-- :class:`pandas.DataFrame`,
-- :class:`pandas.Series`, and
-- URI-references to other model-trees.
+The *Input & Output* are instances of :term:`datamodel` (trees of strings, numbers & pandas objects)
 
 
 Quick-start
 -----------
-- Launch the example *jupyter notebooks* `in a binder inmstance 
+- Launch the example *jupyter notebooks* `in a binder server
   <https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md>`_.
 
 - Otherwise, install it locally, preferably from the sources (instructions below).
@@ -86,15 +80,15 @@ Prerequisites:
 It requires **numpy/scipy** and **pandas** libraries with native backends.
 
 .. Tip::
-    On *Windows*, it is preferable to use the `*miniconda* <https://docs.conda.io/en/latest/miniconda.html>`_
+    On *Windows*, it is preferable to use the `miniconda <https://docs.conda.io/en/latest/miniconda.html>`_
     distribution; although its `conda` command adds another layer of complexity on top of ``pip``,
     unlike standard Python, it has pre-built all native libraries required
     (e.g. **numpy/scipy** and **pandas**).
 
-    If nevertheless you choose the *standard Python*, and some packages fail to build when `pip`-installing them, 
+    If nevertheless you choose the *standard Python*, and some packages fail to build when `pip`-installing them,
     download these packages from `Gohlke's "Unofficial Windows Binaries"
     <https://www.lfd.uci.edu/~gohlke/pythonlibs/>`_ and install them manually with::
-    
+
         pip install <package-file-v1.2.3.whl>
 
 Download:
@@ -127,10 +121,10 @@ From within the project directory, run one of these commands to install it:
 - Check installation:
 
   .. code-block:: bash
-  
+
       $ wltp --version
       1.0.0.dev10
-  
+
       $ wltp --help
         ...
 
@@ -140,7 +134,7 @@ From within the project directory, run one of these commands to install it:
   (only these files are stored in git-repo).
 
 - Run pyalgo on all AccDB cars to re-create the H5 file
-  needed for ``CarsDB-compare`` notebook, etc:: 
+  needed for ``CarsDB-compare`` notebook, etc::
 
       jupytext --sync /Notebooks/*.Rmd
 
@@ -161,14 +155,14 @@ Usage:
         "n_rated": 3000,  # in RPM
         "n_idle": 600,
         "gear_ratios": [122.88, 75.12, 50.06, 38.26, 33.63],
-        
-        ## For giving absolute P numbers, 
+
+        ## For giving absolute P numbers,
         #  rename `p_norm` column to `p`.
         #
         "wot": pd.DataFrame(
-            [[600, 0.1], 
-            [2500, 1], 
-            [3500, 1], 
+            [[600, 0.1],
+            [2500, 1],
+            [3500, 1],
             [5000, 0.7]], columns=["n", "p_norm"]
         ),
         'f0': 395.78,
@@ -189,7 +183,7 @@ See: :ref:`python-usage`
 
 Project files and folders
 -------------------------
-The files and folders of the project are listed below::
+The files and folders of the project are listed below (see also :ref:`Architecture`)::
 
     +--bin/               ## (shell-scripts) Utilities & preprocessing of WLTC data on GTR and the wltp_db
     |   +--bumpver.py     ## (script) Update project's version-string
@@ -358,7 +352,7 @@ First run :command:`python` or :command:`ipython` and try to import the project 
     into the ipython interpreter; it will remove these prefixes.
     But in :command:`python` you have to remove it youself.
 
-If everything works, create the :term:`pandas-model` that will hold the input-data (strings and numbers)
+If everything works, create the :term:datamodel
 of the experiment.  You can assemble the model-tree by the use of:
 
 * sequences,
@@ -409,7 +403,7 @@ For information on the accepted model-data, check its :term:`JSON-schema`:
     ...
 
 
-You then have to feed this model-tree to the :class:`~wltp.experiment.Experiment`
+You then have to feed this model-tree to the :class:`~.wltp.experiment.Experiment`
 constructor. Internally the :class:`pandalone.pandel.Pandel` resolves URIs, fills-in default values and
 validates the data based on the project's pre-defined JSON-schema:
 
@@ -523,55 +517,108 @@ This project is hosted in **github**.
 To provide feedback about bugs and errors or questions and requests for enhancements,
 use `github's Issue-tracker <https://github.com/JRCSTU/wltp/issues>`_.
 
-Remember to install and arm a *pre-commit* hook with *black*
-to auto-format you python-code (see "Quick-start", above).
+Architecture
+------------
+The Python code is highly modular, with `testability in mind
+<https://en.wikipedia.org/wiki/Test-driven_development>`_.
+so that specific parts can run in isolation.
+This facilitates studying tough issues, such as, `double-precision reproducibility
+<https://gist.github.com/ankostis/895ba33f05a5a76539cb689a2f366230>`_, boundary conditions, 
+comparison of numeric outputs, and studying the code in sub-routines.
+
+.. tip::
+    Run test-cases with ``pytest`` command.
+
+Data Structures:
+^^^^^^^^^^^^^^^^
+.. default-role:: term
+
+Computations are vectorial, based on `hierarchical dataframes
+<https://pandas.pydata.org/pandas-docs/stable/user_guide/advanced.html>`_,
+all of them stored in a single structure, the `datamodel`.  
+In case the computation breaks, you can still retrive all intermediate results 
+till that point.
+
+.. TODO::
+    Almost all of the names of the `datamodel` and `formulae` can be remapped,
+    For instance, it is possible to run the tool on data containing ``n_idling_speed``
+    instead of ``n_idle`` (which is the default), without renaming the input data.
+
+.. glossary::
+
+    mdl
+    datamodel
+        The container of all the scalar Input & Output values, the WLTC constants factors,
+        and 3 matrices: `wots`, `gwots`, and the `cycle run` time series.
+
+        It is composed by a stack of mergeable `JSON-schema` abiding trees of *string, numbers & pandas objects*,
+        formed with python *sequences & dictionaries, and URI-references*.
+        It is implemented in :mod:`~.datamodel`, supported by :class:`pandalone.pandata.Pandel`.
 
 
-Run test-cases with *pytest*, or call this helper-script to check also
-the doctests, coverage & the site:
+    WOT
+    Full Load Curve
+        An *input* array/dict/dataframe with the full load power curves for (at least) 2 columns for ``(n, p)``
+        or their normalized values ``(n_norm, p_norm)``.
+        See also https://en.wikipedia.org/wiki/Wide_open_throttle
 
-.. code-block:: shell
+    gwots
+    Grid WOTs
+        A dataframe produced from `WOT` for all gear-ratios, indexed by a grid of rounded velocities,
+        and with 2-level columns ``(item, gear)``.
+        It is generated by :func:`~.engine.interpolate_wot_on_v_grid()`, and augmented 
+        by :func:`~.engine.calc_p_avail_in_gwots()` & :func:`~.vehicle.calc_road_load_power()` .
 
-   ./bin/run_tests.sh
+        .. TODO::
+            Move `Grid WOTs` code in own module :mod:`~.gwots`.
+
+    cycle
+    Cycle run
+        A dataframe with all the time-series, indexed by the time of the samples.
+        The velocities for each time-sample must exist in the `gwots`.
+        The columns are the same 2-level columns like *gwots*.
+        it is implemented in :mod:`~.cycler`.
+
+Code Structure:
+^^^^^^^^^^^^^^^
+The computation code is roughly divided in these python modules:
+
+.. glossary::
+
+    formulae
+        Physics and engineering code, implemented in modules:
+
+        - :mod:`~.engine`
+        - :mod:`~.vmax`
+        - :mod:`~.downscale`
+        - :mod:`~.vehicle`
+
+    - orchestration
+        The code producing the actual gear-shifting, implemented in modules:
+
+        - :mod:`~.datamodel`
+        - :mod:`~.cycler`
+        - :mod:`~.gridwots` (TODO)
+        - :mod:`~.scheduler` (TODO)
+        - :mod:`~.experiment` (TO BE DROPPED, `datamodel` will subsitute all functionality)
+
+The blueprint for the underlying software ideas is given with this diagram:
+
+.. image:: docs/_static/WLTP_architecture.png
+    :alt: Software architectural concepts underlying WLTP code structure.
+
+Note that currently there is no `scheduler` component, which will allow to execute the tool
+with a varying list of available inputs & required data, and automatically compute
+only what is not already given.
 
 
-Development procedure
----------------------
-For submitting code, use ``UTF-8`` everywhere, unix-eol(``LF``) and set ``git --config core.autocrlf = input``.
-
-The typical development procedure is like this:
-
-1. Modify the sources in small, isolated and well-defined changes, i.e.
-   adding a single feature, or fixing a specific bug.
-
-2. Add test-cases "proving" your code.
-
-3. Rerun all test-cases to ensure that you didn't break anything,
-   and check their *coverage* remain above the limit set in :file:`setup.cfg`.
-
-4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
-   other documents (i.e. README.rst).  To see the rendered results of the documents,
-   issue the following commands and read the result html at :file:`build/sphinx/html/index.html`:
-
-   .. code-block:: shell
-
-        python setup.py build_sphinx                  # Builds html docs
-        python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
-
-5. If there are no problems, commit your changes with a descriptive message.
-
-6. Repeat this cycle for other bugs/enhancements.
-7. When you are finished, push the changes upstream to *github* and make a *merge_request*.
-   You can check whether your merge-request indeed passed the tests by checking
-   its build-status |build-status| on the integration-server's site (TravisCI).
-
-   .. Hint:: Skim through the small IPython developer's documentantion on the matter:
-        `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
-
-
+.. default-role:: obj
 
 Specs & Algorithm
 -----------------
+.. Attention::
+    Section & linked documents are very outdated!
+
 This program was implemented from scratch based on
 this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
 (included in the :file:`docs/` folder).  The latest version of this GTR, along
@@ -607,6 +654,43 @@ Cycles
     :align: center
 
 
+Development procedure
+---------------------
+For submitting code, use ``UTF-8`` everywhere, unix-eol(``LF``) and set ``git --config core.autocrlf = input``.
+
+The typical development procedure is like this:
+
+0. Install and arm a `pre-commit hook <https://github.com/pre-commit/pre-commit-hooks>`_ 
+   with *black* to auto-format you python-code.
+
+1. Modify the sources in small, isolated and well-defined changes, i.e.
+   adding a single feature, or fixing a specific bug.
+
+2. Add test-cases "proving" your code.
+
+3. Rerun all test-cases to ensure that you didn't break anything,
+   and check their *coverage* remain above the limit set in :file:`setup.cfg`.
+
+4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
+   other documents (i.e. README.rst).  To see the rendered results of the documents,
+   issue the following commands and read the result html at :file:`build/sphinx/html/index.html`:
+
+   .. code-block:: shell
+
+        python setup.py build_sphinx                  # Builds html docs
+        python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
+
+5. If there are no problems, commit your changes with a descriptive message.
+
+6. Repeat this cycle for other bugs/enhancements.
+7. When you are finished, push the changes upstream to *github* and make a *merge_request*.
+   You can check whether your merge-request indeed passed the tests by checking
+   its build-status |build-status| on the integration-server's site (TravisCI).
+
+   .. Hint:: Skim through the small IPython developer's documentantion on the matter:
+        `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
+
+
 .. _dev-team:
 
 Development team
@@ -626,6 +710,8 @@ Development team
 
 Glossary
 ========
+
+.. default-role:: term
 
 .. glossary::
 
@@ -679,11 +765,6 @@ Glossary
         Reduction of the top-velocity of the original drive trace to be followed, to ensure that the vehicle
         is not driven in an unduly high proportion of "full throttle".
 
-    pandas-model
-        The *container* of data that the gear-shift calculator consumes and produces.
-        It is implemented by :class:`wltp.pandel.Pandel` as a mergeable stack of `JSON-schema` abiding trees of
-        strings and numbers, formed with sequences, dictionaries, :mod:`pandas`-instances and URI-references.
-
     JSON-schema
         The `JSON schema <http://json-schema.org/>`_ is an `IETF draft <http://tools.ietf.org/html/draft-zyp-json-schema-03>`_
         that provides a *contract* for what JSON-data is required for a given application and how to interact
@@ -696,7 +777,6 @@ Glossary
         JSON Pointer(:rfc:`6901`) defines a string syntax for identifying a specific value within
         a JavaScript Object Notation (JSON) document. It aims to serve the same purpose as *XPath* from the XML world,
         but it is much simpler.
-
 
 
 .. _begin-replacements:
