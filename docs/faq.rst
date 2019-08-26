@@ -30,9 +30,10 @@ Can I copy/extend it?  What is its License, in practical terms?
 ---------------------------------------------------------------
 In a broad view, the core algorithm of the project is "copylefted" with
 the *EUPL-1.1+ license*, and it includes files from other "non-copyleft" open source licenses like
--MIT MIT License* and *Apache License*, appropriately marked as such.  So in an nutshell, you can study it,
-copy it, modify or extend it, and distrbute it, as long as you always distribute the sources of your changes.
-
+-MIT MIT License* and *Apache License*, appropriately marked as such.  So in an nutshell,
+you can study it, copy it, or import and use ot from your programs is without any obligation.
+You may distrbute & publish a modified version, as long as you always distribute & publish
+the sources of your changes.
 
 Technical
 =========
@@ -52,13 +53,13 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
 - Is **python contained in your PATH** ?
 
   To check it, type `python` in your console/command-shell prompt and press :kbd:`[Enter]`.
-  If nothing happens, you have to inspect :envvar:`PATH` and modify it accordingly to include your 
-  python-installation. 
-  
+  If nothing happens, you have to inspect :envvar:`PATH` and modify it accordingly to include your
+  python-installation.
+
   - Under *Windows* type ``path`` in your command-shell prompt.
-  - Under *Unix* type ``echo $PATH$`` in your console. 
-    To change it, modify your "rc' files, ie: :file:`~/.bashrc` or :file:`~/.profile`.
-  
+  - Under *Unix* type ``echo $PATH$`` in your console.
+    To change it, modify your "rc" files, ie: :file:`~/.bashrc` or :file:`~/.profile`.
+
 
 - Is the correct **version of python** running?
 
@@ -87,8 +88,10 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
 
 I do not have python / cannot install it.  Is it possible to try a *demo*?
 --------------------------------------------------------------------------
-Create an account into `Wakari <https://wakari.io/>`_ and post a Disqus-comment below
-requesting JRC's shared IPython notebook.
+Launch it in a binder server byclicking the respective badge at the top of
+the landing of the project.
+
+.. image:: docs/_static/BinderLink.png
 
 
 Discussion
