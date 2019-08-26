@@ -28,16 +28,18 @@ from wltp import cycles, datamodel, utils
 from .goodvehicle import goodVehicle
 
 
-def _calc_wltc_checksums(offset, length, calc_sum=True):
+def _calc_wltc_checksums(start_offset, end_offset, calc_sum=True):
     def calc_v_sums(V, prev=(0, 0)):
         v = V
         if (
             # If running for V (not VAs) ...
-            length == 0
-            # ... and cumulative from previous part
+            start_offset == 0
+            and end_offset == 0
+            # ... and there is cumulative from previous part
+            # means, itis not 1st part...
             and prev[0] != 0
         ):
-            # Skip overlapping sample from 2nd part and on.
+            # ... skip overlapping sample.
             v = V.iloc[1:]
 
         if prev is None:
@@ -55,8 +57,8 @@ def _calc_wltc_checksums(offset, length, calc_sum=True):
 
         prev = (0, 0)
         for partno, (start, end) in enumerate(itz.sliding_window(2, cycle_parts)):
-            start += offset
-            end += offset + length
+            start += start_offset
+            end += end_offset
             sums = calc_v_sums(V.loc[start:end])
             cums = calc_v_sums(V.loc[start:end], prev)
             results.append((cl, f"part-{partno+1}", *sums, *cums))
@@ -93,8 +95,8 @@ def test_wltc_checksums():
     """
     dfs_dict = {
         "V": _calc_wltc_checksums(0, 0),
-        "V_A1": _calc_wltc_checksums(0, -1, calc_sum=False),
-        "V_A2": _calc_wltc_checksums(1, 0, calc_sum=False),
+        "V_A0": _calc_wltc_checksums(0, -1, calc_sum=False),
+        "V_A1": _calc_wltc_checksums(1, 0, calc_sum=False),
     }
 
     dfs = pd.concat(dfs_dict.values(), keys=dfs_dict.keys(), axis=1)
@@ -150,12 +152,16 @@ def test_full_cycles_in_wltc_checksums(wltc_class, exp):
 @pytest.mark.parametrize(
     "indexer, exp",
     [
-        (idx[:1022], ("class1", "PART-2", "V")),
         (idx[:589], ("class1", "part-1", "V")),
-        (idx[1:589], ("class1", "part-3", "V_A2")),  # 1st & 3rd parts are identical
-        (idx[1:590], ("class1", "part-1", "V_A2")),
-        (idx[1023:], ("class1", "part-3", "V_A2")),
-        (idx[1:], ("class1", None, "V_A2")),
+        (idx[589:1022], ("class1", "part-2", "V")),
+        (idx[:1022], ("class1", "PART-2", "V")),
+        (idx[:1021], ("class1", "PART-2", "V_A0")),
+        (idx[:588], ("class1", "part-1", "V_A0")),
+        (idx[1:589], ("class1", "part-1", "V_A1")),  # 1st & 3rd parts are identical
+        (idx[1:590], (None, None, None)),
+        (idx[1023:], ("class1", "part-1", "V_A1")),  # 1st & 3rd parts are identical
+        (idx[1022:1610], ("class1", "part-1", "V_A0")),  # 1st & 3rd parts are identical
+        (idx[1:], ("class1", None, "V_A1")),
     ],
 )
 def test_identify_wltc_checksums(indexer, exp):
