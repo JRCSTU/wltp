@@ -1,6 +1,6 @@
 .. include:: ../README.rst
-    :start-after: _wltp-usage:
-    :end-before: _architecture:
+    :start-after: _architecture:
+    :end-before: _begin-contribute:
 
 Discussion
 ----------
@@ -10,8 +10,8 @@ Discussion
     <script type="text/javascript">
         /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
         var disqus_shortname = 'wltp';
-        var disqus_identifier = 'site.usage';
-        var disqus_title = 'wltp: Usage';
+        var disqus_identifier = 'site.architecture';
+        var disqus_title = 'wltp: Architecture';
 
         /* * * DON'T EDIT BELOW THIS LINE * * */
         (function() {
@@ -21,6 +21,7 @@ Discussion
         })();
     </script>
     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
 
 .. include:: ../README.rst
     :start-after: _begin-replacements:

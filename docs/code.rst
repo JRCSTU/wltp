@@ -122,6 +122,7 @@ Module: :mod:`tests.test_wltp_db`
 
 Schema
 ======
+The :term:`JSON-schema` of the data for this project:
 
 .. doctest:: model_text
 

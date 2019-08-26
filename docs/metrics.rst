@@ -4,6 +4,11 @@
 Tests, Metrics & Reports
 ========================
 
+.. Attention::
+    This section is very outdated (late 2014)!
+
+    It will be re-written based on :term:`jupyter notebook`\s.
+
 In order to maintain the algorithm stable, a lot of effort has been put
 to setup a series of test-case and metrics to check the sanity of the results
 and to compare them with the Heinz-db tool or other datasets included in the project.
@@ -20,7 +25,7 @@ by scripts in the :file:`docs/pyplot/` folder.
 
 Comparisons with Heinz-tool
 ===========================
-This section compares the results of this tool to the Heinz's Access DB.
+This section compares the results of this tool to the Heinz's :term:`Access DB`.
 
 *Mean Engine-speed* vs *PMR*
 ----------------------------

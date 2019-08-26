@@ -51,6 +51,7 @@ def yield_rst_only_markup(lines):
         (r":envvar:`([^`]+)`", r"``env[$\1]``"),
         (r":ref:`([^`]+)`", r"ref: *\1*"),
         (r":term:`([^`]+)`", r"**\1**"),
+        (r":download:`([^`]+)`", r"``\1``"),
         (r":dfn:`([^`]+)`", r"**\1**"),
         (r":(samp|guilabel|menuselection|doc|file):`([^`]+)`", r"\1(`\2`)"),
         # Sphinx-only roles:

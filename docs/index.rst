@@ -8,11 +8,12 @@
 
     intro
     usage
+    architecture
+    faq
+    code
     contribute
     annex-2
     metrics
-    faq
-    code
     CHANGES
     indices
 

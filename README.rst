@@ -15,7 +15,7 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 :License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
 
 A python package to generate the *gear-shifts* of Light-duty vehicles
-running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTRs`.
+running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR`\s.
 
 .. figure:: docs/_static/wltc_class3b.png
     :align: center
@@ -51,27 +51,26 @@ and any warnings.  It does not calculate any |CO2| emissions.
 
 An "execution" or a "run" of an experiment is depicted in the following diagram::
 
-             .------------------.                         .---------------------------.
-             :  Input-DataModel :                         :      Output-DataModel     :
-             ;------------------;                         ;---------------------------;
-            ; +--test_mass     ;     ____________        ; +---...                   ;
-           ;  +--n_idle       ;     |            |      ;  +--cycle_run:            ;
-          ;   +--f0..        ;  ==> |   Cycle    | ==> ;      t  v_class gear      ;
-         ;    ...           ;       | Generator  |    ;      -------------------  ;
-        ;                  ;        |____________|   ;       00      0.0    1    ;
-       ;                  ;                         ;        01      1.3    1   ;
-      ;                  ;                         ;         02      5.5    1  ;
-     ;                  ;                         ;          ...              ;
-    '------------------'                         '---------------------------'
+                .-----------------.                         .------------------.
+                :      Input      :                         :      Output      :
+                ;-----------------;                         ;------------------;
+               ; +--test_mass    ;     ____________        ; +--pmr           ;
+              ;  +--n_idle      ;     |            |      ;  +--wltc_class   ;
+             ;   +--f0,f1,f2   ;  ==> |   Cycle    | ==> ;   +--...         ;
+            ;    +--wot/      ;       | Generator  |    ;    +--cycle_run  ;
+           ;         +--     ;        |____________|   ;     |    +--     ;
+          ;      +--n2vs    ;                         ;      +--gwots    ;
+         ;           +--   ;                         ;            +--   ;
+        '-----------------'                         '------------------'
 
-The *Input & Output* are instances of :term:`datamodel` (trees of strings, numbers & pandas objects)
+The *Input*, *Output* and all its contents are instances of :term:`datamodel` 
+(trees of strings, numbers & pandas objects)
 
 
 Quick-start
 -----------
-- Launch the example *jupyter notebooks* `in a binder server
-  <https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md>`_.
-
+- Launch the example *jupyter notebooks* in a private *binder server*: 
+  |binder|
 - Otherwise, install it locally, preferably from the sources (instructions below).
 
 Prerequisites:
@@ -128,7 +127,7 @@ From within the project directory, run one of these commands to install it:
       $ wltp --help
         ...
 
-    See: :ref:`cmd-line-usage`
+    See: :ref:`wltp-usage`
 
 - Recreate jupyter notebooks from the paired ``*.Rmd`` files
   (only these files are stored in git-repo).
@@ -219,6 +218,189 @@ The files and folders of the project are listed below (see also :ref:`Architectu
 
 Usage
 =====
+.. _python-usage:
+
+Python usage
+------------
+First run :command:`python` or :command:`ipython` :abbr:`REPL (Read-Eval-Print Loop)` and
+try to import the project to check its version:
+
+.. doctest::
+
+    >>> import wltp
+
+    >>> wltp.__version__            ## Check version once more.
+    '1.0.0.dev10'
+
+    >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
+    /usr/local/lib/site-package/wltp-...
+
+
+.. Tip:
+    The use :command:`ipython` is preffered over :command:`python` since it offers various user-friendly
+    facilities, such as pressing :kbd:`Tab` for completions, or allowing you to suffix commands with ``?`` or ``??``
+    to get help and read their source-code.
+
+    Additionally you can <b>copy any python commands starting with ``>>>`` and ``...``</b> and copy paste them directly
+    into the ipython interpreter; it will remove these prefixes.
+    But in :command:`python` you have to remove it youself.
+
+If everything works, create the :term:`datamodel` of the experiment.
+You can assemble the model-tree by the use of:
+
+* sequences,
+* dictionaries,
+* :class:`pandas.DataFrame`,
+* :class:`pandas.Series`, and
+* URI-references to other model-trees.
+
+
+For instance:
+
+.. doctest::
+
+    >>> from wltp import datamodel
+    >>> from wltp.experiment import Experiment
+
+    >>> mdl = {
+    ...     "unladen_mass": 1430,
+    ...     "test_mass":    1500,
+    ...     "v_max":        195,
+    ...     "p_rated":      100,
+    ...     "n_rated":      5450,
+    ...     "n_idle":       950,
+    ...     "n_min":        None,                           ## Manufacturers my overridde it
+    ...     "gear_ratios":         [120.5, 75, 50, 43, 37, 32],
+    ...     "f0":   100,
+    ...     "f1":   0.5,
+    ...     "f2":   0.04,
+    ... }
+    >>> mdl = datamodel.upd_default_load_curve(mdl)                   ## need some WOT
+
+
+For information on the accepted model-data, check its :term:`JSON-schema`:
+
+.. doctest::
+
+    >>> from wltp import utils
+    >>> utils.yaml_dumps(datamodel.model_schema(), indent=2)                                # doctest: +SKIP
+    $schema: http://json-schema.org/draft-07/schema#
+    $id: /wltc
+    title: WLTC data
+    type: object
+    additionalProperties: false
+    required:
+    - classes
+    properties:
+    classes:
+    ...
+
+
+You then have to feed this model-tree to the :class:`~.wltp.experiment.Experiment`
+constructor. Internally the :class:`pandalone.pandel.Pandel` resolves URIs, fills-in default values and
+validates the data based on the project's pre-defined :term:`JSON-schema`:
+
+.. doctest::
+
+    >>> processor = Experiment(mdl)         ## Fills-in defaults and Validates model.
+
+
+Assuming validation passes without errors, you can now inspect the defaulted-model
+before running the experiment:
+
+.. doctest::
+
+    >>> mdl = processor.model               ## Returns the validated model with filled-in defaults.
+    >>> sorted(mdl)                         ## The "defaulted" model now includes the `params` branch.
+    ['driver_mass', 'f0', 'f1', 'f2', 'f_downscale_decimals', 'f_downscale_threshold', 'f_inertial',
+     'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 'gear_ratios', 'n_idle', 'n_min',
+     'n_min_drive1', 'n_min_drive2', 'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_dn_start',
+     'n_min_drive_down', 'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated',
+     'p_rated', 't_end_cold', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_data',
+     'wot']
+
+
+Now you can run the experiment:
+
+.. doctest::
+
+    >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
+    >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
+      ['cycle_run', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
+       'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min',
+       'f_n_min_gear2', 'f_safety_margin', 'g_vmax', 'gear_ratios', 'is_n_lim_vmax', 'n95_high', 'n95_low',
+       'n_idle', 'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_min_drive1', 'n_min_drive2',
+       'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_dn_start', 'n_min_drive_down',
+       'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated', 'n_vmax', 'p_rated', 'pmr',
+       't_end_cold', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class',
+       'wltc_data', 'wot', 'wots_vmax']
+
+To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
+
+.. doctest::
+
+    >>> import pandas as pd, wltp.cycler as cycler, wltp.io as wio
+    >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
+    >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
+    (1801, 90)
+    >>> wio.flatten_columns(df.columns)
+    ['t', 'v_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
+     'stop', 'accel', 'cruise', 'decel', 'initaccel', 'stopdecel', 'up', 'p_req', 'n/g1', 'n/g2', 'n/g3',
+     'n/g4', 'n/g5', 'n/g6', 'n_norm/g1', 'n_norm/g2', 'n_norm/g3', 'n_norm/g4', 'n_norm/g5',
+     'n_norm/g6', 'p/g1', 'p/g2', 'p/g3', 'p/g4', 'p/g5', 'p/g6', 'p_avail/g1', 'p_avail/g2',
+     'p_avail/g3', 'p_avail/g4', 'p_avail/g5', 'p_avail/g6', 'p_avail_stable/g1', 'p_avail_stable/g2',
+     'p_avail_stable/g3', 'p_avail_stable/g4', 'p_avail_stable/g5', 'p_avail_stable/g6', 'p_norm/g1',
+     'p_norm/g2', 'p_norm/g3', 'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_max_n_gears_below_gvmax/g1',
+     'ok_max_n_gears_below_gvmax/g2', 'ok_max_n_gears_below_gvmax/g3', 'ok_max_n_gears_below_gvmax/g4',
+     'ok_max_n_gears_below_gvmax/g5', 'ok_max_n_gears_from_gvmax/g6', 'ok_min_n_colds_dns/g3',
+     'ok_min_n_colds_dns/g4', 'ok_min_n_colds_dns/g5', 'ok_min_n_colds_dns/g6', 'ok_min_n_colds_ups/g3',
+     'ok_min_n_colds_ups/g4', 'ok_min_n_colds_ups/g5', 'ok_min_n_colds_ups/g6', 'ok_min_n_g1/g1',
+     'ok_min_n_g1_initaccel/g1', 'ok_min_n_g2/g2', 'ok_min_n_g2_stopdecel/g2', 'ok_min_n_hots_dns/g3',
+     'ok_min_n_hots_dns/g4', 'ok_min_n_hots_dns/g5', 'ok_min_n_hots_dns/g6', 'ok_min_n_hots_ups/g3',
+     'ok_min_n_hots_ups/g4', 'ok_min_n_hots_ups/g5', 'ok_min_n_hots_ups/g6', 'ok_p/g3', 'ok_p/g4',
+     'ok_p/g5', 'ok_p/g6', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3', 'ok_gear/g4', 'ok_gear/g5',
+     'ok_gear/g6']
+
+    >>> 'Mean engine_speed: %s' % df.n.mean()                                       # doctest: +SKIP
+    'Mean engine_speed: 1908.9266796224322'
+    >>> df.describe()                                                               # doctest: +SKIP
+               v_class     v_target  ...     rpm_norm       v_real
+    count  1801.000000  1801.000000  ...  1801.000000  1801.000000
+    mean     46.361410    46.361410  ...     0.209621    50.235126
+    std      36.107745    36.107745  ...     0.192395    32.317776
+    min       0.000000     0.000000  ...    -0.205756     0.200000
+    25%      17.700000    17.700000  ...     0.083889    28.100000
+    50%      41.300000    41.300000  ...     0.167778    41.300000
+    75%      69.100000    69.100000  ...     0.285556    69.100000
+    max     131.300000   131.300000  ...     0.722578   131.300000
+    <BLANKLINE>
+    [8 rows x 10 columns]
+
+    >>> processor.driveability_report()                                             # doctest: +SKIP
+    ...
+      12: (a: X-->0)
+      13: g1: Revolutions too low!
+      14: g1: Revolutions too low!
+    ...
+      30: (b2(2): 5-->4)
+    ...
+      38: (c1: 4-->3)
+      39: (c1: 4-->3)
+      40: Rule e or g missed downshift(40: 4-->3) in acceleration?
+    ...
+      42: Rule e or g missed downshift(42: 3-->2) in acceleration?
+    ...
+
+You can export the cycle-run results in a CSV-file with the following pandas command:
+
+.. code-block:: pycon
+
+    >>> df.to_csv('cycle_run.csv')                                                      # doctest: +SKIP
+
+
+For more examples, download the sources and check the test-cases
+found under the :file:`/tests/` folder.
+
 .. _cmd-line-usage:
 
 Cmd-line usage
@@ -323,220 +505,28 @@ Some general notes regarding the python-code from excel-cells:
 * Read http://docs.xlwings.org/quickstart.html
 
 
-.. _python-usage:
-
-Python usage
-------------
-Example python :abbr:`REPL (Read-Eval-Print Loop)` example-commands  are given below
-that setup and run an *experiment*.
-
-First run :command:`python` or :command:`ipython` and try to import the project to check its version:
-
-.. doctest::
-
-    >>> import wltp
-
-    >>> wltp.__version__            ## Check version once more.
-    '1.0.0.dev10'
-
-    >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
-    /usr/local/lib/site-package/wltp-...
-
-
-.. Tip:
-    The use :command:`ipython` is preffered over :command:`python` since it offers various user-friendly
-    facilities, such as pressing :kbd:`Tab` for completions, or allowing you to suffix commands with ``?`` or ``??``
-    to get help and read their source-code.
-
-    Additionally you can <b>copy any python commands starting with ``>>>`` and ``...``</b> and copy paste them directly
-    into the ipython interpreter; it will remove these prefixes.
-    But in :command:`python` you have to remove it youself.
-
-If everything works, create the :term:datamodel
-of the experiment.  You can assemble the model-tree by the use of:
-
-* sequences,
-* dictionaries,
-* :class:`pandas.DataFrame`,
-* :class:`pandas.Series`, and
-* URI-references to other model-trees.
-
-
-For instance:
-
-.. doctest::
-
-    >>> from wltp import datamodel
-    >>> from wltp.experiment import Experiment
-
-    >>> mdl = {
-    ...     "unladen_mass": 1430,
-    ...     "test_mass":    1500,
-    ...     "v_max":        195,
-    ...     "p_rated":      100,
-    ...     "n_rated":      5450,
-    ...     "n_idle":       950,
-    ...     "n_min":        None,                           ## Manufacturers my overridde it
-    ...     "gear_ratios":         [120.5, 75, 50, 43, 37, 32],
-    ...     "f0":   100,
-    ...     "f1":   0.5,
-    ...     "f2":   0.04,
-    ... }
-    >>> mdl = datamodel.upd_default_load_curve(mdl)                   ## need some WOT
-
-
-For information on the accepted model-data, check its :term:`JSON-schema`:
-
-.. doctest::
-
-    >>> from wltp import utils
-    >>> utils.yaml_dumps(datamodel.model_schema(), indent=2)                                # doctest: +SKIP
-    $schema: http://json-schema.org/draft-07/schema#
-    $id: /wltc
-    title: WLTC data
-    type: object
-    additionalProperties: false
-    required:
-    - classes
-    properties:
-    classes:
-    ...
-
-
-You then have to feed this model-tree to the :class:`~.wltp.experiment.Experiment`
-constructor. Internally the :class:`pandalone.pandel.Pandel` resolves URIs, fills-in default values and
-validates the data based on the project's pre-defined JSON-schema:
-
-.. doctest::
-
-    >>> processor = Experiment(mdl)         ## Fills-in defaults and Validates model.
-
-
-Assuming validation passes without errors, you can now inspect the defaulted-model
-before running the experiment:
-
-.. doctest::
-
-    >>> mdl = processor.model               ## Returns the validated model with filled-in defaults.
-    >>> sorted(mdl)                         ## The "defaulted" model now includes the `params` branch.
-    ['driver_mass', 'f0', 'f1', 'f2', 'f_downscale_decimals', 'f_downscale_threshold',
-     'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin',
-     'gear_ratios', 'n_idle', 'n_min', 'n_rated', 'p_rated', 'test_mass', 'unladen_mass',
-     'v_max', 'v_stopped_threshold', 'wltc_data', 'wot']
-
-
-Now you can run the experiment:
-
-.. doctest::
-
-    >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
-    >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-      ['cycle_run', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
-       'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2',
-       'f_safety_margin', 'g_vmax', 'gear_ratios', 'is_n_lim_vmax', 'n95_high', 'n95_low', 'n_idle',
-       'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_rated', 'n_vmax', 'p_rated', 'pmr', 'test_mass',
-       'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class', 'wltc_data', 'wot', 'wots_vmax']
-
-
-
-
-
-
-To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
-
-.. doctest::
-
-    >>> import pandas as pd, wltp.cycler as cycler, wltp.io as wio
-    >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
-    >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
-    (1801, 90)
-    >>> wio.flatten_columns(df.columns)
-    ['t', 'v_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
-     'stop', 'accel', 'cruise', 'decel', 'initaccel', 'stopdecel', 'up', 'p_req', 'n/g1', 'n/g2', 'n/g3',
-     'n/g4', 'n/g5', 'n/g6', 'n_norm/g1', 'n_norm/g2', 'n_norm/g3', 'n_norm/g4', 'n_norm/g5',
-     'n_norm/g6', 'p/g1', 'p/g2', 'p/g3', 'p/g4', 'p/g5', 'p/g6', 'p_avail/g1', 'p_avail/g2',
-     'p_avail/g3', 'p_avail/g4', 'p_avail/g5', 'p_avail/g6', 'p_avail_stable/g1', 'p_avail_stable/g2',
-     'p_avail_stable/g3', 'p_avail_stable/g4', 'p_avail_stable/g5', 'p_avail_stable/g6', 'p_norm/g1',
-     'p_norm/g2', 'p_norm/g3', 'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_gear/g0',
-     'ok_max_n_gears_below_gvmax/g1', 'ok_max_n_gears_below_gvmax/g2', 'ok_max_n_gears_below_gvmax/g3',
-     'ok_max_n_gears_below_gvmax/g4', 'ok_max_n_gears_below_gvmax/g5', 'ok_max_n_gears_from_gvmax/g6',
-     'ok_min_n_colds_dns/g3', 'ok_min_n_colds_dns/g4', 'ok_min_n_colds_dns/g5', 'ok_min_n_colds_dns/g6',
-     'ok_min_n_colds_ups/g3', 'ok_min_n_colds_ups/g4', 'ok_min_n_colds_ups/g5', 'ok_min_n_colds_ups/g6',
-     'ok_min_n_g1/g1', 'ok_min_n_g1_initaccel/g1', 'ok_min_n_g2/g2', 'ok_min_n_g2_stopdecel/g2',
-     'ok_min_n_hots_dns/g3', 'ok_min_n_hots_dns/g4', 'ok_min_n_hots_dns/g5', 'ok_min_n_hots_dns/g6',
-     'ok_min_n_hots_ups/g3', 'ok_min_n_hots_ups/g4', 'ok_min_n_hots_ups/g5', 'ok_min_n_hots_ups/g6',
-     'ok_p/g3', 'ok_p/g4', 'ok_p/g5', 'ok_p/g6', 'ok_gear/g0', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3',
-     'ok_gear/g4', 'ok_gear/g5', 'ok_gear/g6']
-
-    >>> 'Mean engine_speed: %s' % df.n.mean()                                       # doctest: +SKIP
-    'Mean engine_speed: 1908.9266796224322'
-    >>> df.describe()                                                               # doctest: +SKIP
-               v_class     v_target  ...     rpm_norm       v_real
-    count  1801.000000  1801.000000  ...  1801.000000  1801.000000
-    mean     46.361410    46.361410  ...     0.209621    50.235126
-    std      36.107745    36.107745  ...     0.192395    32.317776
-    min       0.000000     0.000000  ...    -0.205756     0.200000
-    25%      17.700000    17.700000  ...     0.083889    28.100000
-    50%      41.300000    41.300000  ...     0.167778    41.300000
-    75%      69.100000    69.100000  ...     0.285556    69.100000
-    max     131.300000   131.300000  ...     0.722578   131.300000
-    <BLANKLINE>
-    [8 rows x 10 columns]
-
-    >>> processor.driveability_report()                                             # doctest: +SKIP
-    ...
-      12: (a: X-->0)
-      13: g1: Revolutions too low!
-      14: g1: Revolutions too low!
-    ...
-      30: (b2(2): 5-->4)
-    ...
-      38: (c1: 4-->3)
-      39: (c1: 4-->3)
-      40: Rule e or g missed downshift(40: 4-->3) in acceleration?
-    ...
-      42: Rule e or g missed downshift(42: 3-->2) in acceleration?
-    ...
-
-You can export the cycle-run results in a CSV-file with the following pandas command:
-
-.. code-block:: pycon
-
-    >>> df.to_csv('cycle_run.csv')                                                      # doctest: +SKIP
-
-
-For more examples, download the sources and check the test-cases
-found under the :file:`/tests/` folder.
-
-
-.. _begin-contribute:
-
-Getting Involved
-================
-This project is hosted in **github**.
-To provide feedback about bugs and errors or questions and requests for enhancements,
-use `github's Issue-tracker <https://github.com/JRCSTU/wltp/issues>`_.
+.. _architecture:
 
 Architecture
-------------
+============
 The Python code is highly modular, with `testability in mind
 <https://en.wikipedia.org/wiki/Test-driven_development>`_.
 so that specific parts can run in isolation.
 This facilitates studying tough issues, such as, `double-precision reproducibility
-<https://gist.github.com/ankostis/895ba33f05a5a76539cb689a2f366230>`_, boundary conditions, 
+<https://gist.github.com/ankostis/895ba33f05a5a76539cb689a2f366230>`_, boundary conditions,
 comparison of numeric outputs, and studying the code in sub-routines.
 
 .. tip::
     Run test-cases with ``pytest`` command.
 
 Data Structures:
-^^^^^^^^^^^^^^^^
+----------------
 .. default-role:: term
 
 Computations are vectorial, based on `hierarchical dataframes
 <https://pandas.pydata.org/pandas-docs/stable/user_guide/advanced.html>`_,
-all of them stored in a single structure, the `datamodel`.  
-In case the computation breaks, you can still retrive all intermediate results 
+all of them stored in a single structure, the `datamodel`.
+In case the computation breaks, you can still retrive all intermediate results
 till that point.
 
 .. TODO::
@@ -549,7 +539,7 @@ till that point.
     mdl
     datamodel
         The container of all the scalar Input & Output values, the WLTC constants factors,
-        and 3 matrices: `wots`, `gwots`, and the `cycle run` time series.
+        and 3 matrices: `WOT`, `gwots`, and the `cycle run` time series.
 
         It is composed by a stack of mergeable `JSON-schema` abiding trees of *string, numbers & pandas objects*,
         formed with python *sequences & dictionaries, and URI-references*.
@@ -566,7 +556,7 @@ till that point.
     Grid WOTs
         A dataframe produced from `WOT` for all gear-ratios, indexed by a grid of rounded velocities,
         and with 2-level columns ``(item, gear)``.
-        It is generated by :func:`~.engine.interpolate_wot_on_v_grid()`, and augmented 
+        It is generated by :func:`~.engine.interpolate_wot_on_v_grid()`, and augmented
         by :func:`~.engine.calc_p_avail_in_gwots()` & :func:`~.vehicle.calc_road_load_power()` .
 
         .. TODO::
@@ -580,7 +570,7 @@ till that point.
         it is implemented in :mod:`~.cycler`.
 
 Code Structure:
-^^^^^^^^^^^^^^^
+---------------
 The computation code is roughly divided in these python modules:
 
 .. glossary::
@@ -600,7 +590,7 @@ The computation code is roughly divided in these python modules:
         - :mod:`~.cycler`
         - :mod:`~.gridwots` (TODO)
         - :mod:`~.scheduler` (TODO)
-        - :mod:`~.experiment` (TO BE DROPPED, `datamodel` will subsitute all functionality)
+        - :mod:`~.experiment` (TO BE DROPPED, :mod:`~.datamodel` will assume all functionality)
 
 The blueprint for the underlying software ideas is given with this diagram:
 
@@ -612,7 +602,6 @@ with a varying list of available inputs & required data, and automatically compu
 only what is not already given.
 
 
-.. default-role:: obj
 
 Specs & Algorithm
 -----------------
@@ -633,13 +622,7 @@ The WLTC-profiles for the various classes in the :file:`devtools/data/cycles/` f
 of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
-Then use the :file:`devtools/buildwltcclass.py` to construct the respective python-vars into the
-:mod:`wltp/datamodel.py` sources.
-
-
-Data-files generated from Steven Heinz's ms-access ``vehicle info`` db-table can be processed
-with the  :file:`devtools/preprocheinz.py` script.
-
+.. default-role:: obj
 
 Cycles
 ^^^^^^
@@ -654,13 +637,21 @@ Cycles
     :align: center
 
 
+.. _begin-contribute:
+
+Getting Involved
+================
+This project is hosted in **github**.
+To provide feedback about bugs and errors or questions and requests for enhancements,
+use `github's Issue-tracker <https://github.com/JRCSTU/wltp/issues>`_.
+
 Development procedure
 ---------------------
 For submitting code, use ``UTF-8`` everywhere, unix-eol(``LF``) and set ``git --config core.autocrlf = input``.
 
 The typical development procedure is like this:
 
-0. Install and arm a `pre-commit hook <https://github.com/pre-commit/pre-commit-hooks>`_ 
+0. Install and arm a `pre-commit hook <https://github.com/pre-commit/pre-commit-hooks>`_
    with *black* to auto-format you python-code.
 
 1. Modify the sources in small, isolated and well-defined changes, i.e.
@@ -710,6 +701,7 @@ Development team
 
 Glossary
 ========
+See also :ref:`Architecture`.
 
 .. default-role:: term
 
@@ -727,7 +719,6 @@ Glossary
         `UNECE` Working party on Pollution and Energy - Transport Programme
 
     GTR
-    GTRs
         Any of the *Global Technical Regulation* documents of the `WLTP` .
 
     GS Task-Force
@@ -737,6 +728,15 @@ Glossary
     WLTC
         The family of pre-defined *driving-cycles* corresponding to vehicles with different
         :abbr:`PMR (Power to Mass Ratio)`. Classes 1,2, 3a/b are split in 3, 4 and 4 *parts* respectively.
+
+    access DB
+        The original implementation of the algorithm in *MS Access* by Steven Heinz.
+
+        To facilitate searching and cross-referencing the existing routines,
+        all the code & queries of the database have been extracted and stored in as text
+        under the `Notebooks/WLTP_GS_AccessDB-sources/
+        <https://github.com/JRCSTU/wltp/tree/master/Notebooks/WLTP_GS_AccessDB-sources/>`_ folder
+        of this project.
 
     MRO
     Mass in running order
@@ -770,6 +770,9 @@ Glossary
         that provides a *contract* for what JSON-data is required for a given application and how to interact
         with it.  JSON Schema is intended to define validation, documentation, hyperlink navigation, and
         interaction control of JSON data.
+        
+        The schema of this project has its own section: :ref:`Schema`
+
         You can learn more about it from this `excellent guide <http://spacetelescope.github.io/understanding-json-schema/>`_,
         and experiment with this `on-line validator <http://www.jsonschema.net/>`_.
 
@@ -778,6 +781,23 @@ Glossary
         a JavaScript Object Notation (JSON) document. It aims to serve the same purpose as *XPath* from the XML world,
         but it is much simpler.
 
+    sphinx
+        The text-oriented language, a superset of `Restructured Text <https://en.wikipedia.org/wiki/ReStructuredText>`_, 
+        used to write the documentation for this project, with simlar capabilities to *LaTeX*, 
+        but for humans.
+        http://sphinx-doc.org/
+
+    notebook
+    jupyter notebook
+    Jupyter
+        *Jupyter* is a web-based interactive computational environment for creating *Jupyter notebook* documents.
+        The "notebook" term can colloquially make reference to many different entities, 
+        mainly the Jupyter web application, Jupyter Python web server, or Jupyter document format, 
+        depending on context.
+        
+        A *Jupyter Notebook* document is composed of an ordered list of input/output *cells*
+        which contain code in variou languages, text (using Markdown), mathematics, plots and 
+        rich media, usually ending with the ".ipynb" extension.
 
 .. _begin-replacements:
 
