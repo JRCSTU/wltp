@@ -457,16 +457,16 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
      'n_norm/g6', 'p/g1', 'p/g2', 'p/g3', 'p/g4', 'p/g5', 'p/g6', 'p_avail/g1', 'p_avail/g2',
      'p_avail/g3', 'p_avail/g4', 'p_avail/g5', 'p_avail/g6', 'p_avail_stable/g1', 'p_avail_stable/g2',
      'p_avail_stable/g3', 'p_avail_stable/g4', 'p_avail_stable/g5', 'p_avail_stable/g6', 'p_norm/g1',
-     'p_norm/g2', 'p_norm/g3', 'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_max_n_gears_below_gvmax/g1',
-     'ok_max_n_gears_below_gvmax/g2', 'ok_max_n_gears_below_gvmax/g3', 'ok_max_n_gears_below_gvmax/g4',
-     'ok_max_n_gears_below_gvmax/g5', 'ok_max_n_gears_from_gvmax/g6', 'ok_min_n_colds_dns/g3',
-     'ok_min_n_colds_dns/g4', 'ok_min_n_colds_dns/g5', 'ok_min_n_colds_dns/g6', 'ok_min_n_colds_ups/g3',
-     'ok_min_n_colds_ups/g4', 'ok_min_n_colds_ups/g5', 'ok_min_n_colds_ups/g6', 'ok_min_n_g1/g1',
-     'ok_min_n_g1_initaccel/g1', 'ok_min_n_g2/g2', 'ok_min_n_g2_stopdecel/g2', 'ok_min_n_hots_dns/g3',
-     'ok_min_n_hots_dns/g4', 'ok_min_n_hots_dns/g5', 'ok_min_n_hots_dns/g6', 'ok_min_n_hots_ups/g3',
-     'ok_min_n_hots_ups/g4', 'ok_min_n_hots_ups/g5', 'ok_min_n_hots_ups/g6', 'ok_p/g3', 'ok_p/g4',
-     'ok_p/g5', 'ok_p/g6', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3', 'ok_gear/g4', 'ok_gear/g5',
-     'ok_gear/g6']
+     'p_norm/g2', 'p_norm/g3', 'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_gear/g0',
+     'ok_max_n_gears_below_gvmax/g1', 'ok_max_n_gears_below_gvmax/g2', 'ok_max_n_gears_below_gvmax/g3',
+     'ok_max_n_gears_below_gvmax/g4', 'ok_max_n_gears_below_gvmax/g5', 'ok_max_n_gears_from_gvmax/g6',
+     'ok_min_n_colds_dns/g3', 'ok_min_n_colds_dns/g4', 'ok_min_n_colds_dns/g5', 'ok_min_n_colds_dns/g6',
+     'ok_min_n_colds_ups/g3', 'ok_min_n_colds_ups/g4', 'ok_min_n_colds_ups/g5', 'ok_min_n_colds_ups/g6',
+     'ok_min_n_g1/g1', 'ok_min_n_g1_initaccel/g1', 'ok_min_n_g2/g2', 'ok_min_n_g2_stopdecel/g2',
+     'ok_min_n_hots_dns/g3', 'ok_min_n_hots_dns/g4', 'ok_min_n_hots_dns/g5', 'ok_min_n_hots_dns/g6',
+     'ok_min_n_hots_ups/g3', 'ok_min_n_hots_ups/g4', 'ok_min_n_hots_ups/g5', 'ok_min_n_hots_ups/g6',
+     'ok_p/g3', 'ok_p/g4', 'ok_p/g5', 'ok_p/g6', 'ok_gear/g0', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3',
+     'ok_gear/g4', 'ok_gear/g5', 'ok_gear/g6']
 
     >>> 'Mean engine_speed: %s' % df.n.mean()                                       # doctest: +SKIP
     'Mean engine_speed: 1908.9266796224322'

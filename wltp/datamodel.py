@@ -938,7 +938,7 @@ def yield_n_min_errors(mdl):
     d = wio.pstep_factory.get()
     # g = wio.pstep_factory.get().gears
 
-    if not d.n_idle in mdl or d.n_rated in mdl:
+    if not mdl.get(d.n_rated) or not mdl.get(d.n_rated):
         # Bail out, jsonschema errors already reported.
         return
 
