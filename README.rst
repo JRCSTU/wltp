@@ -605,20 +605,16 @@ only what is not already given.
 
 Specs & Algorithm
 -----------------
-.. Attention::
-    Section & linked documents are very outdated!
-
-This program was implemented from scratch based on
-this :download:`GTR specification <23.10.2013 ECE-TRANS-WP29-GRPE-2013-13 0930.docx>`
-(included in the :file:`docs/` folder).  The latest version of this GTR, along
-with other related documents can be found at UNECE's site:
+This program is compared against the latest `Access DB` (as of July 2019) and
+according to this *08.07.2019_HS rev2_23072019 GTR specification* 
+(:download:`docs/_static/WLTP-GS-TF-41 GTR 15 annex 1 and annex 2 08.07.2019_HS rev2_23072019.docx`,
+included in the :file:`docs/_static` folder).  The latest official version of this GTR, along
+with other related documents maybe found at UNECE's site:
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
 * https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
-* Probably a more comprehensible but older spec is this one:
-  https://www2.unece.org/wiki/display/trans/DHC+draft+technical+report
 
-The WLTC-profiles for the various classes in the :file:`devtools/data/cycles/` folder were generated from the tables
+The WLTC-profiles for the various classes were generated from the tables
 of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
