@@ -5,6 +5,7 @@ The core of the simulator is composed from the following modules:
 .. currentmodule:: wltp
 .. autosummary::
 
+    cycles
     datamodel
     experiment
     cycler
@@ -20,14 +21,19 @@ The core of the simulator is composed from the following modules:
     idgears
 
 
-Module: :mod:`wltp.experiment`
-------------------------------
-.. automodule:: wltp.experiment
+Module: :mod:`wltp.cycles`
+-----------------------------
+.. automodule:: wltp.cycles
     :members:
 
 Module: :mod:`wltp.datamodel`
 -----------------------------
 .. automodule:: wltp.datamodel
+    :members:
+
+Module: :mod:`wltp.experiment`
+------------------------------
+.. automodule:: wltp.experiment
     :members:
 
 Module: :mod:`wltp.cycler`

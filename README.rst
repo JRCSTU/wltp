@@ -632,6 +632,33 @@ Cycles
 .. image:: docs/_static/wltc_class3b.png
     :align: center
 
+Checksums
+~~~~~~~~~
+As computed by :func:`wltp.cycles.crc_velocity()` and identified back 
+by :func:`wltp.cycles.identify_cycle_v_crc`. 
+
+=======	======	=====	====	====	=====	====	=======	=======	======= 
+.	.	CRC	.	.	.	.	.	SUM	.
+.	.	phase	.	.	accum	.	.	phase	accum
+.	.	V	V_A1	V_A2	V	V_A1	V_A2	V	V
+class	part
+=======	======	=====	====	====	=====	====	=======	=======	======= 
+class1	part1	9840	4438	155E	9840	4438	155E	11988.4	11988.4
+.	part2	8C34	8C8D	A26A	DCF2	90BE	27BC	17162.8	29151.2
+.	part3	9840	9840	97DB	6D1D	6D1D	F523	11988.4	41139.6
+class2	part1	8591	CDD1	C771	8591	CDD1	C771	11162.2	11162.2
+.	part2	312D	391A	CCE7	A010	606E	5A1D	17054.3	28216.5
+.	part3	81CD	E29E	57BF	28FB	9261	EC74	24450.6	52667.1
+.	part4	8994	8994	2181	474B	474B	F70F	28869.8	81536.9
+class3a	part1	48E5	910C	E0E2	48E5	910C	E0E2	11140.3	11140.3
+.	part2	1494	D93B	CC32	403D	2487	3ABF	16995.7	28136.0
+.	part3	8B3B	9887	E6A7	D770	3F67	55AA	25646.0	53782.0
+.	part4	F962	F962	5177	9BCE	9BCE	2B8A	29714.9	83496.9
+class3b	part1	48E5	910C	E0E2	48E5	910C	E0E2	11140.3	11140.3
+.	part2	AF1D	E501	7B6A	FBB4	18BD	8DE7	17121.2	28261.5
+.	part3	15F6	A779	2DE2	43BC	B997	7E5F	25782.2	54043.7
+.	part4	F962	F962	5177	639B	639B	D3DF	29714.9	83758.6
+=======	======	=====	====	====	=====	====	=======	=======	======= 
 
 .. _begin-contribute:
 
