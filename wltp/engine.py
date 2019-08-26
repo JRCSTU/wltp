@@ -272,7 +272,7 @@ def _make_v_grid(v_wot_min: float, v_wot_max: float) -> np.ndarray:
     return V_grid
 
 
-def interpolate_wot_on_v_grid2(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
+def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     """
     Return a new linearly interpolated df on v with v_decimals. 
     
@@ -344,7 +344,7 @@ def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
     :param gwots:
         a  df with 2-level multindex columns, having at least (`g1`, 'p'), and
         optionally ('g1', 'ASM')) for each gears 
-        (as retuned by :func:`interpolate_wot_on_v_grid2()`).
+        (as retuned by :func:`interpolate_wot_on_v_grid()`).
 
     .. TODO:: Encapsulate GridWots in a class, like Cycler.
     """

@@ -167,7 +167,7 @@ class Experiment(object):
 
         f_safety_margin = mdl["f_safety_margin"]
 
-        gwots = engine.interpolate_wot_on_v_grid2(wot, gear_ratios)
+        gwots = engine.interpolate_wot_on_v_grid(wot, gear_ratios)
         gwots = engine.calc_p_avail_in_gwots(gwots, SM=f_safety_margin)
         p_resist = vehicle.calc_road_load_power(gwots.index, f0, f1, f2)
 

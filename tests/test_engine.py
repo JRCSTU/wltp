@@ -225,7 +225,7 @@ def test_interpolate_wot_on_v_grid(h5_accdb):
         wot = wot[["Pwot", "ASM"]]
         wot["n"] = wot.index
 
-        return engine.interpolate_wot_on_v_grid2(wot, n2vs)
+        return engine.interpolate_wot_on_v_grid(wot, n2vs)
 
     all_cases = vehdb.all_vehnums(h5_accdb)
     results = {wio.veh_name(case): interpolate_veh(case) for case in all_cases}

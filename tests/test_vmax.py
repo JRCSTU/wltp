@@ -41,7 +41,7 @@ def test_v_max(h5_accdb):
         props, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, vehnum)
         wot = wot.rename({"Pwot": "p"}, axis=1)
         wot["n"] = wot.index
-        gwots = engine.interpolate_wot_on_v_grid2(wot, n2vs)
+        gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
         gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
         p_resist = vehicle.calc_road_load_power(
             gwots.index, props.f0, props.f1, props.f2
