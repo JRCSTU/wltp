@@ -17,7 +17,7 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 A python package to generate the *gear-shifts* of Light-duty vehicles
 running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTRs`.
 
-.. figure:: docs/wltc_class3b.png
+.. figure:: docs/_static/wltc_class3b.png
     :align: center
 
     **Figure 1:** *WLTP cycle for class-3b Vehicles*
@@ -644,13 +644,13 @@ with the  :file:`devtools/preprocheinz.py` script.
 Cycles
 ^^^^^^
 
-.. image:: docs/wltc_class1.png
+.. image:: docs/_static/wltc_class1.png
     :align: center
-.. image:: docs/wltc_class2.png
+.. image:: docs/_static/wltc_class2.png
     :align: center
-.. image:: docs/wltc_class3a.png
+.. image:: docs/_static/wltc_class3a.png
     :align: center
-.. image:: docs/wltc_class3b.png
+.. image:: docs/_static/wltc_class3b.png
     :align: center
 
 

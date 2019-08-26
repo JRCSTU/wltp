@@ -11,13 +11,15 @@ Invoked with 1 arg will draw diagram on screen and wait before ending.
 Invoked with 2 args will additionally save image as well.
 """
 
-import sys, os, os.path as path
-
-from matplotlib import pyplot as plt
-from matplotlib.pyplot import pause
-from wltp import datamodel
+import os
+import os.path as path
+import sys
 
 import numpy as np
+from matplotlib import pyplot as plt
+from matplotlib.pyplot import pause
+
+from wltp import cycler, datamodel, vehicle
 
 
 def make_class_fig(class_name, class_data):
@@ -26,9 +28,13 @@ def make_class_fig(class_name, class_data):
 
     ## Get cycle-data
     #
-    c = np.array(class_data["v_cycle"])
-    a = 1000 * np.gradient(c) / 3600
-    t = np.arange(0, len(c))
+    # Typical car data
+    test_mass, f0, f1, f2 = 1200, 0.3, 0.03, 0
+    v = class_data["v_cycle"]
+    a = -v.diff(-1)
+    p = vehicle.calc_power_required(v, a, test_mass, f0, f1, f2, 0)
+    p *= v.max() / p.max()
+    t = np.arange(0, len(v))
     part_limits = class_data["parts"]
 
     fig, ax1 = plt.subplots()
@@ -43,13 +49,12 @@ def make_class_fig(class_name, class_data):
         tl.set_size(tick_size)
 
     ax2 = ax1.twinx()
-    ax2.set_ylabel(r"Acceleration ($m/\sec_2$)", color="m", size=font_size)
-    for tl in ax2.get_yticklabels():
-        tl.set_color("m")
-        tl.set_size(tick_size)
+    ax2.set_ylabel(r"Power required", color="m", size=font_size)
+    ax2.set_yticklabels([])
 
-    l_vel = ax2.plot(t, a, "m-", alpha=0.3)[0]
-    l_acc = ax1.plot(t, c, "b-")[0]
+    ax2.fill_between(t, 0, p, color="m", alpha=0.3)
+    _l_acc = ax1.plot(t, v, "b-")[0]
+
     #     plt.legend([l_vel, l_acc], ['Velocity', 'Acceleration'])
 
     plt.title("WLTC %s" % class_name, size=9.5, weight="bold")
@@ -61,21 +66,35 @@ def make_class_fig(class_name, class_data):
 
     ## Add part-labels.
     #
-    v_pos = 129.5  # trial'n error
-    if class_name == "class1":  # Acceleration scale changes!!
-        v_pos /= 2
+    # Trial'n error
+    v_pos = 135
     bbox = {"facecolor": "red", "alpha": 0.5, "pad": 4, "linewidth": 0}
     txts = ["Low", "Medium", "High", "ExtraHigh"]
     txts_pos = [0] + part_limits  # [0.40, 0.67, 0.85]
 
     for (txt, h_pos) in zip(txts, txts_pos):
-        ax1.text(h_pos + 8, v_pos, txt, style="italic", bbox=bbox, size=8)
+        ax1.text(
+            h_pos + 18,  # trial'n error
+            v_pos,
+            txt,
+            style="italic",
+            bbox=bbox,
+            size=8,
+            va="top",
+            ha="left",
+        )
 
     ax1.grid()
     ax1.xaxis.grid = True
     ax1.yaxis.grid = True
+    ax1.autoscale(enable=True, tight=True, axis="x")
+    ax2.autoscale(enable=True, tight=True, axis="x")
+    ylim = [0, 140]  # kmh
+    ax1.set_ylim(ylim)
+    ax2.set_ylim(ylim)
 
     fig.set_size_inches(2 * 2 * 1.618, 2)
+    fig.tight_layout(pad=0)
 
     return fig
 
