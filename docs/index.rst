@@ -2,7 +2,9 @@
     :end-before: _end-opening:
 
 .. toctree::
+    :maxdepth: 4
     :numbered:
+    :name: mastertoc
 
     intro
     usage
@@ -15,4 +17,4 @@
     indices
 
 .. include:: ../README.rst
-    :start-after: _begin-glossary:
+    :start-after: _begin-replacements:

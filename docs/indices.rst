@@ -1,10 +1,12 @@
-=======
-Indices
-=======
+================
+Tables & Indices
+================
 
 .. include:: ../README.rst
     :start-after: _begin-glossary:
 
-:ref:`Index <genindex>`
------------------------
-
+Indices
+=======
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
