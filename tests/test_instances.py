@@ -101,8 +101,8 @@ def test_wltc_checksums():
     """
     dfs_dict = {
         "V": _calc_wltc_checksums(0, 0),
-        "V_A0": _calc_wltc_checksums(0, -1, calc_sum=False),
-        "V_A1": _calc_wltc_checksums(1, 0, calc_sum=False),
+        "VA0": _calc_wltc_checksums(0, -1, calc_sum=False),
+        "VA1": _calc_wltc_checksums(1, 0, calc_sum=False),
     }
 
     dfs = pd.concat(dfs_dict.values(), keys=dfs_dict.keys(), axis=1)
@@ -135,8 +135,8 @@ def test_cycle_phases_df():
 
     for wltc_class in datamodel.get_class_names():
         rows.append((wltc_class, "V", *class_boundaries(wltc_class, 0, 0)))
-        rows.append((wltc_class, "V_A0", *class_boundaries(wltc_class, 0, -1)))
-        rows.append((wltc_class, "V_A1", *class_boundaries(wltc_class, 1, 0)))
+        rows.append((wltc_class, "VA0", *class_boundaries(wltc_class, 0, -1)))
+        rows.append((wltc_class, "VA1", *class_boundaries(wltc_class, 1, 0)))
 
     columns = "class phasing part-1 part-2 part-3 part-4".split()
     df = (
@@ -187,13 +187,13 @@ def test_full_cycles_in_wltc_checksums(wltc_class, exp):
         (idx[:589], ("class1", "part-1", "V")),
         (idx[589:1022], ("class1", "part-2", "V")),
         (idx[:1022], ("class1", "PART-2", "V")),
-        (idx[:1021], ("class1", "PART-2", "V_A0")),
-        (idx[:588], ("class1", "part-1", "V_A0")),
-        (idx[1:589], ("class1", "part-1", "V_A1")),  # 1st & 3rd parts are identical
+        (idx[:1021], ("class1", "PART-2", "VA0")),
+        (idx[:588], ("class1", "part-1", "VA0")),
+        (idx[1:589], ("class1", "part-1", "VA1")),  # 1st & 3rd parts are identical
         (idx[1:590], (None, None, None)),
-        (idx[1023:], ("class1", "part-1", "V_A1")),  # 1st & 3rd parts are identical
-        (idx[1022:1610], ("class1", "part-1", "V_A0")),  # 1st & 3rd parts are identical
-        (idx[1:], ("class1", None, "V_A1")),
+        (idx[1023:], ("class1", "part-1", "VA1")),  # 1st & 3rd parts are identical
+        (idx[1022:1610], ("class1", "part-1", "VA0")),  # 1st & 3rd parts are identical
+        (idx[1:], ("class1", None, "VA1")),
     ],
 )
 def test_identify_wltc_checksums(indexer, exp):

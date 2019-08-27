@@ -72,7 +72,7 @@ def cycle_checksums(full=False) -> pd.DataFrame:
         """
         checksum		CRC32	CRC32	CRC32	CRC32	CRC32	CRC32	SUM	SUM
         accumulation		by_phase	by_phase	by_phase	cummulative	cummulative	cummulative	by_phase	cummulative
-        phasing		V	V_A0	V_A1	V	V_A0	V_A1	V	V
+        phasing		V	VA0	VA1	V	VA0	VA1	V	V
         class	part								
         class1	part-1	9840D3E9	4438BBA3	97DBE17C	9840D3E9	4438BBA3	97DBE17C	11988.4	11988.4
         class1	part-2	8C342DB0	8C8D3B61	D9E87FE5	DCF2D584	90BEA9C	4295031D	17162.8	29151.2
@@ -121,17 +121,17 @@ def cycle_phases() -> pd.DataFrame:
         """
         class	phasing	part-1	part-2	part-3	part-4
         class1	V	[0, 589]	[589, 1022]	[1022, 1612]	
-        class1	V_A0	[0, 588]	[589, 1021]	[1022, 1611]	
-        class1	V_A1	[1, 589]	[590, 1022]	[1023, 1612]	
+        class1	VA0	[0, 588]	[589, 1021]	[1022, 1611]	
+        class1	VA1	[1, 589]	[590, 1022]	[1023, 1612]	
         class2	V	[0, 589]	[589, 1022]	[1022, 1477]	[1477, 1801]
-        class2	V_A0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
-        class2	V_A1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
+        class2	VA0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
+        class2	VA1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
         class3a	V	[0, 589]	[589, 1022]	[1022, 1477]	[1477, 1801]
-        class3a	V_A0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
-        class3a	V_A1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
+        class3a	VA0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
+        class3a	VA1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
         class3b	V	[0, 589]	[589, 1022]	[1022, 1477]	[1477, 1801]
-        class3b	V_A0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
-        class3b	V_A1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
+        class3b	VA0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
+        class3b	VA1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
         """
     )
     return pd.read_csv(
@@ -188,8 +188,8 @@ def identify_cycle_v(V: Iterable):
         where `<phasing>` is one of 
         
         - ``V``, 
-        - ``V_A0`` (offset: 0, length: -1_), 
-        - ``V_A1`` (offset: 1, length: -1)
+        - ``A0`` (offset: 0, length: -1_), 
+        - ``A1`` (offset: 1, length: -1)
    """
     crc = crc_velocity(V)
     return identify_cycle_v_crc(crc)
