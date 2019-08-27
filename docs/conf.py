@@ -143,6 +143,8 @@ extensions = [
     "matplotlib.sphinxext.plot_directive",
 ]
 
+autosectionlabel_prefix_document = True
+
 ## Prevent Sphinx from doctesting python-modules doctests,
 # they will be checked separately with *pytest*.
 doctest_test_doctest_blocks = ""

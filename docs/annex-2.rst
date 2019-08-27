@@ -333,6 +333,7 @@ Since the above modifications may create new gear use sequences which are in con
 the gear sequences shall be checked twice.
 Paragraphs 4.(a) to 4.(g) shall be applied in in succession and only after each has completely finished scanning the gear-profile.
 
+
 Discussion
 ----------
 .. raw:: html

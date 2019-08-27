@@ -182,7 +182,7 @@ See: :ref:`python-usage`
 
 Project files and folders
 -------------------------
-The files and folders of the project are listed below (see also :ref:`Architecture`)::
+The files and folders of the project are listed below (see also :ref:`architecture:Architecture`)::
 
     +--bin/               ## (shell-scripts) Utilities & preprocessing of WLTC data on GTR and the wltp_db
     |   +--bumpver.py     ## (script) Update project's version-string
@@ -278,7 +278,7 @@ For instance:
     >>> mdl = datamodel.upd_default_load_curve(mdl)                   ## need some WOT
 
 
-For information on the accepted model-data, check its :term:`JSON-schema`:
+For information on the accepted model-data, check the :ref:`code:Schema`:
 
 .. doctest::
 
@@ -589,6 +589,10 @@ The computation code is roughly divided in these python modules:
         - :mod:`~.scheduler` (TODO)
         - :mod:`~.experiment` (TO BE DROPPED, :mod:`~.datamodel` will assume all functionality)
 
+    scheduler
+        (TODO) The internal software component which decides which `formulae` to execute 
+        based on given inputs and requested outputs.
+
 The blueprint for the underlying software ideas is given with this diagram:
 
 .. image:: docs/_static/WLTP_architecture.png
@@ -747,7 +751,7 @@ Development team
 
 Glossary
 ========
-See also :ref:`Architecture`.
+See also :ref:`architecture:Architecture`.
 
 .. default-role:: term
 
@@ -817,7 +821,7 @@ See also :ref:`Architecture`.
         with it.  JSON Schema is intended to define validation, documentation, hyperlink navigation, and
         interaction control of JSON data.
 
-        The schema of this project has its own section: :ref:`Schema`
+        The schema of this project has its own section: :ref:`code:Schema`
 
         You can learn more about it from this `excellent guide <http://spacetelescope.github.io/understanding-json-schema/>`_,
         and experiment with this `on-line validator <http://www.jsonschema.net/>`_.

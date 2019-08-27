@@ -187,8 +187,8 @@ def identify_cycle_v(V: Iterable):
 
         where `<phasing>` is one of 
         
-        - ``V``, 
-        - ``A0`` (offset: 0, length: -1_), 
+        - ``V`` 
+        - ``A0`` (offset: 0, length: -1) 
         - ``A1`` (offset: 1, length: -1)
    """
     crc = crc_velocity(V)
