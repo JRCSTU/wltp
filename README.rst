@@ -32,7 +32,7 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
 
     * In the :doc:`CHANGES`.
     * Compare results with AccDB in ``Notebooks/CarsDB-compare.ipynb`` notebook
-      (launch it in *binder* to view it).
+      (launch it in *binder* to view it: |binder|).
 
 .. _end-opening:
 .. contents:: Table of Contents
@@ -63,13 +63,13 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
          ;           +--   ;                         ;            +--   ;
         '-----------------'                         '------------------'
 
-The *Input*, *Output* and all its contents are instances of :term:`datamodel` 
+The *Input*, *Output* and all its contents are instances of :term:`datamodel`
 (trees of strings, numbers & pandas objects)
 
 
 Quick-start
 -----------
-- Launch the example *jupyter notebooks* in a private *binder server*: 
+- Launch the example *jupyter notebooks* in a private *binder server*:
   |binder|
 - Otherwise, install it locally, preferably from the sources (instructions below).
 
@@ -342,7 +342,7 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     >>> import pandas as pd, wltp.cycler as cycler, wltp.io as wio
     >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
     >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
-    (1801, 90)
+    (1801, 92)
     >>> wio.flatten_columns(df.columns)
     ['t', 'v_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
      'stop', 'accel', 'cruise', 'decel', 'initaccel', 'stopdecel', 'up', 'p_req', 'n/g1', 'n/g2', 'n/g3',
@@ -350,16 +350,16 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
      'n_norm/g6', 'p/g1', 'p/g2', 'p/g3', 'p/g4', 'p/g5', 'p/g6', 'p_avail/g1', 'p_avail/g2',
      'p_avail/g3', 'p_avail/g4', 'p_avail/g5', 'p_avail/g6', 'p_avail_stable/g1', 'p_avail_stable/g2',
      'p_avail_stable/g3', 'p_avail_stable/g4', 'p_avail_stable/g5', 'p_avail_stable/g6', 'p_norm/g1',
-     'p_norm/g2', 'p_norm/g3', 'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_max_n_gears_below_gvmax/g1',
-     'ok_max_n_gears_below_gvmax/g2', 'ok_max_n_gears_below_gvmax/g3', 'ok_max_n_gears_below_gvmax/g4',
-     'ok_max_n_gears_below_gvmax/g5', 'ok_max_n_gears_from_gvmax/g6', 'ok_min_n_colds_dns/g3',
-     'ok_min_n_colds_dns/g4', 'ok_min_n_colds_dns/g5', 'ok_min_n_colds_dns/g6', 'ok_min_n_colds_ups/g3',
-     'ok_min_n_colds_ups/g4', 'ok_min_n_colds_ups/g5', 'ok_min_n_colds_ups/g6', 'ok_min_n_g1/g1',
-     'ok_min_n_g1_initaccel/g1', 'ok_min_n_g2/g2', 'ok_min_n_g2_stopdecel/g2', 'ok_min_n_hots_dns/g3',
-     'ok_min_n_hots_dns/g4', 'ok_min_n_hots_dns/g5', 'ok_min_n_hots_dns/g6', 'ok_min_n_hots_ups/g3',
-     'ok_min_n_hots_ups/g4', 'ok_min_n_hots_ups/g5', 'ok_min_n_hots_ups/g6', 'ok_p/g3', 'ok_p/g4',
-     'ok_p/g5', 'ok_p/g6', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3', 'ok_gear/g4', 'ok_gear/g5',
-     'ok_gear/g6']
+     'p_norm/g2', 'p_norm/g3', 'p_norm/g4', 'p_norm/g5', 'p_norm/g6', 'ok_gear/g0',
+     'ok_max_n_gears_below_gvmax/g1', 'ok_max_n_gears_below_gvmax/g2', 'ok_max_n_gears_below_gvmax/g3',
+     'ok_max_n_gears_below_gvmax/g4', 'ok_max_n_gears_below_gvmax/g5', 'ok_max_n_gears_from_gvmax/g6',
+     'ok_min_n_colds_dns/g3', 'ok_min_n_colds_dns/g4', 'ok_min_n_colds_dns/g5', 'ok_min_n_colds_dns/g6',
+     'ok_min_n_colds_ups/g3', 'ok_min_n_colds_ups/g4', 'ok_min_n_colds_ups/g5', 'ok_min_n_colds_ups/g6',
+     'ok_min_n_g1/g1', 'ok_min_n_g1_initaccel/g1', 'ok_min_n_g2/g2', 'ok_min_n_g2_stopdecel/g2',
+     'ok_min_n_hots_dns/g3', 'ok_min_n_hots_dns/g4', 'ok_min_n_hots_dns/g5', 'ok_min_n_hots_dns/g6',
+     'ok_min_n_hots_ups/g3', 'ok_min_n_hots_ups/g4', 'ok_min_n_hots_ups/g5', 'ok_min_n_hots_ups/g6',
+     'ok_p/g3', 'ok_p/g4', 'ok_p/g5', 'ok_p/g6', 'ok_gear/g0', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3',
+     'ok_gear/g4', 'ok_gear/g5', 'ok_gear/g6']
 
     >>> 'Mean engine_speed: %s' % df.n.mean()                                       # doctest: +SKIP
     'Mean engine_speed: 1908.9266796224322'
@@ -602,11 +602,13 @@ with a varying list of available inputs & required data, and automatically compu
 only what is not already given.
 
 
+.. default-role:: obj
+.. _begin-annex:
 
 Specs & Algorithm
------------------
+=================
 This program is compared against the latest `Access DB` (as of July 2019) and
-according to this *08.07.2019_HS rev2_23072019 GTR specification* 
+according to this *08.07.2019_HS rev2_23072019 GTR specification*
 (:download:`docs/_static/WLTP-GS-TF-41 GTR 15 annex 1 and annex 2 08.07.2019_HS rev2_23072019.docx`,
 included in the :file:`docs/_static` folder).  The latest official version of this GTR, along
 with other related documents maybe found at UNECE's site:
@@ -618,10 +620,8 @@ The WLTC-profiles for the various classes were generated from the tables
 of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
-.. default-role:: obj
-
 Cycles
-^^^^^^
+======
 
 .. image:: docs/_static/wltc_class1.png
     :align: center
@@ -633,7 +633,8 @@ Cycles
     :align: center
 
 Phases
-~~~~~~
+------
+As reported by :func:`wltp.cycles.cycle_phases()`:
 
 =======  ========   ========    ===========     ============    ============
 class    phasing    part-1      part-2          part-3          part-4
@@ -654,9 +655,11 @@ class3b  **V**      [0, 589]    [589, 1022]     [1022, 1477]    [1477, 1801]
 
 
 Checksums
-~~~~~~~~~
-As computed by :func:`wltp.cycles.crc_velocity()` and identified back
-by :func:`wltp.cycles.identify_cycle_v_crc`.
+---------
+
+As computed by :func:`wltp.cycles.crc_velocity()`, 
+reported by :func:`wltp.cycles.cycle_checksums()`, and 
+identified back by :func:`wltp.cycles.identify_cycle_v_crc`:
 
 =======  =========  =====  ======  ====  ====  ====  ====  ========  ===========
 \                   CRC32                                  SUM
@@ -681,6 +684,7 @@ class3b  **part1**  48E5   910C    477E  48E5  910C  477E  11140.3   11140.3
 \        **part3**  15F6   A779    15B8  43BC  B997  BA25  25782.2   54043.7
 \        **part4**  F962   F962    5177  639B  639B  D3DF  29714.9   83758.6
 =======  =========  =====  ======  ====  ====  ====  ====  ========  ===========
+
 
 .. _begin-contribute:
 
@@ -815,7 +819,7 @@ See also :ref:`Architecture`.
         that provides a *contract* for what JSON-data is required for a given application and how to interact
         with it.  JSON Schema is intended to define validation, documentation, hyperlink navigation, and
         interaction control of JSON data.
-        
+
         The schema of this project has its own section: :ref:`Schema`
 
         You can learn more about it from this `excellent guide <http://spacetelescope.github.io/understanding-json-schema/>`_,
@@ -827,21 +831,21 @@ See also :ref:`Architecture`.
         but it is much simpler.
 
     sphinx
-        The text-oriented language, a superset of `Restructured Text <https://en.wikipedia.org/wiki/ReStructuredText>`_, 
-        used to write the documentation for this project, with simlar capabilities to *LaTeX*, 
-        but for humans.
+        The text-oriented language, a superset of `Restructured Text <https://en.wikipedia.org/wiki/ReStructuredText>`_,
+        used to write the documentation for this project, with simlar capabilities to *LaTeX*,
+        but for humans, e.g.,  the Linux kernel adopted this textual format on 2016.
         http://sphinx-doc.org/
 
     notebook
     jupyter notebook
     Jupyter
         *Jupyter* is a web-based interactive computational environment for creating *Jupyter notebook* documents.
-        The "notebook" term can colloquially make reference to many different entities, 
-        mainly the Jupyter web application, Jupyter Python web server, or Jupyter document format, 
+        The "notebook" term can colloquially make reference to many different entities,
+        mainly the Jupyter web application, Jupyter Python web server, or Jupyter document format,
         depending on context.
-        
+
         A *Jupyter Notebook* document is composed of an ordered list of input/output *cells*
-        which contain code in variou languages, text (using Markdown), mathematics, plots and 
+        which contain code in variou languages, text (using Markdown), mathematics, plots and
         rich media, usually ending with the ".ipynb" extension.
 
 .. _begin-replacements:

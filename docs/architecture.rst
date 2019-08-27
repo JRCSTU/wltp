@@ -1,6 +1,6 @@
 .. include:: ../README.rst
     :start-after: _architecture:
-    :end-before: _begin-contribute:
+    :end-before: _begin-annex:
 
 Discussion
 ----------
