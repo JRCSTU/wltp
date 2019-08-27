@@ -109,6 +109,36 @@ def cycle_checksums(full=False) -> pd.DataFrame:
     return df
 
 
+@fnt.lru_cache()
+def cycle_phases() -> pd.DataFrame:
+    """Return a textual table with the boundaries of all phaes and cycle *phasings*"""
+    import io
+    from textwrap import dedent
+    from pandas import IndexSlice as idx
+
+    ## As printed by :func:`tests.test_instances.test_wltc_checksums()``
+    table_csv = dedent(
+        """
+        class	phasing	part-1	part-2	part-3	part-4
+        class1	V	[0, 589]	[589, 1022]	[1022, 1612]	
+        class1	V_A0	[0, 588]	[589, 1021]	[1022, 1611]	
+        class1	V_A1	[1, 589]	[590, 1022]	[1023, 1612]	
+        class2	V	[0, 589]	[589, 1022]	[1022, 1477]	[1477, 1801]
+        class2	V_A0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
+        class2	V_A1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
+        class3a	V	[0, 589]	[589, 1022]	[1022, 1477]	[1477, 1801]
+        class3a	V_A0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
+        class3a	V_A1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
+        class3b	V	[0, 589]	[589, 1022]	[1022, 1477]	[1477, 1801]
+        class3b	V_A0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
+        class3b	V_A1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
+        """
+    )
+    return pd.read_csv(
+        io.StringIO(table_csv), sep="\t", header=0, index_col=[0, 1]
+    ).fillna("")
+
+
 def identify_cycle_v_crc(
     crc: Union[int, str]
 ) -> Tuple[Optional[str], Optional[str], Optional[str]]:

@@ -208,6 +208,11 @@ cycle_checksums()
 ```
 
 ```{python}
+from wltp.cycles import cycle_phases
+cycle_phases()
+```
+
+```{python}
 ## Is clutch-undefined only used for gear 1?
 acc_cycle.loc[cycler.timelens(acc_cycle.clutch=='undefined'), ['v', 'a', 'gear', 'clutch']]
 ```

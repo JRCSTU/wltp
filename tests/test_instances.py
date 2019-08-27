@@ -28,6 +28,12 @@ from wltp import cycles, datamodel, utils
 from .goodvehicle import goodVehicle
 
 
+def _as_csv_txt(dfs):
+    sio = io.StringIO()
+    dfs.to_csv(sio, sep="\t", float_format="%.1f")
+    return "\n" + sio.getvalue()
+
+
 def _calc_wltc_checksums(start_offset, end_offset, calc_sum=True):
     def calc_v_sums(V, prev=(0, 0)):
         v = V
@@ -56,12 +62,12 @@ def _calc_wltc_checksums(start_offset, end_offset, calc_sum=True):
         cycle_parts = datamodel.get_class_parts_limits(cl, edges=True)
 
         prev = (0, 0)
-        for partno, (start, end) in enumerate(itz.sliding_window(2, cycle_parts)):
+        for partno, (start, end) in enumerate(itz.sliding_window(2, cycle_parts), 1):
             start += start_offset
             end += end_offset
             sums = calc_v_sums(V.loc[start:end])
             cums = calc_v_sums(V.loc[start:end], prev)
-            results.append((cl, f"part-{partno+1}", *sums, *cums))
+            results.append((cl, f"part-{partno}", *sums, *cums))
             prev = cums
 
         return results
@@ -103,23 +109,49 @@ def test_wltc_checksums():
     dfs = dfs.swaplevel(0, 2, axis=1).sort_index(level=0, axis=1)
     dfs.columns.names = "checksum accumulation phasing".split()
 
-    def as_csv_txt(dfs):
-        sio = io.StringIO()
-        dfs.to_csv(sio, sep="\t", float_format="%.1f")
-        return "\n" + sio.getvalue()
-
     exp = cycles.cycle_checksums(full=True)
 
     ## UNCOMMENT this to printout CRCs.
     #
-    print(as_csv_txt(dfs))
-    print(as_csv_txt(exp))
+    # print(_as_csv_txt(dfs))
+    # print(_as_csv_txt(exp))
 
     crc_idx = [1, 3, 4, 5, 6, 7]
     assert dfs["CRC32"].equals(exp["CRC32"])
 
     sum_idx = [0, 2]
     npt.assert_allclose(dfs["SUM"], exp["SUM"])
+
+
+def test_cycle_phases_df():
+    rows = []
+
+    def class_boundaries(wltc_class, offset_start, offset_end):
+        cycle_parts = datamodel.get_class_parts_limits(wltc_class, edges=True)
+        return (
+            f"[{start + offset_start}, {end + offset_end}]"
+            for start, end in itz.sliding_window(2, cycle_parts)
+        )
+
+    for wltc_class in datamodel.get_class_names():
+        rows.append((wltc_class, "V", *class_boundaries(wltc_class, 0, 0)))
+        rows.append((wltc_class, "V_A0", *class_boundaries(wltc_class, 0, -1)))
+        rows.append((wltc_class, "V_A1", *class_boundaries(wltc_class, 1, 0)))
+
+    columns = "class phasing part-1 part-2 part-3 part-4".split()
+    df = (
+        pd.DataFrame(rows, columns=columns)
+        .set_index(columns[:2])
+        .sort_index()
+        .fillna("")
+    )
+
+    exp = cycles.cycle_phases()
+
+    print(_as_csv_txt(df))
+    print(_as_csv_txt(exp))
+
+    assert df.equals(exp)
 
 
 @pytest.mark.parametrize("full", (True, False))
