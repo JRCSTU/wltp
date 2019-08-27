@@ -161,8 +161,24 @@ nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
 ```
 
 ```{python}
+(cb.cycle.loc[:, ('n', 'g2')] < mdl['n_min_drive2_stopdecel']).sum()
+cb.cycle.loc[:, ('n', 'g3')].describe()
+```
+
+```{python}
+def flag_aggregates(ok_flags):
+    trues = ok_flags[ok_flags >= 0].sum()
+    df = pd.concat((trues, ok_flags.sum() - trues), axis=1)  # negatives are NANs
+    df.columns = ('trues', 'NANs')
+    return df
+
 ok_flags = cb.calc_initial_gear_flags(g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins)
-ok_flags.sum()
+flag_aggregates(ok_flags)
+```
+
+```{python}
+ok_flags = cb.calc_initial_gear_flags(g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins)
+flag_aggregates(ok_flags)
 ```
 
 ```{python}
@@ -173,31 +189,53 @@ ok_gears.sum()
 ```{python}
 from ipywidgets import interact, interactive, fixed, interact_manual, widgets
 
-max_zoom = 24
-ok_flags2 = ok_flags.fillna(False) * (np.arange(ok_flags.shape[1]) + 1)
-ok_gear2 = ok_gears * (np.arange(ok_gears.shape[1]) + ok_flags.shape[1] + 1)
+max_zoom = 48.0
 
-@interact(gear=cb.gidx.gnames, zoom=(1, max_zoom, 1), pan=(0, max_zoom, 1))
-def plot_gear(gear='g2', zoom=15, pan=10):
+## Scale each flag into a different value, to plot separatly, and
+#  to plot in the same axis as V 
+#  (bc when plotting flags in `secondary_y`, grid is not working)
+#
+mul = 2
+flag_count = ok_flags.shape[1]
+gear_count = ok_gears.shape[1]
+ok_flags2 = ok_flags.copy()
+ok_flags2[ok_flags2 < 0] = np.NAN  # Restore NANFLAG --> NAN
+ok_flags2 = ok_flags2 * (np.arange(flag_count) + 1) * mul
+ok_gear2 = ok_gears * (np.arange(gear_count) + flag_count + 1) * mul
+
+
+@interact(
+    gear=wio.GearMultiIndexer(ok_flags).gnames,
+    zoom=(1.0, max_zoom, 1.0),
+    pan=(0, max_zoom, 1),
+    display_id='plot'
+)
+def plot_gear(gear="g2", zoom=48, pan=13.8):
     ax = None
-    
-    mul_ok_gear = ok_flags2.shape[1] + 2
-    
+
     clen = len(cb.cycle)
     viewlen = int(clen / zoom)
     offset = int(pan * (clen - viewlen) / max_zoom)
     scale = idx[offset : offset + viewlen]
-    ax = cb.cycle.loc[scale, "v_cycle"].plot(ax=ax, secondary_y=True, linewidth=4, figsize=(20,8))
-    ax = ok_flags2.loc[:, idx[:, gear]].iloc[scale].plot(ax=ax)
-    ax = (ok_gear2 * mul_ok_gear).loc[scale].plot(ax=ax, linewidth=3)
+    
+    cycle = cb.cycle.loc[scale,]
+    ok_flags = ok_flags2.loc[:, idx[:, gear]].iloc[scale]
+    ok_gear = ok_gear2.loc[scale]
+    
+    ax = cycle["v_cycle"].plot.line(
+        ax=ax, linewidth=4, figsize=(20, 8)
+    )
+    ax = ok_flags.plot.line(ax=ax)
+    ax = ok_gear.plot.line(ax=ax, linewidth=3)
+    
+    ax.grid(True, axis="both", which="both")
+
+    ## IF only i could find quickly how to display the df BELOW the plot...
+    #display(cycle, display_id='grid')
 ```
 
 ```{python}
 cb.add_columns(ok_flags, ok_gears)
-```
-
-```{python}
-cb.cycle.iloc[-20:]
 ```
 
 ## Museum

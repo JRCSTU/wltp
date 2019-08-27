@@ -342,7 +342,7 @@ class CycleBuilder:
                 yield ValidationError(
                     f"`t_end_cold`({t_end_cold}) must finish before the 1st cycle-part(t_phase_end={t_phase1_end})!"
                 )
-            if not self.cycle[c.stop].iloc[t_end_cold]:
+            if self.cycle[c.run].iloc[t_end_cold]:
                 yield ValidationError(
                     f"`t_end_cold`({t_end_cold}) must finish on a cycle stop(v={self.V.iloc[t_end_cold]})!"
                 )
@@ -395,77 +395,75 @@ class CycleBuilder:
             n_max_cycle,
         )
 
-        ## Note: using array-indices below (:= gear_index - 1)
+        ## Common definitions & indices
         #
+        #  Note: using array-indices below (:= gear_index - 1)
+        #
+        g1 = gidx.gnames[1 - 1]  # note this is not a list!
         g2 = gidx.gnames[2 - 1]  # note this is not a list!
-        gears_above_g2 = gidx.gnames[2:]
-        gears_below_gvmax = gidx.gnames[: g_vmax - 1]
+        gears_g3plus = gidx.gnames[3 - 1 :]
+        gears_below_gvmax = gidx.gnames[1 : g_vmax - 1]
         gears_from_gvmax = gidx.gnames[g_vmax - 1 :]
+        assert not (set(gears_below_gvmax) & set(gears_from_gvmax)), (
+            "Bad g_vmax split:",
+            gears_below_gvmax,
+            gears_from_gvmax,
+        )
+        nidx_g1 = (c.n, g1)
+        nidx_g2 = (c.n, g2)
+        nidx_below_gvmax = gidx.colidx_pairs(c.n, gears_below_gvmax)
+        nidx_from_gvmax = gidx.colidx_pairs(c.n, gears_from_gvmax)
+        initaccel = cycle[c.initaccel]
+        stopdecel = cycle[c.stopdecel]
 
         ## (ok-p) rule
         #
         p_req = cycle[c.p_req].fillna(1).values.reshape(-1, 1)
-        pidx_above_g2 = gidx.colidx_pairs(c.p_avail, gears_above_g2)
-        ok_p = cycle.loc[:, pidx_above_g2].fillna(0) >= p_req
-        ok_p.columns = gidx.colidx_pairs(c.ok_p, gears_above_g2)
+        pidx_g3plus = gidx.colidx_pairs(c.p_avail, gears_g3plus)
+        ok_p = cycle.loc[:, pidx_g3plus].fillna(0) >= p_req
+        ok_p.columns = gidx.colidx_pairs(c.ok_p, gears_g3plus)
+
+        ## (MAXn-1) rule
+        #  Special handling of g1 dues to `initaccel` containing n=NAN
+        #
+        ok_max_n_g1 = cycle.loc[:, nidx_g1].fillna(0) < n95_max
+        ok_max_n_g1.name = (c.ok_max_n, g1)
 
         ## (MAXn-a) rule
         #
-        nidx_below_gvmax = gidx.colidx_pairs(c.n, gears_below_gvmax)
         ok_max_n_gears_below_gvmax = cycle.loc[:, nidx_below_gvmax] < n95_max
         ok_max_n_gears_below_gvmax.columns = gidx.colidx_pairs(
-            c.ok_max_n_gears_below_gvmax, gears_below_gvmax
+            c.ok_max_n, gears_below_gvmax
         )
 
         ## (MAXn-b) rule
         #
-        nidx_above_gvmax = gidx.colidx_pairs(c.n, gears_from_gvmax)
-        # if nidx_above_gvmax:
-        ok_max_n_gears_from_gvmax = cycle.loc[:, nidx_above_gvmax] < n_max_cycle
+        ok_max_n_gears_from_gvmax = cycle.loc[:, nidx_from_gvmax] < n_max_cycle
         ok_max_n_gears_from_gvmax.columns = gidx.colidx_pairs(
-            c.ok_max_n_gears_from_gvmax, gears_from_gvmax
+            c.ok_max_n, gears_from_gvmax
         )
 
         ## (MINn-ud/hc) rules
         #
-        t_colds = cycle[c.t] <= nmins.t_end_cold
+        #  NOTE cold period not overlapping `t_end_cold` sample,
+        #  so as to be empty when that is 0.
+        #  NOTE also that both `t)colds/hots` & `a_ups/dns` are converted to column-vector,
+        #  to align with many gear-columns (could not be series, axis-aligning would fail).
+        t_colds = (cycle[c.t] < nmins.t_end_cold).to_numpy().reshape(-1, 1)
         t_hots = ~t_colds
-        a_ups = cycle[c.up]
+        a_ups = cycle[c.up].to_numpy().reshape(-1, 1)
         a_dns = ~a_ups
-        nidx_above_g2 = gidx.colidx_pairs(c.n, gears_above_g2)
+        nidx_g3plus = gidx.colidx_pairs(c.n, gears_g3plus)
 
-        ok_min_n_colds_ups = (
-            cycle.loc[t_colds & a_ups, nidx_above_g2] >= nmins.n_min_drive_up_start
-        )
-        ok_min_n_colds_ups.columns = gidx.colidx_pairs(
-            c.ok_min_n_colds_ups, gears_above_g2
-        )
+        ok_ups = a_ups & (cycle.loc[:, nidx_g3plus] >= nmins.n_min_drive_up_start)
+        ok_min_n_ups = (t_colds & ok_ups) | (t_hots & ok_ups)
+        ok_min_n_ups.columns = gidx.colidx_pairs(c.ok_min_n_g3plus_ups, gears_g3plus)
 
-        ok_min_n_colds_dns = (
-            cycle.loc[t_colds & a_dns, nidx_above_g2] >= nmins.n_min_drive_dn_start
-        )
-        ok_min_n_colds_dns.columns = gidx.colidx_pairs(
-            c.ok_min_n_colds_dns, gears_above_g2
-        )
-
-        ok_min_n_hots_ups = (
-            cycle.loc[t_hots & a_ups, nidx_above_g2] >= nmins.n_min_drive_up_start
-        )
-        ok_min_n_hots_ups.columns = gidx.colidx_pairs(
-            c.ok_min_n_hots_ups, gears_above_g2
-        )
-
-        ok_min_n_hots_dns = (
-            cycle.loc[t_hots & a_dns, nidx_above_g2] >= nmins.n_min_drive_dn_start
-        )
-        ok_min_n_hots_dns.columns = gidx.colidx_pairs(
-            c.ok_min_n_hots_dns, gears_above_g2
-        )
+        ok_dns = a_dns & (cycle.loc[:, nidx_g3plus] >= nmins.n_min_drive_up_start)
+        ok_min_n_dns = (t_colds & ok_dns) | (t_hots & ok_dns)
+        ok_min_n_dns.columns = gidx.colidx_pairs(c.ok_min_n_g3plus_dns, gears_g3plus)
 
         ## Gear-2 rules:
-        #
-        stopdecel = cycle[c.stopdecel]
-        nidx_g2 = (c.n, g2)
         #
         # MINn-2ii           n_idle ≤ n, decel-stop  g = 2
         #
@@ -484,34 +482,44 @@ class CycleBuilder:
 
         ## Gear-1 rules
         #
-        g1 = gidx.gnames[1 - 1]  # note this is not a list!
-        #
         # (c_initaccel) rule
         #
-        ok_min_n_g1_initaccel = cycle[c.initaccel].copy()
+        ok_min_n_g1_initaccel = initaccel
         ok_min_n_g1_initaccel.name = (c.ok_min_n_g1_initaccel, g1)
         #
         # c_a rule:     1.0 ≤ v & !initaccel
         #
-        ok_min_n_g1 = ~cycle[c.initaccel] & cycle[c.run]
+        ok_min_n_g1 = ~initaccel & cycle[c.run]
         ok_min_n_g1.name = (c.ok_min_n_g1, g1)  # it's a series
+
+        ## Gear-0 rule
+        #  Only 1 "gear_ok" column, but need a another name
+        #  to fed into combine-gear-flags.
+        #
+        g0 = wio.gear_name(0)  # note this is not a list!
+        #
+        ok_g0 = (stopdecel & (cycle.loc[:, nidx_g2] < nmins.n_min_drive2_stopdecel)) | (
+            ~initaccel & cycle[c.stop]
+        )
+        ok_g0.name = (c.ok_gear0, g0)
 
         flag_columns = (
             ok_p,
             # .. AND ...
+            ok_max_n_g1,
             ok_max_n_gears_below_gvmax,
             ok_max_n_gears_from_gvmax,
             # .. AND ...
-            ok_min_n_colds_ups,
-            ok_min_n_colds_dns,
-            ok_min_n_hots_ups,
-            ok_min_n_hots_dns,
+            ok_min_n_ups,
+            ok_min_n_dns,
             # .. AND ...
             ok_min_n_g2,
             ok_min_n_g2_stopdecel,
             # .. AND ...
             ok_min_n_g1,
             ok_min_n_g1_initaccel,
+            # .. ALONE ...
+            ok_g0,
         )
         flags = (
             (pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0) * 1)
@@ -531,36 +539,32 @@ class CycleBuilder:
         c = wio.pstep_factory.get().cycle
 
         flagcols = gflags.columns
-        gflags = gflags[gflags == NANFLAG].fillna(0).astype(bool)
+
+        gflags = gflags.copy()
+        gflags[gflags == NANFLAG] = 0
+        gflags = gflags.astype(bool)
+
+        g0 = wio.gear_name(0)
+        if (c.ok_gear0, g0) in flagcols:
+            assert gflags.shape[1] == 1, ("More g0 gflags than once?", gflags)
+            final_flags = gflags.loc[:, (c.ok_gear0, g0)]
+            final_flags.name = g0
+
+            return final_flags
 
         flags_to_AND = []
+
         if c.ok_p in flagcols:
             flags_to_AND.append(gflags[c.ok_p])
 
-        # Check only one of n-max rules apply for every gear.
-        assert (c.ok_max_n_gears_below_gvmax in gflags) ^ (
-            (c.ok_max_n_gears_from_gvmax in gflags)
-        ), flagcols
-        max_n_colname = (
-            # a regular gear...
-            c.ok_max_n_gears_below_gvmax
-            if c.ok_max_n_gears_below_gvmax in flagcols
-            # an overrdive gear...
-            else c.ok_max_n_gears_from_gvmax
-        )
-        flags_to_AND.append(gflags[max_n_colname])
+        flags_to_AND.append(gflags[c.ok_max_n])
 
-        if c.ok_min_n_colds_ups in flagcols:  # not g1, g2
+        if c.ok_min_n_g3plus_ups in flagcols:  # not g1, g2
             assert (
                 c.ok_min_n_g2 not in flagcols and c.ok_min_n_g1 not in flagcols
             ), flagcols
             flags_to_AND.append(
-                (
-                    gflags[c.ok_min_n_colds_ups]
-                    | gflags[c.ok_min_n_colds_dns]
-                    | gflags[c.ok_min_n_hots_ups]
-                    | gflags[c.ok_min_n_hots_dns]
-                )
+                (gflags[c.ok_min_n_g3plus_ups] | gflags[c.ok_min_n_g3plus_dns])
             )
         elif c.ok_min_n_g2 in flagcols:
             assert c.ok_min_n_g1 not in flagcols, flagcols
@@ -595,6 +599,9 @@ class CycleBuilder:
     def combine_initial_gear_flags(self, flags: pd.Series):
         """Merge together all N-allowed flags using AND+OR boolean logic. """
         c = wio.pstep_factory.get().cycle
+
+        ## Due to g0 flags (not originally in gqots)
+        self.gidx = wio.GearMultiIndexer(self.cycle)
 
         final_ok = flags.groupby(axis=1, level="gear").apply(self._combine_gear_flags)
         final_ok.columns = pd.MultiIndex.from_product(((c.ok_gear,), final_ok.columns))
