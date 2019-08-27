@@ -658,12 +658,15 @@ def get_class_part_names(cls_name=None):
     """
     :param str cls_name: one of 'class1', ..., 'class3b', if missing, returns all 4 part-names
     """
-    part_names = ["Low", "Medium", "High", "ExtraHigh"]
+    if cls_name == "class1":
+        part_names = ["Low1", "Medium", "Low2"]
+    else:
+        part_names = ["Low", "Medium", "High", "ExtraHigh"]
 
     if cls_name:
         wltc_data = get_wltc_data()
         cls = wltc_data["classes"][cls_name]
-        part_names = part_names[: len(cls["parts"])]
+        part_names = part_names[: len(cls["parts"]) + 1]
 
     return part_names
 

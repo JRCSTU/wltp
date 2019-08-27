@@ -69,7 +69,7 @@ def make_class_fig(class_name, class_data):
     # Trial'n error
     v_pos = 135
     bbox = {"facecolor": "red", "alpha": 0.5, "pad": 4, "linewidth": 0}
-    txts = ["Low", "Medium", "High", "ExtraHigh"]
+    txts = datamodel.get_class_part_names(class_name)
     txts_pos = [0] + part_limits  # [0.40, 0.67, 0.85]
 
     for (txt, h_pos) in zip(txts, txts_pos):
@@ -87,8 +87,8 @@ def make_class_fig(class_name, class_data):
     ax1.grid()
     ax1.xaxis.grid = True
     ax1.yaxis.grid = True
-    ax1.autoscale(enable=True, tight=True, axis="x")
-    ax2.autoscale(enable=True, tight=True, axis="x")
+    xlim = [0, 1800]  # kmh
+    ax1.set_xlim(xlim)
     ylim = [0, 140]  # kmh
     ax1.set_ylim(ylim)
     ax2.set_ylim(ylim)
