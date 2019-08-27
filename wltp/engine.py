@@ -277,7 +277,7 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     Return a new linearly interpolated df on v with v_decimals. 
     
     :param df:
-        A df containing at least `n` (in RPM); any other column gets instepolated.
+        A df containing at least `n` (in RPM); any other column gets interpolated.
 
         .. Attention:: 
             Do not include non-linear columns (e.g. p_resistances(v^2))
@@ -294,10 +294,10 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     assert np.all(np.diff(n2v_ratios) < 0), ("Unsorted N2Vs?", n2v_ratios)
 
     N = wot[w.n]
-    n_wot_min, n_wot_max = N.min(), N.max()
-    v_wot_min = n_wot_min / n2v_ratios[0]
+    n_wot_max = N.max()
     v_wot_max = n_wot_max / n2v_ratios[-1]
-    assert v_wot_min < v_wot_max, f"Unsorted n2vs? {v_wot_min}, {v_wot_max}\n{wot}"
+    v_wot_min = 0.1
+    assert v_wot_min < v_wot_max, f"Bad N? {v_wot_min}, {v_wot_max}\n{wot}"
 
     V_grid = _make_v_grid(v_wot_min, v_wot_max)
 
@@ -305,14 +305,20 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
         V = N / n2v
 
         def interp(C):
-            return interpolate.interp1d(
-                V,
-                C,
-                copy=False,
-                assume_sorted=True,
-                fill_value=np.NAN,
-                bounds_error=False,
-            )(V_grid)
+            if C.name == w.n:
+                # NOTE that `n_norm` remains undefined for N < n_idle.
+                C_grid = V_grid * n2v
+            else:
+                C_grid = interpolate.interp1d(
+                    V,
+                    C,
+                    copy=False,
+                    assume_sorted=True,
+                    fill_value=np.NAN,
+                    bounds_error=False,
+                )(V_grid)
+
+            return C_grid
 
         wot_grid = pd.DataFrame({name: interp(vals) for name, vals in wot.iteritems()})
         wot_grid.index = V_grid
@@ -321,8 +327,8 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
         return wot_grid
 
     wot_grids = {
-        wio.gear_name(gnum): interpolate_gear_wot(wot, g)
-        for gnum, g in enumerate(n2v_ratios, 1)
+        wio.gear_name(gnum): interpolate_gear_wot(wot, n2v)
+        for gnum, n2v in enumerate(n2v_ratios, 1)
     }
 
     wot_grid = pd.concat(

@@ -41,6 +41,9 @@ def calc_road_load_power(V: Column, f0, f1, f2):
 
 def calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial):
     """
+    .. TODO::
+        Make :func:`calc_power_required()` accept :func:`calc_road_load_power()` results
+        and avoid reclculation.
 
     @see: Annex 2-3.1
     """
