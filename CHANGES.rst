@@ -59,7 +59,7 @@ TODOs
 Changelog
 =========
 
-v1.0.0.dev10  (16-Aug-2019): PY3.5 only & real work!
+v1.0.0.dev11  (28-Aug-2019): PY3.5 only & real work!
 ----------------------------------------------------
 - Drop support for Python 2.7 & <3.6, due to `f"string:`, among others...
   The supported Pythons `covers 84% of 2018 Python-3 installations (71% of Pythons in total)
@@ -92,18 +92,21 @@ v1.0.0.dev10  (16-Aug-2019): PY3.5 only & real work!
   - FEAT: VMAX & NMAX calculations:
     - all `v_max` match *accdb*, but 6 cases missmatch `g_vmax` (out of 125 cases).
     - many minor mismatches on `n_max1/2/3`.
-
-  - FEAT: VMAX calculation;  all match *accdb*, but 6 cases missmatch `g_vmax` (out of 125 cases).
+    - All VMAX match *accdb*, but 6 expected cases missmatch `g_vmax` (out of 125 cases).
   - UPD: DOWNSCALING to recent formulas & constants, and document them.
     Still scaled (not recursive), none can reproduce exactly MsAccess.
-  - Start PANDA-izing calculations (from numpy-arrays + rogue indices).
+  - PANDA-ized calculations (from numpy-arrays + rogue indices).
     Much better and shorter code.
   - Rounding according to GTR;  +notebook comparing rounding behavior of
     Python vs Matlab vs C# vs VBA(pre-canned).
+  - CRCs & identification function for the 3 possible *phasings*: V, VA0, VA1 
+
+- Updated documentation.
 
 - Build & dev-dependencies enhancements.
 
   - fix: update to pandas-0.25.0 (July 2019).
+  - Test on *Windows* at *appveyor* CI.
 
 - style: auto-format python files with |black|_  using |pre-commit|_.
 
