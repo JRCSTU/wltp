@@ -9,12 +9,12 @@
     intro
     usage
     architecture
-    faq
+    metrics
+    annex-2
     code
     contribute
-    annex-2
-    metrics
     CHANGES
+    faq
     indices
 
 .. include:: ../README.rst

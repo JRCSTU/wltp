@@ -603,26 +603,37 @@ with a varying list of available inputs & required data, and automatically compu
 only what is not already given.
 
 
-.. default-role:: obj
-.. _begin-annex:
-
 Specs & Algorithm
-=================
-This program is compared against the latest `Access DB` (as of July 2019) and
-according to this *08.07.2019_HS rev2_23072019 GTR specification*
+-----------------
+This program imitates to some degree the  `MS Access DB` (as of July 2019), 
+following  this *08.07.2019_HS rev2_23072019 GTR specification*
 (:download:`docs/_static/WLTP-GS-TF-41 GTR 15 annex 1 and annex 2 08.07.2019_HS rev2_23072019.docx`,
-included in the :file:`docs/_static` folder).  The latest official version of this GTR, along
+included in the :file:`docs/_static` folder).  
+
+.. Note::
+    There is a distinctive difference between this implementation and the `AccDB`:
+
+    All computations are *vectorial*, meaning that all intermediate results are calculated & stored, 
+    for all time sample-points,
+    and not just the side of the conditions that evaluate to *true* on each sample.
+
+The latest official version of this GTR, along
 with other related documents maybe found at UNECE's site:
 
 * http://www.unece.org/trans/main/wp29/wp29wgs/wp29grpe/grpedoc_2013.html
 * https://www2.unece.org/wiki/pages/viewpage.action?pageId=2523179
 
+
+.. default-role:: obj
+.. _begin-annex:
+
+
+Cycles
+======
 The WLTC-profiles for the various classes were generated from the tables
 of the specs above using the :file:`devtools/csvcolumns8to2.py` script, but it still requires
 an intermediate manual step involving a spreadsheet to copy the table into ands save them as CSV.
 
-Cycles
-======
 
 .. image:: docs/_static/wltc_class1.png
     :align: center
@@ -784,7 +795,8 @@ See also :ref:`architecture:Architecture`.
         The family of pre-defined *driving-cycles* corresponding to vehicles with different
         :abbr:`PMR (Power to Mass Ratio)`. Classes 1,2, 3a/b are split in 3, 4 and 4 *parts* respectively.
 
-    access DB
+    AccDB
+    MS Access DB
         The original implementation of the algorithm in *MS Access* by Steven Heinz.
 
         To facilitate searching and cross-referencing the existing routines,
