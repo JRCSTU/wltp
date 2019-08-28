@@ -78,17 +78,17 @@ def test_v_max(h5_accdb):
     recs = [make_v_maxes(vehnum) for vehnum in veh_samples]
     vehres = pd.DataFrame(
         recs,
-        columns="vmax_Heinz  vmax_python  gmax_Heinz  gmax_python  wot".split(),
+        columns="vmax_accdb  vmax_python  gmax_accdb  gmax_python  wot".split(),
         index=veh_names(veh_samples),
-    ).astype({"gmax_Heinz": "Int64", "gmax_python": "Int64"})
+    ).astype({"gmax_accdb": "Int64", "gmax_python": "Int64"})
 
     wots_df = pd.concat(
         vehres["wot"].values, keys=veh_names(veh_samples), names=["vehicle"]
     )
     vehres = vehres.drop("wot", axis=1)
 
-    vehres["vmax_diff"] = (vehres["vmax_python"] - vehres["vmax_Heinz"]).abs()
-    vehres["gmax_diff"] = (vehres["gmax_python"] - vehres["gmax_Heinz"]).abs()
+    vehres["vmax_diff"] = (vehres["vmax_python"] - vehres["vmax_accdb"]).abs()
+    vehres["gmax_diff"] = (vehres["gmax_python"] - vehres["gmax_accdb"]).abs()
     with pd.option_context(
         "display.max_rows",
         130,
@@ -118,7 +118,7 @@ def test_v_max(h5_accdb):
     ):
         print(f"\n++++\n{vehres.describe().T}")
     vehres = vehres.dropna(axis=1)
-    # npt.assert_array_equal(vmaxes["vmax_python"], vmaxes["vmax_Heinz"])
+    # npt.assert_array_equal(vmaxes["vmax_python"], vmaxes["vmax_accdb"])
     aggregate_tol = 1e-4  # The digits copied from terminal.
     assert (
         vehres["vmax_diff"].describe()

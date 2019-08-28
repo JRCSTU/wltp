@@ -108,8 +108,8 @@ def downscale_class_velocity(V: pd.Series, f_downscale, phases) -> pd.Series:
     - The code asserts that the scaled V remains as smooth at tip as originally
       (and a bit more, due to the downscaling).
 
-    Compare v075(class-3a) with Heinz:
-        V_heinz V_python      diff%
+    Compare v075(class-3a) with AccDB:
+        V_accdb V_python      diff%
         45.1636	45.1637	-0.000224059  # middle on tip(eg. 1724), both scale & recurse
         45.1636	45.1637	-0.000122941  # on tip, scale & recurse, round(1)
         45.1636	45.1637	-5.39439e-05  # on tip-1

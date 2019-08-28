@@ -64,7 +64,7 @@ v1.0.0.dev10  (16-Aug-2019): PY3.5 only & real work!
 - Drop support for Python 2.7 & <3.6, due to `f"string:`, among others...
   The supported Pythons `covers 84% of 2018 Python-3 installations (71% of Pythons in total)
   <https://www.jetbrains.com/research/python-developers-survey-2018/#python-3-adoption>`_
-- FEAT: NOTEBOOKS comparing with latest Heinz db.
+- FEAT: NOTEBOOKS comparing with latest AccDB.
   Possible to launch a *live* demo of this repository in *mybinder.org*.
 - Revive tests & TravisCI with *pytest* (drop *nosetest*),
   move all TCs out of main-sources.
@@ -220,7 +220,7 @@ v0.0.9-alpha.1 (1-Oct-2014)
 * Backported also to Python-2.7.
 * model, core: Discriminate between :term:`Test mass` from :term:`Unladen mass`
   (optionally auto-calced by ``driver_mass`` = 75(kg)).
-* model, core: Calculate default resistance-coefficients from a regression-curve (the one found in Heinz-db).
+* model, core: Calculate default resistance-coefficients from a regression-curve (the one found in AccDB).
 * model, core: Possible to overide WLTP-Class, Target-V & Slope, Gears if present in the ``cycle_run`` table.
 * model: Add NEDC cycle data, for facilitating comparisons.
 * tests: Include sample-vehicles along with the distribution.
@@ -261,22 +261,22 @@ v0.0.6-alpha, 5-Feb-2014
 * Possible to transplant base-gears and then apply on them driveability-rules.
 * Embed Model --> Experiment to simplify client-code.
 * Changes in the data-schema for facilitating conditional runs.
-* More reverse-engineered comparisons with heinz's data.
+* More reverse-engineered comparisons with AccDB.
 
 
 v0.0.5-alpha, 18-Feb-2014
 -------------------------
-* Many driveability-improvements found by trial-n-error comparing with Heinz's.
+* Many driveability-improvements found by trial-n-error comparing with AccDB.
 * Changes in the data-schema for facilitating storing of tabular-data.
 * Use Euro6 polynomial full_load_curve from Fontaras.
 * Smooth-away INALID-GEARS.
-* Make the plottings of comparisons of sample-vehicle with Heinz'results interactively report driveability-rules.
+* Make the plottings of comparisons of sample-vehicle with AccDB interactively report driveability-rules.
 * Also report GEARS_ORIG, RPM_NORM, P_AVAIL, RPM, GEARS_ORIG, RPM_NORM results.
 
 
 v0.0.4.alpha, 18-Jan-2014
 -------------------------
-* Starting to compare with Heinz's data - FOUND DISCREPANCIES IMPLTYING ERROR IN BASE CALCS.
+* Starting to compare with AccDB - FOUND DISCREPANCIES IMPLTYING ERROR IN BASE CALCS.
 * Test-enhancements and code for comparing with older runs to track algo behavior.
 * Calc 'V_real'.
 * Also report RPMS, P_REQ, DIRVEABILITY results.
@@ -286,7 +286,7 @@ v0.0.4.alpha, 18-Jan-2014
 * BUGFIX: add forgotten division on p_required Accel/3.6.
 * BUGFIX: velocity-profile mistakenly rounded to integers!
 * BUGFIX: v_max calculation based on n_rated (not 1.2 * n_rated).
-* FIXME: get default_load_curve floats from Heinz-db.
+* FIXME: get default_load_curve floats from AccDB.
 * FIXME: what to to with INVALID-GEARS?
 
 
@@ -339,8 +339,8 @@ v0.0.0, 11-Dec-2013: Inception stage
 * Mostly setup.py work, README and help.
 
 
-Questions to Heinz
-==================
+Questions to Mr Heinz
+=====================
 n_min:
 ------
 - In `F calc gearshifts single vehicle.form.vbs(line: 11590) 

@@ -797,7 +797,7 @@ See also :ref:`architecture:Architecture`.
 
     AccDB
     MS Access DB
-        The original implementation of the algorithm in *MS Access* by Steven Heinz.
+        The original implementation of the algorithm in *MS Access* by Heinz Steven.
 
         To facilitate searching and cross-referencing the existing routines,
         all the code & queries of the database have been extracted and stored in as text

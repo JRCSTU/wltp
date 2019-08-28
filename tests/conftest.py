@@ -33,9 +33,3 @@ def h5_accdb():
 @pytest.fixture
 def h5_pyalgo():
     return str(Path("Notebooks/VehData/WltpGS-pyalgo.h5").resolve())
-
-
-# def pytest_generate_tests(metafunc):
-#      h5db = "Notebooks/VehData/WltpGS-msaccess.h5"
-#     if "heinz_inp_vehicle" in metafunc.fixturenames:
-#         metafunc.parametrize("heinz_inp_vehicle", _load_vehicles(h5db))

@@ -13,10 +13,10 @@ from wltp import plots
 from tests import test_wltp_db as wltpdb
 
 
-def data_meanN_pmr(gened_column, heinz_column):
+def data_meanN_pmr(gened_column, accdb_column):
     gened_column = "rpm"
-    heinz_column = "n"
-    vehdata = wltpdb.aggregate_single_columns_means(gened_column, heinz_column)
+    accdb_column = "n"
+    vehdata = wltpdb.aggregate_single_columns_means(gened_column, accdb_column)
 
     return vehdata
 
@@ -64,14 +64,14 @@ if __name__ == "__main__":
         ],
     ]
 
-    vehdata = data_meanN_pmr(gened_column="rpm", heinz_column="n")
+    vehdata = data_meanN_pmr(gened_column="rpm", accdb_column="n")
 
     axes_tuple = None
     for (cls, kws) in classes:
         cls_data = vehdata[vehdata["wltc_class"] == cls]
         if cls_data.empty:
             continue
-        (X, Y, Y_REF) = cls_data.pmr, cls_data.gened, cls_data.heinz
+        (X, Y, Y_REF) = cls_data.pmr, cls_data.gened, cls_data.accdb
 
         axes_tuple, artists = plots.plot_xy_diffs_scatter(
             X,

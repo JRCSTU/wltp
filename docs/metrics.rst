@@ -15,7 +15,7 @@ Tests, Metrics & Reports
 
 In order to maintain the algorithm stable, a lot of effort has been put
 to setup a series of test-case and metrics to check the sanity of the results
-and to compare them with the Heinz-db tool or other datasets included in the project.
+and to compare them with the AccDB tool or other datasets included in the project.
 These tests can be found in the :file:`/tests/` folders.
 
 Additionally, below are *auto-generated* representative diagrams with the purpose
@@ -27,9 +27,9 @@ The actual code for generating diagrams for these metrics is in :class:`wltp.plo
 by scripts in the :file:`docs/pyplot/` folder.
 
 
-Comparisons with Heinz-tool
-===========================
-This section compares the results of this tool to the Heinz's :term:`Access DB`.
+Comparisons with AccDB
+======================
+This section compares the results of this tool to the :term:`MS Access DB`.
 
 *Mean Engine-speed* vs *PMR*
 ----------------------------

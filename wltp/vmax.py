@@ -11,10 +11,10 @@ formulae estimating `v_max` from wot
 The `v_max` is found by the maximum gear where `p_avail_stable` intersects `p_resist`.
 
 .. Note::
-    Heinz accepted a shortcut of the vmax discovery procedure, roughly implemented here: 
+    On Aug 2019 Mr Heinz confirmed a shortcut of the vmax discovery procedure, 
+    implemented here: 
     scan 3 gear from top, and stop on first having `v_max` less-or-equal than previous, 
     and accept `v_max` from that previous gear.
-    Writen "roughly" because all 3 gears are calculated, and then filtering the greatest one. 
 
 """
 import logging

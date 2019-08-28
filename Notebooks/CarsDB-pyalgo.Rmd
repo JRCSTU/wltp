@@ -93,7 +93,7 @@ def store_python_results(
     no_write=False,
 ):
     """
-    RUN PYTHON on cars that have HeinzDB results in /vechicles/v123/out1
+    RUN PYTHON on cars that have AccDB results in /vechicles/v123/out1
     
     and build:
     

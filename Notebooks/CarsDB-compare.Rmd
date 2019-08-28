@@ -83,7 +83,7 @@ vehdb.print_nodes(out_h5fname)
 ```{python}
 from wltp.invariants import vround, nround1
 
-def load_heinz_and_python_datasets(veh_nums=None):
+def load_accdb_and_python_datasets(veh_nums=None):
     p1, c1 = vehdb.merge_db_vehicle_subgroups(inp_h5fname, "prop", "cycle", veh_nums=veh_nums)
     p2, c2 = vehdb.merge_db_vehicle_subgroups(out_h5fname, "oprop", "cycle", veh_nums=veh_nums)
 
@@ -101,7 +101,7 @@ def load_heinz_and_python_datasets(veh_nums=None):
     
     return p1, c1, p2, c2
 
-p1, c1, p2, c2 = load_heinz_and_python_datasets()
+p1, c1, p2, c2 = load_accdb_and_python_datasets()
 ```
 
 ```{python}
@@ -166,7 +166,7 @@ cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
 # veh_nums = [7, 19, 20, 33, 35, 43, 44, 56, 59, 66]
 # veh_nums += [82, 88, 91, 99, 100, 101, 112, 113, 114]
 # # UNCOMMENT next line to FETCH new vehicles.
-p1, c1, p2, c2 = load_heinz_and_python_datasets()
+p1, c1, p2, c2 = load_accdb_and_python_datasets()
 equivalent_series = [
     ("v_orig", "v_cycle"),
     ("v_downscale", "v_target"),
@@ -551,7 +551,7 @@ def plot_xy_diffs_arrows(
 ```{python}
 # plt.close(); plt.figure()
 # plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "v_orig", "pmr", "v_cycle"],  #"nc", 'pmr', 'rpm'], 
-#                      data_label="n in min-1", ref_label="HeinzDb",
+#                      data_label="n in min-1", ref_label="AccDB",
 # #             data_fmt="+k", data_kws={},
 # #             diff_label=None, diff_fmt="-r", diff_cmap=cm.hsv, diff_kws={}, #@UndefinedVariable cm.PiYG
 # #             title='N', 
