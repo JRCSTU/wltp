@@ -344,7 +344,7 @@ Questions to Heinz
 n_min:
 ------
 - In `F calc gearshifts single vehicle.form.vbs(line: 11590) 
-  <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20calc%20gearshifts%20single%20vehicle.form.vbs#L11590>`_
+  <https://github.com/JRCSTU/wltp/blob/master/Notebooks/AccDB_src/F%20calc%20gearshifts%20single%20vehicle.form.vbs#L11590>`_
   
   - why is it checking the next sample after the gear-shift if it is still 2?::
 
@@ -359,7 +359,7 @@ n_min:
   does it also end the last sample (including it)?
 
 
-VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/F%20new%20vehicle.form.vbs>`_:
+VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Notebooks/AccDB_src/F%20new%20vehicle.form.vbs>`_:
 ---------------------------------------------------------------------------------------------------------------------------------------------
   - Is this the `v_max` used for class 3a/b decision?
   - L3358-L3360: is this rounding needed because of `accumulation of rounding errors
@@ -419,7 +419,7 @@ Driveability rules:
   - Why is `acc`, `dec` & `cruise` calculated on the "japanese" acceleration trace `a2`?
     What is this 0.278 as threshold value they are using?
     (i.e. `A gearshift_table cruise.query.txt#L3
-    <https://github.com/ankostis/wltp/blob/master/Notebooks/WLTP_GS_AccessDB-sources/A%20gearshift_table%20cruise.query.txt#L3>`_)?
+    <https://github.com/ankostis/wltp/blob/master/Notebooks/AccDB_src/A%20gearshift_table%20cruise.query.txt#L3>`_)?
 
   - Are the following interpretations for the phases in Annex 2-4 correct?::
 

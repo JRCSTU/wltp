@@ -183,31 +183,31 @@ Project files and folders
 -------------------------
 The files and folders of the project are listed below (see also :ref:`architecture:Architecture`)::
 
-    +--bin/               ## (shell-scripts) Utilities & preprocessing of WLTC data on GTR and the wltp_db
-    |   +--bumpver.py     ## (script) Update project's version-string
-    +--wltp/              ## (package) python-code of the calculator
-    |   +--cycles/        ## (package) code & data for the WLTC data
-    |   +--experiment     ## top-level code running the algo
-    |   +--datamodel      ## schemas & defaults for data of algo
-    |   +--cycler         ## code for generating the cycle
-    |   +--engine         ## formulae for engine power & revolutions and gear-box
-    |   +--vehicle        ## formulae for cyle/vehicle dynamics
-    |   +--vmax           ## formulae estimating `v_max` from wot
-    |   +--downscale      ## formulae downscaling cycles based on pmr/test_mass ratio
-    |   +--invariants     ## definitions & idenmpotent formulae for physics/engineering
-    |   +--io             ## utilities for starting-up, parsing, naming and spitting data
-    |   +--utils          ## software utils unrelated to physics or engineering
-    |   +--cli            ## (OUTDATED) command-line entry-point for launching this wltp tool
-    |   +--plots          ## (OUTDATED) code for plotting diagrams related to wltp cycles & results
-    |   +--idgears        ## (OUTDATED) reconstructs the gears-profile by identifying the actual gears
-    +--tests/             ## (package) Test-TestCases
-        +--vehdb          ## Utils for manipulating h5db with accdb & pyalgo cases.
-    +--docs/              ## (folder) documentation
-    |   +--pyplots/       ## (DEPRECATED by notebooks) scripts plotting the metric diagrams embeded in the README
-    +--Notebooks/         ## Jupyter notebooks for running & comparing results (see `Notebooks/README.md`)
-        +--WLTP_GS_AccessDB-sources/       ## AccDB code & queries extracted and stored as text
-    +--setup.py           ## (script) The entry point for `setuptools`, installing, testing, etc
-    +--requirements/      ## (txt-files) Various pip-dependencies for tools.
+    +--bin/                     # (shell-scripts) Utilities & preprocessing of WLTC data on GTR and the wltp_db
+    |   +--bumpver.py           # (script) Update project's version-string
+    +--wltp/                    # (package) python-code of the calculator
+    |   +--cycles/              # (package) code & data for the WLTC data
+    |   +--experiment           # top-level code running the algo
+    |   +--datamodel            # schemas & defaults for data of algo
+    |   +--cycler               # code for generating the cycle
+    |   +--engine               # formulae for engine power & revolutions and gear-box
+    |   +--vehicle              # formulae for cyle/vehicle dynamics
+    |   +--vmax                 # formulae estimating `v_max` from wot
+    |   +--downscale            # formulae downscaling cycles based on pmr/test_mass ratio
+    |   +--invariants           # definitions & idenmpotent formulae for physics/engineering
+    |   +--io                   # utilities for starting-up, parsing, naming and spitting data
+    |   +--utils                # software utils unrelated to physics or engineering
+    |   +--cli                  # (OUTDATED) command-line entry-point for launching this wltp tool
+    |   +--plots                # (OUTDATED) code for plotting diagrams related to wltp cycles & results
+    |   +--idgears              # (OUTDATED) reconstructs the gears-profile by identifying the actual gears
+    +--tests/                   # (package) Test-TestCases
+        +--vehdb                # Utils for manipulating h5db with accdb & pyalgo cases.
+    +--docs/                    # (folder) documentation
+    |   +--pyplots/             # (DEPRECATED by notebooks) scripts plotting the metric diagrams embeded in the README
+    +--Notebooks/               # Jupyter notebooks for running & comparing results (see `Notebooks/README.md`)
+        +--AccDB_src/           # AccDB code & queries extracted and stored as text
+    +--setup.py                 # (script) The entry point for `setuptools`, installing, testing, etc
+    +--requirements/            # (txt-files) Various pip-dependencies for tools.
     +--README.rst
     +--CHANGES.rst
     +--LICENSE.txt
@@ -789,8 +789,8 @@ See also :ref:`architecture:Architecture`.
 
         To facilitate searching and cross-referencing the existing routines,
         all the code & queries of the database have been extracted and stored in as text
-        under the `Notebooks/WLTP_GS_AccessDB-sources/
-        <https://github.com/JRCSTU/wltp/tree/master/Notebooks/WLTP_GS_AccessDB-sources/>`_ folder
+        under the `Notebooks/AccDB_src/
+        <https://github.com/JRCSTU/wltp/tree/master/Notebooks/AccDB_src/>`_ folder
         of this project.
 
     MRO

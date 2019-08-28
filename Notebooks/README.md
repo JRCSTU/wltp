@@ -11,26 +11,26 @@ Notebooks for processing UNECE's WLTP reference implementations in Python and MS
 
 - Python code implementing the WLTP algorithm (CURRENTLY PARTLY IMPLEMENTED `master` branch).
 - The original files of the algo (document & MSAccess db).
-- Notebooks to process the vehicle data, build HDF5-dbm launch the algo, etc::
+- Notebooks to process the vehicle data, build HDF5-dbm launch the algo, etc:
 
-      RunVehicle.ipynb            sample code to run sample vehicle data
-      Cycler.ipynb                (WIP) run a vehicle from the h5db, step-by-step.
-      CarsDB-compare.ipynb        compare results stored h5db with AccDb 
-      CarsDB-msaccess.ipynb       populate h5db with Heinz test-car input & output
-      CarsDB-pyalgo.ipynb         populate h5db with results from the old python code
-      HDF5-APIh-help.ipynb        list usefull HDF5 methods
-      VMax.ipynb                  VMax experiments
-      Rounding.ipynb              showcase ROUNDING across MSAccess, Python, Matlab & C#
-      ../tests/vehdb.py           support code for reading & validating vehicles from HD5 files
-      *.Rmd                       R-markdown git-tracked files paired with *.ipynb notebooks
-      VehData/                    folder with raw input & results (e.g Heinz's msaccess DB)
-          +--WltpGS-msaccess.h5   the h5db storing *accdb* inputs & results
-          +--WltpGS-pyalgo.h5     the h5db storing *pyalgo* results
-      WLTP_GS_AccessDB-sources/   AccDB code & queries extracted and stored as text
-      binder/                     configurations for launching demo in https://mybinder.org
+      RunVehicle.ipynb            # sample code to run sample vehicle data
+      Cycler.ipynb                # (WIP) run a vehicle from the h5db, step-by-step.
+      CarsDB-compare.ipynb        # compare results stored h5db with AccDb 
+      CarsDB-msaccess.ipynb       # populate h5db with Heinz test-car input & output
+      CarsDB-pyalgo.ipynb         # populate h5db with results from the old python code
+      HDF5-APIh-help.ipynb        # list usefull HDF5 methods
+      VMax.ipynb                  # VMax experiments
+      Rounding.ipynb              # showcase ROUNDING across MSAccess, Python, Matlab & C#
+      ../tests/vehdb.py           # support code for reading & validating vehicles from HD5 files
+      *.Rmd                       # R-markdown git-tracked files paired with *.ipynb notebooks
+      VehData/                    # folder with raw input & results (e.g Heinz's msaccess DB)
+          +--WltpGS-msaccess.h5   # the h5db storing *accdb* inputs & results
+          +--WltpGS-pyalgo.h5     # the h5db storing *pyalgo* results
+      AccDB_src/                  # AccDB code & queries extracted and stored as text
+      binder/                     # configurations for launching demo in https://mybinder.org
       conda/
-          +--environment.yaml     reproduce this conda-env with: `conda create -f conda/environment.yaml`
-      README.md                   this file
+          +--environment.yaml     # reproduce this conda-env with: `conda create -f conda/environment.yaml`
+      README.md                   # this file
 
 > **Note:**
 > It is the `*.Rmd` files that are stored in the git-repo of this project;
