@@ -14,7 +14,7 @@ sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' ~/.bashrc
 cat > ~/.inputrc <<-'EOF'
 	# Preserve existing behavior (eg. word-back).
 	$include  /etc/inputrc
-   
+
 	"C-xC-r": re-read-init-file
 	## arrow up
 	"\e[A":history-search-backward
@@ -23,13 +23,27 @@ cat > ~/.inputrc <<-'EOF'
 EOF
 
 # # Install a JupyterLab extensions for JupyterLab < 1.0!!
-jupyter labextension install @jupyter-widgets/jupyterlab-manager@0.38
+jupyter labextension install @jupyter-widgets/jupyterlab-manager@0.38  # https://github.com/jupyter-widgets/ipywidgets/tree/master/packages/jupyterlab-manager
 jupyter labextension install jupyterlab-jupytext@0.19  # https://github.com/mwouts/jupytext/issues/276
 jupyter labextension install jupyter-matplotlib qgrid
 
-# Jupytext noteboo icon: https://github.com/mwouts/jupytext
+# Jupytext notebook icon: https://github.com/mwouts/jupytext
 jupyter notebook --generate-config
 echo 'c.NotebookApp.contents_manager_class = "jupytext.TextFileContentsManager"' >> ~/.jupyter/jupyter_notebook_config.py
+
+## Enableplugins tab, to view installed versions.
+#
+mkdir -p ~/.jupyter/lab/user-settings/@jupyterlab/extensionmanager-extension
+echo '{
+    "enabled": true
+}
+' >> ~/.jupyter/lab/user-settings/@jupyterlab/extensionmanager-extension/plugin.jupyterlab-settings
+
+mkdir -p ~/.jupyter/lab/user-settings/@jupyterlab/notebook-extension/
+echo '{ "codeCellConfig": {
+      "lineNumbers": true
+    }
+}' >> ~/.jupyter/lab/user-settings/@jupyterlab/notebook-extension/tracker.jupyterlab-settings
 
 # `papermill` cmd below needs `wltp` installed on PYTHONPATH.
 pip install -e .[test]
@@ -42,6 +56,6 @@ pip install -e .[test]
 
 ## Import the workspace into JupyterLab
 #  From https://github.com/ian-r-rose/binder-workspace-demo/
-#  BUT will work at least after jupyterlab >1.0.0a8 
+#  BUT will work at least after jupyterlab >1.0.0a8
 #  (see ian-r-rose/binder-workspace-demo#1)
 #jupyter lab workspaces import binder/workspace.json
