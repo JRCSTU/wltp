@@ -26,6 +26,10 @@ jupyter:
 ```
 
 ```{python}
+# %matplotlib ipympl
+```
+
+```{python}
 from typing import Union, List, Callable, Any, Sequence as Seq
 import io
 import logging
@@ -261,6 +265,16 @@ def load_load_interactive_case(
 # ok_flags.columns, ok_gears.columns
 ```
 
+### Utility: close all figures
+A new figure gets created everytime the next "widgets' cell runs.
+
+```{python}
+figs = list(map(plt.figure, plt.get_fignums()))
+print(f"Closing {len(figs)} old figures.")
+for f in figs:
+    plt.close(f)
+```
+
 ```{python}
 from ipywidgets import (
     interact,
@@ -278,23 +292,39 @@ init_pan = 30.40
 max_zoom = 72.0
 
 Case = widgets.SelectionSlider(options=list(c2.index.levels[0]), description="Case")
-Gear = widgets.SelectionSlider(options=['g1'], description="Gear")
+Gear = widgets.SelectionSlider(options=["g1"], description="Gear")
 Zoom = widgets.FloatSlider(
     init_zoom, min=1.0, max=max_zoom, step=1.0, description="Zoom"
 )
 Pan = widgets.FloatSlider(init_pan, min=0.0, max=max_zoom, step=0.4, description="Pan")
-AccdbSignals = widgets.SelectMultiple(rows=10, description="AccDB signals")
+AccdbSignals = widgets.SelectMultiple(rows=7, description="AccDB signals")
 IsAccdbGears = widgets.Checkbox(True, description="Plot AccDB Gears?")
-Selections = widgets.HBox([Case, Gear, Zoom, Pan, AccdbSignals, IsAccdbGears])
-Selections.layout.display = "flex"
+Places = widgets.SelectionSlider(
+    options=[
+        ## (abel, caseno, zoom, pan, desc)
+        ("Dive@764: 1st gear too short", "v001, 45.0, 30.40, A"),
+        ("Dive@903: 1st gear not reached", "v001, 45.0, 36.4, B"),
+    ],
+    orientation="vertical",
+)
+Places.layout.width = "auto"
+Desc = widgets.Textarea(disabled=True)
+Desc.layout.width = "24"
+Desc.layout.height = "7em"
+Selections = widgets.HBox(
+    [Case, Gear, Zoom, Pan, AccdbSignals, IsAccdbGears, Places, Desc]
+)
+Selections.layout.width = "80%"
 Selections.layout.flex_flow = "row wrap"
-Gui = widgets.VBox([Selections])
+# Selections.layout.justify_content = "flex-start"
+Grid = widgets.Output()
+Gui = widgets.VBox([Selections, Grid])
 
 
 def update_valid_accdb_columns(change):
     case_name = Case.value
     _, _, ok_gears, accdb_cycle, _ = load_load_interactive_case(case_name)
-    
+
     Gear.options = ok_gears.columns
     accdb_columns = [
         c
@@ -308,7 +338,28 @@ Case.observe(update_valid_accdb_columns, names="value")
 update_valid_accdb_columns(None)
 
 
+def places_updated(change):
+    import re
+    
+    Case.value, Zoom.value, Pan.value, Desc.value = re.split(r'[ ,]+', Places.value)
+
+
+Places.observe(places_updated, names="value")
+
+
+
+fig, ax = plt.subplots(figsize=(20, 8))
+ax2 = ax3 = None
+
 def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
+    global ax2, ax3
+
+    ax.clear()
+    if ax2:
+        ax2.clear()
+    if ax3:
+        ax3.clear()
+
     cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case(
         case
     )
@@ -322,34 +373,41 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
     ok_flags = ok_flags.loc[:, idx[:, gear]].iloc[scale]
     ok_gears = ok_gears.loc[scale]
 
-    fig, ax = plt.subplots(figsize=(20, 8))
-
     cycle["v_cycle"].plot.line(ax=ax, linewidth=4)
     if not ok_flags.empty:
         ok_flags.plot.line(ax=ax, linewidth=2)
     ok_gears.plot.line(ax=ax, linewidth=3)
 
-    ax2 = None
     if is_accdb_gears:
-        accdb = accdb_cycle.loc[scale, ['g_max'] + accdb_gears] * (np.arange(len(accdb_gears) + 1) + 1)
+        accdb = accdb_cycle.loc[scale, ["g_max"] + accdb_gears] * (
+            np.arange(len(accdb_gears) + 1) + 1
+        )
         accdb[accdb == 0] = np.NAN
         accdb = accdb.dropna(how="all", axis=1).fillna(0)
         ax2 = accdb.plot.line(ax=ax, linewidth=3, linestyle="--", secondary_y=True)
-    
-    if accdb_signals:
-        ax3 = ax.twinx()
-        ax3.spines['right'].set_position(('axes', 1.1))
-        accdb = accdb_cycle[list(accdb_signals)] * (np.arange(len(accdb_signals)) + 1)
-        ax2 = accdb.loc[scale].plot.line(
-            ax=ax3, linewidth=2, linestyle=":", 
-        )
 
+    if accdb_signals:
+        if not ax3:
+            ax3 = ax.twinx()
+        else:
+            ax3.set_visible(True)
+        ax3.spines["right"].set_position(("axes", 1.1))
+        accdb = accdb_cycle[list(accdb_signals)] * (np.arange(len(accdb_signals)) + 1)
+        ax2 = accdb.loc[scale].plot.line(ax=ax3, linewidth=2, linestyle=":")
+    elif ax3:
+        ax3.set_visible(False)
+        
     if ax2:
         ax2.grid(True, axis="both", which="both")
     ax.grid(True, axis="both", which="both")
 
+    fig.tight_layout()
+
     # ## IF only i could display the df BELOW the plot...
-    # display(cycle)
+    with Grid:
+        clear_output(wait=True)
+        display(cycle)
+    
 
 
 display(Gui)
@@ -484,8 +542,6 @@ def plot_xy_diffs_arrows(
 ```
 
 ```{python}
-# # %matplotlib inline
-
 # plt.close(); plt.figure()
 # plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "v_orig", "pmr", "v_cycle"],  #"nc", 'pmr', 'rpm'], 
 #                      data_label="n in min-1", ref_label="HeinzDb",
@@ -509,8 +565,6 @@ def get_similarity(a, b):
 ```
 
 ```{python}
-# %matplotlib widget
-
 _fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(12,8))
 
 veh, col1, col2 = 'v001 P_tot p_req'.split()
