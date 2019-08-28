@@ -31,8 +31,8 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
     Some of the known limitations are described in these places:
 
     * In the :doc:`CHANGES`.
-    * Compare results with AccDB in ``Notebooks/CarsDB-compare.ipynb`` notebook
-      (launch it in *binder* to view it: |binder|).
+    * Compare results with AccDB in ``Notebooks/CarsDB-compare.ipynb`` notebook;
+      launch it the demo-server(|binder|) to view it.
 
 .. _end-opening:
 .. contents:: Table of Contents
@@ -69,8 +69,7 @@ The *Input*, *Output* and all its contents are instances of :term:`datamodel`
 
 Quick-start
 -----------
-- Launch the example *jupyter notebooks* in a private *binder server*:
-  |binder|
+- Launch the example *jupyter notebooks* in a private *demo server*(|binder|).
 - Otherwise, install it locally, preferably from the sources (instructions below).
 
 Prerequisites:
