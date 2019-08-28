@@ -210,13 +210,15 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 
 ```{python}
 case_loaded = [None, None]
-def _load_case(
+def _load_interactive_case(
     case_name,
     # increase vertical seperation between flags (but do not exceed max(V))
     flag_mul=2,
 ):
+    accdb_cycle = c1.loc[case_name].copy()
+    accdb_gears = [c for c in accdb_cycle.columns if c.startswith('Ind_g')]
+
     cycle = c2.loc[case_name].dropna(how="all", axis=1).copy()
-    accdb_cycle = c1.loc[case_name].dropna(how="all", axis=1).copy()
     
     ## Scale each flag into a different value, to plot separatly, and
     #  to plot in the same axis as V
@@ -240,9 +242,9 @@ def _load_case(
     ok_flags.columns = wio.inflate_columns(ok_flags.columns)
     ok_gears.columns = wio.inflate_columns(ok_gears.columns)
 
-    return cycle, ok_flags, ok_gears, accdb_cycle
+    return cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears
 
-def load_case(
+def load_load_interactive_case(
     case_name,
     # increase vertical seperation between flags (but do not exceed max(V))
     flag_mul=2,
@@ -250,12 +252,12 @@ def load_case(
     if case_loaded[0] == case_name:
         cycle_data = case_loaded[1]
     else:
-        cycle_data = _load_case(case_name)
+        cycle_data = _load_interactive_case(case_name)
         case_loaded[0] = case_name
         case_loaded[1] = cycle_data
     return cycle_data
 
-cycle, ok_flags, ok_gears, accdb_cycle = load_case('v001')
+# cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case('v001')
 # ok_flags.columns, ok_gears.columns
 ```
 
@@ -271,31 +273,45 @@ from ipywidgets import (
 from IPython.display import clear_output
 
 
+init_zoom = 55.0
+init_pan = 30.40
 max_zoom = 72.0
 
 Case = widgets.SelectionSlider(options=list(c2.index.levels[0]), description="Case")
-Gear = widgets.SelectionSlider(
-    options=wio.GearMultiIndexer(ok_flags).gnames, description="Gear"
+Gear = widgets.SelectionSlider(options=['g1'], description="Gear")
+Zoom = widgets.FloatSlider(
+    init_zoom, min=1.0, max=max_zoom, step=1.0, description="Zoom"
 )
-Zoom = widgets.FloatSlider(24.0, min=1.0, max=max_zoom, step=1.0, description="Zoom")
-Pan = widgets.FloatSlider(20.8, min=0.0, max=max_zoom, step=0.4, description="Pan")
-AccdbSignals = widgets.SelectMultiple(rows=10)
-Selections = widgets.HBox([Case, Gear, Zoom, Pan, AccdbSignals])
-Selections.layout.display = 'flex'
-Selections.layout.flex_flow = 'row wrap'
-Gui = widgets.VBox([Selections, Plots])
+Pan = widgets.FloatSlider(init_pan, min=0.0, max=max_zoom, step=0.4, description="Pan")
+AccdbSignals = widgets.SelectMultiple(rows=10, description="AccDB signals")
+IsAccdbGears = widgets.Checkbox(True, description="Plot AccDB Gears?")
+Selections = widgets.HBox([Case, Gear, Zoom, Pan, AccdbSignals, IsAccdbGears])
+Selections.layout.display = "flex"
+Selections.layout.flex_flow = "row wrap"
+Gui = widgets.VBox([Selections])
+
 
 def update_valid_accdb_columns(change):
     case_name = Case.value
-    _, _, _, accdb_cycle = load_case(case_name)
-    columns = list(accdb_cycle.select_dtypes(exclude=[np.object]))
-    AccdbSignals.options = columns
+    _, _, ok_gears, accdb_cycle, _ = load_load_interactive_case(case_name)
+    
+    Gear.options = ok_gears.columns
+    accdb_columns = [
+        c
+        for c in accdb_cycle.select_dtypes(exclude=[np.object])
+        if not c.startswith("Ind_g")
+    ]
+    AccdbSignals.options = accdb_columns
 
-Case.observe(update_valid_accdb_columns, names='value')
+
+Case.observe(update_valid_accdb_columns, names="value")
 update_valid_accdb_columns(None)
 
-def plot_gear_flags(case, gear, zoom, pan, accdb_signals):
-    cycle, ok_flags, ok_gears, accdb_cycle = load_case(case)
+
+def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
+    cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case(
+        case
+    )
 
     clen = len(cycle)
     viewlen = int(clen / zoom)
@@ -310,14 +326,27 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals):
 
     cycle["v_cycle"].plot.line(ax=ax, linewidth=4)
     if not ok_flags.empty:
-        ok_flags.plot.line(ax=ax)
+        ok_flags.plot.line(ax=ax, linewidth=2)
     ok_gears.plot.line(ax=ax, linewidth=3)
 
-    ax.grid(True, axis="both", which="both")
-
+    ax2 = None
+    if is_accdb_gears:
+        accdb = accdb_cycle.loc[scale, ['g_max'] + accdb_gears] * (np.arange(len(accdb_gears) + 1) + 1)
+        accdb[accdb == 0] = np.NAN
+        accdb = accdb.dropna(how="all", axis=1).fillna(0)
+        ax2 = accdb.plot.line(ax=ax, linewidth=3, linestyle="--", secondary_y=True)
+    
     if accdb_signals:
+        ax3 = ax.twinx()
+        ax3.spines['right'].set_position(('axes', 1.1))
         accdb = accdb_cycle[list(accdb_signals)] * (np.arange(len(accdb_signals)) + 1)
-        accdb.loc[scale].plot.line(ax=ax, linewidth=2, linestyle='--', secondary_y=True)
+        ax2 = accdb.loc[scale].plot.line(
+            ax=ax3, linewidth=2, linestyle=":", 
+        )
+
+    if ax2:
+        ax2.grid(True, axis="both", which="both")
+    ax.grid(True, axis="both", which="both")
 
     # ## IF only i could display the df BELOW the plot...
     # display(cycle)
@@ -333,6 +362,7 @@ interactive_output(
         "zoom": Zoom,
         "pan": Pan,
         "accdb_signals": AccdbSignals,
+        "is_accdb_gears": IsAccdbGears,
     },
 )
 ```
