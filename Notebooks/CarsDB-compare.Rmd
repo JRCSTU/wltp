@@ -206,6 +206,140 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
 ```
 
+## Compare a vehicle from AccDB <-->PyAlgo *interactively*
+
+```{python}
+case_loaded = [None, None]
+def _load_case(
+    case_name,
+    # increase vertical seperation between flags (but do not exceed max(V))
+    flag_mul=2,
+):
+    cycle = c2.loc[case_name].dropna(how="all", axis=1).copy()
+    accdb_cycle = c1.loc[case_name].dropna(how="all", axis=1).copy()
+    
+    ## Scale each flag into a different value, to plot separatly, and
+    #  to plot in the same axis as V
+    #  (bc when plotting flags in `secondary_y`, grid is not working)
+    #
+
+    all_flags = [c for c in cycle.columns if c.startswith("ok_")]
+    ok_flags = [c for c in all_flags if not c.startswith("ok_gear/")]
+    flag_count = len(ok_flags)
+    ok_flags = cycle.loc[:, ok_flags].copy()
+
+    ok_gears = [c for c in all_flags if c.startswith("ok_gear/")]
+    gear_count = len(ok_gears)
+    ok_gears = cycle.loc[:, ok_gears]
+
+    ok_flags[ok_flags < 0] = np.NAN  # Restore NANFLAG --> NAN
+    ok_flags = ok_flags * (np.arange(flag_count) + 1) * flag_mul
+    ok_gears = ok_gears * (np.arange(gear_count) + flag_count + 1) * flag_mul
+
+    cycle.columns = wio.inflate_columns(cycle.columns)
+    ok_flags.columns = wio.inflate_columns(ok_flags.columns)
+    ok_gears.columns = wio.inflate_columns(ok_gears.columns)
+
+    return cycle, ok_flags, ok_gears, accdb_cycle
+
+def load_case(
+    case_name,
+    # increase vertical seperation between flags (but do not exceed max(V))
+    flag_mul=2,
+):
+    if case_loaded[0] == case_name:
+        cycle_data = case_loaded[1]
+    else:
+        cycle_data = _load_case(case_name)
+        case_loaded[0] = case_name
+        case_loaded[1] = cycle_data
+    return cycle_data
+
+cycle, ok_flags, ok_gears, accdb_cycle = load_case('v001')
+# ok_flags.columns, ok_gears.columns
+```
+
+```{python}
+from ipywidgets import (
+    interact,
+    interactive,
+    interactive_output,
+    fixed,
+    interact_manual,
+    widgets,
+)
+from IPython.display import clear_output
+
+
+max_zoom = 72.0
+
+Case = widgets.SelectionSlider(options=list(c2.index.levels[0]), description="Case")
+Gear = widgets.SelectionSlider(
+    options=wio.GearMultiIndexer(ok_flags).gnames, description="Gear"
+)
+Zoom = widgets.FloatSlider(24.0, min=1.0, max=max_zoom, step=1.0, description="Zoom")
+Pan = widgets.FloatSlider(20.8, min=0.0, max=max_zoom, step=0.4, description="Pan")
+AccdbSignals = widgets.SelectMultiple(rows=10)
+Selections = widgets.HBox([Case, Gear, Zoom, Pan, AccdbSignals])
+Selections.layout.display = 'flex'
+Selections.layout.flex_flow = 'row wrap'
+Gui = widgets.VBox([Selections, Plots])
+
+def update_valid_accdb_columns(change):
+    case_name = Case.value
+    _, _, _, accdb_cycle = load_case(case_name)
+    columns = list(accdb_cycle.select_dtypes(exclude=[np.object]))
+    AccdbSignals.options = columns
+
+Case.observe(update_valid_accdb_columns, names='value')
+update_valid_accdb_columns(None)
+
+def plot_gear_flags(case, gear, zoom, pan, accdb_signals):
+    cycle, ok_flags, ok_gears, accdb_cycle = load_case(case)
+
+    clen = len(cycle)
+    viewlen = int(clen / zoom)
+    offset = int(pan * (clen - viewlen) / max_zoom)
+    scale = idx[offset : offset + viewlen]
+
+    cycle = cycle.loc[scale]
+    ok_flags = ok_flags.loc[:, idx[:, gear]].iloc[scale]
+    ok_gears = ok_gears.loc[scale]
+
+    fig, ax = plt.subplots(figsize=(20, 8))
+
+    cycle["v_cycle"].plot.line(ax=ax, linewidth=4)
+    if not ok_flags.empty:
+        ok_flags.plot.line(ax=ax)
+    ok_gears.plot.line(ax=ax, linewidth=3)
+
+    ax.grid(True, axis="both", which="both")
+
+    if accdb_signals:
+        accdb = accdb_cycle[list(accdb_signals)] * (np.arange(len(accdb_signals)) + 1)
+        accdb.loc[scale].plot.line(ax=ax, linewidth=2, linestyle='--', secondary_y=True)
+
+    # ## IF only i could display the df BELOW the plot...
+    # display(cycle)
+
+
+display(Gui)
+
+interactive_output(
+    plot_gear_flags,
+    {
+        "case": Case,
+        "gear": Gear,
+        "zoom": Zoom,
+        "pan": Pan,
+        "accdb_signals": AccdbSignals,
+    },
+)
+```
+
+## Other plots
+(kind of outdated)
+
 ```{python}
 import wltp.plots as wp
 
