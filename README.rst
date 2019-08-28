@@ -20,7 +20,7 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
 .. figure:: docs/_static/wltc_class3b.png
     :align: center
 
-    **Figure 1:** *WLTP cycle for class-3b Vehicles*
+    **Figure 1:** :ref:`annex-2:cycles` for class-3b Vehicles
 
 
 .. Attention::
@@ -635,7 +635,12 @@ Cycles
 
 Phases
 ------
-As reported by :func:`wltp.cycles.cycle_phases()`:
+As reported by :func:`wltp.cycles.cycle_phases()`, where *phasing* refers to:
+
+- **V:** phases for quantities dependent on **Velocity** samples
+- **VA0:** phases for **Acceleration**\-dependent quantities starting on *t=0*.
+- **VA1:** phases for **Acceleration**\-dependent quantities starting on *t=1*
+  (e.g. Energy in Annex 7).
 
 =======  ========   ========    ===========     ============    ============
 class    phasing    part-1      part-2          part-3          part-4
