@@ -75,7 +75,8 @@ pd.set_option("display.max_columns", 64)
 
 ```{python}
 h5 = "VehData/WltpGS-msaccess.h5"
-prop, wot, n2vs = vehdb.load_vehicle_accdb(h5, 1)
+caseno = 1
+prop, wot, n2vs = vehdb.load_vehicle_accdb(h5, caseno)
 acc_cycle = vehdb.load_vehicle_nodes(h5, 1, 'cycle')
 ```
 
@@ -138,7 +139,7 @@ cb.add_wots(gwots)
 ```
 
 ```{python}
-acc_cycle = vehdb.load_vehicle_nodes(h5, 8, 'cycle')
+acc_cycle = vehdb.load_vehicle_nodes(h5, caseno, 'cycle')
 print(list(acc_cycle.columns))
 ```
 
@@ -184,6 +185,25 @@ flag_aggregates(ok_flags)
 ```{python}
 ok_gears = cb.combine_initial_gear_flags(ok_flags)
 ok_gears.sum()
+```
+
+```{python}
+g_max0 = cb.make_gmax0(ok_gears)
+cycle = pd.concat((cb.cycle, ok_gears, g_max0), axis=1)
+```
+
+```{python}
+g_max0.plot()
+acc_cycle.g_max.plot()
+g_max0_diff = (g_max0 - acc_cycle.g_max).abs()
+g_max0_diff[g_max0_diff == 0] = np.NAN
+display(pd.concat((g_max0.describe(), acc_cycle.g_max.describe(), g_max0_diff.describe()), axis=1))
+```
+
+```{python}
+## Most differences are in G1-->G2 shifts 
+# (which is not implemented in `g_vmax0`).
+display(cycle.loc[~g_max0_diff.isnull() & (g_max0_diff != 0)])
 ```
 
 ```{python}

@@ -105,6 +105,7 @@ p1, c1, p2, c2 = load_heinz_and_python_datasets()
 ```
 
 ```{python}
+# Available PROPs
 print(columnize(list(p1.columns), displaywidth=160))
 print(columnize(list(p2.columns), displaywidth=160))
 ```
@@ -149,8 +150,9 @@ display(vehdb.grid(cdf, fitcols=False, cwidth=100),)
 ```
 
 ```{python}
+# Available CYCLE columns
 print(columnize(list(c1.columns), displaywidth=160))
-print(p2.columns, c2.columns)
+print(columnize(list(c2.columns), displaywidth=160))
 ```
 
 ```{python}
@@ -171,7 +173,7 @@ equivalent_series = [
     #("a", "a_target"),
     #("P_tot", "p_required"),
     #("P_max", "p_available"),
-    #("g_max", "gears_orig"),
+    ("g_max", "g_max0"),
     #("gear", "gears"),
    #("nc", "n"),
 ]
@@ -205,6 +207,8 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 # Repeat, to compare while coding.
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
 ```
+
+AccDB vehicles: 42, 46, 52, 53 & 90 have broken v_max, 48 have broken wot(ASM).
 
 ```{python}
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
@@ -261,7 +265,7 @@ def load_load_interactive_case(
         case_loaded[1] = cycle_data
     return cycle_data
 
-# cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case('v001')
+#cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case('v001')
 # ok_flags.columns, ok_gears.columns
 ```
 
@@ -340,16 +344,16 @@ update_valid_accdb_columns(None)
 
 def places_updated(change):
     import re
-    
-    Case.value, Zoom.value, Pan.value, Desc.value = re.split(r'[ ,]+', Places.value)
+
+    Case.value, Zoom.value, Pan.value, Desc.value = re.split(r"[ ,]+", Places.value)
 
 
 Places.observe(places_updated, names="value")
 
 
-
 fig, ax = plt.subplots(figsize=(20, 8))
 ax2 = ax3 = None
+
 
 def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
     global ax2, ax3
@@ -370,6 +374,8 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
     scale = idx[offset : offset + viewlen]
 
     cycle = cycle.loc[scale]
+    accdb = accdb_cycle.loc[scale]
+
     ok_flags = ok_flags.loc[:, idx[:, gear]].iloc[scale]
     ok_gears = ok_gears.loc[scale]
 
@@ -378,13 +384,15 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
         ok_flags.plot.line(ax=ax, linewidth=2)
     ok_gears.plot.line(ax=ax, linewidth=3)
 
+    ax2 = pd.concat((cycle["g_max0"], accdb["g_max"]), axis=1).plot.line(
+        ax=ax, linewidth=3, style=["b-", "c:"], secondary_y=True
+    )
+
     if is_accdb_gears:
-        accdb = accdb_cycle.loc[scale, ["g_max"] + accdb_gears] * (
-            np.arange(len(accdb_gears) + 1) + 1
-        )
+        accdb = accdb.loc[:, accdb_gears] * (np.arange(len(accdb_gears)) + 1)
         accdb[accdb == 0] = np.NAN
         accdb = accdb.dropna(how="all", axis=1).fillna(0)
-        ax2 = accdb.plot.line(ax=ax, linewidth=3, linestyle="--", secondary_y=True)
+        ax2 = accdb.plot.line(ax=ax, linewidth=2, linestyle="--", secondary_y=True)
 
     if accdb_signals:
         if not ax3:
@@ -396,7 +404,7 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
         ax2 = accdb.loc[scale].plot.line(ax=ax3, linewidth=2, linestyle=":")
     elif ax3:
         ax3.set_visible(False)
-        
+
     if ax2:
         ax2.grid(True, axis="both", which="both")
     ax.grid(True, axis="both", which="both")
@@ -407,7 +415,6 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
     with Grid:
         clear_output(wait=True)
         display(cycle)
-    
 
 
 display(Gui)

@@ -281,11 +281,14 @@ class Experiment(object):
         mdl["n_max"] = engine.calc_n_max(mdl["n_max1"], mdl["n_max2"], mdl["n_max3"])
 
         nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
+
         ok_flags = cb.calc_initial_gear_flags(
             g_vmax=mdl["g_vmax"], n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
         )
         ok_gears = cb.combine_initial_gear_flags(ok_flags)
-        cb.add_columns(ok_flags, ok_gears)
+        g_max0 = cb.make_gmax0(ok_gears)
+
+        cb.add_columns(ok_flags, ok_gears, g_max0)
 
         mdl[m.cycle_run] = cb.cycle
 

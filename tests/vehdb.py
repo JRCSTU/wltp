@@ -608,11 +608,6 @@ def run_pyalgo_on_accdb_vehicle(
 
     cycle_run = mdl["cycle_run"]
 
-    ## Gears are `int8`, and h5 pickles them.
-    #
-    for badtype_col in cycle_run.select_dtypes("Int8"):
-        cycle_run[badtype_col] = cycle_run[badtype_col].fillna(-1).astype("int8")
-
     return out_mdl, cycle_run, mdl["wots_vmax"]
 
 

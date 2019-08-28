@@ -596,17 +596,35 @@ class CycleBuilder:
         ## To series, or else, groupby does nothing!!
         return final_flags
 
-    def combine_initial_gear_flags(self, flags: pd.Series):
+    def combine_initial_gear_flags(self, flags: pd.DataFrame):
         """Merge together all N-allowed flags using AND+OR boolean logic. """
         c = wio.pstep_factory.get().cycle
 
-        ## Due to g0 flags (not originally in gqots)
+        ## FIXME: needed sideffect due to g0 flags (not originally in gqots)
         self.gidx = wio.GearMultiIndexer(self.cycle)
 
         final_ok = flags.groupby(axis=1, level="gear").apply(self._combine_gear_flags)
         final_ok.columns = pd.MultiIndex.from_product(((c.ok_gear,), final_ok.columns))
 
         return final_ok
+
+    def make_gmax0(self, ok_gears: pd.DataFrame):
+        """
+        the first estimation of gear to use on every sample
+
+        Not exactly like AccDB:
+
+        - no g1-->g2 limit.
+        - ...
+
+        """
+        c = wio.pstep_factory.get().cycle
+
+        ## +1 for g0 (0-->6 = 7 gears)
+        g_max0 = (ok_gears * range(self.gidx.ng + 1)).max(axis=1).astype("int8")
+        g_max0.name = (c.g_max0, "")
+
+        return g_max0
 
     def add_columns(self, *columns: Union[pd.DataFrame, pd.Series]):
         """

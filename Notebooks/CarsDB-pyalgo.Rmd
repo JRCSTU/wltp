@@ -146,7 +146,7 @@ vehdb.print_nodes(out_h5fname)
 ```{python}
 # %%time
 if not skip_h5_write:
-    ## COMPRESS x8 HDF5: 250Mb-->143Mb in ~12s.
+    ## COMPRESS x8 HDF5: 887Mb-->140Mb in ~25s.
     #
     !ls -lh {out_h5fname}
     !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:blosclz -o {out_h5fname}.tmp
