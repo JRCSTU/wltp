@@ -205,6 +205,7 @@ The files and folders of the project are listed below (see also :ref:`architectu
     +--docs/              ## (folder) documentation
     |   +--pyplots/       ## (DEPRECATED by notebooks) scripts plotting the metric diagrams embeded in the README
     +--Notebooks/         ## Jupyter notebooks for running & comparing results (see `Notebooks/README.md`)
+        +--WLTP_GS_AccessDB-sources/       ## AccDB code & queries extracted and stored as text
     +--setup.py           ## (script) The entry point for `setuptools`, installing, testing, etc
     +--requirements/      ## (txt-files) Various pip-dependencies for tools.
     +--README.rst
