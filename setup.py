@@ -116,7 +116,16 @@ download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_v
 plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
 doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
-test_reqs = [
+notebook_reqs = [
+    "papermill",
+    "jupytext",
+    "blackcellmagic",
+    "ipympl",
+    "qgrid",
+    "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
+    "columnize",
+]
+test_reqs = notebook_reqs + [
     "docutils",
     "docopt",
     "matplotlib",
@@ -127,15 +136,6 @@ test_reqs = [
     "sphinx",
     "tables",  # pandas-IO for h5
     "twine",  # for PyPi long-description check
-    ## For notebooks
-    #
-    "papermill",
-    "jupytext",
-    "blackcellmagic",
-    "ipympl",
-    "qgrid",
-    "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
-    "columnize",
     "wheel",
 ]
 dev_reqs = (
@@ -232,6 +232,7 @@ setup(
         "plot": plot_reqs,
         "excel": excel_reqs,
         "dev": dev_reqs,
+        "notebook": notebook_reqs,
         "test": test_reqs,
         "doc": doc_reqs,
     },
