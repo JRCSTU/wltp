@@ -4,9 +4,6 @@
 set -e
 set -x
 
-# Bash: To prepend conda env and make `conda` work flawlessly.
-conda init bash
-
 # Bash: Enable color prompt.
 sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' ~/.bashrc
 
@@ -22,17 +19,38 @@ cat > ~/.inputrc <<-'EOF'
 	"\e[B":history-search-forward
 EOF
 
-# # Install a JupyterLab extensions for JupyterLab < 1.0!!
-jupyter labextension install @jupyter-widgets/jupyterlab-manager@0.38  # https://github.com/jupyter-widgets/ipywidgets/tree/master/packages/jupyterlab-manager
-jupyter labextension install jupyterlab-jupytext@0.19  # https://github.com/mwouts/jupytext/issues/276
-jupyter labextension install jupyter-matplotlib qgrid
+## Bash: To prepend conda env and make `conda` work flawlessly.
+#
+conda init bash
+#
+## sourcing `.bashrc` would do nothing, we're not in interactive shell
+#  and will exit prematurely.
+__conda_setup="$('/srv/conda/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+eval "$__conda_setup"
+unset __conda_setup
+
+conda activate notebook
+
+## `papermill` cmd for generating PyAlgo DB 
+#  need `wltp` installed on PYTHONPATH.
+pip install -e .[test]
+
+
+jupyter nbextension enable --py widgetsnbextension
+
+# Install a JupyterLab extensions for JupyterLab < 1.10!!
+jupyter labextension install @jupyter-widgets/jupyterlab-manager  # https://github.com/jupyter-widgets/ipywidgets/tree/master/packages/jupyterlab-manager
+jupyter labextension install jupyter-matplotlib
+jupyter labextension install jupyterlab-jupytext  # https://github.com/mwouts/jupytext/issues/276
 jupyter labextension install @jupyterlab/celltags
+git clone https://github.com/qzchenwl/qgrid  ~/qgrid.git  --depth 1
+jupyter labextension install ~/qgrid.git/js
 
 # Jupytext notebook icon: https://github.com/mwouts/jupytext
 jupyter notebook --generate-config
 echo 'c.NotebookApp.contents_manager_class = "jupytext.TextFileContentsManager"' >> ~/.jupyter/jupyter_notebook_config.py
 
-## Enableplugins tab, to view installed versions.
+## Enable plugins tab, to view installed versions.
 #
 mkdir -p ~/.jupyter/lab/user-settings/@jupyterlab/extensionmanager-extension
 echo '{
@@ -45,9 +63,6 @@ echo '{ "codeCellConfig": {
       "lineNumbers": true
     }
 }' >> ~/.jupyter/lab/user-settings/@jupyterlab/notebook-extension/tracker.jupyterlab-settings
-
-# `papermill` cmd below needs `wltp` installed on PYTHONPATH.
-pip install -e .[test]
 
 ## Re-create `*.ipynb` files from the paired `*.Rmd` files.
 ./Notebooks/recreate_ipynbs.sh
