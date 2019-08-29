@@ -31,9 +31,7 @@ jupyter:
 
 ```{python}
 from typing import Union, List, Callable, Any, Sequence as Seq
-import io
-import logging
-import sys
+import io, logging, re, sys
 from pathlib import Path, PurePosixPath as P
 
 
@@ -57,14 +55,18 @@ if proj_dir not in sys.path:
 import vehdb
 
 idx = pd.IndexSlice
-log = logging.getLogger('CarsDB-compare.ipynb')
+log = logging.getLogger("CarsDB-compare.ipynb")
 logging.basicConfig(
-    level=logging.INFO, 
-    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
-    datefmt='%Y-%m-%d,%H:%M:%S',
+    level=logging.INFO,
+    format="%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s",
+    datefmt="%Y-%m-%d,%H:%M:%S",
 )
 
 pd.set_option("display.max_columns", 32)
+```
+
+```{python}
+vehdb.grid(pd.DataFrame([1,2]))
 ```
 
 ```{python}
@@ -290,7 +292,14 @@ from ipywidgets import (
 )
 from IPython.display import clear_output
 
-
+def grid(df):
+    """Display a dynamic grid if given `df` too long. """
+    if all(a < b for a, b in zip(df.shape, (120, 120))):
+        with pd.option_context('display.max_rows', 121, 'display.max_columns', 121):
+            display(df)
+    else:
+        display(vehdb.grid(df, fitcols=False))
+    
 init_zoom = 55.0
 init_pan = 30.40
 max_zoom = 72.0
@@ -303,33 +312,79 @@ Zoom = widgets.FloatSlider(
 Pan = widgets.FloatSlider(init_pan, min=0.0, max=max_zoom, step=0.4, description="Pan")
 AccdbSignals = widgets.SelectMultiple(rows=7, description="AccDB signals")
 IsAccdbGears = widgets.Checkbox(True, description="Plot AccDB Gears?")
-Places = widgets.SelectionSlider(
+AxisScenes = widgets.Select(
     options=[
         ## (abel, caseno, zoom, pan, desc)
         ("Dive@764: 1st gear too short", "v001, 45.0, 30.40, A"),
         ("Dive@903: 1st gear not reached", "v001, 45.0, 36.4, B"),
     ],
-    orientation="vertical",
+    description="Scenes",
+    rows=7,
 )
-Places.layout.width = "auto"
+AxisScenes.layout.width = "auto"
 Desc = widgets.Textarea(disabled=True)
 Desc.layout.width = "24"
 Desc.layout.height = "7em"
 Selections = widgets.HBox(
-    [Case, Gear, Zoom, Pan, AccdbSignals, IsAccdbGears, Places, Desc]
+    [Case, Gear, Zoom, Pan, AccdbSignals, IsAccdbGears, AxisScenes, Desc]
 )
-Selections.layout.width = "80%"
+Selections.layout.width = "90%"
 Selections.layout.flex_flow = "row wrap"
 # Selections.layout.justify_content = "flex-start"
-Grid = widgets.Output()
-Gui = widgets.VBox([Selections, Grid])
+BadsGrid = widgets.Output()
+PyAlgoGrid = widgets.Output()
+AccDBGrid = widgets.Output()
+outs = [BadsGrid, PyAlgoGrid, AccDBGrid]
+
+Tab = widgets.Tab()
+Tab.children = [BadsGrid, PyAlgoGrid, AccDBGrid]
+for i, title in enumerate(
+    ("DiffGear samples", "PyAlgo", "AccDB")
+):
+    Tab.set_title(i, title)
+
+def display_diff_gears(pyalgo, accdb):
+    pyalgo.columns = wio.flatten_columns(pyalgo.columns)
+    merged = pd.concat((pyalgo, accdb), axis=1, keys=('pyalgo', 'accdb'))
+    merged.columns = wio.flatten_columns(merged.columns)
+    grid(merged)
+
+def display_pyalgo(pyalgo, accdb):
+    pyalgo.columns = wio.flatten_columns(pyalgo.columns)
+    grid(pyalgo)
+
+def display_accdb(pyalgo, accdb):
+    grid(accdb)
+
+out_specs = [
+    (BadsGrid, display_diff_gears),
+    (PyAlgoGrid, display_pyalgo),
+    (AccDBGrid, display_accdb),
+]
+
+#: Updated by *interact* function, for display functions to read them
+results = [None, None]
+
+def update_tab_contents(change):
+    if change.new is None:
+        return
+    out, func = out_specs[change.new]
+    has_content = bool(out.get_state()['outputs'])
+    if not has_content:
+        with out:
+            func(*results)
+
+Tab.observe(update_tab_contents, names="selected_index")
+
+
+Gui = widgets.VBox([Selections, Tab])
 
 
 def update_valid_accdb_columns(change):
     case_name = Case.value
     _, _, ok_gears, accdb_cycle, _ = load_load_interactive_case(case_name)
 
-    Gear.options = ok_gears.columns
+    Gear.options = ok_gears.columns.levels[1]
     accdb_columns = [
         c
         for c in accdb_cycle.select_dtypes(exclude=[np.object])
@@ -342,18 +397,18 @@ Case.observe(update_valid_accdb_columns, names="value")
 update_valid_accdb_columns(None)
 
 
-def places_updated(change):
-    import re
+def apply_axis_scene(change):
+    Case.value, Zoom.value, Pan.value, Desc.value = re.split(r"[ ,]+", AxisScenes.value)
 
-    Case.value, Zoom.value, Pan.value, Desc.value = re.split(r"[ ,]+", Places.value)
-
-
-Places.observe(places_updated, names="value")
+AxisScenes.observe(apply_axis_scene, names="value")
 
 
-fig, ax = plt.subplots(figsize=(20, 8))
+fig = plt.figure(num="Vehicle AccDB <--> PyAlgo comparison", figsize=(20, 8))
+display(fig.canvas)
+fig.clear()
+
+ax = plt.subplot()
 ax2 = ax3 = None
-
 
 def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
     global ax2, ax3
@@ -375,6 +430,17 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
 
     cycle = cycle.loc[scale]
     accdb = accdb_cycle.loc[scale]
+    
+    ## Clean tabs if caseno/pan/zoom have changed.
+    #
+    if not cycle.equals(results[0]):
+        Tab.selected_index = None
+        for out in outs:
+            with out:
+                clear_output()
+
+    results[0] = cycle
+    results[1] = accdb
 
     ok_flags = ok_flags.loc[:, idx[:, gear]].iloc[scale]
     ok_gears = ok_gears.loc[scale]
@@ -389,10 +455,10 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
     )
 
     if is_accdb_gears:
-        accdb = accdb.loc[:, accdb_gears] * (np.arange(len(accdb_gears)) + 1)
-        accdb[accdb == 0] = np.NAN
-        accdb = accdb.dropna(how="all", axis=1).fillna(0)
-        ax2 = accdb.plot.line(ax=ax, linewidth=2, linestyle="--", secondary_y=True)
+        accdb_gears = accdb.loc[:, accdb_gears] * (np.arange(len(accdb_gears)) + 1)
+        accdb_gears[accdb_gears == 0] = np.NAN
+        accdb_gears = accdb_gears.dropna(how="all", axis=1).fillna(0)
+        ax2 = accdb_gears.plot.line(ax=ax, linewidth=2, linestyle="--", secondary_y=True)
 
     if accdb_signals:
         if not ax3:
@@ -409,14 +475,8 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
         ax2.grid(True, axis="both", which="both")
     ax.grid(True, axis="both", which="both")
 
-    fig.tight_layout()
-
-    # ## IF only i could display the df BELOW the plot...
-    with Grid:
-        clear_output(wait=True)
-        display(cycle)
-
-
+    fig.tight_layout()  # Re-tighten if ax3 has (diss)appeared.
+    
 display(Gui)
 
 interactive_output(
@@ -430,177 +490,6 @@ interactive_output(
         "is_accdb_gears": IsAccdbGears,
     },
 )
-```
-
-## Other plots
-(kind of outdated)
-
-```{python}
-import wltp.plots as wp
-
-
-def plot_xy_diffs_arrows(
-    df: pd.DataFrame,
-    cols_x1y1x2y2: Seq[str],
-    data_label,
-    ref_label=None,
-    data_fmt="+k",
-    data_kws={},
-    diff_label=None,
-    diff_fmt="-r",
-    diff_cmap=wp.cm.hsv,
-    diff_kws={},  # @UndefinedVariable cm.PiYG
-    title=None,
-    x_label=None,
-    y_label=None,
-    axes_tuple=None,
-    mark_sections=None,
-    distance_prcnt_threshold=1,
-):
-    # fix data: np.sqrt() works only on float64, and
-    # indexing duped columns fetches df (not series).
-    df = df[set(cols_x1y1x2y2)].astype(np.float64)
-    X_REF, Y_REF, X, Y = [df[i] for i in cols_x1y1x2y2]
-
-    df["Xdiff"] = X - X_REF
-    df["Ydiff"] = Y - Y_REF
-
-    # Filter out small differences.
-    #
-    df["dist_x"] = df["Xdiff"].abs() / X_REF
-    df["dist_y"] = df["Ydiff"].abs() / Y_REF
-    df["dist_max[%]"] = df[["dist_x", "dist_y"]].max(axis=1) * 100
-    df = df.loc[df["dist_max[%]"] > distance_prcnt_threshold, :]
-
-    X_REF, Y_REF, X, Y = [df[i] for i in cols_x1y1x2y2]
-    U = df["Xdiff"]
-    V = df["Ydiff"]
-
-    ANGLE = phi = np.arctan2(V, U)
-
-    color_diff = "r"
-    alpha = 0.9
-    cm_norm = wp.MidPointNorm()
-
-    if axes_tuple:
-        (axes, twin_axis) = axes_tuple
-    else:
-        bottom = 0.1
-        height = 0.8
-        axes = plt.axes([0.1, bottom, 0.80, height])
-
-        ## Prepare axes
-        #
-        axes.set_xlabel(x_label)
-        axes.set_ylabel(r"$%s$" % y_label.replace("$", ""))
-        axes.xaxis.grid(True)
-        axes.yaxis.grid(True)
-
-        twin_axis = axes.twinx()
-        twin_axis.set_ylabel(
-            r"$\Delta %s$" % y_label.replace("$", ""), color=color_diff, labelpad=0
-        )
-        twin_axis.tick_params(axis="y", colors=color_diff)
-        twin_axis.yaxis.grid(True, color=color_diff)
-
-        axes.set_title(title)
-        axes_tuple = (axes, twin_axis)
-
-    if mark_sections == "classes":
-        plot_class_limits(axes, Y.min())
-    elif mark_sections == "parts":
-        raise NotImplementedError()
-
-    ## Plot data
-    #
-    l_ref = axes.quiver(
-        X,
-        Y,
-        U,
-        V,
-        ANGLE,
-        cmap=diff_cmap,
-        norm=cm_norm,
-        scale_units="xy",
-        angles="xy",
-        scale=1,
-        width=0.004,
-        alpha=alpha,
-        pivot="tip",
-    )
-
-    l_data, = axes.plot(X, Y, data_fmt, label=data_label, **data_kws)
-    l_data.set_picker(3)
-
-    l_diff = twin_axis.plot(X, V, "o", color=color_diff, markersize=0.7)
-    line_points, regress_poly = wp.fit_straight_line(X, V)
-    l_diff_fitted, = twin_axis.plot(
-        line_points,
-        wp.polyval(regress_poly, line_points),
-        diff_fmt,
-        label=diff_label,
-        **diff_kws
-    )
-
-    for name, x, y in zip(Y.index, X_REF, Y_REF):
-        axes.annotate(name, (x, y), xycoords="data", size="xx-small")
-
-    return axes_tuple, (l_data, l_ref, l_diff, l_diff_fitted)
-```
-
-```{python}
-# plt.close(); plt.figure()
-# plot_xy_diffs_arrows(pd.concat((cc1, cc2), axis=1), cols_x1y1x2y2=['pmr_km', "v_orig", "pmr", "v_cycle"],  #"nc", 'pmr', 'rpm'], 
-#                      data_label="n in min-1", ref_label="AccDB",
-# #             data_fmt="+k", data_kws={},
-# #             diff_label=None, diff_fmt="-r", diff_cmap=cm.hsv, diff_kws={}, #@UndefinedVariable cm.PiYG
-# #             title='N', 
-#                      x_label='PMR', 
-#                      y_label='N_mean',
-# #             axes_tuple=None,
-# #             mark_sections=None
-#                     )
-```
-
-```{python}
-from scipy.stats import pearsonr
-
-def get_similarity(a, b):
-    return pearsonr(a.fillna(-1), b.fillna(-1)), a.abs().mean(), b.abs().mean()
-
-#get_similarityc1.loc[veh, col1], c2.loc[veh, col2])
-```
-
-```{python}
-_fig, (ax1, ax2) = plt.subplots(2, sharex=True, figsize=(12,8))
-
-veh, col1, col2 = 'v001 P_tot p_req'.split()
-tol = 0.00001
-a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
-ix = 100*(a-b).abs()/a.max() > tol 
-display('P', get_similarity(a, b))
-if not a[ix].empty:
-    a[ix].plot(ax=ax1)
-if not b[ix].empty:
-    b[ix].plot(ax=ax1)
-
-ax1.grid(which='both')
-ax1.legend()
-
-#ax2 = ax.twinx()
-
-col1, col2 = 'a a'.split()
-a, b = c1.loc[veh, col1].copy(), c2.loc[veh, col2].copy()
-ix = (a-b).abs()/a.max() > 0.8e-6
-display(get_similarity(a, b))
-#c1.loc[veh, 'v_orig'].copy()[ix].plot(style='3', ax=ax2)
-if not a[ix].empty:
-    a[ix].plot(style='+', ax=ax2)
-if not b[ix].empty:
-    b[ix].plot(style='x', ax=ax2)
-
-ax2.grid(which='both')
-ax2.legend()
 ```
 
 # Museum

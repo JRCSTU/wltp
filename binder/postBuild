@@ -42,7 +42,7 @@ jupyter nbextension enable --py widgetsnbextension
 jupyter labextension install @jupyter-widgets/jupyterlab-manager  # https://github.com/jupyter-widgets/ipywidgets/tree/master/packages/jupyterlab-manager
 jupyter labextension install jupyter-matplotlib
 jupyter labextension install jupyterlab-jupytext  # https://github.com/mwouts/jupytext/issues/276
-jupyter labextension install @jupyterlab/celltags
+# jupyter labextension install @jupyterlab/celltags
 git clone https://github.com/qzchenwl/qgrid  ~/qgrid.git  --depth 1
 jupyter labextension install ~/qgrid.git/js
 
