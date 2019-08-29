@@ -271,16 +271,6 @@ def load_load_interactive_case(
 # ok_flags.columns, ok_gears.columns
 ```
 
-### Utility: close all figures
-A new figure gets created everytime the next "widgets' cell runs.
-
-```{python}
-figs = list(map(plt.figure, plt.get_fignums()))
-print(f"Closing {len(figs)} old figures.")
-for f in figs:
-    plt.close(f)
-```
-
 ```{python}
 from ipywidgets import (
     interact,
@@ -403,9 +393,12 @@ def apply_axis_scene(change):
 AxisScenes.observe(apply_axis_scene, names="value")
 
 
+_existing_figs = set(plt.get_fignums())
 fig = plt.figure(num="Vehicle AccDB <--> PyAlgo comparison", figsize=(20, 8))
-display(fig.canvas)
-fig.clear()
+## Hack, or else, double fig the 1st time this cell runs.
+if fig.number in _existing_figs: 
+    display(fig.canvas)
+    fig.clear()
 
 ax = plt.subplot()
 ax2 = ax3 = None
