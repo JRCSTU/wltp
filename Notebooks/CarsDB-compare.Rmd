@@ -172,6 +172,7 @@ equivalent_series = [
     ("P_tot", "p_req"),
     #("P_max", "p_available"),
     ("g_max", "g_max0"),
+    ("g_min", "g_min"),
     #("gear", "gears"),
    #("nc", "n"),
 ]

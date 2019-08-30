@@ -625,10 +625,15 @@ class CycleBuilder:
         c = wio.pstep_factory.get().cycle
 
         ## +1 for g0 (0-->6 = 7 gears)
-        g_max0 = (ok_gears * range(self.gidx.ng + 1)).max(axis=1).astype("int8")
+        incrementing_gflags = ok_gears * range(self.gidx.ng + 1)
+
+        g_min = incrementing_gflags.min(axis=1).astype("int8")
+        g_min.name = (c.g_min, "")
+
+        g_max0 = incrementing_gflags.max(axis=1).astype("int8")
         g_max0.name = (c.g_max0, "")
 
-        return g_max0
+        return g_min, g_max0
 
     def add_columns(self, *columns: Union[pd.DataFrame, pd.Series]):
         """

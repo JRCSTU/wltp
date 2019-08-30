@@ -188,8 +188,8 @@ ok_gears.sum()
 ```
 
 ```{python}
-g_max0 = cb.make_gmax0(ok_gears)
-cycle = pd.concat((cb.cycle, ok_gears, g_max0), axis=1)
+g_min, g_max0 = cb.make_gmax0(ok_gears)
+cycle = pd.concat((cb.cycle, ok_gears, g_min, g_min, g_max0), axis=1)
 ```
 
 ```{python}

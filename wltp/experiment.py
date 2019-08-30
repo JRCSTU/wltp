@@ -286,9 +286,9 @@ class Experiment(object):
             g_vmax=mdl["g_vmax"], n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
         )
         ok_gears = cb.combine_initial_gear_flags(ok_flags)
-        g_max0 = cb.make_gmax0(ok_gears)
+        g_min, g_max0 = cb.make_gmax0(ok_gears)
 
-        cb.add_columns(ok_flags, ok_gears, g_max0)
+        cb.add_columns(ok_flags, ok_gears, g_min, g_max0)
 
         mdl[m.cycle_run] = cb.cycle
 
