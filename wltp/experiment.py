@@ -144,7 +144,6 @@ class Experiment(object):
         p_rated = mdl["p_rated"]
         n_rated = mdl["n_rated"]
         n_idle = mdl["n_idle"]
-        n_min_drive = mdl["n_min"]
         gear_ratios = mdl["gear_ratios"]
         f0 = mdl.get("f0")
         f1 = mdl.get("f1")
