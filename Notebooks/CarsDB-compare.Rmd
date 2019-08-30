@@ -292,6 +292,7 @@ def grid(df):
     display(vehdb.grid(df, fitcols=df.shape[1] < 12))
 
 def merge_pyalgo_accdb(pyalgo, accdb):
+    pyalgo = pyalgo.copy()
     pyalgo.columns = wio.flatten_columns(pyalgo.columns)
     merged = pd.concat((pyalgo, accdb), axis=1, keys=("pyalgo", "accdb"))
     merged.columns = wio.flatten_columns(merged.columns)
@@ -376,7 +377,7 @@ def update_tab_contents(change):
     has_content = bool(out.get_state()["outputs"])
     if not has_content:
         with out:
-            func(*results)
+            func(*(i.copy() for i in results))
 
 
 Tab = widgets.Tab()
@@ -464,6 +465,7 @@ def plot_gear_flags(
     pyalgo = cycle.loc[scale]
     accdb = accdb_cycle.loc[scale]
     diffgears_view = (pyalgo["g_max0"] != accdb["g_max"]).sum()
+    merged = merge_pyalgo_accdb(pyalgo, accdb)
 
     ## Clean tabs if caseno/pan/zoom have changed.
     #
@@ -490,7 +492,7 @@ def plot_gear_flags(
             ok_flags.plot.line(ax=ax, linewidth=2)
         ok_gears.plot.line(ax=ax, linewidth=3)
 
-    ax2 = pd.concat((pyalgo["g_max0"], accdb["g_max"]), axis=1).plot.line(
+    ax2 = merged[["pyalgo/g_max0", "accdb/g_max"]].plot.line(
         ax=ax, linewidth=3, style=["b-", "c:"], secondary_y=True
     )
 
@@ -501,21 +503,19 @@ def plot_gear_flags(
         ax2 = accdb_gears.plot.line(
             ax=ax, linewidth=2, linestyle="--", secondary_y=True
         )
-        #ax2.legend()
 
     ax3 = ax.twinx()
     show_signals = pyalgo_signals or accdb_signals
     ax3.set_visible(show_signals)
     if show_signals:
-        ax3.spines["right"].set_position(("axes", 1.1))
-
         pyalgo = pyalgo.loc[:, list(pyalgo_signals) or []]
         accdb = accdb.loc[:, accdb_signals]
         merged = merge_pyalgo_accdb(pyalgo, accdb)
         
         if not merged.empty:
-            ax3 = merged.astype(np.float64).plot.line(ax=ax3, linewidth=2, linestyle=":")
-            ax3.legend()
+            merged.astype(np.float64).plot.line(ax=ax, linewidth=2, linestyle=":")
+            ax.legend()
+            ax2.legend()
     
 #     if ax2:
 #         ax2.grid(True, axis="both", which="both")
