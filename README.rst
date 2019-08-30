@@ -3,8 +3,8 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
 |binder| |dev-status| |build-status| |appveyor-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |codestyle|
 
-:release:       1.0.0.dev11
-:date:          2019-08-28 22:00:20
+:release:       1.0.0.dev12
+:date:          2019-08-30 14:55:39
 :documentation: https://wltp.readthedocs.org/ (build-date: |today|)
 :source:        https://github.com/JRCSTU/wltp
 :live-demo:     https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md
@@ -98,7 +98,7 @@ Download the sources,
       git clone https://github.com/JRCSTU/wltp/ --depth=1
 
 - or download and extract the project-archive from the release page:
-  https://github.com/JRCSTU/wltp/archive/v1.0.0.dev11.zip
+  https://github.com/JRCSTU/wltp/archive/v1.0.0.dev12.zip
 
 
 Install:
@@ -121,7 +121,7 @@ From within the project directory, run one of these commands to install it:
   .. code-block:: bash
 
       $ wltp --version
-      1.0.0.dev11
+      1.0.0.dev12
 
       $ wltp --help
         ...
@@ -230,7 +230,7 @@ try to import the project to check its version:
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '1.0.0.dev11'
+    '1.0.0.dev12'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...

@@ -61,7 +61,7 @@ TODOs
 Changelog
 =========
 
-v1.0.0.dev11  (28-Aug-2019): PY3.5 only & real work!
+v1.0.0.dev12  (20-Aug-2019): PY3.5 only & real work!
 ----------------------------------------------------
 - Drop support for Python 2.7 & <3.6, due to `f"string:`, among others...
   The supported Pythons `covers 84% of 2018 Python-3 installations (71% of Pythons in total)
