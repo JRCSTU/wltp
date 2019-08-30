@@ -1,7 +1,2 @@
 ## Created to force ReadTheDocs.org do its job (with plot directive)!
-six
-jsonschema >= 2.4
-numpy
-pandas
-mock
-matplotlib
+-e .[test]
