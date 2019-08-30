@@ -302,6 +302,11 @@ def merge_pyalgo_accdb(pyalgo, accdb):
 def display_diff_gears(pyalgo, accdb):
     merged = merge_pyalgo_accdb(pyalgo, accdb)
     diffgears_idx = merged["pyalgo/g_max0"] != merged["accdb/g_max"]
+    display(merged.loc[diffgears_idx, ["pyalgo/g_max0", "accdb/g_max"]])
+
+def display_diff_cycle(pyalgo, accdb):
+    merged = merge_pyalgo_accdb(pyalgo, accdb)
+    diffgears_idx = merged["pyalgo/g_max0"] != merged["accdb/g_max"]
     grid(merged[diffgears_idx])
 
 
@@ -317,13 +322,15 @@ def display_accdb(pyalgo, accdb):
 ## What to display in the Tabs beneath the plot
 #
 out_specs = [
-    (display_diff_gears, "DiffGear samples"),
+    (display_diff_gears, "DiffGears"),
+    (display_diff_cycle, "DiffGear cycles"), 
     (display_pyalgo, "PyAlgo"),
     (display_accdb, "AccDb"),
 ]
 ```
 
 ```{python}
+## TODO: CLASSify code in these cells.
 from ipywidgets import (
     interact,
     interactive,
@@ -342,7 +349,7 @@ max_zoom = 72.0
 Case = widgets.SelectionSlider(options=list(c2.index.levels[0]), description="Case")
 Gear = widgets.SelectionSlider(options=["g1"], description="Gear")
 Zoom = widgets.FloatSlider(
-    init_zoom, min=1.0, max=max_zoom, step=1.0, description="Zoom"
+    init_zoom, min=1.0, max=max_zoom, step=4.0, description="Zoom"
 )
 Pan = widgets.FloatSlider(init_pan, min=0.0, max=max_zoom, step=0.4, description="Pan")
 IsPyAlgoGears = widgets.Checkbox(False, description="Plot PyAlgo Gear flags?")
@@ -368,12 +375,27 @@ Selections.layout.flex_flow = "row wrap"
 #: Updated by *interact* function, for display functions to read them
 results = [None, None]
 
-out_specs2 = [(widgets.Output(), *rec) for rec in out_specs]
+def refresh_tabs():
+    global out_specs
+    
+    AxisScenes.options = define_schenes()
+    needs_retabbing = False
+    if out_specs and len(out_specs[0]) < 3:
+        out_specs = [(widgets.Output(), *i) for i in out_specs]
+        needs_retabbing = True
+    if needs_retabbing or not Tab.children:
+        Tab.children = [out for out, _, _ in out_specs]
+        for i, (_, _, title) in enumerate(out_specs):
+            Tab.set_title(i, title)
+
+    return out_specs
+
+refresh_tabs()
 
 def update_tab_contents(change):
     if change.new is None:
         return
-    out, func, _ = out_specs2[change.new]
+    out, func, _ = out_specs[change.new]
     has_content = bool(out.get_state()["outputs"])
     if not has_content:
         with out:
@@ -382,9 +404,6 @@ def update_tab_contents(change):
 
 Tab = widgets.Tab()
 Tab.observe(update_tab_contents, names="selected_index")
-Tab.children = [out for out, _, _ in out_specs2]
-for i, (_, _, title) in enumerate(out_specs2):
-    Tab.set_title(i, title)
 
 
 Gui = widgets.VBox([Selections, Tab])
@@ -417,7 +436,6 @@ update_valid_signals(None)
 def apply_axis_scene(change):
     Case.value, Zoom.value, Pan.value, Desc.value = re.split(r"[ ,]+", AxisScenes.value)
 
-
 AxisScenes.observe(apply_axis_scene, names="value")
 
 
@@ -449,7 +467,7 @@ def plot_gear_flags(
     ax = plt.subplot()
     ax2 = ax3 = None
 
-    AxisScenes.options = define_schenes()
+    out_specs = refresh_tabs()
     
     cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case(
         case
@@ -471,7 +489,7 @@ def plot_gear_flags(
     #
     if not pyalgo.equals(results[0]):
         Tab.selected_index = None
-        for out, _, _ in out_specs2:
+        for out, _, _ in out_specs:
             with out:
                 clear_output()
 
