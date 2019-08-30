@@ -101,7 +101,7 @@ class PhaseMarker:
                 'stopdecel': [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0],
             })
             pm = PhaseMarker()
-            
+
             def phase(cond):
                 return pm._identify_conjecutive_truths((cycle.v > 1) & cond, True).astype(int)
 
@@ -354,12 +354,12 @@ class CycleBuilder:
         Heavy lifting calculations for "initial gear" rules of Annex 2: 2.k, 3.2, 3.3 & 3.5.
 
         :return:
-            a dataframe with *nullable* dtype ``int8`` with -1 for NANs 
-            (for storage efficiency) and hierarchical columns, 
+            a dataframe with *nullable* dtype ``int8`` with -1 for NANs
+            (for storage efficiency) and hierarchical columns,
             with :const:`NANFLAG`(1) wherever a gear is allowed,
             for a specific rule (different sets of rules per gear).
             Push it to :meth:`combine_initial_gear_flags()`.
-            
+
         Conditions consolidated & ordered like that::
 
           0  RULE      CONDITION                ALLOWED GEAR           COMMENTS
@@ -379,10 +379,14 @@ class CycleBuilder:
           c_initacell               initaccel  g = 1                  # 3.2 & 3.3c (also n ≤ n95_max apply)
           c_a            1.0 ≤ v & !initaccel  g = 1                  # 3.3c (also n ≤ n95_max apply)
 
-                                      ... NOT HERE:
+                                        ... AND ...
+
+          stop              !initaccel, v < 1  g = 0, n = n_idle      # 3.2
+
+                                         NOT HERE:
+
           min-2i          1.15 * n_idle  ≤  n  g = 2 <-- 1            # 3.3 & 2k, driveabilty (needs init-gear)
           c_b                      n < n_idle  n/clutch modifs        # 3.3 & 2k1, driveability!
-          stop              !initaccel, v < 1  g = 0, n = n_idle      # 3.2
         """
         c = wio.pstep_factory.get().cycle
         cycle = self.cycle
