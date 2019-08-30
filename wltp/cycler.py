@@ -387,6 +387,7 @@ class CycleBuilder:
 
           min-2i          1.15 * n_idle  ≤  n  g = 2 <-- 1            # 3.3 & 2k, driveabilty (needs init-gear)
           c_b                      n < n_idle  n/clutch modifs        # 3.3 & 2k1, driveability!
+          too_low_p                                                   # Annex 1-8.4 (full throttle)
         """
         c = wio.pstep_factory.get().cycle
         cycle = self.cycle

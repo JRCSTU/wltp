@@ -507,7 +507,16 @@ properties:
     type: number
   wltc_data:
     $ref: {_wltc_url}
-  cycle_run: {{}}
+  cycle_run:
+    description: |2
+      A dataframe matrix with 2-level columns(item, gear), 
+      and items, in addition to those of `grid_wots`:
+      - `v_cycle`: reduced by safety-margin, but not by ASM
+      - `v_dsc`: (optional)
+      - `v_target`: road loads power
+      - `(ok_..., gN)`: rflags denoting the validty of certainconditions for gear-N
+      - `g_max0`: does not include corrections for the `g1-->g2 n_min` rule, 
+        nor points with insufficient power. 
 definitions:
   positiveInteger:
     type: integer

@@ -30,7 +30,9 @@ The following matrix shows these correspondences:
 
 Known deficiencies
 ==================
-* (!) Driveability-tules are missing - for their implementation,
+* The `g_max0` does not include corrections for the `g1-->g2 n_min` rule, 
+  not points with insufficient power (Annex 1-8.4). 
+* (!) Driveability-rules are missing - for their implementation,
   the values for calculating "initial-gear" must be trusted first,
   or else no validation is possible.
 * Some extra sanity checks apply e.g. check if `p_rated` is "close enough" to `p_wot_max`,
