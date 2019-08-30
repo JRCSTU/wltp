@@ -169,7 +169,7 @@ equivalent_series = [
     ("v_orig", "v_cycle"),
     ("v_downscale", "v_target"),
     #("a", "a_target"),
-    #("P_tot", "p_required"),
+    ("P_tot", "p_req"),
     #("P_max", "p_available"),
     ("g_max", "g_max0"),
     #("gear", "gears"),
@@ -274,17 +274,20 @@ def define_schenes():
     """Predfined case/pan/zooms of the compraison diagram below."""
     return [
         ## (label, caseno, zoom, pan, desc-UNUSED)
-        ("Dive@764: 1->2 gear too early", "v001, 45.0, 30.40, A"),
-        ("Dive@903: 1st gear not reached", "v001, 45.0, 36.4, B"),
-        ("bad_dsc@v007", "v007, 3, 72, C"),
-        ("bad_dsc@v024", "v024, 3, 72, C"),
-        ("bad_dsc@v025", "v025, 3, 72, C"),
-        ("bad_dsc@v026", "v026, 3, 72, C"),
-        ("bad_dsc@v033", "v033, 3, 72, C"),
-        ("bad_dsc@v082: bad f_dsc", "v082, 3, 72, C"),
-        ("bad_dsc@v112", "v112, 3, 72, C"),
-        ("bad_dsc@v113", "v113, 3, 72, C"),
-        ("bad_dsc@v114", "v114, 3, 72, C"),
+        ("dive(v001@@764): 1->2 gear too early", "v001, 45.0, 30.40, A"),
+        ("dive(v001@903): 1st gear not reached", "v001, 45.0, 36.4, B"),
+        ("lowPower(v001@1724)", "v001, 43.0, 69.6, B"),
+        ("sameCar?(v023)", "v023, 1, 0, DC"),
+        ("noPowerDives(v024@1540-80)", "v024, 26, 63.60, C"),
+        ("noPowerDive(v024@1574)", "v024, 26, 66.4, C"),
+        ("noPowerDive(v025@1574)", "v025, 35, 64, C"),
+        ("lowPowerDive(v033)", "v033, 5, 72, "),
+        ("lowPowerDive(v075)", "v075, 5, 72, Vehicle has too many insufficient powers"),
+        ("g5Ok?(v075@1542)", "v075, 55, 62.4, Vehicle has too many insufficient powers"),
+        ("lowPower(v101@)", "v075, 1, 0, D"),
+        ("lowPower(v111@)", "v075, 1, 0, D"),
+        ("lowPower(v124@)", "v075, 1, 0, D"),
+        ("lowPower(v125@)", "v075, 1, 0, D"),
     ]
 
 def grid(df):
