@@ -210,10 +210,11 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
 ```
 
-AccDB vehicles: 42, 46, 52, 53 & 90 have broken v_max, 48 have broken wot(ASM).
+AccDB vehicles: 42, 46, 52, 53 & 90 have broken `v_max`, 48 has broken `wot(ASM)`.
 
 ```{python}
-display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names))
+known_bads = set(wio.veh_names([42, 46, 48, 52, 53, 90]))
+display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names).set_properties(subset=(known_bads, idx[:]), color='red'))
 ```
 
 ## Compare a vehicle from AccDB <-->PyAlgo *interactively*
