@@ -66,10 +66,6 @@ pd.set_option("display.max_columns", 32)
 ```
 
 ```{python}
-vehdb.grid(pd.DataFrame([1,2]))
-```
-
-```{python}
 ## DEFINITIONS
 #
 inp_h5fname = 'VehData/WltpGS-msaccess.h5'
@@ -218,6 +214,7 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 ```
 
 ## Compare a vehicle from AccDB <-->PyAlgo *interactively*
+**TODO:** collect and hide all this comprarison GUI code below into a python module. 
 
 ```{python}
 case_loaded = [None, None]
@@ -273,6 +270,59 @@ def load_load_interactive_case(
 ```
 
 ```{python}
+def define_schenes():
+    """Predfined case/pan/zooms of the compraison diagram below."""
+    return [
+        ## (label, caseno, zoom, pan, desc-UNUSED)
+        ("Dive@764: 1->2 gear too early", "v001, 45.0, 30.40, A"),
+        ("Dive@903: 1st gear not reached", "v001, 45.0, 36.4, B"),
+        ("bad_dsc@v007", "v007, 3, 72, C"),
+        ("bad_dsc@v024", "v024, 3, 72, C"),
+        ("bad_dsc@v025", "v025, 3, 72, C"),
+        ("bad_dsc@v026", "v026, 3, 72, C"),
+        ("bad_dsc@v033", "v033, 3, 72, C"),
+        ("bad_dsc@v082: bad f_dsc", "v082, 3, 72, C"),
+        ("bad_dsc@v112", "v112, 3, 72, C"),
+        ("bad_dsc@v113", "v113, 3, 72, C"),
+        ("bad_dsc@v114", "v114, 3, 72, C"),
+    ]
+
+def grid(df):
+    """Display a dynamic grid if given `df` too long. """
+    display(vehdb.grid(df, fitcols=df.shape[1] < 12))
+
+def merge_pyalgo_accdb(pyalgo, accdb):
+    pyalgo.columns = wio.flatten_columns(pyalgo.columns)
+    merged = pd.concat((pyalgo, accdb), axis=1, keys=("pyalgo", "accdb"))
+    merged.columns = wio.flatten_columns(merged.columns)
+
+    return merged
+
+def display_diff_gears(pyalgo, accdb):
+    merged = merge_pyalgo_accdb(pyalgo, accdb)
+    diffgears_idx = merged["pyalgo/g_max0"] != merged["accdb/g_max"]
+    grid(merged[diffgears_idx])
+
+
+def display_pyalgo(pyalgo, accdb):
+    pyalgo.columns = wio.flatten_columns(pyalgo.columns)
+    grid(pyalgo.drop('t', axis=1))
+
+
+def display_accdb(pyalgo, accdb):
+    grid(accdb)
+
+
+## What to display in the Tabs beneath the plot
+#
+out_specs = [
+    (display_diff_gears, "DiffGear samples"),
+    (display_pyalgo, "PyAlgo"),
+    (display_accdb, "AccDb"),
+]
+```
+
+```{python}
 from ipywidgets import (
     interact,
     interactive,
@@ -283,14 +333,7 @@ from ipywidgets import (
 )
 from IPython.display import clear_output
 
-def grid(df):
-    """Display a dynamic grid if given `df` too long. """
-    if all(a < b for a, b in zip(df.shape, (120, 120))):
-        with pd.option_context('display.max_rows', 121, 'display.max_columns', 121):
-            display(df)
-    else:
-        display(vehdb.grid(df, fitcols=False))
-    
+
 init_zoom = 55.0
 init_pan = 30.40
 max_zoom = 72.0
@@ -301,118 +344,112 @@ Zoom = widgets.FloatSlider(
     init_zoom, min=1.0, max=max_zoom, step=1.0, description="Zoom"
 )
 Pan = widgets.FloatSlider(init_pan, min=0.0, max=max_zoom, step=0.4, description="Pan")
-AccdbSignals = widgets.SelectMultiple(rows=7, description="AccDB signals")
-IsAccdbGears = widgets.Checkbox(True, description="Plot AccDB Gears?")
+IsPyAlgoGears = widgets.Checkbox(False, description="Plot PyAlgo Gear flags?")
+IsAccdbGears = widgets.Checkbox(False, description="Plot AccDB Gear flags?")
+PyAlgoSignals = widgets.SelectMultiple(rows=7, description="Pyalgo signals")
+AccDBSignals = widgets.SelectMultiple(rows=7, description="AccDB signals")
 AxisScenes = widgets.Select(
-    options=[
-        ## (abel, caseno, zoom, pan, desc)
-        ("Dive@764: 1st gear too short", "v001, 45.0, 30.40, A"),
-        ("Dive@903: 1st gear not reached", "v001, 45.0, 36.4, B"),
-    ],
+    options=[],
     description="Scenes",
-    rows=7,
 )
 AxisScenes.layout.width = "auto"
-Desc = widgets.Textarea(disabled=True)
+Desc = widgets.Textarea(disabled=True)  # DEFUNCT
 Desc.layout.width = "24"
 Desc.layout.height = "7em"
 Selections = widgets.HBox(
-    [Case, Gear, Zoom, Pan, AccdbSignals, IsAccdbGears, AxisScenes, Desc]
+    [Case, Zoom, Pan, AxisScenes, IsPyAlgoGears, PyAlgoSignals, IsAccdbGears, AccDBSignals, Gear]
 )
-Selections.layout.width = "90%"
+Selections.layout.width = "95%"
 Selections.layout.flex_flow = "row wrap"
 # Selections.layout.justify_content = "flex-start"
-BadsGrid = widgets.Output()
-PyAlgoGrid = widgets.Output()
-AccDBGrid = widgets.Output()
-outs = [BadsGrid, PyAlgoGrid, AccDBGrid]
 
-Tab = widgets.Tab()
-Tab.children = [BadsGrid, PyAlgoGrid, AccDBGrid]
-for i, title in enumerate(
-    ("DiffGear samples", "PyAlgo", "AccDB")
-):
-    Tab.set_title(i, title)
-
-def display_diff_gears(pyalgo, accdb):
-    pyalgo.columns = wio.flatten_columns(pyalgo.columns)
-    merged = pd.concat((pyalgo, accdb), axis=1, keys=('pyalgo', 'accdb'))
-    merged.columns = wio.flatten_columns(merged.columns)
-    grid(merged)
-
-def display_pyalgo(pyalgo, accdb):
-    pyalgo.columns = wio.flatten_columns(pyalgo.columns)
-    grid(pyalgo)
-
-def display_accdb(pyalgo, accdb):
-    grid(accdb)
-
-out_specs = [
-    (BadsGrid, display_diff_gears),
-    (PyAlgoGrid, display_pyalgo),
-    (AccDBGrid, display_accdb),
-]
 
 #: Updated by *interact* function, for display functions to read them
 results = [None, None]
 
+out_specs2 = [(widgets.Output(), *rec) for rec in out_specs]
+
 def update_tab_contents(change):
     if change.new is None:
         return
-    out, func = out_specs[change.new]
-    has_content = bool(out.get_state()['outputs'])
+    out, func, _ = out_specs2[change.new]
+    has_content = bool(out.get_state()["outputs"])
     if not has_content:
         with out:
             func(*results)
 
+
+Tab = widgets.Tab()
 Tab.observe(update_tab_contents, names="selected_index")
+Tab.children = [out for out, _, _ in out_specs2]
+for i, (_, _, title) in enumerate(out_specs2):
+    Tab.set_title(i, title)
 
 
 Gui = widgets.VBox([Selections, Tab])
 
 
-def update_valid_accdb_columns(change):
+def update_valid_signals(change):
     case_name = Case.value
-    _, _, ok_gears, accdb_cycle, _ = load_load_interactive_case(case_name)
+    pyalgo, _, ok_gears, accdb, _ = load_load_interactive_case(case_name)
 
     Gear.options = ok_gears.columns.levels[1]
+
+    pyalgo_columns = [
+        ('/'.join(cc for cc in c if cc), c)
+        for c in pyalgo.select_dtypes(exclude=[np.object])
+        if not c[0].startswith("ok_") and not c[0] == 't'
+    ]
+    PyAlgoSignals.options = pyalgo_columns
+
     accdb_columns = [
         c
-        for c in accdb_cycle.select_dtypes(exclude=[np.object])
+        for c in accdb.select_dtypes(exclude=[np.object])
         if not c.startswith("Ind_g")
     ]
-    AccdbSignals.options = accdb_columns
+    AccDBSignals.options = accdb_columns
 
-
-Case.observe(update_valid_accdb_columns, names="value")
-update_valid_accdb_columns(None)
+Case.observe(update_valid_signals, names="value")
+update_valid_signals(None)
 
 
 def apply_axis_scene(change):
     Case.value, Zoom.value, Pan.value, Desc.value = re.split(r"[ ,]+", AxisScenes.value)
 
+
 AxisScenes.observe(apply_axis_scene, names="value")
 
 
-_existing_figs = set(plt.get_fignums())
-fig = plt.figure(num="Vehicle AccDB <--> PyAlgo comparison", figsize=(20, 8))
-## Hack, or else, double fig the 1st time this cell runs.
-if fig.number in _existing_figs: 
-    display(fig.canvas)
+def recreate_fig():
+    """ 
+     Recreate the same figure-number, or else they leak.
+    
+    Hack, or else, shown double figure the 1st time this cell runs,
+    or figure hidden, or stability/performance problems.
+    """
+    for i in range(3):
+        fig_nums = plt.get_fignums()
+        fig = plt.figure(num="Compare AccDB <--> PyAlgo \"Inital Gear\"", figsize=(20, 12))
+        if fig.number in set(fig_nums):
+            fig.clear()
+            plt.close(fig)
+        else:
+            return fig
+    else:
+        raise Exception(f"Exhausted new-fig tries({i}) with figs({plt.get_fignums()})")
+        
+fig = recreate_fig()
+
+def plot_gear_flags(
+    case, gear, zoom, pan, pyalgo_signals, accdb_signals, is_pyalgo_gears, is_accdb_gears
+):
     fig.clear()
 
-ax = plt.subplot()
-ax2 = ax3 = None
+    ax = plt.subplot()
+    ax2 = ax3 = None
 
-def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
-    global ax2, ax3
-
-    ax.clear()
-    if ax2:
-        ax2.clear()
-    if ax3:
-        ax3.clear()
-
+    AxisScenes.options = define_schenes()
+    
     cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case(
         case
     )
@@ -422,29 +459,38 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
     offset = int(pan * (clen - viewlen) / max_zoom)
     scale = idx[offset : offset + viewlen]
 
-    cycle = cycle.loc[scale]
+    diffgears_total = (cycle["g_max0"] != accdb_cycle["g_max"]).sum()
+
+    pyalgo = cycle.loc[scale]
     accdb = accdb_cycle.loc[scale]
-    
+    diffgears_view = (pyalgo["g_max0"] != accdb["g_max"]).sum()
+
     ## Clean tabs if caseno/pan/zoom have changed.
     #
-    if not cycle.equals(results[0]):
+    if not pyalgo.equals(results[0]):
         Tab.selected_index = None
-        for out in outs:
+        for out, _, _ in out_specs2:
             with out:
                 clear_output()
 
-    results[0] = cycle
+    results[0] = pyalgo
     results[1] = accdb
+
+    ax.set_title(
+        f"Case_no: {case}, # of diff gears, in_view: {diffgears_view}, TOTAL: {diffgears_total}"
+    )
 
     ok_flags = ok_flags.loc[:, idx[:, gear]].iloc[scale]
     ok_gears = ok_gears.loc[scale]
 
-    cycle["v_cycle"].plot.line(ax=ax, linewidth=4)
-    if not ok_flags.empty:
-        ok_flags.plot.line(ax=ax, linewidth=2)
-    ok_gears.plot.line(ax=ax, linewidth=3)
+    pyalgo["v_cycle"].plot.line(ax=ax, color="0.70", linewidth=4.5)
+    
+    if is_pyalgo_gears:
+        if not ok_flags.empty:
+            ok_flags.plot.line(ax=ax, linewidth=2)
+        ok_gears.plot.line(ax=ax, linewidth=3)
 
-    ax2 = pd.concat((cycle["g_max0"], accdb["g_max"]), axis=1).plot.line(
+    ax2 = pd.concat((pyalgo["g_max0"], accdb["g_max"]), axis=1).plot.line(
         ax=ax, linewidth=3, style=["b-", "c:"], secondary_y=True
     )
 
@@ -452,25 +498,34 @@ def plot_gear_flags(case, gear, zoom, pan, accdb_signals, is_accdb_gears):
         accdb_gears = accdb.loc[:, accdb_gears] * (np.arange(len(accdb_gears)) + 1)
         accdb_gears[accdb_gears == 0] = np.NAN
         accdb_gears = accdb_gears.dropna(how="all", axis=1).fillna(0)
-        ax2 = accdb_gears.plot.line(ax=ax, linewidth=2, linestyle="--", secondary_y=True)
+        ax2 = accdb_gears.plot.line(
+            ax=ax, linewidth=2, linestyle="--", secondary_y=True
+        )
+        #ax2.legend()
 
-    if accdb_signals:
-        if not ax3:
-            ax3 = ax.twinx()
-        else:
-            ax3.set_visible(True)
+    ax3 = ax.twinx()
+    show_signals = pyalgo_signals or accdb_signals
+    ax3.set_visible(show_signals)
+    if show_signals:
         ax3.spines["right"].set_position(("axes", 1.1))
-        accdb = accdb_cycle[list(accdb_signals)] * (np.arange(len(accdb_signals)) + 1)
-        ax2 = accdb.loc[scale].plot.line(ax=ax3, linewidth=2, linestyle=":")
-    elif ax3:
-        ax3.set_visible(False)
 
-    if ax2:
-        ax2.grid(True, axis="both", which="both")
+        pyalgo = pyalgo.loc[:, list(pyalgo_signals) or []]
+        accdb = accdb.loc[:, accdb_signals]
+        merged = merge_pyalgo_accdb(pyalgo, accdb)
+        
+        if not merged.empty:
+            ax3 = merged.astype(np.float64).plot.line(ax=ax3, linewidth=2, linestyle=":")
+            ax3.legend()
+    
+#     if ax2:
+#         ax2.grid(True, axis="both", which="both")
     ax.grid(True, axis="both", which="both")
 
-    fig.tight_layout()  # Re-tighten if ax3 has (diss)appeared.
-    
+    # Re-tighten if ax3 has (diss)appeared.
+    # Had to use `rect` or axis-title half-hidden the first time fig is created!
+    fig.tight_layout(rect=[0,0,1,0.985])
+
+
 display(Gui)
 
 interactive_output(
@@ -480,7 +535,9 @@ interactive_output(
         "gear": Gear,
         "zoom": Zoom,
         "pan": Pan,
-        "accdb_signals": AccdbSignals,
+        "pyalgo_signals": PyAlgoSignals,
+        "accdb_signals": AccDBSignals,
+        "is_pyalgo_gears": IsPyAlgoGears,
         "is_accdb_gears": IsAccdbGears,
     },
 )
