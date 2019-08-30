@@ -375,6 +375,8 @@ Selections.layout.flex_flow = "row wrap"
 #: Updated by *interact* function, for display functions to read them
 results = [None, None]
 
+Tab = widgets.Tab()
+
 def refresh_tabs():
     global out_specs
     
@@ -401,8 +403,6 @@ def update_tab_contents(change):
         with out:
             func(*(i.copy() for i in results))
 
-
-Tab = widgets.Tab()
 Tab.observe(update_tab_contents, names="selected_index")
 
 
