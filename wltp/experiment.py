@@ -235,14 +235,15 @@ class Experiment(object):
                 V_dsc_raw = downscale.downscale_class_velocity(V, f_downscale, phases)
                 V_dsc_raw.name = c.v_dsc_raw
 
-                V_dsc = vround(V)
-                V_dsc.name = c.v_target
+                V_dsc = vround(V_dsc_raw)
+                V_dsc.name = c.v_dsc
 
+                # TODO: separate cokumn due to cap/extend.
                 V_target = V_dsc.copy()
                 V_target.name = c.v_target
 
                 cb = cycler.CycleBuilder(V, V_dsc_raw, V_dsc, V_target)
-                V = V_target
+                V = cb.cycle[c.v_target]
             else:
                 V_target = V.copy()
                 V_target.name = c.v_target
@@ -279,7 +280,7 @@ class Experiment(object):
         mdl["n_max3"] = g_max_n2v * mdl["v_max"]
         mdl["n_max"] = engine.calc_n_max(mdl["n_max1"], mdl["n_max2"], mdl["n_max3"])
 
-        nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
+        nmins = engine.calc_fixed_n_min_drives(mdl, n_idle, n_rated)
 
         ok_flags = cb.calc_initial_gear_flags(
             g_vmax=mdl["g_vmax"], n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
