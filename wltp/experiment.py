@@ -263,6 +263,10 @@ class Experiment(object):
 
         cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
 
+        cb.cycle["p_resist"] = vehicle.calc_road_load_power(cb.V, f0, f1, f2)
+        cb.cycle["p_inertial"] = vehicle.calc_inertial_power(
+            cb.V, cb.A, test_mass, f_inertial
+        )
         cb.cycle["p_req"] = vehicle.calc_power_required(
             cb.V, cb.A, test_mass, f0, f1, f2, f_inertial
         )

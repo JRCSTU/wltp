@@ -39,16 +39,23 @@ def calc_road_load_power(V: Column, f0, f1, f2):
     return (f0 * V + f1 * VV + f2 * VVV) / 3600.0
 
 
+def calc_inertial_power(V, A, test_mass, f_inertial):
+    """
+    @see: Annex 2-3.1
+    """
+    return (A * V * test_mass * f_inertial) / 3600.0
+
+
 def calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial):
     """
     .. TODO::
-        Make :func:`calc_power_required()` accept :func:`calc_road_load_power()` results
-        and avoid reclculation.
+        Make :func:`calc_power_required()` accept :func:`calc_road_load_power()` & 
+        :func:`calc_inertial_power()` results, to avoid recalculations.
 
     @see: Annex 2-3.1
     """
-    return (
-        calc_road_load_power(V, f0, f1, f2) + (f_inertial * A * V * test_mass) / 3600.0
+    return calc_road_load_power(V, f0, f1, f2) + calc_inertial_power(
+        V, A, test_mass, f_inertial
     )
 
 
