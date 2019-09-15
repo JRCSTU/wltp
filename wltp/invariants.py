@@ -9,6 +9,7 @@
 import functools
 
 import numpy as np
+import pandas as pd
 
 v_decimals = 1
 v_step = 10 ** -v_decimals
@@ -74,3 +75,67 @@ nround1 = lambda n: asint(round1(n, 0))
 #: The GTR rounding for N (RPM) to the nearest 10 RPMs precision,
 #: e.g. for ``n_idle``.
 nround10 = lambda n: asint(round1(n, -1))
+
+
+def apply_bool_op_on_columns_with_NANFLAGs(
+    df: pd.DataFrame, op, nan_val: int, NANFLAG=-1
+) -> pd.Series:
+    """NANs assumed `nan_val``, rows with all NANs are skipped.
+
+    :param df:
+        a preferably ``dtype=int8`` dataframe with NANFLAGs denoting missing values
+    :param op:
+        one of :meth:`pd.Series.__or__`, `__and__`, etc
+    :param nan_val:
+        replace NANs with this value (typically 0 or 1, to cleanly convert to ``astype(bool)``).
+        Applied only on rows that are not all NANs.
+    :return:
+        A series(dtype=int8) with NANFLAG elements where all columns were NANFLAGs.
+
+    Example:
+
+    >>> df0 = pd.DataFrame({'a': [-1, 0, 1], 'b': [-1, -1, -1]})
+    >>> df0
+       a  b
+    0 -1 -1
+    1  0 -1
+    2  1 -1
+    >>> df = df0.copy()
+    >>> apply_bool_op_on_columns_with_NANFLAGs(df0, pd.Series.__or__, 0)
+    0   -1
+    1    0
+    2    1
+    dtype: int8
+    >>> apply_bool_op_on_columns_with_NANFLAGs(df0, pd.Series.__and__, 1)
+    0   -1
+    1    0
+    2    1
+    dtype: int8
+    """
+    assert isinstance(nan_val, int), nan_val
+
+    nan_rows = (df == NANFLAG).all(axis=1)
+    rows_to_or = df.loc[~nan_rows].replace(NANFLAG, nan_val).astype(bool)
+    (_, col0), *cols = rows_to_or.iteritems()
+    for _, col in cols:
+        col0 = op(col0, col)
+
+    return col0.reindex(df.index, fill_value=NANFLAG).astype("int8")
+
+
+def OR_columns_with_NANFLAGs(
+    df: pd.DataFrame, nan_val: int = 0, NANFLAG=-1
+) -> pd.Series:
+    """see :func:`apply_bool_op_on_columns_with_NANFLAGs()`"""
+    return apply_bool_op_on_columns_with_NANFLAGs(
+        df, pd.Series.__or__, nan_val, NANFLAG
+    )
+
+
+def AND_columns_with_NANFLAGs(
+    df: pd.DataFrame, nan_val: int = 1, NANFLAG=-1
+) -> pd.Series:
+    """see :func:`apply_bool_op_on_columns_with_NANFLAGs()`"""
+    return apply_bool_op_on_columns_with_NANFLAGs(
+        df, pd.Series.__and__, nan_val, NANFLAG
+    )

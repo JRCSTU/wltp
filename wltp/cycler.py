@@ -22,6 +22,7 @@ from pandas.core.generic import NDFrame
 from toolz import itertoolz as itz
 
 from . import engine
+from . import invariants as inv
 from . import io as wio
 from .engine import NMinDrives
 
@@ -452,8 +453,8 @@ class CycleBuilder:
         #
         #  NOTE cold period not overlapping `t_end_cold` sample,
         #  so as to be empty when that is 0.
-        #  NOTE also that both `t)colds/hots` & `a_ups/dns` are converted to column-vector,
-        #  to align with many gear-columns (could not be series, axis-aligning would fail).
+        #  NOTE also that both `t_colds/t_hots` & `a_ups/a_dns` converted to numpy column-vectors,
+        #  to align with many gear-columns (could not be series, axis-aligning would kick in).
         t_colds = (cycle[c.t] < nmins.t_end_cold).to_numpy().reshape(-1, 1)
         t_hots = ~t_colds
         a_ups = cycle[c.up].to_numpy().reshape(-1, 1)
@@ -535,19 +536,20 @@ class CycleBuilder:
 
         return flags
 
-    def _combine_gear_flags(self, gflags):
+    def _combine_gear_flags(self, gflags) -> pd.Series:
         """
 
         :param gflags:
             the initial-gear rule flags grouped for one specific gear
+        :return:
+            (must return) a boolean series, or else, groupby does nothing!!
+
         """
         c = wio.pstep_factory.get().cycle
 
         flagcols = gflags.columns
 
         gflags = gflags.copy()
-        gflags[gflags == NANFLAG] = 0
-        gflags = gflags.astype(bool)
 
         g0 = wio.gear_name(0)
         if (c.ok_gear0, g0) in flagcols:
@@ -569,40 +571,44 @@ class CycleBuilder:
                 c.ok_min_n_g2 not in flagcols and c.ok_min_n_g1 not in flagcols
             ), flagcols
             flags_to_AND.append(
-                (gflags[c.ok_min_n_g3plus_ups] | gflags[c.ok_min_n_g3plus_dns])
+                inv.OR_columns_with_NANFLAGs(
+                    gflags.loc[:, [c.ok_min_n_g3plus_ups, c.ok_min_n_g3plus_dns]]
+                )
             )
         elif c.ok_min_n_g2 in flagcols:
             assert c.ok_min_n_g1 not in flagcols, flagcols
-            flags_to_AND.append(gflags[c.ok_min_n_g2] | gflags[c.ok_min_n_g2_stopdecel])
+            flags_to_AND.append(
+                inv.OR_columns_with_NANFLAGs(
+                    gflags.loc[:, [c.ok_min_n_g2, c.ok_min_n_g2_stopdecel]]
+                )
+            )
         elif c.ok_min_n_g1 in flagcols:
-            flags_to_AND.append(gflags[c.ok_min_n_g1] | gflags[c.ok_min_n_g1_initaccel])
+            flags_to_AND.append(
+                inv.OR_columns_with_NANFLAGs(
+                    gflags.loc[:, [c.ok_min_n_g1, c.ok_min_n_g1_initaccel]]
+                )
+            )
         else:
-            assert False, ("Illegal falgs:", gflags)
+            raise AssertionError("Illegal flags:", gflags)
 
-        final_flags = flags_to_AND[0]
-
-        # It is a dataframe bc there is still the 2nd level "gear"
-        assert isinstance(final_flags, pd.DataFrame)
-        for i in flags_to_AND[1:]:
-            assert isinstance(i, pd.DataFrame), i  # ... bc the same as above
-            assert i.shape[1] == 1, i
-            final_flags &= i
-
-        assert (
-            isinstance(final_flags, pd.DataFrame) and final_flags.shape[1] == 1
-        ), final_flags
-
-        ## To series, or else, groupby does nothing!!
-        final_flags = final_flags.iloc[:, 0]
+        final_flags = inv.AND_columns_with_NANFLAGs(pd.concat(flags_to_AND, axis=1))
+        assert isinstance(final_flags, pd.Series), (
+            "groupby won't wotrk otherwise",
+            final_flags,
+        )
 
         g = flagcols[0][1]
         final_flags.name = g
 
-        ## To series, or else, groupby does nothing!!
         return final_flags
 
     def combine_initial_gear_flags(self, flags: pd.DataFrame):
-        """Merge together all N-allowed flags using AND+OR boolean logic. """
+        """
+        Merge together all N-allowed flags using AND+OR boolean logic. 
+        
+        :return:
+            an int8 dataframe with `1` where where the gear can apply, `0`/`NANFLAG` otherwise. 
+        """
         c = wio.pstep_factory.get().cycle
 
         ## FIXME: needed sideffect due to g0 flags (not originally in gqots)
@@ -626,12 +632,15 @@ class CycleBuilder:
         c = wio.pstep_factory.get().cycle
 
         ## +1 for g0 (0-->6 = 7 gears)
-        incrementing_gflags = ok_gears * range(self.gidx.ng + 1)
+        gids = range(self.gidx.ng + 1)
+        ## Conver False to NAN to identify samples without any gear
+        #  (or else, it would be 0, which is used for g0).
+        incrementing_gflags = ok_gears.replace([False, NANFLAG], np.NAN) * gids
 
-        g_min = incrementing_gflags.min(axis=1).astype("int8")
+        g_min = incrementing_gflags.min(axis=1).fillna(NANFLAG).astype("int8")
         g_min.name = (c.g_min, "")
 
-        g_max0 = incrementing_gflags.max(axis=1).astype("int8")
+        g_max0 = incrementing_gflags.max(axis=1).fillna(NANFLAG).astype("int8")
         g_max0.name = (c.g_max0, "")
 
         return g_min, g_max0
