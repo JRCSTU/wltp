@@ -217,7 +217,7 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 ## Compare a vehicle from AccDB <-->PyAlgo *interactively*
 **TODO:** collect and hide all this comprarison GUI code below into a python module. 
 
-```{python}
+```{python jupyter={'source_hidden': True}}
 case_loaded = [None, None]
 def _load_interactive_case(
     case_name,
@@ -274,21 +274,24 @@ def load_load_interactive_case(
 def define_schenes():
     """Predfined case/pan/zooms of the compraison diagram below."""
     return [
-        ## (label, caseno, zoom, pan, desc-UNUSED)
-        ("dive(v001@@764): 1->2 gear too early", "v001, 45.0, 30.40, A"),
-        ("dive(v001@903): 1st gear not reached", "v001, 45.0, 36.4, B"),
-        ("lowPower(v001@1724)", "v001, 43.0, 69.6, B"),
-        ("sameCar?(v023)", "v023, 1, 0, DC"),
-        ("noPowerDives(v024@1540-80)", "v024, 26, 63.60, C"),
-        ("noPowerDive(v024@1574)", "v024, 26, 66.4, C"),
-        ("noPowerDive(v025@1574)", "v025, 35, 64, C"),
-        ("lowPowerDive(v033)", "v033, 5, 72, "),
-        ("lowPowerDive(v075)", "v075, 5, 72, Vehicle has too many insufficient powers"),
-        ("g5Ok?(v075@1542)", "v075, 55, 62.4, Vehicle has too many insufficient powers"),
-        ("lowPower(v101@)", "v075, 1, 0, D"),
-        ("lowPower(v111@)", "v075, 1, 0, D"),
-        ("lowPower(v124@)", "v075, 1, 0, D"),
-        ("lowPower(v125@)", "v075, 1, 0, D"),
+        ## (label, caseno, zoom, pan, *other-UNUSED)
+        ("dive(t=764): 1->2 gear too early", "v001", 45.0, 30.40),
+        ("dive(t=903): 1st gear not reached", "v001", 45.0, 36.4),
+        ("lowPower(t=724)", "v001", 43.0, 69.6),
+        ("p_max from lower g(t=1571-8)", "v020", 69, 63.4),
+        ("sameCar?", "v023", 1, 0),
+        ("noPowerDives(t=1540-80)", "v024", 26, 63.60),
+        ("noPowerDive(t=1574)", "v024", 26, 66.4),
+        ("noPowerDive(t=1574)", "v025", 35, 64),
+        ("lowPowerDive", "v033", 5, 72),
+        ("low -1 gears?", "v035", 65, 63, "Diffs in gears above 2"),
+        ("noPowerDive(t=1574)", "v024", 26, 66.4),
+        ("g5Ok?(1542)", "v075", 55, 62.4, "Vehicle has too many insufficient powers"),
+        ("lowPower(t=1574)", "v088", 65, 63.40),
+        ("lowPower", "v101", 1, 0),
+        ("lowPower", "v111", 1, 0),
+        ("lowPower", "v124", 1, 0),
+        ("lowPower", "v125", 1, 0),
     ]
 
 def grid(df):
@@ -319,6 +322,14 @@ def display_pyalgo(pyalgo, accdb):
     grid(pyalgo.drop('t', axis=1))
 
 
+def display_pyalgo_flags(pyalgo, accdb):
+    flags = pyalgo.select_dtypes('int8').copy()
+    flags.columns = wio.flatten_columns(flags.columns)
+    pyalgo = pyalgo[['p_req', 'p_avail']].copy()
+    pyalgo.columns = wio.flatten_columns(pyalgo.columns)
+    grid(pd.concat((pyalgo, flags), axis=1))
+
+
 def display_accdb(pyalgo, accdb):
     grid(accdb)
 
@@ -328,12 +339,13 @@ def display_accdb(pyalgo, accdb):
 out_specs = [
     (display_diff_gears, "DiffGears"),
     (display_diff_cycle, "DiffGear cycles"), 
+    (display_pyalgo_flags, "PyAlgo flags"),
     (display_pyalgo, "PyAlgo"),
     (display_accdb, "AccDb"),
 ]
 ```
 
-```{python}
+```{python jupyter={'source_hidden': True}}
 ## TODO: CLASSify code in these cells.
 from ipywidgets import (
     interact,
@@ -360,16 +372,23 @@ IsPyAlgoGears = widgets.Checkbox(False, description="Plot PyAlgo Gear flags?")
 IsAccdbGears = widgets.Checkbox(False, description="Plot AccDB Gear flags?")
 PyAlgoSignals = widgets.SelectMultiple(rows=7, description="Pyalgo signals")
 AccDBSignals = widgets.SelectMultiple(rows=7, description="AccDB signals")
-AxisScenes = widgets.Select(
-    options=[],
-    description="Scenes",
-)
+AxisScenes = widgets.Select(options=[], description="Scenes")
 AxisScenes.layout.width = "auto"
 Desc = widgets.Textarea(disabled=True)  # DEFUNCT
 Desc.layout.width = "24"
 Desc.layout.height = "7em"
 Selections = widgets.HBox(
-    [Case, Zoom, Pan, AxisScenes, IsPyAlgoGears, PyAlgoSignals, IsAccdbGears, AccDBSignals, Gear]
+    [
+        Case,
+        Zoom,
+        Pan,
+        AxisScenes,
+        IsPyAlgoGears,
+        PyAlgoSignals,
+        IsAccdbGears,
+        AccDBSignals,
+        Gear,
+    ]
 )
 Selections.layout.width = "95%"
 Selections.layout.flex_flow = "row wrap"
@@ -381,10 +400,14 @@ results = [None, None]
 
 Tab = widgets.Tab()
 
+
 def refresh_tabs():
     global out_specs
-    
-    AxisScenes.options = define_schenes()
+
+    AxisScenes.options = [
+        (f"{caseno}: {label}", (caseno, zoom, pan, *other))
+        for label, caseno, zoom, pan, *other in define_schenes()
+    ]
     needs_retabbing = False
     if out_specs and len(out_specs[0]) < 3:
         out_specs = [(widgets.Output(), *i) for i in out_specs]
@@ -396,7 +419,9 @@ def refresh_tabs():
 
     return out_specs
 
+
 refresh_tabs()
+
 
 def update_tab_contents(change):
     if change.new is None:
@@ -406,6 +431,7 @@ def update_tab_contents(change):
     if not has_content:
         with out:
             func(*(i.copy() for i in results))
+
 
 Tab.observe(update_tab_contents, names="selected_index")
 
@@ -420,25 +446,26 @@ def update_valid_signals(change):
     Gear.options = ok_gears.columns.levels[1]
 
     pyalgo_columns = [
-        ('/'.join(cc for cc in c if cc), c)
+        ("/".join(cc for cc in c if cc), c)
         for c in pyalgo.select_dtypes(exclude=[np.object])
-        if not c[0].startswith("ok_") and not c[0] == 't'
+        if not c[0].startswith("ok_") and not c[0] == "t"
     ]
     PyAlgoSignals.options = pyalgo_columns
 
     accdb_columns = [
-        c
-        for c in accdb.select_dtypes(exclude=[np.object])
-        if not c.startswith("Ind_g")
+        c for c in accdb.select_dtypes(exclude=[np.object]) if not c.startswith("Ind_g")
     ]
     AccDBSignals.options = accdb_columns
+
 
 Case.observe(update_valid_signals, names="value")
 update_valid_signals(None)
 
 
 def apply_axis_scene(change):
-    Case.value, Zoom.value, Pan.value, Desc.value = re.split(r"[ ,]+", AxisScenes.value)
+    Case.value, Zoom.value, Pan.value, *other = AxisScenes.value
+    Desc.value = other[0] if other else ''
+
 
 AxisScenes.observe(apply_axis_scene, names="value")
 
@@ -452,7 +479,9 @@ def recreate_fig():
     """
     for i in range(3):
         fig_nums = plt.get_fignums()
-        fig = plt.figure(num="Compare AccDB <--> PyAlgo \"Inital Gear\"", figsize=(20, 12))
+        fig = plt.figure(
+            num='Compare AccDB <--> PyAlgo "Inital Gear"', figsize=(20, 12)
+        )
         if fig.number in set(fig_nums):
             fig.clear()
             plt.close(fig)
@@ -460,11 +489,20 @@ def recreate_fig():
             return fig
     else:
         raise Exception(f"Exhausted new-fig tries({i}) with figs({plt.get_fignums()})")
-        
+
+
 fig = recreate_fig()
 
+
 def plot_gear_flags(
-    case, gear, zoom, pan, pyalgo_signals, accdb_signals, is_pyalgo_gears, is_accdb_gears
+    case,
+    gear,
+    zoom,
+    pan,
+    pyalgo_signals,
+    accdb_signals,
+    is_pyalgo_gears,
+    is_accdb_gears,
 ):
     fig.clear()
 
@@ -472,7 +510,7 @@ def plot_gear_flags(
     ax2 = ax3 = None
 
     out_specs = refresh_tabs()
-    
+
     cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case(
         case
     )
@@ -508,7 +546,7 @@ def plot_gear_flags(
     ok_gears = ok_gears.loc[scale]
 
     pyalgo["v_cycle"].plot.line(ax=ax, color="0.70", linewidth=4.5)
-    
+
     if is_pyalgo_gears:
         if not ok_flags.empty:
             ok_flags.plot.line(ax=ax, linewidth=2)
@@ -533,19 +571,20 @@ def plot_gear_flags(
         pyalgo = pyalgo.loc[:, list(pyalgo_signals) or []]
         accdb = accdb.loc[:, accdb_signals]
         merged = merge_pyalgo_accdb(pyalgo, accdb)
-        
+
         if not merged.empty:
-            merged.astype(np.float64).plot.line(ax=ax, linewidth=2, linestyle=":")
-            ax.legend()
-            ax2.legend()
-    
-#     if ax2:
-#         ax2.grid(True, axis="both", which="both")
+            merged.astype(np.float64).plot.line(ax=ax3, linewidth=2, linestyle=":")
+            ax3.legend(loc=4)
+    ax.legend(loc=1)
+    ax2.legend(loc=3)
+
+    #     if ax2:
+    #         ax2.grid(True, axis="both", which="both")
     ax.grid(True, axis="both", which="both")
 
     # Re-tighten if ax3 has (diss)appeared.
     # Had to use `rect` or axis-title half-hidden the first time fig is created!
-    fig.tight_layout(rect=[0,0,1,0.985])
+    fig.tight_layout(rect=[0, 0, 1, 0.985])
 
 
 display(Gui)
