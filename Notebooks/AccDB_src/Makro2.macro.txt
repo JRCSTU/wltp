@@ -1,7 +1,0 @@
-Version =196611
-ColumnsShown =3
-Begin
-    Action ="AddMenu"
-    Argument ="&Task"
-    Argument ="Makro1"
-End

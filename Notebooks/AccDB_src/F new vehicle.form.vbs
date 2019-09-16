@@ -1,6 +1,6 @@
 Version =21
 VersionRequired =20
-Checksum =-1561938231
+Checksum =-323325854
 Begin Form
     NavigationButtons = NotDefault
     AllowDeletions = NotDefault
@@ -13,10 +13,9 @@ Begin Form
     GridY =10
     Width =14626
     DatasheetFontHeight =10
-    ItemSuffix =98
-    Left =-3084
-    Right =11832
-    Bottom =8868
+    ItemSuffix =99
+    Right =17316
+    Bottom =9324
     DatasheetGridlinesColor =12632256
     RecSrcDt = Begin
         0xea7087e0edb1e240
@@ -33,9 +32,9 @@ Begin Form
         0x010000006801000000000000a10700000100000001000000
     End
     PrtDevMode = Begin
-        0x00000000000000004c92faaffb7f000000000000bb0100000104030100000000 ,
+        0x00000000000000006096cc7bf97f000000000000420200000104030100000000 ,
         0x01040a0c9c00d40e03df8007010009009a0b3408640001000700fdff02000100 ,
-        0x0000030000004134001512cefb7f00000300000000000000339ffaaffb7f0000 ,
+        0x00000300000041340015ec84f97f000003000000000000003c9bcc7bf97f0000 ,
         0x0300000000000000000000000000000000000000000000000000000001000000 ,
         0x02000000010000000100000000000000000000000000000000000000d40e0000 ,
         0x424a444d0a0c000000000000900a0000d9000000d90000000000000000000000 ,
@@ -167,16 +166,16 @@ Begin Form
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
-        0x0000000000000000000000000000
+        0x00000000000000000000000000000000000000000000
     End
     FilterOnLoad =0
     DatasheetGridlinesColor12 =12632256
     PrtDevModeW = Begin
-        0x000014b745000000000000000000000000000000000000000000000000000000 ,
-        0x0000915abb01000049c874f1fb7f000000000000000000000000000000000000 ,
+        0x0000000000000000734824c5f97f0000480000000000000001000000f97f0000 ,
+        0x0000ed204202000049c878c6f97f00000000000000000000df54424a15ffffff ,
         0x01040a0cdc00d40e03df8007010009009a0b3408640001000700fdff02000100 ,
-        0x00000300000041003400000000000000002a14b70000000000000000bb010000 ,
-        0x5012915abb01000000000000000000000100000000000000d500000000000000 ,
+        0x00000300000041003400000000000000001e01540000000000000000ea000000 ,
+        0x5012ed2042020000000000000000000001000000ffffffffd500000000000000 ,
         0xf803000000000000000000000000000000000000000000000000000001000000 ,
         0x02000000010000000100000000000000000000000000000000000000d40e0000 ,
         0x424a444d0a0c000000000000900a0000d9000000d90000000000000000000000 ,
@@ -316,7 +315,8 @@ Begin Form
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
-        0x0000000000000000000000000000000000000000
+        0x0000000000000000000000000000000000000000000000000000000000000000 ,
+        0x00000000
     End
     NoSaveCTIWhenDisabled =1
     Begin
@@ -1979,8 +1979,7 @@ Begin Form
                     FontSize =8
                     TabIndex =36
                     ColumnInfo ="\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";"
-                        "\"\";\"0.00\";\"\";\"0.00\";\"\";\"0.00\";\"\";\"0.00%\";\"\";\"\";\"\";\"\";\"4"
-                        "\";\"4\""
+                        "\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"4\";\"4\""
                     GUID = Begin
                         0x5dff7310901ef747901dac4d336ce657
                     End
@@ -2115,6 +2114,30 @@ Begin Form
                     LayoutCachedTop =9070
                     LayoutCachedWidth =1539
                     LayoutCachedHeight =9355
+                End
+                Begin CommandButton
+                    OverlapFlags =85
+                    Left =8964
+                    Top =8985
+                    Width =1815
+                    Height =405
+                    TabIndex =40
+                    ForeColor =16711680
+                    Name ="Befehl98"
+                    Caption ="calculate v_max"
+                    OnClick ="[Event Procedure]"
+                    GUID = Begin
+                        0x40ce42232f60f34e97dd44f77c03a919
+                    End
+
+                    LayoutCachedLeft =8964
+                    LayoutCachedTop =8985
+                    LayoutCachedWidth =10779
+                    LayoutCachedHeight =9390
+                    WebImagePaddingLeft =3
+                    WebImagePaddingTop =3
+                    WebImagePaddingRight =2
+                    WebImagePaddingBottom =2
                 End
             End
         End
@@ -3149,7 +3172,7 @@ loop1:
             vmax_lower1 = v_old
             n_vmax_lower1 = n_old
                            
-            GoTo end2
+            GoTo end1
             
             Else
             
@@ -3291,6 +3314,7 @@ loop0:
 end0:
 
 
+
 '############################################################################################################
 
 Set rstae = dbsDB1.OpenRecordset("A v_max_cycle", DB_OPEN_DYNASET)
@@ -3365,6 +3389,13 @@ Else: End If
 vmax_lower2 = Int(vmax_lower2 * 10 + 0.5) / 10
 vmax_lower1 = Int(vmax_lower1 * 10 + 0.5) / 10
 vmax_max = Int(vmax_max * 10 + 0.5) / 10
+
+MsgBox "vmax_max = " & vmax_max
+MsgBox "vmax_lower1 = " & vmax_lower1
+MsgBox "vmax_lower2 = " & vmax_lower2
+MsgBox "vmax_lower3 = " & vmax_lower3
+
+
 
 If vmax_lower3 <= vmax_max And vmax_lower2 <= vmax_max And vmax_lower1 <= vmax_max And vmax_max > 0 Then
 
@@ -3642,6 +3673,687 @@ End Sub
 
 Private Sub Befehl97_Click()
 DoCmd.Close
+End Sub
+
+Private Sub Befehl98_Click()
+Dim wrkWS1
+Dim dbsDB1
+Dim rstbe, rstce, rstde, rstae, rstee, rstfe, Pnorm As Double, Tmax As Double, n_Tmax_min As Double, n_Tmax_max As Double
+Dim Tnorm As Double, Pmax As Double, n_max1 As Double, eng_no_new As Integer, n_rated As Integer, n_idle As Integer
+Dim no_of_gears As Byte, no_lower1 As Byte, no_lower2 As Byte, no_lower3 As Byte, ndv_max As Double, ndv_lower1 As Double, ndv_lower2 As Double, ndv_lower3 As Double, ng_vmax As Byte
+Dim p_req As Double, P_avai As Double, vmax_max As Double, vmax_lower1 As Double, vmax_lower2 As Double, vmax_lower3 As Double, P_rated As Double
+Dim n As Double, n_max_Pwot As Double, vmax As Double, n_max2 As Double, n_max3 As Double, f_dsc_req As Double, i As Integer
+Dim rmax As Double, r0 As Double, a1 As Double, b1 As Double, n_vmax As Integer, n_min_wot As Double
+Dim n_vmax_max As Double, n_vmax_lower1 As Double, n_vmax_lower2 As Double, n_vmax_lower3 As Double, Pwot_norm As Double, ndv_2 As Double, ndv_3 As Double
+Dim v As Double, SM0 As Double, fnmax As Double, fpmax As Double, n_min_drive_set As Integer
+Dim Pwot_n_maxwot As Double, v_ng_n_maxwot As Double, ndv_ng As Double, n95_low As Double, n95_high As Double, v_old As Double, n_old As Double
+
+Set wrkWS1 = DBEngine.Workspaces(0)
+Set dbsDB1 = wrkWS1.Databases(0)
+'...
+
+
+
+Set rstce = dbsDB1.OpenRecordset("vehicle_info", DB_OPEN_DYNASET)
+
+rstce.MoveFirst
+
+Do Until rstce.EOF
+
+
+Set rstfe = dbsDB1.OpenRecordset("st_veh", DB_OPEN_DYNASET)
+
+rstfe.MoveFirst
+
+rstfe.edit
+rstfe!veh_no = rstce!vehicle_no
+rstfe.Update
+rstfe.Close
+
+
+DoCmd.OpenQuery "A ED_Pwot del"
+DoCmd.OpenQuery "A ED_Pwot add"
+
+' Determination of v_max and ngv_max according to annex 2, paragraph 2(i) ######################################
+' Determination of n_max2 ##########################################################################
+
+
+Set rstde = dbsDB1.OpenRecordset("A ED_Pwot sort", DB_OPEN_DYNASET)
+
+rstde.MoveLast
+
+n_max_Pwot = rstde!n
+Pwot_n_maxwot = rstde!Pwot * 0.9
+
+rstde.MoveFirst
+
+n_min_wot = rstde!n
+
+If rstde!no_engine <> rstce!vehicle_no Then
+MsgBox "Error"
+Exit Sub
+
+Else: End If
+
+
+Set rstee = dbsDB1.OpenRecordset("A ED_Pwot sort", DB_OPEN_DYNASET)
+
+rstee.MoveFirst
+rstee.MoveNext
+
+If rstce!no_of_gears = 10 Then
+
+no_of_gears = 10
+no_lower1 = 9
+no_lower2 = 8
+no_lower3 = 7
+
+ndv_max = rstce!ndv_10
+ndv_lower1 = rstce!ndv_9
+ndv_lower2 = rstce!ndv_8
+ndv_lower3 = rstce!ndv_7
+
+ElseIf rstce!no_of_gears = 9 Then
+
+no_of_gears = 9
+no_lower1 = 8
+no_lower2 = 7
+no_lower3 = 6
+
+ndv_max = rstce!ndv_9
+ndv_lower1 = rstce!ndv_8
+ndv_lower2 = rstce!ndv_7
+ndv_lower3 = rstce!ndv_6
+
+ElseIf rstce!no_of_gears = 8 Then
+
+no_of_gears = 8
+no_lower1 = 7
+no_lower2 = 6
+no_lower3 = 5
+
+ndv_max = rstce!ndv_8
+ndv_lower1 = rstce!ndv_7
+ndv_lower2 = rstce!ndv_6
+ndv_lower3 = rstce!ndv_5
+
+ElseIf rstce!no_of_gears = 7 Then
+
+no_of_gears = 7
+no_lower1 = 6
+no_lower2 = 5
+no_lower3 = 4
+
+ndv_max = rstce!ndv_7
+ndv_lower1 = rstce!ndv_6
+ndv_lower2 = rstce!ndv_5
+ndv_lower3 = rstce!ndv_4
+
+ElseIf rstce!no_of_gears = 6 Then
+
+no_of_gears = 6
+no_lower1 = 5
+no_lower2 = 4
+no_lower3 = 3
+
+ndv_max = rstce!ndv_6
+ndv_lower1 = rstce!ndv_5
+ndv_lower2 = rstce!ndv_4
+ndv_lower3 = rstce!ndv_3
+
+ElseIf rstce!no_of_gears = 5 Then
+
+no_of_gears = 5
+no_lower1 = 4
+no_lower2 = 3
+no_lower3 = 2
+
+ndv_max = rstce!ndv_5
+ndv_lower1 = rstce!ndv_4
+ndv_lower2 = rstce!ndv_3
+ndv_lower3 = rstce!ndv_2
+
+ElseIf rstce!no_of_gears = 4 Then
+
+no_of_gears = 4
+no_lower1 = 3
+no_lower2 = 2
+
+ndv_max = rstce!ndv_4
+ndv_lower1 = rstce!ndv_3
+ndv_lower2 = rstce!ndv_2
+
+ElseIf rstce!no_of_gears = 3 Then
+
+no_of_gears = 3
+no_lower1 = 2
+no_lower2 = 1
+
+ndv_max = rstce!ndv_3
+ndv_lower1 = rstce!ndv_2
+ndv_lower2 = rstce!ndv_1
+
+
+Else: End If
+
+'v_max for gear ng-3 ####################################################################
+
+If rstce!no_of_gears > 4 Then
+
+vmax_lower3 = 0
+
+v = Int(n_min_drive_set / ndv_lower3 * 10 + 0.5) / 10
+n = ndv_lower3 * v
+
+If n < n_min_wot Then
+
+n = n_min_wot
+v = Int(n_min_wot / ndv_lower3 * 10 + 0.5) / 10
+
+Else: End If
+
+i = 0
+
+rstde.MoveFirst
+rstee.MoveFirst
+rstee.MoveNext
+        
+loop3:
+
+    p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
+    
+        
+    Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
+        
+    rstde.MoveNext
+    rstee.MoveNext
+    
+    Loop
+        
+    If rstee.EOF Then
+    
+    GoTo end3
+    
+    Else
+        
+    P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
+    
+    End If
+    
+    If P_avai > p_req Then
+        
+        v_old = v
+        n_old = n
+        
+        v = v + 0.1
+        n = ndv_lower3 * v
+        
+        If n > n_max_Pwot Then
+        
+        vmax_lower3 = v_old
+        n_vmax_lower3 = n_old
+        
+        GoTo end3
+        
+        Else
+        
+        GoTo loop3
+        
+        End If
+
+    ElseIf P_avai = p_req Then
+    
+        v_old = v
+        
+        n_old = n
+        
+        If n < n_max_Pwot Then
+        
+            v = v + 0.1
+        
+            n = ndv_lower3 * v
+            
+            If n > n_max_Pwot Then
+            
+            vmax_lower3 = v_old
+            n_vmax_lower3 = n_old
+                           
+            GoTo end3
+            
+            Else
+            
+            GoTo loop3
+            
+            End If
+        
+        Else
+                       
+        vmax_lower3 = v_old
+        n_vmax_lower3 = n_old
+        
+        GoTo end3
+        
+        End If
+        
+     
+    ElseIf P_avai < p_req Then
+    
+        vmax_lower3 = v_old
+        n_vmax_lower3 = n_old
+        
+        GoTo end3
+        
+    Else: End If
+    
+        
+end3:
+
+
+Else
+
+vmax_lower3 = 0
+
+End If
+
+' v_max for gear ng-2 #################################################################
+
+vmax_lower2 = 0
+v = Int(n_min_drive_set / ndv_lower2 * 10 + 0.5) / 10
+n = ndv_lower2 * v
+
+If n < n_min_wot Then
+
+n = n_min_wot
+v = Int(n_min_wot / ndv_lower2 * 10 + 0.5) / 10
+
+Else: End If
+
+i = 0
+
+rstde.MoveFirst
+rstee.MoveFirst
+rstee.MoveNext
+        
+loop2:
+
+    p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
+    
+        
+    Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
+        
+    rstde.MoveNext
+    rstee.MoveNext
+    
+    Loop
+        
+    If rstee.EOF Then
+    
+    GoTo end2
+    
+    Else
+        
+    P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
+    
+    End If
+    
+    If P_avai > p_req Then
+        
+        v_old = v
+        n_old = n
+        
+        v = v + 0.1
+        n = ndv_lower2 * v
+        
+        If n > n_max_Pwot Then
+        
+        vmax_lower2 = v_old
+        n_vmax_lower2 = n_old
+        
+        GoTo end2
+        
+        Else
+        
+        GoTo loop2
+        
+        End If
+
+    ElseIf P_avai = p_req Then
+    
+        v_old = v
+        
+        n_old = n
+        
+        If n < n_max_Pwot Then
+        
+            v = v + 0.1
+        
+            n = ndv_lower2 * v
+            
+            If n > n_max_Pwot Then
+            
+            vmax_lower2 = v_old
+            n_vmax_lower2 = n_old
+                           
+            GoTo end2
+            
+            Else
+            
+            GoTo loop2
+            
+            End If
+        
+        Else
+                       
+        vmax_lower2 = v_old
+        n_vmax_lower2 = n_old
+        
+        GoTo end2
+        
+        End If
+        
+     
+    ElseIf P_avai < p_req Then
+    
+        vmax_lower2 = v_old
+        n_vmax_lower2 = n_old
+        
+        GoTo end2
+        
+    Else: End If
+    
+        
+end2:
+
+
+'v_max for gear ng-1 ####################################################################
+
+vmax_lower1 = 0
+v = Int(n_min_drive_set / ndv_lower1 * 10 + 0.5) / 10
+n = ndv_lower1 * v
+
+If n < n_min_wot Then
+
+n = n_min_wot
+v = Int(n_min_wot / ndv_lower1 * 10 + 0.5) / 10
+
+Else: End If
+
+i = 0
+
+rstde.MoveFirst
+rstee.MoveFirst
+rstee.MoveNext
+        
+loop1:
+
+    p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
+    
+        
+    Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
+        
+    rstde.MoveNext
+    rstee.MoveNext
+    
+    Loop
+        
+    If rstee.EOF Then
+    
+    GoTo end1
+    
+    Else
+        
+    P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
+    
+    End If
+    
+    If P_avai > p_req Then
+        
+        v_old = v
+        n_old = n
+        
+        v = v + 0.1
+        n = ndv_lower1 * v
+        
+        If n > n_max_Pwot Then
+        
+        vmax_lower1 = v_old
+        n_vmax_lower1 = n_old
+        
+        GoTo end1
+        
+        Else
+        
+        GoTo loop1
+        
+        End If
+
+    ElseIf P_avai = p_req Then
+    
+        v_old = v
+        
+        n_old = n
+        
+        If n < n_max_Pwot Then
+        
+            v = v + 0.1
+        
+            n = ndv_lower1 * v
+            
+            If n > n_max_Pwot Then
+            
+            vmax_lower1 = v_old
+            n_vmax_lower1 = n_old
+                           
+            GoTo end1
+            
+            Else
+            
+            GoTo loop2
+            
+            End If
+        
+        Else
+                       
+        vmax_lower1 = v_old
+        n_vmax_lower1 = n_old
+        
+        GoTo end1
+        
+        End If
+        
+     
+    ElseIf P_avai < p_req Then
+    
+        vmax_lower1 = v_old
+        n_vmax_lower1 = n_old
+        
+        GoTo end1
+        
+    Else: End If
+    
+        
+end1:
+
+
+
+'v_max for gear ng ####################################################################
+
+vmax_max = 0
+v = Int(n_min_drive_set / ndv_max * 10 + 0.5) / 10
+n = ndv_max * v
+
+If n < n_min_wot Then
+
+n = n_min_wot
+v = Int(n_min_wot / ndv_max * 10 + 0.5) / 10
+
+Else: End If
+
+i = 0
+
+rstde.MoveFirst
+rstee.MoveFirst
+rstee.MoveNext
+        
+loop0:
+
+    p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
+    
+        
+    Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
+        
+    rstde.MoveNext
+    rstee.MoveNext
+    
+    Loop
+        
+    If rstee.EOF Then
+    
+    GoTo end0
+    
+    Else
+        
+    P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
+    
+    End If
+    
+    If P_avai > p_req Then
+        
+        v_old = v
+        n_old = n
+        
+        v = v + 0.1
+        n = ndv_max * v
+        
+        If n > n_max_Pwot Then
+        
+        vmax_max = v_old
+        n_vmax_max = n_old
+        
+        GoTo end0
+        
+        Else
+        
+        GoTo loop0
+        
+        End If
+
+    ElseIf P_avai = p_req Then
+    
+        v_old = v
+        
+        n_old = n
+        
+        If n < n_max_Pwot Then
+        
+            v = v + 0.1
+        
+            n = ndv_max * v
+            
+            If n > n_max_Pwot Then
+            
+            vmax_max = v_old
+            n_vmax_max = n_old
+                           
+            GoTo end0
+            
+            Else
+            
+            GoTo loop0
+            
+            End If
+        
+        Else
+                       
+        vmax_max = v_old
+        n_vmax_max = n_old
+        
+        GoTo end0
+        
+        End If
+        
+     
+    ElseIf P_avai < p_req Then
+    
+        vmax_max = v_old
+        n_vmax_max = n_old
+        
+        GoTo end0
+        
+    Else: End If
+    
+        
+end0:
+
+
+
+'############################################################################################################
+
+Set rstae = dbsDB1.OpenRecordset("A v_max_cycle", DB_OPEN_DYNASET)
+
+rstae.MoveFirst
+
+
+
+If vmax_max = 0 And vmax_lower3 = 0 And vmax_lower2 = 0 And vmax_lower1 = 0 Then
+
+rstde.MoveLast
+
+v = rstde!n / ndv_max
+
+p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
+
+P_avai = rstde!Pwot * 0.9
+
+    If P_avai > p_req Then
+    
+'n_max = nlim > n_rated according to the last sub-paragraph of annex 2, paragraph 2(i) ###############################################################################
+    
+    vmax_max = Int(v * 10 + 0.5) / 10
+    n_vmax_max = v * ndv_max
+    vmax = vmax_max
+    
+    
+    
+    Else: End If
+
+Else: End If
+
+
+
+'###########################################################
+
+If vmax_lower3 > 0 Then
+vmax_lower3 = Int(vmax_lower3 * 10 + 0.5) / 10
+Else: End If
+
+
+'###########################################################
+
+vmax_lower2 = Int(vmax_lower2 * 10 + 0.5) / 10
+vmax_lower1 = Int(vmax_lower1 * 10 + 0.5) / 10
+vmax_max = Int(vmax_max * 10 + 0.5) / 10
+
+rstce.edit
+
+rstce!v_max_ng = vmax_max
+rstce![v_max_ng-1] = vmax_lower1
+rstce![v_max_ng-2] = vmax_lower2
+rstce![v_max_ng-3] = vmax_lower3
+
+rstce.Update
+
+rstce.MoveNext
+
+Loop
+
+
+'############################################
+    
+
+
+
+MsgBox "Completed!"
 End Sub
 
 Private Sub Form_Open(Cancel As Integer)

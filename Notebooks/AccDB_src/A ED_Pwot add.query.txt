@@ -1,0 +1,126 @@
+Operation =3
+Name ="ED_Pwot"
+Option =0
+Begin InputTables
+    Name ="TB_Pwot"
+    Name ="ST_veh"
+End
+Begin OutputColumns
+    Name ="no_engine"
+    Expression ="ST_veh.veh_no"
+    Name ="n"
+    Expression ="TB_Pwot.n"
+    Name ="Pwot"
+    Expression ="TB_Pwot.Pwot"
+    Name ="Twot"
+    Expression ="TB_Pwot.Twot"
+    Name ="Pwot_norm"
+    Expression ="TB_Pwot.Pwot_norm"
+    Name ="Twot_norm"
+    Expression ="TB_Pwot.Twot_norm"
+    Name ="SM"
+    Expression ="TB_Pwot.SM"
+    Name ="ASM"
+    Expression ="TB_Pwot.ASM"
+    Name ="Pavai"
+    Expression ="TB_Pwot.Pavai"
+End
+Begin Joins
+    LeftTable ="TB_Pwot"
+    RightTable ="ST_veh"
+    Expression ="TB_Pwot.no_engine = ST_veh.veh_no"
+    Flag =1
+End
+dbBoolean "ReturnsRecords" ="-1"
+dbInteger "ODBCTimeout" ="60"
+dbBoolean "UseTransaction" ="-1"
+dbByte "Orientation" ="0"
+dbBinary "GUID" = Begin
+    0x361503c14eb7fb4b8982b4e28e453f89
+End
+dbByte "PublishToWeb" ="1"
+Begin
+    Begin
+        dbText "Name" ="TB_Pwot.Twot_norm"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="TB_Pwot.SM"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="veh_no"
+        dbLong "AggregateType" ="-1"
+        dbBinary "GUID" = Begin
+            0xbcda5f532a335b43bcc717257ef81dbd
+        End
+    End
+    Begin
+        dbText "Name" ="TB_Pwot.Pwot"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="TB_Pwot.n"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="TB_Pwot.Twot"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="TB_Pwot.Pavai"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="TB_Pwot.Pwot_norm"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="ST_veh.veh_no"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="TB_Pwot.no_engine"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="TB_Pwot.ASM"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="[A new vehicle_no].veh_no"
+        dbLong "AggregateType" ="-1"
+    End
+End
+Begin
+    State =2
+    Left =-9
+    Top =-38
+    Right =1473
+    Bottom =807
+    Left =-1
+    Top =-1
+    Right =1444
+    Bottom =297
+    Left =0
+    Top =0
+    ColumnsShown =651
+    Begin
+        Left =60
+        Top =15
+        Right =240
+        Bottom =195
+        Top =0
+        Name ="TB_Pwot"
+        Name =""
+    End
+    Begin
+        Left =300
+        Top =15
+        Right =480
+        Bottom =195
+        Top =0
+        Name ="ST_veh"
+        Name =""
+    End
+End

@@ -1,0 +1,85 @@
+Operation =1
+Option =0
+Begin InputTables
+    Name ="WLTC_new"
+End
+Begin OutputColumns
+    Expression ="WLTC_new.cycle_ID"
+    Expression ="WLTC_new.Version"
+    Expression ="WLTC_new.class"
+    Alias ="v_max"
+    Expression ="Max(WLTC_new.v)"
+End
+Begin Groups
+    Expression ="WLTC_new.cycle_ID"
+    GroupLevel =0
+    Expression ="WLTC_new.Version"
+    GroupLevel =0
+    Expression ="WLTC_new.class"
+    GroupLevel =0
+End
+dbBoolean "ReturnsRecords" ="-1"
+dbInteger "ODBCTimeout" ="60"
+dbByte "RecordsetType" ="0"
+dbBoolean "OrderByOn" ="0"
+dbByte "Orientation" ="0"
+dbByte "DefaultView" ="2"
+dbBinary "GUID" = Begin
+    0x60eba0fc8d1a2546a9de78f44383a14a
+End
+dbBoolean "FilterOnLoad" ="0"
+dbBoolean "OrderByOnLoad" ="-1"
+dbBoolean "TotalsRow" ="0"
+dbByte "PublishToWeb" ="1"
+Begin
+    Begin
+        dbText "Name" ="v_max"
+        dbLong "AggregateType" ="-1"
+        dbBinary "GUID" = Begin
+            0x01000000000000009585d26ff67f0000
+        End
+    End
+    Begin
+        dbText "Name" ="Maxvonv"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="WLTC_new.v"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="WLTC_new.class"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="WLTC_new.Version"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="WLTC_new.cycle_ID"
+        dbLong "AggregateType" ="-1"
+    End
+End
+Begin
+    State =2
+    Left =-9
+    Top =-38
+    Right =1473
+    Bottom =807
+    Left =-1
+    Top =-1
+    Right =1444
+    Bottom =339
+    Left =0
+    Top =0
+    ColumnsShown =543
+    Begin
+        Left =60
+        Top =15
+        Right =240
+        Bottom =195
+        Top =0
+        Name ="WLTC_new"
+        Name =""
+    End
+End

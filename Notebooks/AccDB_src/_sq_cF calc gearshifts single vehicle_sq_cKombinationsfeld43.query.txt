@@ -1,9 +1,0 @@
-dbMemo "SQL" ="SELECT random_cycles.cycle_no, random_cycles.Description\015\012FROM random_cycl"
-    "es\015\012GROUP BY random_cycles.cycle_no, random_cycles.Description\015\012ORDE"
-    "R BY random_cycles.cycle_no;\015\012"
-dbMemo "Connect" =""
-dbBoolean "ReturnsRecords" ="-1"
-dbInteger "ODBCTimeout" ="60"
-dbText "KeepLocal" ="T"
-Begin
-End

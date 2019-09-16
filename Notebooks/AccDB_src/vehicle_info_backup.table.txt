@@ -3,12 +3,12 @@
 <xsd:element name="dataroot">
 <xsd:complexType>
 <xsd:sequence>
-<xsd:element ref="vehicle_info" minOccurs="0" maxOccurs="unbounded"/>
+<xsd:element ref="vehicle_info_backup" minOccurs="0" maxOccurs="unbounded"/>
 </xsd:sequence>
 <xsd:attribute name="generated" type="xsd:dateTime"/>
 </xsd:complexType>
 </xsd:element>
-<xsd:element name="vehicle_info">
+<xsd:element name="vehicle_info_backup">
 <xsd:annotation>
 <xsd:appinfo>
 <od:index index-name="IDclass" index-key="IDclass " primary="no" unique="no" clustered="no" order="asc"/>

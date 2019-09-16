@@ -1,8 +1,7 @@
 Operation =1
 Option =0
-Where ="(((gearshift_table_all_1.gear)<>[gearshift_table_all].[gear]) AND ((gearshift_ta"
-    "ble_all.case_no)>125 And (gearshift_table_all.case_no)<=250) AND ((gearshift_tab"
-    "le_all_1.case_no)>250))"
+Where ="(((gearshift_table_all.case_no)<=125) AND ((gearshift_table_all_1.case_no)>125 A"
+    "nd (gearshift_table_all_1.case_no)<=250))"
 Begin InputTables
     Name ="gearshift_table_all"
     Name ="gearshift_table_all"
@@ -11,12 +10,14 @@ End
 Begin OutputColumns
     Expression ="gearshift_table_all.vehicle_no"
     Expression ="gearshift_table_all.case_no2"
-    Expression ="gearshift_table_all.tim"
-    Expression ="gearshift_table_all.v"
-    Expression ="gearshift_table_all.gear"
-    Expression ="gearshift_table_all_1.gear"
+    Expression ="gearshift_table_all_1.case_no2"
     Expression ="gearshift_table_all.case_no"
     Expression ="gearshift_table_all_1.case_no"
+    Expression ="gearshift_table_all.tim"
+    Expression ="gearshift_table_all.v_downscale"
+    Expression ="gearshift_table_all_1.v_downscale"
+    Expression ="gearshift_table_all.gear"
+    Expression ="gearshift_table_all_1.gear"
 End
 Begin Joins
     LeftTable ="gearshift_table_all"
@@ -57,17 +58,15 @@ Begin
         dbLong "AggregateType" ="-1"
     End
     Begin
-        dbText "Name" ="gearshift_table_all.case_no2"
-        dbLong "AggregateType" ="-1"
-    End
-    Begin
-        dbText "Name" ="gearshift_table_all_1.gear"
-        dbInteger "ColumnWidth" ="2676"
+        dbText "Name" ="gearshift_table_all.case_no"
+        dbInteger "ColumnWidth" ="2808"
         dbBoolean "ColumnHidden" ="0"
         dbLong "AggregateType" ="-1"
     End
     Begin
-        dbText "Name" ="gearshift_table_all.vehicle_no"
+        dbText "Name" ="gearshift_table_all_1.case_no"
+        dbInteger "ColumnWidth" ="3024"
+        dbBoolean "ColumnHidden" ="0"
         dbLong "AggregateType" ="-1"
     End
     Begin
@@ -77,32 +76,74 @@ Begin
         dbLong "AggregateType" ="-1"
     End
     Begin
+        dbText "Name" ="gearshift_table_all.vehicle_no"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all_1.gear"
+        dbInteger "ColumnWidth" ="2676"
+        dbBoolean "ColumnHidden" ="0"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all.case_no2"
+        dbLong "AggregateType" ="-1"
+        dbInteger "ColumnWidth" ="2916"
+        dbBoolean "ColumnHidden" ="0"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all_2.case_no2"
+        dbLong "AggregateType" ="-1"
+        dbInteger "ColumnWidth" ="3132"
+        dbBoolean "ColumnHidden" ="0"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all_1.case_no2"
+        dbLong "AggregateType" ="-1"
+        dbInteger "ColumnWidth" ="3132"
+        dbBoolean "ColumnHidden" ="0"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all_2.gear"
+        dbLong "AggregateType" ="-1"
+        dbInteger "ColumnWidth" ="2952"
+        dbBoolean "ColumnHidden" ="0"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all_2.case_no"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all.v_downscale"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all_1.v_downscale"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all_2.v_downscale"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
         dbText "Name" ="gearshift_table_all.v"
         dbLong "AggregateType" ="-1"
     End
     Begin
-        dbText "Name" ="gearshift_table_all_1.case_no"
+        dbText "Name" ="gearshift_table_all_1.v"
         dbLong "AggregateType" ="-1"
-        dbInteger "ColumnWidth" ="3024"
-        dbBoolean "ColumnHidden" ="0"
-    End
-    Begin
-        dbText "Name" ="gearshift_table_all.case_no"
-        dbLong "AggregateType" ="-1"
-        dbInteger "ColumnWidth" ="2808"
-        dbBoolean "ColumnHidden" ="0"
     End
 End
 Begin
-    State =0
-    Left =0
-    Top =40
-    Right =1443
-    Bottom =798
+    State =2
+    Left =-9
+    Top =-38
+    Right =1473
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1415
-    Bottom =350
+    Right =1444
+    Bottom =349
     Left =0
     Top =0
     ColumnsShown =539

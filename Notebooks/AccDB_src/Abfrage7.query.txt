@@ -24,7 +24,7 @@ dbBoolean "UseTransaction" ="-1"
 dbBoolean "FailOnError" ="0"
 dbByte "Orientation" ="0"
 dbBinary "GUID" = Begin
-    0x19118bd68efc2c45bc328d1835ffd3df
+    0x7e98f6dca559c844ad15aa9f1a497903
 End
 dbByte "PublishToWeb" ="1"
 Begin
@@ -34,14 +34,14 @@ Begin
     End
 End
 Begin
-    State =2
-    Left =-9
-    Top =-38
-    Right =1473
-    Bottom =815
+    State =0
+    Left =110
+    Top =172
+    Right =1443
+    Bottom =798
     Left =-1
     Top =-1
-    Right =1444
+    Right =1305
     Bottom =339
     Left =0
     Top =0
@@ -49,17 +49,17 @@ Begin
     Begin
         Left =60
         Top =15
-        Right =240
-        Bottom =261
+        Right =274
+        Bottom =290
         Top =0
         Name ="calculation_parameter_all"
         Name =""
     End
     Begin
-        Left =300
-        Top =15
-        Right =480
-        Bottom =267
+        Left =449
+        Top =25
+        Right =629
+        Bottom =329
         Top =0
         Name ="gearshift_table_all"
         Name =""
