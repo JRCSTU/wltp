@@ -456,7 +456,7 @@ def update_valid_signals(change):
     pyalgo_columns = [
         ("/".join(cc for cc in c if cc), c)
         for c in pyalgo.select_dtypes(exclude=[np.object])
-        if not c[0].startswith("ok_") and not c[0] == "t"
+        if not c[0].startswith("ok_gear") and not c[0] == "t"
     ]
     PyAlgoSignals.options = pyalgo_columns
 
