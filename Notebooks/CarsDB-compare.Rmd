@@ -242,7 +242,7 @@ def _load_interactive_case(
     ok_gears = [c for c in all_flags if c.startswith("ok_gear/")]
     gear_count = len(ok_gears)
     ok_gears = cycle.loc[:, ok_gears]
-
+    
     ok_flags[ok_flags < 0] = np.NAN  # Restore NANFLAG --> NAN
     ok_flags = ok_flags * (np.arange(flag_count) + 1) * flag_mul
     ok_gears = ok_gears * (np.arange(gear_count) + flag_count + 1) * flag_mul
@@ -251,9 +251,9 @@ def _load_interactive_case(
     ok_flags.columns = wio.inflate_columns(ok_flags.columns)
     ok_gears.columns = wio.inflate_columns(ok_gears.columns)
 
-    return cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears
+    return cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears, p1.loc[case_name]
 
-def load_load_interactive_case(
+def load_interactive_case(
     case_name,
     # increase vertical seperation between flags (but do not exceed max(V))
     flag_mul=2,
@@ -266,7 +266,7 @@ def load_load_interactive_case(
         case_loaded[1] = cycle_data
     return cycle_data
 
-#cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case('v001')
+#cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears, accdb_props = load_interactive_case('v001')
 # ok_flags.columns, ok_gears.columns
 ```
 
@@ -278,15 +278,18 @@ def define_schenes():
         ("dive(t=764): 1->2 gear too early", "v001", 45.0, 30.40),
         ("dive(t=903): 1st gear not reached", "v001", 45.0, 36.4),
         ("lowPower(t=724)", "v001", 43.0, 69.6),
+        ("Py:LowP AccDB:DnShift(t=1571-8)", "v019", 69, 63.4),
         ("p_max from lower g(t=1571-8)", "v020", 69, 63.4),
         ("sameCar?", "v023", 1, 0),
         ("noPowerDives(t=1540-80)", "v024", 26, 63.60),
         ("noPowerDive(t=1574)", "v024", 26, 66.4),
-        ("noPowerDive(t=1574)", "v025", 35, 64),
+        ("noPowerDive(t=1574)", "v025", 69, 63.4),
+        ("decelToStop(t=1591)", "v025", 69, 72.0, "AccDB not respecting n_min=0.9 x n_idle (Annex 2-3.k.3)"),
         ("lowPowerDive", "v033", 5, 72),
         ("low -1 gears?", "v035", 65, 63, "Diffs in gears above 2"),
         ("noPowerDive(t=1574)", "v024", 26, 66.4),
         ("g5Ok?(1542)", "v075", 55, 62.4, "Vehicle has too many insufficient powers"),
+        ("lowP, lowG betterPAvail(t=1574)", "v087", 65, 63.40),
         ("lowPower(t=1574)", "v088", 65, 63.40),
         ("lowPower", "v101", 1, 0),
         ("lowPower", "v111", 1, 0),
@@ -296,7 +299,7 @@ def define_schenes():
 
 def grid(df):
     """Display a dynamic grid if given `df` too long. """
-    display(vehdb.grid(df, fitcols=df.shape[1] < 12))
+    display(vehdb.grid(df, fitcols=len(df.shape) < 2 or df.shape[1] < 12))
 
 def merge_pyalgo_accdb(pyalgo, accdb):
     pyalgo = pyalgo.copy()
@@ -306,23 +309,23 @@ def merge_pyalgo_accdb(pyalgo, accdb):
 
     return merged
 
-def display_diff_gears(pyalgo, accdb):
+def display_diff_gears(pyalgo, accdb, props):
     merged = merge_pyalgo_accdb(pyalgo, accdb)
     diffgears_idx = merged["pyalgo/g_max0"] != merged["accdb/g_max"]
     display(merged.loc[diffgears_idx, ["pyalgo/g_max0", "accdb/g_max"]])
 
-def display_diff_cycle(pyalgo, accdb):
+def display_diff_cycle(pyalgo, accdb, props):
     merged = merge_pyalgo_accdb(pyalgo, accdb)
     diffgears_idx = merged["pyalgo/g_max0"] != merged["accdb/g_max"]
     grid(merged[diffgears_idx])
 
 
-def display_pyalgo(pyalgo, accdb):
+def display_pyalgo(pyalgo, accdb, props):
     pyalgo.columns = wio.flatten_columns(pyalgo.columns)
     grid(pyalgo.drop('t', axis=1))
 
 
-def display_pyalgo_flags(pyalgo, accdb):
+def display_pyalgo_flags(pyalgo, accdb, props):
     flags = pyalgo.select_dtypes('int8').copy()
     flags.columns = wio.flatten_columns(flags.columns)
     pyalgo = pyalgo[['p_req', 'p_avail']].copy()
@@ -330,8 +333,11 @@ def display_pyalgo_flags(pyalgo, accdb):
     grid(pd.concat((pyalgo, flags), axis=1))
 
 
-def display_accdb(pyalgo, accdb):
+def display_accdb_cycle(pyalgo, accdb, props):
     grid(accdb)
+
+def display_accdb_props(pyalgo, accdb, props):
+    grid(props)
 
 
 ## What to display in the Tabs beneath the plot
@@ -341,7 +347,8 @@ out_specs = [
     (display_diff_cycle, "DiffGear cycles"), 
     (display_pyalgo_flags, "PyAlgo flags"),
     (display_pyalgo, "PyAlgo"),
-    (display_accdb, "AccDb"),
+    (display_accdb_cycle, "AccDb cycle"),
+    (display_accdb_props, "AccDb props"),
 ]
 ```
 
@@ -396,7 +403,8 @@ Selections.layout.flex_flow = "row wrap"
 
 
 #: Updated by *interact* function, for display functions to read them
-results = [None, None]
+#: pyalgo, accdb, accdb_props
+results = [None, None, None]
 
 Tab = widgets.Tab()
 
@@ -441,7 +449,7 @@ Gui = widgets.VBox([Selections, Tab])
 
 def update_valid_signals(change):
     case_name = Case.value
-    pyalgo, _, ok_gears, accdb, _ = load_load_interactive_case(case_name)
+    pyalgo, _, ok_gears, accdb, _, _ = load_interactive_case(case_name)
 
     Gear.options = ok_gears.columns.levels[1]
 
@@ -464,7 +472,7 @@ update_valid_signals(None)
 
 def apply_axis_scene(change):
     Case.value, Zoom.value, Pan.value, *other = AxisScenes.value
-    Desc.value = other[0] if other else ''
+    Desc.value = other[0] if other else ""
 
 
 AxisScenes.observe(apply_axis_scene, names="value")
@@ -511,7 +519,7 @@ def plot_gear_flags(
 
     out_specs = refresh_tabs()
 
-    cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears = load_load_interactive_case(
+    cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears, accdb_props = load_interactive_case(
         case
     )
 
@@ -537,6 +545,7 @@ def plot_gear_flags(
 
     results[0] = pyalgo
     results[1] = accdb
+    results[2] = accdb_props
 
     ax.set_title(
         f"Case_no: {case}, # of diff gears, in_view: {diffgears_view}, TOTAL: {diffgears_total}"
