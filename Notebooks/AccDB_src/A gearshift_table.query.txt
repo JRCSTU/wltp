@@ -32,12 +32,6 @@ Begin OutputColumns
     Alias ="v_cap"
     Name ="v_cap"
     Expression ="Int([v]*10+0.5)/10"
-    Name ="final_dec"
-    Expression ="WLTC_new.final_dec"
-    Name ="Ind_ST"
-    Expression ="WLTC_new.Ind_ST"
-    Name ="n_ST"
-    Expression ="WLTC_new.n_ST"
 End
 Begin Joins
     LeftTable ="ST_vehicle_info"
@@ -465,7 +459,7 @@ Begin
     Left =-1
     Top =-1
     Right =1444
-    Bottom =264
+    Bottom =243
     Left =0
     Top =0
     ColumnsShown =651

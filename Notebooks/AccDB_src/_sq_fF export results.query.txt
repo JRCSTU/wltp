@@ -1,7 +1,0 @@
-dbMemo "SQL" ="SELECT TB_export.export_path, TB_export.filename\015\012FROM TB_export;\015\012"
-dbMemo "Connect" =""
-dbBoolean "ReturnsRecords" ="-1"
-dbInteger "ODBCTimeout" ="60"
-dbText "KeepLocal" ="T"
-Begin
-End

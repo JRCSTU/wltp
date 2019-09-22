@@ -1,6 +1,6 @@
 Operation =4
 Option =0
-Where ="(((gearshift_table.v)>=1) AND ((gearshift_table.a2) Between -0.278 And 0.278))"
+Where ="(((gearshift_table.v)>=1) AND ((gearshift_table.a2) Between -0.1389 And 0.1389))"
 Begin InputTables
     Name ="gearshift_table"
 End
@@ -58,11 +58,11 @@ Begin
     Left =-9
     Top =-38
     Right =1473
-    Bottom =816
+    Bottom =807
     Left =-1
     Top =-1
     Right =1444
-    Bottom =355
+    Bottom =334
     Left =0
     Top =0
     ColumnsShown =579

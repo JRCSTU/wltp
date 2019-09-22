@@ -72,12 +72,12 @@ Begin
     State =2
     Left =-9
     Top =-38
-    Right =1472
-    Bottom =846
+    Right =1473
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1443
-    Bottom =343
+    Right =1444
+    Bottom =367
     Left =0
     Top =0
     ColumnsShown =579
@@ -91,9 +91,9 @@ Begin
         Name =""
     End
     Begin
-        Left =428
+        Left =608
         Top =15
-        Right =728
+        Right =908
         Bottom =356
         Top =0
         Name ="TA_Pwot"

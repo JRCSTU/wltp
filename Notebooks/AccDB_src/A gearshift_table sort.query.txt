@@ -477,10 +477,6 @@ Begin
         dbText "Name" ="gearshift_table.final_dec"
         dbLong "AggregateType" ="-1"
     End
-    Begin
-        dbText "Name" ="gearshift_table.Pmax_lower_Ptot"
-        dbLong "AggregateType" ="-1"
-    End
 End
 Begin
     State =0

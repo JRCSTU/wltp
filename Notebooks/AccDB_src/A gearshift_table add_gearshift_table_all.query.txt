@@ -110,6 +110,8 @@ Begin OutputColumns
     Expression ="gearshift_table.P_a"
     Name ="P_tot"
     Expression ="gearshift_table.P_tot"
+    Name ="P_tot_set"
+    Expression ="gearshift_table.P_tot_set"
     Name ="a>a_max"
     Expression ="gearshift_table.[a>a_max]"
     Name ="a_max"
@@ -230,8 +232,8 @@ Begin OutputColumns
     Expression ="gearshift_table.Ind_ST"
     Name ="n_ST"
     Expression ="gearshift_table.n_ST"
-    Name ="Pmax_lower_Ptot"
-    Expression ="gearshift_table.Pmax_lower_Ptot"
+    Name ="Pmax_lower_Ptot_set"
+    Expression ="gearshift_table.Pmax_lower_Ptot_set"
     Name ="n_above_s"
     Expression ="gearshift_table.n_above_s"
     Name ="flag_6_1"
@@ -1361,6 +1363,14 @@ Begin
         dbText "Name" ="gearshift_table.part_text"
         dbLong "AggregateType" ="-1"
     End
+    Begin
+        dbText "Name" ="gearshift_table.P_tot_set"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.Pmax_lower_Ptot_set"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
@@ -1371,7 +1381,7 @@ Begin
     Left =-1
     Top =-1
     Right =1444
-    Bottom =260
+    Bottom =324
     Left =0
     Top =0
     ColumnsShown =651

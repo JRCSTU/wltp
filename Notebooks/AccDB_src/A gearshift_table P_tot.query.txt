@@ -2,10 +2,20 @@ Operation =4
 Option =0
 Begin InputTables
     Name ="gearshift_table"
+    Name ="ST_vehicle_info"
 End
 Begin OutputColumns
     Name ="gearshift_table.P_tot"
     Expression ="[P_res]+[P_a]"
+    Name ="gearshift_table.P_tot_set"
+    Expression ="([f0]*[gearshift_table].[v_cap]+[f1]*[gearshift_table].[v_cap]^2+[f2]*[gearshift"
+        "_table].[v_cap]^3+[a_cap]*[gearshift_table].[v_cap]*[kr]*[test_mass])/3600"
+End
+Begin Joins
+    LeftTable ="gearshift_table"
+    RightTable ="ST_vehicle_info"
+    Expression ="gearshift_table.vehicle_no = ST_vehicle_info.vehicle_no"
+    Flag =1
 End
 dbBoolean "ReturnsRecords" ="-1"
 dbInteger "ODBCTimeout" ="60"
@@ -43,27 +53,52 @@ Begin
         dbText "Name" ="gearshift_table.P_tot"
         dbLong "AggregateType" ="-1"
     End
+    Begin
+        dbText "Name" ="gearshift_table_all.Pmax_lower_Ptot_set"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table_all.P_tot_set"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="gearshift_table.P_tot_set"
+        dbLong "AggregateType" ="-1"
+    End
+    Begin
+        dbText "Name" ="Ausdr1"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
-    State =0
-    Left =55
-    Top =106
-    Right =1445
-    Bottom =837
+    State =2
+    Left =-9
+    Top =-38
+    Right =1473
+    Bottom =807
     Left =-1
     Top =-1
-    Right =1352
-    Bottom =333
+    Right =1444
+    Bottom =291
     Left =0
     Top =0
     ColumnsShown =579
     Begin
         Left =48
         Top =12
-        Right =192
+        Right =227
         Bottom =312
         Top =0
         Name ="gearshift_table"
+        Name =""
+    End
+    Begin
+        Left =287
+        Top =15
+        Right =566
+        Bottom =273
+        Top =0
+        Name ="ST_vehicle_info"
         Name =""
     End
 End
