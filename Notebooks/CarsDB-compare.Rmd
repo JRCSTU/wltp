@@ -103,6 +103,13 @@ p1, c1, p2, c2 = load_accdb_and_python_datasets()
 ```
 
 ```{python}
+## EXPORT RESULTS to upload them for the GS-group when releasing.
+#
+# p2.drop('v116', axis=0).to_excel('pyalgo-props-124cases-1.0.0.dev12.xlsx')
+# c2.drop('v116', axis=0).to_excel('pyalgo-cycles-124cases-1.0.0.dev12.xlsx')
+```
+
+```{python}
 # Available PROPs
 print(columnize(list(p1.columns), displaywidth=160))
 print(columnize(list(p2.columns), displaywidth=160))
@@ -110,8 +117,8 @@ print(columnize(list(p2.columns), displaywidth=160))
 
 ```{python}
 display(
-    vehdb.grid(p1),
-    vehdb.grid(p2),
+    vehdb.grid(p1, fitcols=False),
+    vehdb.grid(p2, fitcols=False),
     #vehdb.grid(c1, fitcols=0),
 )
 ```
@@ -626,4 +633,52 @@ display(c1.loc[c1.clutch=='undefined', 'gear'].value_counts())
 # p2 = p2.loc[p2.index != 'v116']
 # p2.to_excel('pyalgo_props-1.0.0.dev10.xlsx')
 # c2.to_excel('pyalgo_cycles-1.0.0.dev10.xlsx')
+```
+
+### AccDB not respecting n_min=0.9 x n_idle (Annex 2-3.k.3):
+
+```{python}
+def is_bad_g2_in_decel_to_stop(accdb, cyc, prop):
+    cyc = cyc.reset_index(level=0)
+    #bad_rows = (accdb.g_max == 2) & cyc.stopdecel & (cyc['n/g2'] < 0.9 * prop['idling_speed'])
+    bad_rows = (accdb.g_max == 2) & (cyc.g_max0 == 1) & cyc.stopdecel
+    if bad_rows.any():
+        return pd.concat((accdb.loc[bad_rows, ['g_max', 'n_2']], cyc.loc[bad_rows, ['n/g2', 'ok_gear/g1', 'ok_gear/g2', 'stopdecel']]), axis=1)
+
+for case, cyc in c2.groupby(level=0):
+    accdb = c1.loc[case]
+    prop = p1.loc[case]
+    res = is_bad_g2_in_decel_to_stop(accdb, cyc, prop)
+    if res is not None:
+        display(prop[['idling_speed', 'vehicle_class']], f"0.9 x n_idle: {prop['idling_speed'] * 0.9}")
+        if isinstance(res, tuple):
+            display(*res)
+        else:
+            display(res)
+```
+
+### Insufficient power where more than one gears are N-valid: 
+
+```{python}
+def is_more_low_powered_gears(cyc):
+    cyc2 = cyc.copy()
+    cyc2.columns = wio.inflate_columns(cyc2.columns)
+    c22 = cyc2.iloc[1571:1579][['ok_p', 'ok_max_n']].dropna(axis=1, how='all')
+    try:
+        ## is there any row with all-low-p AND 2-or-more n-max-ok? 
+        bad_rows = (~c22['ok_p'].replace(-1, 0).astype('bool')).all(axis=1) & (c22['ok_max_n'].replace(-1, 0).astype('bool').sum(axis=1) > 1)
+        if bad_rows.any():
+            c22.columns = wio.flatten_columns(c22.columns)
+            return list(bad_rows[bad_rows].index), pd.concat((c22, cyc.iloc[1571:1579].loc[:, ['g_min', 'g_max']]), axis=1)
+    except Exception as ex:
+        print(ex)
+
+for case, cyc in c2.groupby(level=0):
+    res = is_more_low_powered_gears(cyc)
+    if res is not None:
+        display(p2.loc[case, ['wltc_class', 'g_vmax']])
+        if isinstance(res, tuple):
+            display(*res)
+        else:
+            display(res)
 ```
