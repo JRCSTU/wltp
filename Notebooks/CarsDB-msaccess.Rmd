@@ -208,7 +208,7 @@ def store_results_per_car(
             outdf = outdf.set_index('tim')
             outdf, oprops = vehdb.drop_scalar_columns(outdf, scalar_columns)
         except Exception:
-            display(grid(outdf, fitcols=False))
+            display(vehdb.grid(outdf, fitcols=False))
             raise
 
         ## Store WOT

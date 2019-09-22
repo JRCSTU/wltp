@@ -162,7 +162,7 @@ mdl = vehdb.mdl_from_accdb(props, wot, n2vs)
 datamodel.validate_model(mdl, additional_properties=True)
 exp = Experiment(mdl, skip_model_validation=True)
 
-mdl = exp.run()
+# %time mdl = exp.run()
 
 oprops = {
         "pmr": mdl["pmr"],

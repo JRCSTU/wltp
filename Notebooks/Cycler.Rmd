@@ -188,6 +188,11 @@ ok_gears.sum()
 ```
 
 ```{python}
+ok_gears = cb.combine_initial_gear_flags(ok_flags)
+ok_gears.sum()
+```
+
+```{python}
 g_min, g_max0 = cb.make_gmax0(ok_gears)
 cycle = pd.concat((cb.cycle, ok_gears, g_min, g_min, g_max0), axis=1)
 ```
