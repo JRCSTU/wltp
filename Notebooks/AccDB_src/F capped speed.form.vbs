@@ -963,7 +963,7 @@ DoCmd.OpenQuery "A WLTC_mod del"
 Set rstae = dbsDB1.OpenRecordset("A WLTC", DB_OPEN_DYNASET)
 rstae.MoveFirst
 
-t = rstae!tim
+t = rstae!Tim
 
 Set rstbe = dbsDB1.OpenRecordset("WLTC_mod", DB_OPEN_DYNASET)
 
@@ -1005,7 +1005,7 @@ Loop
 
 Else
 
-Do Until rstae!tim = t_last_medium
+Do Until rstae!Tim = t_last_medium
 
 rstae.MoveNext
 
@@ -1095,7 +1095,7 @@ Loop
 
 Else
 
-Do Until rstae!tim = t_last_high
+Do Until rstae!Tim = t_last_high
 
 rstae.MoveNext
 
@@ -1160,7 +1160,7 @@ Loop
 
 End If
 
-Do Until rstae!tim = t_last_exhigh
+Do Until rstae!Tim = t_last_exhigh
 
 rstae.MoveNext
 

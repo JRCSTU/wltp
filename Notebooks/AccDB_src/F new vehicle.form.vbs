@@ -2168,7 +2168,7 @@ Set dbsDB1 = wrkWS1.Databases(0)
 
 Set rstce = dbsDB1.OpenRecordset("ED_Pwot", DB_OPEN_TABLE)
 rstce.MoveFirst
-    
+
 Set rstbe = dbsDB1.OpenRecordset("ST_veh_input", DB_OPEN_TABLE)
 rstbe.MoveFirst
 rstbe.edit
@@ -2178,11 +2178,11 @@ rstbe.Update
 
 rstbe.Close
 rstce.Close
-    
+
     DoCmd.OpenQuery "A ED_Pwot TB_Pwot"
 
     DoCmd.OpenQuery "A vehicle_info anf"
-    
+
     DoCmd.OpenQuery "A vehicle_info v_s_1_input"
     DoCmd.OpenQuery "A vehicle_info v_s_2_input"
     DoCmd.OpenQuery "A vehicle_info v_s_3_input"
@@ -2200,14 +2200,14 @@ rstce.Close
     DoCmd.OpenQuery "A vehicle_info v_s_max_8_input"
     DoCmd.OpenQuery "A vehicle_info v_s_max_9_input"
     DoCmd.OpenQuery "A vehicle_info v_s_max_10_input"
-    
+
     Kontroll67 = False
 
 
     Befehl31.Enabled = False
-    
+
     Befehl28.Enabled = False
-    
+
     Text71 = ""
     Text7 = ""
     Text15 = ""
@@ -2220,19 +2220,19 @@ rstce.Close
     Text88 = ""
     'DoCmd.Maximize
     Text0.SetFocus
-    
+
     Be95.Visible = False
     Ko12.Visible = False
-    
+
     s106 = False
 
-    
-    
+
+
     MsgBox "Done!"
 
-    
 
-    
+
+
 End Sub
 
 Private Sub Befehl30_Click()
@@ -2274,13 +2274,13 @@ P_rated = Text4
 ' check for incomplete input data ######################################################################################################
 
     If IsNull(DLookup("[f0]", "ST_veh_input")) Or IsNull(DLookup("[f1]", "ST_veh_input")) Or IsNull(DLookup("[f2]", "ST_veh_input")) Then
-    
+
     MsgBox "you chose user defined driving resistance coefficients, but the required input data is incomplete, please complete it!"
-    
+
     Exit Sub
-    
+
     Else: End If
-    
+
 
 If IsNull(Text10) Then
 
@@ -2885,95 +2885,95 @@ i = 0
 rstde.MoveFirst
 rstee.MoveFirst
 rstee.MoveNext
-        
+
 loop3:
 
     p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
-    
-        
+
+
     Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
-        
+
     rstde.MoveNext
     rstee.MoveNext
-    
+
     Loop
-        
+
     If rstee.EOF Then
-    
+
     GoTo end3
-    
+
     Else
-        
+
     P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
-    
+
     End If
-    
+
     If P_avai > p_req Then
-        
+
         v_old = v
         n_old = n
-        
+
         v = v + 0.1
         n = ndv_lower3 * v
-        
+
         If n > n_max_Pwot Then
-        
+
         vmax_lower3 = v_old
         n_vmax_lower3 = n_old
-        
+
         GoTo end3
-        
+
         Else
-        
+
         GoTo loop3
-        
+
         End If
 
     ElseIf P_avai = p_req Then
-    
+
         v_old = v
-        
+
         n_old = n
-        
+
         If n < n_max_Pwot Then
-        
+
             v = v + 0.1
-        
+
             n = ndv_lower3 * v
-            
+
             If n > n_max_Pwot Then
-            
+
             vmax_lower3 = v_old
             n_vmax_lower3 = n_old
-                           
+
             GoTo end3
-            
+
             Else
-            
+
             GoTo loop3
-            
+
             End If
-        
+
         Else
-                       
+
         vmax_lower3 = v_old
         n_vmax_lower3 = n_old
-        
+
         GoTo end3
-        
+
         End If
-        
-     
+
+
     ElseIf P_avai < p_req Then
-    
+
         vmax_lower3 = v_old
         n_vmax_lower3 = n_old
-        
+
         GoTo end3
-        
+
     Else: End If
-    
-        
+
+
 end3:
 
 
@@ -3001,95 +3001,95 @@ i = 0
 rstde.MoveFirst
 rstee.MoveFirst
 rstee.MoveNext
-        
+
 loop2:
 
     p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
-    
-        
+
+
     Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
-        
+
     rstde.MoveNext
     rstee.MoveNext
-    
+
     Loop
-        
+
     If rstee.EOF Then
-    
+
     GoTo end2
-    
+
     Else
-        
+
     P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
-    
+
     End If
-    
+
     If P_avai > p_req Then
-        
+
         v_old = v
         n_old = n
-        
+
         v = v + 0.1
         n = ndv_lower2 * v
-        
+
         If n > n_max_Pwot Then
-        
+
         vmax_lower2 = v_old
         n_vmax_lower2 = n_old
-        
+
         GoTo end2
-        
+
         Else
-        
+
         GoTo loop2
-        
+
         End If
 
     ElseIf P_avai = p_req Then
-    
+
         v_old = v
-        
+
         n_old = n
-        
+
         If n < n_max_Pwot Then
-        
+
             v = v + 0.1
-        
+
             n = ndv_lower2 * v
-            
+
             If n > n_max_Pwot Then
-            
+
             vmax_lower2 = v_old
             n_vmax_lower2 = n_old
-                           
+
             GoTo end2
-            
+
             Else
-            
+
             GoTo loop2
-            
+
             End If
-        
+
         Else
-                       
+
         vmax_lower2 = v_old
         n_vmax_lower2 = n_old
-        
+
         GoTo end2
-        
+
         End If
-        
-     
+
+
     ElseIf P_avai < p_req Then
-    
+
         vmax_lower2 = v_old
         n_vmax_lower2 = n_old
-        
+
         GoTo end2
-        
+
     Else: End If
-    
-        
+
+
 end2:
 
 
@@ -3111,95 +3111,95 @@ i = 0
 rstde.MoveFirst
 rstee.MoveFirst
 rstee.MoveNext
-        
+
 loop1:
 
     p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
-    
-        
+
+
     Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
-        
+
     rstde.MoveNext
     rstee.MoveNext
-    
+
     Loop
-        
+
     If rstee.EOF Then
-    
+
     GoTo end1
-    
+
     Else
-        
+
     P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
-    
+
     End If
-    
+
     If P_avai > p_req Then
-        
+
         v_old = v
         n_old = n
-        
+
         v = v + 0.1
         n = ndv_lower1 * v
-        
+
         If n > n_max_Pwot Then
-        
+
         vmax_lower1 = v_old
         n_vmax_lower1 = n_old
-        
+
         GoTo end1
-        
+
         Else
-        
+
         GoTo loop1
-        
+
         End If
 
     ElseIf P_avai = p_req Then
-    
+
         v_old = v
-        
+
         n_old = n
-        
+
         If n < n_max_Pwot Then
-        
+
             v = v + 0.1
-        
+
             n = ndv_lower1 * v
-            
+
             If n > n_max_Pwot Then
-            
+
             vmax_lower1 = v_old
             n_vmax_lower1 = n_old
-                           
+
             GoTo end1
-            
+
             Else
-            
+
             GoTo loop2
-            
+
             End If
-        
+
         Else
-                       
+
         vmax_lower1 = v_old
         n_vmax_lower1 = n_old
-        
+
         GoTo end1
-        
+
         End If
-        
-     
+
+
     ElseIf P_avai < p_req Then
-    
+
         vmax_lower1 = v_old
         n_vmax_lower1 = n_old
-        
+
         GoTo end1
-        
+
     Else: End If
-    
-        
+
+
 end1:
 
 
@@ -3222,95 +3222,95 @@ i = 0
 rstde.MoveFirst
 rstee.MoveFirst
 rstee.MoveNext
-        
+
 loop0:
 
     p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
-    
-        
+
+
     Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
-        
+
     rstde.MoveNext
     rstee.MoveNext
-    
+
     Loop
-        
+
     If rstee.EOF Then
-    
+
     GoTo end0
-    
+
     Else
-        
+
     P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
-    
+
     End If
-    
+
     If P_avai > p_req Then
-        
+
         v_old = v
         n_old = n
-        
+
         v = v + 0.1
         n = ndv_max * v
-        
+
         If n > n_max_Pwot Then
-        
+
         vmax_max = v_old
         n_vmax_max = n_old
-        
+
         GoTo end0
-        
+
         Else
-        
+
         GoTo loop0
-        
+
         End If
 
     ElseIf P_avai = p_req Then
-    
+
         v_old = v
-        
+
         n_old = n
-        
+
         If n < n_max_Pwot Then
-        
+
             v = v + 0.1
-        
+
             n = ndv_max * v
-            
+
             If n > n_max_Pwot Then
-            
+
             vmax_max = v_old
             n_vmax_max = n_old
-                           
+
             GoTo end0
-            
+
             Else
-            
+
             GoTo loop0
-            
+
             End If
-        
+
         Else
-                       
+
         vmax_max = v_old
         n_vmax_max = n_old
-        
+
         GoTo end0
-        
+
         End If
-        
-     
+
+
     ElseIf P_avai < p_req Then
-    
+
         vmax_max = v_old
         n_vmax_max = n_old
-        
+
         GoTo end0
-        
+
     Else: End If
-    
-        
+
+
 end0:
 
 
@@ -3334,13 +3334,13 @@ p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
 P_avai = rstde!Pwot * 0.9
 
     If P_avai > p_req Then
-    
+
 'n_max = nlim > n_rated according to the last sub-paragraph of annex 2, paragraph 2(i) ###############################################################################
-    
+
     vmax_max = Int(v * 10 + 0.5) / 10
     n_vmax_max = v * ndv_max
     vmax = vmax_max
-    
+
     rstce!vmax_determined_by_n_lim = True
     rstce!v_max = vmax_max
     rstce!n_vmax = n_vmax_max
@@ -3350,27 +3350,27 @@ P_avai = rstde!Pwot * 0.9
     rstce!below_s = True
     rstce!at_s = False
     rstce!above_s = False
-    
+
     ElseIf n_vmax_max >= rstce!rated_speed - 50 And n_vmax_max <= rstce!rated_speed + 50 Then
     rstce!below_s = False
     rstce!at_s = True
     rstce!above_s = False
-    
+
     ElseIf n_vmax_max > rstce!rated_speed + 50 Then
     rstce!below_s = False
     rstce!at_s = False
     rstce!above_s = True
-    
+
     n_max2 = ndv_max * rstae!v_max_cycle
     n_max3 = ndv_max * vmax
     rstce!n_max2 = n_max2
     rstce!n_max3 = n_max3
-    
+
     GoTo end00
-    
+
     Else
     End If
-    
+
     Else: End If
 
 Else: End If
@@ -3656,7 +3656,7 @@ Me.Requery
 rstce.Close
 
 '############################################
-    
+
 
 
 Befehl28.Enabled = True
@@ -3857,95 +3857,95 @@ i = 0
 rstde.MoveFirst
 rstee.MoveFirst
 rstee.MoveNext
-        
+
 loop3:
 
     p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
-    
-        
+
+
     Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
-        
+
     rstde.MoveNext
     rstee.MoveNext
-    
+
     Loop
-        
+
     If rstee.EOF Then
-    
+
     GoTo end3
-    
+
     Else
-        
+
     P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
-    
+
     End If
-    
+
     If P_avai > p_req Then
-        
+
         v_old = v
         n_old = n
-        
+
         v = v + 0.1
         n = ndv_lower3 * v
-        
+
         If n > n_max_Pwot Then
-        
+
         vmax_lower3 = v_old
         n_vmax_lower3 = n_old
-        
+
         GoTo end3
-        
+
         Else
-        
+
         GoTo loop3
-        
+
         End If
 
     ElseIf P_avai = p_req Then
-    
+
         v_old = v
-        
+
         n_old = n
-        
+
         If n < n_max_Pwot Then
-        
+
             v = v + 0.1
-        
+
             n = ndv_lower3 * v
-            
+
             If n > n_max_Pwot Then
-            
+
             vmax_lower3 = v_old
             n_vmax_lower3 = n_old
-                           
+
             GoTo end3
-            
+
             Else
-            
+
             GoTo loop3
-            
+
             End If
-        
+
         Else
-                       
+
         vmax_lower3 = v_old
         n_vmax_lower3 = n_old
-        
+
         GoTo end3
-        
+
         End If
-        
-     
+
+
     ElseIf P_avai < p_req Then
-    
+
         vmax_lower3 = v_old
         n_vmax_lower3 = n_old
-        
+
         GoTo end3
-        
+
     Else: End If
-    
-        
+
+
 end3:
 
 
@@ -3973,95 +3973,95 @@ i = 0
 rstde.MoveFirst
 rstee.MoveFirst
 rstee.MoveNext
-        
+
 loop2:
 
     p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
-    
-        
+
+
     Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
-        
+
     rstde.MoveNext
     rstee.MoveNext
-    
+
     Loop
-        
+
     If rstee.EOF Then
-    
+
     GoTo end2
-    
+
     Else
-        
+
     P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
-    
+
     End If
-    
+
     If P_avai > p_req Then
-        
+
         v_old = v
         n_old = n
-        
+
         v = v + 0.1
         n = ndv_lower2 * v
-        
+
         If n > n_max_Pwot Then
-        
+
         vmax_lower2 = v_old
         n_vmax_lower2 = n_old
-        
+
         GoTo end2
-        
+
         Else
-        
+
         GoTo loop2
-        
+
         End If
 
     ElseIf P_avai = p_req Then
-    
+
         v_old = v
-        
+
         n_old = n
-        
+
         If n < n_max_Pwot Then
-        
+
             v = v + 0.1
-        
+
             n = ndv_lower2 * v
-            
+
             If n > n_max_Pwot Then
-            
+
             vmax_lower2 = v_old
             n_vmax_lower2 = n_old
-                           
+
             GoTo end2
-            
+
             Else
-            
+
             GoTo loop2
-            
+
             End If
-        
+
         Else
-                       
+
         vmax_lower2 = v_old
         n_vmax_lower2 = n_old
-        
+
         GoTo end2
-        
+
         End If
-        
-     
+
+
     ElseIf P_avai < p_req Then
-    
+
         vmax_lower2 = v_old
         n_vmax_lower2 = n_old
-        
+
         GoTo end2
-        
+
     Else: End If
-    
-        
+
+
 end2:
 
 
@@ -4083,95 +4083,95 @@ i = 0
 rstde.MoveFirst
 rstee.MoveFirst
 rstee.MoveNext
-        
+
 loop1:
 
     p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
-    
-        
+
+
     Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
-        
+
     rstde.MoveNext
     rstee.MoveNext
-    
+
     Loop
-        
+
     If rstee.EOF Then
-    
+
     GoTo end1
-    
+
     Else
-        
+
     P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
-    
+
     End If
-    
+
     If P_avai > p_req Then
-        
+
         v_old = v
         n_old = n
-        
+
         v = v + 0.1
         n = ndv_lower1 * v
-        
+
         If n > n_max_Pwot Then
-        
+
         vmax_lower1 = v_old
         n_vmax_lower1 = n_old
-        
+
         GoTo end1
-        
+
         Else
-        
+
         GoTo loop1
-        
+
         End If
 
     ElseIf P_avai = p_req Then
-    
+
         v_old = v
-        
+
         n_old = n
-        
+
         If n < n_max_Pwot Then
-        
+
             v = v + 0.1
-        
+
             n = ndv_lower1 * v
-            
+
             If n > n_max_Pwot Then
-            
+
             vmax_lower1 = v_old
             n_vmax_lower1 = n_old
-                           
+
             GoTo end1
-            
+
             Else
-            
+
             GoTo loop2
-            
+
             End If
-        
+
         Else
-                       
+
         vmax_lower1 = v_old
         n_vmax_lower1 = n_old
-        
+
         GoTo end1
-        
+
         End If
-        
-     
+
+
     ElseIf P_avai < p_req Then
-    
+
         vmax_lower1 = v_old
         n_vmax_lower1 = n_old
-        
+
         GoTo end1
-        
+
     Else: End If
-    
-        
+
+
 end1:
 
 
@@ -4194,95 +4194,95 @@ i = 0
 rstde.MoveFirst
 rstee.MoveFirst
 rstee.MoveNext
-        
+
 loop0:
 
     p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
-    
-        
+
+
     Do Until rstde!n <= n And rstee!n > n Or rstee.EOF
-        
+
     rstde.MoveNext
     rstee.MoveNext
-    
+
     Loop
-        
+
     If rstee.EOF Then
-    
+
     GoTo end0
-    
+
     Else
-        
+
     P_avai = rstde!Pwot * 0.9 + (rstee!Pwot * 0.9 - rstde!Pwot * 0.9) / (rstee!n - rstde!n) * (n - rstde!n)
-    
+
     End If
-    
+
     If P_avai > p_req Then
-        
+
         v_old = v
         n_old = n
-        
+
         v = v + 0.1
         n = ndv_max * v
-        
+
         If n > n_max_Pwot Then
-        
+
         vmax_max = v_old
         n_vmax_max = n_old
-        
+
         GoTo end0
-        
+
         Else
-        
+
         GoTo loop0
-        
+
         End If
 
     ElseIf P_avai = p_req Then
-    
+
         v_old = v
-        
+
         n_old = n
-        
+
         If n < n_max_Pwot Then
-        
+
             v = v + 0.1
-        
+
             n = ndv_max * v
-            
+
             If n > n_max_Pwot Then
-            
+
             vmax_max = v_old
             n_vmax_max = n_old
-                           
+
             GoTo end0
-            
+
             Else
-            
+
             GoTo loop0
-            
+
             End If
-        
+
         Else
-                       
+
         vmax_max = v_old
         n_vmax_max = n_old
-        
+
         GoTo end0
-        
+
         End If
-        
-     
+
+
     ElseIf P_avai < p_req Then
-    
+
         vmax_max = v_old
         n_vmax_max = n_old
-        
+
         GoTo end0
-        
+
     Else: End If
-    
-        
+
+
 end0:
 
 
@@ -4306,15 +4306,15 @@ p_req = (rstce!f0 * v + rstce!f1 * v ^ 2 + rstce!f2 * v ^ 3) / 3600
 P_avai = rstde!Pwot * 0.9
 
     If P_avai > p_req Then
-    
+
 'n_max = nlim > n_rated according to the last sub-paragraph of annex 2, paragraph 2(i) ###############################################################################
-    
+
     vmax_max = Int(v * 10 + 0.5) / 10
     n_vmax_max = v * ndv_max
     vmax = vmax_max
-    
-    
-    
+
+
+
     Else: End If
 
 Else: End If
@@ -4349,7 +4349,7 @@ Loop
 
 
 '############################################
-    
+
 
 
 
