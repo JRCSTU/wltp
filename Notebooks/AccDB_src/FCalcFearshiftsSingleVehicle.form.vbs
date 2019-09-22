@@ -910,6 +910,11 @@ Private Sub Befehl28_Click()
 'Stop
 	gearshift_calculation3
 
+	DoCmd.OpenQuery "A gearshift_table stop"
+	DoCmd.OpenQuery "A gearshift_table acc"
+	DoCmd.OpenQuery "A gearshift_table cruise"
+	DoCmd.OpenQuery "A gearshift_table dec"
+
 	numbering_g0
 	numbering_g1
 	numbering_g2
@@ -923,16 +928,9 @@ Private Sub Befehl28_Click()
 	numbering_g10
 	numbering_ST
 
-	DoCmd.OpenQuery "A gearshift_table stop"
-	DoCmd.OpenQuery "A gearshift_table acc"
-	DoCmd.OpenQuery "A gearshift_table cruise"
-	DoCmd.OpenQuery "A gearshift_table dec"
 
-	If Rahmen36 = 1 Then
 
-		DoCmd.OpenQuery "A gearshift_table final_dec"
 
-	End If
 
 	calculation_of_tolerances
 
@@ -1509,7 +1507,7 @@ Private Sub Form_Open(Cancel As Integer)
 	Kontroll202 = False
 	Kontr217 = False
 
-
+	Kontr226 = True
 	Kontr226.Visible = False
 	Text238.Visible = False
 	Be239.Visible = False
@@ -2554,70 +2552,6 @@ Public Sub gearshift_calculation2()
 	Set rstge = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
 	Set rsthe = dbsDB1.OpenRecordset("A gearshift_table sort", DB_OPEN_DYNASET)
 
-'0) ##############################################################################################
-'0) corr gear 2 at transition from 1. to 2. gear according to annex 2, paragraph 2(k), (2), (i)
-
-	rstbe.MoveFirst
-	rstce.MoveFirst
-	rstce.MoveNext
-	rstde.MoveFirst
-	rstde.MoveNext
-	rstde.MoveNext
-	rstee.MoveFirst
-	rstee.MoveNext
-	rstee.MoveNext
-	rstee.MoveNext
-
-	Do While Not rstee.EOF
-
-
-		If rstbe!gear = 1 And rstce!gear = 2 And rstce!v > rstbe!v And rstce!v >= 1 Then
-
-			If rstce!v * rstae!ndv_2 < rstae!facc_g2 * rstae!idling_speed Then
-
-				rstce.edit
-				rstce!gear = 1
-				rstce!gear_modification = rstce!gear_modification & "0a) corr gear 2 at transition from 1. to 2. gear, "
-				rstce.Update
-				m = m + 1
-
-			End If
-		End If
-
-		If rstbe!gear = 1 And rstde!gear = 2 And rstde!v > rstce!v And rstce!v >= 1 Then
-
-			If rstde!v * rstae!ndv_2 < rstae!facc_g2 * rstae!idling_speed Then
-
-				rstde.edit
-				rstde!gear = 1
-				rstde!gear_modification = rstde!gear_modification & "0b) corr gear 2 at transition from 1. to 2. gear, "
-				rstde.Update
-				m = m + 1
-
-			End If
-		End If
-
-		If rstbe!gear = 1 And rstee!gear = 2 And rstee!v > rstde!v And rstce!v >= 1 Then
-
-			If rstee!v * rstae!ndv_2 < rstae!facc_g2 * rstae!idling_speed Then
-
-				rstee.edit
-				rstee!gear = 1
-				rstee!gear_modification = rstee!gear_modification & "0c) corr gear 2 at transition from 1. to 2. gear, "
-				rstee.Update
-				m = m + 1
-
-			End If
-		End If
-
-'#################################################################################################
-
-		rstbe.MoveNext
-		rstce.MoveNext
-		rstde.MoveNext
-		rstee.MoveNext
-
-	Loop
 
 '######################################################################################################################
 
@@ -4967,7 +4901,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rstde.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 
@@ -5011,7 +4945,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rstee.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 '2) #############################################################################################
@@ -5054,7 +4988,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rstde.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 '4) ##############################################################################################
@@ -5144,7 +5078,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rstee.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 '8) ############################################################################################################
@@ -5239,7 +5173,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rstfe.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 '12) ######################################################################################################
@@ -5339,7 +5273,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rstge.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 '15) #####################################################################################################################
@@ -5546,7 +5480,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rsthe.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 '24) ##################################################################################################################
@@ -5798,7 +5732,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rstce.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 
@@ -5898,7 +5832,7 @@ Public Sub check_gear_use_calculation()
 	Do Until rstbe.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 
@@ -6157,24 +6091,25 @@ Public Sub perform_downscaling()
 
 		End If
 
-
-		rstbe.MoveFirst
-
-		Do Until rstbe.EOF
-
-			rstbe.edit
-
-			rstbe!v_downscale = Int(rstbe!v_downscale * 10 + 0.5) / 10
-			rstbe!v = Int(rstbe!v_downscale * 10 + 0.5) / 10
-			rstbe!v_cap = Int(rstbe!v_downscale * 10 + 0.5) / 10
-
-			rstbe.Update
-
-			rstbe.MoveNext
-
-		Loop
-
 	End If
+
+	rstbe.MoveFirst
+
+	Do Until rstbe.EOF
+
+		rstbe.edit
+
+		rstbe!v_downscale = Int(rstbe!v_downscale * 10 + 0.5) / 10
+		rstbe!v = Int(rstbe!v_downscale * 10 + 0.5) / 10
+		rstbe!v_cap = Int(rstbe!v_downscale * 10 + 0.5) / 10
+
+		rstbe.Update
+
+		rstbe.MoveNext
+
+	Loop
+
+
 
 
 	rstbe.Close
@@ -7407,7 +7342,7 @@ Public Sub numbering_g0()
 	Do Until rsthe.EOF
 
 'Text7 = rstbe!part
-'Text15 = rstbe!Tim
+'Text15 = rstbe!tim
 'Me.Repaint
 
 		If rsthe!v < 1 And rstbe!v < 20 Then
@@ -7571,9 +7506,9 @@ Public Sub gearshift_calculation1()
 	Dim g_2s As Byte, g_2e As Byte, g_2b As Byte, v As Double, P_max As Double, z As Double, IDn_norm As Integer
 	Dim n_orig As Integer, v_orig As Double, a As Double, v_de As Double, flag As Byte, flag2 As Byte, flag3 As Byte
 	Dim a_de As Double, n_de As Double, n_norm_de As Double, IDn_norm_de As Integer, P_a_de As Double, P_tot_de As Double, P_res_de As Double, P_max_de As Double
-	Dim downscale_factor As Double, n_max_wot As Integer, Pwot As Double, Pavai As Double, ASM As Double, n_min_wot As Integer
+	Dim downscale_factor As Double, n_max_wot As Double, Pwot As Double, Pavai As Double, ASM As Double, n_min_wot As Double
 	Dim SM0 As Double, kr As Double, v_cap As Double, Pwot_n_min As Double, Pwot_n_max As Double, a_thr As Double, fact As Double
-
+	Dim n_ref As Double, idling_speed As Integer
 
 	m = 0
 	n = 0
@@ -7599,6 +7534,10 @@ Public Sub gearshift_calculation1()
 	SM0 = rstae!SM0
 	kr = rstae!kr
 	a_thr = rstae!a_thr
+	idling_speed = rstae!idling_speed
+	n_ref = 1.15 * idling_speed
+	n_min_wot = rstae!n_min_wot
+	n_max_wot = rstae!n_max_wot
 
 	DoCmd.OpenQuery "A gearshift_table del"
 
@@ -7875,7 +7814,7 @@ Public Sub gearshift_calculation1()
 			rstbe!gear = 0
 			rstbe!g_max = 0
 			rstbe!g_min = 0
-			rstbe!nc = rstae!idling_speed
+			rstbe!nc = dling_speed
 			rstbe!clutch = "engaged, gear lever in neutral"
 			rstbe.Update
 
@@ -7894,61 +7833,111 @@ Public Sub gearshift_calculation1()
 
 		n = rstae!ndv_1 * rstbe!v
 
-		If rstbe!v < 1 Or n > n_max_wot Then
-
-
-			GoTo endloop_n1
-
-		Else
-
+		If rstbe!v < 1 Then
 
 			rstbe.edit
-			rstbe!n_1 = n
-			If n <= rstae!n_max1 Then
-				rstbe!g_min = 1
-				rstbe!g_max = 1
-			End If
-			rstbe.Update
 
-			rstie.MoveFirst
-			rstke.MoveFirst
-			rstke.MoveNext
-
-			If rstbe!n_1 > rstke!n Then
-
-
-
-				Do Until rstie!n < rstbe!n_1 And rstbe!n_1 <= rstke!n
-
-					rstie.MoveNext
-					rstke.MoveNext
-
-				Loop
-
-			End If
-
-
-			If rstbe!n_1 <= rstie!n Then
-
-				Pwot = rstie!Pwot
-				Pavai = rstie!Pavai
-
-			Else
-
-				Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstbe!n_1 - rstie!n)
-
-
-				Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (rstbe!n_1 - rstie!n)
-
-			End If
-
-			rstbe.edit
-			rstbe!P_1 = Pavai
+			rstbe!g_min = 0
+			rstbe!g_max = 0
+			rstbe!clutch = "disengaged"
 			rstbe.Update
 
 		End If
 
-		endloop_n1:
+		If rstbe!v >= 1 And n < idling_speed Then
+
+			rstbe.edit
+			rstbe!g_max = 1
+			rstbe!g_min = 1
+
+			If rstbe!a > 0 Then
+
+				n = n_ref
+
+			Else
+
+				n = idling_speed
+
+			End If
+
+			rstbe!n_1 = n
+			rstbe.Update
+
+		End If
+
+		If n >= idling_speed And rstbe!v >= 1 And rstbe!v * rstae!ndv_1 <= rstae!n_max1 Then
+
+			rstbe.edit
+			rstbe!g_min = 1
+
+			rstbe!n_1 = n
+
+			If rstbe!a >= 0 And n < n_ref Then
+
+				n = n_ref
+
+				rstbe!n_1 = n
+
+
+			End If
+
+
+			If rstbe!v * rstae!ndv_2 < n_ref And rstbe!a >= 0 Then
+
+				rstbe!g_max = 1
+
+			ElseIf rstbe!v * rstae!ndv_2 < 0.9 * idling_speed And rstbe!a < 0 Then
+
+				rstbe!g_max = 1
+
+			End If
+
+
+
+			If n >= n_min_wot And n <= n_max_wot Then
+
+
+				rstie.MoveFirst
+				rstke.MoveFirst
+				rstke.MoveNext
+
+				If n > rstke!n Then
+
+
+
+					Do Until rstie!n < n And n <= rstke!n
+
+						rstie.MoveNext
+						rstke.MoveNext
+
+					Loop
+
+				End If
+
+
+				If n <= rstie!n Then
+
+					Pwot = rstie!Pwot
+					Pavai = rstie!Pavai
+
+				Else
+
+					Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (n - rstie!n)
+
+
+					Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (n - rstie!n)
+
+				End If
+
+
+				rstbe!P_1 = Pavai
+
+			End If
+
+			rstbe.Update
+
+		End If
+
 
 		rstbe.MoveNext
 
@@ -7962,15 +7951,30 @@ Public Sub gearshift_calculation1()
 
 		n = rstae!ndv_2 * rstbe!v
 
-		If rstbe!v < 1 Or n < 0.9 * rstae!idling_speed Or n > n_max_wot Then
+		If rstbe!v < 1 Or n < 0.9 * idling_speed Or n > n_max_wot Or rstbe!a > 0 And n < n_ref Then
 
 
 			GoTo endloop_n2
 
 		Else
 
-			If n < rstae!idling_speed Then
-				n = rstae!idling_speed
+			If rstbe!a > 0 And (n_min_wot >= n_ref And n < n_min_wot Or n_min_wot < n_ref And n < idling_speed) Then
+
+				If rstae!ndv_2 * rstbe!v >= n_ref Then
+
+					n = rstae!ndv_2 * rstbe!v
+
+				Else
+
+					n = n_ref
+
+				End If
+
+
+			ElseIf n < idling_speed Then
+
+				n = idling_speed
+
 			End If
 
 			rstbe.edit
@@ -8037,7 +8041,7 @@ Public Sub gearshift_calculation1()
 
 		n = rstae!ndv_3 * rstbe!v
 
-		If rstbe!v < 1 Or n < rstae!idling_speed Or n > n_max_wot Then
+		If rstbe!v < 1 Or n < idling_speed Or n > n_max_wot Then
 
 
 			GoTo endloop_n3
@@ -8048,7 +8052,7 @@ Public Sub gearshift_calculation1()
 			rstbe.edit
 			rstbe!n_3 = n
 			If IsNull(rstbe!g_min) Then
-				If n <= rstae!n_max1 Or (rstae!gear_v_max = 3 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
+				If n <= rstae!n_max1 Or (rstae!gear_v_max = 3 And n <= n_max_wot) Then
 					rstbe!g_min = 3
 				End If
 			End If
@@ -8104,7 +8108,7 @@ Public Sub gearshift_calculation1()
 
 			n = rstae!ndv_4 * rstbe!v
 
-			If rstbe!v < 1 Or n < rstae!idling_speed Or n > n_max_wot Then
+			If rstbe!v < 1 Or n < idling_speed Or n > n_max_wot Then
 
 
 				GoTo endloop_n4
@@ -8115,7 +8119,8 @@ Public Sub gearshift_calculation1()
 				rstbe.edit
 				rstbe!n_4 = n
 				If IsNull(rstbe!g_min) Then
-					If n <= rstae!n_max1 Or (rstae!gear_v_max = 4 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
+
+					If n <= rstae!n_max1 Or (rstae!gear_v_max = 4 And n <= n_max_wot) Then
 						rstbe!g_min = 4
 					End If
 				End If
@@ -8171,7 +8176,7 @@ Public Sub gearshift_calculation1()
 
 			n = rstae!ndv_5 * rstbe!v
 
-			If rstbe!v < 1 Or n < rstae!idling_speed Or n > n_max_wot Then
+			If rstbe!v < 1 Or n < idling_speed Or n > n_max_wot Then
 
 
 				GoTo endloop_n5
@@ -8182,7 +8187,7 @@ Public Sub gearshift_calculation1()
 				rstbe.edit
 				rstbe!n_5 = n
 				If IsNull(rstbe!g_min) Then
-					If n <= rstae!n_max1 Or (rstae!gear_v_max = 5 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
+					If n <= rstae!n_max1 Or (rstae!gear_v_max = 5 And n <= n_max_wot) Then
 						rstbe!g_min = 5
 					End If
 				End If
@@ -8238,7 +8243,7 @@ Public Sub gearshift_calculation1()
 
 			n = rstae!ndv_6 * rstbe!v
 
-			If rstbe!v < 1 Or n < rstae!idling_speed Or n > n_max_wot Then
+			If rstbe!v < 1 Or n < idling_speed Or n > n_max_wot Then
 
 
 				GoTo endloop_n6
@@ -8249,7 +8254,7 @@ Public Sub gearshift_calculation1()
 				rstbe.edit
 				rstbe!n_6 = n
 				If IsNull(rstbe!g_min) Then
-					If n <= rstae!n_max1 Or (rstae!gear_v_max = 6 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
+					If n <= rstae!n_max1 Or (rstae!gear_v_max = 6 And n <= n_max_wot) Then
 						rstbe!g_min = 6
 					End If
 				End If
@@ -8308,7 +8313,7 @@ Public Sub gearshift_calculation1()
 
 			n = rstae!ndv_7 * rstbe!v
 
-			If rstbe!v < 1 Or n < rstae!idling_speed Or n > n_max_wot Then
+			If rstbe!v < 1 Or n < idling_speed Or n > n_max_wot Then
 
 
 				GoTo endloop_n7
@@ -8319,7 +8324,7 @@ Public Sub gearshift_calculation1()
 				rstbe.edit
 				rstbe!n_7 = n
 				If IsNull(rstbe!g_min) Then
-					If n <= rstae!n_max1 Or (rstae!gear_v_max = 7 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
+					If n <= rstae!n_max1 Or (rstae!gear_v_max = 7 And n <= n_max_wot) Then
 						rstbe!g_min = 7
 					End If
 				End If
@@ -8377,7 +8382,7 @@ Public Sub gearshift_calculation1()
 
 			n = rstae!ndv_8 * rstbe!v
 
-			If rstbe!v < 1 Or n < rstae!idling_speed Or n > n_max_wot Then
+			If rstbe!v < 1 Or n < idling_speed Or n > n_max_wot Then
 
 
 				GoTo endloop_n8
@@ -8388,7 +8393,7 @@ Public Sub gearshift_calculation1()
 				rstbe.edit
 				rstbe!n_8 = n
 				If IsNull(rstbe!g_min) Then
-					If n <= rstae!n_max1 Or (rstae!gear_v_max = 8 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
+					If n <= rstae!n_max1 Or (rstae!gear_v_max = 8 And n <= n_max_wot) Then
 						rstbe!g_min = 8
 					End If
 				End If
@@ -8447,7 +8452,7 @@ Public Sub gearshift_calculation1()
 
 			n = rstae!ndv_9 * rstbe!v
 
-			If rstbe!v < 1 Or n < rstae!idling_speed Or n > n_max_wot Then
+			If rstbe!v < 1 Or n < idling_speed Or n > n_max_wot Then
 
 
 				GoTo endloop_n9
@@ -8458,7 +8463,7 @@ Public Sub gearshift_calculation1()
 				rstbe.edit
 				rstbe!n_9 = n
 				If IsNull(rstbe!g_min) Then
-					If n <= rstae!n_max1 Or (rstae!gear_v_max = 9 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
+					If n <= rstae!n_max1 Or (rstae!gear_v_max = 9 And n <= n_max_wot) Then
 						rstbe!g_min = 9
 					End If
 				End If
@@ -8518,7 +8523,7 @@ Public Sub gearshift_calculation1()
 
 			n = rstae!ndv_10 * rstbe!v
 
-			If rstbe!v < 1 Or n < rstae!idling_speed Or n > n_max_wot Then
+			If rstbe!v < 1 Or n < idling_speed Or n > n_max_wot Then
 
 
 				GoTo endloop_n10
@@ -8529,7 +8534,7 @@ Public Sub gearshift_calculation1()
 				rstbe.edit
 				rstbe!n_10 = n
 				If IsNull(rstbe!g_min) Then
-					If n <= rstae!n_max1 Or (rstae!gear_v_max = 10 And rstae!n_max2 > rstae!n_max1 And n <= rstae!n_max2) Then
+					If n <= rstae!n_max1 Or (rstae!gear_v_max = 10 And n <= n_max_wot) Then
 						rstbe!g_min = 10
 					End If
 				End If
@@ -8576,7 +8581,7 @@ Public Sub gearshift_calculation1()
 
 	endloop_end:
 
-'
+'Stop
 
 	DoCmd.OpenQuery "A gearshift_table P_res"
 	DoCmd.OpenQuery "A gearshift_table P_a"
@@ -8778,7 +8783,8 @@ Public Sub gearshift_calculation1()
 
 		End If
 
-		If Not IsNull(rstbe!n_2) And rstbe!v * rstae!ndv_2 >= 0.9 * rstae!idling_speed Then
+		If Not IsNull(rstbe!n_2) And rstbe!v * rstae!ndv_2 >= 0.9 * idling_speed Then
+
 			rstbe.edit
 			rstbe!g_max = 2
 			If rstbe!g_min > 2 Then
@@ -8806,13 +8812,13 @@ Public Sub gearshift_calculation1()
 
 	Do Until rstde.EOF
 
-		If rstbe!g_max = 1 And rstce!g_max = 2 And rstde!g_max = 2 And rstae!ndv_2 * rstce!v < 1.15 * rstae!idling_speed Then
+		If rstbe!g_max = 1 And rstce!g_max = 2 And rstde!g_max = 2 And rstae!ndv_2 * rstce!v < n_ref Then
 
 			rstce.edit
 			rstce!g_max = 1
 			rstce.Update
 
-			If rstae!ndv_2 * rstde!v < 1.15 * rstae!idling_speed Then
+			If rstae!ndv_2 * rstde!v < n_ref Then
 
 				rstde.edit
 				rstde!g_max = 1
@@ -8822,7 +8828,7 @@ Public Sub gearshift_calculation1()
 
 		End If
 
-		If rstbe!g_max <= 1 And rstce!g_max = 1 And rstde!g_max = 2 And rstae!ndv_2 * rstde!v < 1.15 * rstae!idling_speed Then
+		If rstbe!g_max <= 1 And rstce!g_max = 1 And rstde!g_max = 2 And rstae!ndv_2 * rstde!v < n_ref Then
 
 			rstde.edit
 			rstde!g_max = 1
@@ -8838,152 +8844,15 @@ Public Sub gearshift_calculation1()
 
 	Loop
 
-'correction of g_max for cases where Pavai < Preq for all gears and the previous code chooses g_min as g_max but higher gears have the same or higher Pavai values
-'>=
-rstbe.MoveFirst
 
-
-Do Until rstde.EOF
-
-	If rstbe!g_max = 2 And rstbe!P_3 >= rstbe!P_2 And rstbe!P_2 < rstbe!Ptot And rstbe!P_3 > 0 Then
-
-		rstbe.edit
-		rstbe!g_max = 3
-		rstbe.Update
-
-	End If
-
-	rstbe.MoveNext
-
-Loop
-
-rstbe.MoveFirst
-
-
-Do Until rstde.EOF
-
-	If rstbe!g_max = 3 And rstbe!P_4 >= rstbe!P_3 And rstbe!P_3 < rstbe!Ptot And rstbe!P_4 > 0 Then
-		rstbe.edit
-		rstbe!g_max = 4
-		rstbe.Update
-
-	End If
-
-	rstbe.MoveNext
-
-Loop
-
-rstbe.MoveFirst
-
-
-Do Until rstde.EOF
-
-	If rstbe!g_max = 4 And rstbe!P_5 >= rstbe!P_4 And rstbe!P_4 < rstbe!Ptot And rstbe!P_5 > 0 Then
-		rstbe.edit
-		rstbe!g_max = 5
-		rstbe.Update
-
-	End If
-
-	rstbe.MoveNext
-
-Loop
-
-
-rstbe.MoveFirst
-
-
-Do Until rstde.EOF
-
-	If rstbe!g_max = 5 And rstbe!P_6 >= rstbe!P_5 And rstbe!P_5 < rstbe!Ptot And rstbe!P_6 > 0 Then
-
-		rstbe.edit
-		rstbe!g_max = 6
-		rstbe.Update
-
-	End If
-
-	rstbe.MoveNext
-
-Loop
-
-rstbe.MoveFirst
-
-
-Do Until rstde.EOF
-
-	If rstbe!g_max = 6 And rstbe!P_7 >= rstbe!P_6 And rstbe!P_6 < rstbe!Ptot And rstbe!P_7 > 0 Then
-
-		rstbe.edit
-		rstbe!g_max = 7
-		rstbe.Update
-
-	End If
-
-	rstbe.MoveNext
-
-Loop
-
-rstbe.MoveFirst
-
-
-Do Until rstde.EOF
-
-	If rstbe!g_max = 7 And rstbe!P_8 >= rstbe!P_7 And rstbe!P_7 < rstbe!Ptot And rstbe!P_8 > 0 Then
-		rstbe.edit
-		rstbe!g_max = 8
-		rstbe.Update
-
-	End If
-
-	rstbe.MoveNext
-
-Loop
-
-rstbe.MoveFirst
-
-
-Do Until rstde.EOF
-
-	If rstbe!g_max = 8 And rstbe!P_9 >= rstbe!P_8 And rstbe!P_8 < rstbe!Ptot And rstbe!P_9 > 0 Then
-		rstbe.edit
-		rstbe!g_max = 9
-		rstbe.Update
-
-	End If
-
-	rstbe.MoveNext
-
-Loop
-
-rstbe.MoveFirst
-
-
-Do Until rstde.EOF
-
-	If rstbe!g_max = 9 And rstbe!P_10 >= rstbe!P_9 And rstbe!P_9 < rstbe!Ptot And rstbe!P_10 > 0 Then
-
-		rstbe.edit
-		rstbe!g_max = 10
-		rstbe.Update
-
-	End If
-
-	rstbe.MoveNext
-
-Loop
-
-
-
-'stop
 
 ' Correction of g_min and g_max in case they are empty or 0 ###############################################################
 
-	DoCmd.OpenQuery "A gearshift_table g_min corr"
-	DoCmd.OpenQuery "A gearshift_table g_max corr"
+'DoCmd.OpenQuery "A gearshift_table g_min corr"
+'DoCmd.OpenQuery "A gearshift_table g_max corr"
 
 '############################################################################################
-'check for possibility for higher g_max
+'correction of g_max for cases where Pavai < Preq for all gears and the previous code chooses g_min as g_max but higher gears have the same or higher Pavai values
 
 
 	If Kontr226 = False Then
@@ -9002,7 +8871,7 @@ Loop
 
 	Do Until rstbe.EOF
 
-		If rstbe!g_min = rstbe!g_max And rstbe!g_max = 2 Then
+		If rstbe!g_max = 2 Then
 
 			If rstbe!P_4 >= fact * rstbe!P_2 Then
 				rstbe.edit
@@ -9015,8 +8884,16 @@ Loop
 				rstbe.Update
 
 			End If
+		End If
 
-		ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 3 Then
+		rstbe.MoveNext
+
+	Loop
+
+	rstbe.MoveFirst
+	Do Until rstbe.EOF
+
+		If rstbe!g_max = 3 Then
 
 			If rstbe!P_5 >= fact * rstbe!P_3 Then
 				rstbe.edit
@@ -9029,8 +8906,16 @@ Loop
 				rstbe.Update
 
 			End If
+		End If
 
-		ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 4 Then
+		rstbe.MoveNext
+
+	Loop
+
+	rstbe.MoveFirst
+	Do Until rstbe.EOF
+
+		If rstbe!g_max = 4 Then
 
 			If rstbe!P_6 >= fact * rstbe!P_4 Then
 				rstbe.edit
@@ -9043,8 +8928,16 @@ Loop
 				rstbe.Update
 
 			End If
+		End If
 
-		ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 5 Then
+		rstbe.MoveNext
+
+	Loop
+
+	rstbe.MoveFirst
+	Do Until rstbe.EOF
+
+		If rstbe!g_max = 5 Then
 
 			If rstbe!P_7 >= fact * rstbe!P_5 Then
 				rstbe.edit
@@ -9057,8 +8950,16 @@ Loop
 				rstbe.Update
 
 			End If
+		End If
 
-		ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 6 Then
+		rstbe.MoveNext
+
+	Loop
+
+	rstbe.MoveFirst
+	Do Until rstbe.EOF
+
+		If rstbe!g_max = 6 Then
 
 			If rstbe!P_8 >= fact * rstbe!P_6 Then
 				rstbe.edit
@@ -9071,8 +8972,16 @@ Loop
 				rstbe.Update
 
 			End If
+		End If
 
-		ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 7 Then
+		rstbe.MoveNext
+
+	Loop
+
+	rstbe.MoveFirst
+	Do Until rstbe.EOF
+
+		If rstbe!g_max = 7 Then
 
 			If rstbe!P_9 >= fact * rstbe!P_7 Then
 				rstbe.edit
@@ -9085,8 +8994,16 @@ Loop
 				rstbe.Update
 
 			End If
+		End If
 
-		ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 8 Then
+		rstbe.MoveNext
+
+	Loop
+
+	rstbe.MoveFirst
+	Do Until rstbe.EOF
+
+		If rstbe!g_max = 8 Then
 
 			If rstbe!P_10 >= fact * rstbe!P_8 Then
 				rstbe.edit
@@ -9099,8 +9016,16 @@ Loop
 				rstbe.Update
 
 			End If
+		End If
 
-		ElseIf rstbe!g_min = rstbe!g_max And rstbe!g_max = 9 Then
+		rstbe.MoveNext
+
+	Loop
+
+	rstbe.MoveFirst
+	Do Until rstbe.EOF
+
+		If rstbe!g_max = 9 Then
 
 			If rstbe!P_10 >= fact * rstbe!P_9 Then
 				rstbe.edit
@@ -9115,7 +9040,169 @@ Loop
 
 	Loop
 
+'correction of engine speed and gear during decelerations to stop
+
+	rstbe.MoveFirst
+	rstce.MoveFirst
+	rstce.MoveNext
+
+
+	Do Until rstce.EOF
+
+		If rstbe!v >= 1 And rstce!v < 1 Then
+
+'MsgBox "time " & rstce!Tim
+
+			k = 0
+
+			Do Until rstce!g_max = 2 And rstce!n_02 < idling_speed And rstce!a < 0 Or rstce!a > 0
+
+				k = k + 1
+
+				rstbe.MovePrevious
+				rstce.MovePrevious
+
+			Loop
+
+			If rstce!a > 0 Then
+
+'MsgBox "a > 0, time " & rstce!Tim
+
+				For i = 1 To k + 1
+
+					rstbe.MoveNext
+					rstce.MoveNext
+
+				Next i
+
+				GoTo end_corr
+
+			Else
+
+				j = 0
+
+				start_j:
+
+				If rstce!g_max = 2 And rstce!n_02 < idling_speed And rstce!a < 0 Then
+
+					rstce.edit
+					rstce!g_max = 1
+					rstce!gear_modification = "g_max 2 -> 1, "
+					rstce.Update
+
+
+					rstce.MovePrevious
+
+					j = j + 1
+
+					GoTo start_j
+
+				Else
+
+'MsgBox "time " & rstce!Tim & ", j = " & j
+
+					If j = 0 Then
+
+						GoTo end_j
+
+					Else
+
+						For i = 1 To j
+
+							rstce.MoveNext
+
+						Next i
+
+					End If
+
+				End If
+
+
+
+				end_j:
+
+'MsgBox "a < 0, time " & rstce!Tim
+
+				For i = 1 To k + 1
+
+					rstbe.MoveNext
+					rstce.MoveNext
+
+				Next i
+
+				GoTo end_corr
+
+			End If
+
+
+		End If
+
+		end_corr:
+
+		rstbe.MoveNext
+		rstce.MoveNext
+
+	Loop
+
+'specify final dec #############################################################################
+
+'correction of engine speed and gear during decelerations to stop
+
+	rstbe.MoveFirst
+	rstce.MoveFirst
+	rstce.MoveNext
+
+
+	Do Until rstce.EOF
+
+		If rstbe!v >= 1 And rstce!v < 1 Then
+
+'MsgBox "time " & rstce!Tim
+
+			k = 0
+
+			Do Until rstbe!a >= 0
+
+				k = k + 1
+
+				rstbe.MovePrevious
+				rstce.MovePrevious
+
+			Loop
+
+			rstce.edit
+			rstce!final_dec = True
+			rstce.Update
+
+			For i = 1 To k
+
+
+				rstce.edit
+				rstce!final_dec = True
+				rstce.Update
+
+				rstbe.MoveNext
+				rstce.MoveNext
+
+			Next i
+
+			GoTo end_corr2
+
+
+
+		End If
+
+		end_corr2:
+
+		rstbe.MoveNext
+		rstce.MoveNext
+
+	Loop
+
+
+
 ' The initial gear to be used for each second j of the cycle trace is the highest final possible gear, imax according to annex 2, paragraph 3.5.
+
 
 	DoCmd.OpenQuery "A gearshift_table gear_gear_max"
 
@@ -9132,7 +9219,7 @@ Loop
 	weiter_NEDC:
 	rstae.Close
 
-
+'Stop
 End Sub
 
 Public Sub numbering_g8()
@@ -9697,8 +9784,7 @@ Public Sub gearshift_calculation3()
 
 	DoCmd.OpenQuery "A gearshift_table P_rel"
 	DoCmd.OpenQuery "A gearshift_table n_kl2"
-	DoCmd.OpenQuery "A gearshift_table P_norm_max_wo_margin"
-	DoCmd.OpenQuery "A gearshift_table lower Ptot Ste"
+
 	DoCmd.OpenQuery "A gearshift_table n_above_s_Ste"
 
 
@@ -10132,7 +10218,7 @@ Public Sub Calculate_speed_capped_cycle()
 
 			If Not rstae.EOF Then
 'MsgBox "part = " & rstae!part
-'MsgBox "tim = " & rstae!Tim
+'MsgBox "tim = " & rstae!tim
 
 				t = t + 1
 
@@ -10258,7 +10344,7 @@ Public Sub Calculate_speed_capped_cycle()
 
 			If Not rstae.EOF Then
 'MsgBox "part = " & rstae!part
-'MsgBox "tim = " & rstae!Tim
+'MsgBox "tim = " & rstae!tim
 
 				t = t + 1
 
@@ -10970,6 +11056,13 @@ Public Sub gearshift_calculation2b()
 
 			End If
 
+			If n > rstbe!n_01 Then
+
+				rstbe!clutch = "undefined"
+
+			End If
+
+
 			If (n < n_min_wot Or n < rstae!idling_speed * rstae!facc_g2) And rstbe!a >= 0 Then
 
 				rstbe!clutch = "undefined"
@@ -11035,6 +11128,12 @@ Public Sub gearshift_calculation2b()
 			If rstbe!n_02 < rstae!idling_speed And rstbe!a < 0 Then
 
 				rstbe!clutch = "disengaged"
+
+			End If
+
+			If n > rstbe!n_02 Then
+
+				rstbe!clutch = "undefined"
 
 			End If
 
@@ -11525,6 +11624,29 @@ Public Sub gearshift_calculation2b()
 
 	weiter_flag3_1:
 
+'indicate samples with P_max < P_tot_set
+
+	rstbe.MoveFirst
+
+
+	Do Until rstbe.EOF
+
+		rstbe.edit
+		If rstbe!P_max < rstbe!P_tot_set Then
+
+			rstbe!Pmax_lower_Ptot_set = True
+
+		Else
+			rstbe!Pmax_lower_Ptot_set = False
+
+		End If
+
+		rstbe.Update
+
+		rstbe.MoveNext
+
+	Loop
+
 
 
 
@@ -11588,6 +11710,21 @@ Public Sub gearshift_calculation2b()
 			rstce.MoveNext
 
 		End If
+
+	Loop
+
+'****************************************************************************
+
+	rstbe.MoveFirst
+
+	Do Until rstbe.EOF
+
+		rstbe.edit
+		rstbe!n = rstbe!nc
+
+		rstbe.Update
+
+		rstbe.MoveNext
 
 	Loop
 
