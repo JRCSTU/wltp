@@ -283,6 +283,14 @@ def load_interactive_case(
 ```
 
 ```{python}
+def decide_signal_axis(colnames):
+    def is_velocity(col):
+        return is_velocity(col[0]) if isinstance(col, tuple) else col.startswith('v_')
+    
+    l1 = [i for i in colnames if is_velocity(i)]
+    l2 = [i for i in colnames if not is_velocity(i)]
+    return l1, l2
+
 def define_schenes():
     """Predfined case/pan/zooms of the compraison diagram below."""
     return [
@@ -502,7 +510,14 @@ def _count_series_diffs(a, b):
         return (a.iloc[:na] != b.iloc[:na]).sum() + (nb - na)
     return (a != b).sum()
 
-    
+
+def _distribute_signals_in_axes(columns, df):
+    cols1, cols2 = decide_signal_axis(columns)
+    df1 = df.loc[:, cols1]
+    df2 = df.loc[:, cols2]
+    return df1, df2
+
+
 def recreate_fig():
     """ 
      Recreate the same figure-number, or else they leak.
@@ -603,12 +618,16 @@ def plot_gear_flags(
     show_signals = pyalgo_signals or accdb_signals
     ax3.set_visible(show_signals)
     if show_signals:
-        pyalgo = pyalgo.loc[:, list(pyalgo_signals) or []]
-        accdb = accdb.loc[:, accdb_signals]
-        merged = merge_pyalgo_accdb(pyalgo, accdb)
+        pyalgo1, pyalgo2 = _distribute_signals_in_axes(pyalgo_signals, pyalgo)
+        accdb1, accdb2 = _distribute_signals_in_axes(accdb_signals, accdb)
+        
+        merged1 = merge_pyalgo_accdb(pyalgo1, accdb1)
+        merged2 = merge_pyalgo_accdb(pyalgo2, accdb2)
 
-        if not merged.empty:
-            merged.astype(np.float64).plot.line(ax=ax3, linewidth=2, linestyle=":")
+        if not merged1.empty:
+            merged1.astype(np.float64).plot.line(ax=ax, linewidth=2, linestyle="--")
+        if not merged2.empty:
+            merged2.astype(np.float64).plot.line(ax=ax3, linewidth=2, linestyle=":")
             ax3.legend(loc=4)
     ax.legend(loc=1)
     ax2.legend(loc=3)
