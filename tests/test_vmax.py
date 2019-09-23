@@ -132,4 +132,4 @@ def test_v_max(h5_accdb):
     ).all()
     assert (vehres["vmax_diff"] == 0).sum() == 125 and (
         vehres["gmax_diff"] == 0
-    ).sum() == 119
+    ).sum() == 125

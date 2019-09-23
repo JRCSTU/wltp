@@ -591,7 +591,7 @@ The computation code is roughly divided in these python modules:
         - :mod:`~wltp.experiment` (TO BE DROPPED, :mod:`~wltp.datamodel` will assume all functionality)
 
     scheduler
-        (TODO) The internal software component which decides which `formulae` to execute 
+        (TODO) The internal software component which decides which `formulae` to execute
         based on given inputs and requested outputs.
 
 The blueprint for the underlying software ideas is given with this diagram:
@@ -606,15 +606,15 @@ only what is not already given.
 
 Specs & Algorithm
 -----------------
-This program imitates to some degree the  `MS Access DB` (as of July 2019), 
+This program imitates to some degree the  `MS Access DB` (as of July 2019),
 following  this *08.07.2019_HS rev2_23072019 GTR specification*
 (:download:`docs/_static/WLTP-GS-TF-41 GTR 15 annex 1 and annex 2 08.07.2019_HS rev2_23072019.docx`,
-included in the :file:`docs/_static` folder).  
+included in the :file:`docs/_static` folder).
 
 .. Note::
     There is a distinctive difference between this implementation and the `AccDB`:
 
-    All computations are *vectorial*, meaning that all intermediate results are calculated & stored, 
+    All computations are *vectorial*, meaning that all intermediate results are calculated & stored,
     for all time sample-points,
     and not just the side of the conditions that evaluate to *true* on each sample.
 
@@ -675,8 +675,8 @@ class3b  **V**      [0, 589]    [589, 1022]     [1022, 1477]    [1477, 1801]
 Checksums
 ---------
 
-As computed by :func:`wltp.cycles.crc_velocity()`, 
-reported by :func:`wltp.cycles.cycle_checksums()`, and 
+As computed by :func:`wltp.cycles.crc_velocity()`,
+reported by :func:`wltp.cycles.cycle_checksums()`, and
 identified back by :func:`wltp.cycles.identify_cycle_v_crc`:
 
 =======  =========  =====  ======  ====  ====  ====  ====  ========  ===========

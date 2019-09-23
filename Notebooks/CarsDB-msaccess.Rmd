@@ -102,13 +102,20 @@ vehdb.print_nodes(h5fname)
 ```
 
 ```{python}
+# a=xleash.lasso('VehData/calculation_parameter_all.15092019_prog_code_dev.xlsx#calculation_parameter_all!::["df"]')
+# b=xleash.lasso('VehData/calculation_parameter_all.20092019.xlsx#calculation_parameter_all!::["df"]')
+# bad_cols = (a == b).all()
+# bad_cols[~bad_cols]
+```
+
+```{python}
 vehinputs_excel = (
-    Path("VehData/calculation_parameter_all.15092019_prog_code_dev.xlsx"),
+    Path("VehData/calculation_parameter_all.20092019.xlsx"),
     "calculation_parameter_all",
 )
 specs = xleash.lasso('%s#%s!::["df"]' % vehinputs_excel)
 
-wots_excel = (Path("VehData/TB_Pwot.15092019_prog_code_dev.xlsx"), "TB_Pwot")
+wots_excel = (Path("VehData/TB_Pwot.20092019.xlsx"), "TB_Pwot")
 pwots = xleash.lasso('%s#%s!::["df"]' % wots_excel)
 ```
 
@@ -162,7 +169,7 @@ def extract_SM_from_pwot(
 ```
 
 ```{python}
-vehresults_excel = ("VehData/gearshift_table_all.15092019_prog_code_dev.xlsx", "gearshift_table_all")
+vehresults_excel = ("VehData/gearshift_table_all.20092019.xlsx", "gearshift_table_all")
 # NOTE: it may take ~5 minute to load ~130 vehicles...
 results_df = xleash.lasso('%s#%s!::["df"]' % vehresults_excel)
 results_df.shape  # (223_722, 116)
@@ -287,7 +294,7 @@ vehdb.print_nodes(h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x4 HDF5: 338Mb --> 89Mb in ~10s.
+## COMPRESS x4 HDF5: 339Mb --> 90Mb in ~10s.
 #
 # !ls -lh {h5fname}
 if not skip_h5_write:
@@ -296,7 +303,7 @@ if not skip_h5_write:
 # !ls -lh {h5fname}
 ```
 
-```{python active="", eval=FALSE}
+```{python}
 ## SAMPLE: extract data for a specific vehicle. 
 #
 caseno = 14

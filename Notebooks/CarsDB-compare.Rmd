@@ -176,7 +176,7 @@ equivalent_series = [
     ("v_orig", "v_cycle"),
     ("v_downscale", "v_target"),
     #("a", "a_target"),
-    ("P_tot", "p_req"),
+    ("P_tot_set", "p_req"),
     #("P_max", "p_available"),
     ("g_max", "g_max0"),
     ("g_min", "g_min"),
@@ -210,8 +210,8 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 ```
 
 ```{python}
-# Repeat, to compare while coding.
-display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
+## Repeat, to compare while coding.
+#display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
 ```
 
 AccDB vehicles: 42, 46, 52, 53 & 90 have broken `v_max`, 48 has broken `wot(ASM)`.
@@ -219,6 +219,11 @@ AccDB vehicles: 42, 46, 52, 53 & 90 have broken `v_max`, 48 has broken `wot(ASM)
 ```{python}
 known_bads = set(wio.veh_names([42, 46, 48, 52, 53, 90]))
 display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names).set_properties(subset=(known_bads, idx[:]), color='red'))
+```
+
+```{python}
+## Repeat, to compare while coding.
+#display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names).set_properties(subset=(known_bads, idx[:]), color='red'))
 ```
 
 ## Compare a vehicle from AccDB <-->PyAlgo *interactively*

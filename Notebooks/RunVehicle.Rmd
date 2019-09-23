@@ -142,7 +142,7 @@ oprops = {
     }
 
 pprint(oprops)
-mdl['cycle_run']
+display(mdl['cycle_run'])
 ```
 
 ## Run a case from AccDb
@@ -155,7 +155,7 @@ acc_cycle = vehdb.load_vehicle_nodes(h5, 1, 'cycle')
 ```
 
 ```{python}
-case_no = 44
+case_no = 88
 props, wot, n2vs = vehdb.load_vehicle_accdb(h5, case_no)
 mdl = vehdb.mdl_from_accdb(props, wot, n2vs)
 
@@ -181,7 +181,7 @@ oprops = {
     }
 
 pprint(oprops)
-mdl['cycle_run']
+display(mdl['cycle_run'])
 ```
 
 ```{python}
