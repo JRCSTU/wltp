@@ -169,7 +169,7 @@ def extract_SM_from_pwot(
 ```
 
 ```{python}
-vehresults_excel = ("VehData/gearshift_table_all.20092019.xlsx", "gearshift_table_all")
+vehresults_excel = ("VehData/gearshift_table_all.20092019.2.xlsx", "gearshift_table_all")
 # NOTE: it may take ~5 minute to load ~130 vehicles...
 results_df = xleash.lasso('%s#%s!::["df"]' % vehresults_excel)
 results_df.shape  # (223_722, 116)

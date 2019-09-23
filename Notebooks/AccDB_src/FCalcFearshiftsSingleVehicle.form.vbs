@@ -7814,7 +7814,7 @@ Public Sub gearshift_calculation1()
 			rstbe!gear = 0
 			rstbe!g_max = 0
 			rstbe!g_min = 0
-			rstbe!nc = dling_speed
+			rstbe!nc = idling_speed
 			rstbe!clutch = "engaged, gear lever in neutral"
 			rstbe.Update
 
