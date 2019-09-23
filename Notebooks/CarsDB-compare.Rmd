@@ -305,6 +305,11 @@ def define_schenes():
         ("lowPower(t=1574)", "v088", 65, 63.40),
         ("lowPower", "v101", 1, 0),
         ("lowPower", "v111", 1, 0),
+        ("extention", "v117", 13, 72),
+        ("extention", "v118", 13, 72),
+        ("extention", "v119", 13, 72),
+        ("extention", "v120", 13, 72),
+        ("extention", "v121", 13, 72),
         ("lowPower", "v124", 1, 0),
         ("lowPower", "v125", 1, 0),
     ]
@@ -490,6 +495,14 @@ def apply_axis_scene(change):
 AxisScenes.observe(apply_axis_scene, names="value")
 
 
+def _count_series_diffs(a, b):
+    na, nb = len(a), len(b)
+    if na != nb:
+        na = min(na, nb)
+        return (a.iloc[:na] != b.iloc[:na]).sum() + (nb - na)
+    return (a != b).sum()
+
+    
 def recreate_fig():
     """ 
      Recreate the same figure-number, or else they leak.
@@ -535,16 +548,16 @@ def plot_gear_flags(
         case
     )
 
-    clen = len(cycle)
+    clen = max(len(cycle), len(accdb_cycle))
     viewlen = int(clen / zoom)
     offset = int(pan * (clen - viewlen) / max_zoom)
     scale = idx[offset : offset + viewlen]
 
-    diffgears_total = (cycle["g_max0"] != accdb_cycle["g_max"]).sum()
+    diffgears_total = _count_series_diffs(cycle["g_max0"], accdb_cycle["g_max"])
 
     pyalgo = cycle.loc[scale]
     accdb = accdb_cycle.loc[scale]
-    diffgears_view = (pyalgo["g_max0"] != accdb["g_max"]).sum()
+    diffgears_view = _count_series_diffs(pyalgo["g_max0"], accdb["g_max"])
     merged = merge_pyalgo_accdb(pyalgo, accdb)
 
     ## Clean tabs if caseno/pan/zoom have changed.
@@ -566,7 +579,8 @@ def plot_gear_flags(
     ok_flags = ok_flags.loc[:, idx[:, gear]].iloc[scale]
     ok_gears = ok_gears.loc[scale]
 
-    pyalgo["v_cycle"].plot.line(ax=ax, color="0.70", linewidth=4.5)
+    if not pyalgo["v_cycle"].empty:
+        pyalgo["v_cycle"].plot.line(ax=ax, color="0.70", linewidth=4.5)
 
     if is_pyalgo_gears:
         if not ok_flags.empty:
