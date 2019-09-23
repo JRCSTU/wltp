@@ -16,6 +16,7 @@
 /cycle/ok_min_n_g2_stopdecel
 /cycle/ok_min_n_g3plus_dns
 /cycle/ok_min_n_g3plus_ups
+/cycle/ok_n
 /cycle/ok_p
 /cycle/p_avail
 /cycle/p_req

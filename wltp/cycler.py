@@ -359,7 +359,7 @@ class CycleBuilder:
             (for storage efficiency) and hierarchical columns,
             with :const:`NANFLAG`(1) wherever a gear is allowed,
             for a specific rule (different sets of rules per gear).
-            Push it to :meth:`combine_initial_gear_flags()`.
+            Push it to :meth:`combine_ok_n_gear_flags()` & :meth:`combine_ok_n_p_gear_flags()`.
 
         Conditions consolidated & ordered like that::
 
@@ -536,11 +536,11 @@ class CycleBuilder:
 
         return flags
 
-    def _combine_gear_flags(self, gflags) -> pd.Series:
+    def _combine_ok_n_gear_flags(self, gflags) -> pd.Series:
         """
 
         :param gflags:
-            the initial-gear rule flags grouped for one specific gear
+            the initial-gear rule flags grouped for each gear (except g0)
         :return:
             (must return) a boolean series, or else, groupby does nothing!!
 
@@ -549,20 +549,7 @@ class CycleBuilder:
 
         flagcols = gflags.columns
 
-        gflags = gflags.copy()
-
-        g0 = wio.gear_name(0)
-        if (c.ok_gear0, g0) in flagcols:
-            assert gflags.shape[1] == 1, ("More g0 gflags than once?", gflags)
-            final_flags = gflags.loc[:, (c.ok_gear0, g0)]
-            final_flags.name = g0
-
-            return final_flags
-
         flags_to_AND = []
-
-        if c.ok_p in flagcols:
-            flags_to_AND.append(gflags[c.ok_p])
 
         flags_to_AND.append(gflags[c.ok_max_n])
 
@@ -589,20 +576,17 @@ class CycleBuilder:
                 )
             )
         else:
-            raise AssertionError("Illegal flags:", gflags)
+            raise AssertionError("Missing `n_min` ok-flags from:", gflags)
 
-        final_flags = inv.AND_columns_with_NANFLAGs(pd.concat(flags_to_AND, axis=1))
-        assert isinstance(final_flags, pd.Series), (
-            "groupby won't wotrk otherwise",
-            final_flags,
-        )
+        n_ok = inv.AND_columns_with_NANFLAGs(pd.concat(flags_to_AND, axis=1))
+        assert isinstance(n_ok, pd.Series), ("groupby won't work otherwise", n_ok)
 
         g = flagcols[0][1]
-        final_flags.name = g
+        n_ok.name = g
 
-        return final_flags
+        return n_ok
 
-    def combine_initial_gear_flags(self, flags: pd.DataFrame):
+    def combine_ok_n_gear_flags(self, flags: pd.DataFrame):
         """
         Merge together all N-allowed flags using AND+OR boolean logic. 
         
@@ -611,10 +595,65 @@ class CycleBuilder:
         """
         c = wio.pstep_factory.get().cycle
 
-        ## FIXME: needed sideffect due to g0 flags (not originally in gqots)
-        self.gidx = wio.GearMultiIndexer(self.cycle)
+        flags = flags.drop(c.ok_gear0, axis=1)
+        ok_n = flags.groupby(axis=1, level="gear").apply(self._combine_ok_n_gear_flags)
+        ok_n.columns = pd.MultiIndex.from_product(((c.ok_n,), ok_n.columns))
 
-        final_ok = flags.groupby(axis=1, level="gear").apply(self._combine_gear_flags)
+        return ok_n
+
+    def _combine_all_gear_flags(self, gflags) -> pd.Series:
+        """
+
+        :param gflags:
+            the initial-gear rule flags grouped for one specific gear
+        :return:
+            (must return) a boolean series, or else, groupby does nothing!!
+
+        """
+        c = wio.pstep_factory.get().cycle
+
+        flagcols = gflags.columns
+
+        gflags = gflags.copy()
+
+        g0 = wio.gear_name(0)
+        if (c.ok_gear0, g0) in flagcols:
+            assert gflags.shape[1] == 1, ("More g0 gflags than once?", gflags)
+            final_flags = gflags.loc[:, (c.ok_gear0, g0)]
+            final_flags.name = g0
+
+            return final_flags
+
+        flags_to_AND = []
+
+        if c.ok_p in flagcols:  # not g1, g2
+            flags_to_AND.append(gflags[c.ok_p])
+
+        flags_to_AND.append(gflags[c.ok_n])
+
+        final_flags = inv.AND_columns_with_NANFLAGs(pd.concat(flags_to_AND, axis=1))
+        assert isinstance(final_flags, pd.Series), (
+            "groupby won't work otherwise",
+            final_flags,
+        )
+
+        g = flagcols[0][1]
+        final_flags.name = g
+
+        return final_flags
+
+    def combine_ok_n_p_gear_flags(self, flags: pd.DataFrame):
+        """
+        Merge together N+P allowed flags using AND+OR boolean logic. 
+        
+        :return:
+            an int8 dataframe with `1` where where the gear can apply, `0`/`NANFLAG` otherwise. 
+        """
+        c = wio.pstep_factory.get().cycle
+
+        final_ok = flags.groupby(axis=1, level="gear").apply(
+            self._combine_all_gear_flags
+        )
         final_ok.columns = pd.MultiIndex.from_product(((c.ok_gear,), final_ok.columns))
 
         return final_ok
@@ -630,6 +669,9 @@ class CycleBuilder:
 
         """
         c = wio.pstep_factory.get().cycle
+
+        ## FIXME: needed sideffect due to g0 flags (not originally in gwots)
+        self.gidx = wio.GearMultiIndexer(self.cycle)
 
         ## +1 for g0 (0-->6 = 7 gears)
         gids = range(self.gidx.ng + 1)

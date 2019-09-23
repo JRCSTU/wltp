@@ -289,10 +289,13 @@ class Experiment(object):
         ok_flags = cb.calc_initial_gear_flags(
             g_vmax=mdl["g_vmax"], n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
         )
-        ok_gears = cb.combine_initial_gear_flags(ok_flags)
+        ok_n = cb.combine_ok_n_gear_flags(ok_flags)
+        ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)
+        ok_gears = cb.combine_ok_n_p_gear_flags(ok_flags1)
+
         g_min, g_max0 = cb.make_gmax0(ok_gears)
 
-        cb.add_columns(ok_flags, ok_gears, g_min, g_max0)
+        cb.add_columns(ok_flags1, ok_gears, g_min, g_max0)
 
         mdl[m.cycle_run] = cb.cycle
 
