@@ -79,12 +79,6 @@ logging.basicConfig(
 ## DEFINITIONS
 #
 h5fname = "VehData/WltpGS-msaccess.h5"
-vehresults_excel = ("VehData/gearshift_table_all-20190728.xlsx", "gearshift_table_all")
-vehinputs_excel = (
-    Path("VehData/calculation_parameter_all-20190728.xlsx"),
-    "calculation_parameter_all",
-)
-wots_excel = (Path("VehData/vehicle_info-116.xlsx"), "TB_Pwot")
 c_vehnum, c_case, c_engno, c_n, c_pwot, c_SM, c_ASM = (
     "vehicle_no",
     "case_no",
@@ -108,7 +102,13 @@ vehdb.print_nodes(h5fname)
 ```
 
 ```{python}
+vehinputs_excel = (
+    Path("VehData/calculation_parameter_all.15092019_prog_code_dev.xlsx"),
+    "calculation_parameter_all",
+)
 specs = xleash.lasso('%s#%s!::["df"]' % vehinputs_excel)
+
+wots_excel = (Path("VehData/TB_Pwot.15092019_prog_code_dev.xlsx"), "TB_Pwot")
 pwots = xleash.lasso('%s#%s!::["df"]' % wots_excel)
 ```
 
@@ -162,6 +162,7 @@ def extract_SM_from_pwot(
 ```
 
 ```{python}
+vehresults_excel = ("VehData/gearshift_table_all.15092019_prog_code_dev.xlsx", "gearshift_table_all")
 # NOTE: it may take ~5 minute to load ~130 vehicles...
 results_df = xleash.lasso('%s#%s!::["df"]' % vehresults_excel)
 results_df.shape  # (223_722, 116)
@@ -259,8 +260,25 @@ def store_results_per_car(
                 base=base,
             )
 
+# vehresults_excel = ("VehData/gearshift_table_all.15092019_prog_code_dev.xlsx", "gearshift_table_all")
+# with vehdb.openh5(h5fname) as h5db:
+#     store_results_per_car(h5db, results_df)
+```
+
+```{python}
 with vehdb.openh5(h5fname) as h5db:
     store_results_per_car(h5db, results_df)
+```
+
+```{python}
+## OVERRIDE SOME VEHICLES
+#
+# vehresults_excel = ("VehData/gearshift_table_all.15092019_prog_code_dev_version-FIXClass12.xlsx", "gearshift_table_all")
+# results_df = xleash.lasso('%s#%s!::["df"]' % vehresults_excel)
+# results_df.shape  # (34886, 115)
+ 
+# with vehdb.openh5(h5fname) as h5db:
+#     store_results_per_car(h5db, results_df)
 ```
 
 ```{python}
