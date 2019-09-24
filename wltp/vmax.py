@@ -132,7 +132,7 @@ def calc_v_max(
         a :class:`VMaxRec` namedtuple.
 
     """
-    gidx = wio.GearMultiIndexer(gwots)
+    gidx = wio.GearMultiIndexer.from_df(gwots)
     ng = gidx.ng
 
     def _package_wots_df(recs):

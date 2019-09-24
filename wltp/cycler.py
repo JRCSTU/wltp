@@ -331,7 +331,7 @@ class CycleBuilder:
             (isinstance(i, pd.DataFrame) for i in (cycle, gwots))
         ) and isinstance(gwots, pd.DataFrame), locals()
 
-        self.gidx = wio.GearMultiIndexer(gwots)
+        self.gidx = wio.GearMultiIndexer.from_df(gwots)
         gwots = gwots.reindex(self.V).sort_index(axis=1)
         cycle = pd.concat((cycle.set_index(self.V), gwots), axis=1, sort=False)
         cycle = cycle.set_index(c.t, drop=False)
@@ -683,7 +683,7 @@ class CycleBuilder:
         c = wio.pstep_factory.get().cycle
 
         ## FIXME: needed sideffect due to g0 flags (not originally in gwots)
-        self.gidx = wio.GearMultiIndexer(self.cycle)
+        self.gidx = wio.GearMultiIndexer.from_df(self.cycle)
 
         ## +1 for g0 (0-->6 = 7 gears)
         gids = range(self.gidx.ng + 1)

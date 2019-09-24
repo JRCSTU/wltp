@@ -242,7 +242,7 @@ p_resist = vehicle.calc_road_load_power(gwots.index, ac_props.f0, ac_props.f1, a
 
 ```{python}
 w=wio.pstep_factory.get()
-gidx = wio.GearMultiIndexer(gwots)
+gidx = wio.GearMultiIndexer.from_df(gwots)
 
 rec = vmax.calc_v_max(gwots, p_resist)
 print(f"VMAX: {rec.v_max}, G_VMAX: {rec.g_vmax}, maxWOT? {rec.is_n_lim}")

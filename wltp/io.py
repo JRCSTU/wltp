@@ -116,12 +116,20 @@ class GearMultiIndexer:
     #: separator for flattening/inflating levels
     multi_column_separator: str = "."
 
-    def __init__(self, df: pd.DataFrame):
+    @classmethod
+    def from_df(cls, df):
         """
         :param df:
             the 2-level df, not stored, just to get gear-names.
         """
-        self.gnames = [g for g in df.columns.levels[1] if g]
+        return cls([g for g in df.columns.levels[1] if g])
+
+    def __init__(self, gnames):
+        """
+        :param gnames:
+            From :func:`gear_names()`, or avoid cstor & call directly classmethod :meth:`from_df()`.
+        """
+        self.gnames = gnames
 
     def colidx_pairs(
         self, item: Union[str, Iterable[str]], gnames: Iterable[str] = None

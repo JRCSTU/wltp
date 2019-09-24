@@ -357,7 +357,7 @@ def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
     w = wio.pstep_factory.get().wot
 
     # TODO: vectorize
-    for gear in wio.GearMultiIndexer(gwots).gnames:
+    for gear in wio.GearMultiIndexer.from_df(gwots).gnames:
         ASM = gwots[(gear, w.ASM)] if (gear, w.ASM) in gwots else 0
         P = gwots.loc[:, (w.p, gear)]
 
