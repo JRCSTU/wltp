@@ -50,7 +50,7 @@ def _find_p_remain_root(
     
     rounded towards the part of wot where ``p_remain > 0``
     (like MSAccess in e.g. `F new vehicle.form.vbs#L3273`)
-    or v @ max p_wot, if `p_remain` is always positive.
+    or v @ max p_wot, if `p_remain_stable` is always positive.
 
     :param gear_gwot:
         A df indexed by grid `v` with (at least) `p_remain_stable` column.
@@ -81,7 +81,7 @@ def _find_p_remain_root(
         #  particularly interested in "down-crosses":
         #   -1: drop from positive to 0 (perfect match!)
         #   -2: drop from positive to negative
-        wot[w.sign_p_remain] = np.sign(wot[w.p_remain_stable])
+        wot[w.sign_p_remain_stable] = np.sign(wot[w.p_remain_stable])
 
         ## diff-periods:
         #   ofs=+1: diff with prev-element so zero-crossing is marked on high-index (after cross)
@@ -91,7 +91,9 @@ def _find_p_remain_root(
         #  - Apply `fillna()`` bc `diff()` leaves one period at head or tail.
         #
         offs = -1
-        wot[w.zero_crosings] = offs * wot[w.sign_p_remain].diff(periods=offs).fillna(0)
+        wot[w.zero_crosings] = offs * wot[w.sign_p_remain_stable].diff(
+            periods=offs
+        ).fillna(0)
         # ... search for down-crossings only.
         # roots_head = wot.index[wot[w.zero_crosings].lt(0, fill_value=0)]  # if no `fill_value` all NANs.
         roots_head = wot.index[wot[w.zero_crosings] < 0]

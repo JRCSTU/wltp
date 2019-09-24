@@ -53,6 +53,6 @@
 /wot/p_norm
 /wot/p_remain_stable
 /wot/p_resist
-/wot/sign_p_remain
+/wot/sign_p_remain_stable
 /wot/v
 /wot/zero_crosings
