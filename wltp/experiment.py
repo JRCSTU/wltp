@@ -285,6 +285,9 @@ class Experiment(object):
         mdl["n_max"] = engine.calc_n_max(mdl["n_max1"], mdl["n_max2"], mdl["n_max3"])
 
         nmins = engine.calc_fixed_n_min_drives(mdl, n_idle, n_rated)
+        if wltc_class:
+            for err in cb.validate_nims_t_cold_end(nmins.t_cold_end, wltc_parts):
+                raise err
 
         ok_flags = cb.calc_initial_gear_flags(
             g_vmax=mdl["g_vmax"], n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins

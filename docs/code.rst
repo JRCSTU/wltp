@@ -302,7 +302,7 @@ The :term:`JSON-schema` of the data for this project:
         - number
         - 'null'
         exclusiveMinimum: 0
-      t_end_cold:
+      t_cold_end:
         description: see Annex 2-2.k about n_mins
         type:
         - number

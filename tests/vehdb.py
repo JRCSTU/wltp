@@ -550,7 +550,7 @@ def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
     mdl["n_min_drive_down"] = props.n_min_drive_down
     mdl["n_min_drive_start_up"] = props.n_min_drive_start_up
     mdl["n_min_drive_start_down"] = props.n_min_drive_start_down
-    mdl["t_end_cold"] = props.t_end_start_phase
+    mdl["t_cold_end"] = props.t_end_start_phase
     mdl["f_safety_margin"] = props.SM
 
     renames = accdb_renames()

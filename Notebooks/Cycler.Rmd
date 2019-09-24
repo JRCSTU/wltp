@@ -124,7 +124,7 @@ cb.cycle.select_dtypes(bool).sum()
 
 ```{python}
 t_cold_end = 470  # gap for all classes
-for err in cb.validate_nims_t_cold_en(t_cold_end, wltc_parts):
+for err in cb.validate_nims_t_cold_end(t_cold_end, wltc_parts):
     raise err
 ```
 

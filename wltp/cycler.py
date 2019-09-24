@@ -338,11 +338,11 @@ class CycleBuilder:
 
         self.cycle = cycle
 
-    def validate_nims_t_cold_en(self, t_end_cold: int, wltc_parts: Seq[int]):
+    def validate_nims_t_cold_end(self, t_cold_end: int, wltc_parts: Seq[int]):
         """
-        Check `t_end_cold` falls in a gap-stop within the 1st phase. 
+        Check `t_cold_end` falls in a gap-stop within the 1st phase. 
 
-        .. TODO:: Incorporate `validate_nims_t_cold_en()` in validations pipeline.
+        .. TODO:: Incorporate `validate_nims_t_cold_end()` *properly* in validations pipeline.
         """
         c = wio.pstep_factory.get().cycle
 
@@ -350,14 +350,14 @@ class CycleBuilder:
         if t_phase1_end == 0:  # wltc_parts had edges
             t_phase1_end = wltc_parts[1]
 
-        if t_end_cold:
-            if t_end_cold > t_phase1_end:
+        if t_cold_end:
+            if t_cold_end > t_phase1_end:
                 yield ValidationError(
-                    f"`t_end_cold`({t_end_cold}) must finish before the 1st cycle-part(t_phase_end={t_phase1_end})!"
+                    f"`t_cold_end`({t_cold_end}) must finish before the 1st cycle-part(t_phase_end={t_phase1_end})!"
                 )
-            if self.cycle[c.run].iloc[t_end_cold]:
+            if self.cycle[c.run].iloc[t_cold_end]:
                 yield ValidationError(
-                    f"`t_end_cold`({t_end_cold}) must finish on a cycle stop(v={self.V.iloc[t_end_cold]})!"
+                    f"`t_cold_end`({t_cold_end}) must finish on a cycle stop(v={self.V.iloc[t_cold_end]})!"
                 )
 
     def calc_initial_gear_flags(
@@ -463,11 +463,11 @@ class CycleBuilder:
 
         ## (MINn-ud/hc) rules
         #
-        #  NOTE cold period not overlapping `t_end_cold` sample,
+        #  NOTE cold period not overlapping `t_cold_end` sample,
         #  so as to be empty when that is 0.
         #  NOTE also that both `t_colds/t_hots` & `a_ups/a_dns` converted to numpy column-vectors,
         #  to align with many gear-columns (could not be series, axis-aligning would kick in).
-        t_colds = (cycle[c.t] < nmins.t_end_cold).to_numpy().reshape(-1, 1)
+        t_colds = (cycle[c.t] < nmins.t_cold_end).to_numpy().reshape(-1, 1)
         t_hots = ~t_colds
         a_ups = cycle[c.up].to_numpy().reshape(-1, 1)
         a_dns = ~a_ups

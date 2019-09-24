@@ -61,7 +61,7 @@ def test_stopdecel(wltc_class):
 
 
 @pytest.mark.parametrize(
-    "wltc_class, t_end_cold, err",
+    "wltc_class, t_cold_end, err",
     zip(
         range(4),
         (800, 150),
@@ -71,9 +71,9 @@ def test_stopdecel(wltc_class):
         ),
     ),
 )
-def test_validate_t_start(wltc_class, t_end_cold, err):
+def test_validate_t_start(wltc_class, t_cold_end, err):
     """
-    .. TODO:: move `t_end_cold` checkj in validations pipeline.
+    .. TODO:: move `t_cold_end` check in validations pipeline.
     """
     V = datamodel.get_class_v_cycle(wltc_class)
     wltc_parts = datamodel.get_class_parts_limits(wltc_class)
@@ -81,7 +81,7 @@ def test_validate_t_start(wltc_class, t_end_cold, err):
     cb = CycleBuilder(V)
     cb.cycle = cycler.PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
     with pytest.raises(type(err), match=str(err)):
-        for err in cb.validate_nims_t_cold_en(t_end_cold, wltc_parts):
+        for err in cb.validate_nims_t_cold_end(t_cold_end, wltc_parts):
             raise err
 
 
@@ -112,7 +112,7 @@ def test_full_build_smoketest(h5_accdb):
     pm = cycler.PhaseMarker()
     cb = cycler.CycleBuilder(V)
     cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
-    for err in cb.validate_nims_t_cold_en(t_cold_end, wltc_parts):
+    for err in cb.validate_nims_t_cold_end(t_cold_end, wltc_parts):
         raise err
     cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
 

@@ -43,7 +43,7 @@
 /names/phase_
 /names/v
 /p_rated
-/t_end_cold
+/t_cold_end
 /wot/ASM
 /wot/n
 /wot/n_norm

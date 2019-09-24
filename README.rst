@@ -316,7 +316,7 @@ before running the experiment:
      'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 'gear_ratios', 'n_idle', 'n_min',
      'n_min_drive1', 'n_min_drive2', 'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_dn_start',
      'n_min_drive_down', 'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated',
-     'p_rated', 't_end_cold', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_data',
+     'p_rated', 't_cold_end', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_data',
      'wot']
 
 
@@ -332,7 +332,7 @@ Now you can run the experiment:
        'n_idle', 'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_min_drive1', 'n_min_drive2',
        'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_dn_start', 'n_min_drive_down',
        'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated', 'n_vmax', 'p_rated', 'pmr',
-       't_end_cold', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class',
+       't_cold_end', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class',
        'wltc_data', 'wot', 'wots_vmax']
 
 To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:

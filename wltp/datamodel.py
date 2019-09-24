@@ -354,7 +354,7 @@ properties:
     - number
     - 'null'
     exclusiveMinimum: 0
-  t_end_cold:
+  t_cold_end:
     description: see Annex 2-2.k about n_mins
     type:
     - number
@@ -942,7 +942,7 @@ def yield_n_min_errors(mdl):
     .. TODO:: 
       Support ARRAY for `n_min_drive_up/dn`.
     .. TODO:: 
-      cannot Checking of `t_end_cold` is in stop-gap during datamodel-validation; 
+      cannot Checking of `t_cold_end` is in stop-gap during datamodel-validation; 
       wltc-class decision not made yet.
     
     """

@@ -256,7 +256,7 @@ def test_n_mins_smoke():
                     "n_min_drive_up_start",
                     "n_min_drive_down",
                     "n_min_drive_dn_start",
-                    "t_end_cold",
+                    "t_cold_end",
                 ),
                 values,
             )
