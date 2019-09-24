@@ -95,9 +95,9 @@ class PhaseMarker:
             cycle = pd.DataFrame({
                         'v': [0,0,3,3,5,8,8,8,6,4,5,6,6,5,0,0],
                     'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0],
-                'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0],
+                   'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0],
                     'decel': [0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,0],
-                    'up': [0,0,1,1,1,1,1,1,0,1,1,1,1,0,0,0],
+                       'up': [0,0,1,1,1,1,1,1,0,1,1,1,1,0,0,0],
                 'initaccel': [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0],
                 'stopdecel': [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0],
             })
@@ -298,6 +298,22 @@ class CycleBuilder:
         self.V = V
         self.A = cycle[c.a]
 
+    def flat_cycle(self, df) -> pd.DataFrame:
+        """return a copy of :attr:`cycle` passed through :func:`flatten_columns()`"""
+        cycle = self.cycle.copy()
+        cycle.columns = wio.flatten_columns(cycle.columns)
+        return cycle
+
+    def add_columns(self, *columns: Union[pd.DataFrame, pd.Series]):
+        """
+        Concatenate more columns into :data:`cycle`.
+
+        :param columns:
+            must have appropriate columns, ie. 2-level (item, gear).
+        """
+        cycle_dfs = [self.cycle, *columns]
+        self.cycle = pd.concat(cycle_dfs, axis=1)
+
     def add_wots(self, gwots: pd.DataFrame):
         """
         Adds the `gwots` joined on the ``v_cap`` column of the `cycle`.
@@ -322,15 +338,11 @@ class CycleBuilder:
 
         self.cycle = cycle
 
-    def flat(self, df) -> pd.DataFrame:
-        """return a copy of :attr:`cycle` passed through :func:`flatten_columns()`"""
-        cycle = self.cycle.copy()
-        cycle.columns = wio.flatten_columns(cycle.columns)
-        return cycle
-
     def validate_nims_t_cold_en(self, t_end_cold: int, wltc_parts: Seq[int]):
         """
-        .. TODO:: Incorporate `validate_nims_t_cold_en()`  in validations pipeline.
+        Check `t_end_cold` falls in a gap-stop within the 1st phase. 
+
+        .. TODO:: Incorporate `validate_nims_t_cold_en()` in validations pipeline.
         """
         c = wio.pstep_factory.get().cycle
 
@@ -686,13 +698,3 @@ class CycleBuilder:
         g_max0.name = (c.g_max0, "")
 
         return g_min, g_max0
-
-    def add_columns(self, *columns: Union[pd.DataFrame, pd.Series]):
-        """
-        Concatenate more columns into :data:`cycle`.
-
-        :param columns:
-            must have appropriate columns, ie. 2-level (item, gear).
-        """
-        cycle_dfs = [self.cycle, *columns]
-        self.cycle = pd.concat(cycle_dfs, axis=1)
