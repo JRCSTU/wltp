@@ -182,6 +182,12 @@ print(results_df[c_case].unique())
 ```
 
 ```{python}
+## PATCH V_CAP not included in data
+#  but communicated separately by Heinz.
+specs.loc[slice(117,121), 'v_cap'] = [55, 55, 80, 100, 110]
+```
+
+```{python}
 scalar_columns = [c_vehnum, "Description", "case_no", "case_no2", "vehicle_no", "IDclass"]
 
 
