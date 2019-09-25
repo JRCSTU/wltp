@@ -171,8 +171,10 @@ setup(
     download_url=download_url,
     project_urls={
         "Documentation": "https://wltp.readthedocs.io/",
+        "Release Notes": "https://wltp.readthedocs.io/en/latest/CHANGES.html",
         "Sources": "https://github.com/JRCSTU/wltp",
-        "Demo": "https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md",
+        "Bug Tracker": "https://github.com/JRCSTU/wltp/issues",
+        "Live Demo": "https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md",
     },
     license="European Union Public Licence 1.1 or later (EUPL 1.1+)",
     keywords=[

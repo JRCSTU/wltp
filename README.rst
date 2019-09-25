@@ -1,14 +1,11 @@
 ################################################################
 wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
-|binder| |dev-status| |build-status| |appveyor-status| |cover-status| |docs-status| |pypi-status| |downloads-count| |github-issues| |codestyle|
-
-:release:       1.0.0.dev12
+:versions:      1.0.0.dev12 |br| |gh-version| |pypi-version| |conda-version| |dev-status|
 :date:          2019-08-30 14:55:39
-:documentation: https://wltp.readthedocs.org/ (build-date: |today|)
-:source:        https://github.com/JRCSTU/wltp
-:live-demo:     https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md
-:pypi-repo:     https://pypi.python.org/pypi/wltp
+:documentation: https://wltp.readthedocs.org/ |br| |docs-status| build-date: |today|
+:sources:       https://github.com/JRCSTU/wltp |br| |travis-status| |appveyor-status| |github-issues| |downloads-count| |codestyle|
+:live-demo:     |binder|
 :keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifts,
                 rpm, simulation, simulator, standard, vehicle, vehicles, wltc, nedc
 :Copyright:     2013-2019 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_)
@@ -356,8 +353,8 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
      'ok_min_n_g2_stopdecel/g2', 'ok_min_n_g3plus_dns/g3', 'ok_min_n_g3plus_dns/g4',
      'ok_min_n_g3plus_dns/g5', 'ok_min_n_g3plus_dns/g6', 'ok_min_n_g3plus_ups/g3',
      'ok_min_n_g3plus_ups/g4', 'ok_min_n_g3plus_ups/g5', 'ok_min_n_g3plus_ups/g6', 'ok_p/g3', 'ok_p/g4',
-     'ok_p/g5', 'ok_p/g6', 'ok_n/g1', 'ok_n/g2', 'ok_n/g3', 'ok_n/g4', 'ok_n/g5', 'ok_n/g6', 
-     'ok_gear/g0', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3', 'ok_gear/g4', 'ok_gear/g5', 'ok_gear/g6', 
+     'ok_p/g5', 'ok_p/g6', 'ok_n/g1', 'ok_n/g2', 'ok_n/g3', 'ok_n/g4', 'ok_n/g5', 'ok_n/g6',
+     'ok_gear/g0', 'ok_gear/g1', 'ok_gear/g2', 'ok_gear/g3', 'ok_gear/g4', 'ok_gear/g5', 'ok_gear/g6',
      'g_min', 'g_max0']
     >>> 'Mean engine_speed: %s' % df.n.mean()                                       # doctest: +SKIP
     'Mean engine_speed: 1908.9266796224322'
@@ -743,7 +740,7 @@ The typical development procedure is like this:
 6. Repeat this cycle for other bugs/enhancements.
 7. When you are finished, push the changes upstream to *github* and make a *merge_request*.
    You can check whether your merge-request indeed passed the tests by checking
-   its build-status |build-status| on the integration-server's site (TravisCI).
+   its build-status |travis-status| on the integration-server's site (TravisCI).
 
    .. Hint:: Skim through the small IPython developer's documentantion on the matter:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
@@ -869,6 +866,10 @@ See also :ref:`architecture:Architecture`.
 
 .. _begin-replacements:
 
+.. |br| raw:: html
+
+   <br />
+
 .. |CO2| replace:: CO\ :sub:`2`
 
 .. |virtualenv| replace::  *virtualenv* (isolated Python environment)
@@ -887,13 +888,13 @@ See also :ref:`architecture:Architecture`.
 .. |anaconda| replace:: *Anaconda*
 .. _anaconda: http://docs.continuum.io/anaconda/
 
-.. |build-status| image:: https://travis-ci.org/JRCSTU/wltp.svg
-    :alt: Integration-build status
+.. |travis-status| image:: https://travis-ci.org/JRCSTU/wltp.svg
+    :alt: Travis continuous integration testing ok? (Linux)
     :scale: 100%
     :target: https://travis-ci.org/JRCSTU/wltp/builds
 
 .. |appveyor-status| image:: https://ci.appveyor.com/api/projects/status/0e2dcudyuku1w1gd?svg=true
-    :alt: Apveyor build status (Windows)
+    :alt: Apveyor continuous integration testing ok? (Windows)
     :scale: 100%
     :target: https://ci.appveyor.com/project/JRCSTU/wltp
 
@@ -905,9 +906,17 @@ See also :ref:`architecture:Architecture`.
     :scale: 100%
     :target: https://readthedocs.org/projects/wltp/builds/
 
-.. |pypi-status| image::  https://pypip.in/v/wltp/badge.png
+.. |gh-version| image::  https://img.shields.io/github/v/release/JRCSTU/wltp.svg?label=GitHub%20release&include_prereleases
+    :target: https://github.com/JRCSTU/wltp/releases
+    :alt: Latest version in GitHub
+
+.. |pypi-version| image::  https://pypip.in/v/wltp/badge.svg?label=PyPi%20version
     :target: https://pypi.python.org/pypi/wltp/
-    :alt: Latest Version in PyPI
+    :alt: Latest version in PyPI
+
+.. |conda-version| image::  https://img.shields.io/conda/v/ankostis/wltp?label=conda%20version
+    :target: https://anaconda.org/ankostis/wltp
+    :alt: Latest version in Anaconda cloud
 
 .. |python-ver| image:: https://pypip.in/py_versions/wltp/badge.svg
     :target: https://pypi.python.org/pypi/wltp/
@@ -917,13 +926,13 @@ See also :ref:`architecture:Architecture`.
     :target: https://pypi.python.org/pypi/wltp/
     :alt: Development Status
 
-.. |downloads-count| image:: https://pypip.in/download/wltp/badge.svg?period=week
-    :target: https://pypi.python.org/pypi/wltp/
-    :alt: Downloads
-
 .. |github-issues| image:: http://img.shields.io/github/issues/JRCSTU/wltp.svg
     :target: https://github.com/JRCSTU/wltp/issues
     :alt: Issues count
+
+.. |downloads-count| image:: https://pypip.in/download/wltp/badge.svg?period=week
+    :target: https://pypi.python.org/pypi/wltp/
+    :alt: Downloads
 
 .. |codestyle| image:: https://img.shields.io/badge/code%20style-black-black.svg
     :target: https://github.com/ambv/black
