@@ -86,6 +86,8 @@ def yield_rst_only_markup(lines):
         (r"\|version\|", r"x.x.x"),
         (r"\|today\|", r"x.x.x"),
         (r"\.\. include:: AUTHORS", r"see: AUTHORS"),
+        (r"\.\. \|br\| raw::", r".. |br| raw: "),
+        (r"\|br\|", r""),
     ]
 
     regex_subs = [(re.compile(regex, re.IGNORECASE), sub) for (regex, sub) in substs]
