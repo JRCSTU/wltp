@@ -37,19 +37,17 @@ script:
                 --cov=wltp.io \
                 --cov=wltp.utils \
                 --cov=wltp.cycles
+        
+            echo "+++ Checking README for PyPi...."
+            ./bin/check_readme.sh
+
+            echo "+++ Checking site...."
+            pip install -e .[doc]
+            python setup.py build_sphinx
         else
             echo "+++ Checking only TCs....";
             pytest
         fi
-
-    - |
-        echo "+++ Checking README for PyPy...."
-        ./bin/check_readme.sh
-
-    - |
-        echo "+++ Checking site...."
-        pip install -e .[doc]
-        python setup.py build_sphinx
 
     -   echo "+++ Checking install...."
         python setup.py install

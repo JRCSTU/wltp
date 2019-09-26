@@ -48,19 +48,17 @@ test_script:
 
     -   IF "%PYTHON_VERSION%"=="3.7" (
             echo "+++ Checking more..." &
-            pytest
+            pytest &
+            echo "+++ Checking site...." &
+            python setup.py build_sphinx
         ) ELSE (
             echo "+++ Checking only TCs...." &
             pytest
         )
 
     - ps: |
-        echo "+++ Checking README for PyPy...."
+        echo "+++ Checking README for PyPi...."
         bin\check_readme.ps1
-
-    - |
-        echo "+++ Checking site...."
-        python setup.py build_sphinx
 
     - |
         echo "+++  Checking archives for PyPI repo..."
