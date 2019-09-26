@@ -46,17 +46,13 @@ def calc_inertial_power(V, A, test_mass, f_inertial):
     return (A * V * test_mass * f_inertial) / 3600.0
 
 
-def calc_power_required(V, A, test_mass, f0, f1, f2, f_inertial):
+def calc_required_power(p_resist: Column, p_inert: Column):
     """
-    .. TODO::
-        Make :func:`calc_power_required()` accept :func:`calc_road_load_power()` & 
-        :func:`calc_inertial_power()` results, to avoid recalculations.
+    Equals :math:`road_loads + inertial_power`
 
     @see: Annex 2-3.1
     """
-    return calc_road_load_power(V, f0, f1, f2) + calc_inertial_power(
-        V, A, test_mass, f_inertial
-    )
+    return p_resist + p_inert
 
 
 def calc_default_resistance_coeffs(test_mass, regression_curves):

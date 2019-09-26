@@ -698,3 +698,51 @@ class CycleBuilder:
         g_max0.name = (c.g_max0, "")
 
         return g_min, g_max0
+
+
+def calc_p_remain(cycle, gidx):
+    """
+    Return `p_avail - p_req` for all gears > g2 in `gwot`
+    
+    TODO: Separate :func:`calc_p_remain` not used yet
+    """
+    w = wio.pstep_factory.get().wot
+
+    gears_g3plus = gidx.gnames[3 - 1 :]
+    pidx_g3plus = gidx.colidx_pairs(w.p_avail, gears_g3plus)
+
+    p_req = cycle.loc[:, w.p_req]
+    p_avail = cycle.loc[:, pidx_g3plus]
+
+    ## Drop pandas axis or else substraction would fail with:
+    #       ValueError: cannot join with no overlapping index names
+    p_remain = p_avail - p_req.to_numpy().reshape(-1, 1)
+    p_remain.columns = gidx.colidx_pairs(w.p_remain, gears_g3plus)
+
+    return p_remain
+
+
+def calc_ok_p_rule(cycle, gidx):
+    """
+    Sufficent power rule for gears > g2, in Annex 2-3.5. 
+    
+    TODO: Separate :func:`calc_p_remain` not used yet
+    """
+    c = wio.pstep_factory.get().cycle
+
+    gears_g3plus = gidx.gnames[3 - 1 :]
+    pidx_g3plus = gidx.colidx_pairs(c.p_avail, gears_g3plus)
+
+    ok_p = cycle.loc[:, pidx_g3plus] >= 0
+    ok_p.columns = gidx.colidx_pairs(c.ok_p, gears_g3plus)
+
+    return ok_p.astype("int8")
+
+
+def fill_insufficient_power(cycle):
+    c = wio.pstep_factory.get().cycle
+
+    idx_miss_gear = cycle[c.g_max0] < 0
+    ok_n = cycle.loc[:, c.ok_n]
+    p_remain = cycle.loc[:, c.p_remain]
+    cycle.loc[idx_miss_gear]

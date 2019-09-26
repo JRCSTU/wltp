@@ -100,7 +100,7 @@ print(list(mdl.keys()))
 ```{python}
 gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
 gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
-p_resist = vehicle.calc_road_load_power(gwots.index, mdl["f0"], mdl["f1"], prop["f2"])
+gwots['p_resist'] = vehicle.calc_road_load_power(gwots.index, mdl["f0"], mdl["f1"], prop["f2"])
 ```
 
 ```{python}
@@ -129,16 +129,6 @@ for err in cb.validate_nims_t_cold_end(t_cold_end, wltc_parts):
 ```
 
 ```{python}
-kr = 1.03
-SM = 0.1
-cb.cycle['p_req'] = vehicle.calc_power_required(cb.V, cb.A, prop.test_mass, prop.f0, prop.f1, prop.f2, kr)
-```
-
-```{python}
-cb.add_wots(gwots)
-```
-
-```{python}
 acc_cycle = vehdb.load_vehicle_nodes(h5, caseno, 'cycle')
 print(list(acc_cycle.columns))
 ```
@@ -148,12 +138,10 @@ print(list(acc_cycle.columns))
 #
 c = wio.pstep_factory.get().cycle
 
-cycle = cb.cycle
-
 ng = 6
 n95_high = engine.calc_n95(wot, mdl["n_rated"], mdl["p_rated"])[0]
 v_max_cycle = cb.V.max()
-vmax_rec = vmax.calc_v_max(gwots, p_resist)
+vmax_rec = vmax.calc_v_max(gwots)
 g_vmax = vmax_rec.g_vmax
 n2v_vmax = n2vs[g_vmax - 1]
 n_max_cycle = v_max_cycle * n2v_vmax
@@ -162,8 +150,15 @@ nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
 ```
 
 ```{python}
-(cb.cycle.loc[:, ('n', 'g2')] < mdl['n_min_drive2_stopdecel']).sum()
-cb.cycle.loc[:, ('n', 'g3')].describe()
+cb.add_wots(gwots)
+```
+
+```{python}
+kr = 1.03
+SM = 0.1
+cb.cycle['p_inert'] = vehicle.calc_inertial_power(cb.V, cb.A, prop.test_mass, kr)
+cb.cycle['p_req'] = vehicle.calc_required_power(cb.cycle['p_inert'], cb.cycle['p_resist'], )
+p_remain = cycler.calc_p_remain(cb.cycle, cb.gidx)
 ```
 
 ```{python}
@@ -198,7 +193,7 @@ ok_gears.sum()
 
 ```{python}
 g_min, g_max0 = cb.make_gmax0(ok_gears)
-cycle = pd.concat((cb.cycle, ok_flags1, ok_gears, g_min, g_min, g_max0), axis=1)
+cycle = pd.concat((cb.cycle, ok_flags1, ok_gears, g_min, g_max0), axis=1)
 ```
 
 ```{python}
@@ -216,6 +211,22 @@ display(cycle.loc[~g_max0_diff.isnull() & (g_max0_diff != 0)])
 ```
 
 ```{python}
+ok_p = cycler.calc_ok_p_rule(pd.concat((cycle, p_remain), axis=1), cb.gidx)
+ok_p
+```
+
+```{python}
+cb.add_columns(p_remain, ok_flags1, ok_gears, g_min, g_max0)
+```
+
+```{python}
+cycler.fill_insufficient_power(cb.cycle)
+```
+
+```{python}
+################################
+## MOVED to compare-notebook! ##
+################################
 from ipywidgets import interact, interactive, fixed, interact_manual, widgets
 
 max_zoom = 48.0
@@ -261,10 +272,6 @@ def plot_gear(gear="g2", zoom=48, pan=13.8):
 
     ## IF only i could find quickly how to display the df BELOW the plot...
     #display(cycle, display_id='grid')
-```
-
-```{python}
-cb.add_columns(ok_flags, ok_gears)
 ```
 
 ## Museum

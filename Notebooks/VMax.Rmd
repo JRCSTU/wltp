@@ -237,14 +237,14 @@ wot['n'] = wot.index
 ac_props = ac_props.rename(vehdb.accdb_renames())
 gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
 gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
-p_resist = vehicle.calc_road_load_power(gwots.index, ac_props.f0, ac_props.f1, ac_props.f2)
+gwots['p_resist'] = vehicle.calc_road_load_power(gwots.index, ac_props.f0, ac_props.f1, ac_props.f2)
 ```
 
 ```{python}
 w=wio.pstep_factory.get()
 gidx = wio.GearMultiIndexer.from_df(gwots)
 
-rec = vmax.calc_v_max(gwots, p_resist)
+rec = vmax.calc_v_max(gwots)
 print(f"VMAX: {rec.v_max}, G_VMAX: {rec.g_vmax}, maxWOT? {rec.is_n_lim}")
 display(rec.wot[f"g{rec.g_vmax}"])
 ```

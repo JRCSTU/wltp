@@ -870,8 +870,8 @@ def validate_model(
     ... })
     >>> mdl = upd_default_load_curve(mdl);
     >>> err_generator = validate_model(mdl, iter_errors=True)
-    >>> len(list(err_generator))
-    0
+    >>> list(err_generator)
+    []
     """
 
     validator = model_validator(
@@ -937,16 +937,12 @@ def yield_load_curve_errors(mdl):
 
 
 def yield_n_min_errors(mdl):
-    # TODO: min(Nwot) <= n_min_drive_set
     """
     .. TODO:: 
       Support ARRAY for `n_min_drive_up/dn`.
-    .. TODO:: 
-      cannot Checking of `t_cold_end` is in stop-gap during datamodel-validation; 
-      wltc-class decision not made yet.
-    
+    .. TODO: 
+      Validate min(Nwot) <= n_min_drive_set.
     """
-
     d = wio.pstep_factory.get()
     # g = wio.pstep_factory.get().gears
 

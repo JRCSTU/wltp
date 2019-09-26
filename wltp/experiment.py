@@ -168,9 +168,9 @@ class Experiment(object):
 
         gwots = engine.interpolate_wot_on_v_grid(wot, gear_ratios)
         gwots = engine.calc_p_avail_in_gwots(gwots, SM=f_safety_margin)
-        p_resist = vehicle.calc_road_load_power(gwots.index, f0, f1, f2)
+        gwots["p_resist"] = vehicle.calc_road_load_power(gwots.index, f0, f1, f2)
 
-        v_max_rec = vmax.calc_v_max(gwots, p_resist)
+        v_max_rec = vmax.calc_v_max(gwots)
         mdl["v_max"] = v_max = v_max_rec.v_max
         mdl["n_vmax"] = v_max_rec.n_vmax
         mdl["g_vmax"] = v_max_rec.g_vmax
@@ -263,15 +263,13 @@ class Experiment(object):
 
         cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
 
-        cb.cycle["p_resist"] = vehicle.calc_road_load_power(cb.V, f0, f1, f2)
-        cb.cycle["p_inertial"] = vehicle.calc_inertial_power(
+        cb.cycle["p_inert"] = vehicle.calc_inertial_power(
             cb.V, cb.A, test_mass, f_inertial
         )
-        cb.cycle["p_req"] = vehicle.calc_power_required(
-            cb.V, cb.A, test_mass, f0, f1, f2, f_inertial
-        )
-
         cb.add_wots(gwots)
+        cb.cycle["p_req"] = vehicle.calc_required_power(
+            cb.cycle["p_resist"], cb.cycle["p_inert"]
+        )
 
         ## Remaining n_max values
         #
@@ -284,13 +282,16 @@ class Experiment(object):
         mdl["n_max3"] = g_max_n2v * mdl["v_max"]
         mdl["n_max"] = engine.calc_n_max(mdl["n_max1"], mdl["n_max2"], mdl["n_max3"])
 
-        nmins = engine.calc_fixed_n_min_drives(mdl, n_idle, n_rated)
+        # TODO: incorporate `t_colde_env` check in validateion  framework.
         if wltc_class:
-            for err in cb.validate_nims_t_cold_end(nmins.t_cold_end, wltc_parts):
+            for err in cb.validate_nims_t_cold_end(mdl["t_cold_end"], wltc_parts):
                 raise err
 
         ok_flags = cb.calc_initial_gear_flags(
-            g_vmax=mdl["g_vmax"], n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
+            g_vmax=mdl["g_vmax"],
+            n95_max=n95_high,
+            n_max_cycle=n_max_cycle,
+            nmins=engine.nmins_from_model(mdl),
         )
         ok_n = cb.combine_ok_n_gear_flags(ok_flags)
         ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)

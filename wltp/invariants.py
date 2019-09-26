@@ -65,19 +65,19 @@ vround = functools.partial(round1, decimals=v_decimals)
 def asint(n):
     """
     Convert numbers or arrays to integers, only when not containing NAN/INFs.
-    
+
     :param n:
         number/sequence of numbers
     :return:
         number/ndarray, or the unrounded(!) `n` if it contained NAN/INFs
-    
+
     **Examples:**
-    
+
     >>> asint(3.14)
     3
     >>> type(_)
     <class 'int'>
-    
+
     >>> asint(float('inf'))
     inf
     >>> type(_)
@@ -85,9 +85,9 @@ def asint(n):
 
     >>> asint([1, 3.14])
     array([1, 3])
-    >>> _.dtype
-    dtype('int64')
-    
+    >>> _.dtype             # doctest: +SKIP
+    'int64'
+
     >>> asint([np.NAN, 3.14, -np.inf])  # input untouched!!
     array([ nan, 3.14, -inf])
     >>> _.dtype

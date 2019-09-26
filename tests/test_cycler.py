@@ -124,10 +124,12 @@ def test_full_build_smoketest(h5_accdb):
     )
 
     kr = 1.03
-    cb.cycle["p_req"] = vehicle.calc_power_required(
-        cb.V, cb.A, prop.test_mass, prop.f0, prop.f1, prop.f2, kr
-    )
     cb.add_wots(gwots)
+
+    cb.cycle["p_inert"] = vehicle.calc_inertial_power(cb.V, cb.A, prop.test_mass, kr)
+    cb.cycle["p_req"] = vehicle.calc_required_power(
+        cb.cycle["p_inert"], cb.cycle["p_resist"]
+    )
 
     acc_cycle = vehdb.load_vehicle_nodes(h5_accdb, vehnum, "cycle")
 
