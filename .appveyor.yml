@@ -5,8 +5,8 @@ environment:
 
     matrix:
          # a sampling of
-        - PYTHON: "C:\\Python36-x64"
-          PYTHON_VERSION: "3.6"
+        - PYTHON: "C:\\Python37-x64"
+          PYTHON_VERSION: "3.7"
           PYTHON_ARCH: "64"
           IS_CONDA: "true"
 
