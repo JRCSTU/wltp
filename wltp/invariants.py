@@ -10,6 +10,7 @@ import functools
 
 import numpy as np
 import pandas as pd
+from pandas.core.generic import NDFrame
 
 v_decimals = 1
 v_step = 10 ** -v_decimals
@@ -62,10 +63,44 @@ vround = functools.partial(round1, decimals=v_decimals)
 
 
 def asint(n):
-    if hasattr(n, "astype"):
-        return n.astype("int")
-    else:
-        return int(round1(n, 0))
+    """
+    Convert numbers or arrays to integers, only when not containing NAN/INFs.
+    
+    :param n:
+        number/sequence of numbers
+    :return:
+        number/ndarray, or the unrounded(!) `n` if it contained NAN/INFs
+    
+    **Examples:**
+    
+    >>> asint(3.14)
+    3
+    >>> type(_)
+    <class 'int'>
+    
+    >>> asint(float('inf'))
+    inf
+    >>> type(_)
+    <class 'float'>
+
+    >>> asint([1, 3.14])
+    array([1, 3])
+    >>> _.dtype
+    dtype('int64')
+    
+    >>> asint([np.NAN, 3.14, -np.inf])  # input untouched!!
+    array([ nan, 3.14, -inf])
+    >>> _.dtype
+    dtype('float64')
+
+    """
+    # return n.astype("int") if hasattr(n, "astype") else int(n)
+    if isinstance(n, (list, tuple)):
+        n = np.asarray(n)
+
+    if np.isfinite(n).all():
+        return n.astype(int) if hasattr(n, "astype") else int(n)
+    return n
 
 
 #: The GTR rounding for N (RPM) to integer precision,
