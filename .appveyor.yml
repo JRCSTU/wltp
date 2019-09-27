@@ -46,16 +46,13 @@ test_script:
     # To create `pyalgo.h5` file.
     - pytest -m slow --h5-write
 
+    - |
+        echo "+++ Checking TCs..."
+        pytest
     -   IF "%PYTHON_VERSION%"=="3.7" (
-            echo "+++ Checking more..." &
-            pytest &
             echo "+++ Checking site...." &
             python setup.py build_sphinx
-        ) ELSE (
-            echo "+++ Checking only TCs...." &
-            pytest
         )
-
     - ps: |
         echo "+++ Checking README for PyPi...."
         bin\check_readme.ps1

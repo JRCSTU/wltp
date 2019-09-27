@@ -20,9 +20,10 @@ install:
 
 script:
     - |
-        # To create `pyalgo.h5` file.
+        echo "+++ Creating pyalgo.h5 file...."
         pytest -m slow --h5-write
 
+    - |
         if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
             echo "+++ Checking all TCs, DTs & Coverage....";
             pytest --doctest-glob=README.rst \
@@ -37,19 +38,24 @@ script:
                 --cov=wltp.io \
                 --cov=wltp.utils \
                 --cov=wltp.cycles
-        
-            echo "+++ Checking README for PyPi...."
-            ./bin/check_readme.sh
-
-            echo "+++ Checking site...."
-            pip install -e .[doc]
-            python setup.py build_sphinx
         else
             echo "+++ Checking only TCs....";
             pytest
         fi
+    - |
+        if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
+            echo "+++ Checking README for PyPi...."
+            ./bin/check_readme.sh
+        fi
+    - |
+        if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
+            echo "+++ Checking site...."
+            pip install -e .[doc]
+            python setup.py build_sphinx
+        fi
 
-    -   echo "+++ Checking install...."
+    - |
+        echo "+++ Checking install...."
         python setup.py install
         python setup.py build
 
