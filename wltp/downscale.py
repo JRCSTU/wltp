@@ -58,7 +58,7 @@ def calc_downscale_factor(
 
     @see: Annex 1-7, p 68
     """
-    c = wio.pstep_factory.get().cycle_run
+    c = wio.pstep_factory.get().cycle
 
     ## Max required power at critical point.
     #

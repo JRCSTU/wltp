@@ -64,7 +64,7 @@ class ExperimentWholeVehs(unittest.TestCase):
                 pickle.dump(tabular, tmpfile)
 
     def _plotResults(self, mdl):
-        cycle = mdl["cycle_run"]
+        cycle = mdl["cycle"]
         gears = cycle["gears"]
         target = cycle["v_target"]
         realv = cycle["v_real"]
@@ -83,10 +83,10 @@ class ExperimentWholeVehs(unittest.TestCase):
 
         experiment = Experiment(mdl)
         mdl = experiment.run()
-        self.assertTrue("cycle_run" in mdl, 'No result "cycle" in Model: %s' % mdl)
+        self.assertTrue("cycle" in mdl, 'No result "cycle" in Model: %s' % mdl)
 
         print("DRIVEABILITY: \n%s" % experiment.driveability_report())
-        cycle = mdl["cycle_run"]
+        cycle = mdl["cycle"]
         gears = cycle["gears"]
         print(
             "G1: %s, G2: %s"
@@ -96,8 +96,8 @@ class ExperimentWholeVehs(unittest.TestCase):
         self._compare_exp_results(cycle, "goodveh", self.run_comparison)
 
         if plot_results:
-            print(mdl["cycle_run"])
-            # print([get_wltc_data()['classes']['class3b']['cycle_run'][k] for k in mdl['cycle_run']['driveability_issues'].keys()])
+            print(mdl["cycle"])
+            # print([get_wltc_data()['classes']['class3b']['cycle'][k] for k in mdl['cycle']['driveability_issues'].keys()])
             self._plotResults(mdl)
 
             np.set_printoptions(edgeitems=16)
@@ -113,7 +113,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(mdl)
         mdl = experiment.run()
         print("DRIVEABILITY: \n%s" % experiment.driveability_report())
-        self._compare_exp_results(mdl["cycle_run"], "unpower1", self.run_comparison)
+        self._compare_exp_results(mdl["cycle"], "unpower1", self.run_comparison)
 
         mdl = goodVehicle()
         veh = mdl["vehicle"]
@@ -126,7 +126,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         experiment = Experiment(mdl)
         mdl = experiment.run()
         print("DRIVEABILITY: \n%s" % experiment.driveability_report())
-        self._compare_exp_results(mdl["cycle_run"], "unpower2", self.run_comparison)
+        self._compare_exp_results(mdl["cycle"], "unpower2", self.run_comparison)
 
         if plot_results:
             self._plotResults(mdl)

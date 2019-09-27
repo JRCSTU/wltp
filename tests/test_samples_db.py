@@ -271,7 +271,7 @@ def _run_the_experiments(
         outfname = os.path.join(
             mydir, samples_dir, "{}-{:05}{}".format(root, veh_num, ext)
         )
-        df = pd.DataFrame(model["cycle_run"])
+        df = pd.DataFrame(model["cycle"])
 
         _compare_exp_results(df, outfname, compare_results)
         df.to_csv(outfname, index_label="time")

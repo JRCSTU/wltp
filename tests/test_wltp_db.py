@@ -937,7 +937,7 @@ def _run_the_experiments(
             log.warning(">>> Transplanting gears from Heinz's!")
             df_h = _read_heinz_file(veh_num)
 
-            mdl["cycle_run"] = {"gears_orig": df_h["g_max"].values}
+            mdl["cycle"] = {"gears_orig": df_h["g_max"].values}
 
         try:
             experiment = Experiment(mdl)
@@ -956,7 +956,7 @@ def _run_the_experiments(
 
             # ankostis_mdb:  't', "v in km/h","v_orig","a in m/s²","gear","g_min","g_max","gear_modification","error_description"
             # heinz:         't', 'km_h', 'stg', 'gear'
-            cycle_df = pd.DataFrame(mdl["cycle_run"])
+            cycle_df = pd.DataFrame(mdl["cycle"])
 
             _compare_exp_results(cycle_df, outfname, compare_results)
 

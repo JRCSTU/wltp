@@ -1,3 +1,4 @@
+/cycle
 /cycle/a
 /cycle/accel
 /cycle/accel_raw
@@ -25,13 +26,12 @@
 /cycle/stopdecel
 /cycle/t
 /cycle/up
+/cycle/v
 /cycle/v_cycle
 /cycle/v_target
 /cycle_data/classes
 /cycle_data/pmr_limits
 /cycle_data/velocity_limits
-/cycle_run/a
-/cycle_run/v
 /n_idle
 /n_min_drive_dn_start
 /n_min_drive_down

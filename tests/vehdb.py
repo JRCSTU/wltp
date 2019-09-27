@@ -572,7 +572,7 @@ def run_pyalgo_on_accdb_vehicle(
     :param h5:
         the `WltpGs-msaccess.h5` file (path or h5db) to read input from 
     :return:
-        the *out-props* key-values, the *cycle_run* data-frame, 
+        the *out-props* key-values, the *cycle* data-frame, 
         and the grid-wots constructed to solve v_max.
     """
     from wltp import io as wio, engine, utils
@@ -606,9 +606,9 @@ def run_pyalgo_on_accdb_vehicle(
         "f_downscale": mdl["f_downscale"],
     }
 
-    cycle_run = mdl["cycle_run"]
+    cycle = mdl["cycle"]
 
-    return out_mdl, cycle_run, mdl["wots_vmax"]
+    return out_mdl, cycle, mdl["wots_vmax"]
 
 
 # oprops, cycle, wots_vmax = nbu.run_pyalgo_on_accdb_vehicle(inp_h5fname, 14)

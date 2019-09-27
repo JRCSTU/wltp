@@ -507,7 +507,7 @@ properties:
     type: number
   wltc_data:
     $ref: {_wltc_url}
-  cycle_run:
+  cycle:
     description: |2
       A dataframe matrix with 2-level columns(item, gear), 
       and items, in addition to those of `grid_wots`:

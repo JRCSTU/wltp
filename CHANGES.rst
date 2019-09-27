@@ -76,6 +76,7 @@ v1.0.0.dev12  (20-Aug-2019): PY3.5 only & real work!
   (e.g. `engine`, `vehicle`, `vmax`, `downscale`, etc).
 - datamodel:
 
+  - BREAK: data-path ``cycle_run --> cycle``.
   - BREAK: renamed module ``wltp.model --> wltp.datamodel``.
   - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec, 
     and overlapping phases fixed.

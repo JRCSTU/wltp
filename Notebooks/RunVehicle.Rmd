@@ -142,7 +142,7 @@ oprops = {
     }
 
 pprint(oprops)
-display(mdl['cycle_run'])
+display(mdl['cycle'])
 ```
 
 ## Run a case from AccDb
@@ -181,7 +181,7 @@ oprops = {
     }
 
 pprint(oprops)
-display(mdl['cycle_run'])
+display(mdl['cycle'])
 ```
 
 ```{python}
@@ -189,8 +189,8 @@ print(sorted(mdl.keys()))
 ```
 
 ```{python}
-ax = mdl['cycle_run'][['v_cycle', 'v_target']].plot()
-ax = mdl['cycle_run'][['p_req', 'p_avail']].plot(ax=ax, secondary_y=True)
+ax = mdl['cycle'][['v_cycle', 'v_target']].plot()
+ax = mdl['cycle'][['p_req', 'p_avail']].plot(ax=ax, secondary_y=True)
 ```
 
 ## Even simpler case
@@ -229,5 +229,5 @@ exp = Experiment(inp_mdl, skip_model_validation=True)
 out_mdl = exp.run()
 print(f"Available values: \n{list(out_mdl.keys())}")
 print(f"Cycle: ")
-display(out_mdl['cycle_run'])
+display(out_mdl['cycle'])
 ```

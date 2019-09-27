@@ -229,7 +229,7 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 ## Compare a vehicle from AccDB <-->PyAlgo *interactively*
 **TODO:** collect and hide all this comprarison GUI code below into a python module. 
 
-```{python jupyter={'source_hidden': True}}
+```{python}
 case_loaded = [None, None]
 def _load_interactive_case(
     case_name,
@@ -377,7 +377,7 @@ out_specs = [
 ]
 ```
 
-```{python jupyter={'source_hidden': True}}
+```{python}
 ## TODO: CLASSify code in these cells.
 from ipywidgets import (
     interact,

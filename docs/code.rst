@@ -451,7 +451,7 @@ The :term:`JSON-schema` of the data for this project:
         type: number
       wltc_data:
         $ref: /wltc
-      cycle_run:
+      cycle:
         description: |
           A dataframe matrix with 2-level columns(item, gear), 
           and items, in addition to those of `grid_wots`:

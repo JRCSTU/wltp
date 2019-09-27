@@ -164,7 +164,7 @@ def add_cycle_run_as_sheet(veh_id, mdl_out):
         sh.clear()
     except Exception:
         xw.Sheet.add(sheet)
-    xw.Range(sheet, "A1").value = mdl_out["cycle_run"]
+    xw.Range(sheet, "A1").value = mdl_out["cycle"]
 
 
 def read_table_as_df(range):

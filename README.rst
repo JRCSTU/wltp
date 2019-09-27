@@ -54,7 +54,7 @@ An "execution" or a "run" of an experiment is depicted in the following diagram:
                ; +--test_mass    ;     ____________        ; +--pmr           ;
               ;  +--n_idle      ;     |            |      ;  +--wltc_class   ;
              ;   +--f0,f1,f2   ;  ==> |   Cycle    | ==> ;   +--...         ;
-            ;    +--wot/      ;       | Generator  |    ;    +--cycle_run  ;
+            ;    +--wot/      ;       | Generator  |    ;    +--cycle      ;
            ;         +--     ;        |____________|   ;     |    +--     ;
           ;      +--n2vs    ;                         ;      +--gwots    ;
          ;           +--   ;                         ;            +--   ;
@@ -170,7 +170,7 @@ Usage:
     # exp = Experiment(inp_mdl)
     out_mdl = exp.run()
     print(f"Available values: \n{list(out_mdl.keys())}")
-    print(f"Cycle: \n{out_mdl['cycle_run']}")
+    print(f"Cycle: \n{out_mdl['cycle']}")
 
 See: :ref:`python-usage`
 
@@ -323,7 +323,7 @@ Now you can run the experiment:
 
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-      ['cycle_run', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
+      ['cycle', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
        'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min',
        'f_n_min_gear2', 'f_safety_margin', 'g_vmax', 'gear_ratios', 'is_n_lim_vmax', 'n95_high', 'n95_low',
        'n_idle', 'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_min_drive1', 'n_min_drive2',
@@ -337,7 +337,7 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
 .. doctest::
 
     >>> import pandas as pd, wltp.cycler as cycler, wltp.io as wio
-    >>> df = pd.DataFrame(mdl['cycle_run']); df.index.name = 't'
+    >>> df = pd.DataFrame(mdl['cycle']); df.index.name = 't'
     >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
     (1801, 94)
     >>> wio.flatten_columns(df.columns)
@@ -389,7 +389,7 @@ You can export the cycle-run results in a CSV-file with the following pandas com
 
 .. code-block:: pycon
 
-    >>> df.to_csv('cycle_run.csv')                                                      # doctest: +SKIP
+    >>> df.to_csv('cycle.csv')                                                      # doctest: +SKIP
 
 
 For more examples, download the sources and check the test-cases
@@ -429,7 +429,7 @@ for which you want to override the ``n_idle`` only, run the following:
     $ wltp -v \
         -I vehicle.csv file_frmt=SERIES model_path=params header@=None \
         -m vehicle/n_idle:=850 \
-        -O cycle.csv model_path=cycle_run
+        -O cycle.csv model_path=cycle
 
 
 .. _excel-usage:

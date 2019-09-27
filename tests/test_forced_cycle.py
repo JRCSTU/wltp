@@ -30,7 +30,7 @@ class TestForcedCycle(unittest.TestCase):
 
     def test_badCycle(self):
         mdl = goodVehicle()
-        mdl["cycle_run"] = 1
+        mdl["cycle"] = 1
 
         with self.assertRaisesRegex(
             PandasError, "DataFrame constructor not properly called"
@@ -43,7 +43,7 @@ class TestForcedCycle(unittest.TestCase):
         mdl = datamodel.upd_resistance_coeffs_regression_curves(mdl)
 
         V = np.hstack((np.r_[0:100:2], np.r_[98:0:-2]))
-        mdl["cycle_run"] = {"v_target": V}
+        mdl["cycle"] = {"v_target": V}
 
         experiment = Experiment(mdl)
         mdl = experiment.run()

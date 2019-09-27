@@ -120,22 +120,20 @@ class Experiment(object):
 
         ## Prepare results
         #
-        cycle_run = mdl.get("cycle_run")
-        if cycle_run is None:
-            cycle_run = pd.DataFrame()
+        cycle = mdl.get("cycle")
+        if cycle is None:
+            cycle = pd.DataFrame()
         else:
-            cycle_run = pd.DataFrame(cycle_run)
+            cycle = pd.DataFrame(cycle)
             log.info(
-                "Found forced `cycle-run` table(%ix%i).",
-                cycle_run.shape[0],
-                cycle_run.shape[1],
+                "Found forced `cycle-run` table(%ix%i).", cycle.shape[0], cycle.shape[1]
             )
-        mdl["cycle_run"] = cycle_run
+        mdl["cycle"] = cycle
 
         ## Ensure Time-steps start from 0 (not 1!).
         #
-        cycle_run.reset_index()
-        cycle_run.index.name = "t"
+        cycle.reset_index()
+        cycle.index.name = "t"
 
         ## Extract vehicle attributes from model.
         #
@@ -182,7 +180,7 @@ class Experiment(object):
         f_inertial = mdl["f_inertial"]
 
         forced_v_column = "v_target"
-        V = cycle_run.get(forced_v_column)
+        V = cycle.get(forced_v_column)
         if V is not None:
             log.info(
                 "Found forced velocity in %r with %s valus.", forced_v_column, len(V)
@@ -301,7 +299,7 @@ class Experiment(object):
 
         cb.add_columns(ok_flags1, ok_gears, g_min, g_max0)
 
-        mdl[m.cycle_run] = cb.cycle
+        mdl[m.cycle] = cb.cycle
 
         return mdl
 
@@ -325,7 +323,7 @@ class Experiment(object):
         self._model = merged_model
 
     def driveability_report(self):
-        cycle = self._model.get("cycle_run")
+        cycle = self._model.get("cycle")
         if not cycle is None:
             issues = []
             drv = cycle["driveability"]
