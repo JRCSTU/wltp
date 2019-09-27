@@ -1,15 +1,19 @@
 ################################################################
 wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
-:versions:      1.0.0.dev12 |br| |gh-version| |pypi-version| |conda-version| |dev-status|
-:date:          2019-08-30 14:55:39
-:documentation: https://wltp.readthedocs.org/ |br| |docs-status| build-date: |today|
-:sources:       https://github.com/JRCSTU/wltp |br| |travis-status| |appveyor-status| |github-issues| |downloads-count| |codestyle|
+:versions:      1.0.0.dev12 (2019-08-30 14:55:39) |br|
+                |gh-version| |pypi-version| |conda-version| |dev-status| |br|
+                |python-ver|  |conda-plat|
+:documentation: https://wltp.readthedocs.org/ |br|
+                |docs-status| build-date: |today|
 :live-demo:     |binder|
-:keywords:      UNECE, automotive, car, cars, driving, engine, fuel-consumption, gears, gearshifts,
-                rpm, simulation, simulator, standard, vehicle, vehicles, wltc, nedc
-:Copyright:     2013-2019 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_)
-:License:       `EUPL 1.1+ <https://joinup.ec.europa.eu/software/page/eupl>`_
+:sources:       https://github.com/JRCSTU/wltp |br|
+                |travis-status| |appveyor-status| |downloads-count| |codestyle| |br|
+                |gh-watch| |gh-star| |gh-fork| |gh-issues|
+:keywords:      UNECE, automotive, car, cars, driving, engine, emissions, fuel-consumption,
+                gears, gearshifts, rpm, simulation, simulator, standard, vehicle, vehicles, WLTC, NEDC
+:copyright:     2013-2019 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_) |br|
+                |proj-lic|
 
 A python package to generate the *gear-shifts* of Light-duty vehicles
 running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR`\s.
@@ -323,14 +327,14 @@ Now you can run the experiment:
 
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-      ['cycle', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
-       'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min',
-       'f_n_min_gear2', 'f_safety_margin', 'g_vmax', 'gear_ratios', 'is_n_lim_vmax', 'n95_high', 'n95_low',
-       'n_idle', 'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_min_drive1', 'n_min_drive2',
-       'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_dn_start', 'n_min_drive_down',
-       'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated', 'n_vmax', 'p_rated', 'pmr',
-       't_cold_end', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class',
-       'wltc_data', 'wot', 'wots_vmax']
+    ['cycle', 'driver_mass', 'f0', 'f1', 'f2', 'f_downscale', 'f_downscale_decimals',
+     'f_downscale_threshold', 'f_dscl_orig', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min',
+     'f_n_min_gear2', 'f_safety_margin', 'g_vmax', 'gear_ratios', 'is_n_lim_vmax', 'n95_high', 'n95_low',
+     'n_idle', 'n_max', 'n_max1', 'n_max2', 'n_max3', 'n_min', 'n_min_drive1', 'n_min_drive2',
+     'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_dn_start', 'n_min_drive_down',
+     'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated', 'n_vmax', 'p_rated', 'pmr',
+     't_cold_end', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_class',
+     'wltc_data', 'wot', 'wots_vmax']
 
 To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
 
@@ -909,7 +913,7 @@ See also :ref:`architecture:Architecture`.
     :target: https://github.com/JRCSTU/wltp/releases
     :alt: Latest version in GitHub
 
-.. |pypi-version| image::  https://pypip.in/v/wltp/badge.svg?label=PyPi%20version
+.. |pypi-version| image::  https://img.shields.io/pypi/v/wltp.svg?label=PyPi%20version
     :target: https://pypi.python.org/pypi/wltp/
     :alt: Latest version in PyPI
 
@@ -917,22 +921,42 @@ See also :ref:`architecture:Architecture`.
     :target: https://anaconda.org/ankostis/wltp
     :alt: Latest version in Anaconda cloud
 
-.. |python-ver| image:: https://pypip.in/py_versions/wltp/badge.svg
+.. |python-ver| image:: https://img.shields.io/pypi/pyversions/wltp.svg?label=PyPi%20Python
     :target: https://pypi.python.org/pypi/wltp/
-    :alt: Supported Python versions
+    :alt: Supported Python versions of latest release in PyPi
+
+.. |conda-plat| image:: https://img.shields.io/conda/pn/ankostis/wltp.svg?label=conda%20platforms
+    :target: https://anaconda.org/ankostis/wltp
+    :alt: Supported conda platforms
 
 .. |dev-status| image:: https://pypip.in/status/wltp/badge.svg
     :target: https://pypi.python.org/pypi/wltp/
     :alt: Development Status
 
-.. |github-issues| image:: http://img.shields.io/github/issues/JRCSTU/wltp.svg
-    :target: https://github.com/JRCSTU/wltp/issues
-    :alt: Issues count
-
-.. |downloads-count| image:: https://pypip.in/download/wltp/badge.svg?period=week
+.. |downloads-count| image:: https://pypip.in/download/wltp/badge.svg?period=month&label=PyPi%20downloads
     :target: https://pypi.python.org/pypi/wltp/
-    :alt: Downloads
+    :alt: PyPi downloads
 
 .. |codestyle| image:: https://img.shields.io/badge/code%20style-black-black.svg
     :target: https://github.com/ambv/black
     :alt: Code Style
+
+.. |gh-watch| image:: https://img.shields.io/github/watchers/JRCSTU/wltp.svg?style=social
+    :target: https://github.com/JRCSTU/wltp
+    :alt: Github watchers
+
+.. |gh-star| image:: https://img.shields.io/github/stars/JRCSTU/wltp.svg?style=social
+    :target: https://github.com/JRCSTU/wltp
+    :alt: Github stargazers
+
+.. |gh-fork| image:: https://img.shields.io/github/forks/JRCSTU/wltp.svg?style=social
+    :target: https://github.com/JRCSTU/wltp
+    :alt: Github forks
+
+.. |gh-issues| image:: http://img.shields.io/github/issues/JRCSTU/wltp.svg?style=social
+    :target: https://github.com/JRCSTU/wltp/issues
+    :alt: Issues count
+
+.. |proj-lic| image:: https://img.shields.io/pypi/l/wltp.svg
+    :target:  https://joinup.ec.europa.eu/software/page/eupl
+    :alt: EUPL 1.1+
