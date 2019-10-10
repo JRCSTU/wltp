@@ -18,8 +18,8 @@ from jsonschema import ValidationError
 from pandas.core.generic import NDFrame
 from scipy import interpolate
 
+from . import invariants as inv
 from . import io as wio
-from .invariants import nround1, nround10, v_decimals, v_step, vround
 
 Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
@@ -241,40 +241,40 @@ def _make_v_grid(v_wot_min: float, v_wot_max: float) -> np.ndarray:
 
     ## Clip V-grid inside min/max of wot-N.
     #
-    vmul = 10 ** v_decimals
-    v_wot_min2 = vround(np.ceil(v_wot_min * vmul) / vmul)
-    v_wot_max2 = vround(np.floor(v_wot_max * vmul) / vmul)
+    vmul = 10 ** inv.v_decimals
+    v_wot_min2 = inv.vround(np.ceil(v_wot_min * vmul) / vmul)
+    v_wot_max2 = inv.vround(np.floor(v_wot_max * vmul) / vmul)
 
     ## Using np.arange() because np.linspace() steps are not reliably spaced,
     #  and apply the GTR-rounding.
     #
-    V_grid = vround(np.arange(v_wot_min2, v_wot_max2, v_step))
+    V_grid = inv.vround(np.arange(v_wot_min2, v_wot_max2, inv.v_step))
     assert V_grid.size, ("Empty WOT?", v_wot_min, v_wot_max, v_wot_min2, v_wot_max2)
     ## Add endpoint manually because np.arange() is not adding it reliably.
     #
     if V_grid[-1] != v_wot_max2:
         V_grid = np.hstack((V_grid, [v_wot_max2]))
 
-    assert 0 <= V_grid[0] - v_wot_min < v_step, (
+    assert 0 <= V_grid[0] - v_wot_min < inv.v_step, (
         "V-grid start below/too-far min(N_wot): ",
         v_wot_min,
         v_wot_min2,
         V_grid[0:7],
-        v_step,
+        inv.v_step,
     )
-    assert 0 <= v_wot_max - V_grid[-1] < v_step, (
+    assert 0 <= v_wot_max - V_grid[-1] < inv.v_step, (
         "V-grid end above/too-far max(N_wot): ",
         V_grid[-7:],
         v_wot_max2,
         v_wot_max,
-        v_step,
+        inv.v_step,
     )
     return V_grid
 
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     """
-    Return a new linearly interpolated df on v with v_decimals. 
+    Return a new linearly interpolated df on v with inv.v_decimals. 
     
     :param df:
         A df containing at least `n` (in RPM); any other column gets interpolated.
@@ -467,7 +467,7 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
     # TODO: accept ARRAY `n_min_drive`
     d = wio.pstep_factory.get()
 
-    n_idle = nround10(n_idle)
+    n_idle = inv.nround10(n_idle)
     n_min_drive_set = n_idle + 0.125 * (n_rated - n_idle)
 
     n_min_drive_up = wio.getdval(mdl, d.n_min_drive_up, n_min_drive_set)
@@ -491,7 +491,7 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
         t_cold_end=t_cold_end,
     )
 
-    nmins = NMinDrives(*(n and nround1(n) for n in nmins))
+    nmins = NMinDrives(*(n and inv.nround1(n) for n in nmins))
 
     return nmins
 

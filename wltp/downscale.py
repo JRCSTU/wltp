@@ -12,7 +12,8 @@ import logging
 import pandas as pd
 
 from . import io as wio
-from .invariants import round1
+from . import invariants as inv
+
 
 log = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ def calc_downscale_factor(
 
     if r_max >= r0:
         f_downscale = a1 * r_max + b1
-        f_downscale = f_downscale_orig = round1(f_downscale, f_downscale_decimals)
+        f_downscale = f_downscale_orig = inv.round1(f_downscale, f_downscale_decimals)
 
         ## ATTENTION:
         #  By the spec, f_downscale MUST be > 0.01 to apply,
