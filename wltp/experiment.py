@@ -115,12 +115,13 @@ class Experiment(object):
         """
         m = wio.pstep_factory.get()
         c = wio.pstep_factory.get().cycle
+        w = wio.pstep_factory.get().wot
 
         mdl = self._model
 
         ## Prepare results
         #
-        cycle = mdl.get("cycle")
+        cycle = mdl.get(m.cycle)
         if cycle is None:
             cycle = pd.DataFrame()
         else:
@@ -128,58 +129,58 @@ class Experiment(object):
             log.info(
                 "Found forced `cycle-run` table(%ix%i).", cycle.shape[0], cycle.shape[1]
             )
-        mdl["cycle"] = cycle
+        mdl[c] = cycle
 
         ## Ensure Time-steps start from 0 (not 1!).
         #
         cycle.reset_index()
-        cycle.index.name = "t"
+        cycle.index.name = c.t
 
         ## Extract vehicle attributes from model.
         #
-        test_mass = mdl["test_mass"]
-        unladen_mass = mdl.get("unladen_mass") or test_mass - mdl["driver_mass"]
-        p_rated = mdl["p_rated"]
-        n_rated = mdl["n_rated"]
-        n_idle = mdl["n_idle"]
-        gear_ratios = mdl["gear_ratios"]
-        f0 = mdl.get("f0")
-        f1 = mdl.get("f1")
-        f2 = mdl.get("f2")
+        test_mass = mdl[m.test_mass]
+        unladen_mass = mdl.get(m.unladen_mass) or test_mass - mdl[m.driver_mass]
+        p_rated = mdl[m.p_rated]
+        n_rated = mdl[m.n_rated]
+        n_idle = mdl[m.n_idle]
+        gear_ratios = mdl[m.gear_ratios]
+        f0 = mdl.get(m.f0)
+        f1 = mdl.get(m.f1)
+        f2 = mdl.get(m.f2)
         if all(f is not None for f in (f0, f1, f2)):
             pass
         elif (
             all(f is None for f in (f0, f1, f2))
-            and "resistance_coeffs_regression_curves" in mdl
+            and m.resistance_coeffs_regression_curves in mdl
         ):
             (f0, f1, f2) = vehicle.calc_default_resistance_coeffs(
-                test_mass, mdl["resistance_coeffs_regression_curves"]
+                test_mass, mdl[m.resistance_coeffs_regression_curves]
             )
         else:
             raise ValueError("Missing resistance_coeffs!")
 
-        wot = mdl["wot"]
+        wot = mdl[m.wot]
         n95_low, n95_high = engine.calc_n95(wot, n_rated, p_rated)
-        mdl["n95_low"], mdl["n95_high"] = n95_low, n95_high
+        mdl[m.n95_low], mdl[m.n95_high] = n95_low, n95_high
 
-        f_safety_margin = mdl["f_safety_margin"]
+        f_safety_margin = mdl[m.f_safety_margin]
 
         gwots = engine.interpolate_wot_on_v_grid(wot, gear_ratios)
         gwots = engine.calc_p_avail_in_gwots(gwots, SM=f_safety_margin)
-        gwots["p_resist"] = vehicle.calc_road_load_power(gwots.index, f0, f1, f2)
+        gwots[w.p_resist] = vehicle.calc_road_load_power(gwots.index, f0, f1, f2)
 
         v_max_rec = vmax.calc_v_max(gwots)
-        mdl["v_max"] = v_max = v_max_rec.v_max
-        mdl["n_vmax"] = v_max_rec.n_vmax
-        mdl["g_vmax"] = v_max_rec.g_vmax
-        mdl["is_n_lim_vmax"] = v_max_rec.is_n_lim
-        mdl["wots_vmax"] = v_max_rec.wot
+        mdl[m.v_max] = v_max = v_max_rec.v_max
+        mdl[m.n_vmax] = v_max_rec.n_vmax
+        mdl[m.g_vmax] = v_max_rec.g_vmax
+        mdl[m.is_n_lim_vmax] = v_max_rec.is_n_lim
+        mdl[m.wots_vmax] = v_max_rec.wot
 
         p_m_ratio = 1000 * p_rated / unladen_mass
-        mdl["pmr"] = p_m_ratio
-        f_inertial = mdl["f_inertial"]
+        mdl[m.pmr] = p_m_ratio
+        f_inertial = mdl[m.f_inertial]
 
-        forced_v_column = "v_target"
+        forced_v_column = c.v_target
         V = cycle.get(forced_v_column)
         if V is not None:
             log.info(
@@ -189,14 +190,14 @@ class Experiment(object):
             V = pd.Series(V, name=c.v_target)
             wltc_class, _part, _kind = cycles.identify_cycle_v(V)
             cb = cycler.CycleBuilder(V)
-            mdl["f_downscale"] = None
+            mdl[m.f_downscale] = None
         else:
             ## Decide WLTC-class.
             #
-            wltc_class = mdl.get("wltc_class")
+            wltc_class = mdl.get(m.wltc_class)
             if wltc_class is None:
                 wltc_class = downscale.decide_wltc_class(self.wltc, p_m_ratio, v_max)
-                mdl["wltc_class"] = wltc_class
+                mdl[m.wltc_class] = wltc_class
             else:
                 log.info("Found forced wltc_class(%s).", wltc_class)
 
@@ -206,10 +207,10 @@ class Experiment(object):
 
             ## Downscale velocity-profile.
             #
-            f_downscale = mdl.get("f_downscale")
+            f_downscale = mdl.get(m.f_downscale)
             if not f_downscale:
-                f_downscale_threshold = mdl["f_downscale_threshold"]
-                f_downscale_decimals = mdl["f_downscale_decimals"]
+                f_downscale_threshold = mdl[m.f_downscale_threshold]
+                f_downscale_decimals = mdl[m.f_downscale_decimals]
                 dsc_data = class_data["downscale"]
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
@@ -226,8 +227,8 @@ class Experiment(object):
                     f2,
                     f_inertial,
                 )
-                mdl["f_downscale"] = f_downscale
-                mdl["f_dscl_orig"] = f_dscl_orig
+                mdl[m.f_downscale] = f_downscale
+                mdl[m.f_dscl_orig] = f_dscl_orig
 
             if f_downscale > 0:
                 V_dsc_raw = downscale.downscale_class_velocity(V, f_downscale, phases)
@@ -261,32 +262,32 @@ class Experiment(object):
 
         cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
 
-        cb.cycle["p_inert"] = vehicle.calc_inertial_power(
+        cb.cycle[c.p_inert] = vehicle.calc_inertial_power(
             cb.V, cb.A, test_mass, f_inertial
         )
         cb.add_wots(gwots)
-        cb.cycle["p_req"] = vehicle.calc_required_power(
-            cb.cycle["p_resist"], cb.cycle["p_inert"]
+        cb.cycle[c.p_req] = vehicle.calc_required_power(
+            cb.cycle[c.p_resist], cb.cycle[c.p_inert]
         )
 
         ## Remaining n_max values
         #
-        g_max_n2v = gear_ratios[mdl["g_vmax"] - 1]
+        g_max_n2v = gear_ratios[mdl[m.g_vmax] - 1]
         #  NOTE: `n95_high` is not rounded based on v, like the rest n_mins.
-        mdl["n_max1"] = mdl["n95_high"]
+        mdl[m.n_max1] = mdl[m.n95_high]
         #  NOTE: In Annex 2-2.g, it is confusing g_top with g_vmax;
         #  the later stack betters against accdb results.
-        mdl["n_max2"] = n_max_cycle = g_max_n2v * cb.V.max()
-        mdl["n_max3"] = g_max_n2v * mdl["v_max"]
-        mdl["n_max"] = engine.calc_n_max(mdl["n_max1"], mdl["n_max2"], mdl["n_max3"])
+        mdl[m.n_max2] = n_max_cycle = g_max_n2v * cb.V.max()
+        mdl[m.n_max3] = g_max_n2v * mdl[m.v_max]
+        mdl[m.n_max] = engine.calc_n_max(mdl[m.n_max1], mdl[m.n_max2], mdl[m.n_max3])
 
         # TODO: incorporate `t_colde_env` check in validateion  framework.
         if wltc_class:
-            for err in cb.validate_nims_t_cold_end(mdl["t_cold_end"], wltc_parts):
+            for err in cb.validate_nims_t_cold_end(mdl[m.t_cold_end], wltc_parts):
                 raise err
 
         ok_flags = cb.calc_initial_gear_flags(
-            g_vmax=mdl["g_vmax"],
+            g_vmax=mdl[m.g_vmax],
             n95_max=n95_high,
             n_max_cycle=n_max_cycle,
             nmins=engine.nmins_from_model(mdl),
