@@ -50,6 +50,8 @@ Begin OutputColumns
     Expression ="gearshift_table.g_max"
     Name ="nc"
     Expression ="gearshift_table.nc"
+    Name ="nc_set"
+    Expression ="gearshift_table.nc_set"
     Name ="error_description"
     Expression ="gearshift_table.error_description"
     Name ="gear_modification"
@@ -1371,17 +1373,21 @@ Begin
         dbText "Name" ="gearshift_table.Pmax_lower_Ptot_set"
         dbLong "AggregateType" ="-1"
     End
+    Begin
+        dbText "Name" ="gearshift_table.nc_set"
+        dbLong "AggregateType" ="-1"
+    End
 End
 Begin
     State =2
     Left =-9
     Top =-38
-    Right =1473
-    Bottom =807
+    Right =1472
+    Bottom =805
     Left =-1
     Top =-1
-    Right =1444
-    Bottom =324
+    Right =1443
+    Bottom =303
     Left =0
     Top =0
     ColumnsShown =651

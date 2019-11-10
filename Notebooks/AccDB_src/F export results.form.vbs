@@ -507,10 +507,10 @@ export_name = Me.export_path & "\" & Me.filename & ".xls"
 
 
 'Dim objOrderInfo As AdditionalData
-    
+
     'Set objOrderInfo = Application.CreateAdditionalData()
-    
-    
+
+
     'Application.ExportXML ObjectType:=acExportTable, DataSource:="gearshift_table_export", _
                           DataTarget:="gearshift_table.xml"
 

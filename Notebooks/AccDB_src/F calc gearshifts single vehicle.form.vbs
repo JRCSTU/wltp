@@ -1,6 +1,6 @@
 Version =21
 VersionRequired =20
-Checksum =1127461821
+Checksum =-575575214
 Begin Form
     LayoutForPrint = NotDefault
     AutoCenter = NotDefault
@@ -15,8 +15,8 @@ Begin Form
     DatasheetFontHeight =10
     ItemSuffix =255
     Left =348
-    Right =16620
-    Bottom =8796
+    Right =17664
+    Bottom =9300
     DatasheetGridlinesColor =12632256
     RecSrcDt = Begin
         0xa807a32dd69fe240
@@ -32,17 +32,17 @@ Begin Form
         0x010000006801000000000000a10700000100000001000000
     End
     PrtDevMode = Begin
-        0x008b6890f67f0000fd0000000000000000000000f67f0000b06203dc3d020000 ,
+        0x008b1ecff77f0000d0f93775fc7f000000000000f77f0000401acfd2b4010000 ,
         0x01040a0c9c00d40e03df8007010009009a0b3408640001000700fdff02000100 ,
-        0x00000300000041340030fe53ae00000000005b26f97f00000000000000000000 ,
-        0xf88b6890f67f0000000000000000000000000000000000000000000001000000 ,
+        0x0000030000004134000ecfd2b40100000300000000000000e3ec3775fc7f0000 ,
+        0x0300000000000000000000000000000000000000000000000000000001000000 ,
         0x02000000010000000100000000000000000000000000000000000000d40e0000 ,
         0x424a444d0a0c000000000000900a0000d9000000d90000000000000000000000 ,
         0x0100000008520000047400002c01000054010000604f0000e47000002c010000 ,
         0x54010000604f0000e470000008520000047400002c0100005401000054010000 ,
         0xf4010000604f0000e47000002c0100005401000054010000f40100002c010000 ,
-        0x5401000054010000f4010000604f0000e470000058025802180045004e005400 ,
-        0x5700550052004600000000000000000000000000000000000000000000000000 ,
+        0x5401000054010000f4010000604f0000e4700000580258021800000000000000 ,
+        0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
@@ -155,12 +155,13 @@ Begin Form
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000100000002000000010000000100000000000000 ,
-        0x000000000000000000000000af3976a4
+        0x000000000000000000000000843759e9
     End
     PrtDevNames = Begin
-        0x0800280052000100000000000000000000000000000000000000000000000000 ,
+        0x0800280048000100000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
-        0x00000000000000000000000000000000000030394343373330303030303000
+        0x00000000000000005753442d37643939306536652d363633372d343534332d62 ,
+        0x3038612d61663137373830653934353300
     End
     FilterOnLoad =0
     DatasheetGridlinesColor12 =12632256
@@ -176,8 +177,8 @@ Begin Form
         0x0100000008520000047400002c01000054010000604f0000e47000002c010000 ,
         0x54010000604f0000e470000008520000047400002c0100005401000054010000 ,
         0xf4010000604f0000e47000002c0100005401000054010000f40100002c010000 ,
-        0x5401000054010000f4010000604f0000e470000058025802180045004e005400 ,
-        0x5700550052004600000000000000000000000000000000000000000000000000 ,
+        0x5401000054010000f4010000604f0000e4700000580258021800000000000000 ,
+        0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
@@ -290,15 +291,16 @@ Begin Form
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000100000002000000010000000100000000000000 ,
-        0x000000000000000000000000af3976a4
+        0x000000000000000000000000843759e9
     End
     PrtDevNamesW = Begin
-        0x040024004e000100000000000000000000000000000000000000000000000000 ,
+        0x0400240044000100000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
         0x0000000000000000000000000000000000000000000000000000000000000000 ,
-        0x0000000000000000000000000000000000000000000000000000000030003900 ,
-        0x43004300370033003000300030003000300030000000
+        0x00000000000000005700530044002d0037006400390039003000650036006500 ,
+        0x2d0036003600330037002d0034003500340033002d0062003000380061002d00 ,
+        0x6100660031003700370038003000650039003400350033000000
     End
     WaitForPostProcessing =255
     NoSaveCTIWhenDisabled =1
@@ -996,7 +998,8 @@ Begin Form
                     Height =284
                     TabIndex =5
                     ColumnInfo ="\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";"
-                        "\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"4\";\"4\""
+                        "\"\";\"0.00\";\"\";\"0.00\";\"\";\"0.00\";\"\";\"0.00%\";\"\";\"\";\"\";\"\";\"4"
+                        "\";\"4\""
                     GUID = Begin
                         0xe9197fe94e92f245a981f145f3c421c9
                     End
@@ -6961,7 +6964,7 @@ gearshift_calculation2_4c
 gearshift_calculation2_4df
 'Stop
 
-gearshift_calculation2b
+
 
 
 '##################################################################################################################
@@ -7092,6 +7095,10 @@ rstee.Close
 rstfe.Close
 rstge.Close
 rsthe.Close
+
+gearshift_calculation2b
+
+
 
 weiter_NEDC_2:
 
@@ -13846,10 +13853,50 @@ ElseIf rstbe!gear = 1 And rstbe!v >= 1 Then
 
         rstbe!clutch = "undefined"
 
+        If rstae!idling_speed * rstae!facc_g2 > n_min_wot Then
+
+        rstbe!nc = rstae!idling_speed * rstae!facc_g2
+
+        If rstae!idling_speed * rstae!facc_g2 <= rstie!n And Not IsNull(rstbe!n_1) Then
+
+        Pwot = rstie!Pwot
+        Pavai = rstie!Pavai
+
+        ElseIf rstae!idling_speed * rstae!facc_g2 = rstke!n Then
+
+        Pwot = rstke!Pwot
+        Pavai = rstke!Pavai
+
+        ElseIf rstae!idling_speed * rstae!facc_g2 > rstie!n Then
+
+        If rstae!idling_speed * rstae!facc_g2 > rstke!n Then
+        Do Until rstie!n < rstae!idling_speed * rstae!facc_g2 And rstae!idling_speed * rstae!facc_g2 <= rstke!n
+
+            rstie.MoveNext
+            rstke.MoveNext
+
+            Loop
+
         Else: End If
 
 
+            Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstae!idling_speed * rstae!facc_g2 - rstie!n)
+            Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (rstae!idling_speed * rstae!facc_g2 - rstie!n)
+
+
+        Else: End If
+
+        Else
+
+        rstbe!nc = n_min_wot
+
+        End If
+
+        Else
+
         rstbe!nc = n
+
+        End If
         rstbe!n_kl = Int(n / 10 + 0.5) * 10
         rstbe!P_max = Pavai
         rstbe!Pwot_wo_margin = Pwot
@@ -13910,19 +13957,58 @@ ElseIf rstbe!gear = 2 And rstbe!v >= 1 Then
 
         Else: End If
 
-        If n > rstbe!n_02 Then
-
-        rstbe!clutch = "undefined"
-
-        Else: End If
 
         If (n < n_min_wot Or n < rstae!idling_speed * rstae!facc_g2) And rstbe!a >= 0 Then
 
         rstbe!clutch = "undefined"
 
+        If rstae!idling_speed * rstae!facc_g2 > n_min_wot Then
+
+        rstbe!nc = rstae!idling_speed * rstae!facc_g2
+
+        If rstae!idling_speed * rstae!facc_g2 <= rstie!n And Not IsNull(rstbe!n_2) Then
+
+        Pwot = rstie!Pwot
+        Pavai = rstie!Pavai
+
+        ElseIf rstae!idling_speed * rstae!facc_g2 = rstke!n Then
+
+        Pwot = rstke!Pwot
+        Pavai = rstke!Pavai
+
+        ElseIf rstae!idling_speed * rstae!facc_g2 > rstie!n Then
+
+        If rstae!idling_speed * rstae!facc_g2 > rstke!n Then
+        Do Until rstie!n < rstae!idling_speed * rstae!facc_g2 And rstae!idling_speed * rstae!facc_g2 <= rstke!n
+
+            rstie.MoveNext
+            rstke.MoveNext
+
+            Loop
+
         Else: End If
 
+
+            Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstae!idling_speed * rstae!facc_g2 - rstie!n)
+            Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (rstae!idling_speed * rstae!facc_g2 - rstie!n)
+
+
+        Else: End If
+
+
+
+        Else
+
+        rstbe!nc = n_min_wot
+
+        End If
+
+        Else
+
         rstbe!nc = n
+
+        End If
+
         rstbe!n_kl = Int(n / 10 + 0.5) * 10
         rstbe!P_max = Pavai
         rstbe!Pwot_wo_margin = Pwot
@@ -14357,26 +14443,26 @@ Else: End If
 '###########################################################################################################
 
 
-If flag3 = 1 Then
+'If flag3 = 1 Then
 
-GoTo weiter_flag3_1
+'GoTo weiter_flag3_1
 
-Else: End If
+'Else: End If
 
 rstbe.MoveNext
 rstce.MoveNext
 
 Loop
 
-If flag3 = 0 Then
+'If flag3 = 0 Then
 
-flag3 = 1
+'flag3 = 1
 
-If rstbe!v >= 1 And rstbe!gear > 0 Then
+'If rstbe!v >= 1 And rstbe!gear > 0 Then
 
-GoTo weiter_flag3
+'GoTo weiter_flag3
 
-Else
+'Else
 
     rstie.MoveFirst
     rstke.MoveFirst
@@ -14387,7 +14473,7 @@ Else
     rstbe!n = rstae!idling_speed
     rstbe!nc = rstae!idling_speed
     rstbe!n_kl = Int(rstae!idling_speed / 10 + 0.5) * 10
-
+    rstbe!clutch = "engaged, gear lever in neutral"
     Pavai = rstie!Pavai
     rstbe!P_max = Pavai
     Pwot = rstie!Pwot
@@ -14397,9 +14483,9 @@ Else
 
     rstbe.Update
 
-End If
+'End If
 
-Else: End If
+'Else: End If
 
 weiter_flag3_1:
 
@@ -14499,7 +14585,22 @@ rstbe.MoveFirst
 Do Until rstbe.EOF
 
 rstbe.edit
+
+If rstbe!gear = 1 Then
+
+rstbe!n = rstbe!n_01
+
+ElseIf rstbe!gear = 2 Then
+
+rstbe!n = rstbe!n_02
+
+Else
+
 rstbe!n = rstbe!nc
+
+End If
+
+rstbe!nc_set = rstbe!nc
 
 rstbe.Update
 
@@ -15590,6 +15691,50 @@ rstde.MoveNext
 Loop
 
 weiter3:
+
+
+'9 ######################################################################################################
+'9b) check for gear 1 when starting from standstill
+
+rstbe.MoveFirst
+
+rstce.MoveFirst
+rstce.MoveNext
+
+rstde.MoveFirst
+rstde.MoveNext
+rstde.MoveNext
+
+Do Until rstde.EOF
+
+
+If rstbe!v < 1 And rstce!v >= 1 And rstde!v >= 1 And rstce!gear > 1 And rstde!gear > 1 Then
+
+
+rstce.edit
+rstce!gear = 1
+
+rstce!gear_modification = rstce!gear_modification & "9b) check for gear 1 when starting from standstill, "
+rstce.Update
+m = m + 1
+
+rstde.edit
+rstde!gear = 1
+
+rstde!gear_modification = rstde!gear_modification & "9b) check for gear 1 when starting from standstill, "
+rstde.Update
+m = m + 1
+
+Else: End If
+
+
+
+
+rstbe.MoveNext
+rstce.MoveNext
+rstde.MoveNext
+
+Loop
 
 
 ' 4 (f) ###############################################################################################################################
