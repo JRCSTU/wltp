@@ -4182,7 +4182,7 @@ Public Sub gearshift_calculation2()
 	gearshift_calculation2_4df
 'Stop
 
-	gearshift_calculation2b
+
 
 
 '##################################################################################################################
@@ -4313,6 +4313,10 @@ Public Sub gearshift_calculation2()
 	rstfe.Close
 	rstge.Close
 	rsthe.Close
+
+	gearshift_calculation2b
+
+
 
 	weiter_NEDC_2:
 
@@ -11067,10 +11071,50 @@ Public Sub gearshift_calculation2b()
 
 				rstbe!clutch = "undefined"
 
-			End If
+				If rstae!idling_speed * rstae!facc_g2 > n_min_wot Then
+
+					rstbe!nc = rstae!idling_speed * rstae!facc_g2
+
+					If rstae!idling_speed * rstae!facc_g2 <= rstie!n And Not IsNull(rstbe!n_1) Then
+
+						Pwot = rstie!Pwot
+						Pavai = rstie!Pavai
+
+					ElseIf rstae!idling_speed * rstae!facc_g2 = rstke!n Then
+
+						Pwot = rstke!Pwot
+						Pavai = rstke!Pavai
+
+					ElseIf rstae!idling_speed * rstae!facc_g2 > rstie!n Then
+
+						If rstae!idling_speed * rstae!facc_g2 > rstke!n Then
+							Do Until rstie!n < rstae!idling_speed * rstae!facc_g2 And rstae!idling_speed * rstae!facc_g2 <= rstke!n
+
+								rstie.MoveNext
+								rstke.MoveNext
+
+							Loop
+
+						End If
 
 
-			rstbe!nc = n
+						Pwot = rstie!Pwot + (rstke!Pwot - rstie!Pwot) / (rstke!n - rstie!n) * (rstae!idling_speed * rstae!facc_g2 - rstie!n)
+						Pavai = rstie!Pavai + (rstke!Pavai - rstie!Pavai) / (rstke!n - rstie!n) * (rstae!idling_speed * rstae!facc_g2 - rstie!n)
+
+
+					End If
+
+				Else
+
+					rstbe!nc = n_min_wot
+
+				End If
+
+			Else
+
+				rstbe!nc = n
+
+	        End If
 			rstbe!n_kl = Int(n / 10 + 0.5) * 10
 			rstbe!P_max = Pavai
 			rstbe!Pwot_wo_margin = Pwot
@@ -11578,26 +11622,26 @@ Public Sub gearshift_calculation2b()
 '###########################################################################################################
 
 
-		If flag3 = 1 Then
+'		If flag3 = 1 Then
 
-			GoTo weiter_flag3_1
+'			GoTo weiter_flag3_1
 
-		End If
+'		End If
 
 		rstbe.MoveNext
 		rstce.MoveNext
 
 	Loop
 
-	If flag3 = 0 Then
+'	If flag3 = 0 Then
 
-		flag3 = 1
+'		flag3 = 1
 
-		If rstbe!v >= 1 And rstbe!gear > 0 Then
+'		If rstbe!v >= 1 And rstbe!gear > 0 Then
 
-			GoTo weiter_flag3
+'			GoTo weiter_flag3
 
-		Else
+'		Else
 
 			rstie.MoveFirst
 			rstke.MoveFirst
@@ -11608,7 +11652,7 @@ Public Sub gearshift_calculation2b()
 			rstbe!n = rstae!idling_speed
 			rstbe!nc = rstae!idling_speed
 			rstbe!n_kl = Int(rstae!idling_speed / 10 + 0.5) * 10
-
+		    rstbe!clutch = "engaged, gear lever in neutral"
 			Pavai = rstie!Pavai
 			rstbe!P_max = Pavai
 			Pwot = rstie!Pwot
@@ -11618,9 +11662,9 @@ Public Sub gearshift_calculation2b()
 
 			rstbe.Update
 
-		End If
+'		End If
 
-	End If
+'	End If
 
 	weiter_flag3_1:
 
@@ -11720,7 +11764,20 @@ Public Sub gearshift_calculation2b()
 	Do Until rstbe.EOF
 
 		rstbe.edit
-		rstbe!n = rstbe!nc
+		If rstbe!gear = 1 Then
+
+			rstbe!n = rstbe!n_01
+
+		ElseIf rstbe!gear = 2 Then
+
+			rstbe!n = rstbe!n_02
+
+		Else
+			rstbe!n = rstbe!nc
+
+		End If
+
+		rstbe!nc_set = rstbe!nc
 
 		rstbe.Update
 
@@ -12811,6 +12868,50 @@ Public Sub gearshift_calculation2_4df()
 	Loop
 
 	weiter3:
+
+
+'9 ######################################################################################################
+'9b) check for gear 1 when starting from standstill
+
+	rstbe.MoveFirst
+
+	rstce.MoveFirst
+	rstce.MoveNext
+
+	rstde.MoveFirst
+	rstde.MoveNext
+	rstde.MoveNext
+
+	Do Until rstde.EOF
+
+
+		If rstbe!v < 1 And rstce!v >= 1 And rstde!v >= 1 And rstce!gear > 1 And rstde!gear > 1 Then
+
+
+			rstce.edit
+			rstce!gear = 1
+
+			rstce!gear_modification = rstce!gear_modification & "9b) check for gear 1 when starting from standstill, "
+			rstce.Update
+			m = m + 1
+
+			rstde.edit
+			rstde!gear = 1
+
+			rstde!gear_modification = rstde!gear_modification & "9b) check for gear 1 when starting from standstill, "
+			rstde.Update
+			m = m + 1
+
+		End If
+
+
+
+
+		rstbe.MoveNext
+		rstce.MoveNext
+		rstde.MoveNext
+
+	Loop
 
 
 ' 4 (f) ###############################################################################################################################
