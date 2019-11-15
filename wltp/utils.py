@@ -11,6 +11,7 @@ import contextvars
 import io
 import os
 import sys
+from collections.abc import Mapping
 from typing import Union
 
 
@@ -59,6 +60,48 @@ def memoize(f):
             return ret
 
     return memodict(f)
+
+
+def aslist(i, argname):
+    if not i:
+        return []
+
+    if isinstance(i, str):
+        i = [i]
+    elif not isinstance(i, list):
+        try:
+            i = list(i)
+        except Exception as ex:
+            raise ValueError(f"Argument {argname!r} not an iterable, but {i!r}\n  {ex}")
+
+    return i
+
+
+def astuple(i, argname):
+    if not i:
+        return ()
+
+    try:
+        i = tuple(i)
+    except Exception as ex:
+        raise ValueError(f"Argument {argname!r} not an tuple, but {i!r}\n  {ex}")
+
+    return i
+
+
+def asdict(i, argname):
+    if not i:
+        return {}
+
+    if isinstance(i, tuple) and len(i) == 2:
+        i = dict([i])
+    elif not isinstance(i, Mapping):
+        try:
+            i = dict(i)
+        except Exception as ex:
+            raise ValueError(f"Argument {argname!r} not an mapping, but {i!r}\n  {ex}")
+
+    return i
 
 
 ## From http://stackoverflow.com/a/4149190/548792
