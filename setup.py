@@ -225,9 +225,10 @@ setup(
     install_requires=[
         "contextvars; python_version < '3.7'",
         "dataclasses; python_version < '3.7'",
+        "boltons",
         "jsonschema",
         "numpy",
-        "pandas !=0.25.1",  # 23 TC failures: https://travis-ci.org/ankostis/wltp/jobs/575537134
+        "pandas",  # 23 TC failures: https://travis-ci.org/ankostis/wltp/jobs/575537134
         "pandalone >=0.3",
         "ruamel.yaml",
         "scipy",

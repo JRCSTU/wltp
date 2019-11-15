@@ -114,7 +114,7 @@ class PhaseMarker:
 
         Adapted from: https://datascience.stackexchange.com/a/22105/79324
         """
-        grouper = (col != col.shift()).cumsum()
+        grouper = (col.to_numpy() != col.shift().to_numpy()).cumsum()
         # NOTE: git warns: pandas/core/indexes/base.py:2890: FutureWarning:
         # elementwise comparison failed; returning scalar instead,
         # but in the future will perform elementwise comparison
@@ -132,7 +132,7 @@ class PhaseMarker:
                 else 0
             )
 
-        repeats_grouper = (accel != accel.shift()).cumsum()
+        repeats_grouper = (accel.to_numpy() != accel.shift().to_numpy()).cumsum()
         initaccel = V.groupby(repeats_grouper).transform(count_good_rows) > 0
 
         ## Shift -1 for Annex 2-3.2, +1 for phase definitions @ 4.
@@ -145,7 +145,7 @@ class PhaseMarker:
             return group.count() if (group & last_decel_sample_before_stop).any() else 0
 
         last_decel_sample_before_stop = decels & stops
-        repeats_grouper = (decels != decels.shift()).cumsum()
+        repeats_grouper = (decels.to_numpy() != decels.shift().to_numpy()).cumsum()
         stopdecel = decels.groupby(repeats_grouper).transform(count_good_rows) > 0
 
         return stopdecel

@@ -129,7 +129,10 @@ def test_recurse_vs_scaling(wclass):
             )[bad_ix]
             bad_accuracies[f_downscale] = errs
 
-        bad_ix = double_round(V1, v_decimals) != double_round(V2, v_decimals)
+        bad_ix = (
+            double_round(V1, v_decimals).to_numpy()
+            != double_round(V2, v_decimals).to_numpy()
+        )
         if bad_ix.any():
             bad_rounds[f_downscale] = pd.concat(
                 (V1, V2, (V1 - V2).abs()), axis=1, keys=["recurse", "rescale", "diff"]

@@ -45,7 +45,7 @@ def test_preproc_wot_equals(mdl, xy):
     assert isinstance(got, pd.DataFrame) and got.shape == (3, 4)
     got = got.reset_index(drop=True)
     exp = engine.preproc_wot(mdl, pd.DataFrame(_NP, columns=["n", "p"]))
-    assert (got == exp).all(None)
+    assert (got.to_numpy() == exp.to_numpy()).all(None)
 
 
 @pytest.mark.parametrize(
