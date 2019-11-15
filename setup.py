@@ -121,7 +121,7 @@ doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
 notebook_reqs = [
     "papermill",
     "jupytext",
-    "blackcellmagic",
+    "nb_black",
     "ipympl",
     "qgrid",
     "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0

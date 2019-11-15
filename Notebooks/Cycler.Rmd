@@ -21,9 +21,8 @@ jupyter:
 # %load_ext autoreload
 # %autoreload 2
 
-## Add %%black at the top of a cell, and re-evaluate it, 
-# to format it before git-commits, and ease diffs.
-# %load_ext blackcellmagic
+## Auto-format cells to ease diffs.
+# %load_ext lab_black
 ```
 
 ```{python}
