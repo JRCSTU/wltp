@@ -44,7 +44,10 @@ def cleanup(request):
 
     def write_data_psteps():
         pstep_paths = set(
-            i[:-5] if i.endswith("/ndim") else i for i in wio.paths_collected()
+            i[:-5]
+            if any(i.endswith(suffix) for suffix in "/dtype /keys /ndim".split())
+            else i
+            for i in wio.paths_collected()
         )
         dtree_file = Path(__file__).parent.parent.joinpath("datatree.txt")
         pstep_paths |= set(dtree_file.read_text().split("\n"))
