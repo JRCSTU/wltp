@@ -76,7 +76,7 @@ pd.set_option("display.max_columns", 64)
 h5 = "VehData/WltpGS-msaccess.h5"
 caseno = 1
 prop, wot, n2vs = vehdb.load_vehicle_accdb(h5, caseno)
-acc_cycle = vehdb.load_vehicle_nodes(h5, 1, 'cycle')
+acc_cycle = vehdb.load_vehicle_nodes(h5, 1, "cycle")
 ```
 
 ```{python}
@@ -84,11 +84,11 @@ print(list(prop.index))
 ```
 
 ```{python}
-#renames = vehdb.accdb_renames()
-#prop = prop.rename(renames)
+# renames = vehdb.accdb_renames()
+# prop = prop.rename(renames)
 mdl = vehdb.mdl_from_accdb(prop, wot, n2vs)
-datamodel.validate_model(mdl, additional_properties='true')
-wot = mdl['wot']
+datamodel.validate_model(mdl, additional_properties="true")
+wot = mdl["wot"]
 ```
 
 ```{python}
@@ -99,7 +99,9 @@ print(list(mdl.keys()))
 ```{python}
 gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
 gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
-gwots['p_resist'] = vehicle.calc_road_load_power(gwots.index, mdl["f0"], mdl["f1"], prop["f2"])
+gwots["p_resist"] = vehicle.calc_road_load_power(
+    gwots.index, mdl["f0"], mdl["f1"], prop["f2"]
+)
 ```
 
 ```{python}
@@ -128,7 +130,7 @@ for err in cb.validate_nims_t_cold_end(t_cold_end, wltc_parts):
 ```
 
 ```{python}
-acc_cycle = vehdb.load_vehicle_nodes(h5, caseno, 'cycle')
+acc_cycle = vehdb.load_vehicle_nodes(h5, caseno, "cycle")
 print(list(acc_cycle.columns))
 ```
 
@@ -155,8 +157,10 @@ cb.add_wots(gwots)
 ```{python}
 kr = 1.03
 SM = 0.1
-cb.cycle['p_inert'] = vehicle.calc_inertial_power(cb.V, cb.A, prop.test_mass, kr)
-cb.cycle['p_req'] = vehicle.calc_required_power(cb.cycle['p_inert'], cb.cycle['p_resist'], )
+cb.cycle["p_inert"] = vehicle.calc_inertial_power(cb.V, cb.A, prop.test_mass, kr)
+cb.cycle["p_req"] = vehicle.calc_required_power(
+    cb.cycle["p_inert"], cb.cycle["p_resist"]
+)
 p_remain = cycler.calc_p_remain(cb.cycle, cb.gidx)
 ```
 
@@ -164,28 +168,33 @@ p_remain = cycler.calc_p_remain(cb.cycle, cb.gidx)
 def flag_aggregates(ok_flags):
     trues = ok_flags[ok_flags >= 0].sum()
     df = pd.concat((trues, ok_flags.sum() - trues), axis=1)  # negatives are NANs
-    df.columns = ('trues', 'NANs')
+    df.columns = ("trues", "NANs")
     return df
 
-ok_flags = cb.calc_initial_gear_flags(g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins)
+
+ok_flags = cb.calc_initial_gear_flags(
+    g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
+)
 flag_aggregates(ok_flags)
 ```
 
 ```{python}
-ok_flags = cb.calc_initial_gear_flags(g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins)
+ok_flags = cb.calc_initial_gear_flags(
+    g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
+)
 flag_aggregates(ok_flags)
 ```
 
 ```{python}
 ok_n = cb.combine_ok_n_gear_flags(ok_flags)
-ok_flags1 = pd.concat((ok_flags , ok_n), axis=1)
+ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)
 ok_gears = cb.combine_ok_n_p_gear_flags(ok_flags1)
 ok_gears.sum()
 ```
 
 ```{python}
 ok_n = cb.combine_ok_n_gear_flags(ok_flags)
-ok_flags1 = pd.concat((ok_flags , ok_n), axis=1)
+ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)
 ok_gears = cb.combine_ok_n_p_gear_flags(ok_flags1)
 ok_gears.sum()
 ```
@@ -200,11 +209,15 @@ g_max0.plot()
 acc_cycle.g_max.plot()
 g_max0_diff = (g_max0 - acc_cycle.g_max).abs()
 g_max0_diff[g_max0_diff == 0] = np.NAN
-display(pd.concat((g_max0.describe(), acc_cycle.g_max.describe(), g_max0_diff.describe()), axis=1))
+display(
+    pd.concat(
+        (g_max0.describe(), acc_cycle.g_max.describe(), g_max0_diff.describe()), axis=1
+    )
+)
 ```
 
 ```{python}
-## Most differences are in G1-->G2 shifts 
+## Most differences are in G1-->G2 shifts
 # (which is not implemented in `g_vmax0`).
 display(cycle.loc[~g_max0_diff.isnull() & (g_max0_diff != 0)])
 ```
@@ -231,7 +244,7 @@ from ipywidgets import interact, interactive, fixed, interact_manual, widgets
 max_zoom = 48.0
 
 ## Scale each flag into a different value, to plot separatly, and
-#  to plot in the same axis as V 
+#  to plot in the same axis as V
 #  (bc when plotting flags in `secondary_y`, grid is not working)
 #
 mul = 2
@@ -247,7 +260,7 @@ ok_gear2 = ok_gears * (np.arange(gear_count) + flag_count + 1) * mul
     gear=wio.GearMultiIndexer.from_df(ok_flags).gnames,
     zoom=(1.0, max_zoom, 1.0),
     pan=(0, max_zoom, 1),
-    display_id='plot'
+    display_id="plot",
 )
 def plot_gear(gear="g2", zoom=48, pan=13.8):
     ax = None
@@ -256,58 +269,66 @@ def plot_gear(gear="g2", zoom=48, pan=13.8):
     viewlen = int(clen / zoom)
     offset = int(pan * (clen - viewlen) / max_zoom)
     scale = idx[offset : offset + viewlen]
-    
+
     cycle = cb.cycle.loc[scale,]
     ok_flags = ok_flags2.loc[:, idx[:, gear]].iloc[scale]
     ok_gear = ok_gear2.loc[scale]
-    
-    ax = cycle["v_cycle"].plot.line(
-        ax=ax, linewidth=4, figsize=(20, 8)
-    )
+
+    ax = cycle["v_cycle"].plot.line(ax=ax, linewidth=4, figsize=(20, 8))
     ax = ok_flags.plot.line(ax=ax)
     ax = ok_gear.plot.line(ax=ax, linewidth=3)
-    
+
     ax.grid(True, axis="both", which="both")
 
     ## IF only i could find quickly how to display the df BELOW the plot...
-    #display(cycle, display_id='grid')
+    # display(cycle, display_id='grid')
 ```
 
 ## Museum
 
 ```{python}
 from wltp.cycles import cycle_checksums
+
 cycle_checksums()
 ```
 
 ```{python}
 from wltp.cycles import cycle_phases
+
 cycle_phases()
 ```
 
 ```{python}
 ## Is clutch-undefined only used for gear 1?
-acc_cycle.loc[cycler.timelens(acc_cycle.clutch=='undefined'), ['v', 'a', 'gear', 'clutch']]
+acc_cycle.loc[
+    cycler.timelens(acc_cycle.clutch == "undefined"), ["v", "a", "gear", "clutch"]
+]
 ```
 
 ```{python}
 ## AccDB: note that acc/dec/cruise are "gradients", with threshold 0.278.
-acc_cycle.loc[:100, ['a2', 'acc', 'cruise', 'dec']].astype(int).plot()
-acc_cycle.loc[:100, 'v'].plot(secondary_y=True)
+acc_cycle.loc[:100, ["a2", "acc", "cruise", "dec"]].astype(int).plot()
+acc_cycle.loc[:100, "v"].plot(secondary_y=True)
 ```
 
 ```{python}
-cycle = pd.DataFrame({
-           'v': [0,0,3,3,5,8,8,8,6,4,5,6,6],
-       'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0],
-      'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0],
-       'decel': [0,0,0,0,0,0,0,1,1,1,0,0,0],
-          'up': [0,0,1,1,1,1,1,1,0,1,1,1,1],
-        'init': [1,0,0,0,0,0,0,0,0,0,0,0,0],
-})
+cycle = pd.DataFrame(
+    {
+        "v": [0, 0, 3, 3, 5, 8, 8, 8, 6, 4, 5, 6, 6],
+        "accel": [0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+        "cruise": [0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+        "decel": [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+        "up": [0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
+        "init": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    }
+)
 pm = cycler.PhaseMarker()
+
+
 def phase(cond):
     return pm._identify_conjecutive_truths((cycle.v > 1) & cond, True).astype(int)
+
+
 A = (-cycle.v.astype(int)).diff(-1)  # GTR's acceleration definition
 assert (phase(A > 0) == cycle.accel).all()
 assert (phase(A == 0) == cycle.cruise).all()

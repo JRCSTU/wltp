@@ -54,21 +54,21 @@ if proj_dir not in sys.path:
 
 import vehdb
 
-log = logging.getLogger('CarsDB-pyalgo.ipynb')
+log = logging.getLogger("CarsDB-pyalgo.ipynb")
 logging.basicConfig(
-    level=logging.INFO, 
-    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
-    datefmt='%Y-%m-%d,%H:%M:%S',
+    level=logging.INFO,
+    format="%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s",
+    datefmt="%Y-%m-%d,%H:%M:%S",
 )
 ```
 
 ```{python}
 ## DEFINITIONS
 #
-inp_h5fname = 'VehData/WltpGS-msaccess.h5'
-out_h5fname = 'VehData/WltpGS-pyalgo.h5'
+inp_h5fname = "VehData/WltpGS-msaccess.h5"
+out_h5fname = "VehData/WltpGS-pyalgo.h5"
 # Test cars delivered by Heinz to ank on 4 Jun 2019
-c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
+c_n, c_p, c_n_norm, c_p_norm = "n", "Pwot", "n_norm", "p_norm"
 ```
 
 ```{python}
@@ -145,10 +145,10 @@ vehdb.print_nodes(out_h5fname)
 ```{python}
 # %%time
 if not skip_h5_write:
-    ## COMPRESS x8 HDF5: 269Mb-->145Mb in ~25s.
+    ## COMPRESS x2.3 HDF5: 269Mb-->119Mb in ~20s.
     #
     !ls -lh {out_h5fname}
-    !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:blosclz -o {out_h5fname}.tmp
+    !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:lz4hc -o {out_h5fname}.tmp
     !mv  {out_h5fname}.tmp {out_h5fname}
     !ls -lh {out_h5fname}
 ```

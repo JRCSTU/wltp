@@ -82,23 +82,25 @@ pd.set_option("display.max_columns", 64)
 #
 mdl = datamodel.get_model_base()
 mdl["f0"] = 395.78
-mdl["f1"] = 0.0 
-mdl["f2"] = 0.15 
-mdl["unladen_mass"] = 2527.0 
-mdl["test_mass"] = 2827.0 
-mdl["p_rated"] = 95.3000030517578 
+mdl["f1"] = 0.0
+mdl["f2"] = 0.15
+mdl["unladen_mass"] = 2527.0
+mdl["test_mass"] = 2827.0
+mdl["p_rated"] = 95.3000030517578
 mdl["n_rated"] = 3500
 mdl["n_idle"] = 750
-mdl["v_max"] = 119.8 
-# mdl["n_min_drive"] = 
+mdl["v_max"] = 119.8
+# mdl["n_min_drive"] =
 # mdl["n_min_drive_up"] = ...
 # mdl["n_min_drive_down"] = ...
 # mdl["n_min_drive_start_up"] = ...
 # mdl["n_min_drive_start_down"] = ...
 # mdl["t_cold_end"] = ...
-mdl['gear_ratios'] = [122.88, 75.12, 50.06, 38.26, 33.63]
+mdl["gear_ratios"] = [122.88, 75.12, 50.06, 38.26, 33.63]
 
-mdl['wot'] = pd.read_csv(io.StringIO("""
+mdl["wot"] = pd.read_csv(
+    io.StringIO(
+        """
 n	p
 1000	18.80
 1250	34.00
@@ -117,7 +119,11 @@ n	p
 4500	89.60
 4750	86.95
 5000	84.30
-"""), sep='\t', header=0)
+"""
+    ),
+    sep="\t",
+    header=0,
+)
 
 datamodel.validate_model(mdl, additional_properties=True)
 exp = Experiment(mdl, skip_model_validation=True)
@@ -125,23 +131,23 @@ exp = Experiment(mdl, skip_model_validation=True)
 mdl = exp.run()
 
 oprops = {
-        "pmr": mdl["pmr"],
-        "n95_low": mdl["n95_low"],
-        "n95_high": mdl["n95_high"],
-        "v_max": mdl["v_max"],
-        "n_vmax": mdl["n_vmax"],
-        "g_vmax": mdl["g_vmax"],
-        "n_max1": mdl["n_max1"],
-        "n_max2": mdl["n_max2"],
-        "n_max3": mdl["n_max3"],
-        "n_max": mdl["n_max"],
-        "wltc_class": mdl["wltc_class"],
-        "f_dscl_orig": mdl["f_dscl_orig"],
-        "f_downscale": mdl["f_downscale"],
-    }
+    "pmr": mdl["pmr"],
+    "n95_low": mdl["n95_low"],
+    "n95_high": mdl["n95_high"],
+    "v_max": mdl["v_max"],
+    "n_vmax": mdl["n_vmax"],
+    "g_vmax": mdl["g_vmax"],
+    "n_max1": mdl["n_max1"],
+    "n_max2": mdl["n_max2"],
+    "n_max3": mdl["n_max3"],
+    "n_max": mdl["n_max"],
+    "wltc_class": mdl["wltc_class"],
+    "f_dscl_orig": mdl["f_dscl_orig"],
+    "f_downscale": mdl["f_downscale"],
+}
 
 pprint(oprops)
-display(mdl['cycle'])
+display(mdl["cycle"])
 ```
 
 ## Run a case from AccDb
@@ -150,7 +156,7 @@ The same vehicle data as above, read from h5db.
 ```{python}
 h5 = "VehData/WltpGS-msaccess.h5"
 prop, wot, n2vs = vehdb.load_vehicle_accdb(h5, 1)
-acc_cycle = vehdb.load_vehicle_nodes(h5, 1, 'cycle')
+acc_cycle = vehdb.load_vehicle_nodes(h5, 1, "cycle")
 ```
 
 ```{python}
@@ -164,23 +170,23 @@ exp = Experiment(mdl, skip_model_validation=True)
 # %time mdl = exp.run()
 
 oprops = {
-        "pmr": mdl["pmr"],
-        "n95_low": mdl["n95_low"],
-        "n95_high": mdl["n95_high"],
-        "v_max": mdl["v_max"],
-        "n_vmax": mdl["n_vmax"],
-        "g_vmax": mdl["g_vmax"],
-        "n_max1": mdl["n_max1"],
-        "n_max2": mdl["n_max2"],
-        "n_max3": mdl["n_max3"],
-        "n_max": mdl["n_max"],
-        "wltc_class": mdl["wltc_class"],
-        "f_dscl_orig": mdl["f_dscl_orig"],
-        "f_downscale": mdl["f_downscale"],
-    }
+    "pmr": mdl["pmr"],
+    "n95_low": mdl["n95_low"],
+    "n95_high": mdl["n95_high"],
+    "v_max": mdl["v_max"],
+    "n_vmax": mdl["n_vmax"],
+    "g_vmax": mdl["g_vmax"],
+    "n_max1": mdl["n_max1"],
+    "n_max2": mdl["n_max2"],
+    "n_max3": mdl["n_max3"],
+    "n_max": mdl["n_max"],
+    "wltc_class": mdl["wltc_class"],
+    "f_dscl_orig": mdl["f_dscl_orig"],
+    "f_downscale": mdl["f_downscale"],
+}
 
 pprint(oprops)
-display(mdl['cycle'])
+display(mdl["cycle"])
 ```
 
 ```{python}
@@ -188,8 +194,8 @@ print(sorted(mdl.keys()))
 ```
 
 ```{python}
-ax = mdl['cycle'][['v_cycle', 'v_target']].plot()
-ax = mdl['cycle'][['p_req', 'p_avail']].plot(ax=ax, secondary_y=True)
+ax = mdl["cycle"][["v_cycle", "v_target"]].plot()
+ax = mdl["cycle"][["p_req", "p_avail"]].plot(ax=ax, secondary_y=True)
 ```
 
 ## Even simpler case
@@ -200,27 +206,25 @@ from wltp import datamodel
 from wltp.experiment import Experiment
 
 inp_mdl = datamodel.get_model_base()
-inp_mdl.update({
-    "unladen_mass": None,
-    "test_mass": 1100,  # in kg
-    "p_rated": 95.3,  # in kW
-    "n_rated": 3000,  # in RPM
-    "n_idle": 600,
-    "gear_ratios": [122.88, 75.12, 50.06, 38.26, 33.63],
-    
-    ## For giving absolute P numbers, 
-    #  rename `p_norm` column to `p`.
-    #
-    "wot": pd.DataFrame(
-        [[600, 0.1], 
-         [2500, 1], 
-         [3500, 1], 
-         [5000, 0.7]], columns=["n", "p_norm"]
-    ),
-    'f0': 395.78,
-    'f1': 0,
-    'f2': 0.15,
-})
+inp_mdl.update(
+    {
+        "unladen_mass": None,
+        "test_mass": 1100,  # in kg
+        "p_rated": 95.3,  # in kW
+        "n_rated": 3000,  # in RPM
+        "n_idle": 600,
+        "gear_ratios": [122.88, 75.12, 50.06, 38.26, 33.63],
+        ## For giving absolute P numbers,
+        #  rename `p_norm` column to `p`.
+        #
+        "wot": pd.DataFrame(
+            [[600, 0.1], [2500, 1], [3500, 1], [5000, 0.7]], columns=["n", "p_norm"]
+        ),
+        "f0": 395.78,
+        "f1": 0,
+        "f2": 0.15,
+    }
+)
 datamodel.validate_model(inp_mdl, additional_properties=True)
 exp = Experiment(inp_mdl, skip_model_validation=True)
 
@@ -228,5 +232,5 @@ exp = Experiment(inp_mdl, skip_model_validation=True)
 out_mdl = exp.run()
 print(f"Available values: \n{list(out_mdl.keys())}")
 print(f"Cycle: ")
-display(out_mdl['cycle'])
+display(out_mdl["cycle"])
 ```

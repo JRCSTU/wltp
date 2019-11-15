@@ -67,9 +67,9 @@ pd.set_option("display.max_columns", 32)
 ```{python}
 ## DEFINITIONS
 #
-inp_h5fname = 'VehData/WltpGS-msaccess.h5'
-out_h5fname = 'VehData/WltpGS-pyalgo.h5'
-c_n, c_p, c_n_norm, c_p_norm = 'n', 'Pwot', 'n_norm', 'p_norm'
+inp_h5fname = "VehData/WltpGS-msaccess.h5"
+out_h5fname = "VehData/WltpGS-pyalgo.h5"
+c_n, c_p, c_n_norm, c_p_norm = "n", "Pwot", "n_norm", "p_norm"
 ```
 
 ```{python}
@@ -80,13 +80,19 @@ vehdb.print_nodes(out_h5fname)
 ```{python}
 from wltp.invariants import vround, nround1
 
+
 def load_accdb_and_python_datasets(veh_nums=None):
-    p1, c1 = vehdb.merge_db_vehicle_subgroups(inp_h5fname, "prop", "cycle", veh_nums=veh_nums)
-    p2, c2 = vehdb.merge_db_vehicle_subgroups(out_h5fname, "oprop", "cycle", veh_nums=veh_nums)
+    p1, c1 = vehdb.merge_db_vehicle_subgroups(
+        inp_h5fname, "prop", "cycle", veh_nums=veh_nums
+    )
+    p2, c2 = vehdb.merge_db_vehicle_subgroups(
+        out_h5fname, "oprop", "cycle", veh_nums=veh_nums
+    )
 
     ## Originally fetched as 2-levels (veh, item) MultiIndex Series.
-    p1 = p1.unstack(); p2 = p2.unstack()
-    
+    p1 = p1.unstack()
+    p2 = p2.unstack()
+
     ## By the spec, V rounded to 2-digits,
     #  But exporting MSAccess --> Excel outputs garbage decimals!
     #
@@ -94,9 +100,10 @@ def load_accdb_and_python_datasets(veh_nums=None):
     c1[v_cols] = vround(c1[v_cols])
 
     ## accdb does not oofer `n_max`.(?)
-    p1['n_max'] = nround1(p1['n_max1 n_max2 n_max3'.split()].max(axis=1))
-    
+    p1["n_max"] = nround1(p1["n_max1 n_max2 n_max3".split()].max(axis=1))
+
     return p1, c1, p2, c2
+
 
 p1, c1, p2, c2 = load_accdb_and_python_datasets()
 ```
@@ -118,7 +125,7 @@ print(columnize(list(p2.columns), displaywidth=160))
 display(
     vehdb.grid(p1, fitcols=False),
     vehdb.grid(p2, fitcols=False),
-    #vehdb.grid(c1, fitcols=0),
+    # vehdb.grid(c1, fitcols=0),
 )
 ```
 
@@ -136,19 +143,19 @@ equivalent_columns = [
     ("test_mass", None),
     ("kerb_mass", None),
     ("vehicle_class", "wltc_class"),
-    #("pmr_km", "pmr"),
+    # ("pmr_km", "pmr"),
     ("f_dsc_req", "f_downscale"),
     ("v_max", "v_max"),
     ("n_max1", "n95_high"),
-    #("???", "is_n_lim_vmax")
+    # ("???", "is_n_lim_vmax")
 ]
 
 cdf = sr_cmpr.compare((p1.stack(), p2.stack()), equivalent_columns, dataset_names)
 ## Workaround qgrid's hate for hierarchical-columns:
 #  https://github.com/quantopian/qgrid/issues/18#issuecomment-149321165
-cdf.columns = [' '.join(col).strip() for col in cdf.columns.values]
+cdf.columns = [" ".join(col).strip() for col in cdf.columns.values]
 
-display(vehdb.grid(cdf, fitcols=False, cwidth=100),)
+display(vehdb.grid(cdf, fitcols=False, cwidth=100))
 # with pd.option_context('max_rows', 130):
 #     display(cdf)
 ```
@@ -174,13 +181,13 @@ p1, c1, p2, c2 = load_accdb_and_python_datasets()
 equivalent_series = [
     ("v_orig", "v_cycle"),
     ("v_downscale", "v_target"),
-    #("a", "a_target"),
+    # ("a", "a_target"),
     ("P_tot_set", "p_req"),
-    #("P_max", "p_available"),
+    # ("P_max", "p_available"),
     ("g_max", "g_max0"),
     ("g_min", "g_min"),
-    #("gear", "gears"),
-   #("nc", "n"),
+    # ("gear", "gears"),
+    # ("nc", "n"),
 ]
 
 c2.columns = wio.flatten_columns(c2.columns)
@@ -193,36 +200,44 @@ cc2 = pd.concat((p2.infer_objects(), c2[cols2].abs().mean(level=0)), axis=1)
 
 equivalent_props = [
     ("Description", None),
-    ("vehicle_class", 'wltc_class'),
+    ("vehicle_class", "wltc_class"),
     ("pmr_km", None),
     ("no_of_gears", None),
     ("f_dsc_req", "f_downscale"),
     ("v_max", "v_max"),
     ("n_vmax", "n_vmax"),
-    ('gear_v_max', 'g_vmax'),
+    ("gear_v_max", "g_vmax"),
     ("n_max1", "n_max1"),
     ("n_max2", "n_max2"),
     ("n_max3", "n_max3"),
     ("n_max", "n_max"),
 ]
-display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
+display(
+    cmpr.compare(
+        (cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True
+    )
+)
 ```
 
 ```{python}
 ## Repeat, to compare while coding.
-#display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
+# display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
 ```
 
 AccDB vehicles: 42, 46, 52, 53 & 90 have broken `v_max`, 48 has broken `wot(ASM)`.
 
 ```{python}
 known_bads = set(wio.veh_names([42, 46, 48, 52, 53, 90]))
-display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names).set_properties(subset=(known_bads, idx[:]), color='red'))
+display(
+    cmpr.compare(
+        (cc1, cc2), equivalent_props + equivalent_series, dataset_names
+    ).set_properties(subset=(known_bads, idx[:]), color="red")
+)
 ```
 
 ```{python}
 ## Repeat, to compare while coding.
-#display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names).set_properties(subset=(known_bads, idx[:]), color='red'))
+# display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names).set_properties(subset=(known_bads, idx[:]), color='red'))
 ```
 
 ## Compare a vehicle from AccDB <-->PyAlgo *interactively*
@@ -230,16 +245,18 @@ display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_n
 
 ```{python}
 case_loaded = [None, None]
+
+
 def _load_interactive_case(
     case_name,
     # increase vertical seperation between flags (but do not exceed max(V))
     flag_mul=2,
 ):
     accdb_cycle = c1.loc[case_name].copy()
-    accdb_gears = [c for c in accdb_cycle.columns if c.startswith('Ind_g')]
+    accdb_gears = [c for c in accdb_cycle.columns if c.startswith("Ind_g")]
 
     cycle = c2.loc[case_name].dropna(how="all", axis=1).copy()
-    
+
     ## Scale each flag into a different value, to plot separatly, and
     #  to plot in the same axis as V
     #  (bc when plotting flags in `secondary_y`, grid is not working)
@@ -253,7 +270,7 @@ def _load_interactive_case(
     ok_gears = [c for c in all_flags if c.startswith("ok_gear/")]
     gear_count = len(ok_gears)
     ok_gears = cycle.loc[:, ok_gears]
-    
+
     ok_flags[ok_flags < 0] = np.NAN  # Restore NANFLAG --> NAN
     ok_flags = ok_flags * (np.arange(flag_count) + 1) * flag_mul
     ok_gears = ok_gears * (np.arange(gear_count) + flag_count + 1) * flag_mul
@@ -263,6 +280,7 @@ def _load_interactive_case(
     ok_gears.columns = wio.inflate_columns(ok_gears.columns)
 
     return cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears, p1.loc[case_name]
+
 
 def load_interactive_case(
     case_name,
@@ -277,18 +295,20 @@ def load_interactive_case(
         case_loaded[1] = cycle_data
     return cycle_data
 
-#cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears, accdb_props = load_interactive_case('v001')
+
+# cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears, accdb_props = load_interactive_case('v001')
 # ok_flags.columns, ok_gears.columns
 ```
 
 ```{python}
 def decide_signal_axis(colnames):
     def is_velocity(col):
-        return is_velocity(col[0]) if isinstance(col, tuple) else col.startswith('v_')
-    
+        return is_velocity(col[0]) if isinstance(col, tuple) else col.startswith("v_")
+
     l1 = [i for i in colnames if is_velocity(i)]
     l2 = [i for i in colnames if not is_velocity(i)]
     return l1, l2
+
 
 def define_schenes():
     """Predfined case/pan/zooms of the compraison diagram below."""
@@ -303,7 +323,13 @@ def define_schenes():
         ("noPowerDives(t=1540-80)", "v024", 26, 63.60),
         ("noPowerDive(t=1574)", "v024", 26, 66.4),
         ("noPowerDive(t=1574)", "v025", 69, 63.4),
-        ("decelToStop(t=1591)", "v025", 69, 72.0, "AccDB not respecting n_min=0.9 x n_idle (Annex 2-3.k.3)"),
+        (
+            "decelToStop(t=1591)",
+            "v025",
+            69,
+            72.0,
+            "AccDB not respecting n_min=0.9 x n_idle (Annex 2-3.k.3)",
+        ),
         ("lowPowerDive", "v033", 5, 72),
         ("low -1 gears?", "v035", 65, 63, "Diffs in gears above 2"),
         ("noPowerDive(t=1574)", "v024", 26, 66.4),
@@ -321,9 +347,11 @@ def define_schenes():
         ("lowPower", "v125", 1, 0),
     ]
 
+
 def grid(df):
     """Display a dynamic grid if given `df` too long. """
     display(vehdb.grid(df, fitcols=len(df.shape) < 2 or df.shape[1] < 12))
+
 
 def merge_pyalgo_accdb(pyalgo, accdb):
     pyalgo = pyalgo.copy()
@@ -333,10 +361,12 @@ def merge_pyalgo_accdb(pyalgo, accdb):
 
     return merged
 
+
 def display_diff_gears(pyalgo, accdb, props):
     merged = merge_pyalgo_accdb(pyalgo, accdb)
     diffgears_idx = merged["pyalgo/g_max0"] != merged["accdb/g_max"]
     display(merged.loc[diffgears_idx, ["pyalgo/g_max0", "accdb/g_max"]])
+
 
 def display_diff_cycle(pyalgo, accdb, props):
     merged = merge_pyalgo_accdb(pyalgo, accdb)
@@ -346,19 +376,20 @@ def display_diff_cycle(pyalgo, accdb, props):
 
 def display_pyalgo(pyalgo, accdb, props):
     pyalgo.columns = wio.flatten_columns(pyalgo.columns)
-    grid(pyalgo.drop('t', axis=1))
+    grid(pyalgo.drop("t", axis=1))
 
 
 def display_pyalgo_flags(pyalgo, accdb, props):
-    flags = pyalgo.select_dtypes('int8').copy()
+    flags = pyalgo.select_dtypes("int8").copy()
     flags.columns = wio.flatten_columns(flags.columns)
-    pyalgo = pyalgo[['p_req', 'p_avail']].copy()
+    pyalgo = pyalgo[["p_req", "p_avail"]].copy()
     pyalgo.columns = wio.flatten_columns(pyalgo.columns)
     grid(pd.concat((pyalgo, flags), axis=1))
 
 
 def display_accdb_cycle(pyalgo, accdb, props):
     grid(accdb)
+
 
 def display_accdb_props(pyalgo, accdb, props):
     grid(props)
@@ -368,7 +399,7 @@ def display_accdb_props(pyalgo, accdb, props):
 #
 out_specs = [
     (display_diff_gears, "DiffGears"),
-    (display_diff_cycle, "DiffGear cycles"), 
+    (display_diff_cycle, "DiffGear cycles"),
     (display_pyalgo_flags, "PyAlgo flags"),
     (display_pyalgo, "PyAlgo"),
     (display_accdb_cycle, "AccDb cycle"),
@@ -619,7 +650,7 @@ def plot_gear_flags(
     if show_signals:
         pyalgo1, pyalgo2 = _distribute_signals_in_axes(pyalgo_signals, pyalgo)
         accdb1, accdb2 = _distribute_signals_in_axes(accdb_signals, accdb)
-        
+
         merged1 = merge_pyalgo_accdb(pyalgo1, accdb1)
         merged2 = merge_pyalgo_accdb(pyalgo2, accdb2)
 
@@ -661,8 +692,8 @@ interactive_output(
 
 ```{python}
 ## Is clutch-undefined only used for gear 1?  NO< also for g2.
-display(c1.loc[c1.clutch=='undefined', 'gear'].value_counts())
-#display(c1.loc[c1.clutch=='undefined', ['v', 'a', 'g_max', 'clutch']])
+display(c1.loc[c1.clutch == "undefined", "gear"].value_counts())
+# display(c1.loc[c1.clutch=='undefined', ['v', 'a', 'g_max', 'clutch']])
 ```
 
 ```{python}
@@ -677,17 +708,27 @@ display(c1.loc[c1.clutch=='undefined', 'gear'].value_counts())
 ```{python}
 def is_bad_g2_in_decel_to_stop(accdb, cyc, prop):
     cyc = cyc.reset_index(level=0)
-    #bad_rows = (accdb.g_max == 2) & cyc.stopdecel & (cyc['n/g2'] < 0.9 * prop['idling_speed'])
+    # bad_rows = (accdb.g_max == 2) & cyc.stopdecel & (cyc['n/g2'] < 0.9 * prop['idling_speed'])
     bad_rows = (accdb.g_max == 2) & (cyc.g_max0 == 1) & cyc.stopdecel
     if bad_rows.any():
-        return pd.concat((accdb.loc[bad_rows, ['g_max', 'n_2']], cyc.loc[bad_rows, ['n/g2', 'ok_gear/g1', 'ok_gear/g2', 'stopdecel']]), axis=1)
+        return pd.concat(
+            (
+                accdb.loc[bad_rows, ["g_max", "n_2"]],
+                cyc.loc[bad_rows, ["n/g2", "ok_gear/g1", "ok_gear/g2", "stopdecel"]],
+            ),
+            axis=1,
+        )
+
 
 for case, cyc in c2.groupby(level=0):
     accdb = c1.loc[case]
     prop = p1.loc[case]
     res = is_bad_g2_in_decel_to_stop(accdb, cyc, prop)
     if res is not None:
-        display(prop[['idling_speed', 'vehicle_class']], f"0.9 x n_idle: {prop['idling_speed'] * 0.9}")
+        display(
+            prop[["idling_speed", "vehicle_class"]],
+            f"0.9 x n_idle: {prop['idling_speed'] * 0.9}",
+        )
         if isinstance(res, tuple):
             display(*res)
         else:
@@ -700,20 +741,28 @@ for case, cyc in c2.groupby(level=0):
 def is_more_low_powered_gears(cyc):
     cyc2 = cyc.copy()
     cyc2.columns = wio.inflate_columns(cyc2.columns)
-    c22 = cyc2.iloc[1571:1579][['ok_p', 'ok_max_n']].dropna(axis=1, how='all')
+    c22 = cyc2.iloc[1571:1579][["ok_p", "ok_max_n"]].dropna(axis=1, how="all")
     try:
-        ## is there any row with all-low-p AND 2-or-more n-max-ok? 
-        bad_rows = (~c22['ok_p'].replace(-1, 0).astype('bool')).all(axis=1) & (c22['ok_max_n'].replace(-1, 0).astype('bool').sum(axis=1) > 1)
+        ## is there any row with all-low-p AND 2-or-more n-max-ok?
+        bad_rows = (~c22["ok_p"].replace(-1, 0).astype("bool")).all(axis=1) & (
+            c22["ok_max_n"].replace(-1, 0).astype("bool").sum(axis=1) > 1
+        )
         if bad_rows.any():
             c22.columns = wio.flatten_columns(c22.columns)
-            return list(bad_rows[bad_rows].index), pd.concat((c22, cyc.iloc[1571:1579].loc[:, ['g_min', 'g_max']]), axis=1)
+            return (
+                list(bad_rows[bad_rows].index),
+                pd.concat(
+                    (c22, cyc.iloc[1571:1579].loc[:, ["g_min", "g_max"]]), axis=1
+                ),
+            )
     except Exception as ex:
         print(ex)
+
 
 for case, cyc in c2.groupby(level=0):
     res = is_more_low_powered_gears(cyc)
     if res is not None:
-        display(p2.loc[case, ['wltc_class', 'g_vmax']])
+        display(p2.loc[case, ["wltc_class", "g_vmax"]])
         if isinstance(res, tuple):
             display(*res)
         else:

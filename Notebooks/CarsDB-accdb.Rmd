@@ -66,11 +66,11 @@ if proj_dir not in sys.path:
 import vehdb
 
 idx = pd.IndexSlice
-log = logging.getLogger('CarsDB-inputs.ipynb')
+log = logging.getLogger("CarsDB-inputs.ipynb")
 logging.basicConfig(
-    level=logging.INFO, 
-    format='%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s', 
-    datefmt='%Y-%m-%d,%H:%M:%S',
+    level=logging.INFO,
+    format="%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s",
+    datefmt="%Y-%m-%d,%H:%M:%S",
 )
 ```
 
@@ -164,7 +164,7 @@ def extract_SM_from_pwot(
 
 
 # ## TEST
-#extract_SM_from_pwot(pwots.loc[pwots[c_engno] == 3])
+# extract_SM_from_pwot(pwots.loc[pwots[c_engno] == 3])
 ```
 
 ```{python}
@@ -219,7 +219,7 @@ def make_case_overrides():
 
 overrides = make_case_overrides()
 
-print('\n'.join(f"{k}: {v}" for k, v in sorted(overrides.items())))
+print("\n".join(f"{k}: {v}" for k, v in sorted(overrides.items())))
 ```
 
 ```{python}
@@ -359,7 +359,7 @@ vehdb.print_nodes(h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x4 HDF5: 350Mb --> 72Mb in ~15s.
+## COMPRESS x4 HDF5: 341Mb --> 72Mb in ~15s.
 #
 # !ls -lh {h5fname}
 if not skip_h5_write:
@@ -369,9 +369,9 @@ if not skip_h5_write:
 ```
 
 ```{python}
-## SAMPLE: extract data for a specific vehicle. 
+## SAMPLE: extract data for a specific vehicle.
 #
 caseno = 14
-iosr, cyc = vehdb.load_vehicle_nodes(h5fname, caseno, 'prop', 'cycle')
+iosr, cyc = vehdb.load_vehicle_nodes(h5fname, caseno, "prop", "cycle")
 display(iosr, cyc.columns, vehdb.grid(cyc, fitcols=False))
 ```
