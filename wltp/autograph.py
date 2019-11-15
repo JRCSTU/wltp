@@ -71,6 +71,11 @@ class FnHarvester:
 
     :param excludes:
         names to exclude;  they can/be/prefixed or not
+    :param base_modules:
+        skip function/classes not in these modules; if not given, include all items.
+    :param predicate:
+        any user callable accepting a single argument returning falsy to exclude 
+        the visited item
     :param include_methods:
         Whether to collect methods from classes
 
@@ -79,7 +84,10 @@ class FnHarvester:
     >>> from wltp import cycler, downscale, engine, vehicle, vmax
 
     >>> modules = (cycler, downscale, engine, vehicle, vmax)
-    >>> funcs = FnHarvester(include_methods=False).harvest(*modules)
+    >>> funcs = FnHarvester(
+    ...     include_methods=False,
+    ...     predicate=_is_in_my_project
+    ... ).harvest(*modules)
     >>> len(funcs)
     67
     >>> sorted(list(zip(*funcs))[0])
@@ -94,7 +102,10 @@ class FnHarvester:
     ...     "GearMultiIndexer VMaxRec "
     ...     "timelens "
     ... ).split()
-    >>> funcs = FnHarvester(excludes=(excludes)).harvest(*modules)
+    >>> funcs = FnHarvester(
+    ...     excludes=(excludes),
+    ...     base_modules=modules
+    ... ).harvest()
     >>> len(funcs)
     41
     >>> sorted(list(zip(*funcs))[0])
@@ -108,12 +119,20 @@ class FnHarvester:
     include_methods: bool = True
 
     def __init__(
-        self, excludes: Iterable[_FnKey] = None, include_methods=True, sep="/"
+        self,
+        *,
+        excludes: Iterable[_FnKey] = None,
+        base_modules: Iterable = None,
+        predicate: Callable[[Any], bool] = None,
+        include_methods=True,
+        sep="/",
     ):
         if include_methods is not None:
             self.include_methods = bool(include_methods)
         self._seen: Set = set()
         self.excludes = set(excludes or ())
+        self.base_modules = set(base_modules or ())
+        self.predicate = predicate
         self.sep = sep
         self.collected: List[Tuple[str, Callable]] = []
 
@@ -132,8 +151,10 @@ class FnHarvester:
         self._seen.add(item)
 
         return (
-            callable(item) or is_regular_class(name, item) or inspect.ismodule(item)
-        ) and _is_in_my_project(item)
+            (callable(item) or is_regular_class(name, item) or inspect.ismodule(item))
+            and (not self.base_modules or inspect.getmodule(item) in self.base_modules)
+            and (not self.predicate or self.predicate(item))
+        )
 
     def _harvest(self, path, name, item):
         if not self.is_harvestable(path, name, item):
@@ -163,10 +184,13 @@ class FnHarvester:
     def harvest(self, *baseitems, path=None):
         """
         :param baseitems:
-            items with ``__name__``, like module, class, functions
+            items with ``__name__``, like module, class, functions.
+            If nothing is given, `attr:`baseModules` is used instead.
         :param path:
             a tuple of strings to prepend in the result tuple-names (aka path)
         """
+        if not baseitems:
+            baseitems = self.base_modules
         for bi in baseitems:
             self._harvest(astuple(path, "path"), bi.__name__, bi)
 
