@@ -169,7 +169,7 @@ def extract_SM_from_pwot(
 ```
 
 ```{python}
-vehresults_excel = ("VehData/gearshift_table_all.20092019.2.xlsx", "gearshift_table_all")
+vehresults_excel = ("VehData/gearshift_table_all.22102019.xlsx", "gearshift_table_all")
 # NOTE: it may take ~5 minute to load ~130 vehicles...
 results_df = xleash.lasso('%s#%s!::["df"]' % vehresults_excel)
 results_df.shape  # (223_722, 116)
@@ -360,11 +360,11 @@ vehdb.print_nodes(h5fname)
 
 ```{python}
 # %%time
-## COMPRESS x4 HDF5: 340Mb --> 90Mb in ~10s.
+## COMPRESS x4 HDF5: 350Mb --> 72Mb in ~15s.
 #
 # !ls -lh {h5fname}
 if not skip_h5_write:
-    !ptrepack  {h5fname}  --complevel=9 --complib=blosc:blosclz -o {h5fname}.tmp
+    !ptrepack  {h5fname}  --complevel=9 --complib=blosc:lz4hc -o {h5fname}.tmp
     !mv  {h5fname}.tmp {h5fname}
 # !ls -lh {h5fname}
 ```

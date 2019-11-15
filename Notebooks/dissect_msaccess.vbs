@@ -69,6 +69,7 @@ Function exportModulesTxt(ACCDBFilename, sExportpath)
     ElseIf Not fso.FolderExists(sExportpath) Then
         fso.CreateFolder (sExportpath)
     End If
+    Wscript.Echo "Exporting into folder: " & sExportpath
     On Error GoTo 0
 
     Wscript.Echo "starting Access..."
