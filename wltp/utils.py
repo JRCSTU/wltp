@@ -64,7 +64,7 @@ def memoize(f):
 
 def aslist(i, argname):
     if not i:
-        return []
+        return i if isinstance(i, list) else []
 
     if isinstance(i, str):
         i = [i]
@@ -91,7 +91,7 @@ def astuple(i, argname):
 
 def asdict(i, argname):
     if not i:
-        return {}
+        return i if isinstance(i, dict) else {}
 
     if isinstance(i, tuple) and len(i) == 2:
         i = dict([i])
