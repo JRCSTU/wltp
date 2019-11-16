@@ -62,13 +62,13 @@ def memoize(f):
     return memodict(f)
 
 
-def aslist(i, argname):
+def aslist(i, argname, allowed_types=list):
     if not i:
-        return i if isinstance(i, list) else []
+        return i if isinstance(i, allowed_types) else []
 
     if isinstance(i, str):
         i = [i]
-    elif not isinstance(i, list):
+    elif not isinstance(i, allowed_types):
         try:
             i = list(i)
         except Exception as ex:
