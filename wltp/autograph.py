@@ -46,11 +46,17 @@ def _is_in_my_project(item) -> bool:
     return in_my_project
 
 
-## UNUSED
 class Prefkey:
     """Index into dicts with a key or a joined(pefix+key), where prefix: tuple"""
 
     sep = "/"
+
+    def __init__(self, sep=None):
+        if sep is not None:
+            self.sep = sep
+
+    def _join_path_names(self, *names):
+        return self.sep.join(str(i) for i in names)
 
     def prefkey(self, d, key: _FnKey, default: Union[Callable, Any] = None):
         if key in d:
@@ -69,7 +75,7 @@ class Prefkey:
         return default
 
 
-class FnHarvester:
+class FnHarvester(Prefkey):
     """
     Collect callables, classes & their methods into ``collected`` atribute.
 
@@ -142,19 +148,16 @@ class FnHarvester:
         base_modules: Iterable = None,
         predicate: Callable[[Any], bool] = None,
         include_methods=True,
-        sep="/",
+        sep=None,
     ):
+        super().__init__(sep)
         if include_methods is not None:
             self.include_methods = bool(include_methods)
         self._seen: Set = set()
         self.excludes = set(excludes or ())
         self.base_modules = set(base_modules or ())
         self.predicate = predicate
-        self.sep = sep
         self.collected: List[Tuple[str, Callable]] = []
-
-    def _join_path_names(self, *names):
-        return self.sep.join(names)
 
     def is_harvestable(self, name_path, item):
         name = name_path[-1]
@@ -246,7 +249,7 @@ def autographed(
     return decorator
 
 
-class Autograph:
+class Autograph(Prefkey):
     """
     Make a graphtik operation by inspecting a function
 
@@ -276,10 +279,9 @@ class Autograph:
         overrides: Mapping[_FnKey, Mapping] = None,
         sep=None,
     ):
+        super().__init__(sep)
         self.out_prefixes = out_prefixes and aslist(out_prefixes, "out_prefixes")
         self.overrides = overrides and asdict(overrides, "overrides")
-        if sep is not None:
-            self.sep = sep
 
     def _from_overrides(self, name):
         return self.overrides and self.overrides.get(name) or {}
