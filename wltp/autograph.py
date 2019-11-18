@@ -177,6 +177,15 @@ class FnHarvester(Prefkey):
             and (not self.predicate or self.predicate(item))
         )
 
+    def _collect(self, name_path, item_path):
+        """Obey decorated `name`"""
+        fn = item_path[-1]
+        decors = get_autograph_decors(fn)
+        if decors and "name" in decors:
+            name_path = name_path[:-1] + (decors["name"],)
+
+        self.collected.append((name_path, item_path))
+
     def _harvest(self, name_path, item_path):
         name = name_path[-1]
         item = item_path[-1]
@@ -190,7 +199,7 @@ class FnHarvester(Prefkey):
                 self._harvest((item.__name__, mb_name), (item, member))
 
         elif callable(item):
-            self.collected.append((name_path, item_path))
+            self._collect(name_path, item_path)
 
             if is_regular_class(name, item):
                 if self.include_methods:
@@ -249,6 +258,10 @@ def autographed(
     return decorator
 
 
+def get_autograph_decors(fn, default=None):
+    return getattr(fn, "_autograph", default)
+
+
 class Autograph(Prefkey):
     """
     Make a graphtik operation by inspecting a function
@@ -301,7 +314,7 @@ class Autograph(Prefkey):
         """
         args = {k: v for k, v in locals().items() if v is not _unset}
         del args["self"], args["fn"], args["name"]
-        decors = getattr(fn, "_autograph", {})
+        decors = get_autograph_decors(fn)
 
         ## Derive name from my-args, decorator, fn_name
         #  which is used to pick overrides.
@@ -313,7 +326,9 @@ class Autograph(Prefkey):
 
         overrides = self._from_overrides(name)
 
-        op_data = ChainMap(args, overrides, decors)
+        op_data = ChainMap(args, overrides)
+        if decors:
+            op_data.maps.append(decors)
         if op_data:
             log.debug("Autograph overrides for %r: %s", name, op_data)
 
