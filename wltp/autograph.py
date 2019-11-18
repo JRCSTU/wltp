@@ -6,16 +6,19 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 import inspect
+import logging
+from collections import ChainMap
 from pathlib import Path
 from typing import Any, Callable, Iterable, List, Mapping, Set, Tuple, Union
 
 from boltons.iterutils import first
-from toolz import dicttoolz as dtz
 
 from graphtik import optional, sideffect
-from graphtik.nodes import FunctionalOperation
+from graphtik.op import FunctionalOperation, reparse_operation_data
 
 from .utils import asdict, aslist, astuple
+
+log = logging.getLogger(__name__)
 
 _my_project_dir = Path(__file__).parent
 
@@ -27,6 +30,7 @@ def is_regular_class(name, item):
 
 
 def _is_in_my_project(item) -> bool:
+    """UNUSED"""
     in_my_project = False
     try:
         path = inspect.getfile(item)
@@ -69,12 +73,21 @@ class FnHarvester:
     """
     Collect callables, classes & their methods into ``collected`` atribute.
 
+    :param collected:
+        a list of 2-tuples::
+
+            path, callable
+
+        where `path` is a list of string-names of:
+
+            module[, class], callable
+
     :param excludes:
         names to exclude;  they can/be/prefixed or not
     :param base_modules:
         skip function/classes not in these modules; if not given, include all items.
     :param predicate:
-        any user callable accepting a single argument returning falsy to exclude 
+        any user callable accepting a single argument returning falsy to exclude
         the visited item
     :param include_methods:
         Whether to collect methods from classes
@@ -188,6 +201,8 @@ class FnHarvester:
             If nothing is given, `attr:`baseModules` is used instead.
         :param path:
             a tuple of strings to prepend in the result tuple-names (aka path)
+        :return:
+            the :attr:`collected`
         """
         if not baseitems:
             baseitems = self.base_modules
@@ -195,6 +210,42 @@ class FnHarvester:
             self._harvest(astuple(path, "path"), bi.__name__, bi)
 
         return self.collected
+
+    def paths(self):
+        """returns the paths only (no callables), sorted"""
+        return list(zip(*self.collected))[0]
+
+
+_unset = object()
+
+
+def autographed(
+    name=_unset,
+    needs=_unset,
+    provides=_unset,
+    inp_sideffects=_unset,
+    out_sideffects=_unset,
+):
+    """
+    Decorator to annotate a function with overrides for :class:`Autograph`.
+    """
+    overrides = {
+        k: v
+        for k, v in {
+            "name": name,
+            "needs": needs,
+            "provides": provides,
+            "inp_sideffects": inp_sideffects,
+            "out_sideffects": out_sideffects,
+        }.items()
+        if v is not _unset
+    }
+
+    def decorator(fn):
+        fn._autograph = overrides
+        return fn
+
+    return decorator
 
 
 class Autograph:
@@ -232,67 +283,75 @@ class Autograph:
         if sep is not None:
             self.sep = sep
 
-    def _from_overrides(self, kw):
-        """ASSUMES STABLE DICTS!"""
-        del kw["self"]
-        fnover = self.overrides and self.overrides.get(kw["name"])
-        if fnover is not None:
-            kw = {
-                argname: fnover[argname] if argname in fnover else argval
-                for argname, argval in kw.items()
-            }
-        return kw
+    def _from_overrides(self, name):
+        return self.overrides and self.overrides.get(name) or {}
 
     def wrap_fn(
         self,
-        fn=None,
+        fn,
         *,
-        name: str = None,
-        needs=None,
-        provides=None,
-        inp_sideffects=None,
-        out_sideffects=None,
+        name=_unset,
+        needs=_unset,
+        provides=_unset,
+        inp_sideffects=_unset,
+        out_sideffects=_unset,
     ):
-        kw = self._from_overrides(locals())
-        args = "fn name needs provides inp_sideffects out_sideffects".split()
-        fn, name, needs, provides, inp_sideffects, out_sideffects = (
-            kw[a] for a in args
-        )
+        """
+        Overiddes order: my-args, self.overrides, autograpf-decorator, inspection
+        """
+        args = {k: v for k, v in locals().items() if v is not _unset}
+        del args["self"], args["fn"], args["name"]
+        decors = getattr(fn, "_autograph", {})
 
-        if not name and fn:
-            name = fn.__name__
+        ## Derive name from my-args, decorator, fn_name
+        #  which is used to pick overrides.
+        #
+        if name is _unset:
+            name = decors.get("name", _unset)
+            if name is _unset:
+                name = fn.__name__
+
+        overrides = self._from_overrides(name)
+
+        op_data = ChainMap(args, overrides, decors)
+        if op_data:
+            log.debug("Autograph overrides for %r: %s", name, op_data)
+
+        op_props = "needs provides inp_sideffects out_sideffects".split()
+        needs, provides, inp_sideffects, out_sideffects = (
+            op_data.get(a, _unset) for a in op_props
+        )
 
         def is_optional_arg(sig_param):
             return sig_param.default is not inspect._empty
 
-        if needs:
-            needs = aslist(needs, "needs")
-        elif fn:
+        if needs is _unset:
             sig = inspect.signature(fn)
             needs = [
                 optional(name) if is_optional_arg(param) else name
                 for name, param in sig.parameters.items()
                 if name != "self"
             ]
-        else:
-            needs = []
+        needs = aslist(needs, "needs", allowed_types=(list, tuple))
 
-        if provides:
-            provides = aslist(provides, "provides")
-        elif name and self.out_prefixes:
-            matched_prefix = first(p for p in self.out_prefixes if name.startswith(p))
-            if matched_prefix:
-                provides = [name[len(matched_prefix) :]]
-        else:
-            provides = []
+        if provides is _unset:
+            if name and self.out_prefixes:
+                ## Trim prefix from function-name to derive a singular "provides".
+                matched_prefix = first(
+                    p for p in self.out_prefixes if name.startswith(p)
+                )
+                if matched_prefix:
+                    provides = [name[len(matched_prefix) :]]
+            if provides is _unset:
+                provides = ()
+        provides = aslist(provides, "provides", allowed_types=(list, tuple))
 
-        if inp_sideffects:
-            needs.extend(
-                [sideffect(i) for i in aslist(inp_sideffects, "inp_sideffects")]
-            )
-        if out_sideffects:
+        if inp_sideffects is not _unset:
+            needs.extend(sideffect(i) for i in aslist(inp_sideffects, "inp_sideffects"))
+
+        if out_sideffects is not _unset:
             provides.extend(
-                [sideffect(i) for i in aslist(out_sideffects, "out_sideffects")]
+                sideffect(i) for i in aslist(out_sideffects, "out_sideffects")
             )
 
         return FunctionalOperation(fn=fn, name=name, needs=needs, provides=provides)
