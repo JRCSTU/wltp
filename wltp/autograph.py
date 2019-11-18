@@ -76,12 +76,16 @@ class FnHarvester:
     :param collected:
         a list of 2-tuples::
 
-            path, callable
+            (name_path, item_path)
 
-        where `path` is a list of string-names of:
+        where the 2 paths correspond to the same items;
+        the last path element is always a callable, and
+        the previous items may be modules and/or classes,
+        in case non-modules are given directly in :meth:`harvest()`::
 
-            module[, class], callable
+            [module, [class, ...] callable
 
+        E.g. the path of a class constructor is ``(module_name, class_name)``.
     :param excludes:
         names to exclude;  they can/be/prefixed or not
     :param base_modules:
@@ -149,15 +153,16 @@ class FnHarvester:
         self.sep = sep
         self.collected: List[Tuple[str, Callable]] = []
 
-    def _join_prefixes(self, *names):
+    def _join_path_names(self, *names):
         return self.sep.join(names)
 
-    def is_harvestable(self, path, name, item):
+    def is_harvestable(self, name_path, item):
+        name = name_path[-1]
         if (
             name.startswith("_")
-            or item in self._seen
             or name in self.excludes
-            or self._join_prefixes(*path, name) in self.excludes
+            or item in self._seen
+            or self._join_path_names(*name_path) in self.excludes
         ):
             return False
 
@@ -169,45 +174,38 @@ class FnHarvester:
             and (not self.predicate or self.predicate(item))
         )
 
-    def _harvest(self, path, name, item):
-        if not self.is_harvestable(path, name, item):
-            return
+    def _harvest(self, name_path, item_path):
+        name = name_path[-1]
+        item = item_path[-1]
 
-        if inspect.ismodule(item):
-            for named_member in inspect.getmembers(item):
+        if not self.is_harvestable(name_path, item):
+            pass
+
+        elif inspect.ismodule(item):
+            for mb_name, member in inspect.getmembers(item):
                 # Reset path on modules
-                self._harvest((item.__name__,), *named_member)
-            return
+                self._harvest((item.__name__, mb_name), (item, member))
 
-        is_class = is_regular_class(name, item)
-        if callable(item) or is_class:
-            self.collected.append((path + (name,), item))
-            if not is_class:
-                return
+        elif callable(item):
+            self.collected.append((name_path, item_path))
 
-        # names = set(list(zip(*items))[1])
-        # dupe_names = self.collected.keys() - names
-        # if dupe_names:
-        #     raise ValueError(f"Duplicate names: {dupe_names}")
+            if is_regular_class(name, item):
+                if self.include_methods:
+                    for mb_name, member in inspect.getmembers(item, predicate=callable):
+                        self._harvest(name_path + (mb_name,), item_path + (member,))
 
-        if self.include_methods:
-            for named_member in inspect.getmembers(item, predicate=callable):
-                self._harvest(path + (name,), *named_member)
-
-    def harvest(self, *baseitems, path=None):
+    def harvest(self, *baseitems):
         """
         :param baseitems:
             items with ``__name__``, like module, class, functions.
             If nothing is given, `attr:`baseModules` is used instead.
-        :param path:
-            a tuple of strings to prepend in the result tuple-names (aka path)
         :return:
             the :attr:`collected`
         """
         if not baseitems:
             baseitems = self.base_modules
         for bi in baseitems:
-            self._harvest(astuple(path, "path"), bi.__name__, bi)
+            self._harvest((bi.__name__,), (bi,))
 
         return self.collected
 
