@@ -7,6 +7,7 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 import inspect
 import logging
+import re
 from collections import ChainMap
 from pathlib import Path
 from typing import Any, Callable, Iterable, List, Mapping, Set, Tuple, Union
@@ -23,6 +24,16 @@ log = logging.getLogger(__name__)
 _my_project_dir = Path(__file__).parent
 
 _FnKey = Union[str, Iterable[str]]
+
+
+def camel_2_snake_case(word):
+    """
+    >>> camel_2_snake_case("HTTPResponseCodeXYZ")
+    'http_response_code_xyz'
+
+    From https://stackoverflow.com/a/1176023/548792
+    """
+    return re.sub(r"((?<=[a-z0-9])[A-Z]|(?!^)[A-Z](?=[a-z]))", r"_\1", word).lower()
 
 
 def is_regular_class(name, item):
@@ -269,8 +280,14 @@ class Autograph(Prefkey):
         if a function-name start with any of these prefixes, it is trimmed
         and a single `provides` is derrived out of it.
     :param overrides:
-        a mapping of fn-keys --> dicts with keys:
-        fn, name, needs, provides, inp_sideffects, out_sideffects
+        a mapping of fn-keys --> dicts with keys::
+
+            name, needs, provides, inp_sideffects, out_sideffects
+
+        An `fn-key` may be a string-tuple of names like::
+
+            [module, [class, ...] callable
+
     **Example:**
 
     >>> def calc_sum_ab(a, b=0):
@@ -300,9 +317,8 @@ class Autograph(Prefkey):
 
     def wrap_fn(
         self,
-        fn,
-        *,
-        name=_unset,
+        *fn_path,
+        name_path=_unset,
         needs=_unset,
         provides=_unset,
         inp_sideffects=_unset,
@@ -310,26 +326,38 @@ class Autograph(Prefkey):
     ):
         """
         Overiddes order: my-args, self.overrides, autograpf-decorator, inspection
+
+        :param fn_path:
+            the path to a callable, like::
+
+                [module, [class, ...] callable
+
+        :param name_path:
+            a single string, ot the corresponding name-path of the `fn` callable
         """
         args = {k: v for k, v in locals().items() if v is not _unset}
-        del args["self"], args["fn"], args["name"]
+        del args["self"], args["fn_path"], args["name_path"]
+
+        fn = fn_path[-1]
         decors = get_autograph_decors(fn)
 
-        ## Derive name from my-args, decorator, fn_name
-        #  which is used to pick overrides.
+        ## Derive `name_path` from: my-args, decorator, fn_name
+        #  and then use it to pick overrides.
         #
-        if name is _unset:
-            name = decors.get("name", _unset)
-            if name is _unset:
+        if name_path is _unset:
+            name_path = decors.get("name", _unset)
+            if name_path is _unset:
                 name = fn.__name__
+        name_path = astuple(name_path, "name")
+        fn_name = str(name_path[-1])
 
-        overrides = self._from_overrides(name)
+        overrides = self._from_overrides(name_path)
 
         op_data = ChainMap(args, overrides)
         if decors:
             op_data.maps.append(decors)
         if op_data:
-            log.debug("Autograph overrides for %r: %s", name, op_data)
+            log.debug("Autograph overrides for %r: %s", name_path, op_data)
 
         op_props = "needs provides inp_sideffects out_sideffects".split()
         needs, provides, inp_sideffects, out_sideffects = (
@@ -346,16 +374,29 @@ class Autograph(Prefkey):
                 for name, param in sig.parameters.items()
                 if name != "self"
             ]
+            ## Insert object as 1st need for object-methods.
+            #
+            if len(fn_path) > 1:
+                clazz = fn_path[-2]
+                # TODO: respect autograph decorator for object-names.
+                class_name = name_path[-2] if len(name_path) > 1 else clazz.__name__
+                if is_regular_class(class_name, clazz):
+                    log.debug("Object-method %s.%s", class_name, fn_name)
+                    needs.insert(0, camel_2_snake_case(class_name))
+
         needs = aslist(needs, "needs", allowed_types=(list, tuple))
 
         if provides is _unset:
-            if name and self.out_prefixes:
+            if is_regular_class(fn_name, fn):
+                ## Convert class-name into object variable.
+                provides = camel_2_snake_case(fn_name)
+            elif self.out_prefixes:
                 ## Trim prefix from function-name to derive a singular "provides".
                 matched_prefix = first(
-                    p for p in self.out_prefixes if name.startswith(p)
+                    p for p in self.out_prefixes if fn_name.startswith(p)
                 )
                 if matched_prefix:
-                    provides = [name[len(matched_prefix) :]]
+                    provides = [fn_name[len(matched_prefix) :]]
             if provides is _unset:
                 provides = ()
         provides = aslist(provides, "provides", allowed_types=(list, tuple))
@@ -368,7 +409,7 @@ class Autograph(Prefkey):
                 sideffect(i) for i in aslist(out_sideffects, "out_sideffects")
             )
 
-        return FunctionalOperation(fn=fn, name=name, needs=needs, provides=provides)
+        return FunctionalOperation(fn=fn, name=fn_name, needs=needs, provides=provides)
 
 
 """
