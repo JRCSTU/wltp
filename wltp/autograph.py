@@ -307,11 +307,13 @@ class Autograph(Prefkey):
         self,
         out_prefixes: _FnKey = None,
         overrides: Mapping[_FnKey, Mapping] = None,
+        full_path_names: bool = False,
         sep=None,
     ):
         super().__init__(sep)
         self.out_prefixes = out_prefixes and aslist(out_prefixes, "out_prefixes")
         self.overrides = overrides and asdict(overrides, "overrides")
+        self.full_path_names = full_path_names
 
     def _from_overrides(self, key):
         return self.overrides and self._prefkey(self.overrides, key) or {}
@@ -409,6 +411,9 @@ class Autograph(Prefkey):
             provides.extend(
                 sideffect(i) for i in aslist(out_sideffects, "out_sideffects")
             )
+
+        if self.full_path_names:
+            fn_name = self._join_path_names(*name_path)
 
         return FunctionalOperation(fn=fn, name=fn_name, needs=needs, provides=provides)
 
