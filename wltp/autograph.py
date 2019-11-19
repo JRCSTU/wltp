@@ -58,17 +58,16 @@ class Prefkey:
     def _join_path_names(self, *names):
         return self.sep.join(str(i) for i in names)
 
-    def prefkey(self, d, key: _FnKey, default: Union[Callable, Any] = None):
-        if key in d:
-            return d[key]
-
+    def _prefkey(self, d, key: _FnKey, default: Union[Callable, Any] = None):
         if isinstance(key, tuple):
+            long_key = self.sep.join(key)
+            if long_key in d:
+                return d[long_key]
+
             if key[-1] in d:
                 return d[key[-1]]
-
-            key = self.sep.join(key)
-            if key in d:
-                return d[key]
+        if key in d:
+            return d[key]
 
         if callable(default):
             return default()
