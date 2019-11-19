@@ -373,7 +373,7 @@ class Autograph(Prefkey):
             needs = [
                 optional(name) if is_optional_arg(param) else name
                 for name, param in sig.parameters.items()
-                if name != "self"
+                if name != "self" and param.kind is not Parameter.VAR_KEYWORD
             ]
             ## Insert object as 1st need for object-methods.
             #
