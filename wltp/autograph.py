@@ -9,6 +9,7 @@ import inspect
 import logging
 import re
 from collections import ChainMap
+from inspect import Parameter
 from pathlib import Path
 from typing import Any, Callable, Iterable, List, Mapping, Set, Tuple, Union
 
@@ -312,8 +313,8 @@ class Autograph(Prefkey):
         self.out_prefixes = out_prefixes and aslist(out_prefixes, "out_prefixes")
         self.overrides = overrides and asdict(overrides, "overrides")
 
-    def _from_overrides(self, name):
-        return self.overrides and self.overrides.get(name) or {}
+    def _from_overrides(self, key):
+        return self.overrides and self._prefkey(self.overrides, key) or {}
 
     def wrap_fn(
         self,
