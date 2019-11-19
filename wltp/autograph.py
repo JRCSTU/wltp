@@ -241,26 +241,19 @@ _unset = object()
 
 
 def autographed(
+    *,
     name=_unset,
     needs=_unset,
     provides=_unset,
+    renames=_unset,
     inp_sideffects=_unset,
     out_sideffects=_unset,
 ):
     """
     Decorator to annotate a function with overrides for :class:`Autograph`.
     """
-    overrides = {
-        k: v
-        for k, v in {
-            "name": name,
-            "needs": needs,
-            "provides": provides,
-            "inp_sideffects": inp_sideffects,
-            "out_sideffects": out_sideffects,
-        }.items()
-        if v is not _unset
-    }
+    kws = locals()
+    overrides = {k: v for k, v in kws.items() if v is not _unset}
 
     def decorator(fn):
         fn._autograph = overrides
@@ -277,17 +270,32 @@ class Autograph(Prefkey):
     """
     Make a graphtik operation by inspecting a function
 
+    The params below (except `full_path_names`) are merged in this order
+    (1st takes precendance):
+
+    1. args in :meth:`wrap_fn`
+    2. dict from overrides keyed by `name`
+    3. decorated with :func:`autographed`
+    4. inspected from the callable
+
     :param out_prefixes:
         if a function-name start with any of these prefixes, it is trimmed
         and a single `provides` is derrived out of it.
     :param overrides:
-        a mapping of fn-keys --> dicts with keys::
+        a mapping of ``fn-keys --> dicts`` with keys::
 
-            name, needs, provides, inp_sideffects, out_sideffects
+            name, needs, provides, renames, inp_sideffects, out_sideffects
 
         An `fn-key` may be a string-tuple of names like::
 
             [module, [class, ...] callable
+    :param renames:
+        global ``from --> to`` renamings applied both onto `needs` & `provides`.
+        They are applied after merging has been completed, so they can rename
+        even "inspected" names.
+    :param full_path_names:
+        whether operation-nodes would be named after the fully qualified name
+        (separated with `/` by default)
 
     **Example:**
 
@@ -307,16 +315,31 @@ class Autograph(Prefkey):
         self,
         out_prefixes: _FnKey = None,
         overrides: Mapping[_FnKey, Mapping] = None,
+        renames: Mapping = None,
         full_path_names: bool = False,
         sep=None,
     ):
         super().__init__(sep)
         self.out_prefixes = out_prefixes and aslist(out_prefixes, "out_prefixes")
         self.overrides = overrides and asdict(overrides, "overrides")
+        self.renames = renames and asdict(renames, "renames")
         self.full_path_names = full_path_names
 
     def _from_overrides(self, key):
         return self.overrides and self._prefkey(self.overrides, key) or {}
+
+    def _apply_renames(self, arg_renames, override_renames, *word_lists):
+        """
+        Rename words in all `word_lists` matching `arg_renames`, `override_renames` ...
+
+        and :attr:`renames`, in that order.
+        """
+        renames_maps = [d for d in (arg_renames, override_renames, self.renames) if d]
+        renames = ChainMap(*renames_maps)
+        if renames:
+            word_lists = tuple([renames.get(w, w) for w in wl] for wl in word_lists)
+
+        return word_lists
 
     def wrap_fn(
         self,
@@ -324,6 +347,7 @@ class Autograph(Prefkey):
         name_path=_unset,
         needs=_unset,
         provides=_unset,
+        renames=None,
         inp_sideffects=_unset,
         out_sideffects=_unset,
     ):
@@ -362,8 +386,8 @@ class Autograph(Prefkey):
         if op_data:
             log.debug("Autograph overrides for %r: %s", name_path, op_data)
 
-        op_props = "needs provides inp_sideffects out_sideffects".split()
-        needs, provides, inp_sideffects, out_sideffects = (
+        op_props = "needs provides renames, inp_sideffects out_sideffects".split()
+        needs, provides, override_renames, inp_sideffects, out_sideffects = (
             op_data.get(a, _unset) for a in op_props
         )
 
@@ -404,6 +428,13 @@ class Autograph(Prefkey):
                 provides = ()
         provides = aslist(provides, "provides", allowed_types=(list, tuple))
 
+        needs, provides = self._apply_renames(
+            renames,
+            override_renames is not _unset and override_renames,
+            needs,
+            provides,
+        )
+
         if inp_sideffects is not _unset:
             needs.extend(sideffect(i) for i in aslist(inp_sideffects, "inp_sideffects"))
 
@@ -423,7 +454,7 @@ class Autograph(Prefkey):
 
     >>> aug = Autograph(['calc_', 'upd_'], {
     ...     'calc_p_available':{'provides': 'p_avail'},
-    ...     'calc_road_load_power': {'provides': 'p_resist'},
+    ...     'calc_p_resist': {'provides': 'p_resist'},
     ...     'calc_inertial_power': {'provides': 'p_inert'},
     ...      })
     >>> ops = [aug.wrap_fn(name=name[-1], fn=fn) for name, fn in funcs]
