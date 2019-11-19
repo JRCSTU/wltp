@@ -28,7 +28,7 @@ def unladen_mass_2_mass_in_running_order(unladen_mass, driver_mass):
     return unladen_mass + driver_mass
 
 
-def calc_road_load_power(V: Column, f0, f1, f2):
+def calc_p_resist(V: Column, f0, f1, f2):
     """
     The `p_resist` required to overcome vehicle-resistances for various velocities, 
     

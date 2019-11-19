@@ -167,7 +167,7 @@ class Experiment(object):
 
         gwots = engine.interpolate_wot_on_v_grid(wot, gear_ratios)
         gwots = engine.calc_p_avail_in_gwots(gwots, SM=f_safety_margin)
-        gwots[w.p_resist] = vehicle.calc_road_load_power(gwots.index, f0, f1, f2)
+        gwots[w.p_resist] = vehicle.calc_p_resist(gwots.index, f0, f1, f2)
 
         v_max_rec = vmax.calc_v_max(gwots)
         mdl[m.v_max] = v_max = v_max_rec.v_max

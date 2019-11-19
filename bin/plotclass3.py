@@ -33,7 +33,7 @@ def make_class_fig(class_name, class_data):
     v = class_data["v_cycle"]
     a = -v.diff(-1)
     p_inert = vehicle.calc_inertial_power(v, a, test_mass, 0)
-    p_resist = vehicle.calc_road_load_power(v, f0, f1, f2)
+    p_resist = vehicle.calc_p_resist(v, f0, f1, f2)
     p = vehicle.calc_required_power(p_inert, p_resist)
     p *= v.max() / p.max()
     t = np.arange(0, len(v))

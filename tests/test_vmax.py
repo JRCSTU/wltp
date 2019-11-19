@@ -43,7 +43,7 @@ def test_v_max(h5_accdb):
         wot["n"] = wot.index
         gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
         gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
-        gwots["p_resist"] = vehicle.calc_road_load_power(
+        gwots["p_resist"] = vehicle.calc_p_resist(
             gwots.index, props.f0, props.f1, props.f2
         )
         rec = vmax.calc_v_max(gwots)
