@@ -98,10 +98,13 @@ def astuple(i, argname):
     if not i:
         return ()
 
-    try:
-        i = tuple(i)
-    except Exception as ex:
-        raise ValueError(f"Argument {argname!r} not an tuple, but {i!r}\n  {ex}")
+    if isinstance(i, str):
+        i = (i,)
+    else:
+        try:
+            i = tuple(i)
+        except Exception as ex:
+            raise ValueError(f"Cannot tuple-ize arg-{argname!r}({i!r}) due to: {ex}")
 
     return i
 
