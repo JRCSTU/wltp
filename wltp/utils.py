@@ -62,6 +62,23 @@ def memoize(f):
     return memodict(f)
 
 
+class Token(str):
+    def __eq__(self, other):
+        return self is other
+
+    def __hash__(self):
+        return id(self)
+
+    def __bool__(self):
+        return True
+
+    def __str__(self):
+        return "T(%s)" % super().__str__()
+
+    def __repr__(self):
+        return "T(%s)" % super().__str__()
+
+
 def aslist(i, argname, allowed_types=list):
     if not i:
         return i if isinstance(i, allowed_types) else []

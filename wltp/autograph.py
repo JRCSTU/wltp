@@ -18,7 +18,7 @@ from boltons.iterutils import first
 from graphtik import optional, sideffect
 from graphtik.op import FunctionalOperation, reparse_operation_data
 
-from .utils import asdict, aslist, astuple
+from .utils import asdict, aslist, astuple, Token
 
 log = logging.getLogger(__name__)
 
@@ -237,7 +237,7 @@ class FnHarvester(Prefkey):
         return list(zip(*self.collected))[0]
 
 
-_unset = object()
+_unset = Token("unset")
 
 
 def autographed(
