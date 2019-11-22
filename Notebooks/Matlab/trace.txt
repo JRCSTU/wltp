@@ -1,0 +1,7016 @@
+   class,    t,     v
+ class 1,    0,   0.0
+ class 1,    1,   0.0
+ class 1,    2,   0.0
+ class 1,    3,   0.0
+ class 1,    4,   0.0
+ class 1,    5,   0.0
+ class 1,    6,   0.0
+ class 1,    7,   0.0
+ class 1,    8,   0.0
+ class 1,    9,   0.0
+ class 1,   10,   0.0
+ class 1,   11,   0.0
+ class 1,   12,   0.2
+ class 1,   13,   3.1
+ class 1,   14,   5.7
+ class 1,   15,   8.0
+ class 1,   16,  10.1
+ class 1,   17,  12.0
+ class 1,   18,  13.8
+ class 1,   19,  15.4
+ class 1,   20,  16.7
+ class 1,   21,  17.7
+ class 1,   22,  18.3
+ class 1,   23,  18.8
+ class 1,   24,  18.9
+ class 1,   25,  18.4
+ class 1,   26,  16.9
+ class 1,   27,  14.3
+ class 1,   28,  10.8
+ class 1,   29,   7.1
+ class 1,   30,   4.0
+ class 1,   31,   0.0
+ class 1,   32,   0.0
+ class 1,   33,   0.0
+ class 1,   34,   0.0
+ class 1,   35,   1.5
+ class 1,   36,   3.8
+ class 1,   37,   5.6
+ class 1,   38,   7.5
+ class 1,   39,   9.2
+ class 1,   40,  10.8
+ class 1,   41,  12.4
+ class 1,   42,  13.8
+ class 1,   43,  15.2
+ class 1,   44,  16.3
+ class 1,   45,  17.3
+ class 1,   46,  18.0
+ class 1,   47,  18.8
+ class 1,   48,  19.5
+ class 1,   49,  20.2
+ class 1,   50,  20.9
+ class 1,   51,  21.7
+ class 1,   52,  22.4
+ class 1,   53,  23.1
+ class 1,   54,  23.7
+ class 1,   55,  24.4
+ class 1,   56,  25.1
+ class 1,   57,  25.4
+ class 1,   58,  25.2
+ class 1,   59,  23.4
+ class 1,   60,  21.8
+ class 1,   61,  19.7
+ class 1,   62,  17.3
+ class 1,   63,  14.7
+ class 1,   64,  12.0
+ class 1,   65,   9.4
+ class 1,   66,   5.6
+ class 1,   67,   3.1
+ class 1,   68,   0.0
+ class 1,   69,   0.0
+ class 1,   70,   0.0
+ class 1,   71,   0.0
+ class 1,   72,   0.0
+ class 1,   73,   0.0
+ class 1,   74,   0.0
+ class 1,   75,   0.0
+ class 1,   76,   0.0
+ class 1,   77,   0.0
+ class 1,   78,   0.0
+ class 1,   79,   0.0
+ class 1,   80,   0.0
+ class 1,   81,   0.0
+ class 1,   82,   0.0
+ class 1,   83,   0.0
+ class 1,   84,   0.0
+ class 1,   85,   0.0
+ class 1,   86,   0.0
+ class 1,   87,   0.0
+ class 1,   88,   0.0
+ class 1,   89,   0.0
+ class 1,   90,   0.0
+ class 1,   91,   0.0
+ class 1,   92,   0.0
+ class 1,   93,   0.0
+ class 1,   94,   0.0
+ class 1,   95,   0.0
+ class 1,   96,   0.0
+ class 1,   97,   0.0
+ class 1,   98,   0.0
+ class 1,   99,   0.0
+ class 1,  100,   0.0
+ class 1,  101,   0.0
+ class 1,  102,   0.0
+ class 1,  103,   0.0
+ class 1,  104,   0.0
+ class 1,  105,   0.0
+ class 1,  106,   0.0
+ class 1,  107,   0.0
+ class 1,  108,   0.7
+ class 1,  109,   1.1
+ class 1,  110,   1.9
+ class 1,  111,   2.5
+ class 1,  112,   3.5
+ class 1,  113,   4.7
+ class 1,  114,   6.1
+ class 1,  115,   7.5
+ class 1,  116,   9.4
+ class 1,  117,  11.0
+ class 1,  118,  12.9
+ class 1,  119,  14.5
+ class 1,  120,  16.4
+ class 1,  121,  18.0
+ class 1,  122,  20.0
+ class 1,  123,  21.5
+ class 1,  124,  23.5
+ class 1,  125,  25.0
+ class 1,  126,  26.8
+ class 1,  127,  28.2
+ class 1,  128,  30.0
+ class 1,  129,  31.4
+ class 1,  130,  32.5
+ class 1,  131,  33.2
+ class 1,  132,  33.4
+ class 1,  133,  33.7
+ class 1,  134,  33.9
+ class 1,  135,  34.2
+ class 1,  136,  34.4
+ class 1,  137,  34.7
+ class 1,  138,  34.9
+ class 1,  139,  35.2
+ class 1,  140,  35.4
+ class 1,  141,  35.7
+ class 1,  142,  35.9
+ class 1,  143,  36.6
+ class 1,  144,  37.5
+ class 1,  145,  38.4
+ class 1,  146,  39.3
+ class 1,  147,  40.0
+ class 1,  148,  40.6
+ class 1,  149,  41.1
+ class 1,  150,  41.4
+ class 1,  151,  41.6
+ class 1,  152,  41.8
+ class 1,  153,  41.8
+ class 1,  154,  41.9
+ class 1,  155,  41.9
+ class 1,  156,  42.0
+ class 1,  157,  42.0
+ class 1,  158,  42.2
+ class 1,  159,  42.3
+ class 1,  160,  42.6
+ class 1,  161,  43.0
+ class 1,  162,  43.3
+ class 1,  163,  43.7
+ class 1,  164,  44.0
+ class 1,  165,  44.3
+ class 1,  166,  44.5
+ class 1,  167,  44.6
+ class 1,  168,  44.6
+ class 1,  169,  44.5
+ class 1,  170,  44.4
+ class 1,  171,  44.3
+ class 1,  172,  44.2
+ class 1,  173,  44.1
+ class 1,  174,  44.0
+ class 1,  175,  43.9
+ class 1,  176,  43.8
+ class 1,  177,  43.7
+ class 1,  178,  43.6
+ class 1,  179,  43.5
+ class 1,  180,  43.4
+ class 1,  181,  43.3
+ class 1,  182,  43.1
+ class 1,  183,  42.9
+ class 1,  184,  42.7
+ class 1,  185,  42.5
+ class 1,  186,  42.3
+ class 1,  187,  42.2
+ class 1,  188,  42.2
+ class 1,  189,  42.2
+ class 1,  190,  42.3
+ class 1,  191,  42.4
+ class 1,  192,  42.5
+ class 1,  193,  42.7
+ class 1,  194,  42.9
+ class 1,  195,  43.1
+ class 1,  196,  43.2
+ class 1,  197,  43.3
+ class 1,  198,  43.4
+ class 1,  199,  43.4
+ class 1,  200,  43.2
+ class 1,  201,  42.9
+ class 1,  202,  42.6
+ class 1,  203,  42.2
+ class 1,  204,  41.9
+ class 1,  205,  41.5
+ class 1,  206,  41.0
+ class 1,  207,  40.5
+ class 1,  208,  39.9
+ class 1,  209,  39.3
+ class 1,  210,  38.7
+ class 1,  211,  38.1
+ class 1,  212,  37.5
+ class 1,  213,  36.9
+ class 1,  214,  36.3
+ class 1,  215,  35.7
+ class 1,  216,  35.1
+ class 1,  217,  34.5
+ class 1,  218,  33.9
+ class 1,  219,  33.6
+ class 1,  220,  33.5
+ class 1,  221,  33.6
+ class 1,  222,  33.9
+ class 1,  223,  34.3
+ class 1,  224,  34.7
+ class 1,  225,  35.1
+ class 1,  226,  35.5
+ class 1,  227,  35.9
+ class 1,  228,  36.4
+ class 1,  229,  36.9
+ class 1,  230,  37.4
+ class 1,  231,  37.9
+ class 1,  232,  38.3
+ class 1,  233,  38.7
+ class 1,  234,  39.1
+ class 1,  235,  39.3
+ class 1,  236,  39.5
+ class 1,  237,  39.7
+ class 1,  238,  39.9
+ class 1,  239,  40.0
+ class 1,  240,  40.1
+ class 1,  241,  40.2
+ class 1,  242,  40.3
+ class 1,  243,  40.4
+ class 1,  244,  40.5
+ class 1,  245,  40.5
+ class 1,  246,  40.4
+ class 1,  247,  40.3
+ class 1,  248,  40.2
+ class 1,  249,  40.1
+ class 1,  250,  39.7
+ class 1,  251,  38.8
+ class 1,  252,  37.4
+ class 1,  253,  35.6
+ class 1,  254,  33.4
+ class 1,  255,  31.2
+ class 1,  256,  29.1
+ class 1,  257,  27.6
+ class 1,  258,  26.6
+ class 1,  259,  26.2
+ class 1,  260,  26.3
+ class 1,  261,  26.7
+ class 1,  262,  27.5
+ class 1,  263,  28.4
+ class 1,  264,  29.4
+ class 1,  265,  30.4
+ class 1,  266,  31.2
+ class 1,  267,  31.9
+ class 1,  268,  32.5
+ class 1,  269,  33.0
+ class 1,  270,  33.4
+ class 1,  271,  33.8
+ class 1,  272,  34.1
+ class 1,  273,  34.3
+ class 1,  274,  34.3
+ class 1,  275,  33.9
+ class 1,  276,  33.3
+ class 1,  277,  32.6
+ class 1,  278,  31.8
+ class 1,  279,  30.7
+ class 1,  280,  29.6
+ class 1,  281,  28.6
+ class 1,  282,  27.8
+ class 1,  283,  27.0
+ class 1,  284,  26.4
+ class 1,  285,  25.8
+ class 1,  286,  25.3
+ class 1,  287,  24.9
+ class 1,  288,  24.5
+ class 1,  289,  24.2
+ class 1,  290,  24.0
+ class 1,  291,  23.8
+ class 1,  292,  23.6
+ class 1,  293,  23.5
+ class 1,  294,  23.4
+ class 1,  295,  23.3
+ class 1,  296,  23.3
+ class 1,  297,  23.2
+ class 1,  298,  23.1
+ class 1,  299,  23.0
+ class 1,  300,  22.8
+ class 1,  301,  22.5
+ class 1,  302,  22.1
+ class 1,  303,  21.7
+ class 1,  304,  21.1
+ class 1,  305,  20.4
+ class 1,  306,  19.5
+ class 1,  307,  18.5
+ class 1,  308,  17.6
+ class 1,  309,  16.6
+ class 1,  310,  15.7
+ class 1,  311,  14.9
+ class 1,  312,  14.3
+ class 1,  313,  14.1
+ class 1,  314,  14.0
+ class 1,  315,  13.9
+ class 1,  316,  13.8
+ class 1,  317,  13.7
+ class 1,  318,  13.6
+ class 1,  319,  13.5
+ class 1,  320,  13.4
+ class 1,  321,  13.3
+ class 1,  322,  13.2
+ class 1,  323,  13.2
+ class 1,  324,  13.2
+ class 1,  325,  13.4
+ class 1,  326,  13.5
+ class 1,  327,  13.7
+ class 1,  328,  13.8
+ class 1,  329,  14.0
+ class 1,  330,  14.1
+ class 1,  331,  14.3
+ class 1,  332,  14.4
+ class 1,  333,  14.4
+ class 1,  334,  14.4
+ class 1,  335,  14.3
+ class 1,  336,  14.3
+ class 1,  337,  14.0
+ class 1,  338,  13.0
+ class 1,  339,  11.4
+ class 1,  340,  10.2
+ class 1,  341,   8.0
+ class 1,  342,   7.0
+ class 1,  343,   6.0
+ class 1,  344,   5.5
+ class 1,  345,   5.0
+ class 1,  346,   4.5
+ class 1,  347,   4.0
+ class 1,  348,   3.5
+ class 1,  349,   3.0
+ class 1,  350,   2.5
+ class 1,  351,   2.0
+ class 1,  352,   1.5
+ class 1,  353,   1.0
+ class 1,  354,   0.5
+ class 1,  355,   0.0
+ class 1,  356,   0.0
+ class 1,  357,   0.0
+ class 1,  358,   0.0
+ class 1,  359,   0.0
+ class 1,  360,   0.0
+ class 1,  361,   2.2
+ class 1,  362,   4.5
+ class 1,  363,   6.6
+ class 1,  364,   8.6
+ class 1,  365,  10.6
+ class 1,  366,  12.5
+ class 1,  367,  14.4
+ class 1,  368,  16.3
+ class 1,  369,  17.9
+ class 1,  370,  19.1
+ class 1,  371,  19.9
+ class 1,  372,  20.3
+ class 1,  373,  20.5
+ class 1,  374,  20.7
+ class 1,  375,  21.0
+ class 1,  376,  21.6
+ class 1,  377,  22.6
+ class 1,  378,  23.7
+ class 1,  379,  24.8
+ class 1,  380,  25.7
+ class 1,  381,  26.2
+ class 1,  382,  26.4
+ class 1,  383,  26.4
+ class 1,  384,  26.4
+ class 1,  385,  26.5
+ class 1,  386,  26.6
+ class 1,  387,  26.8
+ class 1,  388,  26.9
+ class 1,  389,  27.2
+ class 1,  390,  27.5
+ class 1,  391,  28.0
+ class 1,  392,  28.8
+ class 1,  393,  29.9
+ class 1,  394,  31.0
+ class 1,  395,  31.9
+ class 1,  396,  32.5
+ class 1,  397,  32.6
+ class 1,  398,  32.4
+ class 1,  399,  32.0
+ class 1,  400,  31.3
+ class 1,  401,  30.3
+ class 1,  402,  28.0
+ class 1,  403,  27.0
+ class 1,  404,  24.0
+ class 1,  405,  22.5
+ class 1,  406,  19.0
+ class 1,  407,  17.5
+ class 1,  408,  14.0
+ class 1,  409,  12.5
+ class 1,  410,   9.0
+ class 1,  411,   7.5
+ class 1,  412,   4.0
+ class 1,  413,   2.9
+ class 1,  414,   0.0
+ class 1,  415,   0.0
+ class 1,  416,   0.0
+ class 1,  417,   0.0
+ class 1,  418,   0.0
+ class 1,  419,   0.0
+ class 1,  420,   0.0
+ class 1,  421,   0.0
+ class 1,  422,   0.0
+ class 1,  423,   0.0
+ class 1,  424,   0.0
+ class 1,  425,   0.0
+ class 1,  426,   0.0
+ class 1,  427,   0.0
+ class 1,  428,   0.0
+ class 1,  429,   0.0
+ class 1,  430,   0.0
+ class 1,  431,   0.0
+ class 1,  432,   0.0
+ class 1,  433,   0.0
+ class 1,  434,   0.0
+ class 1,  435,   0.0
+ class 1,  436,   0.0
+ class 1,  437,   0.0
+ class 1,  438,   0.0
+ class 1,  439,   0.0
+ class 1,  440,   0.0
+ class 1,  441,   0.0
+ class 1,  442,   0.0
+ class 1,  443,   0.0
+ class 1,  444,   0.0
+ class 1,  445,   0.0
+ class 1,  446,   0.0
+ class 1,  447,   0.0
+ class 1,  448,   0.0
+ class 1,  449,   0.0
+ class 1,  450,   0.0
+ class 1,  451,   0.0
+ class 1,  452,   0.0
+ class 1,  453,   0.0
+ class 1,  454,   0.0
+ class 1,  455,   0.0
+ class 1,  456,   0.0
+ class 1,  457,   0.0
+ class 1,  458,   0.0
+ class 1,  459,   0.0
+ class 1,  460,   0.0
+ class 1,  461,   0.0
+ class 1,  462,   0.0
+ class 1,  463,   0.0
+ class 1,  464,   0.0
+ class 1,  465,   0.0
+ class 1,  466,   0.0
+ class 1,  467,   0.0
+ class 1,  468,   0.0
+ class 1,  469,   0.0
+ class 1,  470,   0.0
+ class 1,  471,   0.0
+ class 1,  472,   0.0
+ class 1,  473,   0.0
+ class 1,  474,   0.0
+ class 1,  475,   0.0
+ class 1,  476,   0.0
+ class 1,  477,   0.0
+ class 1,  478,   0.0
+ class 1,  479,   0.0
+ class 1,  480,   0.0
+ class 1,  481,   1.6
+ class 1,  482,   3.1
+ class 1,  483,   4.6
+ class 1,  484,   6.1
+ class 1,  485,   7.8
+ class 1,  486,   9.5
+ class 1,  487,  11.3
+ class 1,  488,  13.2
+ class 1,  489,  15.0
+ class 1,  490,  16.8
+ class 1,  491,  18.4
+ class 1,  492,  20.1
+ class 1,  493,  21.6
+ class 1,  494,  23.1
+ class 1,  495,  24.6
+ class 1,  496,  26.0
+ class 1,  497,  27.5
+ class 1,  498,  29.0
+ class 1,  499,  30.6
+ class 1,  500,  32.1
+ class 1,  501,  33.7
+ class 1,  502,  35.3
+ class 1,  503,  36.8
+ class 1,  504,  38.1
+ class 1,  505,  39.3
+ class 1,  506,  40.4
+ class 1,  507,  41.2
+ class 1,  508,  41.9
+ class 1,  509,  42.6
+ class 1,  510,  43.3
+ class 1,  511,  44.0
+ class 1,  512,  44.6
+ class 1,  513,  45.3
+ class 1,  514,  45.5
+ class 1,  515,  45.5
+ class 1,  516,  45.2
+ class 1,  517,  44.7
+ class 1,  518,  44.2
+ class 1,  519,  43.6
+ class 1,  520,  43.1
+ class 1,  521,  42.8
+ class 1,  522,  42.7
+ class 1,  523,  42.8
+ class 1,  524,  43.3
+ class 1,  525,  43.9
+ class 1,  526,  44.6
+ class 1,  527,  45.4
+ class 1,  528,  46.3
+ class 1,  529,  47.2
+ class 1,  530,  47.8
+ class 1,  531,  48.2
+ class 1,  532,  48.5
+ class 1,  533,  48.7
+ class 1,  534,  48.9
+ class 1,  535,  49.1
+ class 1,  536,  49.1
+ class 1,  537,  49.0
+ class 1,  538,  48.8
+ class 1,  539,  48.6
+ class 1,  540,  48.5
+ class 1,  541,  48.4
+ class 1,  542,  48.3
+ class 1,  543,  48.2
+ class 1,  544,  48.1
+ class 1,  545,  47.5
+ class 1,  546,  46.7
+ class 1,  547,  45.7
+ class 1,  548,  44.6
+ class 1,  549,  42.9
+ class 1,  550,  40.8
+ class 1,  551,  38.2
+ class 1,  552,  35.3
+ class 1,  553,  31.8
+ class 1,  554,  28.7
+ class 1,  555,  25.8
+ class 1,  556,  22.9
+ class 1,  557,  20.2
+ class 1,  558,  17.3
+ class 1,  559,  15.0
+ class 1,  560,  12.3
+ class 1,  561,  10.3
+ class 1,  562,   7.8
+ class 1,  563,   6.5
+ class 1,  564,   4.4
+ class 1,  565,   3.2
+ class 1,  566,   1.2
+ class 1,  567,   0.0
+ class 1,  568,   0.0
+ class 1,  569,   0.0
+ class 1,  570,   0.0
+ class 1,  571,   0.0
+ class 1,  572,   0.0
+ class 1,  573,   0.0
+ class 1,  574,   0.0
+ class 1,  575,   0.0
+ class 1,  576,   0.0
+ class 1,  577,   0.0
+ class 1,  578,   0.0
+ class 1,  579,   0.0
+ class 1,  580,   0.0
+ class 1,  581,   0.0
+ class 1,  582,   0.0
+ class 1,  583,   0.0
+ class 1,  584,   0.0
+ class 1,  585,   0.0
+ class 1,  586,   0.0
+ class 1,  587,   0.0
+ class 1,  588,   0.0
+ class 1,  589,   0.0
+ class 1,  590,   0.0
+ class 1,  591,   0.0
+ class 1,  592,   0.0
+ class 1,  593,   0.0
+ class 1,  594,   0.0
+ class 1,  595,   0.0
+ class 1,  596,   0.0
+ class 1,  597,   0.0
+ class 1,  598,   0.0
+ class 1,  599,   0.0
+ class 1,  600,   0.6
+ class 1,  601,   1.9
+ class 1,  602,   2.7
+ class 1,  603,   5.2
+ class 1,  604,   7.0
+ class 1,  605,   9.6
+ class 1,  606,  11.4
+ class 1,  607,  14.1
+ class 1,  608,  15.8
+ class 1,  609,  18.2
+ class 1,  610,  19.7
+ class 1,  611,  21.8
+ class 1,  612,  23.2
+ class 1,  613,  24.7
+ class 1,  614,  25.8
+ class 1,  615,  26.7
+ class 1,  616,  27.2
+ class 1,  617,  27.7
+ class 1,  618,  28.1
+ class 1,  619,  28.4
+ class 1,  620,  28.7
+ class 1,  621,  29.0
+ class 1,  622,  29.2
+ class 1,  623,  29.4
+ class 1,  624,  29.4
+ class 1,  625,  29.3
+ class 1,  626,  28.9
+ class 1,  627,  28.5
+ class 1,  628,  28.1
+ class 1,  629,  27.6
+ class 1,  630,  26.9
+ class 1,  631,  26.0
+ class 1,  632,  24.6
+ class 1,  633,  22.8
+ class 1,  634,  21.0
+ class 1,  635,  19.5
+ class 1,  636,  18.6
+ class 1,  637,  18.4
+ class 1,  638,  19.0
+ class 1,  639,  20.1
+ class 1,  640,  21.5
+ class 1,  641,  23.1
+ class 1,  642,  24.9
+ class 1,  643,  26.4
+ class 1,  644,  27.9
+ class 1,  645,  29.2
+ class 1,  646,  30.4
+ class 1,  647,  31.6
+ class 1,  648,  32.8
+ class 1,  649,  34.0
+ class 1,  650,  35.1
+ class 1,  651,  36.3
+ class 1,  652,  37.4
+ class 1,  653,  38.6
+ class 1,  654,  39.6
+ class 1,  655,  40.6
+ class 1,  656,  41.6
+ class 1,  657,  42.4
+ class 1,  658,  43.0
+ class 1,  659,  43.6
+ class 1,  660,  44.0
+ class 1,  661,  44.4
+ class 1,  662,  44.8
+ class 1,  663,  45.2
+ class 1,  664,  45.6
+ class 1,  665,  46.0
+ class 1,  666,  46.5
+ class 1,  667,  47.0
+ class 1,  668,  47.5
+ class 1,  669,  48.0
+ class 1,  670,  48.6
+ class 1,  671,  49.1
+ class 1,  672,  49.7
+ class 1,  673,  50.2
+ class 1,  674,  50.8
+ class 1,  675,  51.3
+ class 1,  676,  51.8
+ class 1,  677,  52.3
+ class 1,  678,  52.9
+ class 1,  679,  53.4
+ class 1,  680,  54.0
+ class 1,  681,  54.5
+ class 1,  682,  55.1
+ class 1,  683,  55.6
+ class 1,  684,  56.2
+ class 1,  685,  56.7
+ class 1,  686,  57.3
+ class 1,  687,  57.9
+ class 1,  688,  58.4
+ class 1,  689,  58.8
+ class 1,  690,  58.9
+ class 1,  691,  58.4
+ class 1,  692,  58.1
+ class 1,  693,  57.6
+ class 1,  694,  56.9
+ class 1,  695,  56.3
+ class 1,  696,  55.7
+ class 1,  697,  55.3
+ class 1,  698,  55.0
+ class 1,  699,  54.7
+ class 1,  700,  54.5
+ class 1,  701,  54.4
+ class 1,  702,  54.3
+ class 1,  703,  54.2
+ class 1,  704,  54.1
+ class 1,  705,  53.8
+ class 1,  706,  53.5
+ class 1,  707,  53.0
+ class 1,  708,  52.6
+ class 1,  709,  52.2
+ class 1,  710,  51.9
+ class 1,  711,  51.7
+ class 1,  712,  51.7
+ class 1,  713,  51.8
+ class 1,  714,  52.0
+ class 1,  715,  52.3
+ class 1,  716,  52.6
+ class 1,  717,  52.9
+ class 1,  718,  53.1
+ class 1,  719,  53.2
+ class 1,  720,  53.3
+ class 1,  721,  53.3
+ class 1,  722,  53.4
+ class 1,  723,  53.5
+ class 1,  724,  53.7
+ class 1,  725,  54.0
+ class 1,  726,  54.4
+ class 1,  727,  54.9
+ class 1,  728,  55.6
+ class 1,  729,  56.3
+ class 1,  730,  57.1
+ class 1,  731,  57.9
+ class 1,  732,  58.8
+ class 1,  733,  59.6
+ class 1,  734,  60.3
+ class 1,  735,  60.9
+ class 1,  736,  61.3
+ class 1,  737,  61.7
+ class 1,  738,  61.8
+ class 1,  739,  61.8
+ class 1,  740,  61.6
+ class 1,  741,  61.2
+ class 1,  742,  60.8
+ class 1,  743,  60.4
+ class 1,  744,  59.9
+ class 1,  745,  59.4
+ class 1,  746,  58.9
+ class 1,  747,  58.6
+ class 1,  748,  58.2
+ class 1,  749,  57.9
+ class 1,  750,  57.7
+ class 1,  751,  57.5
+ class 1,  752,  57.2
+ class 1,  753,  57.0
+ class 1,  754,  56.8
+ class 1,  755,  56.6
+ class 1,  756,  56.6
+ class 1,  757,  56.7
+ class 1,  758,  57.1
+ class 1,  759,  57.6
+ class 1,  760,  58.2
+ class 1,  761,  59.0
+ class 1,  762,  59.8
+ class 1,  763,  60.6
+ class 1,  764,  61.4
+ class 1,  765,  62.2
+ class 1,  766,  62.9
+ class 1,  767,  63.5
+ class 1,  768,  64.2
+ class 1,  769,  64.4
+ class 1,  770,  64.4
+ class 1,  771,  64.0
+ class 1,  772,  63.5
+ class 1,  773,  62.9
+ class 1,  774,  62.4
+ class 1,  775,  62.0
+ class 1,  776,  61.6
+ class 1,  777,  61.4
+ class 1,  778,  61.2
+ class 1,  779,  61.0
+ class 1,  780,  60.7
+ class 1,  781,  60.2
+ class 1,  782,  59.6
+ class 1,  783,  58.9
+ class 1,  784,  58.1
+ class 1,  785,  57.2
+ class 1,  786,  56.3
+ class 1,  787,  55.3
+ class 1,  788,  54.4
+ class 1,  789,  53.4
+ class 1,  790,  52.4
+ class 1,  791,  51.4
+ class 1,  792,  50.4
+ class 1,  793,  49.4
+ class 1,  794,  48.5
+ class 1,  795,  47.5
+ class 1,  796,  46.5
+ class 1,  797,  45.4
+ class 1,  798,  44.3
+ class 1,  799,  43.1
+ class 1,  800,  42.0
+ class 1,  801,  40.8
+ class 1,  802,  39.7
+ class 1,  803,  38.8
+ class 1,  804,  38.1
+ class 1,  805,  37.4
+ class 1,  806,  37.1
+ class 1,  807,  36.9
+ class 1,  808,  37.0
+ class 1,  809,  37.5
+ class 1,  810,  37.8
+ class 1,  811,  38.2
+ class 1,  812,  38.6
+ class 1,  813,  39.1
+ class 1,  814,  39.6
+ class 1,  815,  40.1
+ class 1,  816,  40.7
+ class 1,  817,  41.3
+ class 1,  818,  41.9
+ class 1,  819,  42.7
+ class 1,  820,  43.4
+ class 1,  821,  44.2
+ class 1,  822,  45.0
+ class 1,  823,  45.9
+ class 1,  824,  46.8
+ class 1,  825,  47.7
+ class 1,  826,  48.7
+ class 1,  827,  49.7
+ class 1,  828,  50.6
+ class 1,  829,  51.6
+ class 1,  830,  52.5
+ class 1,  831,  53.3
+ class 1,  832,  54.1
+ class 1,  833,  54.7
+ class 1,  834,  55.3
+ class 1,  835,  55.7
+ class 1,  836,  56.1
+ class 1,  837,  56.4
+ class 1,  838,  56.7
+ class 1,  839,  57.1
+ class 1,  840,  57.5
+ class 1,  841,  58.0
+ class 1,  842,  58.7
+ class 1,  843,  59.3
+ class 1,  844,  60.0
+ class 1,  845,  60.6
+ class 1,  846,  61.3
+ class 1,  847,  61.5
+ class 1,  848,  61.5
+ class 1,  849,  61.4
+ class 1,  850,  61.2
+ class 1,  851,  60.5
+ class 1,  852,  60.0
+ class 1,  853,  59.5
+ class 1,  854,  58.9
+ class 1,  855,  58.4
+ class 1,  856,  57.9
+ class 1,  857,  57.5
+ class 1,  858,  57.1
+ class 1,  859,  56.7
+ class 1,  860,  56.4
+ class 1,  861,  56.1
+ class 1,  862,  55.8
+ class 1,  863,  55.5
+ class 1,  864,  55.3
+ class 1,  865,  55.0
+ class 1,  866,  54.7
+ class 1,  867,  54.4
+ class 1,  868,  54.2
+ class 1,  869,  54.0
+ class 1,  870,  53.9
+ class 1,  871,  53.7
+ class 1,  872,  53.6
+ class 1,  873,  53.5
+ class 1,  874,  53.4
+ class 1,  875,  53.3
+ class 1,  876,  53.2
+ class 1,  877,  53.1
+ class 1,  878,  53.0
+ class 1,  879,  53.0
+ class 1,  880,  53.0
+ class 1,  881,  53.0
+ class 1,  882,  53.0
+ class 1,  883,  53.0
+ class 1,  884,  52.8
+ class 1,  885,  52.5
+ class 1,  886,  51.9
+ class 1,  887,  51.1
+ class 1,  888,  50.2
+ class 1,  889,  49.2
+ class 1,  890,  48.2
+ class 1,  891,  47.3
+ class 1,  892,  46.4
+ class 1,  893,  45.6
+ class 1,  894,  45.0
+ class 1,  895,  44.3
+ class 1,  896,  43.8
+ class 1,  897,  43.3
+ class 1,  898,  42.8
+ class 1,  899,  42.4
+ class 1,  900,  42.0
+ class 1,  901,  41.6
+ class 1,  902,  41.1
+ class 1,  903,  40.3
+ class 1,  904,  39.5
+ class 1,  905,  38.6
+ class 1,  906,  37.7
+ class 1,  907,  36.7
+ class 1,  908,  36.2
+ class 1,  909,  36.0
+ class 1,  910,  36.2
+ class 1,  911,  37.0
+ class 1,  912,  38.0
+ class 1,  913,  39.0
+ class 1,  914,  39.7
+ class 1,  915,  40.2
+ class 1,  916,  40.7
+ class 1,  917,  41.2
+ class 1,  918,  41.7
+ class 1,  919,  42.2
+ class 1,  920,  42.7
+ class 1,  921,  43.2
+ class 1,  922,  43.6
+ class 1,  923,  44.0
+ class 1,  924,  44.2
+ class 1,  925,  44.4
+ class 1,  926,  44.5
+ class 1,  927,  44.6
+ class 1,  928,  44.7
+ class 1,  929,  44.6
+ class 1,  930,  44.5
+ class 1,  931,  44.4
+ class 1,  932,  44.2
+ class 1,  933,  44.1
+ class 1,  934,  43.7
+ class 1,  935,  43.3
+ class 1,  936,  42.8
+ class 1,  937,  42.3
+ class 1,  938,  41.6
+ class 1,  939,  40.7
+ class 1,  940,  39.8
+ class 1,  941,  38.8
+ class 1,  942,  37.8
+ class 1,  943,  36.9
+ class 1,  944,  36.1
+ class 1,  945,  35.5
+ class 1,  946,  35.0
+ class 1,  947,  34.7
+ class 1,  948,  34.4
+ class 1,  949,  34.1
+ class 1,  950,  33.9
+ class 1,  951,  33.6
+ class 1,  952,  33.3
+ class 1,  953,  33.0
+ class 1,  954,  32.7
+ class 1,  955,  32.3
+ class 1,  956,  31.9
+ class 1,  957,  31.5
+ class 1,  958,  31.0
+ class 1,  959,  30.6
+ class 1,  960,  30.2
+ class 1,  961,  29.7
+ class 1,  962,  29.1
+ class 1,  963,  28.4
+ class 1,  964,  27.6
+ class 1,  965,  26.8
+ class 1,  966,  26.0
+ class 1,  967,  25.1
+ class 1,  968,  24.2
+ class 1,  969,  23.3
+ class 1,  970,  22.4
+ class 1,  971,  21.5
+ class 1,  972,  20.6
+ class 1,  973,  19.7
+ class 1,  974,  18.8
+ class 1,  975,  17.7
+ class 1,  976,  16.4
+ class 1,  977,  14.9
+ class 1,  978,  13.2
+ class 1,  979,  11.3
+ class 1,  980,   9.4
+ class 1,  981,   7.5
+ class 1,  982,   5.6
+ class 1,  983,   3.7
+ class 1,  984,   1.9
+ class 1,  985,   1.0
+ class 1,  986,   0.0
+ class 1,  987,   0.0
+ class 1,  988,   0.0
+ class 1,  989,   0.0
+ class 1,  990,   0.0
+ class 1,  991,   0.0
+ class 1,  992,   0.0
+ class 1,  993,   0.0
+ class 1,  994,   0.0
+ class 1,  995,   0.0
+ class 1,  996,   0.0
+ class 1,  997,   0.0
+ class 1,  998,   0.0
+ class 1,  999,   0.0
+ class 1, 1000,   0.0
+ class 1, 1001,   0.0
+ class 1, 1002,   0.0
+ class 1, 1003,   0.0
+ class 1, 1004,   0.0
+ class 1, 1005,   0.0
+ class 1, 1006,   0.0
+ class 1, 1007,   0.0
+ class 1, 1008,   0.0
+ class 1, 1009,   0.0
+ class 1, 1010,   0.0
+ class 1, 1011,   0.0
+ class 1, 1012,   0.0
+ class 1, 1013,   0.0
+ class 1, 1014,   0.0
+ class 1, 1015,   0.0
+ class 1, 1016,   0.0
+ class 1, 1017,   0.0
+ class 1, 1018,   0.0
+ class 1, 1019,   0.0
+ class 1, 1020,   0.0
+ class 1, 1021,   0.0
+ class 1, 1022,   0.0
+ class 1, 1023,   0.0
+ class 1, 1024,   0.0
+ class 1, 1025,   0.0
+ class 1, 1026,   0.0
+ class 1, 1027,   0.0
+ class 1, 1028,   0.0
+ class 1, 1029,   0.0
+ class 1, 1030,   0.0
+ class 1, 1031,   0.0
+ class 1, 1032,   0.0
+ class 1, 1033,   0.0
+ class 1, 1034,   0.2
+ class 1, 1035,   3.1
+ class 1, 1036,   5.7
+ class 1, 1037,   8.0
+ class 1, 1038,  10.1
+ class 1, 1039,  12.0
+ class 1, 1040,  13.8
+ class 1, 1041,  15.4
+ class 1, 1042,  16.7
+ class 1, 1043,  17.7
+ class 1, 1044,  18.3
+ class 1, 1045,  18.8
+ class 1, 1046,  18.9
+ class 1, 1047,  18.4
+ class 1, 1048,  16.9
+ class 1, 1049,  14.3
+ class 1, 1050,  10.8
+ class 1, 1051,   7.1
+ class 1, 1052,   4.0
+ class 1, 1053,   0.0
+ class 1, 1054,   0.0
+ class 1, 1055,   0.0
+ class 1, 1056,   0.0
+ class 1, 1057,   1.5
+ class 1, 1058,   3.8
+ class 1, 1059,   5.6
+ class 1, 1060,   7.5
+ class 1, 1061,   9.2
+ class 1, 1062,  10.8
+ class 1, 1063,  12.4
+ class 1, 1064,  13.8
+ class 1, 1065,  15.2
+ class 1, 1066,  16.3
+ class 1, 1067,  17.3
+ class 1, 1068,  18.0
+ class 1, 1069,  18.8
+ class 1, 1070,  19.5
+ class 1, 1071,  20.2
+ class 1, 1072,  20.9
+ class 1, 1073,  21.7
+ class 1, 1074,  22.4
+ class 1, 1075,  23.1
+ class 1, 1076,  23.7
+ class 1, 1077,  24.4
+ class 1, 1078,  25.1
+ class 1, 1079,  25.4
+ class 1, 1080,  25.2
+ class 1, 1081,  23.4
+ class 1, 1082,  21.8
+ class 1, 1083,  19.7
+ class 1, 1084,  17.3
+ class 1, 1085,  14.7
+ class 1, 1086,  12.0
+ class 1, 1087,   9.4
+ class 1, 1088,   5.6
+ class 1, 1089,   3.1
+ class 1, 1090,   0.0
+ class 1, 1091,   0.0
+ class 1, 1092,   0.0
+ class 1, 1093,   0.0
+ class 1, 1094,   0.0
+ class 1, 1095,   0.0
+ class 1, 1096,   0.0
+ class 1, 1097,   0.0
+ class 1, 1098,   0.0
+ class 1, 1099,   0.0
+ class 1, 1100,   0.0
+ class 1, 1101,   0.0
+ class 1, 1102,   0.0
+ class 1, 1103,   0.0
+ class 1, 1104,   0.0
+ class 1, 1105,   0.0
+ class 1, 1106,   0.0
+ class 1, 1107,   0.0
+ class 1, 1108,   0.0
+ class 1, 1109,   0.0
+ class 1, 1110,   0.0
+ class 1, 1111,   0.0
+ class 1, 1112,   0.0
+ class 1, 1113,   0.0
+ class 1, 1114,   0.0
+ class 1, 1115,   0.0
+ class 1, 1116,   0.0
+ class 1, 1117,   0.0
+ class 1, 1118,   0.0
+ class 1, 1119,   0.0
+ class 1, 1120,   0.0
+ class 1, 1121,   0.0
+ class 1, 1122,   0.0
+ class 1, 1123,   0.0
+ class 1, 1124,   0.0
+ class 1, 1125,   0.0
+ class 1, 1126,   0.0
+ class 1, 1127,   0.0
+ class 1, 1128,   0.0
+ class 1, 1129,   0.0
+ class 1, 1130,   0.7
+ class 1, 1131,   1.1
+ class 1, 1132,   1.9
+ class 1, 1133,   2.5
+ class 1, 1134,   3.5
+ class 1, 1135,   4.7
+ class 1, 1136,   6.1
+ class 1, 1137,   7.5
+ class 1, 1138,   9.4
+ class 1, 1139,  11.0
+ class 1, 1140,  12.9
+ class 1, 1141,  14.5
+ class 1, 1142,  16.4
+ class 1, 1143,  18.0
+ class 1, 1144,  20.0
+ class 1, 1145,  21.5
+ class 1, 1146,  23.5
+ class 1, 1147,  25.0
+ class 1, 1148,  26.8
+ class 1, 1149,  28.2
+ class 1, 1150,  30.0
+ class 1, 1151,  31.4
+ class 1, 1152,  32.5
+ class 1, 1153,  33.2
+ class 1, 1154,  33.4
+ class 1, 1155,  33.7
+ class 1, 1156,  33.9
+ class 1, 1157,  34.2
+ class 1, 1158,  34.4
+ class 1, 1159,  34.7
+ class 1, 1160,  34.9
+ class 1, 1161,  35.2
+ class 1, 1162,  35.4
+ class 1, 1163,  35.7
+ class 1, 1164,  35.9
+ class 1, 1165,  36.6
+ class 1, 1166,  37.5
+ class 1, 1167,  38.4
+ class 1, 1168,  39.3
+ class 1, 1169,  40.0
+ class 1, 1170,  40.6
+ class 1, 1171,  41.1
+ class 1, 1172,  41.4
+ class 1, 1173,  41.6
+ class 1, 1174,  41.8
+ class 1, 1175,  41.8
+ class 1, 1176,  41.9
+ class 1, 1177,  41.9
+ class 1, 1178,  42.0
+ class 1, 1179,  42.0
+ class 1, 1180,  42.2
+ class 1, 1181,  42.3
+ class 1, 1182,  42.6
+ class 1, 1183,  43.0
+ class 1, 1184,  43.3
+ class 1, 1185,  43.7
+ class 1, 1186,  44.0
+ class 1, 1187,  44.3
+ class 1, 1188,  44.5
+ class 1, 1189,  44.6
+ class 1, 1190,  44.6
+ class 1, 1191,  44.5
+ class 1, 1192,  44.4
+ class 1, 1193,  44.3
+ class 1, 1194,  44.2
+ class 1, 1195,  44.1
+ class 1, 1196,  44.0
+ class 1, 1197,  43.9
+ class 1, 1198,  43.8
+ class 1, 1199,  43.7
+ class 1, 1200,  43.6
+ class 1, 1201,  43.5
+ class 1, 1202,  43.4
+ class 1, 1203,  43.3
+ class 1, 1204,  43.1
+ class 1, 1205,  42.9
+ class 1, 1206,  42.7
+ class 1, 1207,  42.5
+ class 1, 1208,  42.3
+ class 1, 1209,  42.2
+ class 1, 1210,  42.2
+ class 1, 1211,  42.2
+ class 1, 1212,  42.3
+ class 1, 1213,  42.4
+ class 1, 1214,  42.5
+ class 1, 1215,  42.7
+ class 1, 1216,  42.9
+ class 1, 1217,  43.1
+ class 1, 1218,  43.2
+ class 1, 1219,  43.3
+ class 1, 1220,  43.4
+ class 1, 1221,  43.4
+ class 1, 1222,  43.2
+ class 1, 1223,  42.9
+ class 1, 1224,  42.6
+ class 1, 1225,  42.2
+ class 1, 1226,  41.9
+ class 1, 1227,  41.5
+ class 1, 1228,  41.0
+ class 1, 1229,  40.5
+ class 1, 1230,  39.9
+ class 1, 1231,  39.3
+ class 1, 1232,  38.7
+ class 1, 1233,  38.1
+ class 1, 1234,  37.5
+ class 1, 1235,  36.9
+ class 1, 1236,  36.3
+ class 1, 1237,  35.7
+ class 1, 1238,  35.1
+ class 1, 1239,  34.5
+ class 1, 1240,  33.9
+ class 1, 1241,  33.6
+ class 1, 1242,  33.5
+ class 1, 1243,  33.6
+ class 1, 1244,  33.9
+ class 1, 1245,  34.3
+ class 1, 1246,  34.7
+ class 1, 1247,  35.1
+ class 1, 1248,  35.5
+ class 1, 1249,  35.9
+ class 1, 1250,  36.4
+ class 1, 1251,  36.9
+ class 1, 1252,  37.4
+ class 1, 1253,  37.9
+ class 1, 1254,  38.3
+ class 1, 1255,  38.7
+ class 1, 1256,  39.1
+ class 1, 1257,  39.3
+ class 1, 1258,  39.5
+ class 1, 1259,  39.7
+ class 1, 1260,  39.9
+ class 1, 1261,  40.0
+ class 1, 1262,  40.1
+ class 1, 1263,  40.2
+ class 1, 1264,  40.3
+ class 1, 1265,  40.4
+ class 1, 1266,  40.5
+ class 1, 1267,  40.5
+ class 1, 1268,  40.4
+ class 1, 1269,  40.3
+ class 1, 1270,  40.2
+ class 1, 1271,  40.1
+ class 1, 1272,  39.7
+ class 1, 1273,  38.8
+ class 1, 1274,  37.4
+ class 1, 1275,  35.6
+ class 1, 1276,  33.4
+ class 1, 1277,  31.2
+ class 1, 1278,  29.1
+ class 1, 1279,  27.6
+ class 1, 1280,  26.6
+ class 1, 1281,  26.2
+ class 1, 1282,  26.3
+ class 1, 1283,  26.7
+ class 1, 1284,  27.5
+ class 1, 1285,  28.4
+ class 1, 1286,  29.4
+ class 1, 1287,  30.4
+ class 1, 1288,  31.2
+ class 1, 1289,  31.9
+ class 1, 1290,  32.5
+ class 1, 1291,  33.0
+ class 1, 1292,  33.4
+ class 1, 1293,  33.8
+ class 1, 1294,  34.1
+ class 1, 1295,  34.3
+ class 1, 1296,  34.3
+ class 1, 1297,  33.9
+ class 1, 1298,  33.3
+ class 1, 1299,  32.6
+ class 1, 1300,  31.8
+ class 1, 1301,  30.7
+ class 1, 1302,  29.6
+ class 1, 1303,  28.6
+ class 1, 1304,  27.8
+ class 1, 1305,  27.0
+ class 1, 1306,  26.4
+ class 1, 1307,  25.8
+ class 1, 1308,  25.3
+ class 1, 1309,  24.9
+ class 1, 1310,  24.5
+ class 1, 1311,  24.2
+ class 1, 1312,  24.0
+ class 1, 1313,  23.8
+ class 1, 1314,  23.6
+ class 1, 1315,  23.5
+ class 1, 1316,  23.4
+ class 1, 1317,  23.3
+ class 1, 1318,  23.3
+ class 1, 1319,  23.2
+ class 1, 1320,  23.1
+ class 1, 1321,  23.0
+ class 1, 1322,  22.8
+ class 1, 1323,  22.5
+ class 1, 1324,  22.1
+ class 1, 1325,  21.7
+ class 1, 1326,  21.1
+ class 1, 1327,  20.4
+ class 1, 1328,  19.5
+ class 1, 1329,  18.5
+ class 1, 1330,  17.6
+ class 1, 1331,  16.6
+ class 1, 1332,  15.7
+ class 1, 1333,  14.9
+ class 1, 1334,  14.3
+ class 1, 1335,  14.1
+ class 1, 1336,  14.0
+ class 1, 1337,  13.9
+ class 1, 1338,  13.8
+ class 1, 1339,  13.7
+ class 1, 1340,  13.6
+ class 1, 1341,  13.5
+ class 1, 1342,  13.4
+ class 1, 1343,  13.3
+ class 1, 1344,  13.2
+ class 1, 1345,  13.2
+ class 1, 1346,  13.2
+ class 1, 1347,  13.4
+ class 1, 1348,  13.5
+ class 1, 1349,  13.7
+ class 1, 1350,  13.8
+ class 1, 1351,  14.0
+ class 1, 1352,  14.1
+ class 1, 1353,  14.3
+ class 1, 1354,  14.4
+ class 1, 1355,  14.4
+ class 1, 1356,  14.4
+ class 1, 1357,  14.3
+ class 1, 1358,  14.3
+ class 1, 1359,  14.0
+ class 1, 1360,  13.0
+ class 1, 1361,  11.4
+ class 1, 1362,  10.2
+ class 1, 1363,   8.0
+ class 1, 1364,   7.0
+ class 1, 1365,   6.0
+ class 1, 1366,   5.5
+ class 1, 1367,   5.0
+ class 1, 1368,   4.5
+ class 1, 1369,   4.0
+ class 1, 1370,   3.5
+ class 1, 1371,   3.0
+ class 1, 1372,   2.5
+ class 1, 1373,   2.0
+ class 1, 1374,   1.5
+ class 1, 1375,   1.0
+ class 1, 1376,   0.5
+ class 1, 1377,   0.0
+ class 1, 1378,   0.0
+ class 1, 1379,   0.0
+ class 1, 1380,   0.0
+ class 1, 1381,   0.0
+ class 1, 1382,   0.0
+ class 1, 1383,   2.2
+ class 1, 1384,   4.5
+ class 1, 1385,   6.6
+ class 1, 1386,   8.6
+ class 1, 1387,  10.6
+ class 1, 1388,  12.5
+ class 1, 1389,  14.4
+ class 1, 1390,  16.3
+ class 1, 1391,  17.9
+ class 1, 1392,  19.1
+ class 1, 1393,  19.9
+ class 1, 1394,  20.3
+ class 1, 1395,  20.5
+ class 1, 1396,  20.7
+ class 1, 1397,  21.0
+ class 1, 1398,  21.6
+ class 1, 1399,  22.6
+ class 1, 1400,  23.7
+ class 1, 1401,  24.8
+ class 1, 1402,  25.7
+ class 1, 1403,  26.2
+ class 1, 1404,  26.4
+ class 1, 1405,  26.4
+ class 1, 1406,  26.4
+ class 1, 1407,  26.5
+ class 1, 1408,  26.6
+ class 1, 1409,  26.8
+ class 1, 1410,  26.9
+ class 1, 1411,  27.2
+ class 1, 1412,  27.5
+ class 1, 1413,  28.0
+ class 1, 1414,  28.8
+ class 1, 1415,  29.9
+ class 1, 1416,  31.0
+ class 1, 1417,  31.9
+ class 1, 1418,  32.5
+ class 1, 1419,  32.6
+ class 1, 1420,  32.4
+ class 1, 1421,  32.0
+ class 1, 1422,  31.3
+ class 1, 1423,  30.3
+ class 1, 1424,  28.0
+ class 1, 1425,  27.0
+ class 1, 1426,  24.0
+ class 1, 1427,  22.5
+ class 1, 1428,  19.0
+ class 1, 1429,  17.5
+ class 1, 1430,  14.0
+ class 1, 1431,  12.5
+ class 1, 1432,   9.0
+ class 1, 1433,   7.5
+ class 1, 1434,   4.0
+ class 1, 1435,   2.9
+ class 1, 1436,   0.0
+ class 1, 1437,   0.0
+ class 1, 1438,   0.0
+ class 1, 1439,   0.0
+ class 1, 1440,   0.0
+ class 1, 1441,   0.0
+ class 1, 1442,   0.0
+ class 1, 1443,   0.0
+ class 1, 1444,   0.0
+ class 1, 1445,   0.0
+ class 1, 1446,   0.0
+ class 1, 1447,   0.0
+ class 1, 1448,   0.0
+ class 1, 1449,   0.0
+ class 1, 1450,   0.0
+ class 1, 1451,   0.0
+ class 1, 1452,   0.0
+ class 1, 1453,   0.0
+ class 1, 1454,   0.0
+ class 1, 1455,   0.0
+ class 1, 1456,   0.0
+ class 1, 1457,   0.0
+ class 1, 1458,   0.0
+ class 1, 1459,   0.0
+ class 1, 1460,   0.0
+ class 1, 1461,   0.0
+ class 1, 1462,   0.0
+ class 1, 1463,   0.0
+ class 1, 1464,   0.0
+ class 1, 1465,   0.0
+ class 1, 1466,   0.0
+ class 1, 1467,   0.0
+ class 1, 1468,   0.0
+ class 1, 1469,   0.0
+ class 1, 1470,   0.0
+ class 1, 1471,   0.0
+ class 1, 1472,   0.0
+ class 1, 1473,   0.0
+ class 1, 1474,   0.0
+ class 1, 1475,   0.0
+ class 1, 1476,   0.0
+ class 1, 1477,   0.0
+ class 1, 1478,   0.0
+ class 1, 1479,   0.0
+ class 1, 1480,   0.0
+ class 1, 1481,   0.0
+ class 1, 1482,   0.0
+ class 1, 1483,   0.0
+ class 1, 1484,   0.0
+ class 1, 1485,   0.0
+ class 1, 1486,   0.0
+ class 1, 1487,   0.0
+ class 1, 1488,   0.0
+ class 1, 1489,   0.0
+ class 1, 1490,   0.0
+ class 1, 1491,   0.0
+ class 1, 1492,   0.0
+ class 1, 1493,   0.0
+ class 1, 1494,   0.0
+ class 1, 1495,   0.0
+ class 1, 1496,   0.0
+ class 1, 1497,   0.0
+ class 1, 1498,   0.0
+ class 1, 1499,   0.0
+ class 1, 1500,   0.0
+ class 1, 1501,   0.0
+ class 1, 1502,   0.0
+ class 1, 1503,   1.6
+ class 1, 1504,   3.1
+ class 1, 1505,   4.6
+ class 1, 1506,   6.1
+ class 1, 1507,   7.8
+ class 1, 1508,   9.5
+ class 1, 1509,  11.3
+ class 1, 1510,  13.2
+ class 1, 1511,  15.0
+ class 1, 1512,  16.8
+ class 1, 1513,  18.4
+ class 1, 1514,  20.1
+ class 1, 1515,  21.6
+ class 1, 1516,  23.1
+ class 1, 1517,  24.6
+ class 1, 1518,  26.0
+ class 1, 1519,  27.5
+ class 1, 1520,  29.0
+ class 1, 1521,  30.6
+ class 1, 1522,  32.1
+ class 1, 1523,  33.7
+ class 1, 1524,  35.3
+ class 1, 1525,  36.8
+ class 1, 1526,  38.1
+ class 1, 1527,  39.3
+ class 1, 1528,  40.4
+ class 1, 1529,  41.2
+ class 1, 1530,  41.9
+ class 1, 1531,  42.6
+ class 1, 1532,  43.3
+ class 1, 1533,  44.0
+ class 1, 1534,  44.6
+ class 1, 1535,  45.3
+ class 1, 1536,  45.5
+ class 1, 1537,  45.5
+ class 1, 1538,  45.2
+ class 1, 1539,  44.7
+ class 1, 1540,  44.2
+ class 1, 1541,  43.6
+ class 1, 1542,  43.1
+ class 1, 1543,  42.8
+ class 1, 1544,  42.7
+ class 1, 1545,  42.8
+ class 1, 1546,  43.3
+ class 1, 1547,  43.9
+ class 1, 1548,  44.6
+ class 1, 1549,  45.4
+ class 1, 1550,  46.3
+ class 1, 1551,  47.2
+ class 1, 1552,  47.8
+ class 1, 1553,  48.2
+ class 1, 1554,  48.5
+ class 1, 1555,  48.7
+ class 1, 1556,  48.9
+ class 1, 1557,  49.1
+ class 1, 1558,  49.1
+ class 1, 1559,  49.0
+ class 1, 1560,  48.8
+ class 1, 1561,  48.6
+ class 1, 1562,  48.5
+ class 1, 1563,  48.4
+ class 1, 1564,  48.3
+ class 1, 1565,  48.2
+ class 1, 1566,  48.1
+ class 1, 1567,  47.5
+ class 1, 1568,  46.7
+ class 1, 1569,  45.7
+ class 1, 1570,  44.6
+ class 1, 1571,  42.9
+ class 1, 1572,  40.8
+ class 1, 1573,  38.2
+ class 1, 1574,  35.3
+ class 1, 1575,  31.8
+ class 1, 1576,  28.7
+ class 1, 1577,  25.8
+ class 1, 1578,  22.9
+ class 1, 1579,  20.2
+ class 1, 1580,  17.3
+ class 1, 1581,  15.0
+ class 1, 1582,  12.3
+ class 1, 1583,  10.3
+ class 1, 1584,   7.8
+ class 1, 1585,   6.5
+ class 1, 1586,   4.4
+ class 1, 1587,   3.2
+ class 1, 1588,   1.2
+ class 1, 1589,   0.0
+ class 1, 1590,   0.0
+ class 1, 1591,   0.0
+ class 1, 1592,   0.0
+ class 1, 1593,   0.0
+ class 1, 1594,   0.0
+ class 1, 1595,   0.0
+ class 1, 1596,   0.0
+ class 1, 1597,   0.0
+ class 1, 1598,   0.0
+ class 1, 1599,   0.0
+ class 1, 1600,   0.0
+ class 1, 1601,   0.0
+ class 1, 1602,   0.0
+ class 1, 1603,   0.0
+ class 1, 1604,   0.0
+ class 1, 1605,   0.0
+ class 1, 1606,   0.0
+ class 1, 1607,   0.0
+ class 1, 1608,   0.0
+ class 1, 1609,   0.0
+ class 1, 1610,   0.0
+ class 1, 1611,   0.0
+ class 2,    0,   0.0
+ class 2,    1,   0.0
+ class 2,    2,   0.0
+ class 2,    3,   0.0
+ class 2,    4,   0.0
+ class 2,    5,   0.0
+ class 2,    6,   0.0
+ class 2,    7,   0.0
+ class 2,    8,   0.0
+ class 2,    9,   0.0
+ class 2,   10,   0.0
+ class 2,   11,   0.0
+ class 2,   12,   0.0
+ class 2,   13,   1.2
+ class 2,   14,   2.6
+ class 2,   15,   4.9
+ class 2,   16,   7.3
+ class 2,   17,   9.4
+ class 2,   18,  11.4
+ class 2,   19,  12.7
+ class 2,   20,  13.3
+ class 2,   21,  13.4
+ class 2,   22,  13.3
+ class 2,   23,  13.1
+ class 2,   24,  12.5
+ class 2,   25,  11.1
+ class 2,   26,   8.9
+ class 2,   27,   6.2
+ class 2,   28,   3.8
+ class 2,   29,   1.8
+ class 2,   30,   0.0
+ class 2,   31,   0.0
+ class 2,   32,   0.0
+ class 2,   33,   0.0
+ class 2,   34,   1.5
+ class 2,   35,   2.8
+ class 2,   36,   3.6
+ class 2,   37,   4.5
+ class 2,   38,   5.3
+ class 2,   39,   6.0
+ class 2,   40,   6.6
+ class 2,   41,   7.3
+ class 2,   42,   7.9
+ class 2,   43,   8.6
+ class 2,   44,   9.3
+ class 2,   45,  10.0
+ class 2,   46,  10.8
+ class 2,   47,  11.6
+ class 2,   48,  12.4
+ class 2,   49,  13.2
+ class 2,   50,  14.2
+ class 2,   51,  14.8
+ class 2,   52,  14.7
+ class 2,   53,  14.4
+ class 2,   54,  14.1
+ class 2,   55,  13.6
+ class 2,   56,  13.0
+ class 2,   57,  12.4
+ class 2,   58,  11.8
+ class 2,   59,  11.2
+ class 2,   60,  10.6
+ class 2,   61,   9.9
+ class 2,   62,   9.0
+ class 2,   63,   8.2
+ class 2,   64,   7.0
+ class 2,   65,   4.8
+ class 2,   66,   2.3
+ class 2,   67,   0.0
+ class 2,   68,   0.0
+ class 2,   69,   0.0
+ class 2,   70,   0.0
+ class 2,   71,   0.0
+ class 2,   72,   0.0
+ class 2,   73,   0.0
+ class 2,   74,   0.0
+ class 2,   75,   0.0
+ class 2,   76,   0.0
+ class 2,   77,   0.0
+ class 2,   78,   0.0
+ class 2,   79,   0.0
+ class 2,   80,   0.0
+ class 2,   81,   0.0
+ class 2,   82,   0.0
+ class 2,   83,   0.0
+ class 2,   84,   0.0
+ class 2,   85,   0.0
+ class 2,   86,   0.0
+ class 2,   87,   0.0
+ class 2,   88,   0.0
+ class 2,   89,   0.0
+ class 2,   90,   0.0
+ class 2,   91,   0.0
+ class 2,   92,   0.0
+ class 2,   93,   0.0
+ class 2,   94,   0.0
+ class 2,   95,   0.0
+ class 2,   96,   0.0
+ class 2,   97,   0.0
+ class 2,   98,   0.0
+ class 2,   99,   0.0
+ class 2,  100,   0.0
+ class 2,  101,   0.0
+ class 2,  102,   0.0
+ class 2,  103,   0.0
+ class 2,  104,   0.0
+ class 2,  105,   0.0
+ class 2,  106,   0.0
+ class 2,  107,   0.8
+ class 2,  108,   1.4
+ class 2,  109,   2.3
+ class 2,  110,   3.5
+ class 2,  111,   4.7
+ class 2,  112,   5.9
+ class 2,  113,   7.4
+ class 2,  114,   9.2
+ class 2,  115,  11.7
+ class 2,  116,  13.5
+ class 2,  117,  15.0
+ class 2,  118,  16.2
+ class 2,  119,  16.8
+ class 2,  120,  17.5
+ class 2,  121,  18.8
+ class 2,  122,  20.3
+ class 2,  123,  22.0
+ class 2,  124,  23.6
+ class 2,  125,  24.8
+ class 2,  126,  25.6
+ class 2,  127,  26.3
+ class 2,  128,  27.2
+ class 2,  129,  28.3
+ class 2,  130,  29.6
+ class 2,  131,  30.9
+ class 2,  132,  32.2
+ class 2,  133,  33.4
+ class 2,  134,  35.1
+ class 2,  135,  37.2
+ class 2,  136,  38.7
+ class 2,  137,  39.0
+ class 2,  138,  40.1
+ class 2,  139,  40.4
+ class 2,  140,  39.7
+ class 2,  141,  36.8
+ class 2,  142,  35.1
+ class 2,  143,  32.2
+ class 2,  144,  31.1
+ class 2,  145,  30.8
+ class 2,  146,  29.7
+ class 2,  147,  29.4
+ class 2,  148,  29.0
+ class 2,  149,  28.5
+ class 2,  150,  26.0
+ class 2,  151,  23.4
+ class 2,  152,  20.7
+ class 2,  153,  17.4
+ class 2,  154,  15.2
+ class 2,  155,  13.5
+ class 2,  156,  13.0
+ class 2,  157,  12.4
+ class 2,  158,  12.3
+ class 2,  159,  12.2
+ class 2,  160,  12.3
+ class 2,  161,  12.4
+ class 2,  162,  12.5
+ class 2,  163,  12.7
+ class 2,  164,  12.8
+ class 2,  165,  13.2
+ class 2,  166,  14.3
+ class 2,  167,  16.5
+ class 2,  168,  19.4
+ class 2,  169,  21.7
+ class 2,  170,  23.1
+ class 2,  171,  23.5
+ class 2,  172,  24.2
+ class 2,  173,  24.8
+ class 2,  174,  25.4
+ class 2,  175,  25.8
+ class 2,  176,  26.5
+ class 2,  177,  27.2
+ class 2,  178,  28.3
+ class 2,  179,  29.9
+ class 2,  180,  32.4
+ class 2,  181,  35.1
+ class 2,  182,  37.5
+ class 2,  183,  39.2
+ class 2,  184,  40.5
+ class 2,  185,  41.4
+ class 2,  186,  42.0
+ class 2,  187,  42.5
+ class 2,  188,  43.2
+ class 2,  189,  44.4
+ class 2,  190,  45.9
+ class 2,  191,  47.6
+ class 2,  192,  49.0
+ class 2,  193,  50.0
+ class 2,  194,  50.2
+ class 2,  195,  50.1
+ class 2,  196,  49.8
+ class 2,  197,  49.4
+ class 2,  198,  48.9
+ class 2,  199,  48.5
+ class 2,  200,  48.3
+ class 2,  201,  48.2
+ class 2,  202,  47.9
+ class 2,  203,  47.1
+ class 2,  204,  45.5
+ class 2,  205,  43.2
+ class 2,  206,  40.6
+ class 2,  207,  38.5
+ class 2,  208,  36.9
+ class 2,  209,  35.9
+ class 2,  210,  35.3
+ class 2,  211,  34.8
+ class 2,  212,  34.5
+ class 2,  213,  34.2
+ class 2,  214,  34.0
+ class 2,  215,  33.8
+ class 2,  216,  33.6
+ class 2,  217,  33.5
+ class 2,  218,  33.5
+ class 2,  219,  33.4
+ class 2,  220,  33.3
+ class 2,  221,  33.3
+ class 2,  222,  33.2
+ class 2,  223,  33.1
+ class 2,  224,  33.0
+ class 2,  225,  32.9
+ class 2,  226,  32.8
+ class 2,  227,  32.7
+ class 2,  228,  32.5
+ class 2,  229,  32.3
+ class 2,  230,  31.8
+ class 2,  231,  31.4
+ class 2,  232,  30.9
+ class 2,  233,  30.6
+ class 2,  234,  30.6
+ class 2,  235,  30.7
+ class 2,  236,  32.0
+ class 2,  237,  33.5
+ class 2,  238,  35.8
+ class 2,  239,  37.6
+ class 2,  240,  38.8
+ class 2,  241,  39.6
+ class 2,  242,  40.1
+ class 2,  243,  40.9
+ class 2,  244,  41.8
+ class 2,  245,  43.3
+ class 2,  246,  44.7
+ class 2,  247,  46.4
+ class 2,  248,  47.9
+ class 2,  249,  49.6
+ class 2,  250,  49.6
+ class 2,  251,  48.8
+ class 2,  252,  48.0
+ class 2,  253,  47.5
+ class 2,  254,  47.1
+ class 2,  255,  46.9
+ class 2,  256,  45.8
+ class 2,  257,  45.8
+ class 2,  258,  45.8
+ class 2,  259,  45.9
+ class 2,  260,  46.2
+ class 2,  261,  46.4
+ class 2,  262,  46.6
+ class 2,  263,  46.8
+ class 2,  264,  47.0
+ class 2,  265,  47.3
+ class 2,  266,  47.5
+ class 2,  267,  47.9
+ class 2,  268,  48.3
+ class 2,  269,  48.3
+ class 2,  270,  48.2
+ class 2,  271,  48.0
+ class 2,  272,  47.7
+ class 2,  273,  47.2
+ class 2,  274,  46.5
+ class 2,  275,  45.2
+ class 2,  276,  43.7
+ class 2,  277,  42.0
+ class 2,  278,  40.4
+ class 2,  279,  39.0
+ class 2,  280,  37.7
+ class 2,  281,  36.4
+ class 2,  282,  35.2
+ class 2,  283,  34.3
+ class 2,  284,  33.8
+ class 2,  285,  33.3
+ class 2,  286,  32.5
+ class 2,  287,  30.9
+ class 2,  288,  28.6
+ class 2,  289,  25.9
+ class 2,  290,  23.1
+ class 2,  291,  20.1
+ class 2,  292,  17.3
+ class 2,  293,  15.1
+ class 2,  294,  13.7
+ class 2,  295,  13.4
+ class 2,  296,  13.9
+ class 2,  297,  15.0
+ class 2,  298,  16.3
+ class 2,  299,  17.4
+ class 2,  300,  18.2
+ class 2,  301,  18.6
+ class 2,  302,  19.0
+ class 2,  303,  19.4
+ class 2,  304,  19.8
+ class 2,  305,  20.1
+ class 2,  306,  20.5
+ class 2,  307,  20.2
+ class 2,  308,  18.6
+ class 2,  309,  16.5
+ class 2,  310,  14.4
+ class 2,  311,  13.4
+ class 2,  312,  12.9
+ class 2,  313,  12.7
+ class 2,  314,  12.4
+ class 2,  315,  12.4
+ class 2,  316,  12.8
+ class 2,  317,  14.1
+ class 2,  318,  16.2
+ class 2,  319,  18.8
+ class 2,  320,  21.9
+ class 2,  321,  25.0
+ class 2,  322,  28.4
+ class 2,  323,  31.3
+ class 2,  324,  34.0
+ class 2,  325,  34.6
+ class 2,  326,  33.9
+ class 2,  327,  31.9
+ class 2,  328,  30.0
+ class 2,  329,  29.0
+ class 2,  330,  27.9
+ class 2,  331,  27.1
+ class 2,  332,  26.4
+ class 2,  333,  25.9
+ class 2,  334,  25.5
+ class 2,  335,  25.0
+ class 2,  336,  24.6
+ class 2,  337,  23.9
+ class 2,  338,  23.0
+ class 2,  339,  21.8
+ class 2,  340,  20.7
+ class 2,  341,  19.6
+ class 2,  342,  18.7
+ class 2,  343,  18.1
+ class 2,  344,  17.5
+ class 2,  345,  16.7
+ class 2,  346,  15.4
+ class 2,  347,  13.6
+ class 2,  348,  11.2
+ class 2,  349,   8.6
+ class 2,  350,   6.0
+ class 2,  351,   3.1
+ class 2,  352,   1.2
+ class 2,  353,   0.0
+ class 2,  354,   0.0
+ class 2,  355,   0.0
+ class 2,  356,   0.0
+ class 2,  357,   0.0
+ class 2,  358,   0.0
+ class 2,  359,   0.0
+ class 2,  360,   1.4
+ class 2,  361,   3.2
+ class 2,  362,   5.6
+ class 2,  363,   8.1
+ class 2,  364,  10.3
+ class 2,  365,  12.1
+ class 2,  366,  12.6
+ class 2,  367,  13.6
+ class 2,  368,  14.5
+ class 2,  369,  15.6
+ class 2,  370,  16.8
+ class 2,  371,  18.2
+ class 2,  372,  19.6
+ class 2,  373,  20.9
+ class 2,  374,  22.3
+ class 2,  375,  23.8
+ class 2,  376,  25.4
+ class 2,  377,  27.0
+ class 2,  378,  28.6
+ class 2,  379,  30.2
+ class 2,  380,  31.2
+ class 2,  381,  31.2
+ class 2,  382,  30.7
+ class 2,  383,  29.5
+ class 2,  384,  28.6
+ class 2,  385,  27.7
+ class 2,  386,  26.9
+ class 2,  387,  26.1
+ class 2,  388,  25.4
+ class 2,  389,  24.6
+ class 2,  390,  23.6
+ class 2,  391,  22.6
+ class 2,  392,  21.7
+ class 2,  393,  20.7
+ class 2,  394,  19.8
+ class 2,  395,  18.8
+ class 2,  396,  17.7
+ class 2,  397,  16.6
+ class 2,  398,  15.6
+ class 2,  399,  14.8
+ class 2,  400,  14.3
+ class 2,  401,  13.8
+ class 2,  402,  13.4
+ class 2,  403,  13.1
+ class 2,  404,  12.8
+ class 2,  405,  12.3
+ class 2,  406,  11.6
+ class 2,  407,  10.5
+ class 2,  408,   9.0
+ class 2,  409,   7.2
+ class 2,  410,   5.2
+ class 2,  411,   2.9
+ class 2,  412,   1.2
+ class 2,  413,   0.0
+ class 2,  414,   0.0
+ class 2,  415,   0.0
+ class 2,  416,   0.0
+ class 2,  417,   0.0
+ class 2,  418,   0.0
+ class 2,  419,   0.0
+ class 2,  420,   0.0
+ class 2,  421,   0.0
+ class 2,  422,   0.0
+ class 2,  423,   0.0
+ class 2,  424,   0.0
+ class 2,  425,   0.0
+ class 2,  426,   0.0
+ class 2,  427,   0.0
+ class 2,  428,   0.0
+ class 2,  429,   0.0
+ class 2,  430,   0.0
+ class 2,  431,   0.0
+ class 2,  432,   0.0
+ class 2,  433,   0.0
+ class 2,  434,   0.0
+ class 2,  435,   0.0
+ class 2,  436,   0.0
+ class 2,  437,   0.0
+ class 2,  438,   0.0
+ class 2,  439,   0.0
+ class 2,  440,   0.0
+ class 2,  441,   0.0
+ class 2,  442,   0.0
+ class 2,  443,   0.0
+ class 2,  444,   0.0
+ class 2,  445,   0.0
+ class 2,  446,   0.0
+ class 2,  447,   0.0
+ class 2,  448,   0.0
+ class 2,  449,   0.0
+ class 2,  450,   0.0
+ class 2,  451,   0.0
+ class 2,  452,   0.0
+ class 2,  453,   0.0
+ class 2,  454,   0.0
+ class 2,  455,   0.0
+ class 2,  456,   0.0
+ class 2,  457,   0.0
+ class 2,  458,   0.0
+ class 2,  459,   0.0
+ class 2,  460,   0.0
+ class 2,  461,   0.0
+ class 2,  462,   0.0
+ class 2,  463,   0.0
+ class 2,  464,   0.0
+ class 2,  465,   0.0
+ class 2,  466,   0.0
+ class 2,  467,   0.0
+ class 2,  468,   0.0
+ class 2,  469,   0.0
+ class 2,  470,   0.0
+ class 2,  471,   0.0
+ class 2,  472,   0.0
+ class 2,  473,   0.0
+ class 2,  474,   0.0
+ class 2,  475,   0.0
+ class 2,  476,   0.0
+ class 2,  477,   0.0
+ class 2,  478,   0.0
+ class 2,  479,   0.0
+ class 2,  480,   0.0
+ class 2,  481,   1.4
+ class 2,  482,   2.5
+ class 2,  483,   5.2
+ class 2,  484,   7.9
+ class 2,  485,  10.3
+ class 2,  486,  12.7
+ class 2,  487,  15.0
+ class 2,  488,  17.4
+ class 2,  489,  19.7
+ class 2,  490,  21.9
+ class 2,  491,  24.1
+ class 2,  492,  26.2
+ class 2,  493,  28.1
+ class 2,  494,  29.7
+ class 2,  495,  31.3
+ class 2,  496,  33.0
+ class 2,  497,  34.7
+ class 2,  498,  36.3
+ class 2,  499,  38.1
+ class 2,  500,  39.4
+ class 2,  501,  40.4
+ class 2,  502,  41.2
+ class 2,  503,  42.1
+ class 2,  504,  43.2
+ class 2,  505,  44.3
+ class 2,  506,  45.7
+ class 2,  507,  45.4
+ class 2,  508,  44.5
+ class 2,  509,  42.5
+ class 2,  510,  39.5
+ class 2,  511,  36.5
+ class 2,  512,  33.5
+ class 2,  513,  30.4
+ class 2,  514,  27.0
+ class 2,  515,  23.6
+ class 2,  516,  21.0
+ class 2,  517,  19.5
+ class 2,  518,  17.6
+ class 2,  519,  16.1
+ class 2,  520,  14.5
+ class 2,  521,  13.5
+ class 2,  522,  13.7
+ class 2,  523,  16.0
+ class 2,  524,  18.1
+ class 2,  525,  20.8
+ class 2,  526,  21.5
+ class 2,  527,  22.5
+ class 2,  528,  23.4
+ class 2,  529,  24.5
+ class 2,  530,  25.6
+ class 2,  531,  26.0
+ class 2,  532,  26.5
+ class 2,  533,  26.9
+ class 2,  534,  27.3
+ class 2,  535,  27.9
+ class 2,  536,  30.3
+ class 2,  537,  33.2
+ class 2,  538,  35.4
+ class 2,  539,  38.0
+ class 2,  540,  40.1
+ class 2,  541,  42.7
+ class 2,  542,  44.5
+ class 2,  543,  46.3
+ class 2,  544,  47.6
+ class 2,  545,  48.8
+ class 2,  546,  49.7
+ class 2,  547,  50.6
+ class 2,  548,  51.4
+ class 2,  549,  51.4
+ class 2,  550,  50.2
+ class 2,  551,  47.1
+ class 2,  552,  44.5
+ class 2,  553,  41.5
+ class 2,  554,  38.5
+ class 2,  555,  35.5
+ class 2,  556,  32.5
+ class 2,  557,  29.5
+ class 2,  558,  26.5
+ class 2,  559,  23.5
+ class 2,  560,  20.4
+ class 2,  561,  17.5
+ class 2,  562,  14.5
+ class 2,  563,  11.5
+ class 2,  564,   8.5
+ class 2,  565,   5.6
+ class 2,  566,   2.6
+ class 2,  567,   0.0
+ class 2,  568,   0.0
+ class 2,  569,   0.0
+ class 2,  570,   0.0
+ class 2,  571,   0.0
+ class 2,  572,   0.0
+ class 2,  573,   0.0
+ class 2,  574,   0.0
+ class 2,  575,   0.0
+ class 2,  576,   0.0
+ class 2,  577,   0.0
+ class 2,  578,   0.0
+ class 2,  579,   0.0
+ class 2,  580,   0.0
+ class 2,  581,   0.0
+ class 2,  582,   0.0
+ class 2,  583,   0.0
+ class 2,  584,   0.0
+ class 2,  585,   0.0
+ class 2,  586,   0.0
+ class 2,  587,   0.0
+ class 2,  588,   0.0
+ class 2,  589,   0.0
+ class 2,  590,   0.0
+ class 2,  591,   0.0
+ class 2,  592,   0.0
+ class 2,  593,   0.0
+ class 2,  594,   0.0
+ class 2,  595,   0.0
+ class 2,  596,   0.0
+ class 2,  597,   0.0
+ class 2,  598,   0.0
+ class 2,  599,   0.0
+ class 2,  600,   0.0
+ class 2,  601,   1.6
+ class 2,  602,   3.6
+ class 2,  603,   6.3
+ class 2,  604,   9.0
+ class 2,  605,  11.8
+ class 2,  606,  14.2
+ class 2,  607,  16.6
+ class 2,  608,  18.5
+ class 2,  609,  20.8
+ class 2,  610,  23.4
+ class 2,  611,  26.9
+ class 2,  612,  30.3
+ class 2,  613,  32.8
+ class 2,  614,  34.1
+ class 2,  615,  34.2
+ class 2,  616,  33.6
+ class 2,  617,  32.1
+ class 2,  618,  30.0
+ class 2,  619,  27.5
+ class 2,  620,  25.1
+ class 2,  621,  22.8
+ class 2,  622,  20.5
+ class 2,  623,  17.9
+ class 2,  624,  15.1
+ class 2,  625,  13.4
+ class 2,  626,  12.8
+ class 2,  627,  13.7
+ class 2,  628,  16.0
+ class 2,  629,  18.1
+ class 2,  630,  20.8
+ class 2,  631,  23.7
+ class 2,  632,  26.5
+ class 2,  633,  29.3
+ class 2,  634,  32.0
+ class 2,  635,  34.5
+ class 2,  636,  36.8
+ class 2,  637,  38.6
+ class 2,  638,  39.8
+ class 2,  639,  40.6
+ class 2,  640,  41.1
+ class 2,  641,  41.9
+ class 2,  642,  42.8
+ class 2,  643,  44.3
+ class 2,  644,  45.7
+ class 2,  645,  47.4
+ class 2,  646,  48.9
+ class 2,  647,  50.6
+ class 2,  648,  52.0
+ class 2,  649,  53.7
+ class 2,  650,  55.0
+ class 2,  651,  56.8
+ class 2,  652,  58.0
+ class 2,  653,  59.8
+ class 2,  654,  61.1
+ class 2,  655,  62.4
+ class 2,  656,  63.0
+ class 2,  657,  63.5
+ class 2,  658,  63.0
+ class 2,  659,  62.0
+ class 2,  660,  60.4
+ class 2,  661,  58.6
+ class 2,  662,  56.7
+ class 2,  663,  55.0
+ class 2,  664,  53.7
+ class 2,  665,  52.7
+ class 2,  666,  51.9
+ class 2,  667,  51.4
+ class 2,  668,  51.0
+ class 2,  669,  50.7
+ class 2,  670,  50.6
+ class 2,  671,  50.8
+ class 2,  672,  51.2
+ class 2,  673,  51.7
+ class 2,  674,  52.3
+ class 2,  675,  53.1
+ class 2,  676,  53.8
+ class 2,  677,  54.5
+ class 2,  678,  55.1
+ class 2,  679,  55.9
+ class 2,  680,  56.5
+ class 2,  681,  57.1
+ class 2,  682,  57.8
+ class 2,  683,  58.5
+ class 2,  684,  59.3
+ class 2,  685,  60.2
+ class 2,  686,  61.3
+ class 2,  687,  62.4
+ class 2,  688,  63.4
+ class 2,  689,  64.4
+ class 2,  690,  65.4
+ class 2,  691,  66.3
+ class 2,  692,  67.2
+ class 2,  693,  68.0
+ class 2,  694,  68.8
+ class 2,  695,  69.5
+ class 2,  696,  70.1
+ class 2,  697,  70.6
+ class 2,  698,  71.0
+ class 2,  699,  71.6
+ class 2,  700,  72.2
+ class 2,  701,  72.8
+ class 2,  702,  73.5
+ class 2,  703,  74.1
+ class 2,  704,  74.3
+ class 2,  705,  74.3
+ class 2,  706,  73.7
+ class 2,  707,  71.9
+ class 2,  708,  70.5
+ class 2,  709,  68.9
+ class 2,  710,  67.4
+ class 2,  711,  66.0
+ class 2,  712,  64.7
+ class 2,  713,  63.7
+ class 2,  714,  62.9
+ class 2,  715,  62.2
+ class 2,  716,  61.7
+ class 2,  717,  61.2
+ class 2,  718,  60.7
+ class 2,  719,  60.3
+ class 2,  720,  59.9
+ class 2,  721,  59.6
+ class 2,  722,  59.3
+ class 2,  723,  59.0
+ class 2,  724,  58.6
+ class 2,  725,  58.0
+ class 2,  726,  57.5
+ class 2,  727,  56.9
+ class 2,  728,  56.3
+ class 2,  729,  55.9
+ class 2,  730,  55.6
+ class 2,  731,  55.3
+ class 2,  732,  55.1
+ class 2,  733,  54.8
+ class 2,  734,  54.6
+ class 2,  735,  54.5
+ class 2,  736,  54.3
+ class 2,  737,  53.9
+ class 2,  738,  53.4
+ class 2,  739,  52.6
+ class 2,  740,  51.5
+ class 2,  741,  50.2
+ class 2,  742,  48.7
+ class 2,  743,  47.0
+ class 2,  744,  45.1
+ class 2,  745,  43.0
+ class 2,  746,  40.6
+ class 2,  747,  38.1
+ class 2,  748,  35.4
+ class 2,  749,  32.7
+ class 2,  750,  30.0
+ class 2,  751,  27.5
+ class 2,  752,  25.3
+ class 2,  753,  23.4
+ class 2,  754,  22.0
+ class 2,  755,  20.8
+ class 2,  756,  19.8
+ class 2,  757,  18.9
+ class 2,  758,  18.0
+ class 2,  759,  17.0
+ class 2,  760,  16.1
+ class 2,  761,  15.5
+ class 2,  762,  14.4
+ class 2,  763,  14.9
+ class 2,  764,  15.9
+ class 2,  765,  17.1
+ class 2,  766,  18.3
+ class 2,  767,  19.4
+ class 2,  768,  20.4
+ class 2,  769,  21.2
+ class 2,  770,  21.9
+ class 2,  771,  22.7
+ class 2,  772,  23.4
+ class 2,  773,  24.2
+ class 2,  774,  24.3
+ class 2,  775,  24.2
+ class 2,  776,  24.1
+ class 2,  777,  23.8
+ class 2,  778,  23.0
+ class 2,  779,  22.6
+ class 2,  780,  21.7
+ class 2,  781,  21.3
+ class 2,  782,  20.3
+ class 2,  783,  19.1
+ class 2,  784,  18.1
+ class 2,  785,  16.9
+ class 2,  786,  16.0
+ class 2,  787,  14.8
+ class 2,  788,  14.5
+ class 2,  789,  13.7
+ class 2,  790,  13.5
+ class 2,  791,  12.9
+ class 2,  792,  12.7
+ class 2,  793,  12.5
+ class 2,  794,  12.5
+ class 2,  795,  12.6
+ class 2,  796,  13.0
+ class 2,  797,  13.6
+ class 2,  798,  14.6
+ class 2,  799,  15.7
+ class 2,  800,  17.1
+ class 2,  801,  18.7
+ class 2,  802,  20.2
+ class 2,  803,  21.9
+ class 2,  804,  23.6
+ class 2,  805,  25.4
+ class 2,  806,  27.1
+ class 2,  807,  28.9
+ class 2,  808,  30.4
+ class 2,  809,  32.0
+ class 2,  810,  33.4
+ class 2,  811,  35.0
+ class 2,  812,  36.4
+ class 2,  813,  38.1
+ class 2,  814,  39.7
+ class 2,  815,  41.6
+ class 2,  816,  43.3
+ class 2,  817,  45.1
+ class 2,  818,  46.9
+ class 2,  819,  48.7
+ class 2,  820,  50.5
+ class 2,  821,  52.4
+ class 2,  822,  54.1
+ class 2,  823,  55.7
+ class 2,  824,  56.8
+ class 2,  825,  57.9
+ class 2,  826,  59.0
+ class 2,  827,  59.9
+ class 2,  828,  60.7
+ class 2,  829,  61.4
+ class 2,  830,  62.0
+ class 2,  831,  62.5
+ class 2,  832,  62.9
+ class 2,  833,  63.2
+ class 2,  834,  63.4
+ class 2,  835,  63.7
+ class 2,  836,  64.0
+ class 2,  837,  64.4
+ class 2,  838,  64.9
+ class 2,  839,  65.5
+ class 2,  840,  66.2
+ class 2,  841,  67.0
+ class 2,  842,  67.8
+ class 2,  843,  68.6
+ class 2,  844,  69.4
+ class 2,  845,  70.1
+ class 2,  846,  70.9
+ class 2,  847,  71.7
+ class 2,  848,  72.5
+ class 2,  849,  73.2
+ class 2,  850,  73.8
+ class 2,  851,  74.4
+ class 2,  852,  74.7
+ class 2,  853,  74.7
+ class 2,  854,  74.6
+ class 2,  855,  74.2
+ class 2,  856,  73.5
+ class 2,  857,  72.6
+ class 2,  858,  71.8
+ class 2,  859,  71.0
+ class 2,  860,  70.1
+ class 2,  861,  69.4
+ class 2,  862,  68.9
+ class 2,  863,  68.4
+ class 2,  864,  67.9
+ class 2,  865,  67.1
+ class 2,  866,  65.8
+ class 2,  867,  63.9
+ class 2,  868,  61.4
+ class 2,  869,  58.4
+ class 2,  870,  55.4
+ class 2,  871,  52.4
+ class 2,  872,  50.0
+ class 2,  873,  48.3
+ class 2,  874,  47.3
+ class 2,  875,  46.8
+ class 2,  876,  46.9
+ class 2,  877,  47.1
+ class 2,  878,  47.5
+ class 2,  879,  47.8
+ class 2,  880,  48.3
+ class 2,  881,  48.8
+ class 2,  882,  49.5
+ class 2,  883,  50.2
+ class 2,  884,  50.8
+ class 2,  885,  51.4
+ class 2,  886,  51.8
+ class 2,  887,  51.9
+ class 2,  888,  51.7
+ class 2,  889,  51.2
+ class 2,  890,  50.4
+ class 2,  891,  49.2
+ class 2,  892,  47.7
+ class 2,  893,  46.3
+ class 2,  894,  45.1
+ class 2,  895,  44.2
+ class 2,  896,  43.7
+ class 2,  897,  43.4
+ class 2,  898,  43.1
+ class 2,  899,  42.5
+ class 2,  900,  41.8
+ class 2,  901,  41.1
+ class 2,  902,  40.3
+ class 2,  903,  39.7
+ class 2,  904,  39.3
+ class 2,  905,  39.2
+ class 2,  906,  39.3
+ class 2,  907,  39.6
+ class 2,  908,  40.0
+ class 2,  909,  40.7
+ class 2,  910,  41.4
+ class 2,  911,  42.2
+ class 2,  912,  43.1
+ class 2,  913,  44.1
+ class 2,  914,  44.9
+ class 2,  915,  45.6
+ class 2,  916,  46.4
+ class 2,  917,  47.0
+ class 2,  918,  47.8
+ class 2,  919,  48.3
+ class 2,  920,  48.9
+ class 2,  921,  49.4
+ class 2,  922,  49.8
+ class 2,  923,  49.6
+ class 2,  924,  49.3
+ class 2,  925,  49.0
+ class 2,  926,  48.5
+ class 2,  927,  48.0
+ class 2,  928,  47.5
+ class 2,  929,  47.0
+ class 2,  930,  46.9
+ class 2,  931,  46.8
+ class 2,  932,  46.8
+ class 2,  933,  46.8
+ class 2,  934,  46.9
+ class 2,  935,  46.9
+ class 2,  936,  46.9
+ class 2,  937,  46.9
+ class 2,  938,  46.9
+ class 2,  939,  46.8
+ class 2,  940,  46.6
+ class 2,  941,  46.4
+ class 2,  942,  46.0
+ class 2,  943,  45.5
+ class 2,  944,  45.0
+ class 2,  945,  44.5
+ class 2,  946,  44.2
+ class 2,  947,  43.9
+ class 2,  948,  43.7
+ class 2,  949,  43.6
+ class 2,  950,  43.6
+ class 2,  951,  43.5
+ class 2,  952,  43.5
+ class 2,  953,  43.4
+ class 2,  954,  43.3
+ class 2,  955,  43.1
+ class 2,  956,  42.9
+ class 2,  957,  42.7
+ class 2,  958,  42.5
+ class 2,  959,  42.4
+ class 2,  960,  42.2
+ class 2,  961,  42.1
+ class 2,  962,  42.0
+ class 2,  963,  41.8
+ class 2,  964,  41.7
+ class 2,  965,  41.5
+ class 2,  966,  41.3
+ class 2,  967,  41.1
+ class 2,  968,  40.8
+ class 2,  969,  40.3
+ class 2,  970,  39.6
+ class 2,  971,  38.5
+ class 2,  972,  37.0
+ class 2,  973,  35.1
+ class 2,  974,  33.0
+ class 2,  975,  30.6
+ class 2,  976,  27.9
+ class 2,  977,  25.1
+ class 2,  978,  22.0
+ class 2,  979,  18.8
+ class 2,  980,  15.5
+ class 2,  981,  12.3
+ class 2,  982,   8.8
+ class 2,  983,   6.0
+ class 2,  984,   3.6
+ class 2,  985,   1.6
+ class 2,  986,   0.0
+ class 2,  987,   0.0
+ class 2,  988,   0.0
+ class 2,  989,   0.0
+ class 2,  990,   0.0
+ class 2,  991,   0.0
+ class 2,  992,   0.0
+ class 2,  993,   0.0
+ class 2,  994,   0.0
+ class 2,  995,   0.0
+ class 2,  996,   0.0
+ class 2,  997,   0.0
+ class 2,  998,   0.0
+ class 2,  999,   0.0
+ class 2, 1000,   0.0
+ class 2, 1001,   0.0
+ class 2, 1002,   0.0
+ class 2, 1003,   0.0
+ class 2, 1004,   0.0
+ class 2, 1005,   0.0
+ class 2, 1006,   0.0
+ class 2, 1007,   0.0
+ class 2, 1008,   0.0
+ class 2, 1009,   0.0
+ class 2, 1010,   0.0
+ class 2, 1011,   0.0
+ class 2, 1012,   0.0
+ class 2, 1013,   0.0
+ class 2, 1014,   0.0
+ class 2, 1015,   0.0
+ class 2, 1016,   0.0
+ class 2, 1017,   0.0
+ class 2, 1018,   0.0
+ class 2, 1019,   0.0
+ class 2, 1020,   0.0
+ class 2, 1021,   0.0
+ class 2, 1022,   0.0
+ class 2, 1023,   0.0
+ class 2, 1024,   0.0
+ class 2, 1025,   0.0
+ class 2, 1026,   0.0
+ class 2, 1027,   1.1
+ class 2, 1028,   3.0
+ class 2, 1029,   5.7
+ class 2, 1030,   8.4
+ class 2, 1031,  11.1
+ class 2, 1032,  14.0
+ class 2, 1033,  17.0
+ class 2, 1034,  20.1
+ class 2, 1035,  22.7
+ class 2, 1036,  23.6
+ class 2, 1037,  24.5
+ class 2, 1038,  24.8
+ class 2, 1039,  25.1
+ class 2, 1040,  25.3
+ class 2, 1041,  25.5
+ class 2, 1042,  25.7
+ class 2, 1043,  25.8
+ class 2, 1044,  25.9
+ class 2, 1045,  26.0
+ class 2, 1046,  26.1
+ class 2, 1047,  26.3
+ class 2, 1048,  26.5
+ class 2, 1049,  26.8
+ class 2, 1050,  27.1
+ class 2, 1051,  27.5
+ class 2, 1052,  28.0
+ class 2, 1053,  28.6
+ class 2, 1054,  29.3
+ class 2, 1055,  30.4
+ class 2, 1056,  31.8
+ class 2, 1057,  33.7
+ class 2, 1058,  35.8
+ class 2, 1059,  37.8
+ class 2, 1060,  39.5
+ class 2, 1061,  40.8
+ class 2, 1062,  41.8
+ class 2, 1063,  42.4
+ class 2, 1064,  43.0
+ class 2, 1065,  43.4
+ class 2, 1066,  44.0
+ class 2, 1067,  44.4
+ class 2, 1068,  45.0
+ class 2, 1069,  45.4
+ class 2, 1070,  46.0
+ class 2, 1071,  46.4
+ class 2, 1072,  47.0
+ class 2, 1073,  47.4
+ class 2, 1074,  48.0
+ class 2, 1075,  48.4
+ class 2, 1076,  49.0
+ class 2, 1077,  49.4
+ class 2, 1078,  50.0
+ class 2, 1079,  50.4
+ class 2, 1080,  50.8
+ class 2, 1081,  51.1
+ class 2, 1082,  51.3
+ class 2, 1083,  51.3
+ class 2, 1084,  51.3
+ class 2, 1085,  51.3
+ class 2, 1086,  51.3
+ class 2, 1087,  51.3
+ class 2, 1088,  51.3
+ class 2, 1089,  51.4
+ class 2, 1090,  51.6
+ class 2, 1091,  51.8
+ class 2, 1092,  52.1
+ class 2, 1093,  52.3
+ class 2, 1094,  52.6
+ class 2, 1095,  52.8
+ class 2, 1096,  52.9
+ class 2, 1097,  53.0
+ class 2, 1098,  53.0
+ class 2, 1099,  53.0
+ class 2, 1100,  53.1
+ class 2, 1101,  53.2
+ class 2, 1102,  53.3
+ class 2, 1103,  53.4
+ class 2, 1104,  53.5
+ class 2, 1105,  53.7
+ class 2, 1106,  55.0
+ class 2, 1107,  56.8
+ class 2, 1108,  58.8
+ class 2, 1109,  60.9
+ class 2, 1110,  63.0
+ class 2, 1111,  65.0
+ class 2, 1112,  66.9
+ class 2, 1113,  68.6
+ class 2, 1114,  70.1
+ class 2, 1115,  71.5
+ class 2, 1116,  72.8
+ class 2, 1117,  73.9
+ class 2, 1118,  74.9
+ class 2, 1119,  75.7
+ class 2, 1120,  76.4
+ class 2, 1121,  77.1
+ class 2, 1122,  77.6
+ class 2, 1123,  78.0
+ class 2, 1124,  78.2
+ class 2, 1125,  78.4
+ class 2, 1126,  78.5
+ class 2, 1127,  78.5
+ class 2, 1128,  78.6
+ class 2, 1129,  78.7
+ class 2, 1130,  78.9
+ class 2, 1131,  79.1
+ class 2, 1132,  79.4
+ class 2, 1133,  79.8
+ class 2, 1134,  80.1
+ class 2, 1135,  80.5
+ class 2, 1136,  80.8
+ class 2, 1137,  81.0
+ class 2, 1138,  81.2
+ class 2, 1139,  81.3
+ class 2, 1140,  81.2
+ class 2, 1141,  81.0
+ class 2, 1142,  80.6
+ class 2, 1143,  80.0
+ class 2, 1144,  79.1
+ class 2, 1145,  78.0
+ class 2, 1146,  76.8
+ class 2, 1147,  75.5
+ class 2, 1148,  74.1
+ class 2, 1149,  72.9
+ class 2, 1150,  71.9
+ class 2, 1151,  71.2
+ class 2, 1152,  70.9
+ class 2, 1153,  71.0
+ class 2, 1154,  71.5
+ class 2, 1155,  72.3
+ class 2, 1156,  73.2
+ class 2, 1157,  74.1
+ class 2, 1158,  74.9
+ class 2, 1159,  75.4
+ class 2, 1160,  75.5
+ class 2, 1161,  75.2
+ class 2, 1162,  74.5
+ class 2, 1163,  73.3
+ class 2, 1164,  71.7
+ class 2, 1165,  69.9
+ class 2, 1166,  67.9
+ class 2, 1167,  65.7
+ class 2, 1168,  63.5
+ class 2, 1169,  61.2
+ class 2, 1170,  59.0
+ class 2, 1171,  56.8
+ class 2, 1172,  54.7
+ class 2, 1173,  52.7
+ class 2, 1174,  50.9
+ class 2, 1175,  49.4
+ class 2, 1176,  48.1
+ class 2, 1177,  47.1
+ class 2, 1178,  46.5
+ class 2, 1179,  46.3
+ class 2, 1180,  46.5
+ class 2, 1181,  47.2
+ class 2, 1182,  48.3
+ class 2, 1183,  49.7
+ class 2, 1184,  51.3
+ class 2, 1185,  53.0
+ class 2, 1186,  54.9
+ class 2, 1187,  56.7
+ class 2, 1188,  58.6
+ class 2, 1189,  60.2
+ class 2, 1190,  61.6
+ class 2, 1191,  62.2
+ class 2, 1192,  62.5
+ class 2, 1193,  62.8
+ class 2, 1194,  62.9
+ class 2, 1195,  63.0
+ class 2, 1196,  63.0
+ class 2, 1197,  63.1
+ class 2, 1198,  63.2
+ class 2, 1199,  63.3
+ class 2, 1200,  63.5
+ class 2, 1201,  63.7
+ class 2, 1202,  63.9
+ class 2, 1203,  64.1
+ class 2, 1204,  64.3
+ class 2, 1205,  66.1
+ class 2, 1206,  67.9
+ class 2, 1207,  69.7
+ class 2, 1208,  71.4
+ class 2, 1209,  73.1
+ class 2, 1210,  74.7
+ class 2, 1211,  76.2
+ class 2, 1212,  77.5
+ class 2, 1213,  78.6
+ class 2, 1214,  79.7
+ class 2, 1215,  80.6
+ class 2, 1216,  81.5
+ class 2, 1217,  82.2
+ class 2, 1218,  83.0
+ class 2, 1219,  83.7
+ class 2, 1220,  84.4
+ class 2, 1221,  84.9
+ class 2, 1222,  85.1
+ class 2, 1223,  85.2
+ class 2, 1224,  84.9
+ class 2, 1225,  84.4
+ class 2, 1226,  83.6
+ class 2, 1227,  82.7
+ class 2, 1228,  81.5
+ class 2, 1229,  80.1
+ class 2, 1230,  78.7
+ class 2, 1231,  77.4
+ class 2, 1232,  76.2
+ class 2, 1233,  75.4
+ class 2, 1234,  74.8
+ class 2, 1235,  74.3
+ class 2, 1236,  73.8
+ class 2, 1237,  73.2
+ class 2, 1238,  72.4
+ class 2, 1239,  71.6
+ class 2, 1240,  70.8
+ class 2, 1241,  69.9
+ class 2, 1242,  67.9
+ class 2, 1243,  65.7
+ class 2, 1244,  63.5
+ class 2, 1245,  61.2
+ class 2, 1246,  59.0
+ class 2, 1247,  56.8
+ class 2, 1248,  54.7
+ class 2, 1249,  52.7
+ class 2, 1250,  50.9
+ class 2, 1251,  49.4
+ class 2, 1252,  48.1
+ class 2, 1253,  47.1
+ class 2, 1254,  46.5
+ class 2, 1255,  46.3
+ class 2, 1256,  45.1
+ class 2, 1257,  43.0
+ class 2, 1258,  40.6
+ class 2, 1259,  38.1
+ class 2, 1260,  35.4
+ class 2, 1261,  32.7
+ class 2, 1262,  30.0
+ class 2, 1263,  29.9
+ class 2, 1264,  30.0
+ class 2, 1265,  30.2
+ class 2, 1266,  30.4
+ class 2, 1267,  30.6
+ class 2, 1268,  31.6
+ class 2, 1269,  33.0
+ class 2, 1270,  33.9
+ class 2, 1271,  34.8
+ class 2, 1272,  35.7
+ class 2, 1273,  36.6
+ class 2, 1274,  37.5
+ class 2, 1275,  38.4
+ class 2, 1276,  39.3
+ class 2, 1277,  40.2
+ class 2, 1278,  40.8
+ class 2, 1279,  41.7
+ class 2, 1280,  42.4
+ class 2, 1281,  43.1
+ class 2, 1282,  43.6
+ class 2, 1283,  44.2
+ class 2, 1284,  44.8
+ class 2, 1285,  45.5
+ class 2, 1286,  46.3
+ class 2, 1287,  47.2
+ class 2, 1288,  48.1
+ class 2, 1289,  49.1
+ class 2, 1290,  50.0
+ class 2, 1291,  51.0
+ class 2, 1292,  51.9
+ class 2, 1293,  52.7
+ class 2, 1294,  53.7
+ class 2, 1295,  55.0
+ class 2, 1296,  56.8
+ class 2, 1297,  58.8
+ class 2, 1298,  60.9
+ class 2, 1299,  63.0
+ class 2, 1300,  65.0
+ class 2, 1301,  66.9
+ class 2, 1302,  68.6
+ class 2, 1303,  70.1
+ class 2, 1304,  71.0
+ class 2, 1305,  71.8
+ class 2, 1306,  72.8
+ class 2, 1307,  72.9
+ class 2, 1308,  73.0
+ class 2, 1309,  72.3
+ class 2, 1310,  71.9
+ class 2, 1311,  71.3
+ class 2, 1312,  70.9
+ class 2, 1313,  70.5
+ class 2, 1314,  70.0
+ class 2, 1315,  69.6
+ class 2, 1316,  69.2
+ class 2, 1317,  68.8
+ class 2, 1318,  68.4
+ class 2, 1319,  67.9
+ class 2, 1320,  67.5
+ class 2, 1321,  67.2
+ class 2, 1322,  66.8
+ class 2, 1323,  65.6
+ class 2, 1324,  63.3
+ class 2, 1325,  60.2
+ class 2, 1326,  56.2
+ class 2, 1327,  52.2
+ class 2, 1328,  48.4
+ class 2, 1329,  45.0
+ class 2, 1330,  41.6
+ class 2, 1331,  38.6
+ class 2, 1332,  36.4
+ class 2, 1333,  34.8
+ class 2, 1334,  34.2
+ class 2, 1335,  34.7
+ class 2, 1336,  36.3
+ class 2, 1337,  38.5
+ class 2, 1338,  41.0
+ class 2, 1339,  43.7
+ class 2, 1340,  46.5
+ class 2, 1341,  49.1
+ class 2, 1342,  51.6
+ class 2, 1343,  53.9
+ class 2, 1344,  56.0
+ class 2, 1345,  57.9
+ class 2, 1346,  59.7
+ class 2, 1347,  61.2
+ class 2, 1348,  62.5
+ class 2, 1349,  63.5
+ class 2, 1350,  64.3
+ class 2, 1351,  65.3
+ class 2, 1352,  66.3
+ class 2, 1353,  67.3
+ class 2, 1354,  68.3
+ class 2, 1355,  69.3
+ class 2, 1356,  70.3
+ class 2, 1357,  70.8
+ class 2, 1358,  70.8
+ class 2, 1359,  70.8
+ class 2, 1360,  70.9
+ class 2, 1361,  70.9
+ class 2, 1362,  70.9
+ class 2, 1363,  70.9
+ class 2, 1364,  71.0
+ class 2, 1365,  71.0
+ class 2, 1366,  71.1
+ class 2, 1367,  71.2
+ class 2, 1368,  71.3
+ class 2, 1369,  71.4
+ class 2, 1370,  71.5
+ class 2, 1371,  71.7
+ class 2, 1372,  71.8
+ class 2, 1373,  71.9
+ class 2, 1374,  71.9
+ class 2, 1375,  71.9
+ class 2, 1376,  71.9
+ class 2, 1377,  71.9
+ class 2, 1378,  71.9
+ class 2, 1379,  71.9
+ class 2, 1380,  72.0
+ class 2, 1381,  72.1
+ class 2, 1382,  72.4
+ class 2, 1383,  72.7
+ class 2, 1384,  73.1
+ class 2, 1385,  73.4
+ class 2, 1386,  73.8
+ class 2, 1387,  74.0
+ class 2, 1388,  74.1
+ class 2, 1389,  74.0
+ class 2, 1390,  73.0
+ class 2, 1391,  72.0
+ class 2, 1392,  71.0
+ class 2, 1393,  70.0
+ class 2, 1394,  69.0
+ class 2, 1395,  68.0
+ class 2, 1396,  67.7
+ class 2, 1397,  66.7
+ class 2, 1398,  66.6
+ class 2, 1399,  66.7
+ class 2, 1400,  66.8
+ class 2, 1401,  66.9
+ class 2, 1402,  66.9
+ class 2, 1403,  66.9
+ class 2, 1404,  66.9
+ class 2, 1405,  66.9
+ class 2, 1406,  66.9
+ class 2, 1407,  66.9
+ class 2, 1408,  67.0
+ class 2, 1409,  67.1
+ class 2, 1410,  67.3
+ class 2, 1411,  67.5
+ class 2, 1412,  67.8
+ class 2, 1413,  68.2
+ class 2, 1414,  68.6
+ class 2, 1415,  69.0
+ class 2, 1416,  69.3
+ class 2, 1417,  69.3
+ class 2, 1418,  69.2
+ class 2, 1419,  68.8
+ class 2, 1420,  68.2
+ class 2, 1421,  67.6
+ class 2, 1422,  67.4
+ class 2, 1423,  67.2
+ class 2, 1424,  66.9
+ class 2, 1425,  66.3
+ class 2, 1426,  65.4
+ class 2, 1427,  64.0
+ class 2, 1428,  62.4
+ class 2, 1429,  60.6
+ class 2, 1430,  58.6
+ class 2, 1431,  56.7
+ class 2, 1432,  54.8
+ class 2, 1433,  53.0
+ class 2, 1434,  51.3
+ class 2, 1435,  49.6
+ class 2, 1436,  47.8
+ class 2, 1437,  45.5
+ class 2, 1438,  42.8
+ class 2, 1439,  39.8
+ class 2, 1440,  36.5
+ class 2, 1441,  33.0
+ class 2, 1442,  29.5
+ class 2, 1443,  25.8
+ class 2, 1444,  22.1
+ class 2, 1445,  18.6
+ class 2, 1446,  15.3
+ class 2, 1447,  12.4
+ class 2, 1448,   9.6
+ class 2, 1449,   6.6
+ class 2, 1450,   3.8
+ class 2, 1451,   1.6
+ class 2, 1452,   0.0
+ class 2, 1453,   0.0
+ class 2, 1454,   0.0
+ class 2, 1455,   0.0
+ class 2, 1456,   0.0
+ class 2, 1457,   0.0
+ class 2, 1458,   0.0
+ class 2, 1459,   0.0
+ class 2, 1460,   0.0
+ class 2, 1461,   0.0
+ class 2, 1462,   0.0
+ class 2, 1463,   0.0
+ class 2, 1464,   0.0
+ class 2, 1465,   0.0
+ class 2, 1466,   0.0
+ class 2, 1467,   0.0
+ class 2, 1468,   0.0
+ class 2, 1469,   0.0
+ class 2, 1470,   0.0
+ class 2, 1471,   0.0
+ class 2, 1472,   0.0
+ class 2, 1473,   0.0
+ class 2, 1474,   0.0
+ class 2, 1475,   0.0
+ class 2, 1476,   0.0
+ class 2, 1477,   0.0
+ class 2, 1478,   0.0
+ class 2, 1479,   1.1
+ class 2, 1480,   2.3
+ class 2, 1481,   4.6
+ class 2, 1482,   6.5
+ class 2, 1483,   8.9
+ class 2, 1484,  10.9
+ class 2, 1485,  13.5
+ class 2, 1486,  15.2
+ class 2, 1487,  17.6
+ class 2, 1488,  19.3
+ class 2, 1489,  21.4
+ class 2, 1490,  23.0
+ class 2, 1491,  25.0
+ class 2, 1492,  26.5
+ class 2, 1493,  28.4
+ class 2, 1494,  29.8
+ class 2, 1495,  31.7
+ class 2, 1496,  33.7
+ class 2, 1497,  35.8
+ class 2, 1498,  38.1
+ class 2, 1499,  40.5
+ class 2, 1500,  42.2
+ class 2, 1501,  43.5
+ class 2, 1502,  44.5
+ class 2, 1503,  45.2
+ class 2, 1504,  45.8
+ class 2, 1505,  46.6
+ class 2, 1506,  47.4
+ class 2, 1507,  48.5
+ class 2, 1508,  49.7
+ class 2, 1509,  51.3
+ class 2, 1510,  52.9
+ class 2, 1511,  54.3
+ class 2, 1512,  55.6
+ class 2, 1513,  56.8
+ class 2, 1514,  57.9
+ class 2, 1515,  58.9
+ class 2, 1516,  59.7
+ class 2, 1517,  60.3
+ class 2, 1518,  60.7
+ class 2, 1519,  60.9
+ class 2, 1520,  61.0
+ class 2, 1521,  61.1
+ class 2, 1522,  61.4
+ class 2, 1523,  61.8
+ class 2, 1524,  62.5
+ class 2, 1525,  63.4
+ class 2, 1526,  64.5
+ class 2, 1527,  65.7
+ class 2, 1528,  66.9
+ class 2, 1529,  68.1
+ class 2, 1530,  69.1
+ class 2, 1531,  70.0
+ class 2, 1532,  70.9
+ class 2, 1533,  71.8
+ class 2, 1534,  72.6
+ class 2, 1535,  73.4
+ class 2, 1536,  74.0
+ class 2, 1537,  74.7
+ class 2, 1538,  75.2
+ class 2, 1539,  75.7
+ class 2, 1540,  76.4
+ class 2, 1541,  77.2
+ class 2, 1542,  78.2
+ class 2, 1543,  78.9
+ class 2, 1544,  79.9
+ class 2, 1545,  81.1
+ class 2, 1546,  82.4
+ class 2, 1547,  83.7
+ class 2, 1548,  85.4
+ class 2, 1549,  87.0
+ class 2, 1550,  88.3
+ class 2, 1551,  89.5
+ class 2, 1552,  90.5
+ class 2, 1553,  91.3
+ class 2, 1554,  92.2
+ class 2, 1555,  93.0
+ class 2, 1556,  93.8
+ class 2, 1557,  94.6
+ class 2, 1558,  95.3
+ class 2, 1559,  95.9
+ class 2, 1560,  96.6
+ class 2, 1561,  97.4
+ class 2, 1562,  98.1
+ class 2, 1563,  98.7
+ class 2, 1564,  99.5
+ class 2, 1565, 100.3
+ class 2, 1566, 101.1
+ class 2, 1567, 101.9
+ class 2, 1568, 102.8
+ class 2, 1569, 103.8
+ class 2, 1570, 105.0
+ class 2, 1571, 106.1
+ class 2, 1572, 107.4
+ class 2, 1573, 108.7
+ class 2, 1574, 109.9
+ class 2, 1575, 111.2
+ class 2, 1576, 112.3
+ class 2, 1577, 113.4
+ class 2, 1578, 114.4
+ class 2, 1579, 115.3
+ class 2, 1580, 116.1
+ class 2, 1581, 116.8
+ class 2, 1582, 117.4
+ class 2, 1583, 117.7
+ class 2, 1584, 118.2
+ class 2, 1585, 118.1
+ class 2, 1586, 117.7
+ class 2, 1587, 117.0
+ class 2, 1588, 116.1
+ class 2, 1589, 115.2
+ class 2, 1590, 114.4
+ class 2, 1591, 113.6
+ class 2, 1592, 113.0
+ class 2, 1593, 112.6
+ class 2, 1594, 112.2
+ class 2, 1595, 111.9
+ class 2, 1596, 111.6
+ class 2, 1597, 111.2
+ class 2, 1598, 110.7
+ class 2, 1599, 110.1
+ class 2, 1600, 109.3
+ class 2, 1601, 108.4
+ class 2, 1602, 107.4
+ class 2, 1603, 106.7
+ class 2, 1604, 106.3
+ class 2, 1605, 106.2
+ class 2, 1606, 106.4
+ class 2, 1607, 107.0
+ class 2, 1608, 107.5
+ class 2, 1609, 107.9
+ class 2, 1610, 108.4
+ class 2, 1611, 108.9
+ class 2, 1612, 109.5
+ class 2, 1613, 110.2
+ class 2, 1614, 110.9
+ class 2, 1615, 111.6
+ class 2, 1616, 112.2
+ class 2, 1617, 112.8
+ class 2, 1618, 113.3
+ class 2, 1619, 113.7
+ class 2, 1620, 114.1
+ class 2, 1621, 114.4
+ class 2, 1622, 114.6
+ class 2, 1623, 114.7
+ class 2, 1624, 114.7
+ class 2, 1625, 114.7
+ class 2, 1626, 114.6
+ class 2, 1627, 114.5
+ class 2, 1628, 114.5
+ class 2, 1629, 114.5
+ class 2, 1630, 114.7
+ class 2, 1631, 115.0
+ class 2, 1632, 115.6
+ class 2, 1633, 116.4
+ class 2, 1634, 117.3
+ class 2, 1635, 118.2
+ class 2, 1636, 118.8
+ class 2, 1637, 119.3
+ class 2, 1638, 119.6
+ class 2, 1639, 119.7
+ class 2, 1640, 119.5
+ class 2, 1641, 119.3
+ class 2, 1642, 119.2
+ class 2, 1643, 119.0
+ class 2, 1644, 118.8
+ class 2, 1645, 118.8
+ class 2, 1646, 118.8
+ class 2, 1647, 118.8
+ class 2, 1648, 118.8
+ class 2, 1649, 118.9
+ class 2, 1650, 119.0
+ class 2, 1651, 119.0
+ class 2, 1652, 119.1
+ class 2, 1653, 119.2
+ class 2, 1654, 119.4
+ class 2, 1655, 119.6
+ class 2, 1656, 119.9
+ class 2, 1657, 120.1
+ class 2, 1658, 120.3
+ class 2, 1659, 120.4
+ class 2, 1660, 120.5
+ class 2, 1661, 120.5
+ class 2, 1662, 120.5
+ class 2, 1663, 120.5
+ class 2, 1664, 120.4
+ class 2, 1665, 120.3
+ class 2, 1666, 120.1
+ class 2, 1667, 119.9
+ class 2, 1668, 119.6
+ class 2, 1669, 119.5
+ class 2, 1670, 119.4
+ class 2, 1671, 119.3
+ class 2, 1672, 119.3
+ class 2, 1673, 119.4
+ class 2, 1674, 119.5
+ class 2, 1675, 119.5
+ class 2, 1676, 119.6
+ class 2, 1677, 119.6
+ class 2, 1678, 119.6
+ class 2, 1679, 119.4
+ class 2, 1680, 119.3
+ class 2, 1681, 119.0
+ class 2, 1682, 118.8
+ class 2, 1683, 118.7
+ class 2, 1684, 118.8
+ class 2, 1685, 119.0
+ class 2, 1686, 119.2
+ class 2, 1687, 119.6
+ class 2, 1688, 120.0
+ class 2, 1689, 120.3
+ class 2, 1690, 120.5
+ class 2, 1691, 120.7
+ class 2, 1692, 120.9
+ class 2, 1693, 121.0
+ class 2, 1694, 121.1
+ class 2, 1695, 121.2
+ class 2, 1696, 121.3
+ class 2, 1697, 121.4
+ class 2, 1698, 121.5
+ class 2, 1699, 121.5
+ class 2, 1700, 121.5
+ class 2, 1701, 121.4
+ class 2, 1702, 121.3
+ class 2, 1703, 121.1
+ class 2, 1704, 120.9
+ class 2, 1705, 120.6
+ class 2, 1706, 120.4
+ class 2, 1707, 120.2
+ class 2, 1708, 120.1
+ class 2, 1709, 119.9
+ class 2, 1710, 119.8
+ class 2, 1711, 119.8
+ class 2, 1712, 119.9
+ class 2, 1713, 120.0
+ class 2, 1714, 120.2
+ class 2, 1715, 120.4
+ class 2, 1716, 120.8
+ class 2, 1717, 121.1
+ class 2, 1718, 121.6
+ class 2, 1719, 121.8
+ class 2, 1720, 122.1
+ class 2, 1721, 122.4
+ class 2, 1722, 122.7
+ class 2, 1723, 122.8
+ class 2, 1724, 123.1
+ class 2, 1725, 123.1
+ class 2, 1726, 122.8
+ class 2, 1727, 122.3
+ class 2, 1728, 121.3
+ class 2, 1729, 119.9
+ class 2, 1730, 118.1
+ class 2, 1731, 115.9
+ class 2, 1732, 113.5
+ class 2, 1733, 111.1
+ class 2, 1734, 108.6
+ class 2, 1735, 106.2
+ class 2, 1736, 104.0
+ class 2, 1737, 101.1
+ class 2, 1738,  98.3
+ class 2, 1739,  95.7
+ class 2, 1740,  93.5
+ class 2, 1741,  91.5
+ class 2, 1742,  90.7
+ class 2, 1743,  90.4
+ class 2, 1744,  90.2
+ class 2, 1745,  90.2
+ class 2, 1746,  90.1
+ class 2, 1747,  90.0
+ class 2, 1748,  89.8
+ class 2, 1749,  89.6
+ class 2, 1750,  89.4
+ class 2, 1751,  89.2
+ class 2, 1752,  88.9
+ class 2, 1753,  88.5
+ class 2, 1754,  88.1
+ class 2, 1755,  87.6
+ class 2, 1756,  87.1
+ class 2, 1757,  86.6
+ class 2, 1758,  86.1
+ class 2, 1759,  85.5
+ class 2, 1760,  85.0
+ class 2, 1761,  84.4
+ class 2, 1762,  83.8
+ class 2, 1763,  83.2
+ class 2, 1764,  82.6
+ class 2, 1765,  81.9
+ class 2, 1766,  81.1
+ class 2, 1767,  80.0
+ class 2, 1768,  78.7
+ class 2, 1769,  76.9
+ class 2, 1770,  74.6
+ class 2, 1771,  72.0
+ class 2, 1772,  69.0
+ class 2, 1773,  65.6
+ class 2, 1774,  62.1
+ class 2, 1775,  58.5
+ class 2, 1776,  54.7
+ class 2, 1777,  50.9
+ class 2, 1778,  47.3
+ class 2, 1779,  43.8
+ class 2, 1780,  40.4
+ class 2, 1781,  37.4
+ class 2, 1782,  34.3
+ class 2, 1783,  31.3
+ class 2, 1784,  28.3
+ class 2, 1785,  25.2
+ class 2, 1786,  22.0
+ class 2, 1787,  18.9
+ class 2, 1788,  16.1
+ class 2, 1789,  13.4
+ class 2, 1790,  11.1
+ class 2, 1791,   8.9
+ class 2, 1792,   6.9
+ class 2, 1793,   4.9
+ class 2, 1794,   2.8
+ class 2, 1795,   0.0
+ class 2, 1796,   0.0
+ class 2, 1797,   0.0
+ class 2, 1798,   0.0
+ class 2, 1799,   0.0
+ class 2, 1800,   0.0
+class 3a,    0,   0.0
+class 3a,    1,   0.0
+class 3a,    2,   0.0
+class 3a,    3,   0.0
+class 3a,    4,   0.0
+class 3a,    5,   0.0
+class 3a,    6,   0.0
+class 3a,    7,   0.0
+class 3a,    8,   0.0
+class 3a,    9,   0.0
+class 3a,   10,   0.0
+class 3a,   11,   0.0
+class 3a,   12,   0.2
+class 3a,   13,   1.7
+class 3a,   14,   5.4
+class 3a,   15,   9.9
+class 3a,   16,  13.1
+class 3a,   17,  16.9
+class 3a,   18,  21.7
+class 3a,   19,  26.0
+class 3a,   20,  27.5
+class 3a,   21,  28.1
+class 3a,   22,  28.3
+class 3a,   23,  28.8
+class 3a,   24,  29.1
+class 3a,   25,  30.8
+class 3a,   26,  31.9
+class 3a,   27,  34.1
+class 3a,   28,  36.6
+class 3a,   29,  39.1
+class 3a,   30,  41.3
+class 3a,   31,  42.5
+class 3a,   32,  43.3
+class 3a,   33,  43.9
+class 3a,   34,  44.4
+class 3a,   35,  44.5
+class 3a,   36,  44.2
+class 3a,   37,  42.7
+class 3a,   38,  39.9
+class 3a,   39,  37.0
+class 3a,   40,  34.6
+class 3a,   41,  32.3
+class 3a,   42,  29.0
+class 3a,   43,  25.1
+class 3a,   44,  22.2
+class 3a,   45,  20.9
+class 3a,   46,  20.4
+class 3a,   47,  19.5
+class 3a,   48,  18.4
+class 3a,   49,  17.8
+class 3a,   50,  17.8
+class 3a,   51,  17.4
+class 3a,   52,  15.7
+class 3a,   53,  13.1
+class 3a,   54,  12.1
+class 3a,   55,  12.0
+class 3a,   56,  12.0
+class 3a,   57,  12.0
+class 3a,   58,  12.3
+class 3a,   59,  12.6
+class 3a,   60,  14.7
+class 3a,   61,  15.3
+class 3a,   62,  15.9
+class 3a,   63,  16.2
+class 3a,   64,  17.1
+class 3a,   65,  17.8
+class 3a,   66,  18.1
+class 3a,   67,  18.4
+class 3a,   68,  20.3
+class 3a,   69,  23.2
+class 3a,   70,  26.5
+class 3a,   71,  29.8
+class 3a,   72,  32.6
+class 3a,   73,  34.4
+class 3a,   74,  35.5
+class 3a,   75,  36.4
+class 3a,   76,  37.4
+class 3a,   77,  38.5
+class 3a,   78,  39.3
+class 3a,   79,  39.5
+class 3a,   80,  39.0
+class 3a,   81,  38.5
+class 3a,   82,  37.3
+class 3a,   83,  37.0
+class 3a,   84,  36.7
+class 3a,   85,  35.9
+class 3a,   86,  35.3
+class 3a,   87,  34.6
+class 3a,   88,  34.2
+class 3a,   89,  31.9
+class 3a,   90,  27.3
+class 3a,   91,  22.0
+class 3a,   92,  17.0
+class 3a,   93,  14.2
+class 3a,   94,  12.0
+class 3a,   95,   9.1
+class 3a,   96,   5.8
+class 3a,   97,   3.6
+class 3a,   98,   2.2
+class 3a,   99,   0.0
+class 3a,  100,   0.0
+class 3a,  101,   0.0
+class 3a,  102,   0.0
+class 3a,  103,   0.0
+class 3a,  104,   0.0
+class 3a,  105,   0.0
+class 3a,  106,   0.0
+class 3a,  107,   0.0
+class 3a,  108,   0.0
+class 3a,  109,   0.0
+class 3a,  110,   0.0
+class 3a,  111,   0.0
+class 3a,  112,   0.0
+class 3a,  113,   0.0
+class 3a,  114,   0.0
+class 3a,  115,   0.0
+class 3a,  116,   0.0
+class 3a,  117,   0.0
+class 3a,  118,   0.0
+class 3a,  119,   0.0
+class 3a,  120,   0.0
+class 3a,  121,   0.0
+class 3a,  122,   0.0
+class 3a,  123,   0.0
+class 3a,  124,   0.0
+class 3a,  125,   0.0
+class 3a,  126,   0.0
+class 3a,  127,   0.0
+class 3a,  128,   0.0
+class 3a,  129,   0.0
+class 3a,  130,   0.0
+class 3a,  131,   0.0
+class 3a,  132,   0.0
+class 3a,  133,   0.0
+class 3a,  134,   0.0
+class 3a,  135,   0.0
+class 3a,  136,   0.0
+class 3a,  137,   0.0
+class 3a,  138,   0.2
+class 3a,  139,   1.9
+class 3a,  140,   6.1
+class 3a,  141,  11.7
+class 3a,  142,  16.4
+class 3a,  143,  18.9
+class 3a,  144,  19.9
+class 3a,  145,  20.8
+class 3a,  146,  22.8
+class 3a,  147,  25.4
+class 3a,  148,  27.7
+class 3a,  149,  29.2
+class 3a,  150,  29.8
+class 3a,  151,  29.4
+class 3a,  152,  27.2
+class 3a,  153,  22.6
+class 3a,  154,  17.3
+class 3a,  155,  13.3
+class 3a,  156,  12.0
+class 3a,  157,  12.6
+class 3a,  158,  14.1
+class 3a,  159,  17.2
+class 3a,  160,  20.1
+class 3a,  161,  23.4
+class 3a,  162,  25.5
+class 3a,  163,  27.6
+class 3a,  164,  29.5
+class 3a,  165,  31.1
+class 3a,  166,  32.1
+class 3a,  167,  33.2
+class 3a,  168,  35.2
+class 3a,  169,  37.2
+class 3a,  170,  38.0
+class 3a,  171,  37.4
+class 3a,  172,  35.1
+class 3a,  173,  31.0
+class 3a,  174,  27.1
+class 3a,  175,  25.3
+class 3a,  176,  25.1
+class 3a,  177,  25.9
+class 3a,  178,  27.8
+class 3a,  179,  29.2
+class 3a,  180,  29.6
+class 3a,  181,  29.5
+class 3a,  182,  29.2
+class 3a,  183,  28.3
+class 3a,  184,  26.1
+class 3a,  185,  23.6
+class 3a,  186,  21.0
+class 3a,  187,  18.9
+class 3a,  188,  17.1
+class 3a,  189,  15.7
+class 3a,  190,  14.5
+class 3a,  191,  13.7
+class 3a,  192,  12.9
+class 3a,  193,  12.5
+class 3a,  194,  12.2
+class 3a,  195,  12.0
+class 3a,  196,  12.0
+class 3a,  197,  12.0
+class 3a,  198,  12.0
+class 3a,  199,  12.5
+class 3a,  200,  13.0
+class 3a,  201,  14.0
+class 3a,  202,  15.0
+class 3a,  203,  16.5
+class 3a,  204,  19.0
+class 3a,  205,  21.2
+class 3a,  206,  23.8
+class 3a,  207,  26.9
+class 3a,  208,  29.6
+class 3a,  209,  32.0
+class 3a,  210,  35.2
+class 3a,  211,  37.5
+class 3a,  212,  39.2
+class 3a,  213,  40.5
+class 3a,  214,  41.6
+class 3a,  215,  43.1
+class 3a,  216,  45.0
+class 3a,  217,  47.1
+class 3a,  218,  49.0
+class 3a,  219,  50.6
+class 3a,  220,  51.8
+class 3a,  221,  52.7
+class 3a,  222,  53.1
+class 3a,  223,  53.5
+class 3a,  224,  53.8
+class 3a,  225,  54.2
+class 3a,  226,  54.8
+class 3a,  227,  55.3
+class 3a,  228,  55.8
+class 3a,  229,  56.2
+class 3a,  230,  56.5
+class 3a,  231,  56.5
+class 3a,  232,  56.2
+class 3a,  233,  54.9
+class 3a,  234,  52.9
+class 3a,  235,  51.0
+class 3a,  236,  49.8
+class 3a,  237,  49.2
+class 3a,  238,  48.4
+class 3a,  239,  46.9
+class 3a,  240,  44.3
+class 3a,  241,  41.5
+class 3a,  242,  39.5
+class 3a,  243,  37.0
+class 3a,  244,  34.6
+class 3a,  245,  32.3
+class 3a,  246,  29.0
+class 3a,  247,  25.1
+class 3a,  248,  22.2
+class 3a,  249,  20.9
+class 3a,  250,  20.4
+class 3a,  251,  19.5
+class 3a,  252,  18.4
+class 3a,  253,  17.8
+class 3a,  254,  17.8
+class 3a,  255,  17.4
+class 3a,  256,  15.7
+class 3a,  257,  14.5
+class 3a,  258,  15.4
+class 3a,  259,  17.9
+class 3a,  260,  20.6
+class 3a,  261,  23.2
+class 3a,  262,  25.7
+class 3a,  263,  28.7
+class 3a,  264,  32.5
+class 3a,  265,  36.1
+class 3a,  266,  39.0
+class 3a,  267,  40.8
+class 3a,  268,  42.9
+class 3a,  269,  44.4
+class 3a,  270,  45.9
+class 3a,  271,  46.0
+class 3a,  272,  45.6
+class 3a,  273,  45.3
+class 3a,  274,  43.7
+class 3a,  275,  40.8
+class 3a,  276,  38.0
+class 3a,  277,  34.4
+class 3a,  278,  30.9
+class 3a,  279,  25.5
+class 3a,  280,  21.4
+class 3a,  281,  20.2
+class 3a,  282,  22.9
+class 3a,  283,  26.6
+class 3a,  284,  30.2
+class 3a,  285,  34.1
+class 3a,  286,  37.4
+class 3a,  287,  40.7
+class 3a,  288,  44.0
+class 3a,  289,  47.3
+class 3a,  290,  49.2
+class 3a,  291,  49.8
+class 3a,  292,  49.2
+class 3a,  293,  48.1
+class 3a,  294,  47.3
+class 3a,  295,  46.8
+class 3a,  296,  46.7
+class 3a,  297,  46.8
+class 3a,  298,  47.1
+class 3a,  299,  47.3
+class 3a,  300,  47.3
+class 3a,  301,  47.1
+class 3a,  302,  46.6
+class 3a,  303,  45.8
+class 3a,  304,  44.8
+class 3a,  305,  43.3
+class 3a,  306,  41.8
+class 3a,  307,  40.8
+class 3a,  308,  40.3
+class 3a,  309,  40.1
+class 3a,  310,  39.7
+class 3a,  311,  39.2
+class 3a,  312,  38.5
+class 3a,  313,  37.4
+class 3a,  314,  36.0
+class 3a,  315,  34.4
+class 3a,  316,  33.0
+class 3a,  317,  31.7
+class 3a,  318,  30.0
+class 3a,  319,  28.0
+class 3a,  320,  26.1
+class 3a,  321,  25.6
+class 3a,  322,  24.9
+class 3a,  323,  24.9
+class 3a,  324,  24.3
+class 3a,  325,  23.9
+class 3a,  326,  23.9
+class 3a,  327,  23.6
+class 3a,  328,  23.3
+class 3a,  329,  20.5
+class 3a,  330,  17.5
+class 3a,  331,  16.9
+class 3a,  332,  16.7
+class 3a,  333,  15.9
+class 3a,  334,  15.6
+class 3a,  335,  15.0
+class 3a,  336,  14.5
+class 3a,  337,  14.3
+class 3a,  338,  14.5
+class 3a,  339,  15.4
+class 3a,  340,  17.8
+class 3a,  341,  21.1
+class 3a,  342,  24.1
+class 3a,  343,  25.0
+class 3a,  344,  25.3
+class 3a,  345,  25.5
+class 3a,  346,  26.4
+class 3a,  347,  26.6
+class 3a,  348,  27.1
+class 3a,  349,  27.7
+class 3a,  350,  28.1
+class 3a,  351,  28.2
+class 3a,  352,  28.1
+class 3a,  353,  28.0
+class 3a,  354,  27.9
+class 3a,  355,  27.9
+class 3a,  356,  28.1
+class 3a,  357,  28.2
+class 3a,  358,  28.0
+class 3a,  359,  26.9
+class 3a,  360,  25.0
+class 3a,  361,  23.2
+class 3a,  362,  21.9
+class 3a,  363,  21.1
+class 3a,  364,  20.7
+class 3a,  365,  20.7
+class 3a,  366,  20.8
+class 3a,  367,  21.2
+class 3a,  368,  22.1
+class 3a,  369,  23.5
+class 3a,  370,  24.3
+class 3a,  371,  24.5
+class 3a,  372,  23.8
+class 3a,  373,  21.3
+class 3a,  374,  17.7
+class 3a,  375,  14.4
+class 3a,  376,  11.9
+class 3a,  377,  10.2
+class 3a,  378,   8.9
+class 3a,  379,   8.0
+class 3a,  380,   7.2
+class 3a,  381,   6.1
+class 3a,  382,   4.9
+class 3a,  383,   3.7
+class 3a,  384,   2.3
+class 3a,  385,   0.9
+class 3a,  386,   0.0
+class 3a,  387,   0.0
+class 3a,  388,   0.0
+class 3a,  389,   0.0
+class 3a,  390,   0.0
+class 3a,  391,   0.0
+class 3a,  392,   0.5
+class 3a,  393,   2.1
+class 3a,  394,   4.8
+class 3a,  395,   8.3
+class 3a,  396,  12.3
+class 3a,  397,  16.6
+class 3a,  398,  20.9
+class 3a,  399,  24.2
+class 3a,  400,  25.6
+class 3a,  401,  25.6
+class 3a,  402,  24.9
+class 3a,  403,  23.3
+class 3a,  404,  21.6
+class 3a,  405,  20.2
+class 3a,  406,  18.7
+class 3a,  407,  17.0
+class 3a,  408,  15.3
+class 3a,  409,  14.2
+class 3a,  410,  13.9
+class 3a,  411,  14.0
+class 3a,  412,  14.2
+class 3a,  413,  14.5
+class 3a,  414,  14.9
+class 3a,  415,  15.9
+class 3a,  416,  17.4
+class 3a,  417,  18.7
+class 3a,  418,  19.1
+class 3a,  419,  18.8
+class 3a,  420,  17.6
+class 3a,  421,  16.6
+class 3a,  422,  16.2
+class 3a,  423,  16.4
+class 3a,  424,  17.2
+class 3a,  425,  19.1
+class 3a,  426,  22.6
+class 3a,  427,  27.4
+class 3a,  428,  31.6
+class 3a,  429,  33.4
+class 3a,  430,  33.5
+class 3a,  431,  32.8
+class 3a,  432,  31.9
+class 3a,  433,  31.3
+class 3a,  434,  31.1
+class 3a,  435,  30.6
+class 3a,  436,  29.2
+class 3a,  437,  26.7
+class 3a,  438,  23.0
+class 3a,  439,  18.2
+class 3a,  440,  12.9
+class 3a,  441,   7.7
+class 3a,  442,   3.8
+class 3a,  443,   1.3
+class 3a,  444,   0.2
+class 3a,  445,   0.0
+class 3a,  446,   0.0
+class 3a,  447,   0.0
+class 3a,  448,   0.0
+class 3a,  449,   0.0
+class 3a,  450,   0.0
+class 3a,  451,   0.0
+class 3a,  452,   0.0
+class 3a,  453,   0.0
+class 3a,  454,   0.0
+class 3a,  455,   0.0
+class 3a,  456,   0.0
+class 3a,  457,   0.0
+class 3a,  458,   0.0
+class 3a,  459,   0.0
+class 3a,  460,   0.0
+class 3a,  461,   0.0
+class 3a,  462,   0.0
+class 3a,  463,   0.0
+class 3a,  464,   0.0
+class 3a,  465,   0.0
+class 3a,  466,   0.0
+class 3a,  467,   0.0
+class 3a,  468,   0.0
+class 3a,  469,   0.0
+class 3a,  470,   0.0
+class 3a,  471,   0.0
+class 3a,  472,   0.0
+class 3a,  473,   0.0
+class 3a,  474,   0.0
+class 3a,  475,   0.0
+class 3a,  476,   0.0
+class 3a,  477,   0.0
+class 3a,  478,   0.0
+class 3a,  479,   0.0
+class 3a,  480,   0.0
+class 3a,  481,   0.0
+class 3a,  482,   0.0
+class 3a,  483,   0.0
+class 3a,  484,   0.0
+class 3a,  485,   0.0
+class 3a,  486,   0.0
+class 3a,  487,   0.0
+class 3a,  488,   0.0
+class 3a,  489,   0.0
+class 3a,  490,   0.0
+class 3a,  491,   0.0
+class 3a,  492,   0.0
+class 3a,  493,   0.0
+class 3a,  494,   0.0
+class 3a,  495,   0.0
+class 3a,  496,   0.0
+class 3a,  497,   0.0
+class 3a,  498,   0.0
+class 3a,  499,   0.0
+class 3a,  500,   0.0
+class 3a,  501,   0.0
+class 3a,  502,   0.0
+class 3a,  503,   0.0
+class 3a,  504,   0.0
+class 3a,  505,   0.0
+class 3a,  506,   0.0
+class 3a,  507,   0.0
+class 3a,  508,   0.0
+class 3a,  509,   0.0
+class 3a,  510,   0.0
+class 3a,  511,   0.0
+class 3a,  512,   0.5
+class 3a,  513,   2.5
+class 3a,  514,   6.6
+class 3a,  515,  11.8
+class 3a,  516,  16.8
+class 3a,  517,  20.5
+class 3a,  518,  21.9
+class 3a,  519,  21.9
+class 3a,  520,  21.3
+class 3a,  521,  20.3
+class 3a,  522,  19.2
+class 3a,  523,  17.8
+class 3a,  524,  15.5
+class 3a,  525,  11.9
+class 3a,  526,   7.6
+class 3a,  527,   4.0
+class 3a,  528,   2.0
+class 3a,  529,   1.0
+class 3a,  530,   0.0
+class 3a,  531,   0.0
+class 3a,  532,   0.0
+class 3a,  533,   0.2
+class 3a,  534,   1.2
+class 3a,  535,   3.2
+class 3a,  536,   5.2
+class 3a,  537,   8.2
+class 3a,  538,  13.0
+class 3a,  539,  18.8
+class 3a,  540,  23.1
+class 3a,  541,  24.5
+class 3a,  542,  24.5
+class 3a,  543,  24.3
+class 3a,  544,  23.6
+class 3a,  545,  22.3
+class 3a,  546,  20.1
+class 3a,  547,  18.5
+class 3a,  548,  17.2
+class 3a,  549,  16.3
+class 3a,  550,  15.4
+class 3a,  551,  14.7
+class 3a,  552,  14.3
+class 3a,  553,  13.7
+class 3a,  554,  13.3
+class 3a,  555,  13.1
+class 3a,  556,  13.1
+class 3a,  557,  13.3
+class 3a,  558,  13.8
+class 3a,  559,  14.5
+class 3a,  560,  16.5
+class 3a,  561,  17.0
+class 3a,  562,  17.0
+class 3a,  563,  17.0
+class 3a,  564,  15.4
+class 3a,  565,  10.1
+class 3a,  566,   4.8
+class 3a,  567,   0.0
+class 3a,  568,   0.0
+class 3a,  569,   0.0
+class 3a,  570,   0.0
+class 3a,  571,   0.0
+class 3a,  572,   0.0
+class 3a,  573,   0.0
+class 3a,  574,   0.0
+class 3a,  575,   0.0
+class 3a,  576,   0.0
+class 3a,  577,   0.0
+class 3a,  578,   0.0
+class 3a,  579,   0.0
+class 3a,  580,   0.0
+class 3a,  581,   0.0
+class 3a,  582,   0.0
+class 3a,  583,   0.0
+class 3a,  584,   0.0
+class 3a,  585,   0.0
+class 3a,  586,   0.0
+class 3a,  587,   0.0
+class 3a,  588,   0.0
+class 3a,  589,   0.0
+class 3a,  590,   0.0
+class 3a,  591,   0.0
+class 3a,  592,   0.0
+class 3a,  593,   0.0
+class 3a,  594,   0.0
+class 3a,  595,   0.0
+class 3a,  596,   0.0
+class 3a,  597,   0.0
+class 3a,  598,   0.0
+class 3a,  599,   0.0
+class 3a,  600,   0.0
+class 3a,  601,   1.0
+class 3a,  602,   2.1
+class 3a,  603,   5.2
+class 3a,  604,   9.2
+class 3a,  605,  13.5
+class 3a,  606,  18.1
+class 3a,  607,  22.3
+class 3a,  608,  26.0
+class 3a,  609,  29.3
+class 3a,  610,  32.8
+class 3a,  611,  36.0
+class 3a,  612,  39.2
+class 3a,  613,  42.5
+class 3a,  614,  45.7
+class 3a,  615,  48.2
+class 3a,  616,  48.4
+class 3a,  617,  48.2
+class 3a,  618,  47.8
+class 3a,  619,  47.0
+class 3a,  620,  45.9
+class 3a,  621,  44.9
+class 3a,  622,  44.4
+class 3a,  623,  44.3
+class 3a,  624,  44.5
+class 3a,  625,  45.1
+class 3a,  626,  45.7
+class 3a,  627,  46.0
+class 3a,  628,  46.0
+class 3a,  629,  46.0
+class 3a,  630,  46.1
+class 3a,  631,  46.7
+class 3a,  632,  47.7
+class 3a,  633,  48.9
+class 3a,  634,  50.3
+class 3a,  635,  51.6
+class 3a,  636,  52.6
+class 3a,  637,  53.0
+class 3a,  638,  53.0
+class 3a,  639,  52.9
+class 3a,  640,  52.7
+class 3a,  641,  52.6
+class 3a,  642,  53.1
+class 3a,  643,  54.3
+class 3a,  644,  55.2
+class 3a,  645,  55.5
+class 3a,  646,  55.9
+class 3a,  647,  56.3
+class 3a,  648,  56.7
+class 3a,  649,  56.9
+class 3a,  650,  56.8
+class 3a,  651,  56.0
+class 3a,  652,  54.2
+class 3a,  653,  52.1
+class 3a,  654,  50.1
+class 3a,  655,  47.2
+class 3a,  656,  43.2
+class 3a,  657,  39.2
+class 3a,  658,  36.5
+class 3a,  659,  34.3
+class 3a,  660,  31.0
+class 3a,  661,  26.0
+class 3a,  662,  20.7
+class 3a,  663,  15.4
+class 3a,  664,  13.1
+class 3a,  665,  12.0
+class 3a,  666,  12.5
+class 3a,  667,  14.0
+class 3a,  668,  19.0
+class 3a,  669,  23.2
+class 3a,  670,  28.0
+class 3a,  671,  32.0
+class 3a,  672,  34.0
+class 3a,  673,  36.0
+class 3a,  674,  38.0
+class 3a,  675,  40.0
+class 3a,  676,  40.3
+class 3a,  677,  40.5
+class 3a,  678,  39.0
+class 3a,  679,  35.7
+class 3a,  680,  31.8
+class 3a,  681,  27.1
+class 3a,  682,  22.8
+class 3a,  683,  21.1
+class 3a,  684,  18.9
+class 3a,  685,  18.9
+class 3a,  686,  21.3
+class 3a,  687,  23.9
+class 3a,  688,  25.9
+class 3a,  689,  28.4
+class 3a,  690,  30.3
+class 3a,  691,  30.9
+class 3a,  692,  31.1
+class 3a,  693,  31.8
+class 3a,  694,  32.7
+class 3a,  695,  33.2
+class 3a,  696,  32.4
+class 3a,  697,  28.3
+class 3a,  698,  25.8
+class 3a,  699,  23.1
+class 3a,  700,  21.8
+class 3a,  701,  21.2
+class 3a,  702,  21.0
+class 3a,  703,  21.0
+class 3a,  704,  20.9
+class 3a,  705,  19.9
+class 3a,  706,  17.9
+class 3a,  707,  15.1
+class 3a,  708,  12.8
+class 3a,  709,  12.0
+class 3a,  710,  13.2
+class 3a,  711,  17.1
+class 3a,  712,  21.1
+class 3a,  713,  21.8
+class 3a,  714,  21.2
+class 3a,  715,  18.5
+class 3a,  716,  13.9
+class 3a,  717,  12.0
+class 3a,  718,  12.0
+class 3a,  719,  13.0
+class 3a,  720,  16.3
+class 3a,  721,  20.5
+class 3a,  722,  23.9
+class 3a,  723,  26.0
+class 3a,  724,  28.0
+class 3a,  725,  31.5
+class 3a,  726,  33.4
+class 3a,  727,  36.0
+class 3a,  728,  37.8
+class 3a,  729,  40.2
+class 3a,  730,  41.6
+class 3a,  731,  41.9
+class 3a,  732,  42.0
+class 3a,  733,  42.2
+class 3a,  734,  42.4
+class 3a,  735,  42.7
+class 3a,  736,  43.1
+class 3a,  737,  43.7
+class 3a,  738,  44.0
+class 3a,  739,  44.1
+class 3a,  740,  45.3
+class 3a,  741,  46.4
+class 3a,  742,  47.2
+class 3a,  743,  47.3
+class 3a,  744,  47.4
+class 3a,  745,  47.4
+class 3a,  746,  47.5
+class 3a,  747,  47.9
+class 3a,  748,  48.6
+class 3a,  749,  49.4
+class 3a,  750,  49.8
+class 3a,  751,  49.8
+class 3a,  752,  49.7
+class 3a,  753,  49.3
+class 3a,  754,  48.5
+class 3a,  755,  47.6
+class 3a,  756,  46.3
+class 3a,  757,  43.7
+class 3a,  758,  39.3
+class 3a,  759,  34.1
+class 3a,  760,  29.0
+class 3a,  761,  23.7
+class 3a,  762,  18.4
+class 3a,  763,  14.3
+class 3a,  764,  12.0
+class 3a,  765,  12.8
+class 3a,  766,  16.0
+class 3a,  767,  20.4
+class 3a,  768,  24.0
+class 3a,  769,  29.0
+class 3a,  770,  32.2
+class 3a,  771,  36.8
+class 3a,  772,  39.4
+class 3a,  773,  43.2
+class 3a,  774,  45.8
+class 3a,  775,  49.2
+class 3a,  776,  51.4
+class 3a,  777,  54.2
+class 3a,  778,  56.0
+class 3a,  779,  58.3
+class 3a,  780,  59.8
+class 3a,  781,  61.7
+class 3a,  782,  62.7
+class 3a,  783,  63.3
+class 3a,  784,  63.6
+class 3a,  785,  64.0
+class 3a,  786,  64.7
+class 3a,  787,  65.2
+class 3a,  788,  65.3
+class 3a,  789,  65.3
+class 3a,  790,  65.4
+class 3a,  791,  65.7
+class 3a,  792,  66.0
+class 3a,  793,  65.6
+class 3a,  794,  63.5
+class 3a,  795,  59.7
+class 3a,  796,  54.6
+class 3a,  797,  49.3
+class 3a,  798,  44.9
+class 3a,  799,  42.3
+class 3a,  800,  41.4
+class 3a,  801,  41.3
+class 3a,  802,  43.0
+class 3a,  803,  45.0
+class 3a,  804,  46.5
+class 3a,  805,  48.3
+class 3a,  806,  49.5
+class 3a,  807,  51.2
+class 3a,  808,  52.2
+class 3a,  809,  51.6
+class 3a,  810,  49.7
+class 3a,  811,  47.4
+class 3a,  812,  43.7
+class 3a,  813,  39.7
+class 3a,  814,  35.5
+class 3a,  815,  31.1
+class 3a,  816,  26.3
+class 3a,  817,  21.9
+class 3a,  818,  18.0
+class 3a,  819,  17.0
+class 3a,  820,  18.0
+class 3a,  821,  21.4
+class 3a,  822,  24.8
+class 3a,  823,  27.9
+class 3a,  824,  30.8
+class 3a,  825,  33.0
+class 3a,  826,  35.1
+class 3a,  827,  37.1
+class 3a,  828,  38.9
+class 3a,  829,  41.4
+class 3a,  830,  44.0
+class 3a,  831,  46.3
+class 3a,  832,  47.7
+class 3a,  833,  48.2
+class 3a,  834,  48.7
+class 3a,  835,  49.3
+class 3a,  836,  49.8
+class 3a,  837,  50.2
+class 3a,  838,  50.9
+class 3a,  839,  51.8
+class 3a,  840,  52.5
+class 3a,  841,  53.3
+class 3a,  842,  54.5
+class 3a,  843,  55.7
+class 3a,  844,  56.5
+class 3a,  845,  56.8
+class 3a,  846,  57.0
+class 3a,  847,  57.2
+class 3a,  848,  57.7
+class 3a,  849,  58.7
+class 3a,  850,  60.1
+class 3a,  851,  61.1
+class 3a,  852,  61.7
+class 3a,  853,  62.3
+class 3a,  854,  62.9
+class 3a,  855,  63.3
+class 3a,  856,  63.4
+class 3a,  857,  63.5
+class 3a,  858,  63.9
+class 3a,  859,  64.4
+class 3a,  860,  65.0
+class 3a,  861,  65.6
+class 3a,  862,  66.6
+class 3a,  863,  67.4
+class 3a,  864,  68.2
+class 3a,  865,  69.1
+class 3a,  866,  70.0
+class 3a,  867,  70.8
+class 3a,  868,  71.5
+class 3a,  869,  72.4
+class 3a,  870,  73.0
+class 3a,  871,  73.7
+class 3a,  872,  74.4
+class 3a,  873,  74.9
+class 3a,  874,  75.3
+class 3a,  875,  75.6
+class 3a,  876,  75.8
+class 3a,  877,  76.6
+class 3a,  878,  76.5
+class 3a,  879,  76.2
+class 3a,  880,  75.8
+class 3a,  881,  75.4
+class 3a,  882,  74.8
+class 3a,  883,  73.9
+class 3a,  884,  72.7
+class 3a,  885,  71.3
+class 3a,  886,  70.4
+class 3a,  887,  70.0
+class 3a,  888,  70.0
+class 3a,  889,  69.0
+class 3a,  890,  68.0
+class 3a,  891,  67.3
+class 3a,  892,  66.2
+class 3a,  893,  64.8
+class 3a,  894,  63.6
+class 3a,  895,  62.6
+class 3a,  896,  62.1
+class 3a,  897,  61.9
+class 3a,  898,  61.9
+class 3a,  899,  61.8
+class 3a,  900,  61.5
+class 3a,  901,  60.9
+class 3a,  902,  59.7
+class 3a,  903,  54.6
+class 3a,  904,  49.3
+class 3a,  905,  44.9
+class 3a,  906,  42.3
+class 3a,  907,  41.4
+class 3a,  908,  41.3
+class 3a,  909,  42.1
+class 3a,  910,  44.7
+class 3a,  911,  46.0
+class 3a,  912,  48.8
+class 3a,  913,  50.1
+class 3a,  914,  51.3
+class 3a,  915,  54.1
+class 3a,  916,  55.2
+class 3a,  917,  56.2
+class 3a,  918,  56.1
+class 3a,  919,  56.1
+class 3a,  920,  56.5
+class 3a,  921,  57.5
+class 3a,  922,  59.2
+class 3a,  923,  60.7
+class 3a,  924,  61.8
+class 3a,  925,  62.3
+class 3a,  926,  62.7
+class 3a,  927,  62.0
+class 3a,  928,  61.3
+class 3a,  929,  60.9
+class 3a,  930,  60.5
+class 3a,  931,  60.2
+class 3a,  932,  59.8
+class 3a,  933,  59.4
+class 3a,  934,  58.6
+class 3a,  935,  57.5
+class 3a,  936,  56.6
+class 3a,  937,  56.0
+class 3a,  938,  55.5
+class 3a,  939,  55.0
+class 3a,  940,  54.4
+class 3a,  941,  54.1
+class 3a,  942,  54.0
+class 3a,  943,  53.9
+class 3a,  944,  53.9
+class 3a,  945,  54.0
+class 3a,  946,  54.2
+class 3a,  947,  55.0
+class 3a,  948,  55.8
+class 3a,  949,  56.2
+class 3a,  950,  56.1
+class 3a,  951,  55.1
+class 3a,  952,  52.7
+class 3a,  953,  48.4
+class 3a,  954,  43.1
+class 3a,  955,  37.8
+class 3a,  956,  32.5
+class 3a,  957,  27.2
+class 3a,  958,  25.1
+class 3a,  959,  27.0
+class 3a,  960,  29.8
+class 3a,  961,  33.8
+class 3a,  962,  37.0
+class 3a,  963,  40.7
+class 3a,  964,  43.0
+class 3a,  965,  45.6
+class 3a,  966,  46.9
+class 3a,  967,  47.0
+class 3a,  968,  46.9
+class 3a,  969,  46.5
+class 3a,  970,  45.8
+class 3a,  971,  44.3
+class 3a,  972,  41.3
+class 3a,  973,  36.5
+class 3a,  974,  31.7
+class 3a,  975,  27.0
+class 3a,  976,  24.7
+class 3a,  977,  19.3
+class 3a,  978,  16.0
+class 3a,  979,  13.2
+class 3a,  980,  10.7
+class 3a,  981,   8.8
+class 3a,  982,   7.2
+class 3a,  983,   5.5
+class 3a,  984,   3.2
+class 3a,  985,   1.1
+class 3a,  986,   0.0
+class 3a,  987,   0.0
+class 3a,  988,   0.0
+class 3a,  989,   0.0
+class 3a,  990,   0.0
+class 3a,  991,   0.0
+class 3a,  992,   0.0
+class 3a,  993,   0.0
+class 3a,  994,   0.0
+class 3a,  995,   0.0
+class 3a,  996,   0.0
+class 3a,  997,   0.0
+class 3a,  998,   0.0
+class 3a,  999,   0.0
+class 3a, 1000,   0.0
+class 3a, 1001,   0.0
+class 3a, 1002,   0.0
+class 3a, 1003,   0.0
+class 3a, 1004,   0.0
+class 3a, 1005,   0.0
+class 3a, 1006,   0.0
+class 3a, 1007,   0.0
+class 3a, 1008,   0.0
+class 3a, 1009,   0.0
+class 3a, 1010,   0.0
+class 3a, 1011,   0.0
+class 3a, 1012,   0.0
+class 3a, 1013,   0.0
+class 3a, 1014,   0.0
+class 3a, 1015,   0.0
+class 3a, 1016,   0.0
+class 3a, 1017,   0.0
+class 3a, 1018,   0.0
+class 3a, 1019,   0.0
+class 3a, 1020,   0.0
+class 3a, 1021,   0.0
+class 3a, 1022,   0.0
+class 3a, 1023,   0.0
+class 3a, 1024,   0.0
+class 3a, 1025,   0.0
+class 3a, 1026,   0.0
+class 3a, 1027,   0.8
+class 3a, 1028,   3.6
+class 3a, 1029,   8.6
+class 3a, 1030,  14.6
+class 3a, 1031,  20.0
+class 3a, 1032,  24.4
+class 3a, 1033,  28.2
+class 3a, 1034,  31.7
+class 3a, 1035,  35.0
+class 3a, 1036,  37.6
+class 3a, 1037,  39.7
+class 3a, 1038,  41.5
+class 3a, 1039,  43.6
+class 3a, 1040,  46.0
+class 3a, 1041,  48.4
+class 3a, 1042,  50.5
+class 3a, 1043,  51.9
+class 3a, 1044,  52.6
+class 3a, 1045,  52.8
+class 3a, 1046,  52.9
+class 3a, 1047,  53.1
+class 3a, 1048,  53.3
+class 3a, 1049,  53.1
+class 3a, 1050,  52.3
+class 3a, 1051,  50.7
+class 3a, 1052,  48.8
+class 3a, 1053,  46.5
+class 3a, 1054,  43.8
+class 3a, 1055,  40.3
+class 3a, 1056,  36.0
+class 3a, 1057,  30.7
+class 3a, 1058,  25.4
+class 3a, 1059,  21.0
+class 3a, 1060,  16.7
+class 3a, 1061,  13.4
+class 3a, 1062,  12.0
+class 3a, 1063,  12.1
+class 3a, 1064,  12.8
+class 3a, 1065,  15.6
+class 3a, 1066,  19.9
+class 3a, 1067,  23.4
+class 3a, 1068,  24.6
+class 3a, 1069,  27.0
+class 3a, 1070,  29.0
+class 3a, 1071,  32.0
+class 3a, 1072,  34.8
+class 3a, 1073,  37.7
+class 3a, 1074,  40.8
+class 3a, 1075,  43.2
+class 3a, 1076,  46.0
+class 3a, 1077,  48.0
+class 3a, 1078,  50.7
+class 3a, 1079,  52.0
+class 3a, 1080,  54.5
+class 3a, 1081,  55.9
+class 3a, 1082,  57.4
+class 3a, 1083,  58.1
+class 3a, 1084,  58.4
+class 3a, 1085,  58.8
+class 3a, 1086,  58.8
+class 3a, 1087,  58.6
+class 3a, 1088,  58.7
+class 3a, 1089,  58.8
+class 3a, 1090,  58.8
+class 3a, 1091,  58.8
+class 3a, 1092,  59.1
+class 3a, 1093,  60.1
+class 3a, 1094,  61.7
+class 3a, 1095,  63.0
+class 3a, 1096,  63.7
+class 3a, 1097,  63.9
+class 3a, 1098,  63.5
+class 3a, 1099,  62.3
+class 3a, 1100,  60.3
+class 3a, 1101,  58.9
+class 3a, 1102,  58.4
+class 3a, 1103,  58.8
+class 3a, 1104,  60.2
+class 3a, 1105,  62.3
+class 3a, 1106,  63.9
+class 3a, 1107,  64.5
+class 3a, 1108,  64.4
+class 3a, 1109,  63.5
+class 3a, 1110,  62.0
+class 3a, 1111,  61.2
+class 3a, 1112,  61.3
+class 3a, 1113,  61.7
+class 3a, 1114,  62.0
+class 3a, 1115,  64.6
+class 3a, 1116,  66.0
+class 3a, 1117,  66.2
+class 3a, 1118,  65.8
+class 3a, 1119,  64.7
+class 3a, 1120,  63.6
+class 3a, 1121,  62.9
+class 3a, 1122,  62.4
+class 3a, 1123,  61.7
+class 3a, 1124,  60.1
+class 3a, 1125,  57.3
+class 3a, 1126,  55.8
+class 3a, 1127,  50.5
+class 3a, 1128,  45.2
+class 3a, 1129,  40.1
+class 3a, 1130,  36.2
+class 3a, 1131,  32.9
+class 3a, 1132,  29.8
+class 3a, 1133,  26.6
+class 3a, 1134,  23.0
+class 3a, 1135,  19.4
+class 3a, 1136,  16.3
+class 3a, 1137,  14.6
+class 3a, 1138,  14.2
+class 3a, 1139,  14.3
+class 3a, 1140,  14.6
+class 3a, 1141,  15.1
+class 3a, 1142,  16.4
+class 3a, 1143,  19.1
+class 3a, 1144,  22.5
+class 3a, 1145,  24.4
+class 3a, 1146,  24.8
+class 3a, 1147,  22.7
+class 3a, 1148,  17.4
+class 3a, 1149,  13.8
+class 3a, 1150,  12.0
+class 3a, 1151,  12.0
+class 3a, 1152,  12.0
+class 3a, 1153,  13.9
+class 3a, 1154,  17.7
+class 3a, 1155,  22.8
+class 3a, 1156,  27.3
+class 3a, 1157,  31.2
+class 3a, 1158,  35.2
+class 3a, 1159,  39.4
+class 3a, 1160,  42.5
+class 3a, 1161,  45.4
+class 3a, 1162,  48.2
+class 3a, 1163,  50.3
+class 3a, 1164,  52.6
+class 3a, 1165,  54.5
+class 3a, 1166,  56.6
+class 3a, 1167,  58.3
+class 3a, 1168,  60.0
+class 3a, 1169,  61.5
+class 3a, 1170,  63.1
+class 3a, 1171,  64.3
+class 3a, 1172,  65.7
+class 3a, 1173,  67.1
+class 3a, 1174,  68.3
+class 3a, 1175,  69.7
+class 3a, 1176,  70.6
+class 3a, 1177,  71.6
+class 3a, 1178,  72.6
+class 3a, 1179,  73.5
+class 3a, 1180,  74.2
+class 3a, 1181,  74.9
+class 3a, 1182,  75.6
+class 3a, 1183,  76.3
+class 3a, 1184,  77.1
+class 3a, 1185,  77.9
+class 3a, 1186,  78.5
+class 3a, 1187,  79.0
+class 3a, 1188,  79.7
+class 3a, 1189,  80.3
+class 3a, 1190,  81.0
+class 3a, 1191,  81.6
+class 3a, 1192,  82.4
+class 3a, 1193,  82.9
+class 3a, 1194,  83.4
+class 3a, 1195,  83.8
+class 3a, 1196,  84.2
+class 3a, 1197,  84.7
+class 3a, 1198,  85.2
+class 3a, 1199,  85.6
+class 3a, 1200,  86.3
+class 3a, 1201,  86.8
+class 3a, 1202,  87.4
+class 3a, 1203,  88.0
+class 3a, 1204,  88.3
+class 3a, 1205,  88.7
+class 3a, 1206,  89.0
+class 3a, 1207,  89.3
+class 3a, 1208,  89.8
+class 3a, 1209,  90.2
+class 3a, 1210,  90.6
+class 3a, 1211,  91.0
+class 3a, 1212,  91.3
+class 3a, 1213,  91.6
+class 3a, 1214,  91.9
+class 3a, 1215,  92.2
+class 3a, 1216,  92.8
+class 3a, 1217,  93.1
+class 3a, 1218,  93.3
+class 3a, 1219,  93.5
+class 3a, 1220,  93.7
+class 3a, 1221,  93.9
+class 3a, 1222,  94.0
+class 3a, 1223,  94.1
+class 3a, 1224,  94.3
+class 3a, 1225,  94.4
+class 3a, 1226,  94.6
+class 3a, 1227,  94.7
+class 3a, 1228,  94.8
+class 3a, 1229,  95.0
+class 3a, 1230,  95.1
+class 3a, 1231,  95.3
+class 3a, 1232,  95.4
+class 3a, 1233,  95.6
+class 3a, 1234,  95.7
+class 3a, 1235,  95.8
+class 3a, 1236,  96.0
+class 3a, 1237,  96.1
+class 3a, 1238,  96.3
+class 3a, 1239,  96.4
+class 3a, 1240,  96.6
+class 3a, 1241,  96.8
+class 3a, 1242,  97.0
+class 3a, 1243,  97.2
+class 3a, 1244,  97.3
+class 3a, 1245,  97.4
+class 3a, 1246,  97.4
+class 3a, 1247,  97.4
+class 3a, 1248,  97.4
+class 3a, 1249,  97.3
+class 3a, 1250,  97.3
+class 3a, 1251,  97.3
+class 3a, 1252,  97.3
+class 3a, 1253,  97.2
+class 3a, 1254,  97.1
+class 3a, 1255,  97.0
+class 3a, 1256,  96.9
+class 3a, 1257,  96.7
+class 3a, 1258,  96.4
+class 3a, 1259,  96.1
+class 3a, 1260,  95.7
+class 3a, 1261,  95.5
+class 3a, 1262,  95.3
+class 3a, 1263,  95.2
+class 3a, 1264,  95.0
+class 3a, 1265,  94.9
+class 3a, 1266,  94.7
+class 3a, 1267,  94.5
+class 3a, 1268,  94.4
+class 3a, 1269,  94.4
+class 3a, 1270,  94.3
+class 3a, 1271,  94.3
+class 3a, 1272,  94.1
+class 3a, 1273,  93.9
+class 3a, 1274,  93.4
+class 3a, 1275,  92.8
+class 3a, 1276,  92.0
+class 3a, 1277,  91.3
+class 3a, 1278,  90.6
+class 3a, 1279,  90.0
+class 3a, 1280,  89.3
+class 3a, 1281,  88.7
+class 3a, 1282,  88.1
+class 3a, 1283,  87.4
+class 3a, 1284,  86.7
+class 3a, 1285,  86.0
+class 3a, 1286,  85.3
+class 3a, 1287,  84.7
+class 3a, 1288,  84.1
+class 3a, 1289,  83.5
+class 3a, 1290,  82.9
+class 3a, 1291,  82.3
+class 3a, 1292,  81.7
+class 3a, 1293,  81.1
+class 3a, 1294,  80.5
+class 3a, 1295,  79.9
+class 3a, 1296,  79.4
+class 3a, 1297,  79.1
+class 3a, 1298,  78.8
+class 3a, 1299,  78.5
+class 3a, 1300,  78.2
+class 3a, 1301,  77.9
+class 3a, 1302,  77.6
+class 3a, 1303,  77.3
+class 3a, 1304,  77.0
+class 3a, 1305,  76.7
+class 3a, 1306,  76.0
+class 3a, 1307,  76.0
+class 3a, 1308,  76.0
+class 3a, 1309,  75.9
+class 3a, 1310,  76.0
+class 3a, 1311,  76.0
+class 3a, 1312,  76.1
+class 3a, 1313,  76.3
+class 3a, 1314,  76.5
+class 3a, 1315,  76.6
+class 3a, 1316,  76.8
+class 3a, 1317,  77.1
+class 3a, 1318,  77.1
+class 3a, 1319,  77.2
+class 3a, 1320,  77.2
+class 3a, 1321,  77.6
+class 3a, 1322,  78.0
+class 3a, 1323,  78.4
+class 3a, 1324,  78.8
+class 3a, 1325,  79.2
+class 3a, 1326,  80.3
+class 3a, 1327,  80.8
+class 3a, 1328,  81.0
+class 3a, 1329,  81.0
+class 3a, 1330,  81.0
+class 3a, 1331,  81.0
+class 3a, 1332,  81.0
+class 3a, 1333,  80.9
+class 3a, 1334,  80.6
+class 3a, 1335,  80.3
+class 3a, 1336,  80.0
+class 3a, 1337,  79.9
+class 3a, 1338,  79.8
+class 3a, 1339,  79.8
+class 3a, 1340,  79.8
+class 3a, 1341,  79.9
+class 3a, 1342,  80.0
+class 3a, 1343,  80.4
+class 3a, 1344,  80.8
+class 3a, 1345,  81.2
+class 3a, 1346,  81.5
+class 3a, 1347,  81.6
+class 3a, 1348,  81.6
+class 3a, 1349,  81.4
+class 3a, 1350,  80.7
+class 3a, 1351,  79.6
+class 3a, 1352,  78.2
+class 3a, 1353,  76.8
+class 3a, 1354,  75.3
+class 3a, 1355,  73.8
+class 3a, 1356,  72.1
+class 3a, 1357,  70.2
+class 3a, 1358,  68.2
+class 3a, 1359,  66.1
+class 3a, 1360,  63.8
+class 3a, 1361,  61.6
+class 3a, 1362,  60.2
+class 3a, 1363,  59.8
+class 3a, 1364,  60.4
+class 3a, 1365,  61.8
+class 3a, 1366,  62.6
+class 3a, 1367,  62.7
+class 3a, 1368,  61.9
+class 3a, 1369,  60.0
+class 3a, 1370,  58.4
+class 3a, 1371,  57.8
+class 3a, 1372,  57.8
+class 3a, 1373,  57.8
+class 3a, 1374,  57.3
+class 3a, 1375,  56.2
+class 3a, 1376,  54.3
+class 3a, 1377,  50.8
+class 3a, 1378,  45.5
+class 3a, 1379,  40.2
+class 3a, 1380,  34.9
+class 3a, 1381,  29.6
+class 3a, 1382,  28.7
+class 3a, 1383,  29.3
+class 3a, 1384,  30.5
+class 3a, 1385,  31.7
+class 3a, 1386,  32.9
+class 3a, 1387,  35.0
+class 3a, 1388,  38.0
+class 3a, 1389,  40.5
+class 3a, 1390,  42.7
+class 3a, 1391,  45.8
+class 3a, 1392,  47.5
+class 3a, 1393,  48.9
+class 3a, 1394,  49.4
+class 3a, 1395,  49.4
+class 3a, 1396,  49.2
+class 3a, 1397,  48.7
+class 3a, 1398,  47.9
+class 3a, 1399,  46.9
+class 3a, 1400,  45.6
+class 3a, 1401,  44.2
+class 3a, 1402,  42.7
+class 3a, 1403,  40.7
+class 3a, 1404,  37.1
+class 3a, 1405,  33.9
+class 3a, 1406,  30.6
+class 3a, 1407,  28.6
+class 3a, 1408,  27.3
+class 3a, 1409,  27.2
+class 3a, 1410,  27.5
+class 3a, 1411,  27.4
+class 3a, 1412,  27.1
+class 3a, 1413,  26.7
+class 3a, 1414,  26.8
+class 3a, 1415,  28.2
+class 3a, 1416,  31.1
+class 3a, 1417,  34.8
+class 3a, 1418,  38.4
+class 3a, 1419,  40.9
+class 3a, 1420,  41.7
+class 3a, 1421,  40.9
+class 3a, 1422,  38.3
+class 3a, 1423,  35.3
+class 3a, 1424,  34.3
+class 3a, 1425,  34.6
+class 3a, 1426,  36.3
+class 3a, 1427,  39.5
+class 3a, 1428,  41.8
+class 3a, 1429,  42.5
+class 3a, 1430,  41.9
+class 3a, 1431,  40.1
+class 3a, 1432,  36.6
+class 3a, 1433,  31.3
+class 3a, 1434,  26.0
+class 3a, 1435,  20.6
+class 3a, 1436,  19.1
+class 3a, 1437,  19.7
+class 3a, 1438,  21.1
+class 3a, 1439,  22.0
+class 3a, 1440,  22.1
+class 3a, 1441,  21.4
+class 3a, 1442,  19.6
+class 3a, 1443,  18.3
+class 3a, 1444,  18.0
+class 3a, 1445,  18.3
+class 3a, 1446,  18.5
+class 3a, 1447,  17.9
+class 3a, 1448,  15.0
+class 3a, 1449,   9.9
+class 3a, 1450,   4.6
+class 3a, 1451,   1.2
+class 3a, 1452,   0.0
+class 3a, 1453,   0.0
+class 3a, 1454,   0.0
+class 3a, 1455,   0.0
+class 3a, 1456,   0.0
+class 3a, 1457,   0.0
+class 3a, 1458,   0.0
+class 3a, 1459,   0.0
+class 3a, 1460,   0.0
+class 3a, 1461,   0.0
+class 3a, 1462,   0.0
+class 3a, 1463,   0.0
+class 3a, 1464,   0.0
+class 3a, 1465,   0.0
+class 3a, 1466,   0.0
+class 3a, 1467,   0.0
+class 3a, 1468,   0.0
+class 3a, 1469,   0.0
+class 3a, 1470,   0.0
+class 3a, 1471,   0.0
+class 3a, 1472,   0.0
+class 3a, 1473,   0.0
+class 3a, 1474,   0.0
+class 3a, 1475,   0.0
+class 3a, 1476,   0.0
+class 3a, 1477,   0.0
+class 3a, 1478,   0.0
+class 3a, 1479,   2.2
+class 3a, 1480,   4.4
+class 3a, 1481,   6.3
+class 3a, 1482,   7.9
+class 3a, 1483,   9.2
+class 3a, 1484,  10.4
+class 3a, 1485,  11.5
+class 3a, 1486,  12.9
+class 3a, 1487,  14.7
+class 3a, 1488,  17.0
+class 3a, 1489,  19.8
+class 3a, 1490,  23.1
+class 3a, 1491,  26.7
+class 3a, 1492,  30.5
+class 3a, 1493,  34.1
+class 3a, 1494,  37.5
+class 3a, 1495,  40.6
+class 3a, 1496,  43.3
+class 3a, 1497,  45.7
+class 3a, 1498,  47.7
+class 3a, 1499,  49.3
+class 3a, 1500,  50.5
+class 3a, 1501,  51.3
+class 3a, 1502,  52.1
+class 3a, 1503,  52.7
+class 3a, 1504,  53.4
+class 3a, 1505,  54.0
+class 3a, 1506,  54.5
+class 3a, 1507,  55.0
+class 3a, 1508,  55.6
+class 3a, 1509,  56.3
+class 3a, 1510,  57.2
+class 3a, 1511,  58.5
+class 3a, 1512,  60.2
+class 3a, 1513,  62.3
+class 3a, 1514,  64.7
+class 3a, 1515,  67.1
+class 3a, 1516,  69.2
+class 3a, 1517,  70.7
+class 3a, 1518,  71.9
+class 3a, 1519,  72.7
+class 3a, 1520,  73.4
+class 3a, 1521,  73.8
+class 3a, 1522,  74.1
+class 3a, 1523,  74.0
+class 3a, 1524,  73.6
+class 3a, 1525,  72.5
+class 3a, 1526,  70.8
+class 3a, 1527,  68.6
+class 3a, 1528,  66.2
+class 3a, 1529,  64.0
+class 3a, 1530,  62.2
+class 3a, 1531,  60.9
+class 3a, 1532,  60.2
+class 3a, 1533,  60.0
+class 3a, 1534,  60.4
+class 3a, 1535,  61.4
+class 3a, 1536,  63.2
+class 3a, 1537,  65.6
+class 3a, 1538,  68.4
+class 3a, 1539,  71.6
+class 3a, 1540,  74.9
+class 3a, 1541,  78.4
+class 3a, 1542,  81.8
+class 3a, 1543,  84.9
+class 3a, 1544,  87.4
+class 3a, 1545,  89.0
+class 3a, 1546,  90.0
+class 3a, 1547,  90.6
+class 3a, 1548,  91.0
+class 3a, 1549,  91.5
+class 3a, 1550,  92.0
+class 3a, 1551,  92.7
+class 3a, 1552,  93.4
+class 3a, 1553,  94.2
+class 3a, 1554,  94.9
+class 3a, 1555,  95.7
+class 3a, 1556,  96.6
+class 3a, 1557,  97.7
+class 3a, 1558,  98.9
+class 3a, 1559, 100.4
+class 3a, 1560, 102.0
+class 3a, 1561, 103.6
+class 3a, 1562, 105.2
+class 3a, 1563, 106.8
+class 3a, 1564, 108.5
+class 3a, 1565, 110.2
+class 3a, 1566, 111.9
+class 3a, 1567, 113.7
+class 3a, 1568, 115.3
+class 3a, 1569, 116.8
+class 3a, 1570, 118.2
+class 3a, 1571, 119.5
+class 3a, 1572, 120.7
+class 3a, 1573, 121.8
+class 3a, 1574, 122.6
+class 3a, 1575, 123.2
+class 3a, 1576, 123.6
+class 3a, 1577, 123.7
+class 3a, 1578, 123.6
+class 3a, 1579, 123.3
+class 3a, 1580, 123.0
+class 3a, 1581, 122.5
+class 3a, 1582, 122.1
+class 3a, 1583, 121.5
+class 3a, 1584, 120.8
+class 3a, 1585, 120.0
+class 3a, 1586, 119.1
+class 3a, 1587, 118.1
+class 3a, 1588, 117.1
+class 3a, 1589, 116.2
+class 3a, 1590, 115.5
+class 3a, 1591, 114.9
+class 3a, 1592, 114.5
+class 3a, 1593, 114.1
+class 3a, 1594, 113.9
+class 3a, 1595, 113.7
+class 3a, 1596, 113.3
+class 3a, 1597, 112.9
+class 3a, 1598, 112.2
+class 3a, 1599, 111.4
+class 3a, 1600, 110.5
+class 3a, 1601, 109.5
+class 3a, 1602, 108.5
+class 3a, 1603, 107.7
+class 3a, 1604, 107.1
+class 3a, 1605, 106.6
+class 3a, 1606, 106.4
+class 3a, 1607, 106.2
+class 3a, 1608, 106.2
+class 3a, 1609, 106.2
+class 3a, 1610, 106.4
+class 3a, 1611, 106.5
+class 3a, 1612, 106.8
+class 3a, 1613, 107.2
+class 3a, 1614, 107.8
+class 3a, 1615, 108.5
+class 3a, 1616, 109.4
+class 3a, 1617, 110.5
+class 3a, 1618, 111.7
+class 3a, 1619, 113.0
+class 3a, 1620, 114.1
+class 3a, 1621, 115.1
+class 3a, 1622, 115.9
+class 3a, 1623, 116.5
+class 3a, 1624, 116.7
+class 3a, 1625, 116.6
+class 3a, 1626, 116.2
+class 3a, 1627, 115.2
+class 3a, 1628, 113.8
+class 3a, 1629, 112.0
+class 3a, 1630, 110.1
+class 3a, 1631, 108.3
+class 3a, 1632, 107.0
+class 3a, 1633, 106.1
+class 3a, 1634, 105.8
+class 3a, 1635, 105.7
+class 3a, 1636, 105.7
+class 3a, 1637, 105.6
+class 3a, 1638, 105.3
+class 3a, 1639, 104.9
+class 3a, 1640, 104.4
+class 3a, 1641, 104.0
+class 3a, 1642, 103.8
+class 3a, 1643, 103.9
+class 3a, 1644, 104.4
+class 3a, 1645, 105.1
+class 3a, 1646, 106.1
+class 3a, 1647, 107.2
+class 3a, 1648, 108.5
+class 3a, 1649, 109.9
+class 3a, 1650, 111.3
+class 3a, 1651, 112.7
+class 3a, 1652, 113.9
+class 3a, 1653, 115.0
+class 3a, 1654, 116.0
+class 3a, 1655, 116.8
+class 3a, 1656, 117.6
+class 3a, 1657, 118.4
+class 3a, 1658, 119.2
+class 3a, 1659, 120.0
+class 3a, 1660, 120.8
+class 3a, 1661, 121.6
+class 3a, 1662, 122.3
+class 3a, 1663, 123.1
+class 3a, 1664, 123.8
+class 3a, 1665, 124.4
+class 3a, 1666, 125.0
+class 3a, 1667, 125.4
+class 3a, 1668, 125.8
+class 3a, 1669, 126.1
+class 3a, 1670, 126.4
+class 3a, 1671, 126.6
+class 3a, 1672, 126.7
+class 3a, 1673, 126.8
+class 3a, 1674, 126.9
+class 3a, 1675, 126.9
+class 3a, 1676, 126.9
+class 3a, 1677, 126.8
+class 3a, 1678, 126.6
+class 3a, 1679, 126.3
+class 3a, 1680, 126.0
+class 3a, 1681, 125.7
+class 3a, 1682, 125.6
+class 3a, 1683, 125.6
+class 3a, 1684, 125.8
+class 3a, 1685, 126.2
+class 3a, 1686, 126.6
+class 3a, 1687, 127.0
+class 3a, 1688, 127.4
+class 3a, 1689, 127.6
+class 3a, 1690, 127.8
+class 3a, 1691, 127.9
+class 3a, 1692, 128.0
+class 3a, 1693, 128.1
+class 3a, 1694, 128.2
+class 3a, 1695, 128.3
+class 3a, 1696, 128.4
+class 3a, 1697, 128.5
+class 3a, 1698, 128.6
+class 3a, 1699, 128.6
+class 3a, 1700, 128.5
+class 3a, 1701, 128.3
+class 3a, 1702, 128.1
+class 3a, 1703, 127.9
+class 3a, 1704, 127.6
+class 3a, 1705, 127.4
+class 3a, 1706, 127.2
+class 3a, 1707, 127.0
+class 3a, 1708, 126.9
+class 3a, 1709, 126.8
+class 3a, 1710, 126.7
+class 3a, 1711, 126.8
+class 3a, 1712, 126.9
+class 3a, 1713, 127.1
+class 3a, 1714, 127.4
+class 3a, 1715, 127.7
+class 3a, 1716, 128.1
+class 3a, 1717, 128.5
+class 3a, 1718, 129.0
+class 3a, 1719, 129.5
+class 3a, 1720, 130.1
+class 3a, 1721, 130.6
+class 3a, 1722, 131.0
+class 3a, 1723, 131.2
+class 3a, 1724, 131.3
+class 3a, 1725, 131.2
+class 3a, 1726, 130.7
+class 3a, 1727, 129.8
+class 3a, 1728, 128.4
+class 3a, 1729, 126.5
+class 3a, 1730, 124.1
+class 3a, 1731, 121.6
+class 3a, 1732, 119.0
+class 3a, 1733, 116.5
+class 3a, 1734, 114.1
+class 3a, 1735, 111.8
+class 3a, 1736, 109.5
+class 3a, 1737, 107.1
+class 3a, 1738, 104.8
+class 3a, 1739, 102.5
+class 3a, 1740, 100.4
+class 3a, 1741,  98.6
+class 3a, 1742,  97.2
+class 3a, 1743,  95.9
+class 3a, 1744,  94.8
+class 3a, 1745,  93.8
+class 3a, 1746,  92.8
+class 3a, 1747,  91.8
+class 3a, 1748,  91.0
+class 3a, 1749,  90.2
+class 3a, 1750,  89.6
+class 3a, 1751,  89.1
+class 3a, 1752,  88.6
+class 3a, 1753,  88.1
+class 3a, 1754,  87.6
+class 3a, 1755,  87.1
+class 3a, 1756,  86.6
+class 3a, 1757,  86.1
+class 3a, 1758,  85.5
+class 3a, 1759,  85.0
+class 3a, 1760,  84.4
+class 3a, 1761,  83.8
+class 3a, 1762,  83.2
+class 3a, 1763,  82.6
+class 3a, 1764,  82.0
+class 3a, 1765,  81.3
+class 3a, 1766,  80.4
+class 3a, 1767,  79.1
+class 3a, 1768,  77.4
+class 3a, 1769,  75.1
+class 3a, 1770,  72.3
+class 3a, 1771,  69.1
+class 3a, 1772,  65.9
+class 3a, 1773,  62.7
+class 3a, 1774,  59.7
+class 3a, 1775,  57.0
+class 3a, 1776,  54.6
+class 3a, 1777,  52.2
+class 3a, 1778,  49.7
+class 3a, 1779,  46.8
+class 3a, 1780,  43.5
+class 3a, 1781,  39.9
+class 3a, 1782,  36.4
+class 3a, 1783,  33.2
+class 3a, 1784,  30.5
+class 3a, 1785,  28.3
+class 3a, 1786,  26.3
+class 3a, 1787,  24.4
+class 3a, 1788,  22.5
+class 3a, 1789,  20.5
+class 3a, 1790,  18.2
+class 3a, 1791,  15.5
+class 3a, 1792,  12.3
+class 3a, 1793,   8.7
+class 3a, 1794,   5.2
+class 3a, 1795,   0.0
+class 3a, 1796,   0.0
+class 3a, 1797,   0.0
+class 3a, 1798,   0.0
+class 3a, 1799,   0.0
+class 3a, 1800,   0.0
+class 3b,    0,   0.0
+class 3b,    1,   0.0
+class 3b,    2,   0.0
+class 3b,    3,   0.0
+class 3b,    4,   0.0
+class 3b,    5,   0.0
+class 3b,    6,   0.0
+class 3b,    7,   0.0
+class 3b,    8,   0.0
+class 3b,    9,   0.0
+class 3b,   10,   0.0
+class 3b,   11,   0.0
+class 3b,   12,   0.2
+class 3b,   13,   1.7
+class 3b,   14,   5.4
+class 3b,   15,   9.9
+class 3b,   16,  13.1
+class 3b,   17,  16.9
+class 3b,   18,  21.7
+class 3b,   19,  26.0
+class 3b,   20,  27.5
+class 3b,   21,  28.1
+class 3b,   22,  28.3
+class 3b,   23,  28.8
+class 3b,   24,  29.1
+class 3b,   25,  30.8
+class 3b,   26,  31.9
+class 3b,   27,  34.1
+class 3b,   28,  36.6
+class 3b,   29,  39.1
+class 3b,   30,  41.3
+class 3b,   31,  42.5
+class 3b,   32,  43.3
+class 3b,   33,  43.9
+class 3b,   34,  44.4
+class 3b,   35,  44.5
+class 3b,   36,  44.2
+class 3b,   37,  42.7
+class 3b,   38,  39.9
+class 3b,   39,  37.0
+class 3b,   40,  34.6
+class 3b,   41,  32.3
+class 3b,   42,  29.0
+class 3b,   43,  25.1
+class 3b,   44,  22.2
+class 3b,   45,  20.9
+class 3b,   46,  20.4
+class 3b,   47,  19.5
+class 3b,   48,  18.4
+class 3b,   49,  17.8
+class 3b,   50,  17.8
+class 3b,   51,  17.4
+class 3b,   52,  15.7
+class 3b,   53,  13.1
+class 3b,   54,  12.1
+class 3b,   55,  12.0
+class 3b,   56,  12.0
+class 3b,   57,  12.0
+class 3b,   58,  12.3
+class 3b,   59,  12.6
+class 3b,   60,  14.7
+class 3b,   61,  15.3
+class 3b,   62,  15.9
+class 3b,   63,  16.2
+class 3b,   64,  17.1
+class 3b,   65,  17.8
+class 3b,   66,  18.1
+class 3b,   67,  18.4
+class 3b,   68,  20.3
+class 3b,   69,  23.2
+class 3b,   70,  26.5
+class 3b,   71,  29.8
+class 3b,   72,  32.6
+class 3b,   73,  34.4
+class 3b,   74,  35.5
+class 3b,   75,  36.4
+class 3b,   76,  37.4
+class 3b,   77,  38.5
+class 3b,   78,  39.3
+class 3b,   79,  39.5
+class 3b,   80,  39.0
+class 3b,   81,  38.5
+class 3b,   82,  37.3
+class 3b,   83,  37.0
+class 3b,   84,  36.7
+class 3b,   85,  35.9
+class 3b,   86,  35.3
+class 3b,   87,  34.6
+class 3b,   88,  34.2
+class 3b,   89,  31.9
+class 3b,   90,  27.3
+class 3b,   91,  22.0
+class 3b,   92,  17.0
+class 3b,   93,  14.2
+class 3b,   94,  12.0
+class 3b,   95,   9.1
+class 3b,   96,   5.8
+class 3b,   97,   3.6
+class 3b,   98,   2.2
+class 3b,   99,   0.0
+class 3b,  100,   0.0
+class 3b,  101,   0.0
+class 3b,  102,   0.0
+class 3b,  103,   0.0
+class 3b,  104,   0.0
+class 3b,  105,   0.0
+class 3b,  106,   0.0
+class 3b,  107,   0.0
+class 3b,  108,   0.0
+class 3b,  109,   0.0
+class 3b,  110,   0.0
+class 3b,  111,   0.0
+class 3b,  112,   0.0
+class 3b,  113,   0.0
+class 3b,  114,   0.0
+class 3b,  115,   0.0
+class 3b,  116,   0.0
+class 3b,  117,   0.0
+class 3b,  118,   0.0
+class 3b,  119,   0.0
+class 3b,  120,   0.0
+class 3b,  121,   0.0
+class 3b,  122,   0.0
+class 3b,  123,   0.0
+class 3b,  124,   0.0
+class 3b,  125,   0.0
+class 3b,  126,   0.0
+class 3b,  127,   0.0
+class 3b,  128,   0.0
+class 3b,  129,   0.0
+class 3b,  130,   0.0
+class 3b,  131,   0.0
+class 3b,  132,   0.0
+class 3b,  133,   0.0
+class 3b,  134,   0.0
+class 3b,  135,   0.0
+class 3b,  136,   0.0
+class 3b,  137,   0.0
+class 3b,  138,   0.2
+class 3b,  139,   1.9
+class 3b,  140,   6.1
+class 3b,  141,  11.7
+class 3b,  142,  16.4
+class 3b,  143,  18.9
+class 3b,  144,  19.9
+class 3b,  145,  20.8
+class 3b,  146,  22.8
+class 3b,  147,  25.4
+class 3b,  148,  27.7
+class 3b,  149,  29.2
+class 3b,  150,  29.8
+class 3b,  151,  29.4
+class 3b,  152,  27.2
+class 3b,  153,  22.6
+class 3b,  154,  17.3
+class 3b,  155,  13.3
+class 3b,  156,  12.0
+class 3b,  157,  12.6
+class 3b,  158,  14.1
+class 3b,  159,  17.2
+class 3b,  160,  20.1
+class 3b,  161,  23.4
+class 3b,  162,  25.5
+class 3b,  163,  27.6
+class 3b,  164,  29.5
+class 3b,  165,  31.1
+class 3b,  166,  32.1
+class 3b,  167,  33.2
+class 3b,  168,  35.2
+class 3b,  169,  37.2
+class 3b,  170,  38.0
+class 3b,  171,  37.4
+class 3b,  172,  35.1
+class 3b,  173,  31.0
+class 3b,  174,  27.1
+class 3b,  175,  25.3
+class 3b,  176,  25.1
+class 3b,  177,  25.9
+class 3b,  178,  27.8
+class 3b,  179,  29.2
+class 3b,  180,  29.6
+class 3b,  181,  29.5
+class 3b,  182,  29.2
+class 3b,  183,  28.3
+class 3b,  184,  26.1
+class 3b,  185,  23.6
+class 3b,  186,  21.0
+class 3b,  187,  18.9
+class 3b,  188,  17.1
+class 3b,  189,  15.7
+class 3b,  190,  14.5
+class 3b,  191,  13.7
+class 3b,  192,  12.9
+class 3b,  193,  12.5
+class 3b,  194,  12.2
+class 3b,  195,  12.0
+class 3b,  196,  12.0
+class 3b,  197,  12.0
+class 3b,  198,  12.0
+class 3b,  199,  12.5
+class 3b,  200,  13.0
+class 3b,  201,  14.0
+class 3b,  202,  15.0
+class 3b,  203,  16.5
+class 3b,  204,  19.0
+class 3b,  205,  21.2
+class 3b,  206,  23.8
+class 3b,  207,  26.9
+class 3b,  208,  29.6
+class 3b,  209,  32.0
+class 3b,  210,  35.2
+class 3b,  211,  37.5
+class 3b,  212,  39.2
+class 3b,  213,  40.5
+class 3b,  214,  41.6
+class 3b,  215,  43.1
+class 3b,  216,  45.0
+class 3b,  217,  47.1
+class 3b,  218,  49.0
+class 3b,  219,  50.6
+class 3b,  220,  51.8
+class 3b,  221,  52.7
+class 3b,  222,  53.1
+class 3b,  223,  53.5
+class 3b,  224,  53.8
+class 3b,  225,  54.2
+class 3b,  226,  54.8
+class 3b,  227,  55.3
+class 3b,  228,  55.8
+class 3b,  229,  56.2
+class 3b,  230,  56.5
+class 3b,  231,  56.5
+class 3b,  232,  56.2
+class 3b,  233,  54.9
+class 3b,  234,  52.9
+class 3b,  235,  51.0
+class 3b,  236,  49.8
+class 3b,  237,  49.2
+class 3b,  238,  48.4
+class 3b,  239,  46.9
+class 3b,  240,  44.3
+class 3b,  241,  41.5
+class 3b,  242,  39.5
+class 3b,  243,  37.0
+class 3b,  244,  34.6
+class 3b,  245,  32.3
+class 3b,  246,  29.0
+class 3b,  247,  25.1
+class 3b,  248,  22.2
+class 3b,  249,  20.9
+class 3b,  250,  20.4
+class 3b,  251,  19.5
+class 3b,  252,  18.4
+class 3b,  253,  17.8
+class 3b,  254,  17.8
+class 3b,  255,  17.4
+class 3b,  256,  15.7
+class 3b,  257,  14.5
+class 3b,  258,  15.4
+class 3b,  259,  17.9
+class 3b,  260,  20.6
+class 3b,  261,  23.2
+class 3b,  262,  25.7
+class 3b,  263,  28.7
+class 3b,  264,  32.5
+class 3b,  265,  36.1
+class 3b,  266,  39.0
+class 3b,  267,  40.8
+class 3b,  268,  42.9
+class 3b,  269,  44.4
+class 3b,  270,  45.9
+class 3b,  271,  46.0
+class 3b,  272,  45.6
+class 3b,  273,  45.3
+class 3b,  274,  43.7
+class 3b,  275,  40.8
+class 3b,  276,  38.0
+class 3b,  277,  34.4
+class 3b,  278,  30.9
+class 3b,  279,  25.5
+class 3b,  280,  21.4
+class 3b,  281,  20.2
+class 3b,  282,  22.9
+class 3b,  283,  26.6
+class 3b,  284,  30.2
+class 3b,  285,  34.1
+class 3b,  286,  37.4
+class 3b,  287,  40.7
+class 3b,  288,  44.0
+class 3b,  289,  47.3
+class 3b,  290,  49.2
+class 3b,  291,  49.8
+class 3b,  292,  49.2
+class 3b,  293,  48.1
+class 3b,  294,  47.3
+class 3b,  295,  46.8
+class 3b,  296,  46.7
+class 3b,  297,  46.8
+class 3b,  298,  47.1
+class 3b,  299,  47.3
+class 3b,  300,  47.3
+class 3b,  301,  47.1
+class 3b,  302,  46.6
+class 3b,  303,  45.8
+class 3b,  304,  44.8
+class 3b,  305,  43.3
+class 3b,  306,  41.8
+class 3b,  307,  40.8
+class 3b,  308,  40.3
+class 3b,  309,  40.1
+class 3b,  310,  39.7
+class 3b,  311,  39.2
+class 3b,  312,  38.5
+class 3b,  313,  37.4
+class 3b,  314,  36.0
+class 3b,  315,  34.4
+class 3b,  316,  33.0
+class 3b,  317,  31.7
+class 3b,  318,  30.0
+class 3b,  319,  28.0
+class 3b,  320,  26.1
+class 3b,  321,  25.6
+class 3b,  322,  24.9
+class 3b,  323,  24.9
+class 3b,  324,  24.3
+class 3b,  325,  23.9
+class 3b,  326,  23.9
+class 3b,  327,  23.6
+class 3b,  328,  23.3
+class 3b,  329,  20.5
+class 3b,  330,  17.5
+class 3b,  331,  16.9
+class 3b,  332,  16.7
+class 3b,  333,  15.9
+class 3b,  334,  15.6
+class 3b,  335,  15.0
+class 3b,  336,  14.5
+class 3b,  337,  14.3
+class 3b,  338,  14.5
+class 3b,  339,  15.4
+class 3b,  340,  17.8
+class 3b,  341,  21.1
+class 3b,  342,  24.1
+class 3b,  343,  25.0
+class 3b,  344,  25.3
+class 3b,  345,  25.5
+class 3b,  346,  26.4
+class 3b,  347,  26.6
+class 3b,  348,  27.1
+class 3b,  349,  27.7
+class 3b,  350,  28.1
+class 3b,  351,  28.2
+class 3b,  352,  28.1
+class 3b,  353,  28.0
+class 3b,  354,  27.9
+class 3b,  355,  27.9
+class 3b,  356,  28.1
+class 3b,  357,  28.2
+class 3b,  358,  28.0
+class 3b,  359,  26.9
+class 3b,  360,  25.0
+class 3b,  361,  23.2
+class 3b,  362,  21.9
+class 3b,  363,  21.1
+class 3b,  364,  20.7
+class 3b,  365,  20.7
+class 3b,  366,  20.8
+class 3b,  367,  21.2
+class 3b,  368,  22.1
+class 3b,  369,  23.5
+class 3b,  370,  24.3
+class 3b,  371,  24.5
+class 3b,  372,  23.8
+class 3b,  373,  21.3
+class 3b,  374,  17.7
+class 3b,  375,  14.4
+class 3b,  376,  11.9
+class 3b,  377,  10.2
+class 3b,  378,   8.9
+class 3b,  379,   8.0
+class 3b,  380,   7.2
+class 3b,  381,   6.1
+class 3b,  382,   4.9
+class 3b,  383,   3.7
+class 3b,  384,   2.3
+class 3b,  385,   0.9
+class 3b,  386,   0.0
+class 3b,  387,   0.0
+class 3b,  388,   0.0
+class 3b,  389,   0.0
+class 3b,  390,   0.0
+class 3b,  391,   0.0
+class 3b,  392,   0.5
+class 3b,  393,   2.1
+class 3b,  394,   4.8
+class 3b,  395,   8.3
+class 3b,  396,  12.3
+class 3b,  397,  16.6
+class 3b,  398,  20.9
+class 3b,  399,  24.2
+class 3b,  400,  25.6
+class 3b,  401,  25.6
+class 3b,  402,  24.9
+class 3b,  403,  23.3
+class 3b,  404,  21.6
+class 3b,  405,  20.2
+class 3b,  406,  18.7
+class 3b,  407,  17.0
+class 3b,  408,  15.3
+class 3b,  409,  14.2
+class 3b,  410,  13.9
+class 3b,  411,  14.0
+class 3b,  412,  14.2
+class 3b,  413,  14.5
+class 3b,  414,  14.9
+class 3b,  415,  15.9
+class 3b,  416,  17.4
+class 3b,  417,  18.7
+class 3b,  418,  19.1
+class 3b,  419,  18.8
+class 3b,  420,  17.6
+class 3b,  421,  16.6
+class 3b,  422,  16.2
+class 3b,  423,  16.4
+class 3b,  424,  17.2
+class 3b,  425,  19.1
+class 3b,  426,  22.6
+class 3b,  427,  27.4
+class 3b,  428,  31.6
+class 3b,  429,  33.4
+class 3b,  430,  33.5
+class 3b,  431,  32.8
+class 3b,  432,  31.9
+class 3b,  433,  31.3
+class 3b,  434,  31.1
+class 3b,  435,  30.6
+class 3b,  436,  29.2
+class 3b,  437,  26.7
+class 3b,  438,  23.0
+class 3b,  439,  18.2
+class 3b,  440,  12.9
+class 3b,  441,   7.7
+class 3b,  442,   3.8
+class 3b,  443,   1.3
+class 3b,  444,   0.2
+class 3b,  445,   0.0
+class 3b,  446,   0.0
+class 3b,  447,   0.0
+class 3b,  448,   0.0
+class 3b,  449,   0.0
+class 3b,  450,   0.0
+class 3b,  451,   0.0
+class 3b,  452,   0.0
+class 3b,  453,   0.0
+class 3b,  454,   0.0
+class 3b,  455,   0.0
+class 3b,  456,   0.0
+class 3b,  457,   0.0
+class 3b,  458,   0.0
+class 3b,  459,   0.0
+class 3b,  460,   0.0
+class 3b,  461,   0.0
+class 3b,  462,   0.0
+class 3b,  463,   0.0
+class 3b,  464,   0.0
+class 3b,  465,   0.0
+class 3b,  466,   0.0
+class 3b,  467,   0.0
+class 3b,  468,   0.0
+class 3b,  469,   0.0
+class 3b,  470,   0.0
+class 3b,  471,   0.0
+class 3b,  472,   0.0
+class 3b,  473,   0.0
+class 3b,  474,   0.0
+class 3b,  475,   0.0
+class 3b,  476,   0.0
+class 3b,  477,   0.0
+class 3b,  478,   0.0
+class 3b,  479,   0.0
+class 3b,  480,   0.0
+class 3b,  481,   0.0
+class 3b,  482,   0.0
+class 3b,  483,   0.0
+class 3b,  484,   0.0
+class 3b,  485,   0.0
+class 3b,  486,   0.0
+class 3b,  487,   0.0
+class 3b,  488,   0.0
+class 3b,  489,   0.0
+class 3b,  490,   0.0
+class 3b,  491,   0.0
+class 3b,  492,   0.0
+class 3b,  493,   0.0
+class 3b,  494,   0.0
+class 3b,  495,   0.0
+class 3b,  496,   0.0
+class 3b,  497,   0.0
+class 3b,  498,   0.0
+class 3b,  499,   0.0
+class 3b,  500,   0.0
+class 3b,  501,   0.0
+class 3b,  502,   0.0
+class 3b,  503,   0.0
+class 3b,  504,   0.0
+class 3b,  505,   0.0
+class 3b,  506,   0.0
+class 3b,  507,   0.0
+class 3b,  508,   0.0
+class 3b,  509,   0.0
+class 3b,  510,   0.0
+class 3b,  511,   0.0
+class 3b,  512,   0.5
+class 3b,  513,   2.5
+class 3b,  514,   6.6
+class 3b,  515,  11.8
+class 3b,  516,  16.8
+class 3b,  517,  20.5
+class 3b,  518,  21.9
+class 3b,  519,  21.9
+class 3b,  520,  21.3
+class 3b,  521,  20.3
+class 3b,  522,  19.2
+class 3b,  523,  17.8
+class 3b,  524,  15.5
+class 3b,  525,  11.9
+class 3b,  526,   7.6
+class 3b,  527,   4.0
+class 3b,  528,   2.0
+class 3b,  529,   1.0
+class 3b,  530,   0.0
+class 3b,  531,   0.0
+class 3b,  532,   0.0
+class 3b,  533,   0.2
+class 3b,  534,   1.2
+class 3b,  535,   3.2
+class 3b,  536,   5.2
+class 3b,  537,   8.2
+class 3b,  538,  13.0
+class 3b,  539,  18.8
+class 3b,  540,  23.1
+class 3b,  541,  24.5
+class 3b,  542,  24.5
+class 3b,  543,  24.3
+class 3b,  544,  23.6
+class 3b,  545,  22.3
+class 3b,  546,  20.1
+class 3b,  547,  18.5
+class 3b,  548,  17.2
+class 3b,  549,  16.3
+class 3b,  550,  15.4
+class 3b,  551,  14.7
+class 3b,  552,  14.3
+class 3b,  553,  13.7
+class 3b,  554,  13.3
+class 3b,  555,  13.1
+class 3b,  556,  13.1
+class 3b,  557,  13.3
+class 3b,  558,  13.8
+class 3b,  559,  14.5
+class 3b,  560,  16.5
+class 3b,  561,  17.0
+class 3b,  562,  17.0
+class 3b,  563,  17.0
+class 3b,  564,  15.4
+class 3b,  565,  10.1
+class 3b,  566,   4.8
+class 3b,  567,   0.0
+class 3b,  568,   0.0
+class 3b,  569,   0.0
+class 3b,  570,   0.0
+class 3b,  571,   0.0
+class 3b,  572,   0.0
+class 3b,  573,   0.0
+class 3b,  574,   0.0
+class 3b,  575,   0.0
+class 3b,  576,   0.0
+class 3b,  577,   0.0
+class 3b,  578,   0.0
+class 3b,  579,   0.0
+class 3b,  580,   0.0
+class 3b,  581,   0.0
+class 3b,  582,   0.0
+class 3b,  583,   0.0
+class 3b,  584,   0.0
+class 3b,  585,   0.0
+class 3b,  586,   0.0
+class 3b,  587,   0.0
+class 3b,  588,   0.0
+class 3b,  589,   0.0
+class 3b,  590,   0.0
+class 3b,  591,   0.0
+class 3b,  592,   0.0
+class 3b,  593,   0.0
+class 3b,  594,   0.0
+class 3b,  595,   0.0
+class 3b,  596,   0.0
+class 3b,  597,   0.0
+class 3b,  598,   0.0
+class 3b,  599,   0.0
+class 3b,  600,   0.0
+class 3b,  601,   1.0
+class 3b,  602,   2.1
+class 3b,  603,   4.8
+class 3b,  604,   9.1
+class 3b,  605,  14.2
+class 3b,  606,  19.8
+class 3b,  607,  25.5
+class 3b,  608,  30.5
+class 3b,  609,  34.8
+class 3b,  610,  38.8
+class 3b,  611,  42.9
+class 3b,  612,  46.4
+class 3b,  613,  48.3
+class 3b,  614,  48.7
+class 3b,  615,  48.5
+class 3b,  616,  48.4
+class 3b,  617,  48.2
+class 3b,  618,  47.8
+class 3b,  619,  47.0
+class 3b,  620,  45.9
+class 3b,  621,  44.9
+class 3b,  622,  44.4
+class 3b,  623,  44.3
+class 3b,  624,  44.5
+class 3b,  625,  45.1
+class 3b,  626,  45.7
+class 3b,  627,  46.0
+class 3b,  628,  46.0
+class 3b,  629,  46.0
+class 3b,  630,  46.1
+class 3b,  631,  46.7
+class 3b,  632,  47.7
+class 3b,  633,  48.9
+class 3b,  634,  50.3
+class 3b,  635,  51.6
+class 3b,  636,  52.6
+class 3b,  637,  53.0
+class 3b,  638,  53.0
+class 3b,  639,  52.9
+class 3b,  640,  52.7
+class 3b,  641,  52.6
+class 3b,  642,  53.1
+class 3b,  643,  54.3
+class 3b,  644,  55.2
+class 3b,  645,  55.5
+class 3b,  646,  55.9
+class 3b,  647,  56.3
+class 3b,  648,  56.7
+class 3b,  649,  56.9
+class 3b,  650,  56.8
+class 3b,  651,  56.0
+class 3b,  652,  54.2
+class 3b,  653,  52.1
+class 3b,  654,  50.1
+class 3b,  655,  47.2
+class 3b,  656,  43.2
+class 3b,  657,  39.2
+class 3b,  658,  36.5
+class 3b,  659,  34.3
+class 3b,  660,  31.0
+class 3b,  661,  26.0
+class 3b,  662,  20.7
+class 3b,  663,  15.4
+class 3b,  664,  13.1
+class 3b,  665,  12.0
+class 3b,  666,  12.5
+class 3b,  667,  14.0
+class 3b,  668,  19.0
+class 3b,  669,  23.2
+class 3b,  670,  28.0
+class 3b,  671,  32.0
+class 3b,  672,  34.0
+class 3b,  673,  36.0
+class 3b,  674,  38.0
+class 3b,  675,  40.0
+class 3b,  676,  40.3
+class 3b,  677,  40.5
+class 3b,  678,  39.0
+class 3b,  679,  35.7
+class 3b,  680,  31.8
+class 3b,  681,  27.1
+class 3b,  682,  22.8
+class 3b,  683,  21.1
+class 3b,  684,  18.9
+class 3b,  685,  18.9
+class 3b,  686,  21.3
+class 3b,  687,  23.9
+class 3b,  688,  25.9
+class 3b,  689,  28.4
+class 3b,  690,  30.3
+class 3b,  691,  30.9
+class 3b,  692,  31.1
+class 3b,  693,  31.8
+class 3b,  694,  32.7
+class 3b,  695,  33.2
+class 3b,  696,  32.4
+class 3b,  697,  28.3
+class 3b,  698,  25.8
+class 3b,  699,  23.1
+class 3b,  700,  21.8
+class 3b,  701,  21.2
+class 3b,  702,  21.0
+class 3b,  703,  21.0
+class 3b,  704,  20.9
+class 3b,  705,  19.9
+class 3b,  706,  17.9
+class 3b,  707,  15.1
+class 3b,  708,  12.8
+class 3b,  709,  12.0
+class 3b,  710,  13.2
+class 3b,  711,  17.1
+class 3b,  712,  21.1
+class 3b,  713,  21.8
+class 3b,  714,  21.2
+class 3b,  715,  18.5
+class 3b,  716,  13.9
+class 3b,  717,  12.0
+class 3b,  718,  12.0
+class 3b,  719,  13.0
+class 3b,  720,  16.0
+class 3b,  721,  18.5
+class 3b,  722,  20.6
+class 3b,  723,  22.5
+class 3b,  724,  24.0
+class 3b,  725,  26.6
+class 3b,  726,  29.9
+class 3b,  727,  34.8
+class 3b,  728,  37.8
+class 3b,  729,  40.2
+class 3b,  730,  41.6
+class 3b,  731,  41.9
+class 3b,  732,  42.0
+class 3b,  733,  42.2
+class 3b,  734,  42.4
+class 3b,  735,  42.7
+class 3b,  736,  43.1
+class 3b,  737,  43.7
+class 3b,  738,  44.0
+class 3b,  739,  44.1
+class 3b,  740,  45.3
+class 3b,  741,  46.4
+class 3b,  742,  47.2
+class 3b,  743,  47.3
+class 3b,  744,  47.4
+class 3b,  745,  47.4
+class 3b,  746,  47.5
+class 3b,  747,  47.9
+class 3b,  748,  48.6
+class 3b,  749,  49.4
+class 3b,  750,  49.8
+class 3b,  751,  49.8
+class 3b,  752,  49.7
+class 3b,  753,  49.3
+class 3b,  754,  48.5
+class 3b,  755,  47.6
+class 3b,  756,  46.3
+class 3b,  757,  43.7
+class 3b,  758,  39.3
+class 3b,  759,  34.1
+class 3b,  760,  29.0
+class 3b,  761,  23.7
+class 3b,  762,  18.4
+class 3b,  763,  14.3
+class 3b,  764,  12.0
+class 3b,  765,  12.8
+class 3b,  766,  16.0
+class 3b,  767,  19.1
+class 3b,  768,  22.4
+class 3b,  769,  25.6
+class 3b,  770,  30.1
+class 3b,  771,  35.3
+class 3b,  772,  39.9
+class 3b,  773,  44.5
+class 3b,  774,  47.5
+class 3b,  775,  50.9
+class 3b,  776,  54.1
+class 3b,  777,  56.3
+class 3b,  778,  58.1
+class 3b,  779,  59.8
+class 3b,  780,  61.1
+class 3b,  781,  62.1
+class 3b,  782,  62.8
+class 3b,  783,  63.3
+class 3b,  784,  63.6
+class 3b,  785,  64.0
+class 3b,  786,  64.7
+class 3b,  787,  65.2
+class 3b,  788,  65.3
+class 3b,  789,  65.3
+class 3b,  790,  65.4
+class 3b,  791,  65.7
+class 3b,  792,  66.0
+class 3b,  793,  65.6
+class 3b,  794,  63.5
+class 3b,  795,  59.7
+class 3b,  796,  54.6
+class 3b,  797,  49.3
+class 3b,  798,  44.9
+class 3b,  799,  42.3
+class 3b,  800,  41.4
+class 3b,  801,  41.3
+class 3b,  802,  42.1
+class 3b,  803,  44.7
+class 3b,  804,  48.4
+class 3b,  805,  51.4
+class 3b,  806,  52.7
+class 3b,  807,  53.0
+class 3b,  808,  52.5
+class 3b,  809,  51.3
+class 3b,  810,  49.7
+class 3b,  811,  47.4
+class 3b,  812,  43.7
+class 3b,  813,  39.7
+class 3b,  814,  35.5
+class 3b,  815,  31.1
+class 3b,  816,  26.3
+class 3b,  817,  21.9
+class 3b,  818,  18.0
+class 3b,  819,  17.0
+class 3b,  820,  18.0
+class 3b,  821,  21.4
+class 3b,  822,  24.8
+class 3b,  823,  27.9
+class 3b,  824,  30.8
+class 3b,  825,  33.0
+class 3b,  826,  35.1
+class 3b,  827,  37.1
+class 3b,  828,  38.9
+class 3b,  829,  41.4
+class 3b,  830,  44.0
+class 3b,  831,  46.3
+class 3b,  832,  47.7
+class 3b,  833,  48.2
+class 3b,  834,  48.7
+class 3b,  835,  49.3
+class 3b,  836,  49.8
+class 3b,  837,  50.2
+class 3b,  838,  50.9
+class 3b,  839,  51.8
+class 3b,  840,  52.5
+class 3b,  841,  53.3
+class 3b,  842,  54.5
+class 3b,  843,  55.7
+class 3b,  844,  56.5
+class 3b,  845,  56.8
+class 3b,  846,  57.0
+class 3b,  847,  57.2
+class 3b,  848,  57.7
+class 3b,  849,  58.7
+class 3b,  850,  60.1
+class 3b,  851,  61.1
+class 3b,  852,  61.7
+class 3b,  853,  62.3
+class 3b,  854,  62.9
+class 3b,  855,  63.3
+class 3b,  856,  63.4
+class 3b,  857,  63.5
+class 3b,  858,  64.5
+class 3b,  859,  65.8
+class 3b,  860,  66.8
+class 3b,  861,  67.4
+class 3b,  862,  68.8
+class 3b,  863,  71.1
+class 3b,  864,  72.3
+class 3b,  865,  72.8
+class 3b,  866,  73.4
+class 3b,  867,  74.6
+class 3b,  868,  76.0
+class 3b,  869,  76.6
+class 3b,  870,  76.5
+class 3b,  871,  76.2
+class 3b,  872,  75.8
+class 3b,  873,  75.4
+class 3b,  874,  74.8
+class 3b,  875,  73.9
+class 3b,  876,  72.7
+class 3b,  877,  71.3
+class 3b,  878,  70.4
+class 3b,  879,  70.0
+class 3b,  880,  70.0
+class 3b,  881,  69.0
+class 3b,  882,  68.0
+class 3b,  883,  68.0
+class 3b,  884,  68.0
+class 3b,  885,  68.1
+class 3b,  886,  68.4
+class 3b,  887,  68.6
+class 3b,  888,  68.7
+class 3b,  889,  68.5
+class 3b,  890,  68.1
+class 3b,  891,  67.3
+class 3b,  892,  66.2
+class 3b,  893,  64.8
+class 3b,  894,  63.6
+class 3b,  895,  62.6
+class 3b,  896,  62.1
+class 3b,  897,  61.9
+class 3b,  898,  61.9
+class 3b,  899,  61.8
+class 3b,  900,  61.5
+class 3b,  901,  60.9
+class 3b,  902,  59.7
+class 3b,  903,  54.6
+class 3b,  904,  49.3
+class 3b,  905,  44.9
+class 3b,  906,  42.3
+class 3b,  907,  41.4
+class 3b,  908,  41.3
+class 3b,  909,  42.1
+class 3b,  910,  44.7
+class 3b,  911,  48.4
+class 3b,  912,  51.4
+class 3b,  913,  52.7
+class 3b,  914,  54.0
+class 3b,  915,  57.0
+class 3b,  916,  58.1
+class 3b,  917,  59.2
+class 3b,  918,  59.0
+class 3b,  919,  59.1
+class 3b,  920,  59.5
+class 3b,  921,  60.5
+class 3b,  922,  62.3
+class 3b,  923,  63.9
+class 3b,  924,  65.1
+class 3b,  925,  64.1
+class 3b,  926,  62.7
+class 3b,  927,  62.0
+class 3b,  928,  61.3
+class 3b,  929,  60.9
+class 3b,  930,  60.5
+class 3b,  931,  60.2
+class 3b,  932,  59.8
+class 3b,  933,  59.4
+class 3b,  934,  58.6
+class 3b,  935,  57.5
+class 3b,  936,  56.6
+class 3b,  937,  56.0
+class 3b,  938,  55.5
+class 3b,  939,  55.0
+class 3b,  940,  54.4
+class 3b,  941,  54.1
+class 3b,  942,  54.0
+class 3b,  943,  53.9
+class 3b,  944,  53.9
+class 3b,  945,  54.0
+class 3b,  946,  54.2
+class 3b,  947,  55.0
+class 3b,  948,  55.8
+class 3b,  949,  56.2
+class 3b,  950,  56.1
+class 3b,  951,  55.1
+class 3b,  952,  52.7
+class 3b,  953,  48.4
+class 3b,  954,  43.1
+class 3b,  955,  37.8
+class 3b,  956,  32.5
+class 3b,  957,  27.2
+class 3b,  958,  25.1
+class 3b,  959,  26.0
+class 3b,  960,  29.3
+class 3b,  961,  34.6
+class 3b,  962,  40.4
+class 3b,  963,  45.3
+class 3b,  964,  49.0
+class 3b,  965,  51.1
+class 3b,  966,  52.1
+class 3b,  967,  52.2
+class 3b,  968,  52.1
+class 3b,  969,  51.7
+class 3b,  970,  50.9
+class 3b,  971,  49.2
+class 3b,  972,  45.9
+class 3b,  973,  40.6
+class 3b,  974,  35.3
+class 3b,  975,  30.0
+class 3b,  976,  24.7
+class 3b,  977,  19.3
+class 3b,  978,  16.0
+class 3b,  979,  13.2
+class 3b,  980,  10.7
+class 3b,  981,   8.8
+class 3b,  982,   7.2
+class 3b,  983,   5.5
+class 3b,  984,   3.2
+class 3b,  985,   1.1
+class 3b,  986,   0.0
+class 3b,  987,   0.0
+class 3b,  988,   0.0
+class 3b,  989,   0.0
+class 3b,  990,   0.0
+class 3b,  991,   0.0
+class 3b,  992,   0.0
+class 3b,  993,   0.0
+class 3b,  994,   0.0
+class 3b,  995,   0.0
+class 3b,  996,   0.0
+class 3b,  997,   0.0
+class 3b,  998,   0.0
+class 3b,  999,   0.0
+class 3b, 1000,   0.0
+class 3b, 1001,   0.0
+class 3b, 1002,   0.0
+class 3b, 1003,   0.0
+class 3b, 1004,   0.0
+class 3b, 1005,   0.0
+class 3b, 1006,   0.0
+class 3b, 1007,   0.0
+class 3b, 1008,   0.0
+class 3b, 1009,   0.0
+class 3b, 1010,   0.0
+class 3b, 1011,   0.0
+class 3b, 1012,   0.0
+class 3b, 1013,   0.0
+class 3b, 1014,   0.0
+class 3b, 1015,   0.0
+class 3b, 1016,   0.0
+class 3b, 1017,   0.0
+class 3b, 1018,   0.0
+class 3b, 1019,   0.0
+class 3b, 1020,   0.0
+class 3b, 1021,   0.0
+class 3b, 1022,   0.0
+class 3b, 1023,   0.0
+class 3b, 1024,   0.0
+class 3b, 1025,   0.0
+class 3b, 1026,   0.0
+class 3b, 1027,   0.8
+class 3b, 1028,   3.6
+class 3b, 1029,   8.6
+class 3b, 1030,  14.6
+class 3b, 1031,  20.0
+class 3b, 1032,  24.4
+class 3b, 1033,  28.2
+class 3b, 1034,  31.7
+class 3b, 1035,  35.0
+class 3b, 1036,  37.6
+class 3b, 1037,  39.7
+class 3b, 1038,  41.5
+class 3b, 1039,  43.6
+class 3b, 1040,  46.0
+class 3b, 1041,  48.4
+class 3b, 1042,  50.5
+class 3b, 1043,  51.9
+class 3b, 1044,  52.6
+class 3b, 1045,  52.8
+class 3b, 1046,  52.9
+class 3b, 1047,  53.1
+class 3b, 1048,  53.3
+class 3b, 1049,  53.1
+class 3b, 1050,  52.3
+class 3b, 1051,  50.7
+class 3b, 1052,  48.8
+class 3b, 1053,  46.5
+class 3b, 1054,  43.8
+class 3b, 1055,  40.3
+class 3b, 1056,  36.0
+class 3b, 1057,  30.7
+class 3b, 1058,  25.4
+class 3b, 1059,  21.0
+class 3b, 1060,  16.7
+class 3b, 1061,  13.4
+class 3b, 1062,  12.0
+class 3b, 1063,  12.1
+class 3b, 1064,  12.8
+class 3b, 1065,  15.6
+class 3b, 1066,  19.9
+class 3b, 1067,  23.4
+class 3b, 1068,  24.6
+class 3b, 1069,  25.2
+class 3b, 1070,  26.4
+class 3b, 1071,  28.8
+class 3b, 1072,  31.8
+class 3b, 1073,  35.3
+class 3b, 1074,  39.5
+class 3b, 1075,  44.5
+class 3b, 1076,  49.3
+class 3b, 1077,  53.3
+class 3b, 1078,  56.4
+class 3b, 1079,  58.9
+class 3b, 1080,  61.2
+class 3b, 1081,  62.6
+class 3b, 1082,  63.0
+class 3b, 1083,  62.5
+class 3b, 1084,  60.9
+class 3b, 1085,  59.3
+class 3b, 1086,  58.6
+class 3b, 1087,  58.6
+class 3b, 1088,  58.7
+class 3b, 1089,  58.8
+class 3b, 1090,  58.8
+class 3b, 1091,  58.8
+class 3b, 1092,  59.1
+class 3b, 1093,  60.1
+class 3b, 1094,  61.7
+class 3b, 1095,  63.0
+class 3b, 1096,  63.7
+class 3b, 1097,  63.9
+class 3b, 1098,  63.5
+class 3b, 1099,  62.3
+class 3b, 1100,  60.3
+class 3b, 1101,  58.9
+class 3b, 1102,  58.4
+class 3b, 1103,  58.8
+class 3b, 1104,  60.2
+class 3b, 1105,  62.3
+class 3b, 1106,  63.9
+class 3b, 1107,  64.5
+class 3b, 1108,  64.4
+class 3b, 1109,  63.5
+class 3b, 1110,  62.0
+class 3b, 1111,  61.2
+class 3b, 1112,  61.3
+class 3b, 1113,  62.6
+class 3b, 1114,  65.3
+class 3b, 1115,  68.0
+class 3b, 1116,  69.4
+class 3b, 1117,  69.7
+class 3b, 1118,  69.3
+class 3b, 1119,  68.1
+class 3b, 1120,  66.9
+class 3b, 1121,  66.2
+class 3b, 1122,  65.7
+class 3b, 1123,  64.9
+class 3b, 1124,  63.2
+class 3b, 1125,  60.3
+class 3b, 1126,  55.8
+class 3b, 1127,  50.5
+class 3b, 1128,  45.2
+class 3b, 1129,  40.1
+class 3b, 1130,  36.2
+class 3b, 1131,  32.9
+class 3b, 1132,  29.8
+class 3b, 1133,  26.6
+class 3b, 1134,  23.0
+class 3b, 1135,  19.4
+class 3b, 1136,  16.3
+class 3b, 1137,  14.6
+class 3b, 1138,  14.2
+class 3b, 1139,  14.3
+class 3b, 1140,  14.6
+class 3b, 1141,  15.1
+class 3b, 1142,  16.4
+class 3b, 1143,  19.1
+class 3b, 1144,  22.5
+class 3b, 1145,  24.4
+class 3b, 1146,  24.8
+class 3b, 1147,  22.7
+class 3b, 1148,  17.4
+class 3b, 1149,  13.8
+class 3b, 1150,  12.0
+class 3b, 1151,  12.0
+class 3b, 1152,  12.0
+class 3b, 1153,  13.9
+class 3b, 1154,  17.7
+class 3b, 1155,  22.8
+class 3b, 1156,  27.3
+class 3b, 1157,  31.2
+class 3b, 1158,  35.2
+class 3b, 1159,  39.4
+class 3b, 1160,  42.5
+class 3b, 1161,  45.4
+class 3b, 1162,  48.2
+class 3b, 1163,  50.3
+class 3b, 1164,  52.6
+class 3b, 1165,  54.5
+class 3b, 1166,  56.6
+class 3b, 1167,  58.3
+class 3b, 1168,  60.0
+class 3b, 1169,  61.5
+class 3b, 1170,  63.1
+class 3b, 1171,  64.3
+class 3b, 1172,  65.7
+class 3b, 1173,  67.1
+class 3b, 1174,  68.3
+class 3b, 1175,  69.7
+class 3b, 1176,  70.6
+class 3b, 1177,  71.6
+class 3b, 1178,  72.6
+class 3b, 1179,  73.5
+class 3b, 1180,  74.2
+class 3b, 1181,  74.9
+class 3b, 1182,  75.6
+class 3b, 1183,  76.3
+class 3b, 1184,  77.1
+class 3b, 1185,  77.9
+class 3b, 1186,  78.5
+class 3b, 1187,  79.0
+class 3b, 1188,  79.7
+class 3b, 1189,  80.3
+class 3b, 1190,  81.0
+class 3b, 1191,  81.6
+class 3b, 1192,  82.4
+class 3b, 1193,  82.9
+class 3b, 1194,  83.4
+class 3b, 1195,  83.8
+class 3b, 1196,  84.2
+class 3b, 1197,  84.7
+class 3b, 1198,  85.2
+class 3b, 1199,  85.6
+class 3b, 1200,  86.3
+class 3b, 1201,  86.8
+class 3b, 1202,  87.4
+class 3b, 1203,  88.0
+class 3b, 1204,  88.3
+class 3b, 1205,  88.7
+class 3b, 1206,  89.0
+class 3b, 1207,  89.3
+class 3b, 1208,  89.8
+class 3b, 1209,  90.2
+class 3b, 1210,  90.6
+class 3b, 1211,  91.0
+class 3b, 1212,  91.3
+class 3b, 1213,  91.6
+class 3b, 1214,  91.9
+class 3b, 1215,  92.2
+class 3b, 1216,  92.8
+class 3b, 1217,  93.1
+class 3b, 1218,  93.3
+class 3b, 1219,  93.5
+class 3b, 1220,  93.7
+class 3b, 1221,  93.9
+class 3b, 1222,  94.0
+class 3b, 1223,  94.1
+class 3b, 1224,  94.3
+class 3b, 1225,  94.4
+class 3b, 1226,  94.6
+class 3b, 1227,  94.7
+class 3b, 1228,  94.8
+class 3b, 1229,  95.0
+class 3b, 1230,  95.1
+class 3b, 1231,  95.3
+class 3b, 1232,  95.4
+class 3b, 1233,  95.6
+class 3b, 1234,  95.7
+class 3b, 1235,  95.8
+class 3b, 1236,  96.0
+class 3b, 1237,  96.1
+class 3b, 1238,  96.3
+class 3b, 1239,  96.4
+class 3b, 1240,  96.6
+class 3b, 1241,  96.8
+class 3b, 1242,  97.0
+class 3b, 1243,  97.2
+class 3b, 1244,  97.3
+class 3b, 1245,  97.4
+class 3b, 1246,  97.4
+class 3b, 1247,  97.4
+class 3b, 1248,  97.4
+class 3b, 1249,  97.3
+class 3b, 1250,  97.3
+class 3b, 1251,  97.3
+class 3b, 1252,  97.3
+class 3b, 1253,  97.2
+class 3b, 1254,  97.1
+class 3b, 1255,  97.0
+class 3b, 1256,  96.9
+class 3b, 1257,  96.7
+class 3b, 1258,  96.4
+class 3b, 1259,  96.1
+class 3b, 1260,  95.7
+class 3b, 1261,  95.5
+class 3b, 1262,  95.3
+class 3b, 1263,  95.2
+class 3b, 1264,  95.0
+class 3b, 1265,  94.9
+class 3b, 1266,  94.7
+class 3b, 1267,  94.5
+class 3b, 1268,  94.4
+class 3b, 1269,  94.4
+class 3b, 1270,  94.3
+class 3b, 1271,  94.3
+class 3b, 1272,  94.1
+class 3b, 1273,  93.9
+class 3b, 1274,  93.4
+class 3b, 1275,  92.8
+class 3b, 1276,  92.0
+class 3b, 1277,  91.3
+class 3b, 1278,  90.6
+class 3b, 1279,  90.0
+class 3b, 1280,  89.3
+class 3b, 1281,  88.7
+class 3b, 1282,  88.1
+class 3b, 1283,  87.4
+class 3b, 1284,  86.7
+class 3b, 1285,  86.0
+class 3b, 1286,  85.3
+class 3b, 1287,  84.7
+class 3b, 1288,  84.1
+class 3b, 1289,  83.5
+class 3b, 1290,  82.9
+class 3b, 1291,  82.3
+class 3b, 1292,  81.7
+class 3b, 1293,  81.1
+class 3b, 1294,  80.5
+class 3b, 1295,  79.9
+class 3b, 1296,  79.4
+class 3b, 1297,  79.1
+class 3b, 1298,  78.8
+class 3b, 1299,  78.5
+class 3b, 1300,  78.2
+class 3b, 1301,  77.9
+class 3b, 1302,  77.6
+class 3b, 1303,  77.3
+class 3b, 1304,  77.0
+class 3b, 1305,  76.7
+class 3b, 1306,  76.0
+class 3b, 1307,  76.0
+class 3b, 1308,  76.0
+class 3b, 1309,  75.9
+class 3b, 1310,  75.9
+class 3b, 1311,  75.8
+class 3b, 1312,  75.7
+class 3b, 1313,  75.5
+class 3b, 1314,  75.2
+class 3b, 1315,  75.0
+class 3b, 1316,  74.7
+class 3b, 1317,  74.1
+class 3b, 1318,  73.7
+class 3b, 1319,  73.3
+class 3b, 1320,  73.5
+class 3b, 1321,  74.0
+class 3b, 1322,  74.9
+class 3b, 1323,  76.1
+class 3b, 1324,  77.7
+class 3b, 1325,  79.2
+class 3b, 1326,  80.3
+class 3b, 1327,  80.8
+class 3b, 1328,  81.0
+class 3b, 1329,  81.0
+class 3b, 1330,  81.0
+class 3b, 1331,  81.0
+class 3b, 1332,  81.0
+class 3b, 1333,  80.9
+class 3b, 1334,  80.6
+class 3b, 1335,  80.3
+class 3b, 1336,  80.0
+class 3b, 1337,  79.9
+class 3b, 1338,  79.8
+class 3b, 1339,  79.8
+class 3b, 1340,  79.8
+class 3b, 1341,  79.9
+class 3b, 1342,  80.0
+class 3b, 1343,  80.4
+class 3b, 1344,  80.8
+class 3b, 1345,  81.2
+class 3b, 1346,  81.5
+class 3b, 1347,  81.6
+class 3b, 1348,  81.6
+class 3b, 1349,  81.4
+class 3b, 1350,  80.7
+class 3b, 1351,  79.6
+class 3b, 1352,  78.2
+class 3b, 1353,  76.8
+class 3b, 1354,  75.3
+class 3b, 1355,  73.8
+class 3b, 1356,  72.1
+class 3b, 1357,  70.2
+class 3b, 1358,  68.2
+class 3b, 1359,  66.1
+class 3b, 1360,  63.8
+class 3b, 1361,  61.6
+class 3b, 1362,  60.2
+class 3b, 1363,  59.8
+class 3b, 1364,  60.4
+class 3b, 1365,  61.8
+class 3b, 1366,  62.6
+class 3b, 1367,  62.7
+class 3b, 1368,  61.9
+class 3b, 1369,  60.0
+class 3b, 1370,  58.4
+class 3b, 1371,  57.8
+class 3b, 1372,  57.8
+class 3b, 1373,  57.8
+class 3b, 1374,  57.3
+class 3b, 1375,  56.2
+class 3b, 1376,  54.3
+class 3b, 1377,  50.8
+class 3b, 1378,  45.5
+class 3b, 1379,  40.2
+class 3b, 1380,  34.9
+class 3b, 1381,  29.6
+class 3b, 1382,  27.3
+class 3b, 1383,  29.3
+class 3b, 1384,  32.9
+class 3b, 1385,  35.6
+class 3b, 1386,  36.7
+class 3b, 1387,  37.6
+class 3b, 1388,  39.4
+class 3b, 1389,  42.5
+class 3b, 1390,  46.5
+class 3b, 1391,  50.2
+class 3b, 1392,  52.8
+class 3b, 1393,  54.3
+class 3b, 1394,  54.9
+class 3b, 1395,  54.9
+class 3b, 1396,  54.7
+class 3b, 1397,  54.1
+class 3b, 1398,  53.2
+class 3b, 1399,  52.1
+class 3b, 1400,  50.7
+class 3b, 1401,  49.1
+class 3b, 1402,  47.4
+class 3b, 1403,  45.2
+class 3b, 1404,  41.8
+class 3b, 1405,  36.5
+class 3b, 1406,  31.2
+class 3b, 1407,  27.6
+class 3b, 1408,  26.9
+class 3b, 1409,  27.3
+class 3b, 1410,  27.5
+class 3b, 1411,  27.4
+class 3b, 1412,  27.1
+class 3b, 1413,  26.7
+class 3b, 1414,  26.8
+class 3b, 1415,  28.2
+class 3b, 1416,  31.1
+class 3b, 1417,  34.8
+class 3b, 1418,  38.4
+class 3b, 1419,  40.9
+class 3b, 1420,  41.7
+class 3b, 1421,  40.9
+class 3b, 1422,  38.3
+class 3b, 1423,  35.3
+class 3b, 1424,  34.3
+class 3b, 1425,  34.6
+class 3b, 1426,  36.3
+class 3b, 1427,  39.5
+class 3b, 1428,  41.8
+class 3b, 1429,  42.5
+class 3b, 1430,  41.9
+class 3b, 1431,  40.1
+class 3b, 1432,  36.6
+class 3b, 1433,  31.3
+class 3b, 1434,  26.0
+class 3b, 1435,  20.6
+class 3b, 1436,  19.1
+class 3b, 1437,  19.7
+class 3b, 1438,  21.1
+class 3b, 1439,  22.0
+class 3b, 1440,  22.1
+class 3b, 1441,  21.4
+class 3b, 1442,  19.6
+class 3b, 1443,  18.3
+class 3b, 1444,  18.0
+class 3b, 1445,  18.3
+class 3b, 1446,  18.5
+class 3b, 1447,  17.9
+class 3b, 1448,  15.0
+class 3b, 1449,   9.9
+class 3b, 1450,   4.6
+class 3b, 1451,   1.2
+class 3b, 1452,   0.0
+class 3b, 1453,   0.0
+class 3b, 1454,   0.0
+class 3b, 1455,   0.0
+class 3b, 1456,   0.0
+class 3b, 1457,   0.0
+class 3b, 1458,   0.0
+class 3b, 1459,   0.0
+class 3b, 1460,   0.0
+class 3b, 1461,   0.0
+class 3b, 1462,   0.0
+class 3b, 1463,   0.0
+class 3b, 1464,   0.0
+class 3b, 1465,   0.0
+class 3b, 1466,   0.0
+class 3b, 1467,   0.0
+class 3b, 1468,   0.0
+class 3b, 1469,   0.0
+class 3b, 1470,   0.0
+class 3b, 1471,   0.0
+class 3b, 1472,   0.0
+class 3b, 1473,   0.0
+class 3b, 1474,   0.0
+class 3b, 1475,   0.0
+class 3b, 1476,   0.0
+class 3b, 1477,   0.0
+class 3b, 1478,   0.0
+class 3b, 1479,   2.2
+class 3b, 1480,   4.4
+class 3b, 1481,   6.3
+class 3b, 1482,   7.9
+class 3b, 1483,   9.2
+class 3b, 1484,  10.4
+class 3b, 1485,  11.5
+class 3b, 1486,  12.9
+class 3b, 1487,  14.7
+class 3b, 1488,  17.0
+class 3b, 1489,  19.8
+class 3b, 1490,  23.1
+class 3b, 1491,  26.7
+class 3b, 1492,  30.5
+class 3b, 1493,  34.1
+class 3b, 1494,  37.5
+class 3b, 1495,  40.6
+class 3b, 1496,  43.3
+class 3b, 1497,  45.7
+class 3b, 1498,  47.7
+class 3b, 1499,  49.3
+class 3b, 1500,  50.5
+class 3b, 1501,  51.3
+class 3b, 1502,  52.1
+class 3b, 1503,  52.7
+class 3b, 1504,  53.4
+class 3b, 1505,  54.0
+class 3b, 1506,  54.5
+class 3b, 1507,  55.0
+class 3b, 1508,  55.6
+class 3b, 1509,  56.3
+class 3b, 1510,  57.2
+class 3b, 1511,  58.5
+class 3b, 1512,  60.2
+class 3b, 1513,  62.3
+class 3b, 1514,  64.7
+class 3b, 1515,  67.1
+class 3b, 1516,  69.2
+class 3b, 1517,  70.7
+class 3b, 1518,  71.9
+class 3b, 1519,  72.7
+class 3b, 1520,  73.4
+class 3b, 1521,  73.8
+class 3b, 1522,  74.1
+class 3b, 1523,  74.0
+class 3b, 1524,  73.6
+class 3b, 1525,  72.5
+class 3b, 1526,  70.8
+class 3b, 1527,  68.6
+class 3b, 1528,  66.2
+class 3b, 1529,  64.0
+class 3b, 1530,  62.2
+class 3b, 1531,  60.9
+class 3b, 1532,  60.2
+class 3b, 1533,  60.0
+class 3b, 1534,  60.4
+class 3b, 1535,  61.4
+class 3b, 1536,  63.2
+class 3b, 1537,  65.6
+class 3b, 1538,  68.4
+class 3b, 1539,  71.6
+class 3b, 1540,  74.9
+class 3b, 1541,  78.4
+class 3b, 1542,  81.8
+class 3b, 1543,  84.9
+class 3b, 1544,  87.4
+class 3b, 1545,  89.0
+class 3b, 1546,  90.0
+class 3b, 1547,  90.6
+class 3b, 1548,  91.0
+class 3b, 1549,  91.5
+class 3b, 1550,  92.0
+class 3b, 1551,  92.7
+class 3b, 1552,  93.4
+class 3b, 1553,  94.2
+class 3b, 1554,  94.9
+class 3b, 1555,  95.7
+class 3b, 1556,  96.6
+class 3b, 1557,  97.7
+class 3b, 1558,  98.9
+class 3b, 1559, 100.4
+class 3b, 1560, 102.0
+class 3b, 1561, 103.6
+class 3b, 1562, 105.2
+class 3b, 1563, 106.8
+class 3b, 1564, 108.5
+class 3b, 1565, 110.2
+class 3b, 1566, 111.9
+class 3b, 1567, 113.7
+class 3b, 1568, 115.3
+class 3b, 1569, 116.8
+class 3b, 1570, 118.2
+class 3b, 1571, 119.5
+class 3b, 1572, 120.7
+class 3b, 1573, 121.8
+class 3b, 1574, 122.6
+class 3b, 1575, 123.2
+class 3b, 1576, 123.6
+class 3b, 1577, 123.7
+class 3b, 1578, 123.6
+class 3b, 1579, 123.3
+class 3b, 1580, 123.0
+class 3b, 1581, 122.5
+class 3b, 1582, 122.1
+class 3b, 1583, 121.5
+class 3b, 1584, 120.8
+class 3b, 1585, 120.0
+class 3b, 1586, 119.1
+class 3b, 1587, 118.1
+class 3b, 1588, 117.1
+class 3b, 1589, 116.2
+class 3b, 1590, 115.5
+class 3b, 1591, 114.9
+class 3b, 1592, 114.5
+class 3b, 1593, 114.1
+class 3b, 1594, 113.9
+class 3b, 1595, 113.7
+class 3b, 1596, 113.3
+class 3b, 1597, 112.9
+class 3b, 1598, 112.2
+class 3b, 1599, 111.4
+class 3b, 1600, 110.5
+class 3b, 1601, 109.5
+class 3b, 1602, 108.5
+class 3b, 1603, 107.7
+class 3b, 1604, 107.1
+class 3b, 1605, 106.6
+class 3b, 1606, 106.4
+class 3b, 1607, 106.2
+class 3b, 1608, 106.2
+class 3b, 1609, 106.2
+class 3b, 1610, 106.4
+class 3b, 1611, 106.5
+class 3b, 1612, 106.8
+class 3b, 1613, 107.2
+class 3b, 1614, 107.8
+class 3b, 1615, 108.5
+class 3b, 1616, 109.4
+class 3b, 1617, 110.5
+class 3b, 1618, 111.7
+class 3b, 1619, 113.0
+class 3b, 1620, 114.1
+class 3b, 1621, 115.1
+class 3b, 1622, 115.9
+class 3b, 1623, 116.5
+class 3b, 1624, 116.7
+class 3b, 1625, 116.6
+class 3b, 1626, 116.2
+class 3b, 1627, 115.2
+class 3b, 1628, 113.8
+class 3b, 1629, 112.0
+class 3b, 1630, 110.1
+class 3b, 1631, 108.3
+class 3b, 1632, 107.0
+class 3b, 1633, 106.1
+class 3b, 1634, 105.8
+class 3b, 1635, 105.7
+class 3b, 1636, 105.7
+class 3b, 1637, 105.6
+class 3b, 1638, 105.3
+class 3b, 1639, 104.9
+class 3b, 1640, 104.4
+class 3b, 1641, 104.0
+class 3b, 1642, 103.8
+class 3b, 1643, 103.9
+class 3b, 1644, 104.4
+class 3b, 1645, 105.1
+class 3b, 1646, 106.1
+class 3b, 1647, 107.2
+class 3b, 1648, 108.5
+class 3b, 1649, 109.9
+class 3b, 1650, 111.3
+class 3b, 1651, 112.7
+class 3b, 1652, 113.9
+class 3b, 1653, 115.0
+class 3b, 1654, 116.0
+class 3b, 1655, 116.8
+class 3b, 1656, 117.6
+class 3b, 1657, 118.4
+class 3b, 1658, 119.2
+class 3b, 1659, 120.0
+class 3b, 1660, 120.8
+class 3b, 1661, 121.6
+class 3b, 1662, 122.3
+class 3b, 1663, 123.1
+class 3b, 1664, 123.8
+class 3b, 1665, 124.4
+class 3b, 1666, 125.0
+class 3b, 1667, 125.4
+class 3b, 1668, 125.8
+class 3b, 1669, 126.1
+class 3b, 1670, 126.4
+class 3b, 1671, 126.6
+class 3b, 1672, 126.7
+class 3b, 1673, 126.8
+class 3b, 1674, 126.9
+class 3b, 1675, 126.9
+class 3b, 1676, 126.9
+class 3b, 1677, 126.8
+class 3b, 1678, 126.6
+class 3b, 1679, 126.3
+class 3b, 1680, 126.0
+class 3b, 1681, 125.7
+class 3b, 1682, 125.6
+class 3b, 1683, 125.6
+class 3b, 1684, 125.8
+class 3b, 1685, 126.2
+class 3b, 1686, 126.6
+class 3b, 1687, 127.0
+class 3b, 1688, 127.4
+class 3b, 1689, 127.6
+class 3b, 1690, 127.8
+class 3b, 1691, 127.9
+class 3b, 1692, 128.0
+class 3b, 1693, 128.1
+class 3b, 1694, 128.2
+class 3b, 1695, 128.3
+class 3b, 1696, 128.4
+class 3b, 1697, 128.5
+class 3b, 1698, 128.6
+class 3b, 1699, 128.6
+class 3b, 1700, 128.5
+class 3b, 1701, 128.3
+class 3b, 1702, 128.1
+class 3b, 1703, 127.9
+class 3b, 1704, 127.6
+class 3b, 1705, 127.4
+class 3b, 1706, 127.2
+class 3b, 1707, 127.0
+class 3b, 1708, 126.9
+class 3b, 1709, 126.8
+class 3b, 1710, 126.7
+class 3b, 1711, 126.8
+class 3b, 1712, 126.9
+class 3b, 1713, 127.1
+class 3b, 1714, 127.4
+class 3b, 1715, 127.7
+class 3b, 1716, 128.1
+class 3b, 1717, 128.5
+class 3b, 1718, 129.0
+class 3b, 1719, 129.5
+class 3b, 1720, 130.1
+class 3b, 1721, 130.6
+class 3b, 1722, 131.0
+class 3b, 1723, 131.2
+class 3b, 1724, 131.3
+class 3b, 1725, 131.2
+class 3b, 1726, 130.7
+class 3b, 1727, 129.8
+class 3b, 1728, 128.4
+class 3b, 1729, 126.5
+class 3b, 1730, 124.1
+class 3b, 1731, 121.6
+class 3b, 1732, 119.0
+class 3b, 1733, 116.5
+class 3b, 1734, 114.1
+class 3b, 1735, 111.8
+class 3b, 1736, 109.5
+class 3b, 1737, 107.1
+class 3b, 1738, 104.8
+class 3b, 1739, 102.5
+class 3b, 1740, 100.4
+class 3b, 1741,  98.6
+class 3b, 1742,  97.2
+class 3b, 1743,  95.9
+class 3b, 1744,  94.8
+class 3b, 1745,  93.8
+class 3b, 1746,  92.8
+class 3b, 1747,  91.8
+class 3b, 1748,  91.0
+class 3b, 1749,  90.2
+class 3b, 1750,  89.6
+class 3b, 1751,  89.1
+class 3b, 1752,  88.6
+class 3b, 1753,  88.1
+class 3b, 1754,  87.6
+class 3b, 1755,  87.1
+class 3b, 1756,  86.6
+class 3b, 1757,  86.1
+class 3b, 1758,  85.5
+class 3b, 1759,  85.0
+class 3b, 1760,  84.4
+class 3b, 1761,  83.8
+class 3b, 1762,  83.2
+class 3b, 1763,  82.6
+class 3b, 1764,  82.0
+class 3b, 1765,  81.3
+class 3b, 1766,  80.4
+class 3b, 1767,  79.1
+class 3b, 1768,  77.4
+class 3b, 1769,  75.1
+class 3b, 1770,  72.3
+class 3b, 1771,  69.1
+class 3b, 1772,  65.9
+class 3b, 1773,  62.7
+class 3b, 1774,  59.7
+class 3b, 1775,  57.0
+class 3b, 1776,  54.6
+class 3b, 1777,  52.2
+class 3b, 1778,  49.7
+class 3b, 1779,  46.8
+class 3b, 1780,  43.5
+class 3b, 1781,  39.9
+class 3b, 1782,  36.4
+class 3b, 1783,  33.2
+class 3b, 1784,  30.5
+class 3b, 1785,  28.3
+class 3b, 1786,  26.3
+class 3b, 1787,  24.4
+class 3b, 1788,  22.5
+class 3b, 1789,  20.5
+class 3b, 1790,  18.2
+class 3b, 1791,  15.5
+class 3b, 1792,  12.3
+class 3b, 1793,   8.7
+class 3b, 1794,   5.2
+class 3b, 1795,   0.0
+class 3b, 1796,   0.0
+class 3b, 1797,   0.0
+class 3b, 1798,   0.0
+class 3b, 1799,   0.0
+class 3b, 1800,   0.0

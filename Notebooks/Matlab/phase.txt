@@ -1,0 +1,16 @@
+   class, phase, length
+ class 1,     1,    589
+ class 1,     2,    433
+ class 1,     3,    589
+ class 2,     1,    589
+ class 2,     2,    433
+ class 2,     3,    455
+ class 2,     4,    323
+class 3a,     1,    589
+class 3a,     2,    433
+class 3a,     3,    455
+class 3a,     4,    323
+class 3b,     1,    589
+class 3b,     2,    433
+class 3b,     3,    455
+class 3b,     4,    323
