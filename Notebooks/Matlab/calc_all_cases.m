@@ -988,6 +988,8 @@ function calc_all_cases
   ] = read_tab ( ...
     file ...
   )
+    progress_delay = 7;  %sec
+    tprev = tstart = cputime() * 10;  % x10 to make it seconds
     str = fileread( file );
     str = regexprep(  str, '\n$', '' );
     str = regexprep(  str, '"', '' );
@@ -1008,6 +1010,17 @@ function calc_all_cases
       tab( i, : ) = strtrim( strsplit( arr_str{ i }, ',' ) );
     end
     for i = 1 : size( tab, 1 )
+
+      %% Progres indicator
+      %
+      tnow = cputime() * 10;
+      if (tnow - tprev) > progress_delay
+        elapsed = (tnow - tstart);
+        fprintf( 2, '  ...reading %i out of %i in %.1f sec\n', i, size( tab, 1 ), elapsed )
+        fflush(stderr);
+        tprev = tnow;
+      end
+
       for k = 1 : size( tab, 2 )
         tab{ i, k } = str_to_num_or_str( tab{ i, k } );
       end
