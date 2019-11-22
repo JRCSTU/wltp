@@ -13,6 +13,8 @@ jsonschema
 jupyterlab >=1.1
 jupytext
 matplotlib
+octave
+oct2py
 pandalone >= 0.3
 papermill
 pip

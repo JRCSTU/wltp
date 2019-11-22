@@ -8,6 +8,8 @@ jupytext
 #m2-base            # (Windows-only) Unix-like utils
 matplotlib
 #nodejs             # mostly for Windows, works on other OSs
+oct2py
+octave
 pandalone
 pip
 pytables            # this is the `tables` on pyPi
