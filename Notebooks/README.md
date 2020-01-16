@@ -103,7 +103,7 @@ Reproduce the *exact same* conda-env that will be called *jupyter*::
 >     conda create   -n jupyter
 >     conda activate jupyter
 >     conda install  --override-channels -c ankostis -c conda-forge -c defaults --file conda/conda-reqs.txt
->     pip install    blackcellmagic columnize
+>     pip install    blackcellmagic nb-black columnize
 >
 > **Note (to the maintainer):**
 > Maintain the env-file by running this terminal command after any programm (un)install::
