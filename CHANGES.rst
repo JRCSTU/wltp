@@ -38,6 +38,9 @@ Known deficiencies
 * Some extra sanity checks apply e.g. check if `p_rated` is "close enough" to `p_wot_max`,
   while others maybe missing.
 * n_min_drive does not yet accept array of values for G > 2 e.g. for `n_min_drive_up_start`.
+* The program structure is *convoluted* because it is assumed that its functions 
+  will be called automatically by an automated framework based on data given & asked
+  (see TODOs below).
 
 .. _todos-list:
 
@@ -53,7 +56,7 @@ TODOs
 * datamodel: finalize data-schema (renaming columns and adding ``name`` fields in major blocks).
 * model/core: Accept units on all quantities.
 * core: Move calculations as class-methods to provide for overriding certain parts of the algorithm.
-* core: execute part of the calculation-graph based on the the data given/asked.
+* core: execute part of the calculation-graph based on the data given & asked.
 
 .. todolist::
 

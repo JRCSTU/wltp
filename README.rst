@@ -25,7 +25,7 @@ running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR
 
 
 .. Attention::
-    This *wltp* python project is still in *alpha* stage, in the send that
+    This *wltp* python project is still in *alpha* stage, in the sense that
     its results are not "correct" by the standard, and no WLTP dyno-tests should rely
     currently on them.
 
