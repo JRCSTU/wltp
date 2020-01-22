@@ -7,16 +7,14 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """formulae for cyle/vehicle dynamics"""
 import logging
-from numbers import Number
 from typing import Union
 
 import numpy as np
 import pandas as pd
-from pandas.core.generic import NDFrame
 
 from . import io as wio
+from .invariants import Column
 
-Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
 
 

@@ -7,10 +7,14 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """definitions & idenmpotent formulae for physics/engineering"""
 import functools
+from typing import Union
 
 import numpy as np
 import pandas as pd
 from pandas.core.generic import NDFrame
+
+
+Column = Union[NDFrame, np.ndarray, int, float]
 
 v_decimals = 1
 v_step = 10 ** -v_decimals

@@ -9,7 +9,6 @@
 import logging
 from collections import namedtuple
 from collections.abc import Mapping
-from numbers import Number
 from typing import Optional, Tuple, Union
 
 import numpy as np
@@ -20,8 +19,8 @@ from scipy import interpolate
 
 from . import invariants as inv
 from . import io as wio
+from .invariants import Column
 
-Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
 
 
@@ -368,7 +367,7 @@ def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
     return gwots
 
 
-def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: Number) -> Tuple[float, float]:
+def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, float]:
     """
     Find wot's n95_low/high (Annex 2-2.g).
 

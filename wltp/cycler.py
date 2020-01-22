@@ -10,7 +10,6 @@ import dataclasses
 import functools as fnt
 import itertools as itt
 import logging
-from numbers import Number
 from typing import Iterable, List
 from typing import Sequence as Seq
 from typing import Union
@@ -18,15 +17,14 @@ from typing import Union
 import numpy as np
 import pandas as pd
 from jsonschema import ValidationError
-from pandas.core.generic import NDFrame
 from toolz import itertoolz as itz
 
 from . import engine
 from . import invariants as inv
 from . import io as wio
+from .invariants import Column
 from .engine import NMinDrives
 
-Column = Union[NDFrame, np.ndarray, Number]
 log = logging.getLogger(__name__)
 
 
