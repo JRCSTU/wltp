@@ -359,7 +359,7 @@ class CycleBuilder:
                 )
 
     def calc_initial_gear_flags(
-        self, *, g_vmax: int, n95_max: float, n_max_cycle: float, nmins: NMinDrives
+        self, *, g_vmax: int, n95_high: float, n_max_cycle: float, nmins: NMinDrives
     ) -> pd.DataFrame:
         """
         Heavy lifting calculations for "initial gear" rules of Annex 2: 2.k, 3.2, 3.3 & 3.5.
@@ -379,7 +379,7 @@ class CycleBuilder:
 
                                         ... AND ...
 
-          MAXn-a                  n ≤ n95_max  g < g_vmax             # 3.3
+          MAXn-a                  n ≤ n95_high  g < g_vmax             # 3.3
           MAXn-b              n ≤ n_max_cycle  g_vmax ≤ g             # 3.3
 
                                         ... AND ...
@@ -387,8 +387,8 @@ class CycleBuilder:
           MINn-ud/hc      n_mid_drive_set ≤ n  g > 2                  # 3.3 & 2k (up/dn on A ≷ -0.1389, hot/cold)
           MINn-2ii      n_idle ≤ n, stopdecel  g = 2                  # 3.3 & 2k (stopdecel)
           MINn-2iii          0.9 * n_idle ≤ n  g = 2 + clutch         # 3.3 & 2k
-          c_initacell               initaccel  g = 1                  # 3.2 & 3.3c (also n ≤ n95_max apply)
-          c_a            1.0 ≤ v & !initaccel  g = 1                  # 3.3c (also n ≤ n95_max apply)
+          c_initacell               initaccel  g = 1                  # 3.2 & 3.3c (also n ≤ n95_high apply)
+          c_a            1.0 ≤ v & !initaccel  g = 1                  # 3.3c (also n ≤ n95_high apply)
 
                                         ... AND ...
 
@@ -404,10 +404,10 @@ class CycleBuilder:
         cycle = self.cycle
         gidx = self.gidx
 
-        assert all(i for i in (g_vmax, n95_max, n_max_cycle, nmins)), (
+        assert all(i for i in (g_vmax, n95_high, n_max_cycle, nmins)), (
             "Null inputs:",
             g_vmax,
-            n95_max,
+            n95_high,
             n_max_cycle,
         )
 
@@ -442,12 +442,12 @@ class CycleBuilder:
         ## (MAXn-1) rule
         #  Special handling of g1 dues to `initaccel` containing n=NAN
         #
-        ok_max_n_g1 = cycle.loc[:, nidx_g1].fillna(0) < n95_max
+        ok_max_n_g1 = cycle.loc[:, nidx_g1].fillna(0) < n95_high
         ok_max_n_g1.name = (c.ok_max_n, g1)
 
         ## (MAXn-a) rule
         #
-        ok_max_n_gears_below_gvmax = cycle.loc[:, nidx_below_gvmax] < n95_max
+        ok_max_n_gears_below_gvmax = cycle.loc[:, nidx_below_gvmax] < n95_high
         ok_max_n_gears_below_gvmax.columns = gidx.colidx_pairs(
             c.ok_max_n, gears_below_gvmax
         )

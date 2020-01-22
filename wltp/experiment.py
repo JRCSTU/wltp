@@ -288,7 +288,7 @@ class Experiment(object):
 
         ok_flags = cb.calc_initial_gear_flags(
             g_vmax=mdl[m.g_vmax],
-            n95_max=n95_high,
+            n95_high=n95_high,
             n_max_cycle=n_max_cycle,
             nmins=engine.nmins_from_model(mdl),
         )

@@ -173,14 +173,14 @@ def flag_aggregates(ok_flags):
 
 
 ok_flags = cb.calc_initial_gear_flags(
-    g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
+    g_vmax=g_vmax, n95_high=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
 )
 flag_aggregates(ok_flags)
 ```
 
 ```{python}
 ok_flags = cb.calc_initial_gear_flags(
-    g_vmax=g_vmax, n95_max=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
+    g_vmax=g_vmax, n95_high=n95_high, n_max_cycle=n_max_cycle, nmins=nmins
 )
 flag_aggregates(ok_flags)
 ```
