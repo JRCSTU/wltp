@@ -250,6 +250,7 @@ def autographed(
     aliases=_unset,
     inp_sideffects=_unset,
     out_sideffects=_unset,
+    domain=None,
     **kws,
 ):
     """
@@ -257,6 +258,9 @@ def autographed(
 
     The rest arguments coming from :class:`graphtik.operation`.
 
+    :param domain:
+        if set, overrides are not applied for the "default" domain; 
+        it allows to reuse the same function to build different operation.
     :param renames:
         mappings to rename both any matching the final `needs` & `provides`
     :param inp_sideffects:
@@ -273,14 +277,17 @@ def autographed(
     kws.update({k: v for k, v in locs.items() if v is not _unset and k != "kws"})
 
     def decorator(fn):
-        fn._autograph = kws
+        fn._autograph = {domain: kws}
         return fn
 
     return decorator
 
 
-def get_autograph_decors(fn, default=None):
-    return getattr(fn, "_autograph", default)
+def get_autograph_decors(fn, default=None, domain=None) -> dict:
+    """Return the dict with :func:`autographed` keywords as keys. """
+    if hasattr(fn, "_autograph"):
+        return fn._autograph[domain]
+    return default
 
 
 class Autograph(Prefkey):
