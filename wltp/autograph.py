@@ -237,7 +237,7 @@ class FnHarvester(Prefkey):
         return list(zip(*self.collected))[0]
 
 
-_unset = Token("unset")
+_unset = Token("unset")  # TODO: replace `_unset` with ...
 
 
 def autographed(
@@ -246,17 +246,34 @@ def autographed(
     needs=_unset,
     provides=_unset,
     renames=_unset,
+    returns_dict=_unset,
+    aliases=_unset,
     inp_sideffects=_unset,
     out_sideffects=_unset,
+    **kws,
 ):
     """
     Decorator to annotate a function with overrides for :class:`Autograph`.
+
+    The rest arguments coming from :class:`graphtik.operation`.
+
+    :param renames:
+        mappings to rename both any matching the final `needs` & `provides`
+    :param inp_sideffects:
+        appended into `needs`
+    :param out_sideffects:
+        appended into `provides`
+    :param kws:
+        the rest arguments of :class:`graphtik.operation`, such as::
+
+            endured, parallel, marshalled, node_props
+
     """
-    kws = locals()
-    overrides = {k: v for k, v in kws.items() if v is not _unset}
+    locs = locals()
+    kws.update({k: v for k, v in locs.items() if v is not _unset and k != "kws"})
 
     def decorator(fn):
-        fn._autograph = overrides
+        fn._autograph = kws
         return fn
 
     return decorator
@@ -340,6 +357,14 @@ class Autograph(Prefkey):
             word_lists = tuple([renames.get(w, w) for w in wl] for wl in word_lists)
 
         return word_lists
+
+    def _collect_rest_op_args(self, decors):
+        """Collect the rest operation arguments from `autographed` decoration."""
+        # NOTE: append more arguments as graphtik lib evolves.
+        rest_op_args = (
+            "returns_dict aliases endured parallel marshalled node_props".split()
+        )
+        return {k: v for k, v in decors if k in rest_op_args}
 
     def wrap_fn(
         self,
@@ -446,7 +471,11 @@ class Autograph(Prefkey):
         if self.full_path_names:
             fn_name = self._join_path_names(*name_path)
 
-        return FunctionalOperation(fn=fn, name=fn_name, needs=needs, provides=provides)
+        op_kws = self._collect_rest_op_args(decors)
+
+        return FunctionalOperation(
+            fn=fn, name=fn_name, needs=needs, provides=provides, **op_kws
+        )
 
 
 """
