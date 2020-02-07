@@ -48,7 +48,7 @@ class ExperimentWholeVehs(unittest.TestCase):
                     # cmp = tabular['gears'] != data_prev['gears']
                     # if (cmp.any()):
                     #     self._plotResults(data_prev)
-                    #     print('>> COMPARING(%s): %s'%(fname, cmp.nonzero()))
+                    #     print('>> COMPARING(%s): %s'%(fname, cmp.to_numpy().nonzero()))
                     # else:
                     #     print('>> COMPARING(%s): OK'%fname)
             except (FileNotFoundError, ValueError) as ex:  # @UnusedVariable
@@ -70,7 +70,7 @@ class ExperimentWholeVehs(unittest.TestCase):
         realv = cycle["v_real"]
         clutch = cycle["clutch"]
 
-        clutch = clutch.nonzero()[0]
+        clutch = clutch.to_numpy().nonzero()[0]
         plt.vlines(clutch, 0, 40)
         plt.plot(target)
         plt.plot(gears * 12, "+")

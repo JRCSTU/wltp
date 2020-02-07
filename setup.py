@@ -228,7 +228,7 @@ setup(
         "boltons",
         "jsonschema",
         "numpy",
-        "pandas <1.0.0",  # 17 TC failures: https://travis-ci.org/ankostis/wltp/jobs/644039971
+        "pandas <1.0.0",  # QGrid fails: https://travis-ci.org/ankostis/wltp/jobs/644039971
         "pandalone >=0.3",
         "ruamel.yaml",
         "scipy",

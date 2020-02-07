@@ -350,14 +350,14 @@ def _plotResults(
     # ax.set_xticks(np.arange(0.0, tlen, 50.0)) NO! looses auto when zooming.
 
     clutch = df_g["clutch"]
-    clutch = clutch.nonzero()[0]
+    clutch = clutch.to_numpy().nonzero()[0]
     ax.vlines(clutch, 0, 0.2)
 
     ## Add pickers on driveability lines showing the specific msg.
     #
     driveability = df_g["driveability"]
     driveability_true = driveability.apply(lambda s: isinstance(s, str))
-    lines = ax2.vlines(driveability_true.nonzero()[0], 2, 4, "c", picker=5)
+    lines = ax2.vlines(driveability_true.to_numpy().nonzero()[0], 2, 4, "c", picker=5)
     lines.set_urls(driveability[driveability_true])
 
     v_max = df_g["v_class"].max()
@@ -381,7 +381,7 @@ def _plotResults(
     orig_gears = df_g["gears_orig"]
     if plot_diffs_gears_only:
         diff_gears = my_gears != hz_gears
-        difft = diff_gears.nonzero()[0]
+        difft = diff_gears.to_numpy().nonzero()[0]
         difft = set().union(
             difft,
             difft + 1,
@@ -413,7 +413,9 @@ def _plotResults(
     #
     hz_driveability = df_h["gear_modification"]
     hz_driveability_true = ~hz_driveability.apply(np.isreal)
-    lines = ax2.vlines(hz_driveability_true.nonzero()[0], 0, 2, "m", picker=5)
+    lines = ax2.vlines(
+        hz_driveability_true.to_numpy().nonzero()[0], 0, 2, "m", picker=5
+    )
     lines.set_urls(hz_driveability[hz_driveability_true])
 
     ax.plot(hz_v_target / v_max, "--")

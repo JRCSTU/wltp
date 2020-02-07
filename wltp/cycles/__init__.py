@@ -151,11 +151,11 @@ def identify_cycle_v_crc(
     crcs = cycle_checksums(full=False)["CRC32"]
     matches = crcs == crc
     if matches.any(None):
-        ## Fetch 1st from top-left.
+        ## Fetch 1st from left-top.
         #
         for col, flags in matches.iteritems():
             if flags.any():
-                index = np.asscalar(next(iter(np.argwhere(flags))))
+                index = np.asscalar(next(iter(np.argwhere(flags.to_numpy()))))
                 cycle, part = crcs.index[index]
                 accum, phasing = col
                 if accum == "cummulative":

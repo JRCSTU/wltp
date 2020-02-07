@@ -329,7 +329,7 @@ class Experiment(object):
             issues = []
             drv = cycle["driveability"]
             pt = -1
-            for t in drv.to_numpy().nonzero()[0]:
+            for t in drv.to_numpy().to_numpy().nonzero()[0]:
                 if pt + 1 < t:
                     issues += ["..."]
                 issues += ["{:>4}: {}".format(t, drv[t])]
@@ -352,7 +352,7 @@ def addDriveabilityMessage(time_step, msg, driveability_issues):
 
 
 def addDriveabilityProblems(_GEARS_BAD, reason, driveability_issues):
-    failed_steps = _GEARS_BAD.nonzero()[0]
+    failed_steps = _GEARS_BAD.to_numpy().nonzero()[0]
     if failed_steps.size != 0:
         log.info("%i %s: %s", failed_steps.size, reason, failed_steps)
         for step in failed_steps:
