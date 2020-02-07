@@ -151,28 +151,27 @@ def identify_cycle_v_crc(
     crcs = cycle_checksums(full=False)["CRC32"]
     matches = crcs == crc
     if matches.any(None):
-        ## Fetch 1st from left-top.
+        ## Find the 1st match from left-top.
         #
-        for col, flags in matches.iteritems():
-            if flags.any():
-                index = np.asscalar(next(iter(np.argwhere(flags.to_numpy()))))
-                cycle, part = crcs.index[index]
-                accum, phasing = col
-                if accum == "cummulative":
-                    if index in [2, 6, 10, 14]:  # is it a final cycle-part?
-                        part = None
-                    else:
-                        part = part.upper()
+        rows, cols = np.nonzero(matches.to_numpy())
+        row, col = rows[0], cols[0]
+        cycle, part = crcs.index[row]
+        accum, phasing = crcs.columns[col]
 
-                return (cycle, part, phasing)
-        else:
-            assert False, ("Impossible find:", crc, crcs)
+        if accum == "cummulative":
+            if row in [2, 6, 10, 14]:  # is it a final cycle-part?
+                part = None
+            else:
+                part = part.upper()
+
+        return (cycle, part, phasing)
+
     return (None, None, None)
 
 
 def identify_cycle_v(V: Iterable):
     """
-    Finds which cycle/part/kind matches a CRC.
+    Finds the first left-top CRC matching the cycle/part/kind of the given Velocity.
 
     :param V:
         Any cycle or parts of it (one of Low/Medium/High/Extra Kigh phases), 

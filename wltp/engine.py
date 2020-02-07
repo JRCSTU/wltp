@@ -14,7 +14,6 @@ from typing import Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from jsonschema import ValidationError
-from pandas.core.generic import NDFrame
 from scipy import interpolate
 
 from . import invariants as inv
