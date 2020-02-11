@@ -3,3 +3,5 @@
 *.BAK.*
 __pycache__/
 .jupyter/
+# for too-big to commit data files
+*.xlsx
