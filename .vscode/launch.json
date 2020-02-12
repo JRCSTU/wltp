@@ -21,6 +21,17 @@
                 "check"
             ],
             "justMyCode": false,
+        },
+        {
+            "name": "Python: TEST",
+            "type": "python",
+            "request": "test",
+            "justMyCode": false,
+            "redirectOutput": false,
+            "env": {
+                "PYTEST_ADDOPTS": "-vv -s --log-level=DEBUG"
+            },
+            "console": "integratedTerminal"
         }
     ]
 }
