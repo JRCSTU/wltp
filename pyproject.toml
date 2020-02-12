@@ -1,2 +1,25 @@
 [build-system]
 requires = ["setuptools>=30.3.0", "wheel"]
+
+[tool.black]
+exclude = '''
+    (
+        /(
+            \.eggs
+            |\.git
+            |\.hg
+            |\.mypy_cache
+            |\.nox
+            |\.tox
+            |.?venv.*
+            |_build
+            |buck-out
+            |build
+            |dist
+        )/
+        |/(
+            Notebooks/.*\.py                    # percent-pyhon jupytext-paired files
+            |wltp/cycles/(nedc|class.)\.py      # Manually removed NLs on cycle Vs.
+        )
+    )
+'''
