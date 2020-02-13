@@ -154,7 +154,7 @@ def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
             [r.wot for r in recs],
             axis=1,
             keys=[wio.gear_name(r.g_vmax) for r in recs],
-            names=["item", "gear"],
+            names=["gear", "item"],
             verify_integrity=True,
         )
 
