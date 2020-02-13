@@ -129,13 +129,20 @@ From within the project directory, run one of these commands to install it:
 
     See: :ref:`wltp-usage`
 
-- Recreate jupyter notebooks from the paired ``*.Rmd`` files
-  (only these files are stored in git-repo).
+- Recreate jupyter notebooks from the paired ``*.py`` "hydrogen" files
+  (only these files are stored in git-repo),
+  by executing this command::
+
+      jupytext --sync Notebooks/*.py
+
+  or by executing this bash-script::
+
+      Notebooks/recreate_ipynbs.sh
 
 - Run pyalgo on all AccDB cars to re-create the H5 file
   needed for ``CarsDB-compare`` notebook, etc::
 
-      jupytext --sync /Notebooks/*.Rmd
+      jupytext --sync /Notebooks/*.py
 
 
 Usage:

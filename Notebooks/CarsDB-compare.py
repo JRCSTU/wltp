@@ -1,34 +1,33 @@
----
-jupyter:
-  jupytext:
-    formats: ipynb,Rmd
-    text_representation:
-      extension: .Rmd
-      format_name: rmarkdown
-      format_version: '1.1'
-      jupytext_version: 1.2.1
-  kernelspec:
-    display_name: Python 3
-    language: python
-    name: python3
----
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:hydrogen
+#     text_representation:
+#       extension: .py
+#       format_name: hydrogen
+#       format_version: '1.3'
+#       jupytext_version: 1.3.3
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
 
-# Compare results in the DB
+# %% [markdown]
+# # Compare results in the DB
 
-```{python}
+# %%
 ## To autoreload codein python files here.
-# %load_ext autoreload
-# %autoreload 2
+%load_ext autoreload
+%autoreload 2
 
 ## Auto-format cells to ease diffs.
-# %load_ext lab_black
-```
+%load_ext lab_black
 
-```{python}
-# %matplotlib ipympl
-```
+# %%
+%matplotlib ipympl
 
-```{python}
+# %%
 from typing import Union, List, Callable, Any, Sequence as Seq
 import io, logging, re, sys
 from pathlib import Path, PurePosixPath as P
@@ -62,22 +61,19 @@ logging.basicConfig(
 )
 
 pd.set_option("display.max_columns", 32)
-```
 
-```{python}
+# %%
 ## DEFINITIONS
 #
 inp_h5fname = "VehData/WltpGS-msaccess.h5"
 out_h5fname = "VehData/WltpGS-pyalgo.h5"
 c_n, c_p, c_n_norm, c_p_norm = "n", "Pwot", "n_norm", "p_norm"
-```
 
-```{python}
+# %%
 vehdb.print_nodes(inp_h5fname)
 vehdb.print_nodes(out_h5fname)
-```
 
-```{python}
+# %%
 from wltp.invariants import vround, nround1
 
 
@@ -106,35 +102,30 @@ def load_accdb_and_python_datasets(veh_nums=None):
 
 
 p1, c1, p2, c2 = load_accdb_and_python_datasets()
-```
 
-```{python}
+# %%
 ## EXPORT RESULTS to upload them for the GS-group when releasing.
 #
 # p2.drop('v116', axis=0).to_excel('pyalgo-props-124cases-1.0.0.dev12.xlsx')
 # c2.drop('v116', axis=0).to_excel('pyalgo-cycles-124cases-1.0.0.dev12.xlsx')
-```
 
-```{python}
+# %%
 # Available PROPs
 print(columnize(list(p1.columns), displaywidth=160))
 print(columnize(list(p2.columns), displaywidth=160))
-```
 
-```{python}
+# %%
 display(
     vehdb.grid(p1, fitcols=False),
     vehdb.grid(p2, fitcols=False),
     # vehdb.grid(c1, fitcols=0),
 )
-```
 
-```{python}
+# %%
 sr_cmpr = vehdb.Comparator(lambda d, c: d[:, c], no_styling=True)
 dataset_names = "accdb Python".split()  # Must sort with "diff" column.
-```
 
-```{python}
+# %%
 ## Report PROP differences
 #
 #     ACCDB,  PYALGO
@@ -158,19 +149,16 @@ cdf.columns = [" ".join(col).strip() for col in cdf.columns.values]
 display(vehdb.grid(cdf, fitcols=False, cwidth=100))
 # with pd.option_context('max_rows', 130):
 #     display(cdf)
-```
 
-```{python}
+# %%
 # Available CYCLE columns
 print(columnize(list(c1.columns), displaywidth=160))
 print(columnize(list(c2.columns), displaywidth=160))
-```
 
-```{python}
+# %%
 cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
-```
 
-```{python}
+# %%
 ## Report CYCLE-MEAN differences
 #
 # # Vehicles with DOWNSCALE discrepancies
@@ -217,33 +205,31 @@ display(
         (cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True
     )
 )
-```
 
-```{python}
+# %%
 ## Repeat, to compare while coding.
 # display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names, describe=True))
-```
 
-AccDB vehicles: 42, 46, 52, 53 & 90 have broken `v_max`, 48 has broken `wot(ASM)`.
+# %% [markdown]
+# AccDB vehicles: 42, 46, 52, 53 & 90 have broken `v_max`, 48 has broken `wot(ASM)`.
 
-```{python}
+# %%
 known_bads = set(wio.veh_names([42, 46, 48, 52, 53, 90]))
 display(
     cmpr.compare(
         (cc1, cc2), equivalent_props + equivalent_series, dataset_names
     ).set_properties(subset=(known_bads, idx[:]), color="red")
 )
-```
 
-```{python}
+# %%
 ## Repeat, to compare while coding.
 # display(cmpr.compare((cc1, cc2), equivalent_props + equivalent_series, dataset_names).set_properties(subset=(known_bads, idx[:]), color='red'))
-```
 
-## Compare a vehicle from AccDB <-->PyAlgo *interactively*
-**TODO:** collect and hide all this comprarison GUI code below into a python module. 
+# %% [markdown]
+# ## Compare a vehicle from AccDB <-->PyAlgo *interactively*
+# **TODO:** collect and hide all this comprarison GUI code below into a python module. 
 
-```{python}
+# %%
 case_loaded = [None, None]
 
 
@@ -298,9 +284,8 @@ def load_interactive_case(
 
 # cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears, accdb_props = load_interactive_case('v001')
 # ok_flags.columns, ok_gears.columns
-```
 
-```{python}
+# %%
 def decide_signal_axis(colnames):
     def is_velocity(col):
         return is_velocity(col[0]) if isinstance(col, tuple) else col.startswith("v_")
@@ -405,9 +390,8 @@ out_specs = [
     (display_accdb_cycle, "AccDb cycle"),
     (display_accdb_props, "AccDb props"),
 ]
-```
 
-```{python}
+# %%
 ## TODO: CLASSify code in these cells.
 from ipywidgets import (
     interact,
@@ -686,26 +670,25 @@ interactive_output(
         "is_accdb_gears": IsAccdbGears,
     },
 )
-```
 
-# Museum
+# %% [markdown]
+# # Museum
 
-```{python}
+# %%
 ## Is clutch-undefined only used for gear 1?  NO< also for g2.
 display(c1.loc[c1.clutch == "undefined", "gear"].value_counts())
 # display(c1.loc[c1.clutch=='undefined', ['v', 'a', 'g_max', 'clutch']])
-```
 
-```{python}
+# %%
 # c2 = c2.loc[c2.index != 'v116']
 # p2 = p2.loc[p2.index != 'v116']
 # p2.to_excel('pyalgo_props-1.0.0.dev10.xlsx')
 # c2.to_excel('pyalgo_cycles-1.0.0.dev10.xlsx')
-```
 
-### AccDB not respecting n_min=0.9 x n_idle (Annex 2-3.k.3):
+# %% [markdown]
+# ### AccDB not respecting n_min=0.9 x n_idle (Annex 2-3.k.3):
 
-```{python}
+# %%
 def is_bad_g2_in_decel_to_stop(accdb, cyc, prop):
     cyc = cyc.reset_index(level=0)
     # bad_rows = (accdb.g_max == 2) & cyc.stopdecel & (cyc['n/g2'] < 0.9 * prop['idling_speed'])
@@ -733,11 +716,12 @@ for case, cyc in c2.groupby(level=0):
             display(*res)
         else:
             display(res)
-```
 
-### Insufficient power where more than one gears are N-valid: 
 
-```{python}
+# %% [markdown]
+# ### Insufficient power where more than one gears are N-valid: 
+
+# %%
 def is_more_low_powered_gears(cyc):
     cyc2 = cyc.copy()
     cyc2.columns = wio.inflate_columns(cyc2.columns)
@@ -767,4 +751,3 @@ for case, cyc in c2.groupby(level=0):
             display(*res)
         else:
             display(res)
-```

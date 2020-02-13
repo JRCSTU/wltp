@@ -1,36 +1,35 @@
----
-jupyter:
-  jupytext:
-    formats: ipynb,Rmd
-    text_representation:
-      extension: .Rmd
-      format_name: rmarkdown
-      format_version: '1.1'
-      jupytext_version: 1.2.1
-  kernelspec:
-    display_name: Python 3
-    language: python
-    name: python3
----
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:hydrogen
+#     text_representation:
+#       extension: .py
+#       format_name: hydrogen
+#       format_version: '1.3'
+#       jupytext_version: 1.3.3
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
 
-# VMAX experiments
+# %% [markdown]
+# # VMAX experiments
 
-```{python}
+# %%
 ## To autoreload codein python files here.
-# %load_ext autoreload
-# %autoreload 2
+%load_ext autoreload
+%autoreload 2
 
 ## Auto-format cells to ease diffs.
-# %load_ext lab_black
-```
+%load_ext lab_black
 
-```{python}
+# %%
 ## If you change that, restart kernel and clear all outpouts before running it
-# #%matplotlib widget
-# %matplotlib inline
-```
+#%matplotlib widget
+%matplotlib inline
 
-```{python}
+# %%
 from typing import Union, List, Callable, Any, Sequence as Seq
 import io
 import logging
@@ -65,9 +64,8 @@ logging.basicConfig(
 )
 
 pd.set_option("display.max_columns", 32)
-```
 
-```{python}
+# %%
 ## DEFINITIONS
 #
 inp_h5fname = "VehData/WltpGS-msaccess.h5"
@@ -76,17 +74,17 @@ c_n, c_p, c_n_norm, c_p_norm = "n", "Pwot", "n_norm", "p_norm"
 
 # vehdb.print_nodes(inp_h5fname)
 # vehdb.print_nodes(out_h5fname)
-```
 
-```{python}
+# %%
 vehnum = 35
 ac_props, wot, _ = vehdb.load_vehicle_accdb(inp_h5fname, vehnum)
 wot
-```
 
-## Good case from h5db
 
-```{python}
+# %% [markdown]
+# ## Good case from h5db
+
+# %%
 def read_veh(vehnum, silent=False):
     ac_props, wot, _ = vehdb.load_vehicle_accdb(inp_h5fname, vehnum)
     py_props, _, gwots = vehdb.load_vehicle_pyalgo(out_h5fname, vehnum)
@@ -102,13 +100,12 @@ def read_veh(vehnum, silent=False):
 
 caseno = 21
 ac_props, py_props, wot, gwots = read_veh(caseno)
-```
 
-```{python}
+# %%
 display(wot)
-```
 
-```{python}
+
+# %%
 def plot_gwots(ac_props, py_props, gwots, g, bottom_g, *, offset=2):
     gwots.index.name = "V [kmh]"
     v_max_ac = ac_props["v_max"]
@@ -126,9 +123,9 @@ def plot_gwots(ac_props, py_props, gwots, g, bottom_g, *, offset=2):
 
 
 plot_gwots(ac_props, py_props, gwots, 6, 5)
-```
 
-```{python}
+
+# %%
 def disp_gwots(ac_props, py_props, gwots, g, offset=0.5):
     gwots.index.name = "V [kmh]"
     v_max_ac = ac_props["v_max"]
@@ -138,15 +135,15 @@ def disp_gwots(ac_props, py_props, gwots, g, offset=0.5):
 
 
 disp_gwots(ac_props, py_props, gwots, 6)
-```
 
-```{python}
+# %%
 disp_gwots(ac_props, py_props, gwots, 5)
-```
 
-## Good MAXWOT case from h5db
 
-```{python}
+# %% [markdown]
+# ## Good MAXWOT case from h5db
+
+# %%
 def read_veh(vehnum, silent=False):
     ac_props, wot, n2vs = vehdb.load_vehicle_accdb(inp_h5fname, vehnum)
     py_props, _, gwots = vehdb.load_vehicle_pyalgo(out_h5fname, vehnum)
@@ -162,13 +159,12 @@ def read_veh(vehnum, silent=False):
 
 caseno = 48
 ac_props, py_props, wot, gwots, n2vs = read_veh(caseno)
-```
 
-```{python}
+# %%
 display(wot)
-```
 
-```{python}
+
+# %%
 def plot_gwots(ac_props, py_props, gwots, g, bottom_g, *, offset=2):
     gwots.index.name = "V [kmh]"
     v_max_ac = ac_props["v_max"]
@@ -186,9 +182,9 @@ def plot_gwots(ac_props, py_props, gwots, g, bottom_g, *, offset=2):
 
 
 plot_gwots(ac_props, py_props, gwots, 6, 4)
-```
 
-```{python}
+
+# %%
 def disp_gwots(ac_props, py_props, gwots, g, offset=0.5):
     gwots.index.name = "V [kmh]"
     v_max_ac = ac_props["v_max"]
@@ -198,34 +194,32 @@ def disp_gwots(ac_props, py_props, gwots, g, offset=0.5):
 
 
 disp_gwots(ac_props, py_props, gwots, 6)
-```
 
-## BAD case from h5db
+# %% [markdown]
+# ## BAD case from h5db
+#
+# ```
+#          v_max  g_vmax
+# accdb:   141.1       6
+# pyalgo:  141.1       5
+# ```
+# Strangely, accdb finds the correct `v_max`, but `g6` does not seem to cross `p_resist` at that point...
 
-```
-         v_max  g_vmax
-accdb:   141.1       6
-pyalgo:  141.1       5
-```
-Strangely, accdb finds the correct `v_max`, but `g6` does not seem to cross `p_resist` at that point...
-
-```{python}
+# %%
 caseno = 25
 ac_props, py_props, wot, gwots, n2vs = read_veh(caseno)
-```
 
-```{python}
+# %%
 plot_gwots(ac_props, py_props, gwots, 6, 5)
-```
 
-```{python}
+# %%
 disp_gwots(ac_props, py_props, gwots, 6)
 disp_gwots(ac_props, py_props, gwots, 5)
-```
 
-## Manual run
+# %% [markdown]
+# ## Manual run
 
-```{python}
+# %%
 caseno = 64
 # caseno = 48  # maxWOT
 # caseno = 20  # maxWOT last gear
@@ -238,20 +232,18 @@ gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
 gwots["p_resist"] = vehicle.calc_p_resist(
     gwots.index, ac_props.f0, ac_props.f1, ac_props.f2
 )
-```
 
-```{python}
+# %%
 w = wio.pstep_factory.get()
 gidx = wio.GearMultiIndexer.from_df(gwots)
 
 rec = vmax.calc_v_max(gwots)
 print(f"VMAX: {rec.v_max}, G_VMAX: {rec.g_vmax}, maxWOT? {rec.is_n_lim}")
 display(rec.wot[f"g{rec.g_vmax}"])
-```
 
-# Museum
+# %% [markdown]
+# # Museum
 
-```{python}
+# %%
 ## Test V_GRID construction always inside WOT_N
 engine._make_v_grid(1.201, 1.4999)
-```

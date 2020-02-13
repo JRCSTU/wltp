@@ -1,46 +1,45 @@
----
-jupyter:
-  jupytext:
-    formats: ipynb,Rmd
-    text_representation:
-      extension: .Rmd
-      format_name: rmarkdown
-      format_version: '1.1'
-      jupytext_version: 1.2.1
-  kernelspec:
-    display_name: Python 3
-    language: python
-    name: python3
----
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:hydrogen
+#     text_representation:
+#       extension: .py
+#       format_name: hydrogen
+#       format_version: '1.3'
+#       jupytext_version: 1.3.3
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
 
-# Parse excel files into a HDF5 file
-It builds an an [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5) 
-with the the *vehicle inputs* & *outpus* (`prop`, `wot`, `cycle`) from accdb.
+# %% [markdown]
+# # Parse excel files into a HDF5 file
+# It builds an an [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5) 
+# with the the *vehicle inputs* & *outpus* (`prop`, `wot`, `cycle`) from accdb.
+#
+# ## To see the full tree
+# ...check the `README.py`,
+# ## to run this notebook in your own jupyter-server
+# ...read instructions on the `README.md`,
+# ## to inspect and get help on the HDF5 file
+# ...read instructions on the `README.md` and consult the `HDF5-API.ipynb` notebook.
 
-## To see the full tree
-...check the `README.py`,
-## to run this notebook in your own jupyter-server
-...read instructions on the `README.md`,
-## to inspect and get help on the HDF5 file
-...read instructions on the `README.md` and consult the `HDF5-API.ipynb` notebook.
-
-```{python tags=c("parameters")}
+# %% tags=["parameters"]
 ### Cell tagged as `parameters` for *papermill*.
 #
 skip_h5_write = False
 del_h5_on_start = False  # overriden by `skip_h5_write=True`
-```
 
-```{python}
+# %%
 ## To autoreload codein python files here.
-# %load_ext autoreload
-# %autoreload 2
+%load_ext autoreload
+%autoreload 2
 
 ## Auto-format cells to ease diffs.
-# %load_ext lab_black
-```
+%load_ext lab_black
 
-```{python}
+# %%
 import functools as ftt
 import itertools as itt
 import logging
@@ -72,9 +71,8 @@ logging.basicConfig(
     format="%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s",
     datefmt="%Y-%m-%d,%H:%M:%S",
 )
-```
 
-```{python}
+# %%
 ## DEFINITIONS
 #
 h5fname = "VehData/WltpGS-msaccess.h5"
@@ -88,26 +86,22 @@ c_vehnum, c_case, c_engno, c_n, c_pwot, c_SM, c_ASM = (
     "ASM",
 )
 c_case_id = c_case
-```
 
-```{python}
+# %%
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
 if not skip_h5_write and del_h5_on_start:
     !rm -f {h5fname}
-```
 
-```{python}
+# %%
 vehdb.print_nodes(h5fname)
-```
 
-```{python}
+# %%
 # a=xleash.lasso('VehData/calculation_parameter_all.15092019_prog_code_dev.xlsx#calculation_parameter_all!::["df"]')
 # b=xleash.lasso('VehData/calculation_parameter_all.20092019.xlsx#calculation_parameter_all!::["df"]')
 # bad_cols = (a == b).all()
 # bad_cols[~bad_cols]
-```
 
-```{python}
+# %%
 vehinputs_excel = (
     Path("VehData/calculation_parameter_all.20092019.xlsx"),
     "calculation_parameter_all",
@@ -116,32 +110,32 @@ specs = xleash.lasso('%s#%s!::["df"]' % vehinputs_excel)
 
 wots_excel = (Path("VehData/TB_Pwot.20092019.xlsx"), "TB_Pwot")
 pwots = xleash.lasso('%s#%s!::["df"]' % wots_excel)
-```
 
-## PRE 20190728 COLUMNS
-```
-vehicle_no  rated_power     v_max  ndv_6               no_of_gears  v_max_4  v_max_10  n_min_drive_set  n95_high   at_s                    
-comments    kerb_mass       ndv_1  ndv_7               ng_vmax      v_max_5  v_s_max   n_min_wot        n_max1     above_s                 
-pmr_km      test_mass       ndv_2  ndv_8               v_max_ext    v_max_6  n_vmax    f_dsc_req        n_max2     vmax_determined_by_n_lim
-pmr_tm      rated_speed     ndv_3  ndv_9               v_max_1      v_max_7  f0        Pres_130         n_max3   
-IDclass     idling_speed    ndv_4  ndv_10              v_max_2      v_max_8  f1        Pres_130_Prated  n_max_wot
-class       v_max_declared  ndv_5  v_max_transmission  v_max_3      v_max_9  f2        n95_low          below_s  
+# %% [markdown]
+# ## PRE 20190728 COLUMNS
+# ```
+# vehicle_no  rated_power     v_max  ndv_6               no_of_gears  v_max_4  v_max_10  n_min_drive_set  n95_high   at_s                    
+# comments    kerb_mass       ndv_1  ndv_7               ng_vmax      v_max_5  v_s_max   n_min_wot        n_max1     above_s                 
+# pmr_km      test_mass       ndv_2  ndv_8               v_max_ext    v_max_6  n_vmax    f_dsc_req        n_max2     vmax_determined_by_n_lim
+# pmr_tm      rated_speed     ndv_3  ndv_9               v_max_1      v_max_7  f0        Pres_130         n_max3   
+# IDclass     idling_speed    ndv_4  ndv_10              v_max_2      v_max_8  f1        Pres_130_Prated  n_max_wot
+# class       v_max_declared  ndv_5  v_max_transmission  v_max_3      v_max_9  f2        n95_low          below_s  
+#
+# Index(['no_engine', 'n', 'Pwot', 'Twot', 'Pwot_norm', 'Twot_norm', 'SM', 'ASM',
+#        'Pavai'],
+#       dtype='object')
+# ```
 
-Index(['no_engine', 'n', 'Pwot', 'Twot', 'Pwot_norm', 'Twot_norm', 'SM', 'ASM',
-       'Pavai'],
-      dtype='object')
-```
-
-```{python}
+# %%
 import qgrid
 
 print(columnize(list(specs.columns), displaywidth=160))
 print(pwots.columns)
 print(specs[c_vehnum].unique(), specs[c_case].unique())
 display(vehdb.grid(specs, fitcols=False), vehdb.grid(pwots))
-```
 
-```{python}
+
+# %%
 def extract_SM_from_pwot(
     pwot, c_n=c_n, c_pwot=c_pwot, c_SM=c_SM, c_ASM=c_ASM
 ) -> "Tuple(pd.DataFrame, float)":
@@ -165,22 +159,20 @@ def extract_SM_from_pwot(
 
 # ## TEST
 # extract_SM_from_pwot(pwots.loc[pwots[c_engno] == 3])
-```
 
-```{python}
+# %%
 vehresults_excel = ("VehData/gearshift_table_all.22102019.xlsx", "gearshift_table_all")
 # NOTE: it may take ~5 minute to load ~130 vehicles...
 results_df = xleash.lasso('%s#%s!::["df"]' % vehresults_excel)
 results_df.shape  # (223_722, 116)
-```
 
-```{python}
+# %%
 print(columnize(list(results_df.columns), displaywidth=160))
 print(results_df[c_vehnum].unique())
 print(results_df[c_case].unique())
-```
 
-```{python}
+
+# %%
 def make_case_overrides():
     """
     Return "manual" changes for AccDB cases above the number of vehicles (116).
@@ -220,9 +212,8 @@ def make_case_overrides():
 overrides = make_case_overrides()
 
 print("\n".join(f"{k}: {v}" for k, v in sorted(overrides.items())))
-```
 
-```{python}
+# %%
 scalar_columns = [
     c_vehnum,
     "Description",
@@ -351,27 +342,23 @@ def store_results_per_car(
 with vehdb.openh5(h5fname) as h5db:
     store_results_per_car(h5db, specs, overrides, pwots, results_df)
     # store_results_per_car(h5db, None, overrides, None, None)
-```
 
-```{python}
+# %%
 vehdb.print_nodes(h5fname)
-```
 
-```{python}
-# %%time
+# %%
+%%time
 ## COMPRESS x4 HDF5: 341Mb --> 72Mb in ~15s.
 #
-# !ls -lh {h5fname}
+!ls -lh {h5fname}
 if not skip_h5_write:
     !ptrepack  {h5fname}  --complevel=9 --complib=blosc:lz4hc -o {h5fname}.tmp
     !mv  {h5fname}.tmp {h5fname}
-# !ls -lh {h5fname}
-```
+!ls -lh {h5fname}
 
-```{python}
+# %%
 ## SAMPLE: extract data for a specific vehicle.
 #
 caseno = 14
 iosr, cyc = vehdb.load_vehicle_nodes(h5fname, caseno, "prop", "cycle")
 display(iosr, cyc.columns, vehdb.grid(cyc, fitcols=False))
-```

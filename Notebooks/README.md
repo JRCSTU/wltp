@@ -22,7 +22,7 @@ Notebooks for processing UNECE's WLTP reference implementations in Python and MS
       VMax.ipynb                  # VMax experiments
       Rounding.ipynb              # showcase ROUNDING across MSAccess, Python, Matlab & C#
       ../tests/vehdb.py           # support code for reading & validating vehicles from HD5 files
-      *.Rmd                       # R-markdown git-tracked files paired with *.ipynb notebooks
+      *.py                        # "python-hydrogen" git-tracked files paired with *.ipynb notebooks
       VehData/                    # folder with raw input & results (e.g AccDB)
           +--WltpGS-msaccess.h5   # the h5db storing *accdb* inputs & results
           +--WltpGS-pyalgo.h5     # the h5db storing *pyalgo* results
@@ -33,7 +33,7 @@ Notebooks for processing UNECE's WLTP reference implementations in Python and MS
       README.md                   # this file
 
 > **Note:**
-> It is the `*.Rmd` files that are stored in the git-repo of this project;
+> It is the `*.py` files that are stored in the git-repo of this project;
 > they are synced automatically from `.ipynb` notebooks by the *jupytext*
 > jupyter-lab extension.
 
@@ -152,10 +152,10 @@ linked site below:
   - Append this to the bottom of your jupyter-config file::
 
 
-        ## Git only r-Markdown diffs
+        ## Git only "python-hydrogen" diffs
         # From https://towardsdatascience.com/version-control-with-jupyter-notebooks-f096f4d7035a
         c.NotebookApp.contents_manager_class="jupytext.TextFileContentsManager"
-        c.ContentsManager.default_jupytext_formats = ".ipynb,.Rmd"
+        c.ContentsManager.default_jupytext_formats = ".ipynb,.py"
 
 - [`qgrid`](https://github.com/quantopian/qgrid#installation)::
 
@@ -175,12 +175,12 @@ linked site below:
 
 Run this command in the directory of the gir-repo you cloned::
 
-      jupytext --to ipynb *.Rmd
+      jupytext --to ipynb *.py
 
 > **Tip**:
-> Alternatively, you may *right-click* a `.Rmd` file and
+> Alternatively, you may *right-click* a `.py` "hydrogen" file and
 > click **Open with | Notebook**, and **Save** to generate a freshly created notebook
-> (and remember to close the `.Rmd` file).
+> (and remember to close the `.py` file).
 
 
 ### 5. Launch *Jupyterlab* server

@@ -1,37 +1,36 @@
----
-jupyter:
-  jupytext:
-    formats: ipynb,Rmd
-    text_representation:
-      extension: .Rmd
-      format_name: rmarkdown
-      format_version: '1.1'
-      jupytext_version: 1.2.1
-  kernelspec:
-    display_name: Python 3
-    language: python
-    name: python3
----
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:hydrogen
+#     text_representation:
+#       extension: .py
+#       format_name: hydrogen
+#       format_version: '1.3'
+#       jupytext_version: 1.3.3
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
 
-## Run cycle on a Vehicle
-Quick'n Dirty sample code for running a cycle on user-defined vehicle data.
+# %% [markdown]
+# ## Run cycle on a Vehicle
+# Quick'n Dirty sample code for running a cycle on user-defined vehicle data.
 
-```{python}
+# %%
 ## To autoreload codein python files here.
-# %load_ext autoreload
-# %autoreload 2
+%load_ext autoreload
+%autoreload 2
 
 ## Auto-format cells to ease diffs.
-# %load_ext lab_black
-```
+%load_ext lab_black
 
-```{python}
+# %%
 ## If you change that, restart kernel and clear all outpouts before running it
-# #%matplotlib widget
-# %matplotlib inline
-```
+#%matplotlib widget
+%matplotlib inline
 
-```{python}
+# %%
 ##################################################
 ## Set PYTHONPATH and import relevant libraries ##
 ##################################################
@@ -73,11 +72,11 @@ logging.basicConfig(
 )
 
 pd.set_option("display.max_columns", 64)
-```
 
-## Run a vehicle with user-specified data
+# %% [markdown]
+# ## Run a vehicle with user-specified data
 
-```{python}
+# %%
 ## For more input data, see https://wltp.readthedocs.io/en/latest/code.html#schema
 #
 mdl = datamodel.get_model_base()
@@ -148,18 +147,17 @@ oprops = {
 
 pprint(oprops)
 display(mdl["cycle"])
-```
 
-## Run a case from AccDb
-The same vehicle data as above, read from h5db.
+# %% [markdown]
+# ## Run a case from AccDb
+# The same vehicle data as above, read from h5db.
 
-```{python}
+# %%
 h5 = "VehData/WltpGS-msaccess.h5"
 prop, wot, n2vs = vehdb.load_vehicle_accdb(h5, 1)
 acc_cycle = vehdb.load_vehicle_nodes(h5, 1, "cycle")
-```
 
-```{python}
+# %%
 case_no = 88
 props, wot, n2vs = vehdb.load_vehicle_accdb(h5, case_no)
 mdl = vehdb.mdl_from_accdb(props, wot, n2vs)
@@ -167,7 +165,7 @@ mdl = vehdb.mdl_from_accdb(props, wot, n2vs)
 datamodel.validate_model(mdl, additional_properties=True)
 exp = Experiment(mdl, skip_model_validation=True)
 
-# %time mdl = exp.run()
+%time mdl = exp.run()
 
 oprops = {
     "pmr": mdl["pmr"],
@@ -187,20 +185,18 @@ oprops = {
 
 pprint(oprops)
 display(mdl["cycle"])
-```
 
-```{python}
+# %%
 print(sorted(mdl.keys()))
-```
 
-```{python}
+# %%
 ax = mdl["cycle"][["v_cycle", "v_target"]].plot()
 ax = mdl["cycle"][["p_req", "p_avail"]].plot(ax=ax, secondary_y=True)
-```
 
-## Even simpler case
+# %% [markdown]
+# ## Even simpler case
 
-```{python}
+# %%
 import pandas as pd
 from wltp import datamodel
 from wltp.experiment import Experiment
@@ -233,4 +229,3 @@ out_mdl = exp.run()
 print(f"Available values: \n{list(out_mdl.keys())}")
 print(f"Cycle: ")
 display(out_mdl["cycle"])
-```

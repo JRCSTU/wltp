@@ -1,39 +1,38 @@
----
-jupyter:
-  jupytext:
-    formats: ipynb,Rmd
-    text_representation:
-      extension: .Rmd
-      format_name: rmarkdown
-      format_version: '1.1'
-      jupytext_version: 1.2.1
-  kernelspec:
-    display_name: Python 3
-    language: python
-    name: python3
----
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:hydrogen
+#     text_representation:
+#       extension: .py
+#       format_name: hydrogen
+#       format_version: '1.3'
+#       jupytext_version: 1.3.3
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
 
-# Populate DB with python-code's results
-It builds an an [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5) 
-with the *outputs* (`oprop`, `cycle`) from this *wltp* library.
+# %% [markdown]
+# # Populate DB with python-code's results
+# It builds an an [HDF5 file](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html#io-hdf5) 
+# with the *outputs* (`oprop`, `cycle`) from this *wltp* library.
 
-```{python tags=c("parameters")}
+# %% tags=["parameters"]
 ### Cell tagged as `parameters` for *papermill*.
 #
 skip_h5_write = False
 del_h5_on_start = False
-```
 
-```{python}
+# %%
 ## To autoreload codein python files here.
-# %load_ext autoreload
-# %autoreload 2
+%load_ext autoreload
+%autoreload 2
 
 ## Auto-format cells to ease diffs.
-# %load_ext lab_black
-```
+%load_ext lab_black
 
-```{python}
+# %%
 from typing import Tuple, Union, Sequence as Seq
 import io
 import sys
@@ -60,28 +59,25 @@ logging.basicConfig(
     format="%(asctime)s|%(levelname)4.4s|%(module)s:[%(funcName)s]:\n  +--> %(message)s",
     datefmt="%Y-%m-%d,%H:%M:%S",
 )
-```
 
-```{python}
+# %%
 ## DEFINITIONS
 #
 inp_h5fname = "VehData/WltpGS-msaccess.h5"
 out_h5fname = "VehData/WltpGS-pyalgo.h5"
 # Test cars delivered by Heinz to ank on 4 Jun 2019
 c_n, c_p, c_n_norm, c_p_norm = "n", "Pwot", "n_norm", "p_norm"
-```
 
-```{python}
+# %%
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
 if del_h5_on_start:
     !rm -f {out_h5fname}
-```
 
-```{python}
+# %%
 vehdb.print_nodes(out_h5fname)
-```
 
-```{python}
+
+# %%
 def store_python_results(
     inph5,
     outh5,
@@ -136,14 +132,12 @@ def store_python_results(
 
 with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname) as outh5:
     %time store_python_results(inph5, outh5, no_write=skip_h5_write)#, vehile_nums=[41])
-```
 
-```{python}
+# %%
 vehdb.print_nodes(out_h5fname)
-```
 
-```{python}
-# %%time
+# %%
+%%time
 if not skip_h5_write:
     ## COMPRESS x2.3 HDF5: 269Mb-->119Mb in ~20s.
     #
@@ -151,4 +145,3 @@ if not skip_h5_write:
     !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:lz4hc -o {out_h5fname}.tmp
     !mv  {out_h5fname}.tmp {out_h5fname}
     !ls -lh {out_h5fname}
-```
