@@ -107,13 +107,23 @@ display(wot)
 
 # %%
 def plot_gwots(ac_props, py_props, gwots, g, bottom_g, *, offset=2):
+    """
+    :param gwots:
+        a df V x (gear, item)
+    """
+    gwots = gwots.copy()
     gwots.index.name = "V [kmh]"
-    v_max_ac = ac_props["v_max"]
+    
     v_max = py_props["v_max"]
-    g_top = ac_props["no_of_gears"]
     g_max = py_props["g_vmax"]
+    
+    v_max_ac = ac_props["v_max"]
     g_max_acc = ac_props["gear_v_max"]
-    v_range = idx[v_max - offset : v_max + offset]
+    g_top = ac_props["no_of_gears"]
+
+    v_range = idx[v_max - offset:v_max + offset]
+    g_range = [f"g{i}" for i in range(g_top, bottom_g)]
+    
     ax = gwots.loc[v_range, (f"g{g}", "p_resist")].plot(linewidth=3)
     ax = gwots.loc[v_range, (slice(f"g{g_top}", f"g{bottom_g}"), "p_avail")].plot(ax=ax)
     ax.axvline(v_max, color="orange", label=f"v_max_python(g{g_max})")
