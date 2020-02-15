@@ -126,6 +126,7 @@ notebook_reqs = [
     "qgrid",
     "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
     "columnize",
+    "oct2py",
 ]
 test_reqs = notebook_reqs + [
     "docutils",
