@@ -227,6 +227,7 @@ setup(
         "contextvars; python_version < '3.7'",
         "dataclasses; python_version < '3.7'",
         "boltons",
+        "graphtik >=5.1.0",  # 5.1.0 ops accept named-dictionaries results.
         "jsonschema",
         "numpy",
         "pandas <1.0.0",  # QGrid fails: https://travis-ci.org/ankostis/wltp/jobs/644039971
