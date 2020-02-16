@@ -176,7 +176,7 @@ class Experiment(object):
         mdl[m.is_n_lim_vmax] = v_max_rec.is_n_lim
         mdl[m.wots_vmax] = v_max_rec.wot
 
-        p_m_ratio = 1000 * p_rated / unladen_mass
+        p_m_ratio = vehicle.calc_p_m_ratio(p_rated, unladen_mass)
         mdl[m.pmr] = p_m_ratio
         f_inertial = mdl[m.f_inertial]
 
