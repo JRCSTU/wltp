@@ -59,7 +59,7 @@ def _is_in_my_project(item) -> bool:
 
 
 class Prefkey:
-    """Index into dicts with a key or a joined(pefix+key), where prefix: tuple"""
+    """Index into dicts with a key or a joined(prefix+key), where prefix: tuple"""
 
     sep = "/"
 
@@ -88,7 +88,7 @@ class Prefkey:
 
 class FnHarvester(Prefkey):
     """
-    Collect callables, classes & their methods into ``collected`` atribute.
+    Collect callables, classes & their methods into ``collected`` attribute.
 
     :param collected:
         a list of 2-tuples::

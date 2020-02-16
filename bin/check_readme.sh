@@ -8,7 +8,7 @@
 
 
 ## Checks that README has no RsT-syntactic errors.
-# Since it is used by `setup.py`'s `description` if it has any errors, 
+# Since it is used by `setup.py`'s `description` if it has any errors,
 # PyPi would fail parsing them, ending up with an ugly landing page,
 # when uploaded.
 
@@ -27,7 +27,7 @@ tmp_dir=$(mktemp -d -t wltp-$my_name-XXXXXXXXXX)
 
 rm -rf "build/*" "dist/*"
 python setup.py -q bdist_wheel --dist-dir $tmp_dir && \
-twine check $tmp_dir/*.whl 
+twine check $tmp_dir/*.whl
 
 exc=$?
 rm -rf $tmp_dir

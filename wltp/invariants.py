@@ -5,7 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""definitions & idenmpotent formulae for physics/engineering"""
+"""definitions & idempotent formulae for physics/engineering"""
 import functools
 from typing import Union
 
@@ -24,7 +24,7 @@ def round1(n, decimals=0):
     """
      Rounding with the Access DB method (all ties half-up: 0.5 --> 1).
 
-    TIP: Double rounding might be needed to achive stability on ties with long decimals
+    TIP: Double rounding might be needed to achieve stability on ties with long decimals
     (see downscale scale vs recurse)
 
     :param n:

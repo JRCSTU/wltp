@@ -30,8 +30,8 @@ The following matrix shows these correspondences:
 
 Known deficiencies
 ==================
-* The `g_max0` does not include corrections for the `g1-->g2 n_min` rule, 
-  not points with insufficient power (Annex 1-8.4). 
+* The `g_max0` does not include corrections for the `g1-->g2 n_min` rule,
+  not points with insufficient power (Annex 1-8.4).
 * (!) Driveability-rules are missing - for their implementation,
   the values for calculating "initial-gear" must be trusted first,
   or else no validation is possible.
@@ -81,7 +81,7 @@ v1.0.0.dev12  (20-Aug-2019): PY3.5 only & real work!
 
   - BREAK: data-path ``cycle_run --> cycle``.
   - BREAK: renamed module ``wltp.model --> wltp.datamodel``.
-  - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec, 
+  - FIX: CLASS1 has now +1 PART(low) at the end, as by the recent spec,
     and overlapping phases fixed.
   - break: V-traces is renamed from `cycle --> v_cycle`.
   - break: cycle-part limits are plain lists-of-limits (not list-of-pairs).
@@ -105,7 +105,7 @@ v1.0.0.dev12  (20-Aug-2019): PY3.5 only & real work!
     Much better and shorter code.
   - Rounding according to GTR;  +notebook comparing rounding behavior of
     Python vs Matlab vs C# vs VBA(pre-canned).
-  - CRCs & identification function for the 3 possible *phasings*: V, VA0, VA1 
+  - CRCs & identification function for the 3 possible *phasings*: V, VA0, VA1
 
 - Updated documentation.
 
@@ -352,9 +352,9 @@ Questions to Mr Heinz
 =====================
 n_min:
 ------
-- In `F calc gearshifts single vehicle.form.vbs(line: 11590) 
+- In `F calc gearshifts single vehicle.form.vbs(line: 11590)
   <https://github.com/JRCSTU/wltp/blob/master/Notebooks/AccDB_src/F%20calc%20gearshifts%20single%20vehicle.form.vbs#L11590>`_
-  
+
   - why is it checking the next sample after the gear-shift if it is still 2?::
 
         If rstbe!g_max = 1 And rstce!g_max = 2 And rstde!g_max = 2 And rstae!ndv_2 * rstce!v < 1.15 * rstae!idling_speed Then
@@ -364,7 +364,7 @@ n_min:
 
 - Regarding the -0.1389 `n_min_up` threshold in Annex 2-2.k, i cannot find its use in the accdb?
 - Regarding the exact boundaries of the "up" phase, is it based on the same logic as
-  for accel/decel/cruise phases of Annex 2-4, correct?  Specifically, 
+  for accel/decel/cruise phases of Annex 2-4, correct?  Specifically,
   does it also end the last sample (including it)?
 
 
@@ -381,14 +381,14 @@ VMax in `F new vehicle.form.vbs <https://github.com/JRCSTU/wltp/blob/master/Note
     - Why is it reaching sometimes down to ng-3, and others down to ng-2?
     - Is it possible that a lower gear can have lower `v_max` and next lower to have `v_max` high again?  NO
     - Is there a 3-geared car with v_max@gear-1?  NO
-    - So would a method that starts scanning from top and stops on the first `v_max` value 
+    - So would a method that starts scanning from top and stops on the first `v_max` value
       that is lower than the previous (and get the prevous) work?
 
   - There are 5 cases where both top gears can reach the same `v_max`/
     Accdb seems to take the lower one, but the GTR suggest the opposite
 
 
-Downscale: 
+Downscale:
 ----------
 
 - vehicle-82 has f_dsc 0.010 (=threshold) and still gets downscaled,
@@ -432,10 +432,10 @@ Driveability rules:
 
   - Are the following interpretations for the phases in Annex 2-4 correct?::
 
-                'v': [0,0,3,3,5,8,8,8,6,4,5,6,6,5,0,0] 
-            'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0] 
-           'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0] 
-            'decel': [0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,0] 
+                'v': [0,0,3,3,5,8,8,8,6,4,5,6,6,5,0,0]
+            'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0]
+           'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0]
+            'decel': [0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,0]
                'up': [0,0,1,1,1,1,1,1,0,1,1,1,1,0,0,0]
         'initaccel': [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
         'stopdecel': [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0]

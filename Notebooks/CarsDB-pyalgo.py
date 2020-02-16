@@ -43,7 +43,6 @@ import numpy as np
 import pandas as pd
 from wltp.experiment import Experiment
 import wltp
-import wltp.utils as wutils
 
 ## Add tests/ into `sys.path` to import `vehdb` module.
 #

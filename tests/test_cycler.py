@@ -25,16 +25,16 @@ def gwots():
     return pd.DataFrame({("the items", "the gears"): []})
 
 
-def test_identify_conjecutive_truths_repeat_threshold_1_is_identical():
+def test_identify_consecutive_truths_repeat_threshold_1_is_identical():
     V = datamodel.get_class_v_cycle(0)
     A = -V.diff(-1)
     pm = PhaseMarker(phase_repeat_threshold=1)
 
     col1 = (V > 1) & (A < 0)
-    col2 = pm._identify_conjecutive_truths((V > 1) & (A < 0), right_edge=False)
+    col2 = pm._identify_consecutive_truths((V > 1) & (A < 0), right_edge=False)
     assert col2.equals(col1)
 
-    col2 = pm._identify_conjecutive_truths((V > 1) & (A < 0), right_edge=True)
+    col2 = pm._identify_consecutive_truths((V > 1) & (A < 0), right_edge=True)
     assert col2.equals(col1 | col1.shift())
 
 

@@ -15,7 +15,7 @@ def goodVehicle():
         "p_rated": 100,
         "n_rated": 5450,
         "n_idle": 950,
-        # "n_min":   None,    # Can be overriden by manufacturer.
+        # "n_min":   None,    # Can be overridden by manufacturer.
         "gear_ratios": [120.5, 75, 50, 43, 37, 32],
     }
     goodVehicle = datamodel.upd_default_load_curve(goodVehicle)

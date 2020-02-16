@@ -101,7 +101,7 @@ def parse_wot(wot) -> pd.DataFrame:
     if wot.shape[0] <= 2 and wot.shape[0] < wot.shape[1]:
         wot = wot.T
 
-    ## Accept a 1-column df if column-names were unamed or one of the p columnns.
+    ## Accept a 1-column df if column-names were unamed or one of the p columns.
     #
     if (
         wot.shape[1] == 1
@@ -150,7 +150,7 @@ def parse_wot(wot) -> pd.DataFrame:
 def validate_wot(
     wot: pd.DataFrame, n_idle, n_rated, p_rated, n_min_drive_set
 ) -> pd.DataFrame:
-    """Higher-level validation of the wot-curves with repect to model."""
+    """Higher-level validation of the wot-curves with respect to model."""
     w = wio.pstep_factory.get().wot
     d = wio.pstep_factory.get().wot
 
@@ -195,8 +195,8 @@ def validate_wot(
 
 def preproc_wot(mdl: Mapping, wot) -> pd.DataFrame:
     """
-    Parses & validates wot from string or other matrix format 
-    
+    Parses & validates wot from string or other matrix format
+
     see  :func:`parse_wot()`
     """
     d = wio.pstep_factory.get()
@@ -218,16 +218,16 @@ def preproc_wot(mdl: Mapping, wot) -> pd.DataFrame:
 
 def calc_p_available(P: Column, f_safety_margin, ASM: Optional[Column] = 0) -> Column:
     """
-    Calculate `p_available` acording to Annex 2-3.4.
+    Calculate `p_available` according to Annex 2-3.4.
 
-    :param P: 
+    :param P:
         power (usually from WOT)
-    :param f_safety_margin: 
+    :param f_safety_margin:
         usually 0.1
-    :param ASM: 
+    :param ASM:
         in % (e.g. 0.10, 0.35), not enforcing any of GTR's restrictions
         (e.g. <= 50%)
-    :return: 
+    :return:
         same units as `P`
     """
     total_reduction = 1 - f_safety_margin - ASM
@@ -272,19 +272,19 @@ def _make_v_grid(v_wot_min: float, v_wot_max: float) -> np.ndarray:
 
 def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     """
-    Return a new linearly interpolated df on v with inv.v_decimals. 
-    
+    Return a new linearly interpolated df on v with inv.v_decimals.
+
     :param df:
         A df containing at least `n` (in RPM); any other column gets interpolated.
 
-        .. Attention:: 
+        .. Attention::
             Do not include non-linear columns (e.g. p_resistances(v^2))
             because those interpolated values would be highly inaccurate!
 
     :return:
-        the wot interpolated on a v-grid accomodating all gears
+        the wot interpolated on a v-grid accommodating all gears
         with 2-level columns (item, gear)
-    
+
     """
     w = wio.pstep_factory.get().wot
 
@@ -346,9 +346,9 @@ def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
         Must not interpolate along with wot on grid, or great INNACCURACIES.
 
     :param gwots:
-        a  df with 2-level multindex columns, having at least (`g1`, 'p'), and
-        optionally ('g1', 'ASM')) for each gears 
-        (as retuned by :func:`interpolate_wot_on_v_grid()`).
+        a  df with 2-level multiindex columns, having at least (`g1`, 'p'), and
+        optionally ('g1', 'ASM')) for each gears
+        (as returned by :func:`interpolate_wot_on_v_grid()`).
 
     .. TODO:: Encapsulate GridWots in a class, like Cycler.
     """
@@ -371,8 +371,8 @@ def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, fl
     Find wot's n95_low/high (Annex 2-2.g).
 
     Split `P_norm` in 2 sections around `n_rated`, and interpolate separately
-    each section.  
-    
+    each section.
+
     :wot:
         Must contain `n` & `p_norm`.
     :return:
@@ -394,9 +394,9 @@ def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, fl
             raise ValueError(
                 f"BAD wot, too few points {wot_location} n_rated({n_rated})!\n {wot}"
             )
-        n_intep = interpolate.interp1d(P, N_norm, copy=False, assume_sorted=True)
+        n_interp = interpolate.interp1d(P, N_norm, copy=False, assume_sorted=True)
         try:
-            n95 = n_intep(0.95).item()
+            n95 = n_interp(0.95).item()
         except Exception as ex:
             ## Not all WOTs drop again below 95% at top-n.
             #  Accept top-n as `n_max` in such cases (by the GTR);
@@ -409,7 +409,7 @@ def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, fl
             ):
                 log.info(
                     "The wot does not drop below 95%% x p_rated(%s) at top n_wot_max(%s);"
-                    " assumng n95_high := n_wot_max-->p(%s).",
+                    " assuming n95_high := n_wot_max-->p(%s).",
                     p_rated,
                     wot[w.n].max(),
                     wot[w.p].iloc[-1],

@@ -135,7 +135,7 @@ def downscale_by_recursing(V, f_downscale, phases):
         a = V[t + 1] - V[t]
         V_DSC[t + 1] = V_DSC[t] + a * (1 - f_downscale)
 
-    ## Decelaration phase
+    ## Deceleration phase
     #
     f_corr = (V_DSC[t1] - V[t2]) / (V[t1] - V[t2])
     for t in range(t1 + 1, t2):
@@ -179,7 +179,7 @@ def downscale_by_scaling(V: pd.Series, f_downscale, phases) -> pd.Series:
     V_DSC[dn_ix] = dn_offset + f_corr * (V[dn_ix] - dn_offset)
     assert V_DSC[t2] == V[t2], f"Invariant-end violation {V_DSC[t2]} != {V[t2]}!"
 
-    ## FIXME: `f_scale` multipliers should have been on the other side(!) of inequailty,
+    ## FIXME: `f_scale` multipliers should have been on the other side(!) of inequality,
     #  but then assertion fails frequently.
     assert f_scale * abs(V_DSC[t1 + 1] - V_DSC[t1]) <= abs(V[t1 + 1] - V[t1]), (
         f"Smooth-tip violation diff_V_DSC({abs(V_DSC[t1 + 1] - V_DSC[t1])})"

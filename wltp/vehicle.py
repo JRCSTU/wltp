@@ -5,7 +5,7 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""formulae for cyle/vehicle dynamics"""
+"""formulae for cycle/vehicle dynamics"""
 import logging
 from typing import Union
 
@@ -32,8 +32,8 @@ def calc_p_m_ratio(p_rated, unladen_mass):
 
 def calc_p_resist(V: Column, f0, f1, f2):
     """
-    The `p_resist` required to overcome vehicle-resistances for various velocities, 
-    
+    The `p_resist` required to overcome vehicle-resistances for various velocities,
+
     as defined in Annex 2-2.i (calculate `V_max_vehicle`).
     """
     VV = V * V

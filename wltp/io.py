@@ -22,10 +22,14 @@ from pandalone import mappings
 #: - call :func:`paths_collected()` at the end of a code run.
 _root_pstep = mappings.Pstep()
 
-#: The root-path wrapped in a context-var so that cloent code
-#: canm redfine paths & column names momentarily with::
+#: The root-path wrapped in a context-var so that client code
+#: can redfine paths & column names momentarily with::
 #:
-#:     with wio.pstep_factory.redined(<this_module>.cols):
+#:      token = wio.pstep_factory.set(mapping.Pstep(<mappings>))
+#:      try:
+#:          ...
+#:      finally:
+#:          wio.pstep_factory.reset(token)
 #:         ...
 pstep_factory = contextvars.ContextVar("root", default=_root_pstep)
 

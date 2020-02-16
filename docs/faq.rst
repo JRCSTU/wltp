@@ -32,7 +32,7 @@ In a broad view, the core algorithm of the project is "copylefted" with
 the *EUPL-1.1+ license*, and it includes files from other "non-copyleft" open source licenses like
 -MIT MIT License* and *Apache License*, appropriately marked as such.  So in an nutshell,
 you can study it, copy it, or import and use ot from your programs is without any obligation.
-You may distrbute & publish a modified version, as long as you always distribute & publish
+You may distribute & publish a modified version, as long as you always distribute & publish
 the sources of your changes.
 
 Technical
@@ -88,7 +88,7 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
 
 I do not have python / cannot install it.  Is it possible to try a *demo*?
 --------------------------------------------------------------------------
-Launch it in a binder server byclicking the respective badge at the top of
+Launch it in a binder server by clicking the respective badge at the top of
 the landing of the project.
 
 .. image:: docs/_static/BinderLink.png

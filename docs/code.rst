@@ -92,7 +92,7 @@ Module: :mod:`wltp.idgears`
     :members:
 
 
-Validation tests & HDF5 DB 
+Validation tests & HDF5 DB
 --------------------------
 Among the various tests, those running on 'sample' databases for comparing differences
 with existing tool are the following:
@@ -181,7 +181,7 @@ The :term:`JSON-schema` of the data for this project:
         - number
         - 'null'
         exclusiveMinimum: 0
-        description: (OUT) The calculcated maximum velocity, as defined in Annex 2-2.i.
+        description: (OUT) The calculated maximum velocity, as defined in Annex 2-2.i.
       n_vmax:
         title: engine speed for maximum vehicle velocity
         type:
@@ -335,7 +335,7 @@ The :term:`JSON-schema` of the data for this project:
     <BLANKLINE>
                       n_norm = (n - n_idle) / (n_rated  - n_idle)
     <BLANKLINE>
-          * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
+          * The 2nd column or `p_norm` is the normalized values of the full-power load against the p_rated,
             within [0, 1]:
     <BLANKLINE>
                       p_norm = p / p_rated
@@ -421,7 +421,7 @@ The :term:`JSON-schema` of the data for this project:
         default: 0.1
       f_n_min:
         description: For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
-          `n_min` overriden by manufacturer)
+          `n_min` overridden by manufacturer)
         type:
         - number
         - 'null'
@@ -453,14 +453,14 @@ The :term:`JSON-schema` of the data for this project:
         $ref: /wltc
       cycle:
         description: |
-          A dataframe matrix with 2-level columns(item, gear), 
+          A dataframe matrix with 2-level columns(item, gear),
           and items, in addition to those of `grid_wots`:
           - `v_cycle`: reduced by safety-margin, but not by ASM
           - `v_dsc`: (optional)
           - `v_target`: road loads power
-          - `(ok_..., gN)`: rflags denoting the validty of certainconditions for gear-N
-          - `g_max0`: does not include corrections for the `g1-->g2 n_min` rule, 
-            nor points with insufficient power. 
+          - `(ok_..., gN)`: rflags denoting the validity of certain conditions for gear-N
+          - `g_max0`: does not include corrections for the `g1-->g2 n_min` rule,
+            nor points with insufficient power.
     definitions:
       positiveInteger:
         type: integer

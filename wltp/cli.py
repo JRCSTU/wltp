@@ -54,7 +54,7 @@ log = _init_logging(DEFAULT_LOG_LEVEL)
 
 
 def main(argv=None):
-    """Calculates an engine-map by fitting data-points vectors, use --help for gettting help.
+    """Calculates an engine-map by fitting data-points vectors, use --help for getting help.
 
     REMARKS::
 
@@ -81,7 +81,7 @@ def main(argv=None):
             "p_rated":  100,
             "n_rated":  5450,
             "n_idle":   950,
-            "n_min":    None, # Can be overriden by manufacturer.
+            "n_min":    None, # Can be overridden by manufacturer.
             "gear_ratios":      [120.5, 75, 50, 43, 37, 32],
             "f0": 100,
             "f1": 0.5,
@@ -295,7 +295,7 @@ _default_df_path = ("/engine_points", "/engine_map")
 _default_out_file_append = False
 ## When option `-m MODEL_PATH=VALUE` contains a relative path,
 # the following is preppended:
-_default_model_overridde_path = "/engine/"
+_default_model_override_path = "/engine/"
 
 
 _value_parsers = {
@@ -506,7 +506,7 @@ def assemble_model(infiles, model_overrides):
         for (json_path, value) in model_overrides:
             try:
                 if not json_path.startswith("/"):
-                    json_path = _default_model_overridde_path + json_path
+                    json_path = _default_model_override_path + json_path
                 pandel.set_jsonpointer(mdl, json_path, value)
             except Exception as ex:
                 raise Exception(
@@ -601,7 +601,7 @@ def build_args_parser(program_name, version, desc, epilog):
                     *** JSON: different sub-formats are selected through the 'orient' keyword
                       of Pandas specified with a key-value pair
                       (see: http://pandas.pydata.org/pandas-docs/dev/generated/pandas.io.json.read_json.html).
-                    *** SERIES: uses `pd.Series.from_csv()`.
+                    *** SERIES: uses `pd.Series.read_csv()`.
                     *** Defaults to AUTO, unless reading <stdin> or <clipboard>, which then is CSV.
                 ** model_path = MODEL_PATH
                   specifies the destination (or source) of the dataframe within the model
@@ -645,7 +645,7 @@ def build_args_parser(program_name, version, desc, epilog):
                 FC       (g/h)
                 FCnorm   (g/h)      : normalized against P_MAX
                 PMF      (bar)
-            4. Irellevant column:
+            4. Irrelevant column:
                 X
             Default when files include headers is 0 (1st row), otherwise it is 'RPM,P,FC'."""
         ),
@@ -712,7 +712,7 @@ def build_args_parser(program_name, version, desc, epilog):
         "-M",
         help=dedent(
             """\
-            get help description for the specfied model path.
+            get help description for the specified model path.
             If no path specified, gets the default model-base. """
         ),
         action="append",
@@ -725,7 +725,7 @@ def build_args_parser(program_name, version, desc, epilog):
         help=dedent(
             """\
             specifies output-file(s) to write model-portions into after calculations.
-            The syntax is indentical to -I, with these differences:
+            The syntax is identical to -I, with these differences:
             * Instead of <stdin>, <stdout> and write_XXX() methods are used wherever.
             * One extra key-value pair:
             ** file_append = [ TRUE | FALSE ]

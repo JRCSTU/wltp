@@ -39,7 +39,8 @@ _GEARS:    integers (#gears X #cycle_steps)
     One row for each gear (starting with 1 to #gears).
 
 _N_GEARS:  floats (#gears X #cycle_steps)
-    One row per gear with the Engine-revolutions required to follow the V-profile (unfeasable revs included),
+    One row per gear with the Engine-revolutions required to follow the V-profile
+    (unfeasible revs included),
     produced by multiplying ``V * gear-rations``.
 
 _GEARS_YES:  boolean (#gears X #cycle_steps)
@@ -184,7 +185,7 @@ class Experiment(object):
         V = cycle.get(forced_v_column)
         if V is not None:
             log.info(
-                "Found forced velocity in %r with %s valus.", forced_v_column, len(V)
+                "Found forced velocity in %r with %s values.", forced_v_column, len(V)
             )
 
             V = pd.Series(V, name=c.v_target)
@@ -237,7 +238,7 @@ class Experiment(object):
                 V_dsc = vround(V_dsc_raw)
                 V_dsc.name = c.v_dsc
 
-                # TODO: separate cokumn due to cap/extend.
+                # TODO: separate column due to cap/extend.
                 V_target = V_dsc.copy()
                 V_target.name = c.v_target
 
@@ -281,7 +282,7 @@ class Experiment(object):
         mdl[m.n_max3] = g_max_n2v * mdl[m.v_max]
         mdl[m.n_max] = engine.calc_n_max(mdl[m.n_max1], mdl[m.n_max2], mdl[m.n_max3])
 
-        # TODO: incorporate `t_colde_env` check in validateion  framework.
+        # TODO: incorporate `t_cold_end` check in validateion  framework.
         if wltc_class:
             for err in cb.validate_nims_t_cold_end(mdl[m.t_cold_end], wltc_parts):
                 raise err
@@ -552,7 +553,7 @@ def step_rule_f(t, pg, g, V, A, GEARS, driveability_issues):
 
     if pg < g and GEARS[t - 2] >= g:
         # NOTE: Nowhere to apply it since rule(b2) would have eliminated 1-sec shifts.  Moved before rule(b)!
-        # NOTE: Applying rule(f) also for i-2, i-3, ... signular-downshifts.
+        # NOTE: Applying rule(f) also for i-2, i-3, ... singular-downshifts.
         # FIXME: Rule(f) implement further constraints.
         # NOTE: Rule(f): What if extra conditions unsatisfied? Allow shifting for 1 sec only??
         GEARS[t - 1] = min(g, GEARS[t - 2])
@@ -607,7 +608,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
     #
     for t in range(
         2, len(GEARS)
-    ):  # Start from 2nd element to accomodate rule(e)'s backtracking.
+    ):  # Start from 2nd element to accommodate rule(e)'s backtracking.
         if GEARS[t] < 0:
             GEARS[t] = GEARS[t - 1]
 
@@ -615,7 +616,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
     #
     t_range = range(
         5, len(GEARS)
-    )  # Start from 5th element to accomodate rule(e)'s backtracking.
+    )  # Start from 5th element to accommodate rule(e)'s backtracking.
     for _ in [0, 1]:
         apply_step_rules(
             [step_rule_g, step_rule_f], False

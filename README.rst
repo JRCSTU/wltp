@@ -75,7 +75,7 @@ Quick-start
 
 Prerequisites:
 ^^^^^^^^^^^^^^
-**Python-3.6+** is required and **Pytrhon-3.7** recommended.
+**Python-3.6+** is required and **Python-3.7** recommended.
 It requires **numpy/scipy** and **pandas** libraries with native backends.
 
 .. Tip::
@@ -122,10 +122,10 @@ From within the project directory, run one of these commands to install it:
   .. code-block:: bash
 
       $ wltp --version
-      1.0.0.dev12
+      ...
 
       $ wltp --help
-        ...
+      ...
 
     See: :ref:`wltp-usage`
 
@@ -199,10 +199,10 @@ The files and folders of the project are listed below (see also :ref:`architectu
     |   +--datamodel            # schemas & defaults for data of algo
     |   +--cycler               # code for generating the cycle
     |   +--engine               # formulae for engine power & revolutions and gear-box
-    |   +--vehicle              # formulae for cyle/vehicle dynamics
+    |   +--vehicle              # formulae for cycle/vehicle dynamics
     |   +--vmax                 # formulae estimating `v_max` from wot
     |   +--downscale            # formulae downscaling cycles based on pmr/test_mass ratio
-    |   +--invariants           # definitions & idenmpotent formulae for physics/engineering
+    |   +--invariants           # definitions & idempotent formulae for physics/engineering
     |   +--io                   # utilities for starting-up, parsing, naming and spitting data
     |   +--utils                # software utils unrelated to physics or engineering
     |   +--cli                  # (OUTDATED) command-line entry-point for launching this wltp tool
@@ -211,7 +211,7 @@ The files and folders of the project are listed below (see also :ref:`architectu
     +--tests/                   # (package) Test-TestCases
         +--vehdb                # Utils for manipulating h5db with accdb & pyalgo cases.
     +--docs/                    # (folder) documentation
-    |   +--pyplots/             # (DEPRECATED by notebooks) scripts plotting the metric diagrams embeded in the README
+    |   +--pyplots/             # (DEPRECATED by notebooks) scripts plotting the metric diagrams embedded in the README
     +--Notebooks/               # Jupyter notebooks for running & comparing results (see `Notebooks/README.md`)
         +--AccDB_src/           # AccDB code & queries extracted and stored as text
     +--setup.py                 # (script) The entry point for `setuptools`, installing, testing, etc
@@ -245,13 +245,13 @@ try to import the project to check its version:
 
 
 .. Tip:
-    The use :command:`ipython` is preffered over :command:`python` since it offers various user-friendly
+    The use :command:`ipython` is preferred over :command:`python` since it offers various user-friendly
     facilities, such as pressing :kbd:`Tab` for completions, or allowing you to suffix commands with ``?`` or ``??``
     to get help and read their source-code.
 
     Additionally you can <b>copy any python commands starting with ``>>>`` and ``...``</b> and copy paste them directly
     into the ipython interpreter; it will remove these prefixes.
-    But in :command:`python` you have to remove it youself.
+    But in :command:`python` you have to remove it yourself.
 
 If everything works, create the :term:`datamodel` of the experiment.
 You can assemble the model-tree by the use of:
@@ -277,7 +277,7 @@ For instance:
     ...     "p_rated":      100,
     ...     "n_rated":      5450,
     ...     "n_idle":       950,
-    ...     "n_min":        None,                           ## Manufacturers my overridde it
+    ...     "n_min":        None,                           ## Manufacturers my override it
     ...     "gear_ratios":         [120.5, 75, 50, 43, 37, 32],
     ...     "f0":   100,
     ...     "f1":   0.5,
@@ -474,7 +474,7 @@ All the above commands creates two files:
         :alt: Screenshot of the `wltp_excel_runner.xlsm` file.
 
     After opening it the first tie, enable the macros on the workbook, select the python-code at the left and click
-    the :menuselection:`Run Selection as Pyhon` button; one sheet per vehicle should be created.
+    the :menuselection:`Run Selection as Python` button; one sheet per vehicle should be created.
 
     The excel-file contains additionally appropriate *VBA* modules allowing you to invoke *Python code*
     present in *selected cells* with a click of a button, and python-functions declared in the python-script, below,
@@ -531,7 +531,7 @@ Data Structures:
 Computations are vectorial, based on `hierarchical dataframes
 <https://pandas.pydata.org/pandas-docs/stable/user_guide/advanced.html>`_,
 all of them stored in a single structure, the `datamodel`.
-In case the computation breaks, you can still retrive all intermediate results
+In case the computation breaks, you can still retrieve all intermediate results
 till that point.
 
 .. TODO::
@@ -689,7 +689,7 @@ identified back by :func:`wltp.cycles.identify_cycle_v_crc`:
 =======  =========  =====  ======  ====  ====  ====  ====  ========  ===========
 \                   CRC32                                  SUM
 ------------------  -------------------------------------  ---------------------
-\                   by_phase             cummulative       by_phase  cummulative
+\                   by_phase             cumulative        by_phase  cumulative
 ------------------  -------------------  ----------------  --------  -----------
 *class*  *part*     *V*    *A0*    *A1*  *V*   *A0*  *A1*  *V*       *V*
 =======  =========  =====  ======  ====  ====  ====  ====  ========  ===========
@@ -743,7 +743,7 @@ The typical development procedure is like this:
    .. code-block:: shell
 
         python setup.py build_sphinx                  # Builds html docs
-        python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
+        python setup.py build_sphinx -b doctest       # Checks if python-code embedded in comments runs ok.
 
 5. If there are no problems, commit your changes with a descriptive message.
 
@@ -752,7 +752,7 @@ The typical development procedure is like this:
    You can check whether your merge-request indeed passed the tests by checking
    its build-status |travis-status| on the integration-server's site (TravisCI).
 
-   .. Hint:: Skim through the small IPython developer's documentantion on the matter:
+   .. Hint:: Skim through the small IPython developer's documentation on the matter:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
 
@@ -858,7 +858,7 @@ See also :ref:`architecture:Architecture`.
 
     sphinx
         The text-oriented language, a superset of `Restructured Text <https://en.wikipedia.org/wiki/ReStructuredText>`_,
-        used to write the documentation for this project, with simlar capabilities to *LaTeX*,
+        used to write the documentation for this project, with similar capabilities to *LaTeX*,
         but for humans, e.g.,  the Linux kernel adopted this textual format on 2016.
         http://sphinx-doc.org/
 
@@ -871,7 +871,7 @@ See also :ref:`architecture:Architecture`.
         depending on context.
 
         A *Jupyter Notebook* document is composed of an ordered list of input/output *cells*
-        which contain code in variou languages, text (using Markdown), mathematics, plots and
+        which contain code in various languages, text (using Markdown), mathematics, plots and
         rich media, usually ending with the ".ipynb" extension.
 
 .. _begin-replacements:
@@ -904,7 +904,7 @@ See also :ref:`architecture:Architecture`.
     :target: https://travis-ci.org/JRCSTU/wltp/builds
 
 .. |appveyor-status| image:: https://ci.appveyor.com/api/projects/status/0e2dcudyuku1w1gd?svg=true
-    :alt: Apveyor continuous integration testing ok? (Windows)
+    :alt: Appveyor continuous integration testing ok? (Windows)
     :scale: 100%
     :target: https://ci.appveyor.com/project/JRCSTU/wltp
 

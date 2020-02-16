@@ -23,9 +23,9 @@ import papermill as pm
     ]
 )
 def notebook(request):
-    nbfname = request.param
-    nbfpath = Path(__file__).parents[1] / "Notebooks" / nbfname
-    return nbfpath.resolve()
+    nb_fname = request.param
+    nb_fpath = Path(__file__).parents[1] / "Notebooks" / nb_fname
+    return nb_fpath.resolve()
 
 
 @pytest.fixture

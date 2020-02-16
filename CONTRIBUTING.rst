@@ -14,13 +14,7 @@ The typical development procedure is like this:
 
     .. code-block:: console
 
-        $ python setup.py nosetests --with-coverage --cover-package wltp.model,wltp.experiment --cover-min-percentage=80
-
-
-    .. Tip:: You can enter just: ``python setup.py test_all`` instead of the above cmd-line
-        since it has been *aliased* in the :file:`setup.cfg` file.
-        Check this file for more example commands to use during development.
-
+        $ pytest
 
 4. If you made a rather important modification, update also the :doc:`CHANGES` file and/or
    other documents (i.e. README.rst).  To see the rendered results of the documents,
@@ -29,8 +23,6 @@ The typical development procedure is like this:
     .. code-block:: console
 
         $ python setup.py build_sphinx                  # Builds html docs
-        $ python setup.py build_sphinx -b doctest       # Checks if python-code embeded in comments runs ok.
-
 
 5. If there are no problems, commit your changes with a descriptive message.
 
@@ -39,7 +31,5 @@ The typical development procedure is like this:
    You can check whether your merge-request indeed passed the tests by checking
    its build-status |build-status| on the integration-server's site (TravisCI).
 
-    .. Hint:: Skim through the small IPython developer's documentantion on the matter:
+    .. Hint:: Skim through the small IPython developer's documentation on the matter:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
-
-

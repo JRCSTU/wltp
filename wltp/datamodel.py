@@ -25,9 +25,8 @@ import numpy as np
 import pandas as pd
 from jsonschema import RefResolver, ValidationError
 from numpy import ndarray
-from pandas.core.generic import NDFrame
-
 from pandalone.pandata import PandelVisitor
+from pandas.core.generic import NDFrame
 
 from . import engine
 from . import io as wio
@@ -37,7 +36,7 @@ from .cycles import class1, class2, class3
 try:
     from pandas.core.common import PandasError
 except ImportError:
-    ## Pandas-0.20.1 dropped this classs.
+    ## Pandas-0.20.1 dropped this class.
     #  See https://github.com/pydata/pandas-datareader/issues/305
     PandasError = ValueError
 
@@ -151,7 +150,7 @@ def get_wltc_data():
     :return: a tree
     """
 
-    ## See schemas for explainations.
+    ## See schemas for explanations.
     ##
     wltc_data = {
         "classes": {
@@ -231,7 +230,7 @@ properties:
     - number
     - 'null'
     exclusiveMinimum: 0
-    description: (OUT) The calculcated maximum velocity, as defined in Annex 2-2.i.
+    description: (OUT) The calculated maximum velocity, as defined in Annex 2-2.i.
   n_vmax:
     title: engine speed for maximum vehicle velocity
     type:
@@ -387,7 +386,7 @@ properties:
 
                   n_norm = (n - n_idle) / (n_rated  - n_idle)
 
-      * The 2nd column or `p_norm` is the normalised values of the full-power load against the p_rated,
+      * The 2nd column or `p_norm` is the normalized values of the full-power load against the p_rated,
         within [0, 1]:
 
                   p_norm = p / p_rated
@@ -477,7 +476,7 @@ properties:
   f_n_min:
     description:
       For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
-      `n_min` overriden by manufacturer)
+      `n_min` overridden by manufacturer)
     type:
     - number
     - 'null'
@@ -509,14 +508,14 @@ properties:
     $ref: {_wltc_url}
   cycle:
     description: |2
-      A dataframe matrix with 2-level columns(item, gear), 
+      A dataframe matrix with 2-level columns(item, gear),
       and items, in addition to those of `grid_wots`:
       - `v_cycle`: reduced by safety-margin, but not by ASM
       - `v_dsc`: (optional)
       - `v_target`: road loads power
-      - `(ok_..., gN)`: rflags denoting the validty of certainconditions for gear-N
-      - `g_max0`: does not include corrections for the `g1-->g2 n_min` rule, 
-        nor points with insufficient power. 
+      - `(ok_..., gN)`: rflags denoting the validity of certain conditions for gear-N
+      - `g_max0`: does not include corrections for the `g1-->g2 n_min` rule,
+        nor points with insufficient power.
 definitions:
   positiveInteger:
     type: integer
@@ -712,7 +711,7 @@ def get_class_parts_limits(class_id: Union[str, int], mdl=None, edges=False):
 
     :param class_id:
         one of 'class1', ..., 'class3b' or its index 0,1, ... 3
-    :param mdl: the mdl to parse wltc_data from, if ommited, parses the results of :func:`get_wltc_data()`
+    :param mdl: the mdl to parse wltc_data from, if omitted, parses the results of :func:`get_wltc_data()`
     :param edges: when `True`, embeds internal limits inside [0, ..., len]
     :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
 
@@ -730,7 +729,7 @@ def get_class_parts_limits(class_id: Union[str, int], mdl=None, edges=False):
     [0,  589, 1022, 1477, 1801]
 
     And these are the limits for acceleration-dependent items:
-    
+
     >>> cls_data = datamodel.get_wltc_data()['classes'][cls]
     >>> V = pd.DataFrame(cls_data['v_cycle'])
     >>> V.groupby(pd.cut(V.index, part_limits)).sum()

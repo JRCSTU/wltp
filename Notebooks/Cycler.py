@@ -218,7 +218,7 @@ from ipywidgets import interact, interactive, fixed, interact_manual, widgets
 
 max_zoom = 48.0
 
-## Scale each flag into a different value, to plot separatly, and
+## Scale each flag into a different value, to plot separately, and
 #  to plot in the same axis as V
 #  (bc when plotting flags in `secondary_y`, grid is not working)
 #
@@ -298,7 +298,7 @@ pm = cycler.PhaseMarker()
 
 
 def phase(cond):
-    return pm._identify_conjecutive_truths((cycle.v > 1) & cond, True).astype(int)
+    return pm._identify_consecutive_truths((cycle.v > 1) & cond, True).astype(int)
 
 
 A = (-cycle.v.astype(int)).diff(-1)  # GTR's acceleration definition

@@ -22,7 +22,7 @@ def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
     :param crc:
         initial CRC value (might be a hex-string)
     :param full:
-        print full 32bit number (x8 hex digits), or else, 
+        print full 32bit number (x8 hex digits), or else,
         just the highest half (the 1st x4 hex digits)
     :return:
          the 16 lowest bits of the CRC32 of the trace, as hex-string
@@ -34,7 +34,7 @@ def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
        (eg 0xC0FE --> (0xFE, 0xC0);
     4. the int16 bytes are then concatanated together, and
     5. fed into ZIP's CRC32;
-    6. the highest 2 bytes of the CRC32 are (usually) kept, formated in hex 
+    6. the highest 2 bytes of the CRC32 are (usually) kept, formated in hex
        (x4 leftmost hex-digits).
 
     """
@@ -57,8 +57,8 @@ def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
 @fnt.lru_cache()
 def cycle_checksums(full=False) -> pd.DataFrame:
     """
-    Return a big table with cummulative and simple SUM & CRC for all class phases.
-    
+    Return a big table with cumulative and simple SUM & CRC for all class phases.
+
     :param full:
         CRCs contain the full 32bit number (x8 hex digits)
 
@@ -71,9 +71,9 @@ def cycle_checksums(full=False) -> pd.DataFrame:
     table_csv = dedent(
         """
         checksum		CRC32	CRC32	CRC32	CRC32	CRC32	CRC32	SUM	SUM
-        accumulation		by_phase	by_phase	by_phase	cummulative	cummulative	cummulative	by_phase	cummulative
+        accumulation		by_phase	by_phase	by_phase	cumulative	cumulative	cumulative	by_phase	cumulative
         phasing		V	VA0	VA1	V	VA0	VA1	V	V
-        class	part								
+        class	part
         class1	part-1	9840D3E9	4438BBA3	97DBE17C	9840D3E9	4438BBA3	97DBE17C	11988.4	11988.4
         class1	part-2	8C342DB0	8C8D3B61	D9E87FE5	DCF2D584	90BEA9C	4295031D	17162.8	29151.2
         class1	part-3	9840D3E9	9840D3E9	97DBE17C	6D1D7DF5	6D1D7DF5	F523E31C	11988.4	41139.6
@@ -111,7 +111,7 @@ def cycle_checksums(full=False) -> pd.DataFrame:
 
 @fnt.lru_cache()
 def cycle_phases() -> pd.DataFrame:
-    """Return a textual table with the boundaries of all phaes and cycle *phasings*"""
+    """Return a textual table with the boundaries of all phases and cycle *phasings*"""
     import io
     from textwrap import dedent
     from pandas import IndexSlice as idx
@@ -120,9 +120,9 @@ def cycle_phases() -> pd.DataFrame:
     table_csv = dedent(
         """
         class	phasing	part-1	part-2	part-3	part-4
-        class1	V	[0, 589]	[589, 1022]	[1022, 1612]	
-        class1	VA0	[0, 588]	[589, 1021]	[1022, 1611]	
-        class1	VA1	[1, 589]	[590, 1022]	[1023, 1612]	
+        class1	V	[0, 589]	[589, 1022]	[1022, 1612]
+        class1	VA0	[0, 588]	[589, 1021]	[1022, 1611]
+        class1	VA1	[1, 589]	[590, 1022]	[1023, 1612]
         class2	V	[0, 589]	[589, 1022]	[1022, 1477]	[1477, 1801]
         class2	VA0	[0, 588]	[589, 1021]	[1022, 1476]	[1477, 1800]
         class2	VA1	[1, 589]	[590, 1022]	[1023, 1477]	[1478, 1801]
@@ -158,7 +158,7 @@ def identify_cycle_v_crc(
         cycle, part = crcs.index[row]
         accum, phasing = crcs.columns[col]
 
-        if accum == "cummulative":
+        if accum == "cumulative":
             if row in [2, 6, 10, 14]:  # is it a final cycle-part?
                 part = None
             else:
@@ -174,7 +174,7 @@ def identify_cycle_v(V: Iterable):
     Finds the first left-top CRC matching the cycle/part/kind of the given Velocity.
 
     :param V:
-        Any cycle or parts of it (one of Low/Medium/High/Extra Kigh phases), 
+        Any cycle or parts of it (one of Low/Medium/High/Extra High phases),
         or concatenated subset of the above phases, but in that order.
     :return:
         a 3 tuple (class, part, kind), like this:
@@ -182,12 +182,12 @@ def identify_cycle_v(V: Iterable):
         - ``(None,     None,   None)``: if no match
         - ``(<class>,  None,  <phasing>)``: if it matches a full-cycle
         - ``(<class>, <part>, <phasing>)``: if it matches a part
-        - ``(<class>, <PART>, <phasing>)``: (CAPITAL part) if it matches a part cummulatively
+        - ``(<class>, <PART>, <phasing>)``: (CAPITAL part) if it matches a part cumulatively
 
-        where `<phasing>` is one of 
-        
-        - ``V`` 
-        - ``A0`` (offset: 0, length: -1) 
+        where `<phasing>` is one of
+
+        - ``V``
+        - ``A0`` (offset: 0, length: -1)
         - ``A1`` (offset: 1, length: -1)
    """
     crc = crc_velocity(V)

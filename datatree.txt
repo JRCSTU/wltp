@@ -83,5 +83,5 @@
 /wot/p_resist
 /wot/sign_p_remain_stable
 /wot/v
-/wot/zero_crosings
+/wot/zero_crossings
 /wots_vmax

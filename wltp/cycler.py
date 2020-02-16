@@ -40,7 +40,7 @@ def timelens(cond, shift=1):
 
 def calc_acceleration(V: Column) -> np.ndarray:
     """
-    Acordign to formula in Annex 2-3.1
+    According to formula in Annex 2-3.1
 
     :return:
         in m/s^2
@@ -58,15 +58,15 @@ def calc_acceleration(V: Column) -> np.ndarray:
 
 @dataclasses.dataclass
 class PhaseMarker:
-    """Identifies conjecutive truths in series"""
+    """Identifies consecutive truths in series"""
 
     #: The vehicle is stopped when its velocity is below this number (in kmh),
     #: by Annex 2-4 this is 1.0 kmh.
     running_threshold: float = 1.0
 
-    #: (positive) consider *at least* that many conjecutive samples as
+    #: (positive) consider *at least* that many consecutive samples as
     #: belonging to a `long_{stop/acc/cruise/dec}` generated column,
-    #: e.g. for ``phase_repeat_threshold=2`` see the example in :func:`_identify_conjecutive_truths()`.
+    #: e.g. for ``phase_repeat_threshold=2`` see the example in :func:`_identify_consecutive_truths()`.
     #: if 0,unspecified (might break)
     phase_repeat_threshold: int = 2
 
@@ -74,14 +74,14 @@ class PhaseMarker:
     #: defined in Annex 2-2.k
     up_threshold: float = -0.1389
 
-    def _identify_conjecutive_truths(
+    def _identify_consecutive_truths(
         self, col: pd.Series, right_edge: bool
     ) -> pd.Series:
         """
-        Dectect phases with a number of conjecutive trues above some threshold.
+        Detect phases with a number of consecutive trues above some threshold.
 
         :param col:
-            a bolean series
+            a boolean series
         :param right_edge:
             when true, the `col` includes +1 sample towards the end
 
@@ -102,7 +102,7 @@ class PhaseMarker:
             pm = PhaseMarker()
 
             def phase(cond):
-                return pm._identify_conjecutive_truths((cycle.v > 1) & cond, True).astype(int)
+                return pm._identify_consecutive_truths((cycle.v > 1) & cond, True).astype(int)
 
             RUN = cycle['v'] >= 1
             A = (-cycle.v).diff(-1)  # GTR's acceleration definition
@@ -177,7 +177,7 @@ class PhaseMarker:
         RUN = cycle[c.run]
         #
         def phase(cond):
-            return self._identify_conjecutive_truths(cond, right_edge=True)
+            return self._identify_consecutive_truths(cond, right_edge=True)
 
         ## Driveability rule phases
         #
@@ -260,7 +260,7 @@ class CycleBuilder:
 
             If they are a (dataframe, series, series), they are assigned in
             :attr:`cycle`, :attr:`V` and :attr:`A` respectively, and
-            no other procesing happens.
+            no other processing happens.
         """
         c = wio.pstep_factory.get().cycle
 
@@ -338,7 +338,7 @@ class CycleBuilder:
 
     def validate_nims_t_cold_end(self, t_cold_end: int, wltc_parts: Seq[int]):
         """
-        Check `t_cold_end` falls in a gap-stop within the 1st phase. 
+        Check `t_cold_end` falls in a gap-stop within the 1st phase.
 
         .. TODO:: Incorporate `validate_nims_t_cold_end()` *properly* in validations pipeline.
         """
@@ -598,10 +598,10 @@ class CycleBuilder:
 
     def combine_ok_n_gear_flags(self, flags: pd.DataFrame):
         """
-        Merge together all N-allowed flags using AND+OR boolean logic. 
-        
+        Merge together all N-allowed flags using AND+OR boolean logic.
+
         :return:
-            an int8 dataframe with `1` where where the gear can apply, `0`/`NANFLAG` otherwise. 
+            an int8 dataframe with `1` where where the gear can apply, `0`/`NANFLAG` otherwise.
         """
         c = wio.pstep_factory.get().cycle
 
@@ -654,10 +654,10 @@ class CycleBuilder:
 
     def combine_ok_n_p_gear_flags(self, flags: pd.DataFrame):
         """
-        Merge together N+P allowed flags using AND+OR boolean logic. 
-        
+        Merge together N+P allowed flags using AND+OR boolean logic.
+
         :return:
-            an int8 dataframe with `1` where where the gear can apply, `0`/`NANFLAG` otherwise. 
+            an int8 dataframe with `1` where where the gear can apply, `0`/`NANFLAG` otherwise.
         """
         c = wio.pstep_factory.get().cycle
 
@@ -685,7 +685,7 @@ class CycleBuilder:
 
         ## +1 for g0 (0-->6 = 7 gears)
         gids = range(self.gidx.ng + 1)
-        ## Conver False to NAN to identify samples without any gear
+        ## Convert False to NAN to identify samples without any gear
         #  (or else, it would be 0, which is used for g0).
         incrementing_gflags = ok_gears.replace([False, NANFLAG], np.NAN) * gids
 
@@ -701,7 +701,7 @@ class CycleBuilder:
 def calc_p_remain(cycle, gidx):
     """
     Return `p_avail - p_req` for all gears > g2 in `gwot`
-    
+
     TODO: Separate :func:`calc_p_remain` not used yet
     """
     w = wio.pstep_factory.get().wot
@@ -722,8 +722,8 @@ def calc_p_remain(cycle, gidx):
 
 def calc_ok_p_rule(cycle, gidx):
     """
-    Sufficent power rule for gears > g2, in Annex 2-3.5. 
-    
+    Sufficient power rule for gears > g2, in Annex 2-3.5.
+
     TODO: Separate :func:`calc_p_remain` not used yet
     """
     c = wio.pstep_factory.get().cycle

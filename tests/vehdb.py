@@ -61,7 +61,7 @@ def _file_hashed(fpath, algo="md5") -> Tuple[str, str]:
     return algo, digester.hexdigest()
 
 
-# file_hashed(xlfname)
+# file_hashed(xl_fname)
 
 
 def _cmd(*args):
@@ -80,18 +80,18 @@ def _git_describe(basedir="."):
 
 def _python_describe():
     info = {"path": shutil.which("python")}
-    condaenv = os.environ.get("CONDA_DEFAULT_ENV")
-    log.info("Asking conda-env(%s) or `pip`, might take some time...", condaenv)
-    if condaenv:
+    conda_env = os.environ.get("CONDA_DEFAULT_ENV")
+    log.info("Asking conda-env(%s) or `pip`, might take some time...", conda_env)
+    if conda_env:
         info["type"] = "conda"
 
         try:
             info["env"] = utils.yaml_loads(
-                _cmd("conda", "env", "export", "-n", condaenv)
+                _cmd("conda", "env", "export", "-n", conda_env)
             )
         except Exception as ex:
             log.warning("Cannot conda-env-export due to: %s", ex)
-            info["env"] = "Cannot conde-env-export due to: %s" % ex
+            info["env"] = "Cannot conda-env-export due to: %s" % ex
     else:
         try:
             info["env"] = _cmd(*"pip list --format freeze".split()).strip().split("\n")
@@ -121,7 +121,7 @@ _root_provenance = None
 
 def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
     """Build a provenance record, examining environment if no `base` given.
-    
+
     :param base:
         if given, reused (cloned first), and any fpaths & git-repos appended in it.
     """
@@ -161,7 +161,7 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
 
 
 # prov_info = nbu.provenance_info(files=[h5fname])
-# prov_info = nbu.provenance_info(files=['sfdsfd'], base=prov_info)
+# prov_info = nbu.provenance_info(files=['foo'], base=prov_info)
 # prov_info = nbu.provenance_info(files=['ggg'], repos=['../wltp.git'], base=prov_info)
 # print(nbu.utils.yaml_dumps(prov_info))
 
@@ -216,8 +216,8 @@ def provenir_h5node(
     h5: Union[str, HDFStore], node, *, title=None, files=(), repos=(), base=None
 ):
     """Add provenance-infos to some existing H5 node.
-    
-    For its API, see :func:`provenance_info`. 
+
+    For its API, see :func:`provenance_info`.
     """
 
     def func(h5db):
@@ -234,7 +234,7 @@ def provenir_h5node(
 
 def provenance_h5node(h5: Union[str, HDFStore], node):
     """Get provenance-infos from some existing H5 node.
-    
+
     """
 
     def func(h5db):
@@ -288,23 +288,23 @@ class Comparator:
 
     def __init__(
         self,
-        col_accesor: Callable[[NDFrame, str], NDFrame],
+        col_accessor: Callable[[NDFrame, str], NDFrame],
         *,
-        no_diff_prcnt=False,
+        no_diff_percent=False,
         diff_colname="diff",
         diff_bar_kw={"align": "mid", "color": ["#d65f5f", "#5fba7d"]},
         no_styling=False,
     ):
         """
         :param col_accessor:
-            how to pick a column from an ndframe
-        :param no_diff_prcnt:
-            if this is falsy, the result dataframe contains an extra *diff prcnt* column
+            how to pick a column from an NDFrame
+        :param no_diff_percent:
+            if this is falsy, the result dataframe contains an extra *diff percent* column
             if the respective equivalent-columns are numerics.
         :param diff_colname`:
             how to name the extra *diff* column (does nothing for when not generated)
         :param diff_bar_kw:
-            if given, apply styling bars at the `diff[%]` columns, 
+            if given, apply styling bars at the `diff[%]` columns,
             with these as extra styling
             (see https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html#Bar-charts)
         """
@@ -316,22 +316,24 @@ class Comparator:
         self, datasets: Seq[NDFrame], col_names: Seq[str], dataset_names: Seq[str]
     ) -> NDFrame:
         """
-        Pick and concatenate the respective `col_names` from each dataframe in `datasets`, 
+        Pick and concatenate the respective `col_names` from each dataframe in `datasets`,
 
-        and (optionally) diff against the 1st dataset. 
+        and (optionally) diff against the 1st dataset.
 
         :param datasets:
             a list of N x dataframes.
-            Each one must contain the respective column from `col_names`, 
-            when access by ``self.col_accesor( df[i], col_name[i] )`` ∀ i ∈ [0, N).
+            Each one must contain the respective column from `col_names`,
+            when access by ``self.col_accessor( df[i], col_name[i] )`` ∀ i ∈ [0, N).
         :param col_names:
             a list o N x column-names; Nones omit the respective dataset
-        :return: 
+        :return:
         """
-        picked_cols = [self.col_accesor(d, c) for d, c in zip(datasets, col_names) if c]
+        picked_cols = [
+            self.col_accessor(d, c) for d, c in zip(datasets, col_names) if c
+        ]
         dataset_names = list(dataset_names)
 
-        if not self.no_diff_prcnt and all(is_numeric_dtype(d) for d in picked_cols):
+        if not self.no_diff_percent and all(is_numeric_dtype(d) for d in picked_cols):
             d0, *drest = picked_cols
             picked_cols = [d0]
             for d in drest:
@@ -375,17 +377,17 @@ class Comparator:
         optionally diffing them against the 1st dataset.
 
         :param datasets:
-            a list of N x ndframes, each one containing the respective columns in `equiv_colnames`.
+            a list of N x NDFrames, each one containing the respective columns in `equiv_colnames`.
         :param equiv_colnames:
             a matrix of M x N column-names, like:
-            
+
                 [("p_downscale", "f_downscale"), ("cycle", "wltc_class"), ...]
-                
+
             All columns in the N dimension must exist in the respective dataframe in `datasets` list.
-            The 1st columns in the M-dimension are used a axis-1, level-0 labels 
-            on the concatanated ndframe.
+            The 1st columns in the M-dimension are used a axis-1, level-0 labels
+            on the concatanated NDFrame.
         :param dataset_names:
-            used as hierarchical labels to distinuish from which dataset each column comes from
+            used as hierarchical labels to distinguish from which dataset each column comes from
         """
         if no_styling is None:
             no_styling = self.no_styling
@@ -514,7 +516,7 @@ def load_n2v_gear_ratios(vehicle_iprops: Union[dict, pd.Series]):
 def accdb_renames():
     """
     Renames to use accdb inputs (props, wots) into pyalgo to be used like::
-    
+
         props.unstack().rename(accdb_prop_renames())
     """
     return {
@@ -567,12 +569,12 @@ def run_pyalgo_on_accdb_vehicle(
     h5, vehnum, props_group_suffix="prop", pwot_group_suffix="wot"
 ) -> Tuple[dict, pd.DataFrame, pd.DataFrame]:
     """
-    Quick'n dirty way to invoke python-algo (bc model will change).
-     
+    Quick 'n dirty way to invoke python-algo (bc model will change).
+
     :param h5:
-        the `WltpGs-msaccess.h5` file (path or h5db) to read input from 
+        the `WltpGs-msaccess.h5` file (path or h5db) to read input from
     :return:
-        the *out-props* key-values, the *cycle* data-frame, 
+        the *out-props* key-values, the *cycle* data-frame,
         and the grid-wots constructed to solve v_max.
     """
     from wltp import io as wio, engine, utils
@@ -622,7 +624,7 @@ def merge_db_vehicle_subgroups(
     Merge HDF-subgroup(s) from all vehicles into an Indexed-DataFrame(s)
 
     :param h5:
-        any `WltpGs-*.h5` file (path or h5db) containing `vehicles/v001/{subgroups}` groups 
+        any `WltpGs-*.h5` file (path or h5db) containing `vehicles/v001/{subgroups}` groups
     :param vehicle_subgroups:
         the name of a sub-group in the h5 file (or a list of such names).
         If a list given, returns a list

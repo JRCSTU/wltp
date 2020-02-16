@@ -83,20 +83,20 @@ def _calc_wltc_checksums(start_offset, end_offset, calc_sum=True):
         df.columns = (
             ("by_phase", "SUM"),
             ("by_phase", "CRC32"),
-            ("cummulative", "SUM"),
-            ("cummulative", "CRC32"),
+            ("cumulative", "SUM"),
+            ("cumulative", "CRC32"),
         )
     else:
-        df.columns = (("by_phase", "CRC32"), ("cummulative", "CRC32"))
+        df.columns = (("by_phase", "CRC32"), ("cumulative", "CRC32"))
 
     return df
 
 
 def test_wltc_checksums():
     """
-    
-    ... NOTE:: 
-        The printouts in this TC generate the table 
+
+    ... NOTE::
+        The printouts in this TC generate the table
         in :func:`wltp/cycles/cycles.cycle_checksums()`.
     """
     dfs_dict = {

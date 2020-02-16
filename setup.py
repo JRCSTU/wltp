@@ -188,7 +188,7 @@ setup(
         "emissions",
         "fuel-consumption",
         "gears",
-        "gearshifs",
+        "gearshift",
         "simulator",
         "driving",
         "engine",

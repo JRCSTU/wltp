@@ -95,7 +95,7 @@ def load_accdb_and_python_datasets(veh_nums=None):
     v_cols = "v v_orig v_cap v_downscale".split()
     c1[v_cols] = vround(c1[v_cols])
 
-    ## accdb does not oofer `n_max`.(?)
+    ## accdb does not offer `n_max`.(?)
     p1["n_max"] = nround1(p1["n_max1 n_max2 n_max3".split()].max(axis=1))
 
     return p1, c1, p2, c2
@@ -227,7 +227,7 @@ display(
 
 # %% [markdown]
 # ## Compare a vehicle from AccDB <-->PyAlgo *interactively*
-# **TODO:** collect and hide all this comprarison GUI code below into a python module. 
+# **TODO:** collect and hide all this comparison GUI code below into a python module.
 
 # %%
 case_loaded = [None, None]
@@ -243,7 +243,7 @@ def _load_interactive_case(
 
     cycle = c2.loc[case_name].dropna(how="all", axis=1).copy()
 
-    ## Scale each flag into a different value, to plot separatly, and
+    ## Scale each flag into a different value, to plot separately, and
     #  to plot in the same axis as V
     #  (bc when plotting flags in `secondary_y`, grid is not working)
     #
@@ -295,7 +295,7 @@ def decide_signal_axis(colnames):
     return l1, l2
 
 
-def define_schenes():
+def define_schemes():
     """Predfined case/pan/zooms of the compraison diagram below."""
     return [
         ## (label, caseno, zoom, pan, *other-UNUSED)
@@ -453,7 +453,7 @@ def refresh_tabs():
 
     AxisScenes.options = [
         (f"{caseno}: {label}", (caseno, zoom, pan, *other))
-        for label, caseno, zoom, pan, *other in define_schenes()
+        for label, caseno, zoom, pan, *other in define_schemes()
     ]
     needs_retabbing = False
     if out_specs and len(out_specs[0]) < 3:
@@ -542,7 +542,7 @@ def recreate_fig():
     for i in range(3):
         fig_nums = plt.get_fignums()
         fig = plt.figure(
-            num='Compare AccDB <--> PyAlgo "Inital Gear"', figsize=(20, 12)
+            num='Compare AccDB <--> PyAlgo "Initial Gear"', figsize=(20, 12)
         )
         if fig.number in set(fig_nums):
             fig.clear()
@@ -650,7 +650,7 @@ def plot_gear_flags(
     #         ax2.grid(True, axis="both", which="both")
     ax.grid(True, axis="both", which="both")
 
-    # Re-tighten if ax3 has (diss)appeared.
+    # Re-tighten if ax3 has (dis)appeared.
     # Had to use `rect` or axis-title half-hidden the first time fig is created!
     fig.tight_layout(rect=[0, 0, 1, 0.985])
 
@@ -719,7 +719,7 @@ for case, cyc in c2.groupby(level=0):
 
 
 # %% [markdown]
-# ### Insufficient power where more than one gears are N-valid: 
+# ### Insufficient power where more than one gears are N-valid:
 
 # %%
 def is_more_low_powered_gears(cyc):
