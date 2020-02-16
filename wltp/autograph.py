@@ -123,7 +123,7 @@ class FnHarvester(Prefkey):
     ...     predicate=_is_in_my_project
     ... ).harvest(*modules)
     >>> len(funcs)
-    67
+    69
     >>> sorted(list(zip(*funcs))[0])
     [('wltp.cycler', 'CycleBuilder'),
      ('wltp.cycler', 'NMinDrives'),
@@ -141,7 +141,7 @@ class FnHarvester(Prefkey):
     ...     base_modules=modules
     ... ).harvest()
     >>> len(funcs)
-    41
+    42
     >>> sorted(list(zip(*funcs))[0])
     [('wltp.cycler', 'CycleBuilder'),
      ('wltp.cycler', 'CycleBuilder', 'add_columns'),
@@ -352,14 +352,12 @@ class Autograph(Prefkey):
     def _from_overrides(self, key):
         return self.overrides and self._prefkey(self.overrides, key) or {}
 
-    def _apply_renames(self, arg_renames, override_renames, *word_lists):
+    def _apply_renames(self, rename_maps: Iterable[Mapping], word_lists: Iterable):
         """
-        Rename words in all `word_lists` matching `arg_renames`, `override_renames` ...
-
-        and :attr:`renames`, in that order.
+        Rename words in all `word_lists` matching keys in `rename_maps`.
         """
-        renames_maps = [d for d in (arg_renames, override_renames, self.renames) if d]
-        renames = ChainMap(*renames_maps)
+        rename_maps = [d for d in rename_maps if d and d is not _unset]
+        renames = ChainMap(*rename_maps)
         if renames:
             word_lists = tuple([renames.get(w, w) for w in wl] for wl in word_lists)
 
@@ -379,26 +377,29 @@ class Autograph(Prefkey):
         name_path=_unset,
         needs=_unset,
         provides=_unset,
-        renames=None,
+        renames=_unset,
         inp_sideffects=_unset,
         out_sideffects=_unset,
     ):
         """
-        Overiddes order: my-args, self.overrides, autograpf-decorator, inspection
+        Overriddes order: my-args, self.overrides, autograph-decorator, inspection
 
         :param fn_path:
-            the path to a callable, like::
+            either a callable, or the path to a callable, like::
 
                 [module, [class, ...] callable
 
         :param name_path:
-            a single string, ot the corresponding name-path of the `fn` callable
+            either a single string, or a tuple-of-strings, corresponding to
+            the given `fn_path`
         """
         args = {k: v for k, v in locals().items() if v is not _unset}
-        del args["self"], args["fn_path"], args["name_path"]
+        del args["self"], args["fn_path"]
+        args.pop("name_path", None)
 
+        fn = astuple(fn_path, "fn_path")
         fn = fn_path[-1]
-        decors = get_autograph_decors(fn)
+        decors = get_autograph_decors(fn, {})
 
         ## Derive `name_path` from: my-args, decorator, fn_name
         #  and then use it to pick overrides.
@@ -407,6 +408,7 @@ class Autograph(Prefkey):
             name_path = decors.get("name", _unset)
             if name_path is _unset:
                 name = fn.__name__
+                name_path = (name,)
         name_path = astuple(name_path, "name")
         fn_name = str(name_path[-1])
 
@@ -461,10 +463,7 @@ class Autograph(Prefkey):
         provides = aslist(provides, "provides", allowed_types=(list, tuple))
 
         needs, provides = self._apply_renames(
-            renames,
-            override_renames is not _unset and override_renames,
-            needs,
-            provides,
+            (renames, override_renames, self.renames), (needs, provides)
         )
 
         if inp_sideffects is not _unset:
