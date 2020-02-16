@@ -4,5 +4,7 @@
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.linting.mypyEnabled": true,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true
 }
