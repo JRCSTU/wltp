@@ -32,17 +32,6 @@ def str2bool(v):
         raise argparse.ArgumentTypeError("Invalid boolean(%s)!" % v)
 
 
-def pairwise(t):
-    """From http://stackoverflow.com/questions/4628290/pairs-from-single-list"""
-    it1 = iter(t)
-    it2 = iter(t)
-    try:
-        next(it2)
-    except:
-        return []
-    return zip(it1, it2)
-
-
 ## From http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
 #
 def memoize(f):
