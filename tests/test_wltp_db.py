@@ -11,29 +11,26 @@
 * Run it as cmd-line to compare with Heinz's results.
 """
 
-from collections import OrderedDict
+import functools as fnt
 import glob
 import logging
 import math
 import os
 import re
 import unittest
+from collections import OrderedDict
 from unittest.case import skipIf
-
-from wltp import utils
-from wltp.utils import memoize
 
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
 
+from wltp import utils
 from wltp.experiment import Experiment
+
 from .goodvehicle import goodVehicle
 
-
-overwrite_old_results = (
-    True
-)  # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
+overwrite_old_results = True  # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
 force_rerun = False
 
 mydir = os.path.dirname(__file__)
@@ -61,7 +58,7 @@ def _init_logging(loglevel=logging.DEBUG):
 log = _init_logging()
 
 
-@memoize
+@fnt.lru_cache()
 def _read_vehicles_inp():
     df = pd.read_csv(vehs_data_inp_fname, encoding=encoding, index_col=0)
 
@@ -83,7 +80,7 @@ def _write_vehicle_data(df):
     df = df.to_csv(vehs_data_out_fname, encoding=encoding)
 
 
-@memoize
+@fnt.lru_cache()
 def _read_wots():
     df = pd.read_csv("wot_samples.csv", encoding=encoding, index_col=None)
 
@@ -110,7 +107,7 @@ def _make_heinz_fname(veh_num):
     return "heinz-{:04}.csv".format(veh_num)
 
 
-@memoize
+@fnt.lru_cache()
 def _read_gened_file(inpfname):
     df = pd.read_csv(inpfname, header=0, index_col=0)
     assert not df.empty
@@ -119,7 +116,7 @@ def _read_gened_file(inpfname):
     return df.copy()
 
 
-@memoize
+@fnt.lru_cache()
 def _read_heinz_file(veh_num):
     vehfpath = _make_heinz_fname(veh_num)
     try:
@@ -481,9 +478,9 @@ class WltpDbTests(unittest.TestCase):
             50%    1731.983662  1739.781233    0.450210
             75%    2024.534101  2018.716963   -0.288160
             max    3741.849187  3750.927263    0.242609
-        
+
         Keeping idle engine revs::
-        
+
                         python        heinz  diff_prcnt
             count   382.000000   382.000000    0.000000
             mean   1852.183403  1827.572965   -1.346619
@@ -633,7 +630,7 @@ class WltpDbTests(unittest.TestCase):
         pandas 0.15.1::
 
                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
-            pmr                                                                  
+            pmr
             (9.973, 24.823]        2037.027221     2038.842442    0.089111     33
             (24.823, 39.496]       2257.302959     2229.999526   -1.224369     34
             (39.496, 54.17]        1912.075914     1885.792807   -1.393743    123
@@ -650,7 +647,7 @@ class WltpDbTests(unittest.TestCase):
                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
 
         Keeping idle engine revs::
-            pmr                                                                  
+            pmr
             (9.973, 24.823]        2058.624153     2038.842442   -0.970242     33
             (24.823, 39.496]       2271.419763     2229.999526   -1.857410     34
             (39.496, 54.17]        1927.898841     1885.792807   -2.232803    123
@@ -736,11 +733,11 @@ class WltpDbTests(unittest.TestCase):
             (156.885, 171.558]             NaN             NaN         NaN      0
             (171.558, 186.232]     1367.068837     1385.176569    1.324566      1
             Mean diff_prcnt: 0.469021296461
-            
+
         pandas 0.15.1::
-        
+
                                 gened_mean_rpm  heinz_mean_rpm  diff_prcnt  count
-            pmr                                                                  
+            pmr
             (9.973, 24.823]        2021.882193     2038.842442    0.838835     33
             (24.823, 39.496]       2204.136804     2229.999526    1.173372     34
             (39.496, 54.17]        1880.733341     1885.792807    0.269016    123

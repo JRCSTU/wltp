@@ -123,7 +123,7 @@ class FnHarvester(Prefkey):
     ...     predicate=_is_in_my_project
     ... ).harvest(*modules)
     >>> len(funcs)
-    68
+    67
     >>> sorted(list(zip(*funcs))[0])
     [('wltp.cycler', 'CycleBuilder'),
      ('wltp.cycler', 'NMinDrives'),
@@ -259,7 +259,7 @@ def autographed(
     The rest arguments coming from :class:`graphtik.operation`.
 
     :param domain:
-        if set, overrides are not applied for the "default" domain; 
+        if set, overrides are not applied for the "default" domain;
         it allows to reuse the same function to build different operation.
     :param renames:
         mappings to rename both any matching the final `needs` & `provides`
