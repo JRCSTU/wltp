@@ -15,7 +15,7 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
 :copyright:     2013-2019 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_) |br|
                 |proj-lic|
 
-A python package to generate the *gear-shifts* of Light-duty vehicles
+A python-3.6+ package to generate the *gear-shifts* of Light-duty vehicles
 running the :term:`WLTP` driving-cycles, according to :term:`UNECE`'s :term:`GTR`\s.
 
 .. figure:: docs/_static/wltc_class3b.png
@@ -75,7 +75,7 @@ Quick-start
 
 Prerequisites:
 ^^^^^^^^^^^^^^
-**Python-3.6+** is required and **Python-3.7** recommended.
+**Python-3.6+** is required and **Python-3.7** or **Python-3.8** recommended.
 It requires **numpy/scipy** and **pandas** libraries with native backends.
 
 .. Tip::
