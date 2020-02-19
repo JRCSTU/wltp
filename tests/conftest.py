@@ -8,6 +8,7 @@
 import logging
 import os
 from pathlib import Path
+from typing import Sequence as Seq
 
 import pytest
 from tests import vehdb
@@ -22,11 +23,23 @@ def pytest_addoption(parser):
         default=False,
         help="update h5db files (default: false)",
     )
+    parser.addoption(
+        "--vehnums",
+        nargs="*",
+        type=int,
+        default=None,
+        help="HDF5 vehicles to process (default: all vehicles)",
+    )
 
 
 @pytest.fixture
-def h5_write(request):
+def h5_write(request) -> bool:
     return request.config.getoption("--h5-write")
+
+
+@pytest.fixture
+def vehnums_to_run(request) -> Seq[int]:
+    return request.config.getoption("--vehnums")
 
 
 @pytest.fixture
