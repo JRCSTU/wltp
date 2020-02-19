@@ -21,7 +21,7 @@ install:
 script:
     - |
         echo "+++ Creating pyalgo.h5 file...."
-        pytest -m slow --h5-write
+        ./Notebooks/recreate_pyalgo_h5.sh
 
     - |
         if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
