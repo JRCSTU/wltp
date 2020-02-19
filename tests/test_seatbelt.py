@@ -14,6 +14,7 @@ def test_taskforce_vehs(
     h5_accdb: str,
     h5_pyalgo: str,
     h5_write: bool,
+    del_h5_on_start: bool,
     vehnums_to_run: Seq[int],
     props_group_suffix="oprop",
     cycle_group_suffix="cycle",
@@ -82,6 +83,9 @@ def test_taskforce_vehs(
 
         if not compared:
             store_vehicle(*args, **kw)
+
+    if del_h5_on_start:
+        Path(h5_pyalgo).unlink()
 
     with vehdb.openh5(h5_accdb) as inph5, vehdb.openh5(h5_pyalgo) as outh5:
         vehnums = vehdb.all_vehnums(inph5) if vehnums_to_run is None else vehnums_to_run

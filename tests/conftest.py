@@ -24,6 +24,12 @@ def pytest_addoption(parser):
         help="update h5db files (default: false)",
     )
     parser.addoption(
+        "--h5-del",
+        action="store_true",
+        default=False,
+        help="delete HDF5 (accdb/pyalgo) files before writing (default: false)",
+    )
+    parser.addoption(
         "--vehnums",
         nargs="*",
         type=int,
@@ -35,6 +41,11 @@ def pytest_addoption(parser):
 @pytest.fixture
 def h5_write(request) -> bool:
     return request.config.getoption("--h5-write")
+
+
+@pytest.fixture
+def del_h5_on_start(request) -> bool:
+    return request.config.getoption("--h5-del")
 
 
 @pytest.fixture
