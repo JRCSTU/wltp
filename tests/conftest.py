@@ -43,12 +43,12 @@ def vehnums_to_run(request) -> Seq[int]:
 
 
 @pytest.fixture
-def h5_accdb():
+def h5_accdb() -> str:
     return str(Path("Notebooks/VehData/WltpGS-msaccess.h5").resolve())
 
 
 @pytest.fixture
-def h5_pyalgo():
+def h5_pyalgo() -> str:
     return str(Path("Notebooks/VehData/WltpGS-pyalgo.h5").resolve())
 
 
