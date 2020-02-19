@@ -18,6 +18,19 @@ from typing import Union
 ##############
 #  Utilities
 #
+## Emulate Py3.8 typing
+#
+try:
+    from typing import Final  # noqa  PY3.8+
+except ImportError:
+
+    class _Final:
+        def __getitem__(self, key):
+            return key
+
+    Final = _Final()
+
+
 def str2bool(v):
     import argparse
 
