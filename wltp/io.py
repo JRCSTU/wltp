@@ -9,11 +9,11 @@
 import contextvars
 import dataclasses
 import itertools as itt
-from typing import Iterable, List, Union
+import re
+from typing import Callable, Iterable, List, Optional, Union
 
 import numpy as np
 import pandas as pd
-
 from pandalone import mappings
 
 #: Contains all path/column names used, after code has run code.
@@ -62,7 +62,10 @@ def veh_names(vlist):
     return [veh_name(v) for v in vlist]
 
 
-def gear_name(g):
+GearGenerator = Callable[[int], str]
+
+
+def gear_name(g: int) -> str:
     n = pstep_factory.get().names
     return f"{n.g}{g}"
 
@@ -102,38 +105,179 @@ def inflate_columns(columns, levels=2, sep="/"):
     return pd.MultiIndex.from_tuples(tuples, names=["gear", "item"])
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True, eq=True)
 class GearMultiIndexer:
     """
-    Utility for dataframe-columns with 2-level `:class:`pd.MultiIndex` `(item, gear)` columns
+    Multi-indexer for 2-level df columns like ``(item, gear)`` with 1-based & closed-bracket `gear`.
 
-    like *grid_wots*::
+    Example *grid_wots*::
 
         p_avail  p_avail  ... n_foo  n_foo
              g1       g2  ...    g1     g2
 
+    ... Warning::
+        negative indices might not work as expected if :attr:`gnames` do not start from ``g1``
+        (e.g. when constructed with :meth:`from_df()` static method)
+
+
+    **Examples:**
+
+    - Without `items` you get simple gear-indexing:
+
+      >>> G = GearMultiIndexer.from_ngears(5)
+      >>> G.gnames
+      1    g1
+      2    g2
+      3    g3
+      4    g4
+      5    g5
+      dtype: object
+      >>> G[1:3]
+      ['g1', 'g2', 'g3']
+      >>> G[::-1]
+      ['g5', 'g4', 'g3', 'g2', 'g1']
+      >>> G[3:2:-1]
+      ['g3', 'g2']
+      >>> G[3:]
+      ['g3', 'g4', 'g5']
+      >>> G[3:-1]
+      ['g3', 'g4', 'g5']
+      >>> G[-1:-2:-1]
+      ['g5', 'g4']
+
+      >>> G[[1, 3, 2]]
+      ['g1', 'g3', 'g2']
+
+      >>> G[-1]
+      'g5'
+
+
+    - When `items` are given, you get a "product" MultiIndex:
+
+      >>> G.with_item("foo", "bar")[1:3]
+      MultiIndex([('foo', 'g1'),
+                  ('foo', 'g2'),
+                  ('foo', 'g3'),
+                  ('bar', 'g1'),
+                  ('bar', 'g2'),
+                  ('bar', 'g3')],
+                 )
+      >>> G.with_item("foo")[2]
+      MultiIndex([('foo', 'g2')],
+                 )
+
+
+      Use no `items` to reset them:
+
+      >>> G.with_item('foo').with_item()[:]
+      ['g1', 'g2', 'g3', 'g4', 'g5']
+
+
+    - Notice that **G0** changes "negative" indices:
+
+      >>> G[[-5, -6, -7]]
+      ['g1', 'g5', 'g4']
+      >>> G = GearMultiIndexer.from_ngears(5, gear0=True)
+      >>> G[:]
+      ['g0', 'g1', 'g2', 'g3', 'g4', 'g5']
+      >>> G[[-5, -6, -7]]
+      ['g1', 'g0', 'g5']
     """
 
-    #: initialized from the 2-level dataframe
-    gnames: List[str]
-
-    #: separator for flattening/inflating levels
-    multi_column_separator: str = "."
+    #: 1st level column(s)
+    items: Optional[Iterable[str]]
+    #: 2-level columns; use a generator like :func:`gear_names()` (default)
+    #:
+    #: to make a :class:`pd.Series` like::
+    #:
+    #:     {1: 'g1', 2: 'g2', ...}
+    gnames: pd.Series
+    #: Setting it to a gear not in :attr:`gnames`, indexing with negatives
+    #: may not always work.
+    top_gear: int
+    #: a function returns the string representation of a gear, like ``1 --> 'g1'``
+    generator: GearGenerator
 
     @classmethod
-    def from_df(cls, df):
+    def from_ngears(
+        cls,
+        ngears: int,
+        items: Iterable[str] = None,
+        generator: GearGenerator = gear_name,
+        gear0=False,
+    ):
+        return GearMultiIndexer(
+            items,
+            pd.Series({i: generator(i) for i in range(int(not gear0), ngears + 1)}),
+            ngears,
+            generator,
+        )
+
+    @classmethod
+    def from_gids(
+        cls,
+        gids: Iterable[int],
+        items: Iterable[str] = None,
+        generator: GearGenerator = gear_name,
+    ):
+        gids = sorted(gids)
+        gids = pd.Series({i: generator(i) for i in gids})
+        return GearMultiIndexer(items, gnames, gids[-1], generator)
+
+    @classmethod
+    def from_df(
+        cls, df, items: Iterable[str] = None, generator: GearGenerator = gear_name
+    ):
         """
+        Derive gears from the 2nd-level columns, sorted, and the last one becomes `ngear`
+
         :param df:
             the 2-level df, not stored, just to get gear-names.
-        """
-        return cls([g for g in df.columns.levels[1] if g])
 
-    def __init__(self, gnames):
+        ... Warning::
+            Negative indices might not work as expected if :attr:`gnames`
+            does not start from ``g1``.
         """
-        :param gnames:
-            From :func:`gear_names()`, or avoid cstor & call directly classmethod :meth:`from_df()`.
+        gears = [g for g in df.columns.levels[1] if g]
+        gids = [int(i) for i in re.sub("[^0-9 ]", "", " ".join(gears)).split()]
+        gnames = pd.Series(gears, index=gids).sort_index()
+        return cls(items, gnames, gids[-1], generator)
+
+    def with_item(self, *items: str):
+        return type(self)(items or None, self.gnames, self.top_gear, self.generator)  # type: ignore
+
+    def __getitem__(self, key):
         """
-        self.gnames = gnames
+        1-based & closed-bracket indexing, like Series but with `-1` for the top-gear.
+        """
+        top_gear = self.ng
+        # Support partial gears or G0!
+        offset = int(top_gear == self.top_gear)
+
+        def from_top_gear(i):
+            return offset + (i % top_gear) if isinstance(i, int) and i < 0 else i
+
+        if isinstance(key, slice):
+            key = slice(from_top_gear(key.start), from_top_gear(key.stop), key.step)
+        elif isinstance(key, int):
+            key = from_top_gear(key)
+        else:  # assume Iterable[int]
+            key = [from_top_gear(g) for g in key]
+
+        gnames = self.gnames.loc[key]
+
+        ## If no items, return just a list of gears.
+        #
+        if self.items is None:
+            if isinstance(gnames, pd.Series):
+                gnames = list(gnames)
+            return gnames
+
+        ## Otherwise, return a product multi-index.
+        #
+        if not isinstance(gnames, pd.Series):
+            gnames = (gnames,)
+        return pd.MultiIndex.from_tuples(itt.product(self.items, gnames))
 
     def colidx_pairs(
         self, item: Union[str, Iterable[str]], gnames: Iterable[str] = None
@@ -146,15 +290,11 @@ class GearMultiIndexer:
             item = (item,)
         return pd.MultiIndex.from_tuples(itt.product(item, gnames))
 
-    def colidx_pairs1(self, item: str, gear_idx: Iterable[int]):
-        """Using gear indices ie 0, 1, 2"""
-        return self.colidx_pairs(item, [self.gnames[i] for i in gear_idx])
-
-    def colidx_pairs2(self, item: str, gears: Iterable[int]):
-        """Using gear ids ie 1, 2, 3"""
-        return self.colidx_pairs(item, [self.gnames[i - 1] for i in gears])
-
     @property
     def ng(self):
-        """the number of gears extracted from 2-level dataframe"""
+        """
+        The number of gears extracted from 2-level dataframe.
+
+        It equals :attr:`top_gear` if :attr:`gnames` are from 1-->top_gear.
+        """
         return len(self.gnames)

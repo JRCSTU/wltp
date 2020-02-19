@@ -415,11 +415,11 @@ class CycleBuilder:
         #
         #  Note: using array-indices below (:= gear_index - 1)
         #
-        g1 = gidx.gnames[1 - 1]  # note this is not a list!
-        g2 = gidx.gnames[2 - 1]  # note this is not a list!
-        gears_g3plus = gidx.gnames[3 - 1 :]
-        gears_below_gvmax = gidx.gnames[1 : g_vmax - 1]
-        gears_from_gvmax = gidx.gnames[g_vmax - 1 :]
+        g1 = gidx[1]  # note this is not a list!
+        g2 = gidx[2]  # note this is not a list!
+        gears_g3plus = gidx[3:]
+        gears_below_gvmax = gidx[2 : g_vmax - 1]
+        gears_from_gvmax = gidx[g_vmax:]
         assert not (set(gears_below_gvmax) & set(gears_from_gvmax)), (
             "Bad g_vmax split:",
             gears_below_gvmax,
@@ -706,7 +706,7 @@ def calc_p_remain(cycle, gidx):
     """
     w = wio.pstep_factory.get().wot
 
-    gears_g3plus = gidx.gnames[3 - 1 :]
+    gears_g3plus = gidx[3:]
     pidx_g3plus = gidx.colidx_pairs(w.p_avail, gears_g3plus)
 
     p_req = cycle.loc[:, w.p_req]
@@ -728,7 +728,7 @@ def calc_ok_p_rule(cycle, gidx):
     """
     c = wio.pstep_factory.get().cycle
 
-    gears_g3plus = gidx.gnames[3 - 1 :]
+    gears_g3plus = gidx[3:]
     pidx_g3plus = gidx.colidx_pairs(c.p_avail, gears_g3plus)
 
     ok_p = cycle.loc[:, pidx_g3plus] >= 0

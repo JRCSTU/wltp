@@ -232,7 +232,7 @@ ok_gear2 = ok_gears * (np.arange(gear_count) + flag_count + 1) * mul
 
 
 @interact(
-    gear=wio.GearMultiIndexer.from_df(ok_flags).gnames,
+    gear=wio.GearMultiIndexer.from_df(ok_flags)[:],
     zoom=(1.0, max_zoom, 1.0),
     pan=(0, max_zoom, 1),
     display_id="plot",
