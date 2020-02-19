@@ -33,7 +33,7 @@ def out_notebook(notebook, tmp_path):
     return tmp_path / notebook.name
 
 
-def test_run_notebooks(notebook, out_notebook, h5_write):
+def test_run_notebooks(notebook, out_notebook, h5_write, vehnums_to_run):
     pm.execute_notebook(
         str(notebook),
         str(out_notebook),
@@ -42,6 +42,7 @@ def test_run_notebooks(notebook, out_notebook, h5_write):
             "skip_h5_write": not h5_write,
             "force_h5_write": h5_write,
             "del_h5_on_start": False,
+            "vehnums_to_run": vehnums_to_run,
         },
         progress_bar=False,
     )

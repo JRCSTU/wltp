@@ -24,6 +24,7 @@
 #
 force_h5_write = False  # Stores results only if true or HDF5 file missing; otherwise, results are compared.
 del_h5_on_start = False
+vehnums_to_run = None
 
 # %%
 ## To autoreload codein python files here.
@@ -81,14 +82,14 @@ vehdb.print_nodes(out_h5fname)
 def store_or_compare_python_results(
     inph5,
     outh5,
-    vehile_nums: Seq[int] = None,
+    vehicle_nums: Seq[int] = None,
     props_group_suffix="oprop",
     cycle_group_suffix="cycle",
     wots_vmax_group_suffix="wots_vmax",
     force_write=False,
 ):
     """
-    RUN PYTHON on cars that have AccDB results in /vechicles/v123/out1
+    RUN PYTHON on cars that have AccDB results in /vehicles/v123/out1
 
     and build:
 
@@ -101,7 +102,7 @@ def store_or_compare_python_results(
     """
 
     def run_vehicles_with_pythons(h5db):
-        veh_nums = vehdb.all_vehnums(h5db) if vehile_nums is None else vehile_nums
+        veh_nums = vehdb.all_vehnums(h5db) if vehicle_nums is None else vehicle_nums
         for vehnum in veh_nums:
             log.info("Calculating veh(v%0.3i)...", vehnum)
             try:
@@ -157,7 +158,9 @@ def store_or_compare_python_results(
 
 
 with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname) as outh5:
-    %time store_or_compare_python_results(inph5, outh5, force_write=force_h5_write)#, vehile_nums=[41])
+    % time store_or_compare_python_results(
+        inph5, outh5, force_write=force_h5_write, vehicle_nums=vehnums_to_run  #[41]
+    )
 
 # %%
 vehdb.print_nodes(out_h5fname)
