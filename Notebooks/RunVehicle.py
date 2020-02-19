@@ -1,12 +1,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:hydrogen
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: hydrogen
+#       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -19,16 +19,16 @@
 
 # %%
 ## To autoreload codein python files here.
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 
 ## Auto-format cells to ease diffs.
-%load_ext lab_black
+# %load_ext lab_black
 
 # %%
 ## If you change that, restart kernel and clear all outpouts before running it
-#%matplotlib widget
-%matplotlib inline
+# #%matplotlib widget
+# %matplotlib inline
 
 # %%
 ##################################################
@@ -165,7 +165,7 @@ mdl = vehdb.mdl_from_accdb(props, wot, n2vs)
 datamodel.validate_model(mdl, additional_properties=True)
 exp = Experiment(mdl, skip_model_validation=True)
 
-%time mdl = exp.run()
+# %time mdl = exp.run()
 
 oprops = {
     "pmr": mdl["pmr"],

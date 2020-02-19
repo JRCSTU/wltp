@@ -1,12 +1,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:hydrogen
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: hydrogen
+#       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -33,11 +33,11 @@ del_h5_on_start = False  # overridden by `skip_h5_write=True`
 
 # %%
 ## To autoreload codein python files here.
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 
 ## Auto-format cells to ease diffs.
-%load_ext lab_black
+# %load_ext lab_black
 
 # %%
 import functools as ftt
@@ -90,7 +90,7 @@ c_case_id = c_case
 # %%
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
 if not skip_h5_write and del_h5_on_start:
-    !rm -f {h5fname}
+#     !rm -f {h5fname}
 
 # %%
 vehdb.print_nodes(h5fname)
@@ -347,14 +347,14 @@ with vehdb.openh5(h5fname) as h5db:
 vehdb.print_nodes(h5fname)
 
 # %%
-%%time
+# %%time
 ## COMPRESS x4 HDF5: 341Mb --> 72Mb in ~15s.
 #
-!ls -lh {h5fname}
+# !ls -lh {h5fname}
 if not skip_h5_write:
-    !ptrepack  {h5fname}  --complevel=9 --complib=blosc:lz4hc -o {h5fname}.tmp
-    !mv  {h5fname}.tmp {h5fname}
-!ls -lh {h5fname}
+#     !ptrepack  {h5fname}  --complevel=9 --complib=blosc:lz4hc -o {h5fname}.tmp
+#     !mv  {h5fname}.tmp {h5fname}
+# !ls -lh {h5fname}
 
 # %%
 ## SAMPLE: extract data for a specific vehicle.

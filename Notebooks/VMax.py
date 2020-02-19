@@ -1,12 +1,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:hydrogen
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: hydrogen
+#       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -18,16 +18,16 @@
 
 # %%
 ## To autoreload codein python files here.
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 
 ## Auto-format cells to ease diffs.
-%load_ext lab_black
+# %load_ext lab_black
 
 # %%
 ## If you change that, restart kernel and clear all outpouts before running it
-#%matplotlib widget
-%matplotlib inline
+# #%matplotlib widget
+# %matplotlib inline
 
 # %%
 from typing import Union, List, Callable, Any, Sequence as Seq
@@ -121,7 +121,7 @@ def plot_gwots(ac_props, py_props, gwots, g, bottom_g, *, offset=2):
     g_max_acc = ac_props["gear_v_max"]
     g_top = ac_props["no_of_gears"]
 
-    v_range = idx[v_max - offset:v_max + offset]
+    v_range = idx[v_max - offset : v_max + offset]
     g_range = [f"g{i}" for i in range(g_top, bottom_g)]
 
     ax = gwots.loc[v_range, (f"g{g}", "p_resist")].plot(linewidth=3)

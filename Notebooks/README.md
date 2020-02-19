@@ -22,7 +22,7 @@ Notebooks for processing UNECE's WLTP reference implementations in Python and MS
       VMax.ipynb                  # VMax experiments
       Rounding.ipynb              # showcase ROUNDING across MSAccess, Python, Matlab & C#
       ../tests/vehdb.py           # support code for reading & validating vehicles from HD5 files
-      *.py                        # "python-hydrogen" git-tracked files paired with *.ipynb notebooks
+      *.py                        # "py:percent" git-tracked files paired with *.ipynb notebooks
       VehData/                    # folder with raw input & results (e.g AccDB)
           +--WltpGS-msaccess.h5   # the h5db storing *accdb* inputs & results
           +--WltpGS-pyalgo.h5     # the h5db storing *pyalgo* results
@@ -152,7 +152,7 @@ linked site below:
   - Append this to the bottom of your jupyter-config file::
 
 
-        ## Git only "python-hydrogen" diffs
+        ## Git only "py:percent" diffs
         # From https://towardsdatascience.com/version-control-with-jupyter-notebooks-f096f4d7035a
         c.NotebookApp.contents_manager_class="jupytext.TextFileContentsManager"
         c.ContentsManager.default_jupytext_formats = ".ipynb,.py"
@@ -178,7 +178,7 @@ Run this command in the directory of the gir-repo you cloned::
       jupytext --to ipynb *.py
 
 > **Tip**:
-> Alternatively, you may *right-click* a `.py` "hydrogen" file and
+> Alternatively, you may *right-click* a `.py` "py:percent" file and
 > click **Open with | Notebook**, and **Save** to generate a freshly created notebook
 > (and remember to close the `.py` file).
 

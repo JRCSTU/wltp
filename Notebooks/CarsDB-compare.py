@@ -1,12 +1,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:hydrogen
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: hydrogen
+#       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -18,14 +18,14 @@
 
 # %%
 ## To autoreload codein python files here.
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 
 ## Auto-format cells to ease diffs.
-%load_ext lab_black
+# %load_ext lab_black
 
 # %%
-%matplotlib ipympl
+# %matplotlib ipympl
 
 # %%
 from typing import Union, List, Callable, Any, Sequence as Seq
@@ -533,9 +533,9 @@ def _distribute_signals_in_axes(columns, df):
 
 
 def recreate_fig():
-    """ 
+    """
      Recreate the same figure-number, or else they leak.
-    
+
     Hack, or else, shown double figure the 1st time this cell runs,
     or figure hidden, or stability/performance problems.
     """
@@ -573,9 +573,14 @@ def plot_gear_flags(
 
     out_specs = refresh_tabs()
 
-    cycle, ok_flags, ok_gears, accdb_cycle, accdb_gears, accdb_props = load_interactive_case(
-        case
-    )
+    (
+        cycle,
+        ok_flags,
+        ok_gears,
+        accdb_cycle,
+        accdb_gears,
+        accdb_props,
+    ) = load_interactive_case(case)
 
     clen = max(len(cycle), len(accdb_cycle))
     viewlen = int(clen / zoom)

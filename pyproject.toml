@@ -18,7 +18,7 @@ exclude = '''
             |dist
         )/
         |/(
-            Notebooks/.*\.py                    # percent-pyhon jupytext-paired files
+            Notebooks/.*\.py                    # py:percent jupytext-paired files
             |wltp/cycles/(nedc|class.)\.py      # Manually removed NLs on cycle Vs.
         )
     )

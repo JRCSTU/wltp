@@ -1,12 +1,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:hydrogen
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: hydrogen
+#       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -19,16 +19,16 @@
 
 # %%
 ## To autoreload codein python files here.
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 
 ## Auto-format cells to ease diffs.
-%load_ext lab_black
+# %load_ext lab_black
 
 # %%
 ## If you change that, restart kernel and clear all outpouts before running it
-#%matplotlib widget
-%matplotlib inline
+# #%matplotlib widget
+# %matplotlib inline
 
 # %%
 from typing import Union, List, Callable, Any, Sequence as Seq
@@ -93,9 +93,7 @@ print(list(mdl.keys()))
 # %%
 gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
 gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
-gwots["p_resist"] = vehicle.calc_p_resist(
-    gwots.index, mdl["f0"], mdl["f1"], mdl["f2"]
-)
+gwots["p_resist"] = vehicle.calc_p_resist(gwots.index, mdl["f0"], mdl["f1"], mdl["f2"])
 
 # %%
 V = datamodel.get_class_v_cycle(3)
@@ -245,7 +243,7 @@ def plot_gear(gear="g2", zoom=48, pan=13.8):
     offset = int(pan * (clen - viewlen) / max_zoom)
     scale = idx[offset : offset + viewlen]
 
-    cycle = cb.cycle.loc[scale,]
+    cycle = cb.cycle.loc[scale]
     ok_flags = ok_flags2.loc[:, idx[:, gear]].iloc[scale]
     ok_gear = ok_gear2.loc[scale]
 

@@ -15,7 +15,7 @@ install:
     - python --version
     - pip install -e .[test]
     - pip list
-    ## Re-create `*.ipynb` files from the paired `*.py` "hydrogen" files.
+    ## Re-create `*.ipynb` files from the paired `*.py` "py:percent" files.
     - ./Notebooks/recreate_ipynbs.sh
 
 script:

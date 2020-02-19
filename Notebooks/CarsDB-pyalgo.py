@@ -1,12 +1,12 @@
 # ---
 # jupyter:
 #   jupytext:
-#     formats: ipynb,py:hydrogen
+#     formats: ipynb,py:percent
 #     text_representation:
 #       extension: .py
-#       format_name: hydrogen
+#       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.3
+#       jupytext_version: 1.3.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -28,11 +28,11 @@ vehnums_to_run = None
 
 # %%
 ## To autoreload codein python files here.
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 
 ## Auto-format cells to ease diffs.
-%load_ext lab_black
+# %load_ext lab_black
 
 # %%
 from typing import Tuple, Union, Sequence as Seq
@@ -72,7 +72,7 @@ c_n, c_p, c_n_norm, c_p_norm = "n", "Pwot", "n_norm", "p_norm"
 # %%
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
 if del_h5_on_start:
-    !rm -f {out_h5fname}
+#     !rm -f {out_h5fname}
 
 # %%
 vehdb.print_nodes(out_h5fname)
@@ -166,11 +166,11 @@ with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname) as outh5:
 vehdb.print_nodes(out_h5fname)
 
 # %%
-%%time
+# %%time
 if not skip_h5_write:
     ## COMPRESS x2.3 HDF5: 269Mb-->119Mb in ~20s.
     #
-    !ls -lh {out_h5fname}
-    !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:lz4hc -o {out_h5fname}.tmp
-    !mv  {out_h5fname}.tmp {out_h5fname}
-    !ls -lh {out_h5fname}
+#     !ls -lh {out_h5fname}
+#     !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:lz4hc -o {out_h5fname}.tmp
+#     !mv  {out_h5fname}.tmp {out_h5fname}
+#     !ls -lh {out_h5fname}

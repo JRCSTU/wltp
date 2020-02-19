@@ -129,7 +129,7 @@ From within the project directory, run one of these commands to install it:
 
     See: :ref:`wltp-usage`
 
-- Recreate jupyter notebooks from the paired ``*.py`` "hydrogen" files
+- Recreate jupyter notebooks from the paired ``*.py`` "py:percent" files
   (only these files are stored in git-repo),
   by executing this command::
 
