@@ -123,7 +123,7 @@ class FnHarvester(Prefkey):
     ...     predicate=_is_in_my_project
     ... ).harvest(*modules)
     >>> len(funcs)
-    67
+    66
     >>> sorted(list(zip(*funcs))[0])
     [('wltp.cycler', 'CycleBuilder'),
      ('wltp.cycler', 'NMinDrives'),

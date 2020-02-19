@@ -104,10 +104,6 @@ class Lazy(object):
         return self.func()
 
 
-def is_travis():
-    return "TRAVIS" in os.environ
-
-
 def generate_filenames(filename):
     f, e = os.path.splitext(filename)
     yield filename

@@ -30,6 +30,7 @@ from wltp.experiment import Experiment
 
 from .goodvehicle import goodVehicle
 
+
 overwrite_old_results = True  # NOTE: Set 'False' to UPDATE sample-results or run main() (assuming they are ok).
 force_rerun = False
 
@@ -565,10 +566,6 @@ class WltpDbTests(unittest.TestCase):
 
         return pmr_histogram
 
-    @skipIf(
-        utils.is_travis(),
-        "GroupBy probably fails in old pandas, and cannot upgrade it.",
-    )
     def test4a_n_mean__PMR(self):
         """Check mean-rpm diff with Heinz stays within some percent for all PMRs.
 
@@ -673,10 +670,6 @@ class WltpDbTests(unittest.TestCase):
         print("Mean diff_prcnt: %s" % diff_prcnt)
         self.assertLess(diff_prcnt, pcrnt_limit)
 
-    @skipIf(
-        utils.is_travis(),
-        "GroupBy probably fails in old pandas, and cannot upgrade it.",
-    )
     def test4b_n_mean__PMR_transplanted(self):
         """Check driveability-only mean-rpm diff with Heinz stays within some percent for all PMRs.
 
