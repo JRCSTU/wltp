@@ -6,6 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 import logging
+import os
 from pathlib import Path
 
 import pytest
@@ -55,3 +56,8 @@ def cleanup(request):
         dtree_file.write_text("\n".join(sorted(pstep_paths)))
 
     request.addfinalizer(write_data_psteps)
+
+
+@pytest.fixture(scope="session")
+def is_travis():
+    return "TRAVIS" in os.environ
