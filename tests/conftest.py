@@ -7,7 +7,9 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 import logging
 import os
+import random
 from pathlib import Path
+from typing import Optional
 from typing import Sequence as Seq
 
 import pytest
@@ -34,7 +36,10 @@ def pytest_addoption(parser):
         nargs="*",
         type=int,
         default=None,
-        help="HDF5 vehicles to process (default: all vehicles)",
+        help=(
+            "HDF5 vehicles to process (default: 24%% of vehicles).  "
+            "To run all vehicles, do not give any vehicle-number."
+        ),
     )
 
 
@@ -48,9 +53,55 @@ def del_h5_on_start(request) -> bool:
     return request.config.getoption("--h5-del")
 
 
+def _permatest_and_random_vehnums(h5_accdb):
+    sample_ratio = 0.14  # ~x7 test-runs would cover all
+    with vehdb.openh5(h5_accdb) as h5db:
+        all_vehs = set(vehdb.all_vehnums(h5db))
+
+    permatest_vehs = [
+        1,
+        # >9 gears
+        23,
+        # Known bads
+        42,
+        46,
+        48,
+        52,
+        53,
+        90,
+        # AccDB not respecting n_min=0.9 x n_idle (Annex 2-3.k.3)
+        25,
+        # Diffs in gears above 2
+        35,
+        # Vehicle has too many insufficient powers
+        75,
+        # Extensions
+        117,
+        118,
+        119,
+        120,
+        121,
+        124,
+        125,
+    ]
+    remain_vehs = all_vehs - set(permatest_vehs)
+    sample_size = int(sample_ratio * len(remain_vehs))
+    sample_vehs = random.sample(remain_vehs, sample_size)
+
+    return permatest_vehs + sample_vehs
+
+
 @pytest.fixture
-def vehnums_to_run(request) -> Seq[int]:
-    return request.config.getoption("--vehnums")
+def vehnums_to_run(h5_accdb, request) -> Optional[Seq[int]]:
+    cli_vehs = request.config.getoption("--vehnums")
+
+    if isinstance(cli_vehs, list):  # CLI gave some vehs like  `--vehnums 11`
+        if not cli_vehs:  # `--vehnums` without veh-numbers
+            return None  # signal to test all
+        return cli_vehs
+
+    assert cli_vehs is None, cli_vehs  # `None` is default, no --vehnums in CLI.
+    return _permatest_and_random_vehnums(h5_accdb)
 
 
 @pytest.fixture
