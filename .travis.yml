@@ -44,12 +44,12 @@ script:
             pytest
         fi
     - |
-        if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
+        if [[ "$TRAVIS_PYTHON_VERSION" = '3.8' ]]; then
             echo "+++ Checking README for PyPi...."
             ./bin/check_readme.sh
         fi
     - |
-        if [[ "$TRAVIS_PYTHON_VERSION" = '3.7' ]]; then
+        if [[ "$TRAVIS_PYTHON_VERSION" = '3.8' ]]; then
             echo "+++ Checking site...."
             pip install -e .[doc]
             python setup.py build_sphinx
