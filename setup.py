@@ -237,9 +237,11 @@ setup(
         "toolz",
     ],
     tests_require=test_reqs,
+    # NOTE: update the list in README's QuickStart section
     extras_require={
         "plot": plot_reqs,
         "excel": excel_reqs,
+        "all": dev_reqs,
         "dev": dev_reqs,
         "notebook": notebook_reqs,
         "test": test_reqs,

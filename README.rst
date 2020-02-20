@@ -72,6 +72,9 @@ Quick-start
 -----------
 - Launch the example *jupyter notebooks* in a private *demo server* (|binder|).
 - Otherwise, install it locally, preferably from the sources (instructions below).
+- ``pip install`` :abbr:`"extras" (e.g. pip install wltp[all])`:
+
+  - ``plot, excel, all, dev, notebook, test, doc``
 
 Prerequisites:
 ^^^^^^^^^^^^^^
