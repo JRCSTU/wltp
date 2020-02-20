@@ -12,6 +12,7 @@ The datamodel-instance is managed by :class:`pandel.Pandel`.
 """
 
 import copy
+import functools as fnt
 import itertools as it
 import logging
 import operator as ops
@@ -165,21 +166,20 @@ def get_wltc_data():
 
 
 _model_url = "/data"
-_cached_model_schema = None
 _wltc_url = "/wltc"
-_cached_wltc_schema = None
 
 
-def _get_model_schema(additional_properties=False):
+@fnt.lru_cache()
+def _get_model_schema(additional_properties=False) -> dict:
     """
     :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
-    :return: The json-schema(dict) for input/output of the WLTC experiment.
-    """
-    global _cached_model_schema
+    The json-schema(dict) for input/output of the WLTC experiment.
 
-    if not _cached_model_schema:
-        _cached_model_schema = utils.yaml_loads(
-            f"""
+    .. Note::
+      Do not modify, or they will affect all future operations
+    """
+    return utils.yaml_loads(  # type: ignore
+        f"""
 $schema: http://json-schema.org/draft-07/schema#
 $id: {_model_url}
 title: Json-schema describing the input for a WLTC simulator.
@@ -532,21 +532,19 @@ definitions:
     items:
       $ref: '#/definitions/positiveNumber'
     """
-        )
-
-    return copy.deepcopy(_cached_model_schema)
+    )
 
 
-def _get_wltc_schema():
-    """The json-schema for the WLTC-data required to run a WLTC experiment.
-
-    :return :dict:
+@fnt.lru_cache()
+def _get_wltc_schema() -> dict:
     """
-    global _cached_wltc_schema
+    The json-schema for the WLTC-data required to run a WLTC experiment.
 
-    if not _cached_wltc_schema:
-        _cached_wltc_schema = utils.yaml_loads(
-            f"""
+    .. Note::
+      Do not modify, or they will affect all future operations
+    """
+    return utils.yaml_loads(  # type: ignore
+        f"""
 $schema: http://json-schema.org/draft-07/schema#
 $id: {_wltc_url}
 title: WLTC data
@@ -657,9 +655,37 @@ definitions:
           type: number
         minItems: 906
     """
-        )
+    )
 
-    return copy.deepcopy(_cached_wltc_schema)
+
+######
+# Cached Schemas timings:
+#
+### UNCACHED
+# %timeit dm._get_model_schema()
+# 43.8 ms ± 334 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+#
+# %timeit dm.get_model_schema()
+# 48.9 ms ± 361 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+#
+### LRU CACHED
+#
+# %timeit dm._get_model_schema()
+# 66.8 ns ± 0.404 ns per loop (mean ± std. dev. of 7 runs, 10000000 loops each)
+#
+# %timeit dm.get_model_schema()
+# 4.77 ms ± 20.7 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+######
+
+
+def get_model_schema(additional_properties=False):
+    """Schema of the input data; you may freely modify them. """
+    return copy.deepcopy(_get_model_schema(additional_properties))
+
+
+def get_wltc_schema():
+    """Schema of the wLTC data; you may freely modify them. """
+    return copy.deepcopy(_get_wltc_schema())
 
 
 def get_class_part_names(cls_name=None):
@@ -816,6 +842,9 @@ def merge(a, b, path=[]):
 def model_validator(
     additional_properties=False, validate_wltc_data=False, validate_schema=False
 ):
+    ## NOTE: Using non-copied (mode, wltc)-schemas,
+    #  since we are certain they will not be modified here.
+    #
     schema = _get_model_schema(additional_properties)
     wltc_schema = (
         _get_wltc_schema() if validate_wltc_data else {}
@@ -937,9 +966,9 @@ def yield_load_curve_errors(mdl):
 
 def yield_n_min_errors(mdl):
     """
-    .. TODO:: 
-      Support ARRAY for `n_min_drive_up/dn`.
-    .. TODO: 
+    .. TODO::
+      Support ARRAY for `n_min_drive_up/down`.
+    .. TODO:
       Validate min(Nwot) <= n_min_drive_set.
     """
     d = wio.pstep_factory.get()
@@ -1011,9 +1040,9 @@ def yield_forced_cycle_errors(mdl, additional_properties):
             yield ValidationError("Invalid forced_cycle, due to: %s" % ex, cause=ex)
 
 
-get_model_schema = _get_model_schema
-
 if __name__ == "__main__":
+    ## Using private schemas below, we're certain it's not modified.
+    #
     print(f"WLTC: \n{utils.yaml_dumps(_get_model_schema())}")
     print(f"INPUT: \n{utils.yaml_dumps(_get_wltc_schema())}")
     print(f"MODEL: \n{utils.yaml_dumps(get_model_base())}")
