@@ -72,7 +72,7 @@ def aslist(i, argname, allowed_types=list):
         try:
             i = list(i)
         except Exception as ex:
-            raise ValueError(f"Argument {argname!r} not an iterable, but {i!r}\n  {ex}")
+            raise ValueError(f"Cannot list-ize {argname}({i!r}) due to: {ex}") from None
 
     return i
 
@@ -87,7 +87,9 @@ def astuple(i, argname):
         try:
             i = tuple(i)
         except Exception as ex:
-            raise ValueError(f"Cannot tuple-ize arg-{argname!r}({i!r}) due to: {ex}")
+            raise ValueError(
+                f"Cannot tuple-ize {argname}({i!r}) due to: {ex}"
+            ) from None
 
     return i
 
@@ -102,7 +104,7 @@ def asdict(i, argname):
         try:
             i = dict(i)
         except Exception as ex:
-            raise ValueError(f"Argument {argname!r} not an mapping, but {i!r}\n  {ex}")
+            raise ValueError(f"Cannot dict-ize {argname}({i!r}) due to: {ex}") from None
 
     return i
 
@@ -144,6 +146,8 @@ def open_file_with_os(fpath):
 def make_json_defaulter(pd_method):
     import json
     import numpy as np
+    import operator
+    import pandas as pd
     from pandas.core.generic import NDFrame
 
     def defaulter(o):
@@ -153,7 +157,7 @@ def make_json_defaulter(pd_method):
             if pd_method is None:
                 s = json.loads(pd.DataFrame.to_json(o))
             else:
-                method = ops.methodcaller(pd_method)
+                method = operator.methodcaller(pd_method)
                 s = "%s:%s" % (type(o).__name__, method(o))
         else:
             s = repr(o)
