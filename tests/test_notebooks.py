@@ -11,15 +11,16 @@ import pytest
 import papermill as pm
 
 
-# "CarsDB-accdb.ipynb" is deadly slow (~5').
 @pytest.fixture(
     params=[
+        # "CarsDB-accdb.ipynb" is deadly slow (~5').
         pytest.param("CarsDB-accdb.ipynb", marks=pytest.mark.slower),
-        pytest.param("CarsDB-pyalgo.ipynb", marks=pytest.mark.slow),
-        "CarsDB-compare.ipynb",
-        "VMax.ipynb",
-        "Cycler.ipynb",
-        "RunVehicle.ipynb",
+        pytest.param("CarsDB-pyalgo.ipynb", marks=pytest.mark.slower),
+        pytest.param("CarsDB-compare.ipynb", marks=pytest.mark.slower),
+        # ~13sec all 3 below:
+        pytest.param("VMax.ipynb", marks=pytest.mark.slow),
+        pytest.param("Cycler.ipynb", marks=pytest.mark.slow),
+        pytest.param("RunVehicle.ipynb", marks=pytest.mark.slow),
     ]
 )
 def notebook(request):
