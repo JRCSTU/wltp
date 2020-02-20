@@ -448,7 +448,7 @@ NMinDrives = namedtuple(
         "n_min_drive_up",
         "n_min_drive_up_start",
         "n_min_drive_down",
-        "n_min_drive_dn_start",
+        "n_min_drive_down_start",
         "t_cold_end",
     ),
 )
@@ -472,7 +472,9 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
     n_min_drive_up_start = wio.getdval(mdl, d.n_min_drive_up_start, n_min_drive_up)
 
     n_min_drive_down = wio.getdval(mdl, d.n_min_drive_down, n_min_drive_set)
-    n_min_drive_dn_start = wio.getdval(mdl, d.n_min_drive_dn_start, n_min_drive_down)
+    n_min_drive_down_start = wio.getdval(
+        mdl, d.n_min_drive_down_start, n_min_drive_down
+    )
 
     t_cold_end = wio.getdval(mdl, d.t_cold_end, 0)
 
@@ -485,7 +487,7 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
         n_min_drive_up=n_min_drive_up,
         n_min_drive_up_start=n_min_drive_up_start,
         n_min_drive_down=n_min_drive_down,
-        n_min_drive_dn_start=n_min_drive_dn_start,
+        n_min_drive_down_start=n_min_drive_down_start,
         t_cold_end=t_cold_end,
     )
 

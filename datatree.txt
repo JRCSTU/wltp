@@ -56,8 +56,8 @@
 /n_max1
 /n_max2
 /n_max3
-/n_min_drive_dn_start
 /n_min_drive_down
+/n_min_drive_down_start
 /n_min_drive_set
 /n_min_drive_up
 /n_min_drive_up_start

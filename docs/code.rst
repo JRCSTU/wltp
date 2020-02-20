@@ -296,7 +296,7 @@ The :term:`JSON-schema` of the data for this project:
         - number
         - 'null'
         exclusiveMinimum: 0
-      n_min_drive_dn_start:
+      n_min_drive_down_start:
         description: see Annex 2-2.k
         type:
         - number

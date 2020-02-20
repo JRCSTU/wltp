@@ -550,8 +550,8 @@ def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
     # mdl['n_min_drive_set']=       props.n_min_drive_set
     mdl["n_min_drive_up"] = props.n_min_drive_up
     mdl["n_min_drive_down"] = props.n_min_drive_down
-    mdl["n_min_drive_start_up"] = props.n_min_drive_start_up
-    mdl["n_min_drive_start_down"] = props.n_min_drive_start_down
+    mdl["n_min_drive_up_start"] = props.n_min_drive_start_up  # inversed@acdb!
+    mdl["n_min_drive_down_start"] = props.n_min_drive_start_down  # inversed@acdb!
     mdl["t_cold_end"] = props.t_end_start_phase
     mdl["f_safety_margin"] = props.SM
 

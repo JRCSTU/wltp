@@ -347,7 +347,7 @@ properties:
     - number
     - 'null'
     exclusiveMinimum: 0
-  n_min_drive_dn_start:
+  n_min_drive_down_start:
     description: see Annex 2-2.k
     type:
     - number
@@ -989,7 +989,7 @@ def yield_n_min_errors(mdl):
             d.n_min_drive_up,
             d.n_min_drive_up_start,
             d.n_min_drive_down,
-            d.n_min_drive_dn_start,
+            d.n_min_drive_down_start,
         ):
             n_mdl = mdl.get(n)
             if n_mdl is not None:
