@@ -163,7 +163,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "wltp"
-copyright = "2013-2019, European Commission (JRC), EUPL 1.1+"  # @ReservedAssignment
+copyright = "2013-2020, European Commission (JRC), EUPL 1.1+"  # @ReservedAssignment
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

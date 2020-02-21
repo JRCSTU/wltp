@@ -12,7 +12,7 @@ wltp: generate WLTC gear-shifts based on vehicle characteristics
                 |gh-watch| |gh-star| |gh-fork| |gh-issues|
 :keywords:      UNECE, automotive, car, cars, driving, engine, emissions, fuel-consumption,
                 gears, gearshifts, rpm, simulation, simulator, standard, vehicle, vehicles, WLTC, NEDC
-:copyright:     2013-2019 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_) |br|
+:copyright:     2013-2020 European Commission (`JRC-IET <https://ec.europa.eu/jrc/en/institutes/iet>`_) |br|
                 |proj-lic|
 
 A python-3.6+ package to generate the *gear-shifts* of Light-duty vehicles
