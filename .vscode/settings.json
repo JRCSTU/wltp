@@ -7,6 +7,18 @@
     "python.testing.pytestEnabled": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
+    "files.exclude": {
+        "/docs/pyplots/*": true,
+        "/wltp/idgears.py": true,
+        "/wltp/plots.py": true,
+        "/wltp/excel/*": true,
+        "/tests/test_excel.py": true,
+        "/tests/test_whole_vehicleTests.py": true,
+        "/tests/test_wltp_db.py": true,
+        "/tests/test_samples_db.py": true,
+        "/tests/test_idgears.py": true,
+        "/tests/test_performance.py": true,
+    },
     "cSpell.words": [
         "Alessandro",
         "Anagnostopoulos",
