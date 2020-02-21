@@ -25,17 +25,16 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
-def test_v_max(h5_accdb):
+def test_v_max(h5_accdb, vehnums_to_run):
     from . import conftest
 
-    veh_samples = None
     # DEBUG: to reduce clutter in the console.
-    # veh_samples = 12
+    # vehnums_to_run = 12
     # DEBUG: to study buggy cars.
-    # veh_samples = [76]   # diff det_by_nlim
-    # veh_samples = [3, 21, 22, 104, ]  # diff gear
-    # veh_samples = [38]  # diff vmax order higher 1st
-    # veh_samples = [31]  # [23]
+    # vehnums_to_run = [76]   # diff det_by_nlim
+    # vehnums_to_run = [3, 21, 22, 104, ]  # diff gear
+    # vehnums_to_run = [38]  # diff vmax order higher 1st
+    # vehnums_to_run = [31]  # [23]
 
     def make_v_maxes(vehnum):
         props, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, vehnum)
@@ -71,19 +70,15 @@ def test_v_max(h5_accdb):
 
         return wots_df
 
-    veh_nums = vehdb.all_vehnums(h5_accdb)
-    if not isinstance(veh_samples, (list, tuple)):
-        veh_samples = random.sample(veh_nums, veh_samples) if veh_samples else veh_nums
-
-    recs = [make_v_maxes(vehnum) for vehnum in veh_samples]
+    recs = [make_v_maxes(vehnum) for vehnum in vehnums_to_run]
     vehres = pd.DataFrame(
         recs,
         columns="vmax_accdb  vmax_python  gmax_accdb  gmax_python  wot".split(),
-        index=veh_names(veh_samples),
+        index=veh_names(vehnums_to_run),
     ).astype({"gmax_accdb": "Int64", "gmax_python": "Int64"})
 
     wots_df = pd.concat(
-        vehres["wot"].values, keys=veh_names(veh_samples), names=["vehicle"]
+        vehres["wot"].values, keys=veh_names(vehnums_to_run), names=["vehicle"]
     )
     vehres = vehres.drop("wot", axis=1)
 
@@ -104,7 +99,7 @@ def test_v_max(h5_accdb):
         "{:0.2f}".format,
     ):
         print(
-            f"++ nones: {vehres.vmax_python.sum()} (out of {len(veh_samples)})"
+            f"++ nones: {vehres.vmax_python.sum()} (out of {len(vehnums_to_run)})"
             f"\n++++\n{vehres}"
             # f"\n++++\n{wots_df.sample(80, axis=0)}"
         )
@@ -130,6 +125,6 @@ def test_v_max(h5_accdb):
         - [125.0000, 0.1040, 0.3552, 0.0000, 0.0000, 0.0000, 0.0000, 2.0000]
         < aggregate_tol
     ).all()
-    assert (vehres["vmax_diff"] == 0).sum() == 125 and (
+    assert (vehres["vmax_diff"] == 0).sum() == len(vehnums_to_run) and (
         vehres["gmax_diff"] == 0
-    ).sum() == 125
+    ).sum() == len(vehnums_to_run)

@@ -145,7 +145,7 @@ def test_pre_proc_high_level(mdl, wot):
     engine.preproc_wot(mdl, wot)
 
 
-def test_calc_p_available(h5_accdb):
+def test_calc_p_available(h5_accdb, vehnums_to_run):
     def check_p_avail(case):
         _prop, wot, _n2vs = vehdb.load_vehicle_accdb(h5_accdb, case)
 
@@ -159,8 +159,7 @@ def test_calc_p_available(h5_accdb):
             else:
                 raise
 
-    all_cases = vehdb.all_vehnums(h5_accdb)
-    for case in all_cases:
+    for case in vehnums_to_run:
         check_p_avail(case)
 
 
@@ -218,7 +217,7 @@ def test_make_v_grid(start, end, nsamples):
     npt.assert_allclose(grid, invariants.vround(grid))
 
 
-def test_interpolate_wot_on_v_grid(h5_accdb):
+def test_interpolate_wot_on_v_grid(h5_accdb, vehnums_to_run):
     def interpolate_veh(case):
         _prop, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, case)
 
@@ -227,8 +226,7 @@ def test_interpolate_wot_on_v_grid(h5_accdb):
 
         return engine.interpolate_wot_on_v_grid(wot, n2vs)
 
-    all_cases = vehdb.all_vehnums(h5_accdb)
-    results = {wio.veh_name(case): interpolate_veh(case) for case in all_cases}
+    results = {wio.veh_name(case): interpolate_veh(case) for case in vehnums_to_run}
     df = pd.concat(
         results.values(),
         axis=0,
@@ -237,7 +235,7 @@ def test_interpolate_wot_on_v_grid(h5_accdb):
         verify_integrity=True,
     )
     assert df.index.names == ["vehicle", "v"]
-    assert (df.index.levels[0] == wio.veh_names(all_cases)).all()
+    assert (df.index.levels[0] == wio.veh_names(vehnums_to_run)).all()
     assert df.columns.names == ["item", "gear"]
     assert not (set("n Pwot ASM".split()) - set(df.columns.levels[0]))
     npt.assert_allclose(df.index.levels[1], invariants.vround(df.index.levels[1]))
