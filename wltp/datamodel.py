@@ -918,15 +918,7 @@ def validate_model(
         return errors
     else:
         for error in errors:
-            try:
-                raise error
-            except jsonschema.ValidationError as ex:
-                ## Attempt to workround BUG: https://github.com/Julian/jsonschema/issues/164
-                #
-                if isinstance(ex.instance, (NDFrame, ndarray)):
-                    ex.instance = "%s: %s" % (type(ex.instance), str(ex.instance))
-                    ex.instance = str(ex.instance)
-                raise
+            raise error
 
 
 def yield_load_curve_errors(mdl):
