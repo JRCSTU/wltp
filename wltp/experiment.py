@@ -319,9 +319,16 @@ class Experiment(object):
         merged_model = get_model_base()
         merge(merged_model, mdl)
         if not skip_validation:
-            datamodel.validate_model(
-                merged_model, validate_wltc_data=validate_wltc_data
+            errors = list(
+                datamodel.validate_model(
+                    merged_model,
+                    validate_wltc_data=validate_wltc_data,
+                    iter_errors=True,
+                )
             )
+            if errors:
+                err_msg = "\n  ".join(str(e) for e in errors)
+                raise ValueError(f"Model validation errors: {err_msg}")
         self._model = merged_model
 
     def driveability_report(self):
