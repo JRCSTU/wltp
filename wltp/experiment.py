@@ -93,18 +93,24 @@ class Experiment(object):
     See :mod:`wltp.experiment` for documentation.
     """
 
-    def __init__(self, mdl, skip_model_validation=False, validate_wltc_data=False):
+    def __init__(
+        self,
+        mdl,
+        skip_model_validation=False,
+        validate_wltc_data=False,
+        additional_properties=True,
+    ):
         """
         :param mdl:
             trees (formed by dicts & lists) holding the experiment data.
         :param skip_model_validation:
             when true, does not validate the model.
+        :param additional_properties:
+            when false; strict checks screams if unknown props in model
         """
 
         self._set_model(
-            mdl,
-            skip_validation=skip_model_validation,
-            validate_wltc_data=validate_wltc_data,
+            mdl, skip_model_validation, validate_wltc_data, additional_properties
         )
 
         self.wltc = self._model["wltc_data"]
@@ -313,7 +319,9 @@ class Experiment(object):
     def model(self):
         return self._model
 
-    def _set_model(self, mdl, skip_validation=False, validate_wltc_data=False):
+    def _set_model(
+        self, mdl, skip_validation, validate_wltc_data, additional_properties
+    ):
         from wltp.datamodel import get_model_base, merge
 
         merged_model = get_model_base()
@@ -323,6 +331,7 @@ class Experiment(object):
                 datamodel.validate_model(
                     merged_model,
                     validate_wltc_data=validate_wltc_data,
+                    additional_properties=additional_properties,
                     iter_errors=True,
                 )
             )
