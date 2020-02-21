@@ -566,7 +566,11 @@ def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
 
 
 def run_pyalgo_on_accdb_vehicle(
-    h5, vehnum, props_group_suffix="prop", pwot_group_suffix="wot"
+    h5,
+    vehnum,
+    additional_properties=False,
+    props_group_suffix="prop",
+    pwot_group_suffix="wot",
 ) -> Tuple[dict, pd.DataFrame, pd.DataFrame]:
     """
     Quick 'n dirty way to invoke python-algo (bc model will change).
@@ -583,7 +587,7 @@ def run_pyalgo_on_accdb_vehicle(
     props, wot, n2vs = load_vehicle_accdb(h5, vehnum)
 
     mdl = mdl_from_accdb(props, wot, n2vs)
-    datamodel.validate_model(mdl, additional_properties=True)
+    datamodel.validate_model(mdl, additional_properties=additional_properties)
     exp = Experiment(mdl, skip_model_validation=True)
     mdl = exp.run()
 
