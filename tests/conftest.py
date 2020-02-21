@@ -18,6 +18,9 @@ from tests import vehdb
 from wltp import io as wio
 
 
+log = logging.getLogger(__name__)
+
+
 def pytest_addoption(parser):
     parser.addoption(
         "--h5-write",
@@ -77,18 +80,23 @@ def _permatest_and_random_vehnums(h5_accdb):
         75,
         # Extensions
         117,
-        118,
         119,
-        120,
         121,
-        124,
         125,
     ]
     remain_vehs = all_vehs - set(permatest_vehs)
     sample_size = int(sample_ratio * len(remain_vehs))
     sample_vehs = random.sample(remain_vehs, sample_size)
 
-    return permatest_vehs + sample_vehs
+    run_vehs = permatest_vehs + sample_vehs
+    log.info(
+        "Sample-testing %s(%.1f%%) out of %s accdb vehicles (%.1f%% at random).",
+        len(run_vehs),
+        100 * len(run_vehs) / len(all_vehs),
+        len(all_vehs),
+        100 * sample_ratio,
+    )
+    return run_vehs
 
 
 @pytest.fixture
