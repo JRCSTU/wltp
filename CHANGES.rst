@@ -37,8 +37,7 @@ Known deficiencies
   or else no validation is possible.
 * Some extra sanity checks apply e.g. check if `p_rated` is "close enough" to `p_wot_max`,
   while others maybe missing.
-* n_min_drive does not yet accept array of values for G > 2 e.g. for `n_min_drive_up_start`.
-* The program structure is *convoluted* because it is assumed that its functions 
+* The program structure is *convoluted* because it is assumed that its functions
   will be called automatically by an automated framework based on data given & asked
   (see TODOs below).
 

@@ -462,7 +462,6 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
     not yet called :func:`~.datamodel.yield_n_min_errors()`.
 
     """
-    # TODO: accept ARRAY `n_min_drive`
     d = wio.pstep_factory.get()
 
     n_idle = inv.nround10(n_idle)

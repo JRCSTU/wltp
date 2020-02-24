@@ -958,8 +958,6 @@ def yield_load_curve_errors(mdl):
 
 def yield_n_min_errors(mdl):
     """
-    .. TODO::
-      Support ARRAY for `n_min_drive_up/down`.
     .. TODO:
       Validate min(Nwot) <= n_min_drive_set.
     """
