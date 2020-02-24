@@ -21,14 +21,16 @@ from typing import Union
 ## Emulate Py3.8 typing
 #
 try:
-    from typing import Final  # noqa  PY3.8+
+    from typing import Final  # type: ignore # PY3.8+ only
+    from typing import Literal  # type: ignore # PY3.8+ only
 except ImportError:
 
-    class _Final:
+    class _NoOp:
         def __getitem__(self, key):
             return key
 
-    Final = _Final()
+    Final = _NoOp()
+    Literal = _NoOp()
 
 
 def str2bool(v):

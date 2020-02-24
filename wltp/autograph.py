@@ -18,7 +18,7 @@ from boltons.iterutils import first
 from graphtik import optional, sideffect
 from graphtik.op import FunctionalOperation, reparse_operation_data
 
-from .utils import asdict, aslist, astuple, Token
+from .utils import Literal, Token, asdict, aslist, astuple
 
 log = logging.getLogger(__name__)
 
@@ -254,7 +254,7 @@ def autographed(
     **kws,
 ):
     """
-    Decorator to annotate a function with overrides for :class:`Autograph`.
+    Decorator adding ``_autograph`` func-attribute with overrides for :class:`Autograph`.
 
     The rest arguments coming from :class:`graphtik.operation`.
 
@@ -303,8 +303,10 @@ class Autograph(Prefkey):
     4. inspected from the callable
 
     :param out_prefixes:
-        if a function-name start with any of these prefixes, it is trimmed
-        and a single `provides` is derrived out of it.
+        If a function-name start with any of these prefixes,
+        it is trimmed by the first one matching, and a single `provides` is derrived
+        out of it, unless a `provides` is specified in the `overrides`.
+        Note that any `out_sideffects` in overrides, alone, do not block the rule above.
     :param overrides:
         a mapping of ``fn-keys --> dicts`` with keys::
 
@@ -326,10 +328,10 @@ class Autograph(Prefkey):
     >>> def calc_sum_ab(a, b=0):
     ...     return a + b
 
-    >>> aug = Autograph(out_prefixes=['calc_', 'upd_'])
+    >>> aug = Autograph(out_prefixes=['calc_', 'upd_'], renames={"a": "A"})
     >>> aug.wrap_fn(calc_sum_ab)
     FunctionalOperation(name='calc_sum_ab',
-                        needs=['a', optional('b')],
+                        needs=['A', optional('b')],
                         provides=['sum_ab'],
                         fn='calc_sum_ab')
 
@@ -352,7 +354,11 @@ class Autograph(Prefkey):
     def _from_overrides(self, key):
         return self.overrides and self._prefkey(self.overrides, key) or {}
 
-    def _apply_renames(self, rename_maps: Iterable[Mapping], word_lists: Iterable):
+    def _apply_renames(
+        self,
+        rename_maps: Iterable[Union[Mapping, Literal[_unset]]],
+        word_lists: Iterable,
+    ):
         """
         Rename words in all `word_lists` matching keys in `rename_maps`.
         """
@@ -380,7 +386,7 @@ class Autograph(Prefkey):
         renames=_unset,
         inp_sideffects=_unset,
         out_sideffects=_unset,
-    ):
+    ) -> FunctionalOperation:
         """
         Overriddes order: my-args, self.overrides, autograph-decorator, inspection
 
