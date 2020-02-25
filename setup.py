@@ -123,7 +123,7 @@ notebook_reqs = [
     "jupytext",
     "nb_black",
     "ipympl",
-    "qgrid",
+    "qgrid >=1.3.0",  # compatible with pandas 1.0+
     "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
     "columnize",
     "oct2py",
@@ -230,7 +230,7 @@ setup(
         "graphtik >=5.1.0",  # 5.1.0 ops accept named-dictionaries results.
         "jsonschema",
         "numpy",
-        "pandas <1.0.0",  # QGrid fails: https://travis-ci.org/ankostis/wltp/jobs/644039971
+        "pandas",
         "pandalone >=0.3",
         "ruamel.yaml",
         "scipy",
