@@ -241,6 +241,7 @@ _unset = Token("unset")  # TODO: replace `_unset` with ...
 
 
 def autographed(
+    fn=_unset,
     *,
     name=_unset,
     needs=_unset,
@@ -274,13 +275,17 @@ def autographed(
 
     """
     locs = locals()
-    kws.update({k: v for k, v in locs.items() if v is not _unset and k != "kws"})
+    kws.update(
+        {k: v for k, v in locs.items() if v is not _unset and k not in ("kws", "fn")}
+    )
 
     def decorator(fn):
         fn._autograph = {domain: kws}
         return fn
 
-    return decorator
+    if fn is _unset:
+        return decorator
+    return decorator(fn)
 
 
 def get_autograph_decors(fn, default=None, domain=None) -> dict:
