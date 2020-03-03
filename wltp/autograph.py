@@ -217,7 +217,7 @@ class FnHarvester(Prefkey):
                     for mb_name, member in inspect.getmembers(item, predicate=callable):
                         self._harvest(name_path + (mb_name,), item_path + (member,))
 
-    def harvest(self, *baseitems):
+    def harvest(self, *baseitems) -> List[Tuple[str, Callable]]:
         """
         :param baseitems:
             items with ``__name__``, like module, class, functions.
@@ -374,17 +374,17 @@ class Autograph(Prefkey):
 
         return word_lists
 
-    def _collect_rest_op_args(self, decors):
+    def _collect_rest_op_args(self, decors: dict):
         """Collect the rest operation arguments from `autographed` decoration."""
         # NOTE: append more arguments as graphtik lib evolves.
         rest_op_args = (
             "returns_dict aliases endured parallel marshalled node_props".split()
         )
-        return {k: v for k, v in decors if k in rest_op_args}
+        return {k: v for k, v in decors.items() if k in rest_op_args}
 
     def wrap_fn(
         self,
-        *fn_path,
+        fn_path,
         name_path=_unset,
         needs=_unset,
         provides=_unset,
@@ -398,7 +398,7 @@ class Autograph(Prefkey):
         :param fn_path:
             either a callable, or the path to a callable, like::
 
-                [module, [class, ...] callable
+                [module[, class, ...]] callable
 
         :param name_path:
             either a single string, or a tuple-of-strings, corresponding to
@@ -408,7 +408,7 @@ class Autograph(Prefkey):
         del args["self"], args["fn_path"]
         args.pop("name_path", None)
 
-        fn = astuple(fn_path, "fn_path")
+        fn_path = astuple(fn_path, None)
         fn = fn_path[-1]
         decors = get_autograph_decors(fn, {})
 
@@ -418,9 +418,8 @@ class Autograph(Prefkey):
         if name_path is _unset:
             name_path = decors.get("name", _unset)
             if name_path is _unset:
-                name = fn.__name__
-                name_path = (name,)
-        name_path = astuple(name_path, "name")
+                name_path = (fn.__name__,)
+        name_path = astuple(name_path, None)
         fn_name = str(name_path[-1])
 
         overrides = self._from_overrides(name_path)
@@ -471,7 +470,7 @@ class Autograph(Prefkey):
                     provides = [fn_name[len(matched_prefix) :]]
             if provides is _unset:
                 provides = ()
-        provides = aslist(provides, "provides", allowed_types=(list, tuple))
+        provides = aslist(provides, "provides")
 
         needs, provides = self._apply_renames(
             (renames, override_renames, self.renames), (needs, provides)
@@ -503,8 +502,8 @@ class Autograph(Prefkey):
     ...     'calc_p_resist': {'provides': 'p_resist'},
     ...     'calc_inertial_power': {'provides': 'p_inert'},
     ...      })
-    >>> ops = [aug.wrap_fn(name=name[-1], fn=fn) for name, fn in funcs]
-    >>> netop = compose('wltp')(*(op for op in ops if op.provides))
+    >>> ops = [aug.wrap_fn(fn, name[-1]) for name, fn in funcs]
+    >>> netop = compose('wltp', *(op for op in ops if op.provides))
     >>> dot = netop.plot('t.pdf')
 
 """
