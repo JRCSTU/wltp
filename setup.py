@@ -227,7 +227,8 @@ setup(
         "contextvars; python_version < '3.7'",
         "dataclasses; python_version < '3.7'",
         "boltons",
-        "graphtik >=5.1.0",  # 5.1.0 ops accept named-dictionaries results.
+        # 5.1.0 namedtuples results, 5.2.0+ map inputs-->args, 5.2.2 BugFixes.
+        "graphtik >=5.2.2",
         "jsonschema",
         "numpy",
         "pandas",
