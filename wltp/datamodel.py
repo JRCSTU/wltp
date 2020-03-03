@@ -300,55 +300,64 @@ properties:
     - number
     description: The driving resistance coefficient f2, in N/(km/h)² (Annex 4).
   n_min_drive1:
-    description: see Annex 2-2.k
+    description: "[1/min], see Annex 2-2.k, n_min for gear 1"
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive2_up:
-    description: see Annex 2-2.k
+    description: "[1/min], Annex 2-2.k"
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive2_stopdecel:
-    description: see Annex 2-2.k
+    description: "[1/min], Annex 2-2.k"
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive2:
-    description: see Annex 2-2.k
+    description: "[1/min], Annex 2-2.k"
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_set:
-    description: see Annex 2-2.k
+    description: |
+      [1/min], Annex 2-2.k,
+      calculated minimum engine speed for gears > 2:
+
+        n_min_drive = n_idle + 0.125 (n_rated - n_idle)
+
+      Do not override this, its value will be ignored.
+      Set higher values only into parameters n_min_drive_up/down.
+
+      Matlab call this `CalculatedMinDriveEngineSpeedGreater2nd`.
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_up:
-    description: see Annex 2-2.k
+    description: "[1/min], Annex 2-2.k"
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_up_start:
-    description: see Annex 2-2.k
+    description: "[1/min], Annex 2-2.k"
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_down:
-    description: see Annex 2-2.k
+    description: "[1/min], Annex 2-2.k"
     type:
     - number
     - 'null'
     exclusiveMinimum: 0
   n_min_drive_down_start:
-    description: see Annex 2-2.k
+    description: '[1/min], Annex 2-2.k'
     type:
     - number
     - 'null'
@@ -359,6 +368,7 @@ properties:
     - number
     - 'null'
     minimum: 0
+    default: 0
   wot:
     title: wide open throttle curves
     description: |2
