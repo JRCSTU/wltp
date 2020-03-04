@@ -64,7 +64,14 @@ class Token(str):
         return "T(%s)" % super().__str__()
 
 
-def aslist(i, argname, allowed_types=list):
+def aslist(i, argname: Union[str, None], allowed_types=list):
+    """
+    Converts iterables (except strings) into a list.
+
+    :param argname:
+        If string, it's used in the exception raised when `i` not an iterable.
+        If `None`, wraps non-iterables in a single-item list.
+    """
     if not i:
         return i if isinstance(i, allowed_types) else []
 
@@ -74,12 +81,21 @@ def aslist(i, argname, allowed_types=list):
         try:
             i = list(i)
         except Exception as ex:
+            if argname is None:
+                return [i]
             raise ValueError(f"Cannot list-ize {argname}({i!r}) due to: {ex}") from None
 
     return i
 
 
-def astuple(i, argname):
+def astuple(i, argname: Union[str, None]):
+    """
+    Converts iterables (except strings) into a tuple.
+
+    :param argname:
+        If string, it's used in the exception raised when `i` not an iterable.
+        If `None`, wraps non-iterables in a single-item tuple.
+    """
     if not i:
         return ()
 
@@ -89,6 +105,8 @@ def astuple(i, argname):
         try:
             i = tuple(i)
         except Exception as ex:
+            if argname is None:
+                return (i,)
             raise ValueError(
                 f"Cannot tuple-ize {argname}({i!r}) due to: {ex}"
             ) from None
@@ -96,7 +114,13 @@ def astuple(i, argname):
     return i
 
 
-def asdict(i, argname):
+def asdict(i, argname: str):
+    """
+    Converts iterables-of-pairs or just a pair-tuple into a dict.
+
+    :param argname:
+        Used in the exception raised when `i` not an iterable.
+    """
     if not i:
         return i if isinstance(i, dict) else {}
 
