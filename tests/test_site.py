@@ -73,3 +73,8 @@ def test_README_as_PyPi_landing_page(monkeypatch):
             "halt_level": 2  # 2=WARN, 1=INFO
         },
     )
+
+
+def test_sphinx_html():
+    # Fail on warnings, but don't rebuild all files (no `-a`),
+    subprocess.check_output("python setup.py build_sphinx -W".split(), cwd=proj_path)
