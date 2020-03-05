@@ -903,12 +903,10 @@ See also :ref:`architecture:Architecture`.
 
 .. |travis-status| image:: https://travis-ci.org/JRCSTU/wltp.svg
     :alt: Travis continuous integration testing ok? (Linux)
-    :scale: 100%
     :target: https://travis-ci.org/JRCSTU/wltp/builds
 
 .. |appveyor-status| image:: https://ci.appveyor.com/api/projects/status/0e2dcudyuku1w1gd?svg=true
     :alt: Appveyor continuous integration testing ok? (Windows)
-    :scale: 100%
     :target: https://ci.appveyor.com/project/JRCSTU/wltp
 
 .. |cover-status| image:: https://coveralls.io/repos/JRCSTU/wltp/badge.png?branch=master
@@ -916,7 +914,6 @@ See also :ref:`architecture:Architecture`.
 
 .. |docs-status| image:: https://readthedocs.org/projects/wltp/badge/
     :alt: Documentation status
-    :scale: 100%
     :target: https://readthedocs.org/projects/wltp/builds/
 
 .. |gh-version| image::  https://img.shields.io/github/v/release/JRCSTU/wltp.svg?label=GitHub%20release&include_prereleases

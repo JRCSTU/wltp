@@ -172,8 +172,9 @@ _wltc_url = "/wltc"
 @fnt.lru_cache()
 def _get_model_schema(additional_properties=False) -> dict:
     """
-    :param bool additional_properties: when False, 4rd-step(validation) will scream on any non-schema property found.
-    The json-schema(dict) for input/output of the WLTC experiment.
+    :param bool additional_properties:
+      when False, 4rd-step(validation) will scream on any non-schema property found.
+      The json-schema(dict) for input/output of the WLTC experiment.
 
     .. Note::
       Do not modify, or they will affect all future operations
