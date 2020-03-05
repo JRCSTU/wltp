@@ -135,6 +135,7 @@ test_reqs = notebook_reqs + [
     "coveralls",
     "openpyxl",  # for pandas to write excel-files
     "pytest",
+    "pytest-sphinx",
     "pytest-cov",
     "sphinx",
     "tables",  # pandas-IO for h5

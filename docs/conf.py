@@ -145,10 +145,6 @@ extensions = [
 
 autosectionlabel_prefix_document = True
 
-## Prevent Sphinx from doctesting python-modules doctests,
-# they will be checked separately with *pytest*.
-doctest_test_doctest_blocks = ""
-
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
