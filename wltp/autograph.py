@@ -223,17 +223,23 @@ class FnHarvester(Prefkey):
         else:
             pass  # partial?
 
-    def harvest(self, *baseitems) -> List[Tuple[str, Callable]]:
+    def harvest(self, *items: Any) -> List[Tuple[str, Callable]]:
         """
-        :param baseitems:
+        :param items:
             items with ``__name__``, like module, class, functions.
             If nothing is given, `attr:`baseModules` is used instead.
+
+            .. Note::
+                This parameter works differently from :attr:`base_modules`, that is,
+                harvesting is not limited to those modules only, recursing to
+                any imported ones from `items`.
+
         :return:
             the :attr:`collected`
         """
-        if not baseitems:
-            baseitems = self.base_modules
-        for bi in baseitems:
+        if not items:
+            items = self.base_modules  # type: ignore
+        for bi in items:
             self._harvest((bi.__name__,), (bi,))
 
         return self.collected
