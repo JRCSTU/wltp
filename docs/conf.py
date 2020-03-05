@@ -143,6 +143,11 @@ extensions = [
     "matplotlib.sphinxext.plot_directive",
 ]
 
+
+## Ensure literal pythoncode included in doctests,
+# for Sphinx-graphtik to work.
+doctest_test_doctest_blocks = "default"
+
 autosectionlabel_prefix_document = True
 
 # Add any paths that contain templates here, relative to this directory.
