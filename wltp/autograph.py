@@ -199,6 +199,7 @@ class FnHarvester(Prefkey):
         self.collected.append((name_path, item_path))
 
     def _harvest(self, name_path, item_path):
+        """Recursively collect modules, routines & classes,."""
         name = name_path[-1]
         item = item_path[-1]
 
@@ -210,13 +211,17 @@ class FnHarvester(Prefkey):
                 # Reset path on modules
                 self._harvest((item.__name__, mb_name), (item, member))
 
-        elif callable(item):
+        elif inspect.isroutine(item):
             self._collect(name_path, item_path)
 
-            if is_regular_class(name, item):
-                if self.include_methods:
-                    for mb_name, member in inspect.getmembers(item, predicate=callable):
-                        self._harvest(name_path + (mb_name,), item_path + (member,))
+        elif is_regular_class(name, item):
+            self._collect(name_path, item_path)
+            if self.include_methods:
+                # TIP: scavenge ideas from :class:`doctest.DocTestFinder`
+                for mb_name, member in inspect.getmembers(item, predicate=callable):
+                    self._harvest(name_path + (mb_name,), item_path + (member,))
+        else:
+            pass  # partial?
 
     def harvest(self, *baseitems) -> List[Tuple[str, Callable]]:
         """
