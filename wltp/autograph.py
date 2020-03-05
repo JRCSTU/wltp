@@ -88,7 +88,7 @@ class Prefkey:
 
 class FnHarvester(Prefkey):
     """
-    Collect callables, classes & their methods into ``collected`` attribute.
+    Collect public routines, classes & their methods into ``collected`` attribute.
 
     :param collected:
         a list of 2-tuples::
@@ -164,23 +164,24 @@ class FnHarvester(Prefkey):
         super().__init__(sep)
         if include_methods is not None:
             self.include_methods = bool(include_methods)
-        self._seen: Set = set()
+        self._seen: Set[int] = set()
         self.excludes = set(excludes or ())
         self.base_modules = set(base_modules or ())
         self.predicate = predicate
         self.collected: List[Tuple[str, Callable]] = []
 
     def is_harvestable(self, name_path, item):
+        """Exclude already-seen, private, user-excluded objects(by name or path). """
         name = name_path[-1]
         if (
             name.startswith("_")
+            or id(item) in self._seen
             or name in self.excludes
-            or item in self._seen
             or self._join_path_names(*name_path) in self.excludes
         ):
             return False
 
-        self._seen.add(item)
+        self._seen.add(id(item))
 
         return (
             (callable(item) or is_regular_class(name, item) or inspect.ismodule(item))
