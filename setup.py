@@ -228,8 +228,8 @@ setup(
         "contextvars; python_version < '3.7'",
         "dataclasses; python_version < '3.7'",
         "boltons",
-        # 5.1.0 namedtuples results, 5.2.0+ map inputs-->args, 5.2.2 BugFixes.
-        "graphtik >=5.2.2",
+        # 5.1.0 namedtuples results, 5.2.0 map inputs-->args, 5.2.2 BugFixes, 5.4 Sphinx
+        "graphtik >=5.4.0",
         "jsonschema",
         "numpy",
         "pandas",
