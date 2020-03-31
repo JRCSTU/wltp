@@ -15,7 +15,7 @@
     contribute
     CHANGES
     faq
-    indices
+    genindex
 
 .. include:: ../README.rst
     :start-after: _begin-replacements:

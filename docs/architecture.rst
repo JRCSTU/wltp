@@ -2,6 +2,9 @@
     :start-after: _architecture:
     :end-before: _begin-annex:
 
+.. include:: ../README.rst
+    :start-after: _begin-glossary:
+    :end-before: _begin-replacements:
 
 Discussion
 ----------
