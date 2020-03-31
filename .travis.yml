@@ -43,12 +43,6 @@ script:
             echo "+++ Checking only TCs....";
             pytest
         fi
-    - |
-        if [[ "$TRAVIS_PYTHON_VERSION" = '3.8' ]]; then
-            echo "+++ Checking site...."
-            pip install -e .[doc]
-            python setup.py build_sphinx
-        fi
 
     - |
         echo "+++ Checking install...."

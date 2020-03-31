@@ -128,20 +128,24 @@ notebook_reqs = [
     "columnize",
     "oct2py",
 ]
-test_reqs = notebook_reqs + [
-    "docutils",
-    "docopt",
-    "matplotlib",
-    "coveralls",
-    "openpyxl",  # for pandas to write excel-files
-    "pytest",
-    "pytest-sphinx",
-    "pytest-cov",
-    "sphinx",
-    "tables",  # pandas-IO for h5
-    "readme-renderer",  # for PyPi landing-page check
-    "wheel",
-]
+test_reqs = (
+    notebook_reqs
+    + doc_reqs
+    + [
+        "docutils",
+        "docopt",
+        "matplotlib",
+        "coveralls",
+        "openpyxl",  # for pandas to write excel-files
+        "pytest",
+        "pytest-sphinx",
+        "pytest-cov",
+        "sphinx",
+        "tables",  # pandas-IO for h5
+        "readme-renderer",  # for PyPi landing-page check
+        "wheel",
+    ]
+)
 dev_reqs = (
     test_reqs
     + doc_reqs

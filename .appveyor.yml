@@ -2,9 +2,8 @@
 # This file was based on Olivier Grisel's python-appveyor-demo
 
 environment:
-
     matrix:
-         # a sampling of
+        # a sampling of
         - PYTHON: "C:\\Python37-x64"
           PYTHON_VERSION: "3.7"
           PYTHON_ARCH: "64"
@@ -35,7 +34,6 @@ install:
 
     - pip --disable-pip-version-check install -e .[test]
 
-
     # - "python setup.py develop" ## NO, pip installed in "develop' mode, above.
     - python setup.py build
     - ps: ./Notebooks/recreate_ipynbs.sh
@@ -46,13 +44,7 @@ test_script:
     # To create `pyalgo.h5` file.
     - pytest -m slow --h5-write
 
-    - |
-        echo "+++ Checking TCs..."
-        pytest
-    -   IF "%PYTHON_VERSION%"=="3.7" (
-            echo "+++ Checking site...." &
-            python setup.py build_sphinx
-        )
+    - pytest
 
     - |
         echo "+++  Checking archives for PyPI repo..."

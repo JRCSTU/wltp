@@ -12,6 +12,7 @@ import re
 import subprocess
 import sys
 
+import pytest
 from readme_renderer import rst
 
 import wltp
@@ -94,6 +95,7 @@ class _WarningStream:
         )
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="assume build on py3.8 only")
 def test_README_as_PyPi_landing_page(monkeypatch):
     """Not executing `setup.py build-sphinx` to control log/stderr visibility with pytest"""
     long_desc = subprocess.check_output(
@@ -113,6 +115,7 @@ def test_README_as_PyPi_landing_page(monkeypatch):
         raise AssertionError(str(err_stream))
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="assume build on py3.8 only")
 def test_sphinx_html():
     # Fail on warnings, but don't rebuild all files (no `-a`),
     subprocess.check_output("python setup.py build_sphinx -W".split(), cwd=proj_path)
