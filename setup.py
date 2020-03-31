@@ -139,7 +139,7 @@ test_reqs = notebook_reqs + [
     "pytest-cov",
     "sphinx",
     "tables",  # pandas-IO for h5
-    "twine",  # for PyPi long-description check
+    "readme-renderer",  # for PyPi landing-page check
     "wheel",
 ]
 dev_reqs = (

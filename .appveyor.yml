@@ -53,9 +53,6 @@ test_script:
             echo "+++ Checking site...." &
             python setup.py build_sphinx
         )
-    - ps: |
-        echo "+++ Checking README for PyPi...."
-        bin\check_readme.ps1
 
     - |
         echo "+++  Checking archives for PyPI repo..."
