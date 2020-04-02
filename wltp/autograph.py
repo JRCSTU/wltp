@@ -8,9 +8,11 @@
 import inspect
 import logging
 import re
+import sys
 from collections import ChainMap
 from inspect import Parameter
 from pathlib import Path
+from types import ModuleType
 from typing import Any, Callable, Iterable, List, Mapping, Set, Tuple, Union
 
 from boltons.iterutils import first
@@ -107,6 +109,7 @@ class FnHarvester(Prefkey):
         names to exclude;  they can/be/prefixed or not
     :param base_modules:
         skip function/classes not in these modules; if not given, include all items.
+        If string, they are searched in :data:`sys.modules`.
     :param predicate:
         any user callable accepting a single argument returning falsy to exclude
         the visited item
@@ -156,7 +159,7 @@ class FnHarvester(Prefkey):
         self,
         *,
         excludes: Iterable[_FnKey] = None,
-        base_modules: Iterable = None,
+        base_modules: Iterable[Union[ModuleType, str]] = None,
         predicate: Callable[[Any], bool] = None,
         include_methods=True,
         sep=None,
@@ -166,7 +169,9 @@ class FnHarvester(Prefkey):
             self.include_methods = bool(include_methods)
         self._seen: Set[int] = set()
         self.excludes = set(excludes or ())
-        self.base_modules = set(base_modules or ())
+        self.base_modules = set(
+            sys.modules[m] if isinstance(m, str) else m for m in (base_modules or ())
+        )
         self.predicate = predicate
         self.collected: List[Tuple[str, Callable]] = []
 
