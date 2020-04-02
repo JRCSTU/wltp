@@ -7,8 +7,8 @@ Tests, Metrics & Reports
 .. Attention::
     This section is very outdated (late 2014)!
     It will be re-written based on :term:`jupyter notebook`\s.
-    
-    For now, launch the demo server(|binder|), open & run the :file:`CarsDB-compare.ipynb` notebook,
+
+    For now, launch the |binder| demo server, open & run :file:`CarsDB-compare.ipynb` notebook,
     and start comparing vehicles between *AccDB* <--> *PyAlgo*, *interactively*:
 
     .. image:: docs/_static/CompareSignals.png

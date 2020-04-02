@@ -88,10 +88,7 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
 
 I do not have python / cannot install it.  Is it possible to try a *demo*?
 --------------------------------------------------------------------------
-Launch it in a binder server by clicking the respective badge at the top of
-the landing of the project.
-
-.. image:: docs/_static/BinderLink.png
+Launch it in a binder server by clicking the |binder| badg.
 
 
 Discussion
@@ -113,3 +110,6 @@ Discussion
         })();
     </script>
     <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+.. include:: ../README.rst
+    :start-after: _begin-replacements:
