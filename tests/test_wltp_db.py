@@ -167,8 +167,8 @@ def _file_pairs(fname_glob):
 
     Example:
 
-    >>> for (veh_num, df_g, df_h) in _file_pairs('wltp_db_vehicles-00*.csv'):
-    ...     pass
+    for (veh_num, df_g, df_h) in _file_pairs('wltp_db_vehicles-00*.csv'):
+        pass
     """
 
     all_gened = sorted(glob.glob(fname_glob))
