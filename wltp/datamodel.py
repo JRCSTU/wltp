@@ -9,6 +9,10 @@
 Defines schema, defaults and validations for data consumed/produced by :class:`~.experiment.Experiment`.
 
 The datamodel-instance is managed by :class:`pandel.Pandel`.
+
+.. testsetup::
+
+  from wltp.datamodel import *
 """
 
 import copy

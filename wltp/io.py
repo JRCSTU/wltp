@@ -5,7 +5,13 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""utilities for starting-up, parsing, naming, indexing and spitting out data"""
+"""
+utilities for starting-up, parsing, naming, indexing and spitting out data
+
+.. testsetup::
+
+  from wltp.io import *
+"""
 import contextvars
 import dataclasses
 import itertools as itt
