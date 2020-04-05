@@ -16,7 +16,6 @@ from wltp import cycler, datamodel, engine
 from wltp import io as wio
 from wltp import vehicle
 from wltp.cycler import CycleBuilder, PhaseMarker
-from wltp.vehicle import calc_default_resistance_coeffs
 
 
 @pytest.fixture
