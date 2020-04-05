@@ -28,8 +28,6 @@ log = logging.getLogger(__name__)
 
 
 def test_smoke1():
-    logging.getLogger().setLevel(logging.DEBUG)
-
     test_mass = 1577.3106
     p_rated = 78.6340
     v_max = 186.4861

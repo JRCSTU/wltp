@@ -17,7 +17,6 @@ from wltp import experiment
 
 from . import vehdb
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 

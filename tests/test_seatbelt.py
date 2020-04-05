@@ -13,7 +13,6 @@ import pandas as pd
 
 from . import vehdb
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 

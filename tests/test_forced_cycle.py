@@ -25,9 +25,6 @@ except ImportError:
 
 
 class TestForcedCycle(unittest.TestCase):
-    def setUp(self):
-        logging.basicConfig(level=logging.DEBUG)
-
     def test_badCycle(self):
         mdl = goodVehicle()
         mdl["cycle"] = 1
