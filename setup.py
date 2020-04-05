@@ -117,7 +117,7 @@ download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_v
 
 plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
-doc_reqs = ["sphinx>=1.2", "matplotlib"]  # for comparisons
+doc_reqs = ["sphinx>=1.2", "matplotlib", "graphtik[sphinx] >=5.7.0"]  # for comparisons
 notebook_reqs = [
     "papermill",
     "jupytext",
@@ -148,7 +148,6 @@ test_reqs = (
 )
 dev_reqs = (
     test_reqs
-    + doc_reqs
     + plot_reqs
     + excel_reqs
     + [
@@ -232,8 +231,9 @@ setup(
         "contextvars; python_version < '3.7'",
         "dataclasses; python_version < '3.7'",
         "boltons",
-        # 5.1.0 namedtuples results, 5.2.0 map inputs-->args, 5.2.2 BugFixes, 5.4 Sphinx
-        "graphtik >=5.4.0",
+        # 5.1.0 namedtuples results, 5.2.0 map inputs-->args,
+        # 5.2.2 BugFixes, 5.4 Sphinx, 5.6 check_if_incomplete(), 5.7 FIX sphinx
+        "graphtik >=5.7.0",
         "jsonschema",
         "numpy",
         "pandas",

@@ -15,6 +15,7 @@
 
 import re
 import sys, os, io
+import doctest
 
 print("python exec: %s" % sys.executable)
 print("sys.path: %s" % sys.path)
@@ -141,12 +142,17 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.autosectionlabel",
     "matplotlib.sphinxext.plot_directive",
+    "graphtik.sphinxext",
 ]
 
 
-## Ensure literal pythoncode included in doctests,
+## Ensure literal python code included in doctests,
 # for Sphinx-graphtik to work.
 doctest_test_doctest_blocks = "default"
+# Need functional doctests for graphtik-directive to work ok.
+doctest_default_flags = (
+    doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS | doctest.REPORT_NDIFF
+)
 
 autosectionlabel_prefix_document = True
 

@@ -13,6 +13,7 @@ The core of the simulator is composed from the following modules:
     vehicle
     vmax
     downscale
+    nmindrive
     invariants
     io
     utils
@@ -59,6 +60,11 @@ Module: :mod:`wltp.vmax`
 Module: :mod:`wltp.downscale`
 -----------------------------
 .. automodule:: wltp.downscale
+    :members:
+
+Module: :mod:`wltp.nmindrive`
+-----------------------------
+.. automodule:: wltp.nmindrive
     :members:
 
 Module: :mod:`wltp.invariants`

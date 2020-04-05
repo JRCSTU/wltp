@@ -140,6 +140,7 @@ class FnHarvester(Prefkey):
     ...     "timelens "
     ... ).split()
     >>> funcs = FnHarvester(
+    ...     include_methods=True,
     ...     excludes=(excludes),
     ...     base_modules=modules
     ... ).harvest()
@@ -161,7 +162,7 @@ class FnHarvester(Prefkey):
         excludes: Iterable[_FnKey] = None,
         base_modules: Iterable[Union[ModuleType, str]] = None,
         predicate: Callable[[Any], bool] = None,
-        include_methods=True,
+        include_methods=False,
         sep=None,
     ):
         super().__init__(sep)
