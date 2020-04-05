@@ -201,6 +201,61 @@ def test_identify_wltc_checksums(indexer, exp):
     assert cycles.identify_cycle_v(V.loc[indexer]) == exp
 
 
+def _checkModel_invalid(mdl):
+    ex = jsonschema.ValidationError
+    try:
+        with pytest.raises(ex):
+            datamodel.validate_model(mdl, iter_errors=False)
+        errs = list(datamodel.validate_model(mdl, iter_errors=True))
+        assert len(errs) > 0
+        with pytest.raises(ex):
+            datamodel.validate_model(mdl, additional_properties=False)
+        with pytest.raises(ex):
+            datamodel.validate_model(mdl, additional_properties=True)
+        errs = list(
+            datamodel.validate_model(mdl, iter_errors=True, additional_properties=True)
+        )
+        assert len(errs) > 0
+        errs = list(
+            datamodel.validate_model(mdl, iter_errors=True, additional_properties=False)
+        )
+        assert len(errs) > 0
+        with pytest.raises(ex):
+            datamodel.validate_model(
+                mdl, iter_errors=False, additional_properties=True,
+            )
+        with pytest.raises(ex):
+            datamodel.validate_model(
+                mdl, iter_errors=False, additional_properties=False,
+            )
+    except:
+        print("Model failed: ", mdl)
+        raise
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        None,
+        [],
+        {},
+        [[1, 2, 3], [4, 5, 6]],
+        np.array([[1, 2, 3], [4, 5, 6]]),
+        pd.DataFrame({"speed": [10, 11, 12], "foo": [1, 2, 3]}),
+        pd.DataFrame({"velocity": [100, 200, 300], "alt": [0, 1, 0]}),
+        #             pd.Series([5,6,'a']),
+    ],
+)
+def testFullLoadCurve_invalid(case):
+    import numpy as np
+    import pandas as pd
+
+    mdl = datamodel.get_model_base()
+    mdl = datamodel.merge(datamodel.get_model_base(), mdl)
+    mdl["wot"] = case
+    _checkModel_invalid(mdl)
+
+
 class InstancesTest(unittest.TestCase):
     def setUp(self):
         self.goodVehicle_jsonTxt = """{
@@ -247,46 +302,7 @@ class InstancesTest(unittest.TestCase):
             raise
 
     def checkModel_invalid(self, mdl):
-        ex = jsonschema.ValidationError
-        try:
-            self.assertRaises(ex, datamodel.validate_model, mdl, iter_errors=False)
-            errs = list(datamodel.validate_model(mdl, iter_errors=True))
-            self.assertGreater(len(errs), 0, errs)
-            self.assertRaises(
-                ex, datamodel.validate_model, mdl, additional_properties=False
-            )
-            self.assertRaises(
-                ex, datamodel.validate_model, mdl, additional_properties=True
-            )
-            errs = list(
-                datamodel.validate_model(
-                    mdl, iter_errors=True, additional_properties=True
-                )
-            )
-            self.assertGreater(len(errs), 0, errs)
-            errs = list(
-                datamodel.validate_model(
-                    mdl, iter_errors=True, additional_properties=False
-                )
-            )
-            self.assertGreater(len(errs), 0, errs)
-            self.assertRaises(
-                ex,
-                datamodel.validate_model,
-                mdl,
-                iter_errors=False,
-                additional_properties=True,
-            )
-            self.assertRaises(
-                ex,
-                datamodel.validate_model,
-                mdl,
-                iter_errors=False,
-                additional_properties=False,
-            )
-        except:
-            print("Model failed: ", mdl)
-            raise
+        _checkModel_invalid(mdl)
 
     def test_validate_wltc_data(self):
         mdl = datamodel.get_model_base()
@@ -378,27 +394,6 @@ class InstancesTest(unittest.TestCase):
 
         validator = datamodel.model_validator()
         validator.validate(mdl)
-
-    def testFullLoadCurve_invalid(self):
-        import numpy as np
-        import pandas as pd
-
-        cases = [
-            None,
-            [],
-            {},
-            [[1, 2, 3], [4, 5, 6]],
-            np.array([[1, 2, 3], [4, 5, 6]]),
-            pd.DataFrame({"speed": [10, 11, 12], "foo": [1, 2, 3]}),
-            pd.DataFrame({"velocity": [100, 200, 300], "alt": [0, 1, 0]}),
-            #             pd.Series([5,6,'a']),
-        ]
-
-        for c in cases:
-            mdl = datamodel.get_model_base()
-            mdl = datamodel.merge(datamodel.get_model_base(), mdl)
-            mdl["wot"] = c
-            self.checkModel_invalid(mdl)
 
     def test_default_resistance_coeffs_missing(self):
         mdl = goodVehicle()
