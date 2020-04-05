@@ -670,25 +670,23 @@ def run_cycle(
     #
     n_range = n_rated - n_idle
 
-    f_n_max = mdl.get("f_n_max", 1.2)
+    f_n_max = mdl["f_n_max"]
     n_max = n_idle + f_n_max * n_range
 
     if n_min_drive is None:
-        f_n_min = mdl.get("f_n_min", 0.125)
+        f_n_min = mdl["f_n_min"]
         n_min_drive = n_idle + f_n_min * n_range
 
-    f_n_min_gear2 = mdl.get("f_n_min_gear2", 0.9)
+    f_n_min_gear2 = mdl["f_n_min_gear2"]
     n_min_gear2 = f_n_min_gear2 * n_idle
 
-    f_n_clutch_gear2 = mdl.get("f_n_clutch_gear2", [1.15, 0.03])
+    f_n_clutch_gear2 = mdl["f_n_clutch_gear2"]
     n_clutch_gear2 = max(
         f_n_clutch_gear2[0] * n_idle, f_n_clutch_gear2[1] * n_range + n_idle
     )
 
-    p_safety_margin = mdl.get("f_safety_margin", 0.1)  # TODO: model-defaulter
-    v_stopped_threshold = mdl.get(
-        "v_stopped_threshold", 1
-    )  # Km/h,   # TODO: model-defaulter
+    p_safety_margin = mdl["f_safety_margin"]
+    v_stopped_threshold = mdl["v_stopped_threshold"]
 
     (_N_GEARS, _GEARS, _GEAR_RATIOS) = calcEngineRevs_required(
         V, gear_ratios, n_idle, v_stopped_threshold

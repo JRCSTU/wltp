@@ -139,21 +139,6 @@ The :term:`JSON-schema` of the data for this project:
     title: Json-schema describing the input for a WLTC simulator.
     type: object
     additionalProperties: false
-    required:
-    - test_mass
-    - p_rated
-    - n_rated
-    - n_idle
-    - gear_ratios
-    - wot
-    - driver_mass
-    - v_stopped_threshold
-    - f_inertial
-    - f_safety_margin
-    - f_n_min
-    - f_n_min_gear2
-    - f_n_clutch_gear2
-    - wltc_data
     description: The vehicle attributes required for generating the WLTC velocity-profile
       downscaling and gear-shifts.
     properties:
@@ -166,7 +151,6 @@ The :term:`JSON-schema` of the data for this project:
         title: vehicle unladen mass
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
         description: The mass (kg) of the vehicle without the driver, used to decide its
           class, as defined in Annex-4
@@ -179,21 +163,18 @@ The :term:`JSON-schema` of the data for this project:
         title: maximum vehicle velocity
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
         description: (OUT) The calculated maximum velocity, as defined in Annex 2-2.i.
       n_vmax:
         title: engine speed for maximum vehicle velocity
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
         description: (OUT) The engine speed for `v_max`.
       g_vmax:
         title: gear for maximum vehicle velocity
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
         description: (OUT) The gear for achieving `v_max`.
       p_rated:
@@ -216,7 +197,6 @@ The :term:`JSON-schema` of the data for this project:
         type:
         - array
         - number
-        - 'null'
         description: |
           Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
           or an array with the exact `n_min` for each gear (array must have length equal to gears).
@@ -252,25 +232,21 @@ The :term:`JSON-schema` of the data for this project:
         description: '[1/min], see Annex 2-2.k, n_min for gear 1'
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       n_min_drive2_up:
         description: '[1/min], Annex 2-2.k'
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       n_min_drive2_stopdecel:
         description: '[1/min], Annex 2-2.k'
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       n_min_drive2:
         description: '[1/min], Annex 2-2.k'
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       n_min_drive_set:
         description: |
@@ -285,37 +261,31 @@ The :term:`JSON-schema` of the data for this project:
           Matlab call this `CalculatedMinDriveEngineSpeedGreater2nd`.
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       n_min_drive_up:
         description: '[1/min], Annex 2-2.k'
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       n_min_drive_up_start:
         description: '[1/min], Annex 2-2.k'
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       n_min_drive_down:
         description: '[1/min], Annex 2-2.k'
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       n_min_drive_down_start:
         description: '[1/min], Annex 2-2.k'
         type:
         - number
-        - 'null'
         exclusiveMinimum: 0
       t_cold_end:
         description: see Annex 2-2.k about n_mins
         type:
         - number
-        - 'null'
         minimum: 0
         default: 0
       wot:
@@ -390,13 +360,11 @@ The :term:`JSON-schema` of the data for this project:
           happens.
         type:
         - number
-        - 'null'
         default: 0.01
       f_downscale_decimals:
         title: Downscale-factor rounding decimals
         type:
         - number
-        - 'null'
         default: 3
       driver_mass:
         title: Driver's mass (kg)
@@ -406,41 +374,35 @@ The :term:`JSON-schema` of the data for this project:
               Unladen_mass = Test_mass - driver_mass
         type:
         - number
-        - 'null'
         default: 75
       v_stopped_threshold:
         description: Velocity (km/h) under which (<=) to idle gear-shift (Annex 2-3.3,
           p71).
         type:
         - number
-        - 'null'
         default: 1
       f_inertial:
         description: This is the `kr` inertial-factor used in the 2nd part of the formula
           for calculating required-power (Annex 2-3.1).
         type:
         - number
-        - 'null'
         default: 1.03
       f_safety_margin:
         description: |
           Safety-margin(SM) factor for load-curve (Annex 2-3.4).
         type:
         - number
-        - 'null'
         default: 0.1
       f_n_min:
         description: For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
           `n_min` overridden by manufacturer)
         type:
         - number
-        - 'null'
         default: 0.125
       f_n_min_gear2:
         description: Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.
         type:
         - number
-        - 'null'
         default: 0.9
       f_n_clutch_gear2:
         description: |
@@ -449,7 +411,6 @@ The :term:`JSON-schema` of the data for this project:
           unless "clutched"...
         type:
         - array
-        - 'null'
         default:
         - 1.15
         - 0.03
@@ -486,4 +447,23 @@ The :term:`JSON-schema` of the data for this project:
         type: array
         items:
           $ref: '#/definitions/positiveNumber'
+    # Must follow `properties` due to `autoRemoveNull`.
+    required:
+    - f0
+    - f1
+    - f2
+    - test_mass
+    - p_rated
+    - n_rated
+    - n_idle
+    - gear_ratios
+    - wot
+    - driver_mass
+    - v_stopped_threshold
+    - f_inertial
+    - f_safety_margin
+    - f_n_min
+    - f_n_min_gear2
+    - f_n_clutch_gear2
+    - wltc_data
     <BLANKLINE>

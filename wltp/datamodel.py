@@ -30,8 +30,9 @@ import numpy as np
 import pandas as pd
 from jsonschema import RefResolver, ValidationError
 from numpy import ndarray
-from pandalone.pandata import PandelVisitor
 from pandas.core.generic import NDFrame
+
+from pandalone.pandata import PandelVisitor
 
 from . import engine
 from . import io as wio
@@ -58,7 +59,7 @@ def get_model_base() -> dict:
     :return: a tree with the default values for the experiment.
     """
 
-    instance = {
+    instance: dict = {
         "unladen_mass": None,
         "test_mass": None,
         "p_rated": None,
@@ -66,15 +67,6 @@ def get_model_base() -> dict:
         "n_idle": None,
         "n_min": None,
         "gear_ratios": [],
-        "f_downscale_threshold": 0.01,
-        "f_downscale_decimals": 3,
-        "driver_mass": 75,  # kg
-        "v_stopped_threshold": 1,  # km/h, <=
-        "f_inertial": 1.03,
-        "f_safety_margin": 0.1,
-        "f_n_min": 0.125,
-        "f_n_min_gear2": 0.9,
-        "f_n_clutch_gear2": [1.15, 0.03],
         "wltc_data": get_wltc_data(),
     }
 
@@ -190,21 +182,6 @@ $id: {_model_url}
 title: Json-schema describing the input for a WLTC simulator.
 type: object
 additionalProperties: {additional_properties}
-required:
-- test_mass
-- p_rated
-- n_rated
-- n_idle
-- gear_ratios
-- wot
-- driver_mass
-- v_stopped_threshold
-- f_inertial
-- f_safety_margin
-- f_n_min
-- f_n_min_gear2
-- f_n_clutch_gear2
-- wltc_data
 description:
   The vehicle attributes required for generating the WLTC velocity-profile
   downscaling and gear-shifts.
@@ -218,7 +195,6 @@ properties:
     title: vehicle unladen mass
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
     description:
       The mass (kg) of the vehicle without the driver, used to decide its class,
@@ -233,21 +209,18 @@ properties:
     title: maximum vehicle velocity
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
     description: (OUT) The calculated maximum velocity, as defined in Annex 2-2.i.
   n_vmax:
     title: engine speed for maximum vehicle velocity
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
     description: (OUT) The engine speed for `v_max`.
   g_vmax:
     title: gear for maximum vehicle velocity
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
     description: (OUT) The gear for achieving `v_max`.
   p_rated:
@@ -271,7 +244,6 @@ properties:
     type:
     - array
     - number
-    - 'null'
     description: |2
       Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
       or an array with the exact `n_min` for each gear (array must have length equal to gears).
@@ -308,25 +280,21 @@ properties:
     description: "[1/min], see Annex 2-2.k, n_min for gear 1"
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   n_min_drive2_up:
     description: "[1/min], Annex 2-2.k"
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   n_min_drive2_stopdecel:
     description: "[1/min], Annex 2-2.k"
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   n_min_drive2:
     description: "[1/min], Annex 2-2.k"
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   n_min_drive_set:
     description: |
@@ -341,37 +309,31 @@ properties:
       Matlab call this `CalculatedMinDriveEngineSpeedGreater2nd`.
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   n_min_drive_up:
     description: "[1/min], Annex 2-2.k"
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   n_min_drive_up_start:
     description: "[1/min], Annex 2-2.k"
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   n_min_drive_down:
     description: "[1/min], Annex 2-2.k"
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   n_min_drive_down_start:
     description: '[1/min], Annex 2-2.k'
     type:
     - number
-    - 'null'
     exclusiveMinimum: 0
   t_cold_end:
     description: see Annex 2-2.k about n_mins
     type:
     - number
-    - 'null'
     minimum: 0
     default: 0
   wot:
@@ -449,13 +411,11 @@ properties:
       happens.
     type:
     - number
-    - 'null'
     default: 0.01
   f_downscale_decimals:
     title: Downscale-factor rounding decimals
     type:
     - number
-    - 'null'
     default: 3
   driver_mass:
     title: Driver's mass (kg)
@@ -465,13 +425,11 @@ properties:
           Unladen_mass = Test_mass - driver_mass
     type:
     - number
-    - 'null'
     default: 75
   v_stopped_threshold:
     description: Velocity (km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).
     type:
     - number
-    - 'null'
     default: 1
   f_inertial:
     description:
@@ -479,14 +437,12 @@ properties:
       formula for calculating required-power (Annex 2-3.1).
     type:
     - number
-    - 'null'
     default: 1.03
   f_safety_margin:
     description: |2
       Safety-margin(SM) factor for load-curve (Annex 2-3.4).
     type:
     - number
-    - 'null'
     default: 0.1
   f_n_min:
     description:
@@ -494,13 +450,11 @@ properties:
       `n_min` overridden by manufacturer)
     type:
     - number
-    - 'null'
     default: 0.125
   f_n_min_gear2:
     description: Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.
     type:
     - number
-    - 'null'
     default: 0.9
   f_n_clutch_gear2:
     description: |2
@@ -509,7 +463,6 @@ properties:
       unless "clutched"...
     type:
     - array
-    - 'null'
     default:
     - 1.15
     - 0.03
@@ -546,6 +499,25 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/positiveNumber'
+# Must follow `properties` due to `autoRemoveNull`.
+required:
+- f0
+- f1
+- f2
+- test_mass
+- p_rated
+- n_rated
+- n_idle
+- gear_ratios
+- wot
+- driver_mass
+- v_stopped_threshold
+- f_inertial
+- f_safety_margin
+- f_n_min
+- f_n_min_gear2
+- f_n_clutch_gear2
+- wltc_data
     """
     )
 
@@ -590,11 +562,6 @@ definitions:
     title: WLTC class data
     type: object
     additionalProperties: false
-    required:
-    - pmr_limits
-    - parts
-    - downscale
-    - v_cycle
     properties:
       pmr_limits:
         title: PMR (low, high]
@@ -622,10 +589,6 @@ definitions:
       downscale:
         type: object
         additionalProperties: false
-        required:
-        - phases
-        - p_max_values
-        - factor_coeffs
         properties:
           phases:
             type: array
@@ -658,6 +621,10 @@ definitions:
             - a
           factor_coeffs:
             type: array
+        required:
+        - phases
+        - p_max_values
+        - factor_coeffs
       checksum:
         type: number
       part_checksums:
@@ -669,6 +636,11 @@ definitions:
         items:
           type: number
         minItems: 906
+    required:
+    - pmr_limits
+    - parts
+    - downscale
+    - v_cycle
     """
     )
 
@@ -856,7 +828,7 @@ def merge(a, b, path=[]):
 
 def model_validator(
     additional_properties=False, validate_wltc_data=False, validate_schema=False
-):
+) -> PandelVisitor:
     ## NOTE: Using non-copied (mode, wltc)-schemas,
     #  since we are certain they will not be modified here.
     #
@@ -866,7 +838,13 @@ def model_validator(
     )  ## Do not supply wltc schema, for speedup.
     resolver = RefResolver(_model_url, schema, store={_wltc_url: wltc_schema})
 
-    validator = PandelVisitor(schema, resolver=resolver)
+    validator = PandelVisitor(
+        schema,
+        resolver=resolver,
+        auto_default=True,
+        auto_default_nulls=True,
+        auto_remove_nulls=True,
+    )
     if validate_schema:
         # See https://github.com/Julian/jsonschema/issues/268
         stricter_metaschema = dict(validator.META_SCHEMA, additionalProperties=False)

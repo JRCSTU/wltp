@@ -237,7 +237,7 @@ setup(
         "jsonschema",
         "numpy",
         "pandas",
-        "pandalone >=0.3",
+        "pandalone >=0.4",  # Pandel auto-nulls
         "ruamel.yaml",
         "scipy",
         "toolz",

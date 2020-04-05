@@ -236,7 +236,6 @@ def _checkModel_invalid(mdl):
 @pytest.mark.parametrize(
     "case",
     [
-        None,
         [],
         {},
         [[1, 2, 3], [4, 5, 6]],
@@ -404,7 +403,7 @@ class InstancesTest(unittest.TestCase):
         mdl = goodVehicle()
         mdl["f0"] = mdl["f1"] = mdl["f1"] = None
         mdl = datamodel.merge(datamodel.get_model_base(), mdl)
-        with pytest.raises(ValidationError, match="None is not of type 'number'"):
+        with pytest.raises(ValidationError, match="'f0' is a required property"):
             self.checkModel_valid(mdl)
 
 
