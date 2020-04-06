@@ -32,9 +32,9 @@ install:
         python --version
         python -c "import struct; print(struct.calcsize('P') * 8)"
 
-    - pip --disable-pip-version-check install -e .[test]
+    - pip install -e .[test]
     # pip fails to install `pydot `from graphtik's extras (report to https://github.com/pypa/pip#988)
-    - pip --disable-pip-version-check install graphtik[sphinx]
+    - pip install graphtik[sphinx]
 
     # - "python setup.py develop" ## NO, pip installed in "develop' mode, above.
     - python setup.py build
