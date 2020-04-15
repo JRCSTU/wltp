@@ -240,3 +240,17 @@ def ctxtvar_redefined(var: contextvars.ContextVar, value):
         yield value
     finally:
         var.reset(token)
+
+
+@contextlib.contextmanager
+def pwd_changed(path: os.PathLike):
+    """Temporarily change working-dir to (and yield) given `path`."""
+    from pathlib import Path
+
+    prev_cwd = Path.cwd()
+    path = Path(path)
+    os.chdir(path)
+    try:
+        yield path
+    finally:
+        os.chdir(prev_cwd)
