@@ -231,9 +231,9 @@ setup(
         "contextvars; python_version < '3.7'",
         "dataclasses; python_version < '3.7'",
         "boltons",
-        # 5.1.0 namedtuples results, 5.2.0 map inputs-->args,
-        # 5.2.2 BugFixes, 5.4 Sphinx, 5.6 check_if_incomplete(), 5.7 FIX sphinx
-        "graphtik >=5.7.0",
+        # 5.1.0 namedtuples results, 5.2.0 map inputs-->args, # 5.2.2 BugFixes,
+        # 5.4 Sphinx, 5.6 check_if_incomplete(), 5.7 FIX sphinx, 6.1.0 new plot
+        "graphtik >=6.1.0",
         "jsonschema",
         "numpy",
         "pandas",

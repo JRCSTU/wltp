@@ -13,9 +13,13 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import re
-import sys, os, io
 import doctest
+import io
+import os
+import re
+import sys
+
+from graphtik import plot
 
 print("python exec: %s" % sys.executable)
 print("sys.path: %s" % sys.path)
@@ -152,6 +156,15 @@ doctest_test_doctest_blocks = "default"
 # Need functional doctests for graphtik-directive to work ok.
 doctest_default_flags = (
     doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS | doctest.REPORT_NDIFF
+)
+
+## Plot graphtik SVGs with links to docs & tooltips with sources.
+## Plot graphtik SVGs with links to docs.
+#
+plot.set_active_plotter(
+    plot.get_active_plotter().with_styles(
+        py_item_url_format="../code.html#%(dot_path)s"
+    )
 )
 
 autosectionlabel_prefix_document = True
