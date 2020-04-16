@@ -254,3 +254,21 @@ def pwd_changed(path: os.PathLike):
         yield path
     finally:
         os.chdir(prev_cwd)
+
+@contextlib.contextmanager
+def matlab_pwd_changed(path: os.PathLike, oc: "oct2py.octave"):  # type: ignore
+    """
+    Temporarily change Matlab's Oct2Pyc session's working-dir to (and yield) given `path`.
+
+    :return:
+        yields the given path as a :class:`pathlib.Path` instance
+    """
+    from pathlib import Path
+
+    prev_cwd = Path.cwd().as_posix()
+    path = Path(path)
+    oc.cd(path.as_posix())
+    try:
+        yield path
+    finally:
+        oc.cd(prev_cwd)
