@@ -9,11 +9,10 @@
 wltp: generate WLTC gear-shifts based on vehicle characteristics
 """
 
-from ._version import __version__, __updated__
-
-
 __copyright__ = "Copyright (C) 2013-2020 European Commission (JRC)"
 __license__ = "EUPL 1.1+"
 __title__ = "wltp"
 __summary__ = __doc__.splitlines()[0]
 __uri__ = "https://github.com/JRCSTU/wltp"
+
+from ._version import __version__, __updated__

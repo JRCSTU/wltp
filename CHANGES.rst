@@ -95,9 +95,11 @@ v1.0.0.dev12  (20-Aug-2019): PY3.5 only & real work!
 
   - Drop Slope, cannot work with downscaling.
   - FEAT: VMAX & NMAX calculations:
+
     - all `v_max` match *accdb*, but 6 cases missmatch `g_vmax` (out of 125 cases).
     - many minor mismatches on `n_max1/2/3`.
     - All VMAX match *accdb*, but 6 expected cases missmatch `g_vmax` (out of 125 cases).
+
   - UPD: DOWNSCALING to recent formulas & constants, and document them.
     Still scaled (not recursive), none can reproduce exactly MsAccess.
   - PANDA-ized calculations (from numpy-arrays + rogue indices).
@@ -210,11 +212,14 @@ metrics still describe that version, for future comparison.
 Noteworthy or *incompatilble* changes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * Code:
+
     * package ``wltc``  --> ``wltp``
     * class ``Experiment``    --> ``Processor``
+
 * Model changes:
     * ``/vehicle/mass`` --> (``test_mass`` and ``unladen_mass``)
     * ``/cycle_run``: If present, (some of) its columns override the calculation.
+
 * Added Excel front-end.
 * Added *Metrics* section in documents whith on-the-fly generated diagrams comparing and tracking
   the behavior of the algorithm.
@@ -434,7 +439,7 @@ Driveability rules:
                 'v': [0,0,3,3,5,8,8,8,6,4,5,6,6,5,0,0]
             'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0]
            'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0]
-            'decel': [0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,0]
+            'decel': [0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,0]  
                'up': [0,0,1,1,1,1,1,1,0,1,1,1,1,0,0,0]
         'initaccel': [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
         'stopdecel': [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0]
