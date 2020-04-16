@@ -370,7 +370,7 @@ function calc_all_cases
   for i = 1 : size( tab_case, 1 )
 
     fprintf( 'handle case %d\n', i );
-    
+
     % init output tables
     tab_case_result        = { };
     tab_engine_result      = { };
@@ -441,7 +441,7 @@ function calc_all_cases
       row_vehicle{ col_vehicle_f1 };
     f2 = ...
       row_vehicle{ col_vehicle_f2 };
-    
+
     %---------------------------------------------------------------------------
     fprintf( '- scale trace\n' );
 
@@ -512,7 +512,7 @@ function calc_all_cases
       tab_trace_interpolated( s + p, col_trace_interpolated_v ) = ...
         { OriginalTrace{ 2 }( p ) };
     end
-    
+
     s = size( tab_trace_scaled, 1 );
     for p = 1 : size( ApplicableTrace{ 1 } )
       tab_trace_scaled( s + p, col_trace_scaled_case ) = ...
@@ -528,7 +528,7 @@ function calc_all_cases
       tab_trace_scaled( s + p, col_trace_scaled_compensated ) = ...
         { ApplicableTrace{ 5 }( p ) };
     end
-    
+
     % RatedEnginePower
       % already set above
     RatedEngineSpeed = ...
@@ -709,7 +709,7 @@ function calc_all_cases
       { MinDriveEngineSpeed2ndOutput };
     tab_case_result( s, col_case_result_n_min_drive_3 ) = ...
       { MinDriveEngineSpeedGreater2ndOutput };
-    
+
     s = size( tab_engine_result, 1 );
     for p = 1 : size( PowerCurveOutput{ 1 }, 1 )
        tab_engine_result( s + p, col_engine_result_case ) = ...
@@ -721,7 +721,7 @@ function calc_all_cases
        tab_engine_result( s + p, col_engine_result_ASM ) = ...
          { PowerCurveOutput{ 3 }( p ) };
     end
-    
+
     s = size( tab_shift_power, 1 );
     t_nbr = size( RequiredEngineSpeedsOutput{ 1 }, 1 );
     g_nbr = size( RequiredEngineSpeedsOutput, 2 );
@@ -746,11 +746,11 @@ function calc_all_cases
       tab_shift( s + p, col_shift_case ) = ...
         { i };
       tab_shift( s + p, col_shift_t ) = ...
-        { TraceTimesOutput( p ) };   
+        { TraceTimesOutput( p ) };
       tab_shift( s + p, col_shift_v ) = ...
         { RequiredVehicleSpeedsOutput( p ) };
       tab_shift( s + p, col_shift_p ) = ...
-        { RequiredPowersOutput( p ) }; 
+        { RequiredPowersOutput( p ) };
       tab_shift( s + p, col_shift_g ) = ...
         { GearsOutput( p ) };
       tab_shift( s + p, col_shift_clutch_disengaged ) = ...
@@ -762,7 +762,7 @@ function calc_all_cases
       tab_shift( s + p, col_shift_g_corrections ) = ...
         { GearCorrectionsOutput( p ) };
     end
-    
+
     s = size( tab_shift_condensed, 1 );
     for p = 1 : size( CalculatedGearsOutput{ 1 }, 1 )
        tab_shift_condensed( s + p, col_shift_condensed_case ) = ...
@@ -772,7 +772,7 @@ function calc_all_cases
        tab_shift_condensed( s + p, col_shift_condensed_gear_or_clutch ) = ...
          { strtrim( CalculatedGearsOutput{ 2 }( p, : ) ) };
     end
-    
+
     %---------------------------------------------------------------------------
     fprintf( '- write output files :\n' );
 
@@ -1056,7 +1056,7 @@ function calc_all_cases
       idx = strfind( col_cell_array, val );
       idx = not( cellfun( 'isempty', idx ) );
     else
-      idx = ( [ col_cell_array{:} ] == val );     
+      idx = ( [ col_cell_array{:} ] == val );
     end
   end
 
