@@ -13,23 +13,23 @@ This is the MATLAB implementation of the algorithms described by the regulation 
 
 and by the current reference implementation:
 
-  Gearshift Calculation Tool (by Heinz Steven) 
+  Gearshift Calculation Tool (by Heinz Steven)
     "Program version: 08.10.2019
      corresponds to GTR #15, draft for amendment 6,
      program code development subgroup version"
   downloaded from https://www.magentacloud.de/share/i7kq3sjws1
 
 Two MATLAB functions were implemented
-- scaleTrace() 
+- scaleTrace()
 - calculateShiftpointsNdvFullPC()
 each one residing in its own MATLAB .m file.
 
 The function scaleTrace() implements the
 trace scaling, speed capping and distance compensation
-as described by Annex 1, chapter 8. (downscaling) and 
+as described by Annex 1, chapter 8. (downscaling) and
 chapter 9 (speed capping and distance compensation).
 
-The function calculateShiftpointsNdvFullPC() implements the 
+The function calculateShiftpointsNdvFullPC() implements the
 determination of the gear to be selected and clutch state to be used
 for every second of a given trace as described by Annex 2.
 
@@ -48,13 +48,13 @@ The input data for calc_all_cases() are stored in following CSV files:
 - scale.txt
 
 The result data of calc_all_cases() will be stored in following CSV files:
-- case_result.txt 
+- case_result.txt
 - engine_result.txt
 - trace_interpolated.txt
 - trace_scaled.txt
 - phase_result.txt
 - shift_power.txt
-- shift.txt 
+- shift.txt
 - shift_condensed.txt
 
 Additionally, calc_all_cases() will also store the reformatted input data
@@ -69,7 +69,7 @@ in the following CSV files:
 Here the column headers will be added (if necessary)
 and column values will be aligned,
 so that the formatted input data become better readable for humans.
- 
+
 Each of this files represents a data table
 where each row can be selected by one or two key column values.
 
@@ -90,14 +90,14 @@ The data structure of the input files can be abbreviated like this:
 
   engine
   ->veh     vehicle number
-  ->n       engine speed 
+  ->n       engine speed
     p       power
     ASM     additional safety margin
-   
+
   gearbox
   ->veh     vehicle number
   ->g       gear number
-    ndv     ratio engine speed to vehicle speed  
+    ndv     ratio engine speed to vehicle speed
 
   trace
   ->class   WLTC cycle class
@@ -107,7 +107,7 @@ The data structure of the input files can be abbreviated like this:
   phase
   ->class   WLTC cycle class
   ->phase   phase number within class cycle
-    length  length of phase 
+    length  length of phase
 
   scale
   ->class   WLTC cycle class
@@ -123,24 +123,24 @@ The data structure of the result files can be abbreviated like this:
     v_sum   vehicle speed checksum
     ...
 
-  engine_result  
+  engine_result
   ->case    test case number
-  ->n       engine speed 
-    p       power 
+  ->n       engine speed
+    p       power
     ASM     ASM values calculated from legacy parameters
 
   trace_interpolated
   ->case    test case number
   ->t       time
     v       vehicle speed
- 
+
   trace_scaled
   ->case    test case number
   ->t       time
     v       vehicle speed
     is_dsc  trace second was downscaled
-    is_cap  trace second was capped 
-    is_cmp  trace second is compensation 
+    is_cap  trace second was capped
+    is_cmp  trace second is compensation
 
   phase_result
   ->case         test case number
@@ -153,12 +153,12 @@ The data structure of the result files can be abbreviated like this:
   ->t            time
     ...
     g            gear number
-    clutch       clutch disengaged   
+    clutch       clutch disengaged
     ...
-    
+
   shift_condensed
   ->case            test case number
-  ->t               time point of gear or clutch status change 
+  ->t               time point of gear or clutch status change
     gear_or_clutch  combined gear or clutch status value
 
 Note that this MATLAB code also generates some data which may be ignore here.
@@ -178,7 +178,7 @@ where either another gear must be selected or the clutch must be disengaged.
 So it contains only the timepoints where any such changes occurs.
 This special condensed data format is only required for HORIBA internal handling.
 So the table "shift_condensed" may be ignored here.
-  
+
 The MATLAB functions described here may be executed
 either by the commercial software MATLAB from MathWorks
 or by the free software GNU Octave from Free Software Foundation.
@@ -191,9 +191,9 @@ but probably even older versions will do.
 
 To execute all test cases simply load the all three MATLAB .m file
 and all seven input .txt files into the same directory.
-Open this directory as working directory in MATLAB or GNU Octave 
+Open this directory as working directory in MATLAB or GNU Octave
 and run the calc_all_cases.m file.
-All eight output .txt files will be written in the same directory. 
+All eight output .txt files will be written in the same directory.
 
 Because GNU Octave does not support the MATLAB table structures
 the input and output tables are stored in MATLAB cell-arrays.
@@ -207,12 +207,12 @@ The execution times of the real calculation functions are reasonable small.
 For MATLAB:
 - scaleTrace()                      0.1 .. 0.2 seconds
 - calculateShiftpointsNdvFullPC()   1.0 .. 2.0 seconds
-For GNU Octave this times are about twice as long.   
+For GNU Octave this times are about twice as long.
 
 Additionally, I created an Excel cross reference table parameter.xlsx
 which shows the correlation between
 - MATLAB test case input and output values i.e. table columns
-- MATLAB function parameters 
+- MATLAB function parameters
 - Gearshift Calculation Tool (by Heinz Steven) dialog parameters and table columns
 - Regulation chapters and parameter descriptions
 
@@ -247,7 +247,7 @@ MATLAB Code with 125 Test Cases and Test Results
 - file: calc_all_cases.zip
 - link: https://hcloud.horiba.de/index.php/s/T6k0DBZRoxlVIKq
 
-  this .zip file contains the following files:  
+  this .zip file contains the following files:
   - calc_all_cases.m
   - scaleTrace.m
   - calculateShiftpointsNdvFullPC.m
@@ -258,11 +258,11 @@ MATLAB Code with 125 Test Cases and Test Results
   - phase.txt
   - trace.txt
   - scale.txt
-  - case_result.txt 
+  - case_result.txt
   - engine_result.txt
   - trace_interpolated.txt
   - trace_scaled.txt
   - phase_result.txt
   - shift_power.txt
-  - shift.txt 
+  - shift.txt
   - shift_condensed.txt

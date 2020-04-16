@@ -215,14 +215,14 @@ function [ ...
 %   21. MinDriveEngineSpeedGreater2nd
 %       This is a legacy parameter used until regulation GRPE-75-23.
 %       This value may be used to increase the calculated value.
-%       Annex 2 (2k) n_min_drive = n_idle + 0.125 × ( n_rated - n_idle ) for n_gear:3..
+%       Annex 2 (2k) n_min_drive = n_idle + 0.125 ï¿½ ( n_rated - n_idle ) for n_gear:3..
 %       This value shall be referred to as n_min_drive_set.
 %       The minimum engine speed for all driving conditions in gears greater than 2.
 %       [1/min]
 %
 %   22. EngineSpeedLimitVMax
 %       Annex 2, (2i) n_lim
-%       The maximum engine speed for the purpose of limiting maximum vehicle speed. 
+%       The maximum engine speed for the purpose of limiting maximum vehicle speed.
 %       (value 0 means unlimited vehicle speed)
 %       [1/min]
 %
@@ -311,16 +311,16 @@ function [ ...
 %       NOTE:
 %       if eg TimeEndOfStartPhase = 100
 %       then trace times 0..100 will be affected
-%       which are stored in TraceTimes(1:101) 
+%       which are stored in TraceTimes(1:101)
 %       Set TimeEndOfStartPhase = -1 to ignore start phase.
 %       [s]
 %
 %   32. DoNotMergeClutchIntoGearsOutput
 %       Only if false
 %       then ClutchDisengaged will be merge into GearsOutput during deceleration phases
-%       an when starting from standstill clutch will be indicated 1 sec before use of 1st gear.                                
+%       an when starting from standstill clutch will be indicated 1 sec before use of 1st gear.
 %       [boolean]
-%   
+%
 % Calculated results include:
 %
 %   1.  CalculatedGearsOutput
@@ -401,21 +401,21 @@ function [ ...
 %       [1/min]
 %
 %   11. MaxEngineSpeedReachableOutput
-%       Annex 2 (2g) n_max3 
+%       Annex 2 (2g) n_max3
 %       n_max3 = (n/v)(ng_vmax) * v_max,vehicle
 %       ie the engine speed for the maximum vehicle speed reachable
 %       using the gear in which the maximum vehicle speed can be reached.
 %       [1/min]
 %
 %   12. MaxEngineSpeedOutput
-%       Annex 2 (2g, 2h) n_max 
+%       Annex 2 (2g, 2h) n_max
 %       n_max is the maximum of n_max1, n_max2 and n_max3
 %       The power curve shall consist of a sufficient number of data sets ...
-%       The last data set shall be at n_max or higher engine speed. 
+%       The last data set shall be at n_max or higher engine speed.
 %       [1/min]
 %
 %   13. MaxVehicleSpeedCycleOutput
-%       Annex 2 (2g) v_max,cycle 
+%       Annex 2 (2g) v_max,cycle
 %       The maximum vehicle speed of the trace
 %       using the gear in which the maximum vehicle speed can be reached.
 %       [km/h]
@@ -427,39 +427,39 @@ function [ ...
 %       [km/h]
 %
 %   15. GearMaxVehicleSpeedReachableOutput
-%       Annex 2 (2i) ng_vmax 
-%       The gear in which the maximum vehicle speed is reached.  
+%       Annex 2 (2i) ng_vmax
+%       The gear in which the maximum vehicle speed is reached.
 %       [integer]
 %
 %   16. MinDriveEngineSpeed1stOutput
 %       Annex 2 (2k) n_min_drive = n_idle for n_gear:1
 %       The minimum engine speed when the vehicle is in motion.
-%       This is the maximum of calculated value and input parameter value.  
+%       This is the maximum of calculated value and input parameter value.
 %       [1/min]
 %
 %   17. MinDriveEngineSpeed1stTo2ndOutput
 %       Annex 2 (2ka) n_min_drive = 1.15 x n_idle for n_gear:1->2
 %       The minimum engine speed for transitions from first to second gear.
-%       This is the maximum of calculated value and input parameter value.  
+%       This is the maximum of calculated value and input parameter value.
 %       [1/min]
 %
 %   18. MinDriveEngineSpeed2ndDecelOutput
 %       Annex 2 (2kb) n_min_drive = n_idle for n_gear:2
 %       The minimum engine speed for decelerations to standstill in second gear.
-%       This is the maximum of calculated value and input parameter value.  
+%       This is the maximum of calculated value and input parameter value.
 %       [1/min]
 %
 %   19. MinDriveEngineSpeed2ndOutput
 %       Annex 2 (2kc) n_min_drive = 0.9 x n_idle for n_gear:2
 %       The minimum engine speed for all other driving conditions in second gear.
-%       This is the maximum of calculated value and input parameter value.  
+%       This is the maximum of calculated value and input parameter value.
 %       [1/min]
 %
 %   20. MinDriveEngineSpeedGreater2ndOutput
-%       Annex 2 (2k) n_min_drive = n_idle + 0.125 × ( n_rated - n_idle ) for n_gear:3..
+%       Annex 2 (2k) n_min_drive = n_idle + 0.125 ï¿½ ( n_rated - n_idle ) for n_gear:3..
 %       This value shall be referred to as n_min_drive_set.
 %       The minimum engine speed for all driving conditions in gears greater than 2.
-%       This is the maximum of calculated value and input parameter value.  
+%       This is the maximum of calculated value and input parameter value.
 %       [1/min]
 %
 %   21. GearsOutput
@@ -476,7 +476,7 @@ function [ ...
 %
 %   23. ClutchUndefinedOutput
 %       Array of booleans copied from ClutchUndefined,
-%       which dicriminates clutch disengaged sub-states. 
+%       which dicriminates clutch disengaged sub-states.
 %       [s] ==> [boolean]
 %
 %   24. ClutchHSTOutput
@@ -515,7 +515,7 @@ validateattributes(IdlingEngineSpeed, ...
 
 % Round the idling speed to the nearest 10 (2c)
 IdlingEngineSpeed = round(IdlingEngineSpeed/10)*10;
- 
+
 validateattributes(Max95EngineSpeed, ...
 	{'double'}, ...
 	{'scalar', 'nonnegative'}, ...  % zero if to be calculated
@@ -578,7 +578,7 @@ end
 % So afterwards the ASM is always defined by FullPowerCurve.
 % This also implies that linear interpolation will be used
 % to calculate the ASM values for intermediate engine speeds.
-% Previously exponential decaying ASM values were calculated 
+% Previously exponential decaying ASM values were calculated
 % for intermediate engine speeds.
 
 if size( FullPowerCurve, 2 ) == 2
@@ -656,7 +656,7 @@ if AdditionalSafetyMargin0 && ~DefinedPowerCurveAdditionalSafetyMargins
 		{'double'}, ...
 		{'scalar', '>=', IdlingEngineSpeed}, ...
 		mfilename, 'StartEngineSpeed', 15);
-	
+
 	validateattributes(EndEngineSpeed, ...
 		{'double'}, ...
 		{'scalar', '>', StartEngineSpeed}, ...
@@ -784,7 +784,7 @@ TraceTimesCount = length(TraceTimes);
 %				speed >= 1km/h and monotonically decreasing.
 % DECELERATION_TO_STANDSTILL
 %				DECELERATION phase preceding a STANDSTILL phase
-% CONSTANT_SPEED  
+% CONSTANT_SPEED
 %               time period with constant required vehicle speed >= 1km/h
 
 PHASE_TOO_SHORT = 0;
@@ -804,7 +804,7 @@ Phases(RequiredVehicleSpeeds < 1) = PHASE_STANDSTILL;
 Phases(RequiredVehicleSpeeds >= 1 & diff([RequiredVehicleSpeeds; 0]) > 0) = PHASE_ACCELERATION;
 Phases(RequiredVehicleSpeeds >= 1 & diff([RequiredVehicleSpeeds; 0]) <= 0) = PHASE_DECELERATION;
 Phases(RequiredVehicleSpeeds >= 1 & abs(diff([RequiredVehicleSpeeds; 0])) < 0.001) = PHASE_CONSTANT_SPEED;
- 
+
 % some gear corrections ignore the duration of acceleration phases
 % so save acceleration phases with any duration here
 % before phases shorter than or equal to 2 seconds get undefined below
@@ -843,7 +843,7 @@ InConstantSpeed = Phases == PHASE_CONSTANT_SPEED;
 if RatedEnginePower <= 0 || isnan( RatedEnginePower ) ...
 && RatedEngineSpeed <= 0 || isnan( RatedEngineSpeed )
     RatedEnginePower = max( PowerCurvePowers );
-    % NOTE: 
+    % NOTE:
     % the following requirement was deleted from the regulation
     % but as there is no new requirement we will stay with the old one :
     % If the maximum power is developed over an engine speed range,
@@ -867,14 +867,14 @@ if Max95EngineSpeed <= 0 || isnan( Max95EngineSpeed )
                    'Max95EngineSpeed can not be calculated from FullPowerCurve' );
         end
         Max95EngineSpeed = ...
-          PowerCurveEngineSpeeds( idx ) ... 
+          PowerCurveEngineSpeeds( idx ) ...
           + ( PowerCurvePowerMax95              - PowerCurvePowers      ( idx ) ) ...
           / ( PowerCurvePowers      ( idx + 1 ) - PowerCurvePowers      ( idx ) ) ...
           * ( PowerCurveEngineSpeeds( idx + 1 ) - PowerCurveEngineSpeeds( idx ) ) ...
         ;
         % NOTE:
         % idx + 1 is never out of range
-        % because diff() returns a one element shorter vector 
+        % because diff() returns a one element shorter vector
         % division by zero is impossible
         % because PowerCurveEngineSpeeds increases strict monotonically
     end
@@ -956,7 +956,7 @@ end
 
 % Annex 2, (k) n_min_drive_set
 % For an initial period of time (t_start_phase),
-% the manufacturer may specify higher values. 
+% the manufacturer may specify higher values.
 % The initial time period shall be specified by the manufacturer
 % but shall not exceed the low speed phase of the cycle
 % and shall end in a stop phase
@@ -972,14 +972,14 @@ end
 % can not check for unknown end of low speed phase here
 
 % Annex 2, 2(k) n_min_drive_set
-% Samples which have acceleration values >= -0.1389 m/s² ( = 0.5 (km/h)/s )
+% Samples which have acceleration values >= -0.1389 m/sï¿½ ( = 0.5 (km/h)/s )
 % shall belong to the acceleration/constant speed phases.
 Accelerations = [diff(RequiredVehicleSpeeds) ./ (3.6 * diff(TraceTimes)); 0];
 InAccelerationMinDrive = Accelerations >= - 0.1389;
 InDecelerationMinDrive = ~ InAccelerationMinDrive;
 
 MinDrives( InAccelerationMinDrive, 3:NoOfGears ) = ...
-  max( ... 
+  max( ...
     MinDrives( InAccelerationMinDrive, 3:NoOfGears ) ...
   , MinDriveEngineSpeedGreater2ndAccel ...
   ) ...
@@ -1043,7 +1043,7 @@ for gear = NoOfGears : -1 : 2
     if ~ isempty( VehicleSpeedsPerGear( gear  , : ) ) ...
     && ~ isempty( VehicleSpeedsPerGear( gear-1, : ) ) ...
     &&       max( VehicleSpeedsPerGear( gear  , : ) ) ...
-         >=  max( VehicleSpeedsPerGear( gear-1, : ) ) 
+         >=  max( VehicleSpeedsPerGear( gear-1, : ) )
   	    GearAtMaxVehicleSpeed = gear;
   	    MaxVehicleSpeed = max( VehicleSpeedsPerGear( gear, : ) );
         break;
@@ -1059,7 +1059,7 @@ end
 % If n_95_high cannot be determined
 % because the engine speed is limited to a lower value n_lim for all gears
 % and the corresponding full load power is higher than 95 per cent of rated power,
-% n_95_high shall be set to n_lim. 
+% n_95_high shall be set to n_lim.
 if EngineSpeedLimitVMax > 0 && EngineSpeedLimitVMax < Max95EngineSpeed
     PowerAtEngineSpeedLimitVMax = interp1(PowerCurveEngineSpeeds, PowerCurvePowers, EngineSpeedLimitVMax);
     if PowerAtEngineSpeedLimitVMax > 0.95 * RatedEnginePower
@@ -1130,12 +1130,12 @@ BeforeAccelerationStarts = AccelerationFromStandstillStarts-1;
 for i = 1:length(BeforeAccelerationStarts)
 	while BeforeAccelerationStarts(i) >= 3 && Accelerations(BeforeAccelerationStarts(i)) > 0
         % avoid trace time index stored BeforeAccelerationStarts(i) becoming smaller than 2
-        % so there will always be smaller trace time index to indicate clutch disenganged  
+        % so there will always be smaller trace time index to indicate clutch disenganged
         BeforeAccelerationStarts(i) = BeforeAccelerationStarts(i) - 1;
-    end     
-end    
+    end
+end
 AdvancedFirstGearEngage = arrayfun(@colon, BeforeAccelerationStarts, AccelerationFromStandstillStarts-1, 'Uniform', false);
-AdvancedClutchDisengage = arrayfun(@colon, BeforeAccelerationStarts-1, BeforeAccelerationStarts-1, 'Uniform', false);    
+AdvancedClutchDisengage = arrayfun(@colon, BeforeAccelerationStarts-1, BeforeAccelerationStarts-1, 'Uniform', false);
 if ~DoNotMergeClutchIntoGearsOutput
     ClutchDisengaged([AdvancedClutchDisengage{:}]) = 1;
 end
@@ -1194,12 +1194,12 @@ RequiredEngineSpeeds(InAnyAccelOrConstSpeedWithLowEngineSpeed) = ...
 
 % HST 2019-10-08 sets clutch to "undefined" for gear 1
 % if the used engine speed is greater than ndv_1 * v
-% but only if v >= 1 km/h and not during a deceleration to standstill  
+% but only if v >= 1 km/h and not during a deceleration to standstill
 Gear1WithIncrEngineSpeed = ...
   ( InitialRequiredEngineSpeeds( :, 1 ) < RequiredEngineSpeeds( : , 1 ) ) & ...
   not( InStandStill ) & not( InDecelerationToStandstill );
-ClutchDisengagedByGear( Gear1WithIncrEngineSpeed ) = 1; 
-ClutchUndefinedByGear( Gear1WithIncrEngineSpeed ) = 1; 
+ClutchDisengagedByGear( Gear1WithIncrEngineSpeed ) = 1;
+ClutchUndefinedByGear( Gear1WithIncrEngineSpeed ) = 1;
 
 %% Calculate available powers (3.4)
 
@@ -1227,7 +1227,7 @@ if DefinedPowerCurveAdditionalSafetyMargins
       ) ...
     ;
     InitialAvailablePowers = interp1(PowerCurveEngineSpeeds, PowerCurvePowers .* (1 - (SafetyMargin + PowerCurveAdditionalSafetyMargins)/100), InitialRequiredEngineSpeeds);
-    
+
 else
 
 	AdditionalSafetyMargin = zeros(TraceTimesCount, NoOfGears);
@@ -1237,7 +1237,7 @@ else
         % In MATLAB the ASM values have the unit "percent" with a range 0 to 100
         % while in the regulation the assumed unit is "fraction" with a range 0 to 1.
         % Therefore the value of the constant 0.005 used in the regulation formula
-        % ASM = ASM_0 × exp( ln( 0.005 / ASM_0 ) × ( n_start – n ) / ( n_start – n_end ) )
+        % ASM = ASM_0 ï¿½ exp( ln( 0.005 / ASM_0 ) ï¿½ ( n_start ï¿½ n ) / ( n_start ï¿½ n_end ) )
         % must be replaced by the value 0.5 in the MATLAB formula.
 	end
 
@@ -1296,7 +1296,7 @@ PossibleGearsByAvailablePowersWithTotalSafetyMargin(:, 1:2) = 1;
 for gear = 3:NoOfGears
 
     PossibleGearsByAvailablePowersWithTotalSafetyMargin( AvailablePowers(:, gear) >= RequiredPowers, gear ) = 1;
-    
+
 	% ECE-TRANS-WP29-GPRE-2017-07
 	% 3.5 Determination of possible gears to be used
 	% (b) If n_i,j >= n_min_drive of n_gear > 2,
@@ -1334,7 +1334,7 @@ I = size( AvailablePowers, 2 ) - I + 1;  % I is a column vector of gear indices 
 [ m, n ] = size( AvailablePowers );
 linearInd = sub2ind( [ m n ], 1:m, I' );  % convert trace time indices and gear indices to linear indices
 PossibleGearsByAvailablePowersWithTotalSafetyMargin( linearInd ) = 1;
- 
+
 %% Determine initial gears
 
 InStandStillReps = repmat(InStandStill, 1, NoOfGears);
@@ -1349,7 +1349,7 @@ end
 % Select the highest final possible gear as initial gear at a given time
 InitialGears = max(PossibleGears, [], 2);
 InitialGears(AccelerationFromStandstillStarts) = 1;
-		
+
 AccelerationFromStandstillEnds = PhaseEnds(PhaseValues == PHASE_ACCELERATION_FROM_STANDSTILL);
 
 AccelerationsFromStandstill = arrayfun(@colon, AccelerationFromStandstillStarts, AccelerationFromStandstillEnds, 'Uniform', false);
@@ -1396,13 +1396,13 @@ CorrectionsCells = cell( size( InitialGears ) );
 % As other gear corrections it shall be applied multiple times.
 % If during the first application there is a 2-step upshift
 % this will be corrected to a 1-step upshift.
-% But then during the second application there still is a 1-step upshift 
-% which shall be suppressed by correction 4.(d). 
+% But then during the second application there still is a 1-step upshift
+% which shall be suppressed by correction 4.(d).
 % We assume here that such repeated corrections must be avoided.
 % This will be realized by using correction 4.(d)
 % for every second of the driving trace only once.
 
-% vector of flags indicating where gear correction 4.(d) was applied before 
+% vector of flags indicating where gear correction 4.(d) was applied before
 % so far gear correction 4.(d) was not applied for any trace second
 corr_4d_applied_before = false( size( InitialGears ) );
 
@@ -1426,7 +1426,7 @@ for correction = 1 : 2
 
     [InitialGears] = applyCorrection4a(InitialGears, Corr4bToBeDoneAfterCorr4a, PhaseStarts, PhaseEnds, PhaseValues);
     [ CorrectionsCells, InitialGearsPrev ] = appendCorrectionCells( CorrectionsCells, InitialGears, InitialGearsPrev, '4a', correction );
-    
+
     % Do an extra delayed gear correction "4s" ( s : short downshift )
     % which was determined during gear correction 4b
     % but shall be done after gear correction 4a.
@@ -1447,7 +1447,7 @@ for correction = 1 : 2
     % As each correction lasts only one second it might be resonable to do so.
     % So MATLAB will reset the clutch state "disengaged" or "undefined" for each corrected gear.
     ClutchDisengagedByGear( Corr4bToBeDoneAfterCorr4a, InitialGears( Corr4bToBeDoneAfterCorr4a ) ) = 0;
-    ClutchUndefinedByGear ( Corr4bToBeDoneAfterCorr4a, InitialGears( Corr4bToBeDoneAfterCorr4a ) ) = 0;    
+    ClutchUndefinedByGear ( Corr4bToBeDoneAfterCorr4a, InitialGears( Corr4bToBeDoneAfterCorr4a ) ) = 0;
     [ CorrectionsCells, InitialGearsPrev ] = appendCorrectionCells( CorrectionsCells, InitialGears, InitialGearsPrev, '4s', correction );
 
     %-----------------------------------------------------------------------
@@ -1470,19 +1470,19 @@ for correction = 1 : 2
     % but shall be done after gear correction 4d (according Heinz Steven).
     % This delayed correction must be suppressed at positions
     % where there is no downshift by more than one gear anymore.
-    Corr4bToBeDoneAfterCorr4d = Corr4bToBeDoneAfterCorr4d & diff( [ InitialGears; NaN ] ) < -1; 
+    Corr4bToBeDoneAfterCorr4d = Corr4bToBeDoneAfterCorr4d & diff( [ InitialGears; NaN ] ) < -1;
     if SuppressGear0DuringDownshifts
         nextCorr4bToBeDoneAfterCorr4d = [ false; Corr4bToBeDoneAfterCorr4d( 1:end-1 ) ];
-        InitialGears( Corr4bToBeDoneAfterCorr4d ) = InitialGears( nextCorr4bToBeDoneAfterCorr4d ); 
+        InitialGears( Corr4bToBeDoneAfterCorr4d ) = InitialGears( nextCorr4bToBeDoneAfterCorr4d );
     else
         InitialGears( Corr4bToBeDoneAfterCorr4d ) = 0;
         ClutchDisengaged( Corr4bToBeDoneAfterCorr4d ) = 1;
     end
-    
+
     [ CorrectionsCells, InitialGearsPrev ] = appendCorrectionCells( CorrectionsCells, InitialGears, InitialGearsPrev, '4t', correction );
 
     % But also such delayed gear corrections "4t" must be undone
-    % when an even later 2nd gear correction 4d 
+    % when an even later 2nd gear correction 4d
     % reduces such downshifts to downshift by only one gear.
     prevInitialGears = [ 0; InitialGears( 1:end-1 ) ];
     nextInitialGears = [ InitialGears( 2:end ); 0 ];
@@ -1492,8 +1492,8 @@ for correction = 1 : 2
     & nextInitialGears > 0 ...
     );
     InitialGears( idx ) = InitialGears( idx - 1 );
-    ClutchDisengaged( idx ) = 0;    
-    
+    ClutchDisengaged( idx ) = 0;
+
     [InitialGears, ClutchDisengaged] = applyCorrection4e(InitialGears, PhaseStarts, PhaseEnds, PhaseValues, ClutchDisengaged, InitialRequiredEngineSpeeds, IdlingEngineSpeed);
     [ CorrectionsCells, InitialGearsPrev ] = appendCorrectionCells( CorrectionsCells, InitialGears, InitialGearsPrev, '4e', correction );
 
@@ -1556,7 +1556,7 @@ if ~AutomaticClutchOperation ...
 	InitialGears(InDeceleration & ClutchDisengaged) = -1;
 	% ... but now it was decided to indicate the clutch also
 	% one second before the 1st gear is used for acceleration from standstill
-    InitialGears([AdvancedClutchDisengage{:}]) = -1; 
+    InitialGears([AdvancedClutchDisengage{:}]) = -1;
 end
 
 %% Remove duplicate gears
@@ -1580,7 +1580,7 @@ for i = 1:length(ClutchDisengaged)
     elseif InitialGears(i) == 0
         % NOTE:
         % HST uses comma ',' after 'engaged'
-        % but MATLAB will use semicolon ';' there 
+        % but MATLAB will use semicolon ';' there
         % for export in comma seperated values file (.csv).
         ClutchHST{i} = 'engaged; gear lever in neutral';
     else
@@ -1647,7 +1647,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         nextInitialGears = [ InitialGears( 2 : end ); NaN ];
         upshiftsOneOrTwoGearsOneSec = ...
           find( ...
-            diff( InitialGears ) == +1 & diff( nextInitialGears ) == -1 ... 
+            diff( InitialGears ) == +1 & diff( nextInitialGears ) == -1 ...
           | diff( InitialGears ) == +1 & diff( nextInitialGears ) == -2 ...
           | diff( InitialGears ) == +2 & diff( nextInitialGears ) == -1 ...
           ) ...
@@ -1658,9 +1658,9 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             if all( InitialGears( shift ) - 1 >= minPossibleGears( shift ) ) ...
             && all( InitialGears( shift ) - 1 >= 1 )  % avoid neutral gear
                 InitialGears( shift ) = InitialGears( shift ) - 1;
-            end           
+            end
         end
-        
+
         %-----------------------------------------------------------------------
         % 4.(a) continued :
         %-----------------------------------------------------------------------
@@ -1693,17 +1693,17 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % and so avoid that a higher gear with to less power will used after the single second
         % eg RRT vehicle 15, trace seconds 909..918 :
         %   909      918
-        %    v        v 
-        %    4345545555    InitialGears  
-        %      *>            single extended FORWARD  
-        %    4344545555    InitialGears 
-        %        <*          single extended BACKWARD 
+        %    v        v
+        %    4345545555    InitialGears
+        %      *>            single extended FORWARD
+        %    4344545555    InitialGears
+        %        <*          single extended BACKWARD
         %    4344445555    InitialGears
         % But such a backward extension of the next gear is not allowed
         % according Heinz Steven (Workshop 2019-02-05)
 
-        InAccelOrConst = InAcceleration | InConstantSpeed; 
- 
+        InAccelOrConst = InAcceleration | InConstantSpeed;
+
         singlesInAccelOrConstNextHigher = ...
           InAccelOrConst ...
         & ~ isnan( InitialGears ) ...
@@ -1714,11 +1714,11 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         & InitialGears <  [ InitialGears( 2:end ); NaN ] ...  %  gear used for a single second and next gear is HIGHER
         & InitialGears >= [ minPossibleGears( 2:end ); NaN ] ...  % single gear may be extended FORWARD to next second
         ;
-            
+
         % exclude singles immediately after singles
         % as later singles will be adjusted to earlier singles
         singlesInAccelOrConstNextHigher = ...
-          singlesInAccelOrConstNextHigher ... 
+          singlesInAccelOrConstNextHigher ...
         & not( [ false; singlesInAccelOrConstNextHigher( 1:end-1 ) ] );
 
         % exclude singles immediately after downshifts
@@ -1730,7 +1730,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         if any( singlesInAccelOrConstNextHigher )
             InitialGears( [ false; singlesInAccelOrConstNextHigher( 1:end-1 ) ] ) = InitialGears( singlesInAccelOrConstNextHigher );
         end
-            
+
         singlesInAccelOrConstNextLower = ...
           InAccelOrConst ...
         & ~ isnan( InitialGears ) ...
@@ -1741,7 +1741,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         & InitialGears >  [ InitialGears( 2:end ); NaN ] ...  %  gear used for a single second and next gear is LOWER
         & [ InitialGears( 2:end ); NaN ] >= minPossibleGears ...  % next gear may be extended BACKWARD to single second
         ;
-            
+
         % exclude singles immediately after downshifts
         singlesInAccelOrConstNextLower = ...
           singlesInAccelOrConstNextLower ...
@@ -1752,7 +1752,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             % exclude singles immediately after singles
             % as later singles will be adjusted to earlier singles
             singlesInAccelOrConstNextLower = ...
-              singlesInAccelOrConstNextLower ... 
+              singlesInAccelOrConstNextLower ...
             & not( [ false; singlesInAccelOrConstNextLower( 1:end-1 ) ] );
             InitialGears( [ false; singlesInAccelOrConstNextLower( 1:end-1 ) ] ) = InitialGears( singlesInAccelOrConstNextLower );
         end
@@ -1771,28 +1771,28 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % HST corrects the gear for eg vehicle_no: 109 time: 1088
         % where acceleration phase lasts only for time 1087..1088.
         %-----------------------------------------------------------------------
- 
+
         % but this will only be done
 		% if the gear in the first second of the acceleration phase
-        % may not be increased by correction 4b to done after correction 4a 
+        % may not be increased by correction 4b to done after correction 4a
 
-        prevInAccelAnyDur        = [ false; InAccelerationAnyDuration( 1:end-1 ) ];   
+        prevInAccelAnyDur        = [ false; InAccelerationAnyDuration( 1:end-1 ) ];
         prevPrevNotInAccelAnyDur = [ false; not( prevInAccelAnyDur( 1:end-1 ) ) ];
         prevGears          = [ 0; InitialGears( 1:end-1 ) ];
         prevPrevGears      = [ 0; prevGears( 1:end-1 ) ];
         prev_Corr4bToBeDoneAfterCorr4a = [ false; Corr4bToBeDoneAfterCorr4a( 1:end-1 ) ];
 
         idx = ...
-        ( prevPrevNotInAccelAnyDur ... 
+        ( prevPrevNotInAccelAnyDur ...
         & prevInAccelAnyDur ...
         & InAccelerationAnyDuration ...
-        & prevPrevGears >= prevGears ... 
+        & prevPrevGears >= prevGears ...
         & prevGears + 1 == InitialGears ...
         & InitialGears - 1 >= minPossibleGears ...
-        & not( prev_Corr4bToBeDoneAfterCorr4a ) ... 
+        & not( prev_Corr4bToBeDoneAfterCorr4a ) ...
         );
         InitialGears( idx ) = InitialGears( idx ) - 1 ;
-        
+
         %-----------------------------------------------------------------------
         % 4.(a) continued :
         %-----------------------------------------------------------------------
@@ -1801,8 +1801,8 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
 
         % In an acceleration phase :
     	% Decrease a gear, if it differs from the previous non-neutral gear by more than 1 step
-        % and the previous gear may not be increased by correction 4b done after correction 4a.  
-       
+        % and the previous gear may not be increased by correction 4b done after correction 4a.
+
         prev_gear = [ NaN; InitialGears( 1:end-1 ) ];
         upshift = diff( [ InitialGears( 1 ); InitialGears( 1:end ) ] );
         gear_decr_possible = InitialGears - 1 >= minPossibleGears;
@@ -1812,7 +1812,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         & InAcceleration ...
         & upshift > 1 ...
         & gear_decr_possible ...
-        & not( prev_Corr4bToBeDoneAfterCorr4a ) ... 
+        & not( prev_Corr4bToBeDoneAfterCorr4a ) ...
         ;
         if( any( twoStepUpshiftInAcceleration ) )
             InitialGears( twoStepUpshiftInAcceleration ) = InitialGears( twoStepUpshiftInAcceleration ) - 1;
@@ -1828,7 +1828,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
 
         % At a transition from acceleration phase to a constant speed phase longer than 5 seconds :
     	% Decrease a gear, if it differs from the previous non-neutral gear by more than 2 steps.
-    	% But assume that this rule must also be applied at other transitions. 
+    	% But assume that this rule must also be applied at other transitions.
         % At a transition from acceleration phase to a constant speed phase of up to 5 seconds :
     	% Decrease a gear, if it differs from the previous non-neutral gear by more than 1 step.
 		prevInAcceleration   = [ false; InAcceleration( 1:end-1 ) ];
@@ -1849,7 +1849,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         prev_gear = [ NaN; InitialGears( 1:end-1 ) ];
         upshift = diff( [ InitialGears( 1 ); InitialGears( 1:end ) ] );
         gear_decr_possible = InitialGears - 1 >= minPossibleGears;
-        tooBigUpshiftAtTransition = ... 
+        tooBigUpshiftAtTransition = ...
           prev_gear > 0 ...
         & prevInAcceleration ...
         & InConstantSpeed ...
@@ -1857,16 +1857,16 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
           | upshift > 2 &   inConstantSpeedMoreThan5Sec ...
           ) ...
         & gear_decr_possible ...
-        ; 
+        ;
         if( any( tooBigUpshiftAtTransition ) )
             InitialGears( tooBigUpshiftAtTransition ) = InitialGears( tooBigUpshiftAtTransition ) - 1;
         end
-        
+
     end  % for-loop
-        
+
     end
 
-        
+
     function [ InitialGears, Corr4bToBeDoneAfterCorr4a, Corr4bToBeDoneAfterCorr4d ] = ...
       applyCorrection4b( InitialGears, Corr4bToBeDoneAfterCorr4a, Corr4bToBeDoneAfterCorr4d )
 
@@ -1888,8 +1888,8 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % is referred to as a one step downshift,
         % a downshift where i_DS = i_ref - 2
         % is referred to as a two step downshift,
-        % a downshift where i_DS = i_ref – 3
-        % is referred to as a three step downshift. 
+        % a downshift where i_DS = i_ref ï¿½ 3
+        % is referred to as a three step downshift.
         %
         % The following check shall then be applied.
         %
@@ -1913,7 +1913,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         %   or 2 or more individual seconds )
         % or from the starting point of the correction procedure
         % ( in case all 10 second windows contain i_DS only for one second
-        %   or some 10 second windows contain no i_DS at all ) 
+        %   or some 10 second windows contain no i_DS at all )
         % to the end of the acceleration phase,
         % all downshifts with a duration of only one second shall be removed.
         %
@@ -1940,11 +1940,11 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % and the starting point of the correction procedure
         % for the one step downshifts is the second immediately following
         % the end of the correction period for the two step downshifts.
-        % 
+        %
         % If a three step downshift occurs after a one or two step downshift,
         % it shall overrule this downshifts
         % in the time period before the three step downshift.
-        % 
+        %
         % If a two step downshift occurs after a one step downshift,
         % it shall overrule the one step downshift
         % in the time period before the two step downshift.
@@ -1958,11 +1958,11 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % Each downshift by more than one step
         % will limit the maximum usable gears to the gear
         % one step higher than the downshifted gear
-        % backwards until the beginning of the acceleration phase 
+        % backwards until the beginning of the acceleration phase
         %
         % Each downshifted gear used more than once during the last 10 seconds
         % will limit the maximum usable gears to this downshifted gear
-        % backwards until the beginning of the acceleration phase 
+        % backwards until the beginning of the acceleration phase
         %
         % Each isolated downshift lasting only 1 second
         % will be replaced by the previous gear
@@ -2028,7 +2028,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         %
         %                    <-----------------> 10 second window
         %                                    <-> lasting 1-step downshift
-        %    <---------------------------------> limit earlier gears to same level 
+        %    <---------------------------------> limit earlier gears to same level
         %
         %                                o-o-.   o-o-o-o-o-o-o-o-o-o-. o-o-o-
         %    v v v v v v v v v v v v v v v v v v |                   | |
@@ -2071,15 +2071,15 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         for phase = AnyAccelerations' %#ok<FXUP>
             gears = InitialGears( phase{:} )';
             gears_orig = gears;
-            
+
             % do gear corrections in 3 steps :
             % 1. reduce 2-step downshifts backwards
             % 2. extend repeated usages of same downshift gear backwards
-            % 3. remove isolated downshifts 
-             
+            % 3. remove isolated downshifts
+
             % 1. reduce 2-step downshifts backwards
 
-            gears_greater_one = gears;            
+            gears_greater_one = gears;
             gears_greater_one( gears <= 1 ) = NaN;  % exclude gear 1
 
             % limit gears used earlier to at most on step higher than gear used later on
@@ -2104,16 +2104,16 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             cumulated_use_per_gear = cumsum( use_per_gear, 2 );
 
             % but after the window size (ie 10 sec) the number of expired gears usages must be subtracted
-            % the accumulated decrements have the same size as accumulated increments 
+            % the accumulated decrements have the same size as accumulated increments
             % calculated a window size earlier
             size_of_window = 10;
             outdated_use_per_gear  = [ zeros( NoOfGears, size_of_window ), cumulated_use_per_gear ];
-            outdated_use_per_gear( :, ( end - size_of_window + 1 ) : end ) = []; 
+            outdated_use_per_gear( :, ( end - size_of_window + 1 ) : end ) = [];
 
             %   222333444343444444444  gears
             %
             % + 000123333445555555555  cumulated_use_per_gear (eg gear 3)
-            %      <-------->          size_of_window (ie 10 sec)           
+            %      <-------->          size_of_window (ie 10 sec)
             % - 000000000000012333344  outdated_use_per_gear (eg gear 3)
             % -----------------------
             %   000123333445543222211  nbr_of_use_per_gear (eg gear 3)
@@ -2128,7 +2128,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             gears_without_nan( isnan( gears ) ) = 1;  % use dummy gear 1 so that indexing by sub2ind() will not fail ...
             nbr_of_use_gears = nbr_of_use_per_gear( sub2ind( size( nbr_of_use_per_gear ), gears_without_nan, 1 : length( gears ) ) );
             nbr_of_use_gears( isnan( gears ) ) = 0;  % ... but discard number of usages of dummy gear
-            
+
             gears_used_twice = gears;
             gears_used_twice( gears <= 1 ) = NaN;  % exclude gear 1
             gears_used_twice( nbr_of_use_gears < 2 ) = NaN;
@@ -2140,7 +2140,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             gears_max_allowed = fliplr( my_cummin( fliplr( gears_used_twice ) ) );
             gears = min( gears, gears_max_allowed );
 
-            % 3. remove isolated downshifts 
+            % 3. remove isolated downshifts
 
             % downshift is required during an acceleration phase ...
             gears_prev = [ gears( 1 ), gears( 1:end-1 ) ];
@@ -2149,7 +2149,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             if phase{ 1 }( 1 ) > 1
                 gears_prev( 1 ) = InitialGears( phase{ 1 }( 1 ) - 1 );
             end
-            gears_greater_one = gears;            
+            gears_greater_one = gears;
             gears_greater_one( gears <= 1 ) = NaN;  % exclude gear 1
             Corr4bToBeDoneAfterCorr4a( phase{:} ) = ...
               Corr4bToBeDoneAfterCorr4a( phase{:} ) ...
@@ -2158,7 +2158,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
 
             % NaN values in "gears" may get overwritten by above gear corrections
             % but this values shall be kept to indicate to low power
-            gears( isnan( gears_orig ) ) = NaN;    
+            gears( isnan( gears_orig ) ) = NaN;
             InitialGears( phase{:} ) = gears';
 
             %-----------------------------------------------------------------------
@@ -2167,7 +2167,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             %-----------------------------------------------------------------------
             % After the application of paragraph 4.(b) of this annex,
             % a downshift by more than one gear could occur
-            % at the transition from a deceleration or constant speed phase to an acceleration phase. 
+            % at the transition from a deceleration or constant speed phase to an acceleration phase.
             % In this case, the gear for the last sample of the deceleration or constant speed phase
             % shall be replaced by gear 0 and the clutch shall be disengaged.
             % If the "suppress gear 0 during downshifts" option
@@ -2185,7 +2185,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             end
 
         end
-            
+
     end
 
 
@@ -2199,7 +2199,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % and the gear after this sequence is one or two steps lower than within this sequence
         % or the gear prior to this sequence is two steps lower
         % and the gear after this sequence is one step lower than within the sequence,
-        % the gear for the sequence shall be corrected to 
+        % the gear for the sequence shall be corrected to
         % the maximum of the gears before and after the sequence.
         % In all cases i-1 >= i_min shall be fulfilled.
         % NOTE:
@@ -2220,7 +2220,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
                     i = i + 1;
                 end
                 if i <= 4
-                    r = b+1 : d+i-1;  
+                    r = b+1 : d+i-1;
                     InitialGears( r ) = InitialGears( b );
                     InitialGears( r ) = max( InitialGears( r ), minPossibleGears( r ) );
                 end
@@ -2234,18 +2234,18 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
                     i = i + 1;
                 end
                 if i <= 4
-                    r = b+1 : d+i-1;  
+                    r = b+1 : d+i-1;
                     InitialGears( r ) = InitialGears( b ) + 1;
                     InitialGears( r ) = max( InitialGears( r ), minPossibleGears( r ) );
                 end
-            end 
+            end
         end
     end
 
 
     function [InitialGears] = applyExtraCorrection4d(InitialGears, PhaseStarts, PhaseEnds, PhaseValues )
 
-        % the reference implemention from Heinz Steven 
+        % the reference implemention from Heinz Steven
         % does gear correction 4d for RRT vehicle 20 trace seconds 1726:1776
         % ignoring the intermediate constant speed phase at second 1744
         % so we will also include constand speed phases
@@ -2266,7 +2266,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         & ExtraPhaseValues         == PHASE_CONSTANT_SPEED ...
         & ExtraNextPhaseValues     == PHASE_DECELERATION ...
         ) = PHASE_DECELERATION;
-            
+
         % redetermine ExtraPhaseValues as multiple phases may have been combined into a single phase
 
         % expand ExtraPhaseValues to ExtraPhases ...
@@ -2298,7 +2298,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         [InitialGears] = applyCorrection4d(InitialGears, ExtraPhaseStarts, ExtraPhaseEnds, ExtraPhaseValues);
 
     end
-   
+
 
 	function [InitialGears] = applyCorrection4d(InitialGears, PhaseStarts, PhaseEnds, PhaseValues)
 
@@ -2311,14 +2311,14 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % The newest regulation ECE/TRANS/WP.29/GRPE/2019/2
         % moved the text part below to paragraph Annex 2, 4.(e).
         % But we keep it here as it does not matter
-        % whether it will be executed at the end of 4.(d) or at the begin of 4.(e). 
+        % whether it will be executed at the end of 4.(d) or at the begin of 4.(e).
         %-----------------------------------------------------------------------
         % No upshift to a higher gear at the transition
         % from an acceleration or constant speed phase
         % to a deceleration phase shall be performed
         % if one of the gears in the first two seconds
-        % following the end of the deceleration phase         
-        % is lower than the upshifted gear or is gear 0.              
+        % following the end of the deceleration phase
+        % is lower than the upshifted gear or is gear 0.
 	    % If there is an upshift during the transition
         % and the initial deceleration phase by 2 gears,
         % an upshift by 1 gear shall be performed instead.
@@ -2330,12 +2330,12 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
 		AnyDecelerationEnds = PhaseEnds(PhaseValues == PHASE_DECELERATION | PhaseValues == PHASE_DECELERATION_TO_STANDSTILL);
         AnyDecelerations = arrayfun(@colon, AnyDecelerationStarts, AnyDecelerationEnds, 'Uniform', false);
         for phase = AnyDecelerations' %#ok<FXUP>
-            
+
             % apply correction to each phase only once
             if any( corr_4d_applied_before( phase{ : } ) )
                 continue
             end
-            
+
             % NOTE:
             % the phase before a deceleration phase
             % is guaranteed to be either a acceleration phase or a constant speed phase
@@ -2346,17 +2346,17 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             % so an upshift at the transition from acceleration to deceleration phase
             % may occur not immediately at the first second of the transition but some seconds later
             % therefore we will regard any upshift occuring during the first 3 seconds of the deceleration phase
-            % as being related to the transition            
+            % as being related to the transition
             % eg RRT vehicle 23, trace seconds 605..616 :
-            %   605        616 
-            %    v          v 
+            %   605        616
+            %    v          v
             %    AAAAAAAAADDD  A:acceleration D:deceleration
             %    223456677777  g_max
             %    223344556677  gear corr 4a : use each gear for at least 2 sec
             %              ^   delayed usage of higher gear after transition A->D
-            
+
             g_max_at_transition = max( InitialGears( phase{ 1 }( 1 : min( 3, length( phase{ 1 } ) ) ) ) );
-           
+
             if phase{ 1 }( 1 ) - 1 >= 1 ...                                     % avoid indexing before trace
             && g_max_at_transition > InitialGears( phase{ 1 }( 1 ) - 1 ) ...    % upshift at begin of deceleration phase
             && InitialGears( phase{ 1 }( 1 ) - 1 ) > 0 ...                      % exclude neutral gear
@@ -2369,28 +2369,28 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
           % && InitialGears( phase{ 1 }( end ) + 1 ) > 0 ...                    % exclude neutral gear
                 switch( g_max_at_transition - InitialGears( phase{ 1 }( 1 ) - 1 ) )
                 case 1
-                    % single step upshift 
+                    % single step upshift
                     % disable upshifts to gears higher than used before decelaration phase
                     InitialGears( phase{ : } ) = min( InitialGears( phase{ : } ), InitialGears( phase{ 1 }( 1 ) - 1 ) );
-                    corr_4d_applied_before( phase{ : } ) = true;          
+                    corr_4d_applied_before( phase{ : } ) = true;
                 case num2cell( 2 : NoOfGears )
                     % multiple step upshift
-                    % limit upshifts to gears at most one step higher than used before deceleration phase 
+                    % limit upshifts to gears at most one step higher than used before deceleration phase
                     InitialGears( phase{ : } ) = min( InitialGears( phase{ : } ), InitialGears( phase{ 1 }( 1 ) - 1 ) + 1 );
                     % correction was applied to current phase
-                    corr_4d_applied_before( phase{ : } ) = true;          
+                    corr_4d_applied_before( phase{ : } ) = true;
                 end
             end
-            
+
             % no upshift to a higher gear shall be performed within a deceleration phase
 
             % but Heinz Steven Tool extends a deceleration phase by a following constant speed second
             % when handling gear correction "no upshift during decel"
             % eg for RRT vehicle 20 time 1744
-            % 2019-02-26 found that HST extends a deceleration phase also by a following acceleration second 
-            % eg for RRT vehicle 20 time 670 when using n_min_drive_down = 1500 
+            % 2019-02-26 found that HST extends a deceleration phase also by a following acceleration second
+            % eg for RRT vehicle 20 time 670 when using n_min_drive_down = 1500
             phase_ext = phase{ : };
-            if length( RequiredVehicleSpeeds ) >= phase_ext( end ) + 2 
+            if length( RequiredVehicleSpeeds ) >= phase_ext( end ) + 2
                 if RequiredVehicleSpeeds( phase_ext( end ) + 1 ) >= 1 ...
                 && (    abs( diff( RequiredVehicleSpeeds( phase_ext( end ) + 1 : phase_ext( end ) + 2 ) ) ) < 0.001 ...
                      ||      diff( RequiredVehicleSpeeds( phase_ext( end ) + 1 : phase_ext( end ) + 2 ) )   > 0     )
@@ -2401,16 +2401,16 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             idx_neutral = find( gears == 0 );  % gear 0 must be ignored
             gears( idx_neutral ) = NoOfGears;  % replace gear 0 by gear max so that it will not affect cummin()
             gears = my_cummin( gears );        % disable any upshifts by cummin()
-            gears( idx_neutral ) = 0;          % re-establish gear 0                
+            gears( idx_neutral ) = 0;          % re-establish gear 0
             InitialGears( phase_ext ) = gears;
 
         end
-     
+
     end
 
 
     function [InitialGears, ClutchDisengaged] = applyCorrection4e(InitialGears, PhaseStarts, PhaseEnds, PhaseValues, ClutchDisengaged, InitialRequiredEngineSpeeds, IdlingEngineSpeed)
- 
+
         %-----------------------------------------------------------------------
         % Regulation Annex 2, 4.(e) :
         %-----------------------------------------------------------------------
@@ -2419,19 +2419,19 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % moved this gear correction to paragraph
         % 3.3. Selection of possible gears with respect to engine speed.
         % But we keep it here to check also additional usages of gear 2,
-        % which may result from other gear corrections done before. 
+        % which may result from other gear corrections done before.
         %-----------------------------------------------------------------------
         % During a deceleration phase,
         % gears with n_gear > 2 shall be used
-        % as long as the engine speed does not drop below n_min_drive. 
+        % as long as the engine speed does not drop below n_min_drive.
         % Gear 2 shall be used during a deceleration phase
         % within a short trip of the cycle (not at the end of a short trip)
-        % as long as the engine speed does not drop below (0.9 × n_idle). 
+        % as long as the engine speed does not drop below (0.9 ï¿½ n_idle).
         % If the engine speed drops below n_idle,
         % the clutch shall be disengaged.
         % If the deceleration phase is the last part of a short trip
         % shortly before a stop phase,
-        % the second gear shall be used 
+        % the second gear shall be used
         % as long as the engine speed does not drop below n_idle.
         %-----------------------------------------------------------------------
 
@@ -2457,18 +2457,18 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
           | ( Phases == PHASE_DECELERATION_TO_STANDSTILL ...
             & InitialRequiredEngineSpeeds(:, 2) < IdlingEngineSpeed ...
             ) ...
-          ) ...  
+          ) ...
         );
 
         for phase = AnyDecelerations' %#ok<FXUP>
-            secondGearsWithLowEngineSpeedsInPhase = ... 
+            secondGearsWithLowEngineSpeedsInPhase = ...
               secondGearsWithLowEngineSpeeds( ...
                 secondGearsWithLowEngineSpeeds >= phase{:}(1) ...
               & secondGearsWithLowEngineSpeeds <= phase{:}(end) ...
               ) ...
             ;
             ClutchDisengaged( secondGearsWithLowEngineSpeedsInPhase ) = 1;
-            
+
             % Additional correction get the same results as the Heinz Steven Tool
             % (eg for RRT vehicle 8, trace seconds 94:95, 440, 525, 1449, 1792:1793).
             % HST seems to do gear correction 4f (eg 33322111 -> 33301111)
@@ -2482,13 +2482,13 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
                 && InitialGears( t_clutch - 2 ) ~= 2
                     ClutchDisengaged( t_clutch - 1 ) = 1;
                 end
-                if InitialGears( t_clutch - 1 ) == 2 ... 
+                if InitialGears( t_clutch - 1 ) == 2 ...
                 && InitialGears( t_clutch - 2 ) == 2 ...
-                && InitialGears( t_clutch - 3 ) ~= 2  
+                && InitialGears( t_clutch - 3 ) ~= 2
                     ClutchDisengaged( t_clutch - 1 ) = 1;
                     ClutchDisengaged( t_clutch - 2 ) = 1;
                 end
-            end            
+            end
         end
 
     end
@@ -2501,7 +2501,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         gear_max = max( PossibleGears, [], 2 );
         % The "i_max" mentioned in the regulation text
         % is the maximum possible gear NUMBER usable at a certain time.
-        % In this code this is defined by gear_max(i). 
+        % In this code this is defined by gear_max(i).
 
         % determine extended phases of standstill
         % including leading phases of gear 0 usage
@@ -2511,7 +2511,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
                 InStandStillExtended( i ) = true;
             end
         end
- 
+
         for i = 1 : i_max
             % NOTE:
             % In the gear sequence examples shown by the regulation text
@@ -2522,7 +2522,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             % So the time indices for the regulation example above are i-1:i+4
             % and the related gear numbers are defined by gear(i-1:i+4).
 
-            replaced = false; 
+            replaced = false;
 
             % Heinz Steven Tool 2019-10-08 corrects the gear sequence
             % for vehicle 114 time 434..443
@@ -2583,7 +2583,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             % The clutch shall be disengaged for the 1st second.
             % This requirement shall only be applied
             % if the gear that follows after the 2 second period is > 0.
-            %-------------------------------------------------------------------        
+            %-------------------------------------------------------------------
             elseif  i-3  >= 1         ...
             &&      i+4  <= i_max     ...
             && all( InDeceleration( i-3 : i+4 ) ) ...
@@ -2607,16 +2607,16 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             %-------------------------------------------------------------------
 
             %-------------------------------------------------------------------
-            % A gear sequence 
+            % A gear sequence
             %       i, i, i, i-1, i-1, i-2  or
-            %       i, i, i, i-1, i-2, i-2 
+            %       i, i, i, i-1, i-2, i-2
             % shall be changed to
             %   ==> i, i, i,   0, i-2, i-2
             % with i-2 > 0
             %-------------------------------------------------------------------
             elseif  i-3     >= 1         ...
             &&      i+2     <= i_max     ...
-            && all( InDeceleration( i-1 : i ) ) ...  
+            && all( InDeceleration( i-1 : i ) ) ...
             && gear(i-3)    == gear(i-2) ...
             && gear(i-2)    == gear(i-1) ...
             && gear(i-1) -1 == gear(i  ) ...
@@ -2635,7 +2635,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             %-------------------------------------------------------------------
             % A gear sequence such as
             %       i, i, i, i-1, i-2, i-3  or
-            %       i, i, i, i-2, i-2, i-3  or 
+            %       i, i, i, i-2, i-2, i-3  or
             %       other possible combinations
             % shall be changed to
             %   ==> i, i, i,   0, i-3, i-3
@@ -2654,7 +2654,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             %-------------------------------------------------------------------
             elseif  i-3     >= 1         ...
             &&      i+2     <= i_max     ...
-            && all( InDeceleration( i-1 : i ) ) ...  
+            && all( InDeceleration( i-1 : i ) ) ...
             && gear(i-3)    == gear(i-2) ...
             && gear(i-2)    == gear(i-1) ...
             && (  gear(i-1) -1 ==  gear(i  ) ...
@@ -2679,7 +2679,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             %-------------------------------------------------------------------
             % IMPLEMENTED ABOVE AS: all( InDeceleration( i-1 : i ) )
             %-------------------------------------------------------------------
-  
+
             %-------------------------------------------------------------------
             % In all cases specified above in this sub-paragraph,
             % the clutch disengagement (gear 0) for 1 second is used
@@ -2689,9 +2689,9 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             % directly instead of gear 0 for downshifts of up to 3 steps.
             % The use of this option shall be recorded.
             %-------------------------------------------------------------------
-            % NOTE: This text is a later part of the regulation text. 
+            % NOTE: This text is a later part of the regulation text.
             %-------------------------------------------------------------------
-            if replaced                      ... 
+            if replaced                      ...
             && SuppressGear0DuringDownshifts ...
             && i-1 >= 1                      ...
             && i+1 <= i_max                  ...
@@ -2699,24 +2699,24 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
                 gear(i) = gear(i+1);
                 ClutchDisengaged(i) = 0;
                 replaced = false;
-            end 
+            end
 
             %-------------------------------------------------------------------
             % For extreme transmission designs, it is possible
             % that gear sequences with durations of 1 or 2 seconds
             % following one another may last up to 7 seconds.
-            % In such cases, the correction above shall be complemented 
+            % In such cases, the correction above shall be complemented
             % by the following correction requirements in a second step:
             %-------------------------------------------------------------------
-            % NOTE: This text is a earlier part of the regulation text. 
+            % NOTE: This text is a earlier part of the regulation text.
             %-------------------------------------------------------------------
             if replaced
-            
+
                 %---------------------------------------------------------------
                 % If gear i-1 is one or two steps below i_max
-                % for second 3 of this sequence (one after gear 0). 
+                % for second 3 of this sequence (one after gear 0).
                 % A gear sequence shall be changed :
-                %       j, 0, i  , i  , i-1, k   
+                %       j, 0, i  , i  , i-1, k
                 %   ==> j, 0, i-1, i-1, i-1, k
                 %       with j > i+1 and 0 < k <= i-1
                 %---------------------------------------------------------------
@@ -2732,13 +2732,13 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
 
                     gear(i+1) = gear(i+3);
                     gear(i+2) = gear(i+3);
-     
+
                 %---------------------------------------------------------------
                 % If gear i-1 is more than two steps below i_max
                 % for second 3 of this sequence
                 % A gear sequence shall be changed :
-                %       j, 0, i  , i  , i-1, k 
-                %   ==> j, 0, 0  , k  , k  , k 
+                %       j, 0, i  , i  , i-1, k
+                %   ==> j, 0, 0  , k  , k  , k
                 %       with j > i+1 and 0 < k <= i-1
                 %---------------------------------------------------------------
                 elseif  i-1     >= 1             ...
@@ -2758,11 +2758,11 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
 
                 %---------------------------------------------------------------
                 % If gear i-2 is one or two steps below i_max
-                % for second 3 of this sequence (one after gear 0). 
+                % for second 3 of this sequence (one after gear 0).
                 % A gear sequence shall be changed :
-                %       j, 0, i  , i  , i-2, k 
-                %   ==> j, 0, i-2, i-2, i-2, k 
-                %       with j > i+1 and 0 < k <= i-2 
+                %       j, 0, i  , i  , i-2, k
+                %   ==> j, 0, i-2, i-2, i-2, k
+                %       with j > i+1 and 0 < k <= i-2
                 %---------------------------------------------------------------
                 elseif  i-1     >= 1             ...
                 &&      i+4     <= i_max         ...
@@ -2780,7 +2780,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
                 %---------------------------------------------------------------
                 % If gear i-2 is more than two steps below i_max
                 % for second 3 of this sequence,
-                %       j, 0, i  , i  , i-2, k 
+                %       j, 0, i  , i  , i-2, k
                 %   ==> j, 0, 0  , k  , k  , k
                 %       with j > i+1 and 0 < k <= i-2
                 %---------------------------------------------------------------
@@ -2842,7 +2842,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
                 gear(i+1) = 0;
                 ClutchDisengaged(i+1) = 0;
 
-            end 
+            end
 
         end  % for i
 
@@ -2861,7 +2861,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % this gear should be used until the first sample of the deceleration phase.
         % For the rest of the deceleration phase,
         % gear 0 shall be used and the gear lever shall be placed in neutral
-        % and the clutch shall be engaged.       
+        % and the clutch shall be engaged.
         %-----------------------------------------------------------------------
         % NOTE: This text later was moved to an earlier position of regulation 4.(f).
         %-----------------------------------------------------------------------
@@ -2877,7 +2877,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % additional correction required for eg :
         % - HST vehicle_no: 109 time: 1446
         % - HST vehicle_no: 111 time: 1446
-        BeginDecelerationToStandstillGear1Engaged = ...                     
+        BeginDecelerationToStandstillGear1Engaged = ...
           ~InDecelerationToStandstillPrev ...
         &  gearPrev ~= 1 ...
         &  InDecelerationToStandstill ...
@@ -2885,8 +2885,8 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         & ~ClutchDisengaged ...
         ;
         gear            ( BeginDecelerationToStandstillGear1Engaged ) = 0;
-        ClutchDisengaged( BeginDecelerationToStandstillGear1Engaged ) = 1;       
-        
+        ClutchDisengaged( BeginDecelerationToStandstillGear1Engaged ) = 1;
+
         % If gear 0 with disengaged clutch was inserted by above gear corrections
         % then futher gear corrections may have lead to an immediately
         % following gear 0 with engaged clutch.
@@ -2897,7 +2897,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % ie it shall not be done at the begin of deceleration to standstill.
         InDecelerationToStandstillPrev = [ false; InDecelerationToStandstill( 1:end-1 ) ];
         InDecelerationToStandstillNext = [ InDecelerationToStandstill( 2:end ); false ];
-        gearNext = [ gear( 2:end ); 0 ]; 
+        gearNext = [ gear( 2:end ); 0 ];
         ClutchDisengagedNext = [ ClutchDisengaged( 2:end ); false ];
         ClutchDisengaged( ...
            InDecelerationToStandstillPrev ...
@@ -2919,10 +2919,10 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % It extends a cell array of gear correction strings
         % by the current corrections and the resulting corrected gears.
         % Each gear correction is indicated by a string combining correction type and number.
-        % If eg gear 2 is corrected to gear 3 by correction '4a' during the first iteration  
+        % If eg gear 2 is corrected to gear 3 by correction '4a' during the first iteration
         % then the gear correction string will be extended by ' 4a1 3'.
         % If eg gear 2 is not corrected
-        % then the gear correction string will be extended by ' --- 2'. 
+        % then the gear correction string will be extended by ' --- 2'.
         % If the iteration number is 0 then gear correction string will just be inited with the initial gears.
         % Clutch will be indicated by single char 'C' (not by '-1').
         % Gear 10 will be indicated by single char 'X' (not by '10').
@@ -2954,7 +2954,7 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         %     eg '4c'
         %   correctionNbr
         %     A number indicating the iteration of the current correction
-        
+
         InitialGearsCells = cellstr( num2str( InitialGears, '%d' ) );
         InitialGearsCells = regexprep( InitialGearsCells, '-1', 'C' );
         InitialGearsCells = regexprep( InitialGearsCells, '10', 'X' );
@@ -3014,13 +3014,13 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
             % In MATLAB the ASM values have the unit "percent" with a range 0 to 100
             % while in the regulation the assumed unit is "fraction" with a range 0 to 1.
             % Therefore the value of the constant 0.005 used in the regulation formula
-            % ASM = ASM_0 × exp( ln( 0.005 / ASM_0 ) × ( n_start – n ) / ( n_start – n_end ) )
+            % ASM = ASM_0 ï¿½ exp( ln( 0.005 / ASM_0 ) ï¿½ ( n_start ï¿½ n ) / ( n_start ï¿½ n_end ) )
             % must be replaced by the value 0.5 in the MATLAB formula.
         end
     end
 
 
-    function enabled = next_n_gears_are_higher( n, gears ) 
+    function enabled = next_n_gears_are_higher( n, gears )
         enabled = true( size( gears ) );
         for i = 1 : length( gears )
             for k = 1 : n
