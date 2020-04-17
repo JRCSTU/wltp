@@ -17,6 +17,7 @@ import doctest
 import io
 import os
 import re
+import subprocess as sbp
 import sys
 
 from graphtik import plot
@@ -26,14 +27,29 @@ projname = "wltp"
 mydir = os.path.dirname(__file__)
 
 
-def read_project_version():
-    fglobals = {}
+def _read_project_version() -> str:
+    fglobals = {}  # type:ignore
     with io.open(os.path.join(mydir, "..", projname, "_version.py")) as fd:
         exec(fd.read(), fglobals)  # To read __version__
     return fglobals["__version__"]
 
 
-proj_ver = read_project_version()
+def _ask_git_version(default: str) -> str:
+    try:
+        return sbp.check_output(
+            "git describe --always".split(), universal_newlines=True
+        )
+    except Exception:
+        return default
+
+
+## The full version, including alpha/beta/rc tags
+#  for the |release\ replacement
+release = os.environ.get("TRAVIS_TAG", _read_project_version())
+
+## The short X.Y version for the |version\ replacement.
+version = _ask_git_version(release)
+
 
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
@@ -45,7 +61,6 @@ sys.path.insert(0, os.path.abspath("../"))
 # sys.path.insert(0, os.path.abspath('../devtools')) # Does not work for scripts :-(
 
 
-#
 if on_rtd:
     autodoc_mock_imports = ["xlwings"]  ## depends on win32
 
@@ -140,15 +155,6 @@ master_doc = "index"
 # General information about the project.
 project = "wltp"
 copyright = "2013-2020, European Commission (JRC), EUPL 1.1+"  # @ReservedAssignment
-
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
-#
-# The short X.Y version.
-version = proj_ver
-# The full version, including alpha/beta/rc tags.
-release = proj_ver
 
 extlinks = {"issue": ("https://github.com/JRCSTU/wltp/issues/%s", "issue")}
 todo_include_todos = True
