@@ -882,7 +882,7 @@ See also :ref:`architecture:Architecture`.
 .. _virtualenv: http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
 .. |binder| image:: https://mybinder.org/badge_logo.svg
-    :target: https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md
+    :target: https://mybinder.org/v2/gh/ankostis/wltp/master?urlpath=lab/tree/Notebooks/README.md
     :alt: JupyterLab for WLTP
 
 .. |pypi| replace:: *PyPi* repo

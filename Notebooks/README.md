@@ -225,4 +225,4 @@ print([i.table_name for i in crsr.tables(tableType='TABLE')]
 print([i.column_name for i in crsr.columns('gearshift_table_all')]
 ```
 
-[1]: https://mybinder.org/v2/gh/JRCSTU/wltp/master?urlpath=lab/tree/Notebooks/README.md
+[1]: https://mybinder.org/v2/gh/ankostis/wltp/master?urlpath=lab/tree/Notebooks/README.md
