@@ -50,14 +50,6 @@ if on_rtd:
     autodoc_mock_imports = ["xlwings"]  ## depends on win32
 
 
-## Trick from https://github.com/rtfd/readthedocs.org/issues/283
-# On read the docs we need to use a different CDN URL for MathJax which loads
-# over HTTPS.
-if on_rtd:
-    mathjax_path = (
-        "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
-    )
-
 ## Make autodoc always includes constructors.
 #    From http://stackoverflow.com/a/5599712/548792
 #    and http://stackoverflow.com/questions/3757500/how-do-i-connect-sphinxs-autodoc-skip-member-to-my-function
