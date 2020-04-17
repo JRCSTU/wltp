@@ -47,11 +47,8 @@ sys.path.insert(0, os.path.abspath("../"))
 
 #
 if on_rtd:
-    from unittest.mock import MagicMock
+    autodoc_mock_imports = ["xlwings"]  ## depends on win32
 
-    MOCK_MODULES = ["xlwings"]  ## Mock-out because it depends on win32.
-    for mod_name in MOCK_MODULES:
-        sys.modules[mod_name] = MagicMock()
 
 ## Trick from https://github.com/rtfd/readthedocs.org/issues/283
 # On read the docs we need to use a different CDN URL for MathJax which loads
