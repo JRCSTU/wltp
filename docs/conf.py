@@ -51,8 +51,6 @@ release = os.environ.get("TRAVIS_TAG", _read_project_version())
 version = _ask_git_version(release)
 
 
-on_rtd = os.environ.get("READTHEDOCS", None) == "True"
-
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -61,7 +59,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # sys.path.insert(0, os.path.abspath('../devtools')) # Does not work for scripts :-(
 
 
-if on_rtd:
+if os.name != 'nt':
     autodoc_mock_imports = ["xlwings"]  ## depends on win32
 
 
