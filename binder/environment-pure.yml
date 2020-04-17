@@ -1,0 +1,47 @@
+# Push these as binder/requirements.txt`,
+# and get the latest transitive ones from the running binder,
+# by issuing in its terminal:
+#
+#     conda list
+#     pip freeze
+#
+# ... and subtract the 2 install-sets.
+name: jupyter
+channels:
+  - ankostis
+  - conda-forge
+  - defaults
+dependencies:
+  - boltons
+  - coveralls
+  - docopt
+  - docutils
+  - graphviz
+  - ipympl
+  - jsonschema
+  - jupyter
+  - jupytext
+  - matplotlib
+  - nb_black
+  - numpy
+  - octave
+  - openpyxl
+  - pandas
+  - papermill
+  - pip
+  - pytest
+  - pytest-cov
+  - ruamel.yaml
+  - scipy
+  - sphinx
+  - toolz
+  - wheel
+  - pip:
+    - columnize
+    - graphtik[sphinx]
+    - pandalone
+    - pytest-sphinx
+    - qgrid
+    - readme-renderer
+    - tables
+    - git+https://github.com/ankostis/oct2py.git@patch-1#egg=oct2py
