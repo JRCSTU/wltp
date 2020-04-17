@@ -22,7 +22,7 @@ import time
 from copy import deepcopy
 from datetime import datetime
 from pathlib import Path, PurePosixPath
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, NamedTuple
 from typing import Sequence as Seq
 from typing import Tuple, Union
 
@@ -475,25 +475,35 @@ def load_vehicle_nodes(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
 # props, wot = load_vehicle_nodes(h5fname, vehnum, "prop", "wot")
 
 
-def load_vehicle_accdb(h5, vehnum) -> Tuple[pd.Series, pd.DataFrame, list]:
-    """return the typical data for a vehicle in accdc: props, wot, n2vs"""
+class CaseData(NamedTuple):
+    """Typical case data stored in vehicle DBs. """
+
+    props: pd.Series
+    df: pd.DataFrame
+    items: list
+
+
+def load_vehicle_accdb(h5, vehnum) -> CaseData:
+    """return the typical input & output data for a vehicle in accdc: props, wot, n2vs"""
 
     def func(h5db):
         props = load_vehicle_nodes(h5db, vehnum, "prop")
         wot_vehnum = props["vehicle_no"]
         wot = load_vehicle_nodes(h5db, wot_vehnum, "wot")
         n2vs = load_n2v_gear_ratios(props)
-        return props, wot, n2vs
+        return CaseData(props, wot, n2vs)
 
     res = do_h5(h5, func)
     return res
 
 
-def load_vehicle_pyalgo(h5, vehnum) -> Tuple[pd.Series, pd.DataFrame, list]:
-    """return the typical data for a vehicle in pyalgo: props, cycle, wots_vmax"""
+def load_vehicle_pyalgo(h5, vehnum) -> CaseData:
+    """return the typical output data for a vehicle in pyalgo: oprops, cycle, wots_vmax"""
 
     def func(h5db):
-        return load_vehicle_nodes(h5db, vehnum, "oprop", "cycle", "wots_vmax")
+        return CaseData(
+            *load_vehicle_nodes(h5db, vehnum, "oprop", "cycle", "wots_vmax")
+        )
 
     res = do_h5(h5, func)
     return res
