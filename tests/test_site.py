@@ -94,6 +94,9 @@ class _WarningStream:
             )
         )
 
+    def __repr__(self):
+        return self.output.getvalue()
+
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="assume build on py3.8 only")
 def test_README_as_PyPi_landing_page(monkeypatch):
@@ -111,8 +114,7 @@ def test_README_as_PyPi_landing_page(monkeypatch):
         stream=err_stream,
         halt_level=2,  # 2=WARN, 1=INFO
     )
-    if not result:
-        raise AssertionError(str(err_stream))
+    assert result, err_stream
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="assume build on py3.8 only")
