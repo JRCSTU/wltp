@@ -88,7 +88,7 @@ is a demanding, but manageable, task.  Here is a checklist of things that might 
 
 I do not have python / cannot install it.  Is it possible to try a *demo*?
 --------------------------------------------------------------------------
-Launch it in a binder server by clicking the |binder| badg.
+Launch it in a binder server by clicking the |binder| or |binder-dev| badges.
 
 
 Discussion
