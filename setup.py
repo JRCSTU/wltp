@@ -10,6 +10,8 @@
 #    http://python-packaging-user-guide.readthedocs.org/en/latest/current.html
 
 import os, sys, io, re
+import subprocess as sbp
+import datetime as dt
 from setuptools import setup, find_packages
 
 
@@ -31,6 +33,17 @@ def read_project_version():
     with io.open(os.path.join(mydir, proj_name, "_version.py")) as fd:
         exec(fd.read(), fglobals)  # To read __version__
     return fglobals["__version__"]
+
+
+def _ask_git_version(default: str) -> str:
+    try:
+        return sbp.check_output(
+            "git describe --always".split(), universal_newlines=True
+        ).strip()
+    except Exception:
+        return default
+
+git_ver = _ask_git_version('x.x.x')
 
 
 def read_text_lines(fname):
@@ -83,8 +96,9 @@ def yield_rst_only_markup(lines):
         (r"\.\. todo::", r".. note:: TODO"),
         # Other
         #
-        (r"\|version\|", r"x.x.x"),
-        (r"\|today\|", r"x.x.x"),
+        (r"\|version\|", git_ver),
+        (r"\|release\|", git_ver),
+        (r"\|today\|", dt.datetime.now().isoformat()),
         (r"\.\. include:: AUTHORS", r"see: AUTHORS"),
         (r"\.\. \|br\| raw::", r".. |br| raw: "),
         (r"\|br\|", r""),
@@ -206,6 +220,7 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
         "Development Status :: 3 - Alpha",
         "Natural Language :: English",

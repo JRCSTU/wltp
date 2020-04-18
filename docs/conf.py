@@ -38,18 +38,17 @@ def _ask_git_version(default: str) -> str:
     try:
         return sbp.check_output(
             "git describe --always".split(), universal_newlines=True
-        )
+        ).strip()
     except Exception:
         return default
 
 
 ## The full version, including alpha/beta/rc tags
 #  for the |release\ replacement
-release = os.environ.get("TRAVIS_TAG", _read_project_version())
+release = os.environ.get("TRAVIS_TAG", _ask_git_version(_read_project_version()))
 
 ## The short X.Y version for the |version\ replacement.
-version = _ask_git_version(release)
-
+version = release
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -59,7 +58,7 @@ sys.path.insert(0, os.path.abspath("../"))
 # sys.path.insert(0, os.path.abspath('../devtools')) # Does not work for scripts :-(
 
 
-if os.name != 'nt':
+if os.name != "nt":
     autodoc_mock_imports = ["xlwings"]  ## depends on win32
 
 

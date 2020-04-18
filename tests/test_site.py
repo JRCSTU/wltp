@@ -23,25 +23,31 @@ proj_path = osp.join(mydir, "..")
 readme_path = osp.join(proj_path, "README.rst")
 
 
-def test_README_version_reldate_opening():
-    ver = wltp.__version__
-    reldate = wltp.__updated__
-    header_len = 20
+def _badge_io_escape(s: str) -> str:
+    return s.replace("-", "--").replace("_", "__").replace(" ", "_")
+
+
+def test_README_proj_version_reldate():
+    ver = _badge_io_escape(wltp.__version__)
+    reldate = _badge_io_escape(wltp.__updated__)
+    tail_len = 100
     mydir = osp.dirname(__file__)
     ver_found = rdate_found = False
     with open(readme_path) as fd:
-        for i, l in zip(range(header_len), fd):
-            if ver in l:
-                ver_found = True
-            if reldate not in l:
-                rdate_found = True
+        lines = fd.readlines()
+    tail = lines[-tail_len:]
+    for i, l in enumerate(tail, len(lines) - tail_len):
+        if ver in l:
+            ver_found = True
+        if reldate not in l:
+            rdate_found = True
 
     if not ver_found:
-        msg = "Version(%s) not found in README %s header-lines!"
-        raise AssertionError(msg % (ver, header_len))
+        msg = "Version(%s) not found in README %s tail-lines!"
+        raise AssertionError(msg % (ver, tail_len))
     if not rdate_found:
-        msg = "RelDate(%s) not found in README %s header-lines!"
-        raise AssertionError(msg % (reldate, header_len))
+        msg = "RelDate(%s) not found in README %s tail-lines!"
+        raise AssertionError(msg % (reldate, tail_len))
 
 
 def test_README_version_from_cmdline(capsys):

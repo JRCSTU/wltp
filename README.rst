@@ -1,11 +1,11 @@
 ################################################################
 wltp: generate WLTC gear-shifts based on vehicle characteristics
 ################################################################
-:versions:      1.0.0.dev12 (2019-08-30 14:55:39) |br|
-                |gh-version| |pypi-version| |conda-version| |dev-status| |br|
-                |python-ver|  |conda-plat|
+:versions:      |pypi-version| |conda-version| |gh-version| |proj-version| |rel-date|
+                (build-version: |release|, build-date: |today|)
+                |dev-status| |python-ver|  |conda-plat|
 :documentation: https://wltp.readthedocs.org/ |br|
-                |docs-status| build-date: |today|
+                |docs-status|
 :live-demo:     |binder| |binder-dev|
 :sources:       https://github.com/JRCSTU/wltp |br|
                 |travis-status| |appveyor-status| |downloads-count| |codestyle| |br|
@@ -924,6 +924,14 @@ See also :ref:`architecture:Architecture`.
 .. |conda-version| image::  https://img.shields.io/conda/v/ankostis/wltp?label=conda%20version
     :target: https://anaconda.org/ankostis/wltp
     :alt: Latest version in Anaconda cloud
+
+.. |proj-version| image::  https://img.shields.io/badge/project--version-1.0.0.dev12-orange.svg
+    :target: https://github.com/JRCSTU/wltp/releases
+    :alt: Version grafted in project's package coordinates
+
+.. |rel-date|  image::  https://img.shields.io/badge/rel--date-2019--08--30_14:55:39-orange.svg
+    :target: https://github.com/JRCSTU/wltp/releases
+    :alt: Release date grafted in project's package coordinates
 
 .. |python-ver| image:: https://img.shields.io/pypi/pyversions/wltp.svg?label=PyPi%20Python
     :target: https://pypi.python.org/pypi/wltp/
