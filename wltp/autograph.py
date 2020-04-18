@@ -292,9 +292,12 @@ def autographed(
             endured, parallel, marshalled, node_props
 
     """
-    locs = locals()
     kws.update(
-        {k: v for k, v in locs.items() if v is not _unset and k not in ("kws", "fn")}
+        {
+            k: v
+            for k, v in locals().items()
+            if v is not _unset and k not in "kws fn domain".split()
+        }
     )
 
     def decorator(fn):
