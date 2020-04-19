@@ -18,11 +18,11 @@ from .invariants import Column
 log = logging.getLogger(__name__)
 
 
-def mass_in_running_order_2_unladen_mass(mro, driver_mass):
+def calc_unladen_mass(mro, driver_mass):
     return mro - driver_mass
 
 
-def unladen_mass_2_mass_in_running_order(unladen_mass, driver_mass):
+def calc_mro(unladen_mass, driver_mass):
     return unladen_mass + driver_mass
 
 
