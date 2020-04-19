@@ -18,6 +18,7 @@ from scipy import interpolate
 
 from . import invariants as inv
 from . import io as wio
+from .nmindrive import NMinDrives
 from .invariants import Column
 
 log = logging.getLogger(__name__)
@@ -436,24 +437,7 @@ def calc_n_max(n_max1, n_max2, n_max3):
     return n_max
 
 
-#: temporary use this till gear-ratios become a table (like wot).
-NMinDrives = namedtuple(
-    "NMinDrives",
-    (
-        "n_min_drive1",
-        "n_min_drive2_up",
-        "n_min_drive2_stopdecel",
-        "n_min_drive2",
-        "n_min_drive_set",
-        "n_min_drive_up",
-        "n_min_drive_up_start",
-        "n_min_drive_down",
-        "n_min_drive_down_start",
-        "t_cold_end",
-    ),
-)
-
-
+## TODO: DEL
 def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDrives:
     """
     Calculate minimum revolutions according to Annex 2-2.k.
@@ -495,6 +479,7 @@ def calc_fixed_n_min_drives(mdl: Mapping, n_idle: int, n_rated: int) -> NMinDriv
     return nmins
 
 
+## TODO: DEL
 def nmins_from_model(mdl):
     """Repopulates the :class:`NMinDrives` from a (validated) datamodel."""
     return NMinDrives(**{field: mdl[field] for field in NMinDrives._fields})
