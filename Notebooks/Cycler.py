@@ -50,7 +50,7 @@ import qgrid
 import wltp
 from wltp import engine
 from wltp.experiment import Experiment
-from wltp import datamodel, io as wio, engine, vmax, vehicle, cycler
+from wltp import datamodel, io as wio, engine, nmindrive, vmax, vehicle, cycler
 
 ## Add tests/ into `sys.path` to import `vehdb` module.
 #
@@ -132,7 +132,7 @@ g_vmax = vmax_rec.g_vmax
 n2v_vmax = n2vs[g_vmax - 1]
 n_max_cycle = v_max_cycle * n2v_vmax
 n_max_cycle = v_max_cycle * n2v_vmax
-nmins = engine.calc_fixed_n_min_drives(mdl, mdl["n_idle"], mdl["n_rated"])
+nmins = nmindrive.mdl_2_n_min_drives(*mdl)
 
 # %%
 cb.add_wots(gwots)

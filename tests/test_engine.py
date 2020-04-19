@@ -241,33 +241,6 @@ def test_interpolate_wot_on_v_grid(h5_accdb, vehnums_to_run):
     npt.assert_allclose(df.index.levels[1], invariants.vround(df.index.levels[1]))
 
 
-def test_n_mins_smoke():
-
-    base = engine.calc_fixed_n_min_drives({}, 500, 4000)
-
-    results = [base]
-    for values in itt.product([None, 1], [None, 2], [None, 3], [None, 4], [None, 5]):
-        mdl = dict(
-            zip(
-                (
-                    "n_min_drive_up",
-                    "n_min_drive_up_start",
-                    "n_min_drive_down",
-                    "n_min_drive_down_start",
-                    "t_cold_end",
-                ),
-                values,
-            )
-        )
-        res = engine.calc_fixed_n_min_drives(mdl, 500, 4000)
-        results.append(res)
-
-    ## They must not be any null.
-    #
-    for _i, nmins in enumerate(results):
-        assert (np.isfinite(i) for i in nmins)
-
-
 def test_calc_p_avail_in_gwots_smoketest(h5_accdb):
     gwots = pd.DataFrame({("p", "g1"): [], ("ASM", "g1"): []})
     engine.calc_p_avail_in_gwots(gwots, SM=0.1)

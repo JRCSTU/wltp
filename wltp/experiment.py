@@ -61,6 +61,7 @@ from . import (
     io as wio,
     cycles,
     invariants,
+    nmindrive,
     vehicle,
     engine,
     vmax,
@@ -297,7 +298,8 @@ class Experiment(object):
             g_vmax=mdl[m.g_vmax],
             n95_high=n95_high,
             n_max_cycle=n_max_cycle,
-            nmins=engine.nmins_from_model(mdl),
+            # TODO: expand nmins
+            nmins=nmindrive.mdl_2_n_min_drives(**mdl)["n_min_drives"],
         )
         ok_n = cb.combine_ok_n_gear_flags(ok_flags)
         ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)

@@ -23,7 +23,7 @@ from . import engine
 from . import invariants as inv
 from . import io as wio
 from .invariants import Column
-from .engine import NMinDrives
+from .nmindrive import NMinDrives
 
 log = logging.getLogger(__name__)
 
