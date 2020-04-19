@@ -8,9 +8,8 @@
 """
 Calculate/Validate *n_min_drive* parameters, defined mostly in Annex 2-2.k.
 
-.. testsetup::
-
-  from wltp.nmindrive import *
+>>> from wltp.nmindrive import *
+>>> __name__ = "wltp.nmindrive"
 """
 
 from collections import namedtuple
@@ -218,21 +217,34 @@ NMinDrives = autographed(
 )
 
 
-# TODO: lazily create nmins pipeline with a function.
-_funcs = FnHarvester(base_modules=[__name__]).harvest()
-_aug = Autograph(["calc_", "upd_"])
-_ops = [_aug.wrap_fn(fn, name) for name, fn in _funcs]
-mdl_2_n_min_drives = compose("mdl_2_n_min_drives", *_ops, endured=True)
+def _compose_mdl_2_n_min_drives() -> "NetworkOperation":  # type: ignore
+    funcs = FnHarvester(base_modules=[__name__]).harvest()
+    aug = Autograph(["calc_", "upd_"])
+    ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
+    return compose("mdl_2_n_min_drives", *ops, endured=True)
+
+
+# TODO: create *lazily* pipeline module-attribute.
+mdl_2_n_min_drives = _compose_mdl_2_n_min_drives()
 """
 A pipeline to pre-process *n_min_drives* values.
+(the validation nodes in the plot below are hidden, not to clutter the diagram):
+
+>>> import networkx as nx
+>>> netop = mdl_2_n_min_drives
+>>> hidden = netop.net.find_ops(lambda n, _: not n.name.startswith("validate_"))
+>>> g = nx.DiGraph()
+>>> node_attrs = {"_no_plot": True}
+>>> g.add_nodes_from((n, node_attrs) for n in hidden)
+>>> hidden = [n for n in netop.net.graph.nodes if str(n).startswith("sideffect(")]
+>>> g.add_nodes_from((n, node_attrs) for n in hidden)
 
 .. graphtik::
-    :width: 150%
+    :height: 600
     :hide:
+    :name: nmindrives
 
-    >>> mdl_2_n_min_drives
-    NetworkOperation('mdl_2_n_min_drives',
-    ...
+    >>> netop = netop.plot(graph=g)
 
 **Example:**
 
