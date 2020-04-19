@@ -17,10 +17,10 @@ import pytest
 from wltp import datamodel
 from wltp.downscale import (
     calc_downscale_factor,
+    calc_v_dsc,
     decide_wltc_class,
     downscale_by_recursing,
     downscale_by_scaling,
-    downscale_class_velocity,
 )
 from wltp.invariants import round1
 
@@ -61,7 +61,7 @@ def test_smoke1():
         f_inertial,
     )
     if f_downscale > 0:
-        V = downscale_class_velocity(V, f_downscale, phases)
+        V = calc_v_dsc(V, f_downscale, phases)
         # print(
         #     "Class(%s), f_dnscl(%s), DIFFs:\n%s" % (wclass, f_downscale, diffs[bad_ix])
         # )
@@ -83,7 +83,7 @@ def test_smoke2():
     ]
 
     for (V, phases, f_downscale) in test_data:
-        downscale_class_velocity(V, f_downscale, phases)
+        calc_v_dsc(V, f_downscale, phases)
 
 
 _wltc = datamodel.get_wltc_data()

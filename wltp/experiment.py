@@ -238,7 +238,7 @@ class Experiment(object):
                 mdl[m.f_dscl_orig] = f_dscl_orig
 
             if f_downscale > 0:
-                V_dsc_raw = downscale.downscale_class_velocity(V, f_downscale, phases)
+                V_dsc_raw = downscale.calc_v_dsc(V, f_downscale, phases)
                 V_dsc_raw.name = c.v_dsc_raw
 
                 V_dsc = vround(V_dsc_raw)

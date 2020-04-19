@@ -88,7 +88,7 @@ def calc_downscale_factor(
     return f_downscale, f_downscale_orig
 
 
-def downscale_class_velocity(V: pd.Series, f_downscale, phases) -> pd.Series:
+def calc_v_dsc(V: pd.Series, f_downscale, phases) -> pd.Series:
     """
     Downscale velocity profile by `f_downscale`.
 

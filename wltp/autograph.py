@@ -144,8 +144,8 @@ class FnHarvester(Prefkey):
     ...     excludes=(excludes),
     ...     base_modules=modules
     ... ).harvest()
-    >>> len(funcs)
-    42
+    >>> len(funcs) > 30
+    True
     >>> sorted(list(zip(*funcs))[0])
     [('wltp.cycler', 'CycleBuilder'),
      ('wltp.cycler', 'CycleBuilder', 'add_columns'),
