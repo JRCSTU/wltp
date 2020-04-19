@@ -125,8 +125,8 @@ class FnHarvester(Prefkey):
     ...     include_methods=False,
     ...     predicate=_is_in_my_project
     ... ).harvest(*modules)
-    >>> len(funcs)
-    66
+    >>> len(funcs) > 60
+    True
     >>> sorted(list(zip(*funcs))[0])
     [('wltp.cycler', 'CycleBuilder'),
      ('wltp.cycler', 'NMinDrives'),
@@ -229,7 +229,7 @@ class FnHarvester(Prefkey):
         else:
             pass  # partial?
 
-    def harvest(self, *items: Any) -> List[Tuple[str, Callable]]:
+    def harvest(self, *items: Any, base_modules=...) -> List[Tuple[str, Callable]]:
         """
         :param items:
             items with ``__name__``, like module, class, functions.
@@ -243,12 +243,20 @@ class FnHarvester(Prefkey):
         :return:
             the :attr:`collected`
         """
-        if not items:
-            items = self.base_modules  # type: ignore
-        for bi in items:
-            self._harvest((bi.__name__,), (bi,))
+        old_base_modules = self.base_modules
+        try:
+            if base_modules is not ...:
+                self.base_modules = base_modules
 
-        return self.collected
+            if not items:
+                items = self.base_modules  # type: ignore
+
+            for bi in items:
+                self._harvest((bi.__name__,), (bi,))
+
+            return self.collected
+        finally:
+            self.base_modules = old_base_modules
 
     def paths(self):
         """returns the paths only (no callables), sorted"""
