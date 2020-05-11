@@ -7,6 +7,17 @@
     "python.testing.pytestEnabled": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
+    "python.formatting.provider": "black",
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "/*venv*/**": true,
+        "**/*cache*/**": true,
+        "**/.pytype/**": true,
+        "**/.ipynb_checkpoints/": true,
+        "**/build/**": true,
+        "**/.coverage*": true
+    },
     "files.exclude": {
         "/docs/pyplots/*": true,
         "/wltp/idgears.py": true,
