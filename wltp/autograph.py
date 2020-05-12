@@ -5,6 +5,9 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+"""
+Harvest functions & annotate their :term:`dependencies <dependency>` to build :term:`pipeline`\\s.
+"""
 import inspect
 import logging
 import re
@@ -336,10 +339,20 @@ class Autograph(Prefkey):
     3. decorated with :func:`autographed`
     4. inspected from the callable
 
-    :param out_prefixes:
-        If a function-name start with any of these prefixes,
-        it is trimmed by the first one matching, and a single `provides` is derrived
-        out of it, unless a `provides` is specified in the `overrides`.
+    :param out_patterns:
+        Autodeduce `provides` by parsing function-names against a collection
+        of these items, and decide `provides` by the the 1st one matching
+        (unless `provides` are specified in the `overrides`):
+
+        - regex: may contain 1 or 2 groups:
+
+          - 1 group: the name of a single `provides`
+          - 2 groups: 2nd is the name of a single :term:`sideffected` dependency,
+            the 1st is the sideffect acting upon the former;
+
+        - str: matched as a prefix of the function-name, which is trimmed
+          by the first one matching to derrive a single `provides`;
+
         Note that any `out_sideffects` in overrides, alone, do not block the rule above.
     :param overrides:
         a mapping of ``fn-keys --> dicts`` with keys::
@@ -362,7 +375,7 @@ class Autograph(Prefkey):
     >>> def calc_sum_ab(a, b=0):
     ...     return a + b
 
-    >>> aug = Autograph(out_prefixes=['calc_', 'upd_'], renames={"a": "A"})
+    >>> aug = Autograph(out_patterns=['calc_', 'upd_'], renames={"a": "A"})
     >>> aug.wrap_fn(calc_sum_ab)
     FunctionalOperation(name='calc_sum_ab',
                         needs=['A', 'b'(?)],
@@ -373,20 +386,44 @@ class Autograph(Prefkey):
 
     def __init__(
         self,
-        out_prefixes: _FnKey = None,
+        out_patterns: _FnKey = None,
         overrides: Mapping[_FnKey, Mapping] = None,
         renames: Mapping = None,
         full_path_names: bool = False,
         sep=None,
     ):
         super().__init__(sep)
-        self.out_prefixes = out_prefixes and aslist(out_prefixes, "out_prefixes")
+        self.out_patterns = out_patterns and aslist(out_patterns, "out_patterns")
         self.overrides = overrides and asdict(overrides, "overrides")
         self.renames = renames and asdict(renames, "renames")
         self.full_path_names = full_path_names
 
     def _from_overrides(self, key):
         return self.overrides and self._prefkey(self.overrides, key) or {}
+
+    def _match_fn_name_pattern(self, fn_name, pattern) -> Union[str, Tuple[str, str]]:
+        """return matched group or groups, callable results or after matched prefix string"""
+        if isinstance(pattern, re.Pattern):
+            m = pattern.search(fn_name)
+            groups = m and m.groups()
+            if groups:
+                if len(groups) == 1:
+                    return groups[0]
+                if len(groups) > 2:
+                    raise ValueError(
+                        f"The `out_pattern` {pattern} matched on '{fn_name}' >2 groups: {groups}"
+                    )
+                return sfxed(*reversed(groups))
+        elif callable(pattern):
+            return pattern(fn_name)
+        elif fn_name.startswith(pattern):
+            return fn_name[len(pattern) :]
+
+    def _deduce_provides_from_fn_name(self, fn_name):
+        ## Trim prefix from function-name to derive a singular "provides".
+        matches = [self._match_fn_name_pattern(fn_name, p) for p in self.out_patterns]
+        provides = first(m for m in matches if m)
+        return provides
 
     def _apply_renames(
         self,
@@ -490,13 +527,8 @@ class Autograph(Prefkey):
             if is_regular_class(fn_name, fn):
                 ## Convert class-name into object variable.
                 provides = camel_2_snake_case(fn_name)
-            elif self.out_prefixes:
-                ## Trim prefix from function-name to derive a singular "provides".
-                matched_prefix = first(
-                    p for p in self.out_prefixes if fn_name.startswith(p)
-                )
-                if matched_prefix:
-                    provides = [fn_name[len(matched_prefix) :]]
+            elif self.out_patterns:
+                provides = self._deduce_provides_from_fn_name(fn_name) or _unset
             if provides is _unset:
                 provides = ()
         provides = aslist(provides, "provides")
