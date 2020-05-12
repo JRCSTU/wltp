@@ -43,7 +43,8 @@ def _ask_git_version(default: str) -> str:
     except Exception:
         return default
 
-git_ver = _ask_git_version('x.x.x')
+
+git_ver = _ask_git_version("x.x.x")
 
 
 def read_text_lines(fname):
@@ -57,52 +58,49 @@ def yield_rst_only_markup(lines):
     :param file_out:     a `filename` or ``sys.stdout`?`
 
     """
+    # fmt: off
     substs = [
         # Selected Sphinx-only Roles.
         #
-        (r":abbr:`([^`]+)`", r"\1"),
+        (r":abbr:`([^`]+)`",        r"\1"),
         (r":envvar:`([^`]+)`", r"``env[$\1]``"),
-        (r":ref:`([^`]+)`", r"ref: *\1*"),
-        (r":term:`([^`]+)`", r"**\1**"),
-        (r":download:`([^`]+)`", r"``\1``"),
-        (r":dfn:`([^`]+)`", r"**\1**"),
-        (r":(samp|guilabel|menuselection|doc|file):`([^`]+)`", r"\1(`\2`)"),
-        # Sphinx-only roles:
+        (r":ref:`([^`]+)`",         r"ref:`\1`"),
+        (r":term:`([^`]+)`",        r"**\1**"),
+        (r":download:`([^`]+)`",    r"``\1``"),
+        (r":dfn:`([^`]+)`",         r"**\1**"),
+        (r":(samp|guilabel|menuselection|doc|file):`([^`]+)`",        r"\1(`\2`)"),
+
+        ## Sphinx-only roles:
         #        :foo:`bar`   --> foo(``bar``)
         #        :a:foo:`bar` XXX afoo(``bar``)
         #
-        # (r'(:(\w+))?:(\w+):`([^`]*)`', r'\2\3(``\4``)'),
+        #(r"(:(\w+))?:(\w+):`([^`]*)`", r"\2\3(``\4``)"),
         (r":(\w+):`([^`]*)`", r"\1(`\2`)"),
-        # emphasis
-        # literal
-        # code
-        # math
-        # pep-reference
-        # rfc-reference
-        # strong
-        # subscript, sub
-        # superscript, sup
-        # title-reference
+
+
         # Sphinx-only Directives.
         #
-        (r"\.\. doctest", r"code-block"),
-        (r"\.\. module", r"code-block"),
-        (r"\.\. currentmodule::", r"currentmodule:"),
-        (r"\.\. plot::", r".. plot:"),
-        (r"\.\. seealso", r"info"),
-        (r"\.\. glossary", r"rubric"),
-        (r"\.\. default-role::", r".. default-role:"),
-        (r"\.\. dispatcher::", r"code-block"),
-        (r"\.\. todo::", r".. note:: TODO"),
+        (r"\.\. doctest",           r"code-block"),
+        (r"\.\. module",            r"code-block"),
+        (r"\.\. currentmodule::",   r"currentmodule:"),
+        (r"\.\. plot::",            r".. plot:"),
+        (r"\.\. seealso",           r"info"),
+        (r"\.\. glossary",          r"rubric"),
+        (r"\.\. default-role::",    r".. default-role:"),
+        (r"\.\. dispatcher::",      r"code-block"),
+        (r"\.\. todo::",            r".. note:: TODO"),
+
+
         # Other
         #
-        (r"\|version\|", git_ver),
-        (r"\|release\|", git_ver),
-        (r"\|today\|", dt.datetime.now().isoformat()),
+        (r"\|version\|",            git_ver),
+        (r"\|release\|",            git_ver),
+        (r"\|today\|",              dt.datetime.now().isoformat()),
         (r"\.\. include:: AUTHORS", r"see: AUTHORS"),
-        (r"\.\. \|br\| raw::", r".. |br| raw: "),
-        (r"\|br\|", r""),
+        (r"\.\. \|br\| raw::",      r".. |br| raw: "),
+        (r"\|br\|",                 r""),
     ]
+    # fmt: on
 
     regex_subs = [(re.compile(regex, re.IGNORECASE), sub) for (regex, sub) in substs]
 
