@@ -14,18 +14,23 @@
 # serve to show the default.
 
 import doctest
+import inspect
+import importlib
 import io
+import logging
 import os
 import re
 import subprocess as sbp
 import sys
 
 from graphtik import plot
+from graphtik.base import func_name, func_sourcelines
 
 
 projname = "wltp"
 mydir = os.path.dirname(__file__)
 
+log = logging.getLogger(__name__)
 
 def _read_project_version() -> str:
     fglobals = {}  # type:ignore
@@ -108,7 +113,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
-    "sphinx.ext.viewcode",
+    "sphinx.ext.linkcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.extlinks",
     "sphinx.ext.todo",
@@ -126,16 +131,88 @@ doctest_default_flags = (
     doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS | doctest.REPORT_NDIFF
 )
 
-## Plot graphtik SVGs with links to docs & tooltips with sources.
 ## Plot graphtik SVGs with links to docs.
 #
+def _make_py_item_url(fn):
+    if not inspect.isbuiltin(fn):
+        fn_name = func_name(fn, None, mod=1, fqdn=1, human=0)
+        if fn_name:
+            return f"../reference.html#{fn_name}"
+
+plotter = plot.get_active_plotter()
 plot.set_active_plotter(
-    plot.get_active_plotter().with_styles(
-        py_item_url_format="../code.html#%(dot_path)s"
+    plotter.with_styles(
+        kw_op_label={
+            **plotter.default_theme.kw_op_label,
+            "op_url": lambda plot_args: _make_py_item_url(plot_args.nx_item),
+            "fn_url": lambda plot_args: plot_args.nx_item
+            and _make_py_item_url(plot_args.nx_item.fn),
+        }
     )
 )
 
 autosectionlabel_prefix_document = True
+
+
+github_slug = "JRCSTU/wltp"
+try:
+    git_commit = sbp.check_output("git rev-parse HEAD".split()).strip().decode()
+    github_uri = f"https://github.com/{github_slug}/blob/{git_commit}/%s.py"
+except Exception:
+    github_uri = f"https://github.com/{github_slug}/blob/master/%s.py"
+
+def linkcode_resolve(domain, info):
+    """Produce URLs to GitHub sources, for ``sphinx.ext.linkcode``"""
+    if domain != "py":
+        return None
+    if not info["module"]:
+        return None
+
+    module_name = info["module"]
+    item_name = info["fullname"]
+    module_path = module_name.replace(".", "/")
+    uri = github_uri % module_path  # just the file is too broad
+
+    try:
+        item = importlib.import_module(module_name)
+    except Exception as ex:
+        log.warning(
+            "Ignoring failed import while searching lineno of '%s:%s': %s(%s)",
+            module_name,
+            item_name,
+            type(ex).__name__,
+            ex,
+        )
+    else:
+        try:
+            ## Descend from module towards the item
+            #
+            for name in item_name.split("."):
+                child = getattr(item, name, None)
+                if not child:
+                    break
+                item = child
+
+            source, lineno = func_sourcelines(item, human=0)
+            end_lineno = lineno + len(source) - 1
+            uri = f"{uri}#L{lineno}-L{end_lineno}"
+            return uri
+        except TypeError as ex:
+            # don't clutter logs, these are mostly non functions.
+            assert "module, class, method, function," in str(ex), (ex, item_name)
+        except OSError as ex:
+            # don't clutter logs, these are mostly non functions or `__new__` specials.
+            assert "could not find class definition" in str(
+                ex
+            ) or "could not get source code" in str(ex), (ex, item_name)
+        except Exception as ex:
+            log.warning(
+                "Ignoring error on while searching lineno of '%s': %s(%s)",
+                item,
+                type(ex).__name__,
+                ex,
+            )
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -381,4 +458,5 @@ intersphinx_mapping = {
     "numpy": ("https://www.numpy.org/", None),
     "jsonschema": ("https://python-jsonschema.readthedocs.io/en/latest/", None),
     "pandalone": ("https://pandalone.readthedocs.io/en/latest/", None),
+    "graphtik": ("https://graphtik.readthedocs.io/en/latest/", None),
 }
