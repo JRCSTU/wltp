@@ -248,7 +248,8 @@ setup(
         "boltons",
         # 5.1.0 namedtuples results, 5.2.0 map inputs-->args, # 5.2.2 BugFixes,
         # 5.4 Sphinx, 5.6 check_if_incomplete(), 5.7 FIX sphinx, 6.1.0 new plot
-        "graphtik >=6.1.0",
+        # 7+ sfxed, 8+ re-moduled, 7.3: mapped-->keyword
+        "graphtik >=8.3.0",
         "jsonschema",
         "numpy",
         "pandas",

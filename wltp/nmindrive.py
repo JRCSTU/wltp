@@ -17,7 +17,7 @@ from typing import Union
 
 from jsonschema import ValidationError
 
-from graphtik import arg, compose, sideffect
+from graphtik import keyword, compose, sfx
 
 from . import io as wio
 from .autograph import Autograph, FnHarvester, autographed
@@ -211,13 +211,13 @@ _NMinDrives = namedtuple(
 #: Consume (R)ounded values to construct a :class:`_NMinDrives` instance.
 NMinDrives = autographed(
     _NMinDrives,
-    needs=[arg(n if n == "t_cold_end" else f"{n}_R", n) for n in _NMinDrives._fields],
+    needs=[keyword(n if n == "t_cold_end" else f"{n}_R", n) for n in _NMinDrives._fields],
     inp_sideffects="valid: n_min_drives",
     provides="n_min_drives",
 )
 
 
-def _compose_mdl_2_n_min_drives() -> "NetworkOperation":  # type: ignore
+def _compose_mdl_2_n_min_drives() -> "Pipeline":  # type: ignore
     funcs = FnHarvester(base_modules=[__name__]).harvest()
     aug = Autograph(["calc_", "upd_"])
     ops = [aug.wrap_fn(fn, name) for name, fn in funcs]

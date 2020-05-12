@@ -17,7 +17,7 @@ from typing import Any, Callable, Iterable, List, Mapping, Set, Tuple, Union
 
 from boltons.iterutils import first
 
-from graphtik import optional, sideffect
+from graphtik.modifiers import optional, is_sfx, sfx, sfxed
 from graphtik.op import FunctionalOperation, reparse_operation_data
 
 from .utils import Literal, Token, asdict, aslist, astuple
@@ -365,7 +365,7 @@ class Autograph(Prefkey):
     >>> aug = Autograph(out_prefixes=['calc_', 'upd_'], renames={"a": "A"})
     >>> aug.wrap_fn(calc_sum_ab)
     FunctionalOperation(name='calc_sum_ab',
-                        needs=['A', optional('b')],
+                        needs=['A', 'b'(?)],
                         provides=['sum_ab'],
                         fn='calc_sum_ab')
 
@@ -506,11 +506,11 @@ class Autograph(Prefkey):
         )
 
         if inp_sideffects is not _unset:
-            needs.extend(sideffect(i) for i in aslist(inp_sideffects, "inp_sideffects"))
+            needs.extend(sfx(i) for i in aslist(inp_sideffects, "inp_sideffects"))
 
         if out_sideffects is not _unset:
             provides.extend(
-                sideffect(i) for i in aslist(out_sideffects, "out_sideffects")
+                sfx(i) for i in aslist(out_sideffects, "out_sideffects")
             )
 
         if self.full_path_names:

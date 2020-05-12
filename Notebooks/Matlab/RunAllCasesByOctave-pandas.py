@@ -54,7 +54,7 @@ from pandas import IndexSlice as idx
 from pandas.core.generic import NDFrame
 
 import wltp
-from graphtik import compose, operation, optional, sideffect
+from graphtik import compose, operation, optional
 from pandalone.mappings import Pstep
 from wltp import cycler, datamodel, engine
 from wltp import io as wio
