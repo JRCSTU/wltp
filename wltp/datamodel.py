@@ -404,15 +404,15 @@ properties:
       maxItems: 2
       items:
         type: number
-  f_downscale_threshold:
+  f_dsc_threshold:
     title: Downscale-factor threshold
     description:
-      The limit for the calculated `f_downscale` below which no downscaling
+      The limit for the calculated `f_dsc` below which no downscaling
       happens.
     type:
     - number
     default: 0.01
-  f_downscale_decimals:
+  f_dsc_decimals:
     title: Downscale-factor rounding decimals
     type:
     - number
@@ -466,7 +466,7 @@ properties:
     default:
     - 1.15
     - 0.03
-  f_downscale:
+  f_dsc:
     description: |2
       The downscaling-factor as calculated by the experiment (Annex 1-8.3).
 
@@ -480,7 +480,7 @@ properties:
     $ref: {_wltc_url}
   cycle:
     description: |2
-      A dataframe matrix with 2-level columns(item, gear),
+      An inp/out dataframe matrix with 2-level columns(item, gear),
       and items, in addition to those of `grid_wots`:
       - `v_cycle`: reduced by safety-margin, but not by ASM
       - `v_dsc`: (optional)

@@ -135,7 +135,7 @@ equivalent_columns = [
     ("kerb_mass", None),
     ("vehicle_class", "wltc_class"),
     # ("pmr_km", "pmr"),
-    ("f_dsc_req", "f_downscale"),
+    ("f_dsc_req", "f_dsc"),
     ("v_max", "v_max"),
     ("n_max1", "n95_high"),
     # ("???", "is_n_lim_vmax")
@@ -191,7 +191,7 @@ equivalent_props = [
     ("vehicle_class", "wltc_class"),
     ("pmr_km", None),
     ("no_of_gears", None),
-    ("f_dsc_req", "f_downscale"),
+    ("f_dsc_req", "f_dsc"),
     ("v_max", "v_max"),
     ("n_vmax", "n_vmax"),
     ("gear_v_max", "g_vmax"),

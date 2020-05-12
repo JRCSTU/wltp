@@ -40,10 +40,10 @@
 /f0
 /f1
 /f2
-/f_downscale
-/f_downscale_decimals
-/f_downscale_threshold
-/f_dscl_orig
+/f_dsc
+/f_dsc_decimals
+/f_dsc_threshold
+/f_dsc_orig
 /f_inertial
 /f_safety_margin
 /g_vmax

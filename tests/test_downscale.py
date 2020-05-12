@@ -16,7 +16,8 @@ import pytest
 
 from wltp import datamodel
 from wltp.downscale import (
-    calc_downscale_factor,
+    calc_f_dsc_orig,
+    calc_f_dsc,
     calc_v_dsc,
     decide_wltc_class,
     downscale_by_recursing,
@@ -42,48 +43,51 @@ def test_smoke1():
     class_data = wltc["classes"][wltc_class]
     V = pd.Series(class_data["v_cycle"])
 
-    f_downscale_threshold = 0.01  # TODO: get it from schema-default
-    f_downscale_decimals = 3  # TODO: get it from schema-default
+    f_dsc_threshold = 0.01  # TODO: get it from schema-default
+    f_dsc_decimals = 3  # TODO: get it from schema-default
     dsc_data = class_data["downscale"]
     phases = dsc_data["phases"]
     p_max_values = dsc_data["p_max_values"]
     downsc_coeffs = dsc_data["factor_coeffs"]
-    f_downscale, _orig_f = calc_downscale_factor(
+    f_dsc_orig = calc_f_dsc_orig(
         p_max_values,
         downsc_coeffs,
         p_rated,
-        f_downscale_threshold,
-        f_downscale_decimals,
         test_mass,
         f0,
         f1,
         f2,
         f_inertial,
     )
-    if f_downscale > 0:
-        V = calc_v_dsc(V, f_downscale, phases)
+    f_dsc = calc_f_dsc(
+        f_dsc_orig,
+        f_dsc_threshold,
+        f_dsc_decimals,
+    )
+    if f_dsc > 0:
+        V = calc_v_dsc(V, f_dsc, phases)
         # print(
-        #     "Class(%s), f_dnscl(%s), DIFFs:\n%s" % (wclass, f_downscale, diffs[bad_ix])
+        #     "Class(%s), f_dnscl(%s), DIFFs:\n%s" % (wclass, f_dsc, diffs[bad_ix])
         # )
         # plt.plot(V, "r")
         # plt.plot(V1, "b")
         # plt.plot(V2, "g")
         # plt.show()
         # raise AssertionError(
-        #     "Class(%s), f_dnscl(%s)" % (wclass, f_downscale)
+        #     "Class(%s), f_dnscl(%s)" % (wclass, f_dsc)
         # )
 
 
 def test_smoke2():
     wclasses = datamodel.get_wltc_data()["classes"]
     test_data = [
-        (pd.Series(wclass["v_cycle"]), wclass["downscale"]["phases"], f_downscale)
+        (pd.Series(wclass["v_cycle"]), wclass["downscale"]["phases"], f_dsc)
         for wclass in wclasses.values()
-        for f_downscale in np.linspace(0.1, 1, 10)
+        for f_dsc in np.linspace(0.1, 1, 10)
     ]
 
-    for (V, phases, f_downscale) in test_data:
-        calc_v_dsc(V, f_downscale, phases)
+    for (V, phases, f_dsc) in test_data:
+        calc_v_dsc(V, f_dsc, phases)
 
 
 _wltc = datamodel.get_wltc_data()
@@ -116,23 +120,23 @@ def test_recurse_vs_scaling(wclass):
     phases = class_data["downscale"]["phases"]
 
     bad_accuracies, bad_rounds = {}, {}
-    for f_downscale in np.arange(0, 4, 0.1):
-        V1 = downscale_by_recursing(V, f_downscale, phases)
-        V2 = downscale_by_scaling(V, f_downscale, phases)
+    for f_dsc in np.arange(0, 4, 0.1):
+        V1 = downscale_by_recursing(V, f_dsc, phases)
+        V2 = downscale_by_scaling(V, f_dsc, phases)
 
         bad_ix = ~np.isclose(V1, V2)
         if bad_ix.any():
             errs = pd.concat(
                 (V1, V2, V1 - V2), axis=1, keys=["recurse", "rescale", "diff"]
             )[bad_ix]
-            bad_accuracies[f_downscale] = errs
+            bad_accuracies[f_dsc] = errs
 
         bad_ix = (
             double_round(V1, v_decimals).to_numpy()
             != double_round(V2, v_decimals).to_numpy()
         )
         if bad_ix.any():
-            bad_rounds[f_downscale] = pd.concat(
+            bad_rounds[f_dsc] = pd.concat(
                 (V1, V2, (V1 - V2).abs()), axis=1, keys=["recurse", "rescale", "diff"]
             )[bad_ix]
 

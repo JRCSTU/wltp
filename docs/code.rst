@@ -367,14 +367,14 @@ The :term:`JSON-schema` of the data for this project:
           maxItems: 2
           items:
             type: number
-      f_downscale_threshold:
+      f_dsc_threshold:
         title: Downscale-factor threshold
-        description: The limit for the calculated `f_downscale` below which no downscaling
+        description: The limit for the calculated `f_dsc` below which no downscaling
           happens.
         type:
         - number
         default: 0.01
-      f_downscale_decimals:
+      f_dsc_decimals:
         title: Downscale-factor rounding decimals
         type:
         - number
@@ -427,7 +427,7 @@ The :term:`JSON-schema` of the data for this project:
         default:
         - 1.15
         - 0.03
-      f_downscale:
+      f_dsc:
         description: |
           The downscaling-factor as calculated by the experiment (Annex 1-8.3).
     <BLANKLINE>
@@ -441,7 +441,7 @@ The :term:`JSON-schema` of the data for this project:
         $ref: /wltc
       cycle:
         description: |
-          A dataframe matrix with 2-level columns(item, gear),
+          An inp/out dataframe matrix with 2-level columns(item, gear),
           and items, in addition to those of `grid_wots`:
           - `v_cycle`: reduced by safety-margin, but not by ASM
           - `v_dsc`: (optional)

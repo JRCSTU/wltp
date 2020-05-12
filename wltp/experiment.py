@@ -198,7 +198,7 @@ class Experiment(object):
             V = pd.Series(V, name=c.v_target)
             wltc_class, _part, _kind = cycles.identify_cycle_v(V)
             cb = cycler.CycleBuilder(V)
-            mdl[m.f_downscale] = None
+            mdl[m.f_dsc] = None
         else:
             ## Decide WLTC-class.
             #
@@ -215,31 +215,34 @@ class Experiment(object):
 
             ## Downscale velocity-profile.
             #
-            f_downscale = mdl.get(m.f_downscale)
-            if not f_downscale:
-                f_downscale_threshold = mdl[m.f_downscale_threshold]
-                f_downscale_decimals = mdl[m.f_downscale_decimals]
+            f_dsc = mdl.get(m.f_dsc)
+            if not f_dsc:
+                f_dsc_threshold = mdl[m.f_dsc_threshold]
+                f_dsc_decimals = mdl[m.f_dsc_decimals]
                 dsc_data = class_data["downscale"]
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
                 downsc_coeffs = dsc_data["factor_coeffs"]
-                f_downscale, f_dscl_orig = downscale.calc_downscale_factor(
+                f_dsc_orig = downscale.calc_f_dsc_orig(
                     p_max_values,
                     downsc_coeffs,
                     p_rated,
-                    f_downscale_threshold,
-                    f_downscale_decimals,  # TODO: DROP f_downscale_decimals, in invariants
                     test_mass,
                     f0,
                     f1,
                     f2,
                     f_inertial,
                 )
-                mdl[m.f_downscale] = f_downscale
-                mdl[m.f_dscl_orig] = f_dscl_orig
+                f_dsc = downscale.calc_f_dsc(
+                    f_dsc_orig,
+                    f_dsc_threshold,
+                    f_dsc_decimals,
+                )
+                mdl[m.f_dsc] = f_dsc
+                mdl[m.f_dsc_orig] = f_dsc_orig
 
-            if f_downscale > 0:
-                V_dsc_raw = downscale.calc_v_dsc(V, f_downscale, phases)
+            if f_dsc > 0:
+                V_dsc_raw = downscale.calc_v_dsc(V, f_dsc, phases)
                 V_dsc_raw.name = c.v_dsc_raw
 
                 V_dsc = vround(V_dsc_raw)

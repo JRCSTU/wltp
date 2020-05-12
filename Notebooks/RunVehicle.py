@@ -141,8 +141,8 @@ oprops = {
     "n_max3": mdl["n_max3"],
     "n_max": mdl["n_max"],
     "wltc_class": mdl["wltc_class"],
-    "f_dscl_orig": mdl["f_dscl_orig"],
-    "f_downscale": mdl["f_downscale"],
+    "f_dsc_orig": mdl["f_dsc_orig"],
+    "f_dsc": mdl["f_dsc"],
 }
 
 pprint(oprops)
@@ -179,8 +179,8 @@ oprops = {
     "n_max3": mdl["n_max3"],
     "n_max": mdl["n_max"],
     "wltc_class": mdl["wltc_class"],
-    "f_dscl_orig": mdl["f_dscl_orig"],
-    "f_downscale": mdl["f_downscale"],
+    "f_dsc_orig": mdl["f_dsc_orig"],
+    "f_dsc": mdl["f_dsc"],
 }
 
 pprint(oprops)

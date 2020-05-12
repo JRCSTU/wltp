@@ -11,9 +11,8 @@ import logging
 
 import pandas as pd
 
-from . import io as wio
 from . import invariants as inv
-
+from . import io as wio
 
 log = logging.getLogger(__name__)
 
@@ -42,19 +41,12 @@ def decide_wltc_class(wltc_data, p_m_ratio, v_max):
     return wltc_class
 
 
-def calc_downscale_factor(
-    p_max_values,
-    downsc_coeffs,
-    p_rated,
-    f_downscale_threshold,
-    f_downscale_decimals,  # TODO: DROP f_downscale_decimals, in invariants
-    test_mass,
-    f0,
-    f1,
-    f2,
-    f_inertial,
+def calc_f_dsc_orig(
+    wltc_dsc_p_max_values, wltc_dsc_coeffs, p_rated, test_mass, f0, f1, f2, f_inertial,
 ):
-    """Check if downscaling required, and apply it.
+    """
+    Check if downscaling required, and apply it.
+
     :return: (float) the factor
 
     @see: Annex 1-7, p 68
@@ -63,40 +55,42 @@ def calc_downscale_factor(
 
     ## Max required power at critical point.
     #
-    pmv = p_max_values[c.v]
-    pma = p_max_values[c.a]
+    pmv = wltc_dsc_p_max_values[c.v]
+    pma = wltc_dsc_p_max_values[c.a]
     p_req_max = (
         f0 * pmv + f1 * pmv ** 2 + f2 * pmv ** 3 + f_inertial * pma * pmv * test_mass
     ) / 3600.0
     r_max = p_req_max / p_rated
 
-    (r0, a1, b1) = downsc_coeffs
+    (r0, a1, b1) = wltc_dsc_coeffs
 
     if r_max >= r0:
-        f_downscale = a1 * r_max + b1
-        f_downscale = f_downscale_orig = inv.round1(f_downscale, f_downscale_decimals)
-
-        ## ATTENTION:
-        #  By the spec, f_downscale MUST be > 0.01 to apply,
-        #  but in F new vehicle.form.txt:(3537, 3563, 3589) (see CHANGES.rst)
-        #  a +0.5 is ADDED!
-        if f_downscale <= f_downscale_threshold:
-            f_downscale = 0
+        f_dsc = a1 * r_max + b1
     else:
-        f_downscale = f_downscale_orig = 0
+        f_dsc = 0
 
-    return f_downscale, f_downscale_orig
+    return f_dsc
 
 
-def calc_v_dsc(V: pd.Series, f_downscale, phases) -> pd.Series:
+def calc_f_dsc(f_dsc_orig: float, f_dsc_threshold: float, f_dsc_decimals,) -> float:
     """
-    Downscale velocity profile by `f_downscale`.
+    ATTENTION: by the spec, f_dsc MUST be > 0.01 to apply, but
+    in :file:`F_new_vehicle.form.txt:(3537, 3563, 3589)` a +0.5 is ADDED!
+    (see CHANGES.rst)
+    """
+    f_dsc = inv.round1(f_dsc_orig, f_dsc_decimals)
+    return 0 if f_dsc <= f_dsc_threshold else f_dsc
+
+
+def calc_v_dsc(v: pd.Series, f_dsc, dsc_phases) -> pd.Series:
+    """
+    Downscale velocity profile by `f_dsc`.
 
     :return:
         the downscaled velocity profile, not-rounded
         (by the Spec should have 1 decimal only)
 
-    - The Spec demarks 2 UP/DOWN phases with 3 time-points in `phases`,
+    - The Spec demarks 2 UP/DOWN phases with 3 time-points in `dsc_phases`,
       eg. for class3:
 
       - 1533: the "start" of downscaling
@@ -120,11 +114,11 @@ def calc_v_dsc(V: pd.Series, f_downscale, phases) -> pd.Series:
 
     @see: Annex 1-8, p 64-68
     """
-    # return downscale_by_recursing(V, f_downscale, phases)
-    return downscale_by_scaling(V, f_downscale, phases)
+    # return downscale_by_recursing(V, f_dsc, phases)
+    return downscale_by_scaling(v, f_dsc, dsc_phases)
 
 
-def downscale_by_recursing(V, f_downscale, phases):
+def downscale_by_recursing(V, f_dsc, phases):
     """Downscale by recursing (according to the Spec). """
     V_DSC = V.copy()
     (t0, t1, t2) = phases
@@ -133,7 +127,7 @@ def downscale_by_recursing(V, f_downscale, phases):
     #
     for t in range(t0, t1):
         a = V[t + 1] - V[t]
-        V_DSC[t + 1] = V_DSC[t] + a * (1 - f_downscale)
+        V_DSC[t + 1] = V_DSC[t] + a * (1 - f_dsc)
 
     ## Deceleration phase
     #
@@ -145,7 +139,7 @@ def downscale_by_recursing(V, f_downscale, phases):
     return V_DSC
 
 
-def downscale_by_scaling(V: pd.Series, f_downscale, phases) -> pd.Series:
+def downscale_by_scaling(V: pd.Series, f_dsc, phases) -> pd.Series:
     """
     Multiply the UP/DOWN phases with 2 factors (no recurse, against the Spec).
 
@@ -160,7 +154,7 @@ def downscale_by_scaling(V: pd.Series, f_downscale, phases) -> pd.Series:
     """
     V_DSC = V.copy()
     (t0, t1, t2) = phases
-    f_scale = 1 - f_downscale
+    f_scale = 1 - f_dsc
 
     ## UP-phase
     #

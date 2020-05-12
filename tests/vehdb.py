@@ -381,7 +381,7 @@ class Comparator:
         :param equiv_colnames:
             a matrix of M x N column-names, like:
 
-                [("p_downscale", "f_downscale"), ("cycle", "wltc_class"), ...]
+                [("p_downscale", "f_dsc"), ("cycle", "wltc_class"), ...]
 
             All columns in the N dimension must exist in the respective dataframe in `datasets` list.
             The 1st columns in the M-dimension are used a axis-1, level-0 labels
@@ -618,8 +618,8 @@ def run_pyalgo_on_accdb_vehicle(
         "n_max3": mdl["n_max3"],
         "n_max": mdl["n_max"],
         "wltc_class": mdl["wltc_class"],
-        "f_dscl_orig": mdl["f_dscl_orig"],
-        "f_downscale": mdl["f_downscale"],
+        "f_dsc_orig": mdl["f_dsc_orig"],
+        "f_dsc": mdl["f_dsc"],
     }
 
     cycle = mdl["cycle"]
