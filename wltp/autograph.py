@@ -291,9 +291,9 @@ def autographed(
     :param renames:
         mappings to rename both any matching the final `needs` & `provides`
     :param inp_sideffects:
-        appended into `needs`
+        appended into `needs`; if a tuple, makes it a :class:`.sfxed`
     :param out_sideffects:
-        appended into `provides`
+        appended into `provides`; if a tuple, makes it a :class:`.sfxed`
     :param kws:
         the rest arguments of :class:`graphtik.operation`, such as::
 
@@ -506,11 +506,15 @@ class Autograph(Prefkey):
         )
 
         if inp_sideffects is not _unset:
-            needs.extend(sfx(i) for i in aslist(inp_sideffects, "inp_sideffects"))
+            needs.extend(
+                (i if is_sfx(i) else sfxed(*i) if isinstance(i, tuple) else sfx(i))
+                for i in aslist(inp_sideffects, "inp_sideffects")
+            )
 
         if out_sideffects is not _unset:
             provides.extend(
-                sfx(i) for i in aslist(out_sideffects, "out_sideffects")
+                (i if is_sfx(i) else sfxed(*i) if isinstance(i, tuple) else sfx(i))
+                for i in aslist(out_sideffects, "out_sideffects")
             )
 
         if self.full_path_names:
