@@ -180,17 +180,24 @@ def make_case_overrides():
     The choices in Gearshift AccDB FORM are not included in the `specs`
     (derived from `Notebooks/VehData/calculation_parameter_all.xlsx`)
     but were communicated separately by Heinz and parsed here
-    fro this excel file::
+    from this excel file::
 
         Notebooks/VehData/Differences between ACCESS tool versions 16_ and 20_09_2019.xlsx
+
+    and from `case` Matlab input table.
     """
     overrides = {
-        122: {"f_dsc_req": 0},  ## TODO: missing "suppress g0 in downshifts"
+        117: {"v_cap_max": 55},
+        118: {"v_cap_max": 55},
+        119: {"v_cap_max": 80},
+        120: {"v_cap_max": 100},
+        121: {"v_cap_max": 110},
+        122: {"f_dsc": 0, "exclude_crawler_gear": True, "b_no_g0_downshift": True},
         123: {"vehicle_class": "class 3b"},
         124: {
             "nmin_drive_up": 1350,
             "nmin_drive_down": 1300,
-            "nmin_drive_start_up": 1450,
+            "nmin_drive_start_up": 1450,  # Matlab has this mistakenly 0!
             "nmin_drive_start_down": 1450,
             "t_cold_end": 390,
         },
