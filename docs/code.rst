@@ -15,6 +15,7 @@ The core of the simulator is composed from the following modules:
     downscale
     nmindrive
     invariants
+    autograph
     io
     utils
     cli
@@ -70,6 +71,12 @@ Module: :mod:`wltp.nmindrive`
 Module: :mod:`wltp.invariants`
 ------------------------------
 .. automodule:: wltp.invariants
+    :members:
+    :undoc-members:
+
+Module: :mod:`wltp.autograph`
+-----------------------------
+.. automodule:: wltp.autograph
     :members:
 
 Module: :mod:`wltp.io`
@@ -426,6 +433,10 @@ The :term:`JSON-schema` of the data for this project:
     <BLANKLINE>
           Set it to 0 to disable downscaling, (or to any other value to force it).
         type: number
+      b_no_g0_downshift:
+        description: |
+          a flag to suppress shifting to gear-0(idle) during downshifts
+        type: boolean
       wltc_data:
         $ref: /wltc
       cycle:

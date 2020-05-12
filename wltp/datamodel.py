@@ -472,6 +472,10 @@ properties:
 
       Set it to 0 to disable downscaling, (or to any other value to force it).
     type: number
+  b_no_g0_downshift:
+    description: |2
+      a flag to suppress shifting to gear-0(idle) during downshifts
+    type: boolean
   wltc_data:
     $ref: {_wltc_url}
   cycle:
