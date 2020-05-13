@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Sequence as Seq
 
 import pandas as pd
+from pandas.testing import assert_frame_equal, assert_series_equal
 
 from . import vehdb
 
@@ -54,12 +55,16 @@ def test_taskforce_vehs(
         db_cycle = h5db.get(vehdb.vehnode(vehnum, cycle_group_suffix))
         db_wots_vmax = h5db.get(vehdb.vehnode(vehnum, wots_vmax_group_suffix))
 
-        to_compare = [(oprops, db_oprops), (cycle, db_cycle), (wots_vmax, db_wots_vmax)]
+        to_compare = [('OProps', oprops, db_oprops), ('Cycle', cycle, db_cycle), ('Wots_max', wots_vmax, db_wots_vmax)]
 
-        for calced, stored in to_compare:
-            if not calced.equals(stored):
-                df = pd.concat((calced, stored)).drop_duplicates(keep=False)
-                raise Exception(f"Calced-vs-stored differ in {len(df)} rows!")
+        for name, calced, stored in to_compare:
+            # ignore index to allow rename columns (but not re-orders)
+            if isinstance(calced, pd.Series):
+                calced.index = stored.index
+                assert_series_equal(calced, stored, obj=name)
+            else:
+                calced.columns = stored.columns
+                assert_frame_equal(calced, stored, obj=name)
 
     def store_vehicle(h5db, vehnum, oprops, cycle, wots_vmax):
         log.info("STORING veh(v%0.3i)...", vehnum)
