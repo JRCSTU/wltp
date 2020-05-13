@@ -33,9 +33,8 @@ from wltp import nmindrive
 )
 def test_n_mins_smoke(mdl):
     mdl.update(n_idle=500, n_rated=4000)
-    base = nmindrive.mdl_2_n_min_drives(**mdl)
 
-    results = [base]
+    results = []
     for values in itt.product([None, 1], [None, 2], [None, 3], [None, 4], [None, 5]):
         mdl = dict(
             zip(

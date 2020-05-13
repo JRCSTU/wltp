@@ -35,7 +35,7 @@ def calc_n_rated_R(n_rated: float) -> int:
     return nround1(n_rated)
 
 
-@autographed(out_sideffects=["valid: n_rated", "valid: n_idle"])
+@autographed(out_sideffects=["valid: n_rated", "valid: n_idle"], endured=True)
 def validate_n_rated_above_n_idle(n_idle_R, n_rated_R):
     if n_rated_R <= n_idle_R:
         raise ValidationError(
@@ -129,48 +129,48 @@ def calc_n_min_drive_down_start_R(n_min_drive_down_start: float) -> int:
     return nround1(n_min_drive_down_start)
 
 
-@autographed(out_sideffects=["valid: n_min_drive_up"])
+@autographed(out_sideffects=["valid: n_min_drive_up"], endured=True)
 def validate_n_min_drive_up_V1(n_min_drive_up_R: int, n_min_drive_set_R: int):
     _check_higher_from_n_min_drive_set(n_min_drive_up_R, n_min_drive_set_R)
 
 
-@autographed(out_sideffects=["valid: n_min_drive_up"])
+@autographed(out_sideffects=["valid: n_min_drive_up"], endured=True)
 def validate_n_min_drive_up_V2(n_min_drive_up_R: int, n_min_drive_set_R: int):
     _check_lower_than_2x_n_min_drive_set(n_min_drive_up_R, n_min_drive_set_R)
 
 
-@autographed(out_sideffects=["valid: n_min_drive_down"])
+@autographed(out_sideffects=["valid: n_min_drive_down"], endured=True)
 def validate_n_min_drive_down_V1(n_min_drive_down_R: int, n_min_drive_set_R: int):
     _check_higher_from_n_min_drive_set(n_min_drive_down_R, n_min_drive_set_R)
 
 
-@autographed(out_sideffects=["valid: n_min_drive_down"])
+@autographed(out_sideffects=["valid: n_min_drive_down"], endured=True)
 def validate_n_min_drive_down_V2(n_min_drive_down_R: int, n_min_drive_set_R: int):
     _check_lower_than_2x_n_min_drive_set(n_min_drive_down_R, n_min_drive_set_R)
 
 
-@autographed(out_sideffects=["valid: n_min_drive_up_start"])
+@autographed(out_sideffects=["valid: n_min_drive_up_start"], endured=True)
 def validate_n_min_drive_up_start_V1(
     n_min_drive_up_start_R: int, n_min_drive_set_R: int
 ):
     _check_higher_from_n_min_drive_set(n_min_drive_up_start_R, n_min_drive_set_R)
 
 
-@autographed(out_sideffects=["valid: n_min_drive_up_start"])
+@autographed(out_sideffects=["valid: n_min_drive_up_start"], endured=True)
 def validate_n_min_drive_up_start_V2(
     n_min_drive_up_start_R: int, n_min_drive_set_R: int
 ):
     _check_lower_than_2x_n_min_drive_set(n_min_drive_up_start_R, n_min_drive_set_R)
 
 
-@autographed(out_sideffects=["valid: n_min_drive_down_start"])
+@autographed(out_sideffects=["valid: n_min_drive_down_start"], endured=True)
 def validate_n_min_drive_down_start_V1(
     n_min_drive_down_start_R: int, n_min_drive_set_R: int
 ):
     _check_higher_from_n_min_drive_set(n_min_drive_down_start_R, n_min_drive_set_R)
 
 
-@autographed(out_sideffects=["valid: n_min_drive_down_start"])
+@autographed(out_sideffects=["valid: n_min_drive_down_start"], endured=True)
 def validate_n_min_drive_down_start_V2(
     n_min_drive_down_start_R: int, n_min_drive_set_R: int
 ):
@@ -188,6 +188,7 @@ validate_n_min_drives = autographed(
         "valid: n_min_drive_down_start",
     ],
     out_sideffects="valid: n_min_drives",
+    endured=True,
 )
 """Ensure all no-sideffect validations run."""
 
@@ -211,7 +212,9 @@ _NMinDrives = namedtuple(
 #: Consume (R)ounded values to construct a :class:`_NMinDrives` instance.
 NMinDrives = autographed(
     _NMinDrives,
-    needs=[keyword(n if n == "t_cold_end" else f"{n}_R", n) for n in _NMinDrives._fields],
+    needs=[
+        keyword(n if n == "t_cold_end" else f"{n}_R", n) for n in _NMinDrives._fields
+    ],
     inp_sideffects="valid: n_min_drives",
     provides="n_min_drives",
 )
@@ -221,7 +224,7 @@ def _compose_mdl_2_n_min_drives() -> "Pipeline":  # type: ignore
     funcs = FnHarvester(base_modules=[__name__]).harvest()
     aug = Autograph(["calc_", "upd_"])
     ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
-    return compose("mdl_2_n_min_drives", *ops, endured=True)
+    return compose("mdl_2_n_min_drives", *ops)
 
 
 # TODO: create *lazily* pipeline module-attribute.
