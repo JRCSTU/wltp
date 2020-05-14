@@ -20,7 +20,7 @@ import functools as fnt
 import itertools as it
 import logging
 import operator as ops
-from collections.abc import Mapping, Sized
+from collections import abc as cabc
 from textwrap import dedent
 from typing import Sequence as Seq
 from typing import Union
@@ -811,13 +811,13 @@ def merge(a, b, path=[]):
         bv = b[key]
         if key in a:
             av = a[key]
-            if isinstance(av, Mapping) != isinstance(bv, Mapping):
+            if isinstance(av, cabc.Mapping) != isinstance(bv, cabc.Mapping):
                 #                 log.debug("Dict-values conflict at '%s'! a(%s) != b(%s)",
                 #                                 '/'.join(path + [str(key)]), type(av), type(bv))
                 pass
             elif av is bv:
                 continue  # same leaf value
-            elif isinstance(av, Mapping):
+            elif isinstance(av, cabc.Mapping):
                 merge(av, bv, path + [str(key)])
                 continue
         a[key] = bv
