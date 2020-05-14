@@ -721,13 +721,12 @@ def get_class(class_id: Union[str, int], mdl=None) -> dict:
     return classes[class_name]
 
 
-def get_class_parts_limits(class_id: Union[str, int], mdl=None, edges=False):
+def get_class_parts_limits(wltc_class: Union[str, int], edges=False):
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
 
-    :param class_id:
+    :param wltc_class:
         one of 'class1', ..., 'class3b' or its index 0,1, ... 3
-    :param mdl: the mdl to parse wltc_data from, if omitted, parses the results of :func:`get_wltc_data()`
     :param edges: when `True`, embeds internal limits inside [0, ..., len]
     :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
 
@@ -756,7 +755,7 @@ def get_class_parts_limits(class_id: Union[str, int], mdl=None, edges=False):
     (1477, 1801]  28869.8
 
     """
-    cls = get_class(class_id)
+    cls = get_class(wltc_class)
     part_limits = cls["parts"]
     if edges:
         part_limits.insert(0, 0)
@@ -765,18 +764,14 @@ def get_class_parts_limits(class_id: Union[str, int], mdl=None, edges=False):
     return part_limits
 
 
-def get_class_pmr_limits(mdl=None, edges=False):
+def get_class_pmr_limits(edges=False):
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
 
-    :param mdl: the mdl to parse wltc_data from, if omitted, parses the results of :func:`get_wltc_data()`
     :param edges: when `True`, embeds internal limits into (0, len)
     :return: a list with the pmr-limits (2 numbers)
     """
-    if mdl:
-        wltc_data = mdl["wltc_data"]
-    else:
-        wltc_data = get_wltc_data()
+    wltc_data = get_wltc_data()
 
     pmr_limits_pairs = [cls["pmr_limits"] for cls in wltc_data["classes"].values()]
     pmr_limits = sorted(set(it.chain(*pmr_limits_pairs)))
@@ -786,17 +781,17 @@ def get_class_pmr_limits(mdl=None, edges=False):
     return pmr_limits
 
 
-def get_class_v_cycle(class_id: Union[int, str], mdl=None) -> pd.Series:
+def get_class_v_cycle(wltc_class: Union[str, int]) -> pd.Series:
     """
     Fetch the `v-cycle` for a class with the proper `t` in index.
 
-    :param class_id:
+    :param wltc_class:
         one of 'class1', ..., 'class3b' or its index 0,1, ... 3
     :return:
         a series containing :math:`length + 1` samples, numbered from 0 to `length`,
         where `length` is the duration of the cycle in seconds.
     """
-    cls = get_class(class_id)
+    cls = get_class(wltc_class)
     V = cls["v_cycle"]
     assert isinstance(V, pd.Series)
 

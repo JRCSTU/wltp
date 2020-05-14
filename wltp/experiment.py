@@ -210,7 +210,7 @@ class Experiment(object):
                 log.info("Found forced wltc_class(%s).", wltc_class)
 
             class_data = datamodel.get_class(wltc_class, mdl=self._model)
-            V = datamodel.get_class_v_cycle(wltc_class, mdl=self._model)
+            V = datamodel.get_class_v_cycle(wltc_class)
             assert isinstance(V, pd.Series), V
 
             ## Downscale velocity-profile.
@@ -267,7 +267,7 @@ class Experiment(object):
 
         if wltc_class:
             wltc_parts = datamodel.get_class_parts_limits(
-                wltc_class, edges=True, mdl=self._model
+                wltc_class, edges=True
             )
             cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
 
