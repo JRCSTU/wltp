@@ -25,6 +25,13 @@ from graphtik.op import FunctionalOperation, reparse_operation_data
 
 from .utils import Literal, Token, asdict, aslist, astuple
 
+try:
+    from re import Pattern as RegexPattern
+except ImportError:
+    # PY3.6
+    from typing import Pattern as RegexPattern
+
+
 log = logging.getLogger(__name__)
 
 _my_project_dir = Path(__file__).parent
@@ -403,7 +410,7 @@ class Autograph(Prefkey):
 
     def _match_fn_name_pattern(self, fn_name, pattern) -> Union[str, Tuple[str, str]]:
         """return matched group or groups, callable results or after matched prefix string"""
-        if isinstance(pattern, re.Pattern):
+        if isinstance(pattern, RegexPattern):
             m = pattern.search(fn_name)
             groups = m and m.groups()
             if groups:
