@@ -23,7 +23,7 @@ import operator as ops
 from collections import abc as cabc
 from textwrap import dedent
 from typing import Sequence as Seq
-from typing import Union
+from typing import Union, Mapping
 
 import jsonschema
 import numpy as np
@@ -797,6 +797,23 @@ def get_class_v_cycle(wltc_class: Union[str, int]) -> pd.Series:
 
     return V
 
+def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict:
+    """Like :func:`get_class` suited for pipelines."""
+    classes = wltc_data["classes"]
+    if isinstance(wltc_class, int):
+        class_name = list(classes.keys())[wltc_class]
+    else:
+        class_name = wltc_class
+
+    return classes[class_name]
+
+
+def get_v_class(wltc_class_data: Mapping) -> pd.Series:
+    """Like :func:`get_class_v_cycle` suited for pipelines."""
+    V = wltc_class_data["v_cycle"]
+    assert isinstance(V, pd.Series)
+
+    return V
 
 def merge(a, b, path=[]):
     """'merges b into a"""

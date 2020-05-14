@@ -82,7 +82,8 @@ def calc_f_dsc(f_dsc_orig: float, f_dsc_threshold: float, f_dsc_decimals,) -> fl
     return 0 if f_dsc <= f_dsc_threshold else f_dsc
 
 
-def calc_v_dsc(v: pd.Series, f_dsc, dsc_phases) -> pd.Series:
+
+def calc_v_dsc(v_class: pd.Series, f_dsc, dsc_phases) -> pd.Series:
     """
     Downscale velocity profile by `f_dsc`.
 
@@ -115,7 +116,7 @@ def calc_v_dsc(v: pd.Series, f_dsc, dsc_phases) -> pd.Series:
     @see: Annex 1-8, p 64-68
     """
     # return downscale_by_recursing(V, f_dsc, phases)
-    return downscale_by_scaling(v, f_dsc, dsc_phases)
+    return downscale_by_scaling(v_class, f_dsc, dsc_phases)
 
 
 def downscale_by_recursing(V, f_dsc, phases):
