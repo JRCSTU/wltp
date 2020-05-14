@@ -369,8 +369,8 @@ The :term:`JSON-schema` of the data for this project:
             type: number
       f_dsc_threshold:
         title: Downscale-factor threshold
-        description: The limit for the calculated `f_dsc` below which no downscaling
-          happens.
+        description: |
+          The limit for the calculated `f_dsc` below which no downscaling happens.
         type:
         - number
         default: 0.01
