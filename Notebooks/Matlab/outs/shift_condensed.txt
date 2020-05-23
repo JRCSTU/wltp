@@ -15696,10 +15696,8 @@ case,    t,  gear_or_clutch
  123, 1495,        MANUAL-4
  123, 1498,        MANUAL-5
  123, 1515,        MANUAL-6
- 123, 1532,  MANUAL-NEUTRAL
- 123, 1533,        MANUAL-4
- 123, 1542,        MANUAL-5
- 123, 1544,        MANUAL-6
+ 123, 1533,        MANUAL-5
+ 123, 1543,        MANUAL-6
  123, 1777,  MANUAL-NEUTRAL
  123, 1778,        MANUAL-4
  123, 1783,        MANUAL-3
