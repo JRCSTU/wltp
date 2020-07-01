@@ -455,7 +455,7 @@ texinfo_documents = [
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.7", None),
     "pandas": ("https://pandas-docs.github.io/pandas-docs-travis/", None),
-    "numpy": ("https://www.numpy.org/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
     "jsonschema": ("https://python-jsonschema.readthedocs.io/en/latest/", None),
     "pandalone": ("https://pandalone.readthedocs.io/en/latest/", None),
     "graphtik": ("https://graphtik.readthedocs.io/en/latest/", None),
