@@ -92,7 +92,7 @@ print(list(mdl.keys()))
 
 # %%
 gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
-gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
+gwots = engine.attach_p_avail_in_gwots(gwots, SM=0.1)
 gwots["p_resist"] = vehicle.calc_p_resist(gwots.index, mdl["f0"], mdl["f1"], mdl["f2"])
 
 # %%

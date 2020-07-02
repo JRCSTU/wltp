@@ -241,6 +241,6 @@ def test_interpolate_wot_on_v_grid(h5_accdb, vehnums_to_run):
     npt.assert_allclose(df.index.levels[1], invariants.vround(df.index.levels[1]))
 
 
-def test_calc_p_avail_in_gwots_smoketest(h5_accdb):
+def test_attach_p_avail_in_gwots_smoketest(h5_accdb):
     gwots = pd.DataFrame({("p", "g1"): [], ("ASM", "g1"): []})
-    engine.calc_p_avail_in_gwots(gwots, SM=0.1)
+    engine.attach_p_avail_in_gwots(gwots, SM=0.1)

@@ -117,7 +117,7 @@ def test_full_build_smoketest(h5_accdb):
 
     SM = 0.1
     gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
-    gwots = engine.calc_p_avail_in_gwots(gwots, SM=SM)
+    gwots = engine.attach_p_avail_in_gwots(gwots, SM=SM)
     gwots["p_resist"] = vehicle.calc_p_resist(gwots.index, prop.f0, prop.f1, prop.f2)
 
     kr = 1.03

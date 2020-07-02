@@ -340,7 +340,7 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     return wot_grid
 
 
-def calc_p_avail_in_gwots(gwots, *, SM) -> pd.DataFrame:
+def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, SM) -> pd.DataFrame:
     """
     .. attention:
         Must not interpolate along with wot on grid, or great INNACCURACIES.

@@ -238,7 +238,7 @@ wot = wot.rename(vehdb.accdb_renames(), axis=1)
 wot["n"] = wot.index
 ac_props = ac_props.rename(vehdb.accdb_renames())
 gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
-gwots = engine.calc_p_avail_in_gwots(gwots, SM=0.1)
+gwots = engine.attach_p_avail_in_gwots(gwots, SM=0.1)
 gwots["p_resist"] = vehicle.calc_p_resist(
     gwots.index, ac_props.f0, ac_props.f1, ac_props.f2
 )
