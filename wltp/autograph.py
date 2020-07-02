@@ -511,6 +511,7 @@ class Autograph(Prefkey):
         def is_optional_arg(sig_param):
             return sig_param.default is not inspect._empty
 
+        sig = None
         if needs is _unset:
             sig = inspect.signature(fn)
             needs = [
@@ -529,6 +530,13 @@ class Autograph(Prefkey):
                     needs.insert(0, camel_2_snake_case(class_name))
 
         needs = aslist(needs, "needs", allowed_types=(list, tuple))
+        if ... in needs:
+            if sig is None:
+                sig = inspect.signature(fn)
+            needs = [
+                arg_name if n is ... else n
+                for n, arg_name in zip(needs, sig.parameters)
+            ]
 
         if provides is _unset:
             if is_regular_class(fn_name, fn):
