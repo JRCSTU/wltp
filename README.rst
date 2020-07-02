@@ -594,8 +594,8 @@ The computation code is roughly divided in these python modules:
         - :mod:`~wltp.experiment` (TO BE DROPPED, :mod:`~wltp.datamodel` will assume all functionality)
 
     scheduler
-        (TODO) The internal software component which decides which `formulae` to execute
-        based on given inputs and requested outputs.
+        The internal software component :mod:`graphtik` which decides which
+        `formulae` to execute based on given inputs and requested outputs.
 
 The blueprint for the underlying software ideas is given with this diagram:
 

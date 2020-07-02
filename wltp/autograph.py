@@ -20,8 +20,9 @@ from typing import Any, Callable, Iterable, List, Mapping, Set, Tuple, Union
 
 from boltons.iterutils import first
 
-from graphtik.modifiers import optional, is_sfx, sfx, sfxed
-from graphtik.op import FunctionalOperation, reparse_operation_data
+from graphtik import optional, sfx, sfxed
+from graphtik.modifier import is_sfx
+from graphtik.fnop import FnOp, reparse_operation_data
 
 from .utils import Literal, Token, asdict, aslist, astuple
 
@@ -384,7 +385,7 @@ class Autograph(Prefkey):
 
     >>> aug = Autograph(out_patterns=['calc_', 'upd_'], renames={"a": "A"})
     >>> aug.wrap_fn(calc_sum_ab)
-    FunctionalOperation(name='calc_sum_ab',
+    FnOp(name='calc_sum_ab',
                         needs=['A', 'b'(?)],
                         provides=['sum_ab'],
                         fn='calc_sum_ab')
@@ -464,7 +465,7 @@ class Autograph(Prefkey):
         renames=_unset,
         inp_sideffects=_unset,
         out_sideffects=_unset,
-    ) -> FunctionalOperation:
+    ) -> FnOp:
         """
         Overriddes order: my-args, self.overrides, autograph-decorator, inspection
 
@@ -569,9 +570,7 @@ class Autograph(Prefkey):
 
         op_kws = self._collect_rest_op_args(decors)
 
-        return FunctionalOperation(
-            fn=fn, name=fn_name, needs=needs, provides=provides, **op_kws
-        )
+        return FnOp(fn=fn, name=fn_name, needs=needs, provides=provides, **op_kws)
 
 
 """
