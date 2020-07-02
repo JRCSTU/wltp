@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.4
+#       jupytext_version: 1.4.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -542,7 +542,7 @@ def recreate_fig():
     for i in range(3):
         fig_nums = plt.get_fignums()
         fig = plt.figure(
-            num='Compare AccDB <--> PyAlgo "Initial Gear"', figsize=(20, 12)
+            num='Compare AccDB <--> PyAlgo "Initial Gear"', figsize=(10, 8)
         )
         if fig.number in set(fig_nums):
             fig.clear()

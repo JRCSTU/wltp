@@ -198,10 +198,10 @@ def extract_scale_trace_inputs(
     case_no: int, mat_db: Dict[str, pd.DataFrame], **overrides
 ) -> dict:
     """
-    Return an ordered dictionary with (pandas) values for mat-function `scaleTrace.m`. 
-    
+    Return an ordered dictionary with (pandas) values for mat-function `scaleTrace.m`.
+
     :return:
-        data are regular pandas 
+        data are regular pandas
         (apply :func:`columnize_pandas()` before calling matlab)
     """
 
