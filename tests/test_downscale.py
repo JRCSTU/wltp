@@ -50,20 +50,9 @@ def test_smoke1():
     p_max_values = dsc_data["p_max_values"]
     downsc_coeffs = dsc_data["factor_coeffs"]
     f_dsc_orig = calc_f_dsc_orig(
-        p_max_values,
-        downsc_coeffs,
-        p_rated,
-        test_mass,
-        f0,
-        f1,
-        f2,
-        f_inertial,
+        p_max_values, downsc_coeffs, p_rated, test_mass, f0, f1, f2, f_inertial,
     )
-    f_dsc = calc_f_dsc(
-        f_dsc_orig,
-        f_dsc_threshold,
-        f_dsc_decimals,
-    )
+    f_dsc = calc_f_dsc(f_dsc_orig, f_dsc_threshold, f_dsc_decimals,)
     if f_dsc > 0:
         V = calc_v_dsc(V, f_dsc, phases)
         # print(

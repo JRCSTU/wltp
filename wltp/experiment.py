@@ -234,9 +234,7 @@ class Experiment(object):
                     f_inertial,
                 )
                 f_dsc = downscale.calc_f_dsc(
-                    f_dsc_orig,
-                    f_dsc_threshold,
-                    f_dsc_decimals,
+                    f_dsc_orig, f_dsc_threshold, f_dsc_decimals,
                 )
                 mdl[m.f_dsc] = f_dsc
                 mdl[m.f_dsc_orig] = f_dsc_orig
@@ -266,9 +264,7 @@ class Experiment(object):
         pm = cycler.PhaseMarker()
 
         if wltc_class:
-            wltc_parts = datamodel.get_class_parts_limits(
-                wltc_class, edges=True
-            )
+            wltc_parts = datamodel.get_class_parts_limits(wltc_class, edges=True)
             cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
 
         cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
