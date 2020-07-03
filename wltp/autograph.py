@@ -583,6 +583,5 @@ class Autograph(Prefkey):
     ...      })
     >>> ops = [aug.wrap_fn(fn, name[-1]) for name, fn in funcs]
     >>> netop = compose('wltp', *(op for op in ops if op.provides))
-    >>> dot = netop.plot('t.pdf')
 
 """
