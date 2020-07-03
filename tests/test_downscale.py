@@ -39,7 +39,7 @@ def test_smoke1():
     ## Decide WLTC-class.
     #
     wltc = datamodel.get_wltc_data()
-    wltc_class = decide_wltc_class(wltc, p_rated / test_mass, v_max)
+    wltc_class = decide_wltc_class(wltc["classes"], p_rated / test_mass, v_max)
     class_data = wltc["classes"][wltc_class]
     V = pd.Series(class_data["v_cycle"])
 

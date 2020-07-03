@@ -6,8 +6,8 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """formulae downscaling cycles based on pmr/test_mass ratio """
-
 import logging
+from typing import Mapping
 
 import pandas as pd
 
@@ -18,13 +18,14 @@ from .autograph import autographed
 log = logging.getLogger(__name__)
 
 
-def decide_wltc_class(wltc_data, p_m_ratio, v_max):
+@autographed(needs=["wltc_data/classes", ..., ...])
+def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
     """Vehicle classification according to Annex 1-2. """
     c = wio.pstep_factory.get().cycle_data
 
     class_limits = {
         cl: (cd[c.pmr_limits], cd.get(c.velocity_limits))
-        for (cl, cd) in wltc_data[c.classes].items()
+        for (cl, cd) in wltc_classes_data.items()
     }
 
     for (cls, ((pmr_low, pmr_high), v_limits)) in class_limits.items():

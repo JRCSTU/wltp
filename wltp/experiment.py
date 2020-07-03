@@ -241,7 +241,9 @@ class Experiment(object):
             #
             wltc_class = mdl.get(m.wltc_class)
             if wltc_class is None:
-                wltc_class = downscale.decide_wltc_class(self.wltc, p_m_ratio, v_max)
+                wltc_class = downscale.decide_wltc_class(
+                    self.wltc["classes"], p_m_ratio, v_max
+                )
                 mdl[m.wltc_class] = wltc_class
             else:
                 log.info("Found forced wltc_class(%s).", wltc_class)
