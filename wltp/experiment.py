@@ -47,6 +47,9 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
     One row per gear having ``True`` wherever gear is possible for each step.
 
 .. Seealso:: :mod:`~,datamodel` for in/out schemas
+
+>>> from wltp.experiment import *
+>>> __name__ = "wltp.experiment"
 """
 
 import logging
@@ -57,35 +60,69 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from . import (
-    io as wio,
-    cycles,
-    invariants,
-    nmindrive,
-    vehicle,
-    engine,
-    vmax,
-    downscale,
-    datamodel,
-    cycler,
-)
+from graphtik import compose
+from graphtik.pipeline import Pipeline
+
+from . import cycler, cycles, datamodel, downscale, engine, invariants
+from . import io as wio
+from . import nmindrive, vehicle, vmax
+from .autograph import Autograph, FnHarvester, autographed
 from .invariants import v_decimals, vround
 
 log = logging.getLogger(__name__)
 
 
-def _shapes(*arrays):
-    import operator
+def _compose_scale_trace(**pipeline_kw) -> Pipeline:
+    hv = FnHarvester(
+        # base_modules=["wltp.experiment", engine, vehicle, nmindrive, downscale],
+        excludes=["calc_default_resistance_coeffs",],
+    )
+    hv.harvest(
+        cycles.get_wltc_class_data,
+        vehicle.calc_unladen_mass,
+        vehicle.calc_mro,
+        vehicle.calc_p_m_ratio,
+        engine.interpolate_wot_on_v_grid,
+        engine.attach_p_avail_in_gwots,
+        vehicle.attach_p_resist_in_gwots,
+        vmax.calc_v_max,
+        downscale.calc_f_dsc_orig,
+        downscale.calc_f_dsc,
+        downscale.decide_wltc_class,
+        downscale.calc_v_dsc,
+    )
+    funcs = hv.collected
+    aug = Autograph(
+        [
+            "get_",
+            "calc_",
+            "upd_",
+            "create_",
+            "decide_",
+            re.compile(r"\battach_(\w+)_in_(\w+)$"),
+        ]
+    )
+    ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
+    return compose("scale_trace", *ops, **pipeline_kw)
 
-    op_shape = operator.attrgetter("shape")
-    return list(map(op_shape, arrays))
+
+# TODO: create *lazily* pipeline module-attribute.
+scale_trace = _compose_scale_trace()
+"""
+The main pipeline:
+
+.. graphtik::
+    :height: 600
+    :hide:
+    :name: scale_trace
+
+    >>> netop = scale_trace
+
+**Example:**
 
 
-def _dtypes(*arrays):
-    import operator
-
-    op_shape = operator.attrgetter("dtype")
-    return list(map(op_shape, arrays))
+>>> mdl = {"n_idle": 500, "n_rated": 3000, "p_rated": 80, "t_cold_end": 470}
+"""
 
 
 class Experiment(object):
@@ -245,6 +282,13 @@ class Experiment(object):
 
                 V_dsc = vround(V_dsc_raw)
                 V_dsc.name = c.v_dsc
+
+                ## VALIDATE AGAINST PIPELINE.
+                #
+                from graphtik.config import evictions_skipped
+                with evictions_skipped(True):
+                    V_dsc2 = scale_trace.compute(mdl, 'v_dsc')['v_dsc']
+                assert (V_dsc == V_dsc2).all()
 
                 # TODO: separate column due to cap/extend.
                 V_target = V_dsc.copy()

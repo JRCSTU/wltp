@@ -18,6 +18,7 @@ from scipy import interpolate
 
 from . import invariants as inv
 from . import io as wio
+from .autograph import autographed
 from .nmindrive import NMinDrives
 from .invariants import Column
 
@@ -270,6 +271,7 @@ def _make_v_grid(v_wot_min: float, v_wot_max: float) -> np.ndarray:
     return V_grid
 
 
+@autographed(provides="gwots")
 def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     """
     Return a new linearly interpolated df on v with inv.v_decimals.

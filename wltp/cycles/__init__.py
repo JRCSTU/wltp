@@ -7,10 +7,12 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """data for all cycles and utilities to identify them"""
 import functools as fnt
-from typing import Iterable, Union, Tuple, Optional
+from typing import Iterable, Mapping, Union, Tuple, Optional
 
 import numpy as np
 import pandas as pd
+
+from ..autograph import autographed
 
 
 def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
@@ -192,3 +194,21 @@ def identify_cycle_v(V: Iterable):
    """
     crc = crc_velocity(V)
     return identify_cycle_v_crc(crc)
+
+
+def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict:
+    """
+    Fetch the wltc-data for a specific class.
+
+    :param wltc_class:
+        one of 'class1', ..., 'class3b' or its index 0,1, ... 3
+
+    Like :func:`get_class` suited for pipelines.
+    """
+    classes = wltc_data["classes"]
+    if isinstance(wltc_class, int):
+        class_name = list(classes.keys())[wltc_class]
+    else:
+        class_name = wltc_class
+
+    return classes[class_name]

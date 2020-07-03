@@ -13,6 +13,7 @@ import pandas as pd
 
 from . import invariants as inv
 from . import io as wio
+from .autograph import autographed
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +42,18 @@ def decide_wltc_class(wltc_data, p_m_ratio, v_max):
     return wltc_class
 
 
+@autographed(
+    needs=[
+        "wltc_class_data/downscale/p_max_values",
+        "wltc_class_data/downscale/factor_coeffs",
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+    ]
+)
 def calc_f_dsc_orig(
     wltc_dsc_p_max_values, wltc_dsc_coeffs, p_rated, test_mass, f0, f1, f2, f_inertial,
 ):
@@ -82,7 +95,9 @@ def calc_f_dsc(f_dsc_orig: float, f_dsc_threshold: float, f_dsc_decimals,) -> fl
     return 0 if f_dsc <= f_dsc_threshold else f_dsc
 
 
-
+@autographed(
+    needs=["wltc_class_data/v_cycle", ..., "wltc_class_data/downscale/phases",]
+)
 def calc_v_dsc(v_class: pd.Series, f_dsc, dsc_phases) -> pd.Series:
     """
     Downscale velocity profile by `f_dsc`.

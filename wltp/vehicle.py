@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 
 from . import io as wio
+from .autograph import autographed
 from .invariants import Column
 
 log = logging.getLogger(__name__)
@@ -39,6 +40,12 @@ def calc_p_resist(V: Column, f0, f1, f2):
     VV = V * V
     VVV = VV * V
     return (f0 * V + f1 * VV + f2 * VVV) / 3600.0
+
+
+def attach_p_resist_in_gwots(gwots: pd.DataFrame, f0, f1, f2):
+    w = wio.pstep_factory.get().wot
+    gwots[w.p_resist] = calc_p_resist(gwots.index, f0, f1, f2)
+    return gwots
 
 
 def calc_inertial_power(V, A, test_mass, f_inertial):

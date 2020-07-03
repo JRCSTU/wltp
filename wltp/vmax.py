@@ -29,6 +29,7 @@ from pandalone import mappings, pandata
 from . import engine
 from . import io as wio
 from . import utils, vehicle
+from .autograph import autographed
 from .invariants import v_decimals, v_step, vround
 
 log = logging.getLogger(__name__)
@@ -119,6 +120,7 @@ def _find_p_remain_root(
     return rec
 
 
+@autographed(inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")])
 def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
     """
     Finds maximum velocity by scanning gears from the top.

@@ -33,7 +33,6 @@
 /cycle/v_dsc
 /cycle/v_dsc_raw
 /cycle/v_target
-/cycle_data/classes
 /cycle_data/pmr_limits
 /cycle_data/velocity_limits
 /driver_mass
@@ -42,8 +41,8 @@
 /f2
 /f_dsc
 /f_dsc_decimals
-/f_dsc_threshold
 /f_dsc_orig
+/f_dsc_threshold
 /f_inertial
 /f_safety_margin
 /g_vmax
@@ -56,11 +55,7 @@
 /n_max1
 /n_max2
 /n_max3
-/n_min_drive_down
-/n_min_drive_down_start
 /n_min_drive_set
-/n_min_drive_up
-/n_min_drive_up_start
 /n_rated
 /n_vmax
 /names/g
@@ -68,7 +63,6 @@
 /names/v
 /p_rated
 /pmr
-/resistance_coeffs_regression_curves
 /t_cold_end
 /test_mass
 /unladen_mass
