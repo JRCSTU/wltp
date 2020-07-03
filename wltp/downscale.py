@@ -99,7 +99,7 @@ def calc_f_dsc(f_dsc_orig: float, f_dsc_threshold: float, f_dsc_decimals,) -> fl
 @autographed(
     needs=["wltc_class_data/v_cycle", ..., "wltc_class_data/downscale/phases",]
 )
-def calc_v_dsc(v_class: pd.Series, f_dsc, dsc_phases) -> pd.Series:
+def calc_v_dsc_raw(v_class: pd.Series, f_dsc, dsc_phases) -> pd.Series:
     """
     Downscale velocity profile by `f_dsc`.
 

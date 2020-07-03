@@ -60,7 +60,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from graphtik import compose
+from graphtik import compose, operation
 from graphtik.pipeline import Pipeline
 
 from . import cycler, cycles, datamodel, downscale, engine, invariants
@@ -89,7 +89,7 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         downscale.calc_f_dsc_orig,
         downscale.calc_f_dsc,
         downscale.decide_wltc_class,
-        downscale.calc_v_dsc,
+        downscale.calc_v_dsc_raw,
     )
     funcs = hv.collected
     aug = Autograph(
@@ -103,7 +103,9 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         ]
     )
     ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
-    return compose("scale_trace", *ops, **pipeline_kw)
+    calc_dsc = operation(vround, name="calc_v_dsc", needs="v_dsc_raw", provides="v_dsc")
+
+    return compose("scale_trace", *ops, calc_dsc, **pipeline_kw)
 
 
 # TODO: create *lazily* pipeline module-attribute.
@@ -279,7 +281,7 @@ class Experiment(object):
                 mdl[m.f_dsc_orig] = f_dsc_orig
 
             if f_dsc > 0:
-                V_dsc_raw = downscale.calc_v_dsc(V, f_dsc, phases)
+                V_dsc_raw = downscale.calc_v_dsc_raw(V, f_dsc, phases)
                 V_dsc_raw.name = c.v_dsc_raw
 
                 V_dsc = vround(V_dsc_raw)
@@ -288,8 +290,9 @@ class Experiment(object):
                 ## VALIDATE AGAINST PIPELINE.
                 #
                 from graphtik.config import evictions_skipped
+
                 with evictions_skipped(True):
-                    V_dsc2 = scale_trace.compute(mdl, 'v_dsc')['v_dsc']
+                    V_dsc2 = scale_trace.compute(mdl, "v_dsc")["v_dsc"]
                 assert (V_dsc == V_dsc2).all()
 
                 # TODO: separate column due to cap/extend.

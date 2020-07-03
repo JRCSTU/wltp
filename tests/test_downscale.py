@@ -16,9 +16,9 @@ import pytest
 
 from wltp import datamodel
 from wltp.downscale import (
-    calc_f_dsc_orig,
     calc_f_dsc,
-    calc_v_dsc,
+    calc_f_dsc_orig,
+    calc_v_dsc_raw,
     decide_wltc_class,
     downscale_by_recursing,
     downscale_by_scaling,
@@ -54,7 +54,7 @@ def test_smoke1():
     )
     f_dsc = calc_f_dsc(f_dsc_orig, f_dsc_threshold, f_dsc_decimals,)
     if f_dsc > 0:
-        V = calc_v_dsc(V, f_dsc, phases)
+        V = calc_v_dsc_raw(V, f_dsc, phases)
         # print(
         #     "Class(%s), f_dnscl(%s), DIFFs:\n%s" % (wclass, f_dsc, diffs[bad_ix])
         # )
@@ -76,7 +76,7 @@ def test_smoke2():
     ]
 
     for (V, phases, f_dsc) in test_data:
-        calc_v_dsc(V, f_dsc, phases)
+        calc_v_dsc_raw(V, f_dsc, phases)
 
 
 _wltc = datamodel.get_wltc_data()
