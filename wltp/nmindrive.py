@@ -220,11 +220,11 @@ NMinDrives = autographed(
 )
 
 
-def _compose_mdl_2_n_min_drives() -> "Pipeline":  # type: ignore
+def _compose_mdl_2_n_min_drives(**pipeline_kw) -> "Pipeline":  # type: ignore
     funcs = FnHarvester(base_modules=[__name__]).harvest()
     aug = Autograph(["calc_", "upd_"])
     ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
-    return compose("mdl_2_n_min_drives", *ops)
+    return compose("mdl_2_n_min_drives", *ops, **pipeline_kw)
 
 
 # TODO: create *lazily* pipeline module-attribute.
