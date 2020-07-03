@@ -16,7 +16,7 @@ addons:
       - graphviz
 
 install:
-    - python --version
+    - pip install pytest -U
     - pip install -e .[test]
     # pip fails to install `pydot `from graphtik's extras (report to https://github.com/pypa/pip#988)
     - pip install graphtik[sphinx]
