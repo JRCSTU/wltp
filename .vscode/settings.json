@@ -34,6 +34,7 @@
         "--ignore-missing-imports",
         "--follow-imports=silent",
         "--show-column-numbers",
+        "--show-error-codes",
         "--incremental"
     ]
 }
