@@ -449,6 +449,24 @@ The :term:`JSON-schema` of the data for this project:
           - `(ok_..., gN)`: rflags denoting the validity of certain conditions for gear-N
           - `g_max0`: does not include corrections for the `g1-->g2 n_min` rule,
             nor points with insufficient power.
+        properties:
+          v_dsc_raw:
+            title: Downscaled velocity raw
+            description: like `v_dsc` but not yet rounded.
+            labels:
+            - output
+          v_dsc:
+            title: Downscaled velocity
+            description: |
+              Downscaled velocity profile by `f_dsc` (not capped or compensated yet).
+    <BLANKLINE>
+              If not given, the `scale_trace` pipeline produces it from
+              :func:`.downscale.calc_v_dsc_raw()`
+            $ref: '#/definitions/positiveNumbers'
+            labels:
+            - input
+            - output
+    <BLANKLINE>
     definitions:
       positiveInteger:
         type: integer
