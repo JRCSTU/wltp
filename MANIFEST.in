@@ -1,3 +1,4 @@
 include LICENSE.txt
+include wltp/*.yaml
 recursive-exclude docs docs
 recursive-exclude tests *
