@@ -399,7 +399,7 @@ def model_validator(
             "additionalProperties": False,
             "properties": {
                 **validator.META_SCHEMA["properties"],
-                "labels": {
+                "tags": {
                     "type": "array",
                     "items": {"type": "string"},
                     "uniqueItems": True,

@@ -296,7 +296,7 @@ properties:
       V_dsc_raw:
         title: Downscaled velocity raw
         description: like `V_dsc` but not yet rounded.
-        labels:
+        tags:
         - output
       V_dsc:
         title: Downscaled velocity
@@ -306,7 +306,7 @@ properties:
           If not given, the `scale_trace` pipeline produces it from
           :func:`.downscale.calc_V_dsc_raw()`.
         $ref: '#/definitions/positiveNumbers'
-        labels:
+        tags:
         - input
         - output
   wltc_data:
