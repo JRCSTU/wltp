@@ -194,7 +194,6 @@ def _get_wltc_schema() -> dict:
     return utils.yaml_load(yaml_text)  # type: ignore
 
 
-
 ######
 # Cached Schemas timings:
 #
@@ -247,11 +246,11 @@ def get_class_names(mdl=None) -> pd.DataFrame:
     return list(wltc_data["classes"].keys())
 
 
-def get_class(class_id: Union[str, int], mdl=None) -> dict:
+def get_class(wltc_class: Union[str, int], mdl=None) -> dict:
     """
     Fetch the wltc-data for a specific class.
 
-    :param class_id:
+    :param wltc_class:
         one of 'class1', ..., 'class3b' or its index 0,1, ... 3
     """
     if mdl:
@@ -260,10 +259,10 @@ def get_class(class_id: Union[str, int], mdl=None) -> dict:
         wltc_data = get_wltc_data()
 
     classes = wltc_data["classes"]
-    if isinstance(class_id, int):
-        class_name = list(classes.keys())[class_id]
+    if isinstance(wltc_class, int):
+        class_name = list(classes.keys())[wltc_class]
     else:
-        class_name = class_id
+        class_name = wltc_class
 
     return classes[class_name]
 
@@ -274,7 +273,7 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False):
 
     :param wltc_class:
         one of 'class1', ..., 'class3b' or its index 0,1, ... 3
-    :param edges: when `True`, embeds internal limits inside [0, ..., len]
+    :param edges: when `True`, internal limits are wrapped within [0, ..., len]
     :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
 
     Example:
