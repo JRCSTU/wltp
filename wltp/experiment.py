@@ -89,7 +89,7 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         downscale.calc_f_dsc_orig,
         downscale.calc_f_dsc,
         downscale.decide_wltc_class,
-        downscale.calc_v_dsc_raw,
+        downscale.calc_V_dsc_raw,
     )
     funcs = hv.collected
     aug = Autograph(
@@ -103,9 +103,9 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         ]
     )
     ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
-    calc_dsc = operation(vround, name="calc_v_dsc", needs="v_dsc_raw", provides="v_dsc")
+    calc_V_dsc = operation(vround, name="calc_V_dsc", needs="V_dsc_raw", provides="V_dsc")
 
-    return compose("scale_trace", *ops, calc_dsc, **pipeline_kw)
+    return compose("scale_trace", *ops, calc_V_dsc, **pipeline_kw)
 
 
 # TODO: create *lazily* pipeline module-attribute.
@@ -281,18 +281,18 @@ class Experiment(object):
                 mdl[m.f_dsc_orig] = f_dsc_orig
 
             if f_dsc > 0:
-                V_dsc_raw = downscale.calc_v_dsc_raw(V, f_dsc, phases)
-                V_dsc_raw.name = c.v_dsc_raw
+                V_dsc_raw = downscale.calc_V_dsc_raw(V, f_dsc, phases)
+                V_dsc_raw.name = c.V_dsc_raw
 
                 V_dsc = vround(V_dsc_raw)
-                V_dsc.name = c.v_dsc
+                V_dsc.name = c.V_dsc
 
                 ## VALIDATE AGAINST PIPELINE.
                 #
                 from graphtik.config import evictions_skipped
 
                 with evictions_skipped(True):
-                    V_dsc2 = scale_trace.compute(mdl, "v_dsc")["v_dsc"]
+                    V_dsc2 = scale_trace.compute(mdl, "V_dsc")["V_dsc"]
                 assert (V_dsc == V_dsc2).all()
 
                 # TODO: separate column due to cap/extend.

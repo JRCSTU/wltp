@@ -444,24 +444,24 @@ The :term:`JSON-schema` of the data for this project:
           An inp/out dataframe matrix with 2-level columns(item, gear),
           and items, in addition to those of `grid_wots`:
           - `v_cycle`: reduced by safety-margin, but not by ASM
-          - `v_dsc`: (optional)
+          - `V_dsc`: (optional)
           - `v_target`: road loads power
           - `(ok_..., gN)`: rflags denoting the validity of certain conditions for gear-N
           - `g_max0`: does not include corrections for the `g1-->g2 n_min` rule,
             nor points with insufficient power.
         properties:
-          v_dsc_raw:
+          V_dsc_raw:
             title: Downscaled velocity raw
-            description: like `v_dsc` but not yet rounded.
+            description: like `V_dsc` but not yet rounded.
             labels:
             - output
-          v_dsc:
+          V_dsc:
             title: Downscaled velocity
             description: |
               Downscaled velocity profile by `f_dsc` (not capped or compensated yet).
     <BLANKLINE>
               If not given, the `scale_trace` pipeline produces it from
-              :func:`.downscale.calc_v_dsc_raw()`
+              :func:`.downscale.calc_V_dsc_raw()`
             $ref: '#/definitions/positiveNumbers'
             labels:
             - input

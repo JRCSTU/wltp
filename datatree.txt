@@ -1,4 +1,6 @@
 
+/cycle/V_dsc
+/cycle/V_dsc_raw
 /cycle/a
 /cycle/accel
 /cycle/accel_raw
@@ -30,8 +32,6 @@
 /cycle/up
 /cycle/v
 /cycle/v_cycle
-/cycle/v_dsc
-/cycle/v_dsc_raw
 /cycle/v_target
 /cycle_data/pmr_limits
 /cycle_data/velocity_limits
