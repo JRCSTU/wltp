@@ -59,7 +59,7 @@ class Test(unittest.TestCase):
         for (cls, l) in class_limits.items():
             self.assertEqual(
                 l[-1],
-                len(classes[cls]["v_cycle"]),
+                len(classes[cls]["V_cycle"]),
                 "Class(%s): Section Right-edge not len(cycle)!" % cls,
             )
 

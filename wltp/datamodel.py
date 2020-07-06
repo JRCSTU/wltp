@@ -293,9 +293,9 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False):
     And these are the limits for acceleration-dependent items:
 
     >>> cls_data = datamodel.get_wltc_data()['classes'][cls]
-    >>> V = pd.DataFrame(cls_data['v_cycle'])
+    >>> V = pd.DataFrame(cls_data['V_cycle'])
     >>> V.groupby(pd.cut(V.index, part_limits)).sum()
-                  v_cycle
+                  V_cycle
     (0, 589]      11162.2
     (589, 1022]   17054.3
     (1022, 1477]  24450.6
@@ -306,7 +306,7 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False):
     part_limits = cls["parts"]
     if edges:
         part_limits.insert(0, 0)
-        part_limits.append(len(cls["v_cycle"]))
+        part_limits.append(len(cls["V_cycle"]))
 
     return part_limits
 
@@ -339,7 +339,7 @@ def get_class_v_cycle(wltc_class: Union[str, int]) -> pd.Series:
         where `length` is the duration of the cycle in seconds.
     """
     cls = get_class(wltc_class)
-    V = cls["v_cycle"]
+    V = cls["V_cycle"]
     assert isinstance(V, pd.Series)
 
     return V

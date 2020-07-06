@@ -97,7 +97,7 @@ definitions:
         type: array
         items:
           type: number
-      v_cycle:
+      V_cycle:
         type: array
         items:
           type: number
@@ -106,4 +106,4 @@ definitions:
     - pmr_limits
     - parts
     - downscale
-    - v_cycle
+    - V_cycle

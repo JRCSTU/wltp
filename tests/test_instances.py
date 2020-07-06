@@ -316,7 +316,7 @@ class InstancesTest(unittest.TestCase):
         wltc = datamodel.get_wltc_data()
 
         for cl, cd in wltc["classes"].items():
-            cycle = cd["v_cycle"]
+            cycle = cd["V_cycle"]
             parts = datamodel.get_class_parts_limits(cl, edges=True)
             prev_start = -1
             for start in parts:

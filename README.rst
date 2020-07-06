@@ -348,7 +348,7 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
     (1801, 94)
     >>> wio.flatten_columns(df.columns)
-    ['t', 'v_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
+    ['t', 'V_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
      'stop', 'accel', 'cruise', 'decel', 'initaccel', 'stopdecel', 'up', 'p_inert', 'n/g1', 'n/g2',
      'n/g3', 'n/g4', 'n/g5', 'n/g6', 'n_norm/g1', 'n_norm/g2', 'n_norm/g3', 'n_norm/g4', 'n_norm/g5',
      'n_norm/g6', 'p/g1', 'p/g2', 'p/g3', 'p/g4', 'p/g5', 'p/g6', 'p_avail/g1', 'p_avail/g2',

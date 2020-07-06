@@ -247,7 +247,7 @@ def plot_gear(gear="g2", zoom=48, pan=13.8):
     ok_flags = ok_flags2.loc[:, idx[:, gear]].iloc[scale]
     ok_gear = ok_gear2.loc[scale]
 
-    ax = cycle["v_cycle"].plot.line(ax=ax, linewidth=4, figsize=(20, 8))
+    ax = cycle["V_cycle"].plot.line(ax=ax, linewidth=4, figsize=(20, 8))
     ax = ok_flags.plot.line(ax=ax)
     ax = ok_gear.plot.line(ax=ax, linewidth=3)
 

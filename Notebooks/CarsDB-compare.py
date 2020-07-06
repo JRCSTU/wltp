@@ -167,7 +167,7 @@ cmpr = vehdb.Comparator(lambda d, c: d.loc[idx[:, c]])
 # # UNCOMMENT next line to FETCH new vehicles.
 p1, c1, p2, c2 = load_accdb_and_python_datasets()
 equivalent_series = [
-    ("v_orig", "v_cycle"),
+    ("v_orig", "V_cycle"),
     ("v_downscale", "v_target"),
     # ("a", "a_target"),
     ("P_tot_set", "p_req"),
@@ -613,8 +613,8 @@ def plot_gear_flags(
     ok_flags = ok_flags.loc[:, idx[:, gear]].iloc[scale]
     ok_gears = ok_gears.loc[scale]
 
-    if not pyalgo["v_cycle"].empty:
-        pyalgo["v_cycle"].plot.line(ax=ax, color="0.70", linewidth=4.5)
+    if not pyalgo["V_cycle"].empty:
+        pyalgo["V_cycle"].plot.line(ax=ax, color="0.70", linewidth=4.5)
 
     if is_pyalgo_gears:
         if not ok_flags.empty:

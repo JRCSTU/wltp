@@ -302,7 +302,7 @@ properties:
     description: |2
       An inp/out dataframe matrix with 2-level columns(item, gear),
       and items, in addition to those of `grid_wots`:
-      - `v_cycle`: reduced by safety-margin, but not by ASM
+      - `V_cycle`: reduced by safety-margin, but not by ASM
       - `V_dsc`: (optional)
       - `v_target`: road loads power
       - `(ok_..., gN)`: rflags denoting the validity of certain conditions for gear-N

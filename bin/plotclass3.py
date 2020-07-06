@@ -30,7 +30,7 @@ def make_class_fig(class_name, class_data):
     #
     # Typical car data
     test_mass, f0, f1, f2 = 1200, 0.3, 0.03, 0
-    v = class_data["v_cycle"]
+    v = class_data["V_cycle"]
     a = -v.diff(-1)
     p_inert = vehicle.calc_inertial_power(v, a, test_mass, 0)
     p_resist = vehicle.calc_p_resist(v, f0, f1, f2)

@@ -190,7 +190,7 @@ display(mdl["cycle"])
 print(sorted(mdl.keys()))
 
 # %%
-ax = mdl["cycle"][["v_cycle", "v_target"]].plot()
+ax = mdl["cycle"][["V_cycle", "v_target"]].plot()
 ax = mdl["cycle"][["p_req", "p_avail"]].plot(ax=ax, secondary_y=True)
 
 # %% [markdown]
