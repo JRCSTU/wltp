@@ -1,0 +1,109 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: /wltc
+title: WLTC data
+type: object
+additionalProperties: false
+required:
+- classes
+properties:
+  classes:
+    type: object
+    additionalProperties: false
+    required:
+    - class1
+    - class2
+    - class3a
+    - class3b
+    properties:
+      class1:
+        $ref: '#definitions/class'
+      class2:
+        $ref: '#definitions/class'
+      class3a:
+        $ref: '#definitions/class'
+      class3b:
+        $ref: '#definitions/class'
+definitions:
+  class:
+    title: WLTC class data
+    type: object
+    additionalProperties: false
+    properties:
+      pmr_limits:
+        title: PMR (low, high]
+        description:
+          Power_To_unladen-Mass ratio-limits ((low, high], W/kg) used to
+          select classes (Annex 1, p19).
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      velocity_limits:
+        description:
+          Velocity-limits ([low, high), km/h) within which (<) version-a/b
+          from class3 is selected (Annex 1, p19).
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      parts:
+        type: array
+        items:
+          type: integer
+      downscale:
+        type: object
+        additionalProperties: false
+        properties:
+          phases:
+            type: array
+            description: triplet (start, tip, end); start & end remain unchanged
+            items:
+              $ref: data#definitions/positiveInteger
+            maxItems: 3
+            minItems: 3
+            additionalItems: false
+          decel_phase:
+            type: array
+            additionalItems: false
+            items:
+              type: integer
+            maxItems: 2
+            minItems: 2
+          p_max_values:
+            type: object
+            properties:
+              time:
+                type: number
+              v:
+                type: number
+              a:
+                type: number
+            additionalProperties: false
+            required:
+            - time
+            - v
+            - a
+          factor_coeffs:
+            type: array
+        required:
+        - phases
+        - p_max_values
+        - factor_coeffs
+      checksum:
+        type: number
+      part_checksums:
+        type: array
+        items:
+          type: number
+      v_cycle:
+        type: array
+        items:
+          type: number
+        minItems: 906
+    required:
+    - pmr_limits
+    - parts
+    - downscale
+    - v_cycle
