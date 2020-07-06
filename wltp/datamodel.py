@@ -844,8 +844,21 @@ def model_validator(
         auto_remove_nulls=True,
     )
     if validate_schema:
-        # See https://github.com/Julian/jsonschema/issues/268
-        stricter_metaschema = dict(validator.META_SCHEMA, additionalProperties=False)
+        ## Patch jsonschema-schema for extra fields & forbid miss-spells.
+        #  See https://github.com/Julian/jsonschema/issues/268
+        #
+        stricter_metaschema = {
+            **validator.META_SCHEMA,
+            "additionalProperties": False,
+            "properties": {
+                **validator.META_SCHEMA["properties"],
+                "labels": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "uniqueItems": True,
+                },
+            },
+        }
         strictValidator = jsonschema.validators.validator_for(stricter_metaschema)
         strictValidator(stricter_metaschema).validate(schema)
 
