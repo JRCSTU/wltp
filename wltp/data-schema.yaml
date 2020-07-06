@@ -14,8 +14,7 @@ properties:
     - string
   unladen_mass:
     title: vehicle unladen mass
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
     description:
       The mass (kg) of the vehicle without the driver, used to decide its class,
@@ -28,20 +27,17 @@ properties:
       as defined in Annex 4.2.1.3.1, pg 94.
   v_max:
     title: maximum vehicle velocity
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
     description: (OUT) The calculated maximum velocity, as defined in Annex 2-2.i.
   n_vmax:
     title: engine speed for maximum vehicle velocity
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
     description: (OUT) The engine speed for `v_max`.
   g_vmax:
     title: gear for maximum vehicle velocity
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
     description: (OUT) The gear for achieving `v_max`.
   p_rated:
@@ -85,38 +81,31 @@ properties:
       (1/min) by vehicle-velocity (km/h).
   f0:
     title: driving resistance coefficient f0
-    type:
-    - number
+    type: number
     description: The driving resistance coefficient f0, in N (Annex 4).
   f1:
     title: driving resistance coefficient f1
-    type:
-    - number
+    type: number
     description: The driving resistance coefficient f1, in N/(km/h) (Annex 4).
   f2:
     title: driving resistance coefficient f2
-    type:
-    - number
+    type: number
     description: The driving resistance coefficient f2, in N/(km/h)² (Annex 4).
   n_min_drive1:
     description: "[1/min], see Annex 2-2.k, n_min for gear 1"
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   n_min_drive2_up:
     description: "[1/min], Annex 2-2.k"
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   n_min_drive2_stopdecel:
     description: "[1/min], Annex 2-2.k"
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   n_min_drive2:
     description: "[1/min], Annex 2-2.k"
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   n_min_drive_set:
     description: |
@@ -129,33 +118,27 @@ properties:
       Set higher values only into parameters n_min_drive_up/down.
 
       Matlab call this `CalculatedMinDriveEngineSpeedGreater2nd`.
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   n_min_drive_up:
     description: "[1/min], Annex 2-2.k"
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   n_min_drive_up_start:
     description: "[1/min], Annex 2-2.k"
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   n_min_drive_down:
     description: "[1/min], Annex 2-2.k"
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   n_min_drive_down_start:
     description: '[1/min], Annex 2-2.k'
-    type:
-    - number
+    type: number
     exclusiveMinimum: 0
   t_cold_end:
     description: see Annex 2-2.k about n_mins
-    type:
-    - number
+    type: number
     minimum: 0
     default: 0
   wot:
@@ -230,13 +213,11 @@ properties:
     title: Downscale-factor threshold
     description: |2
       The limit for the calculated `f_dsc` below which no downscaling happens.
-    type:
-    - number
+    type: number
     default: 0.01
   f_dsc_decimals:
     title: Downscale-factor rounding decimals
-    type:
-    - number
+    type: number
     default: 3
   driver_mass:
     title: Driver's mass (kg)
@@ -244,38 +225,32 @@ properties:
       The mass (kg) of the vehicle's driver (Annex 1-3.2.6, p9), where::
 
           Unladen_mass = Test_mass - driver_mass
-    type:
-    - number
+    type: number
     default: 75
   v_stopped_threshold:
     description: Velocity (km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).
-    type:
-    - number
+    type: number
     default: 1
   f_inertial:
     description:
       This is the `kr` inertial-factor used in the 2nd part of the
       formula for calculating required-power (Annex 2-3.1).
-    type:
-    - number
+    type: number
     default: 1.03
   f_safety_margin:
     description: |2
       Safety-margin(SM) factor for load-curve (Annex 2-3.4).
-    type:
-    - number
+    type: number
     default: 0.1
   f_n_min:
     description:
       For each gear > 2, ``N :> n_min = n_idle + f_n_min * n_range``
       (unless `n_min` overridden by manufacturer)
-    type:
-    - number
+    type: number
     default: 0.125
   f_n_min_gear2:
     description: Gear-2 is invalid when ``N :< f_n_min_gear2 * n_idle``.
-    type:
-    - number
+    type: number
     default: 0.9
   f_n_clutch_gear2:
     description: |2
@@ -284,8 +259,7 @@ properties:
           N < n_clutch_gear2 := max(f1 * n_idle, f2 * n_range + n_idle),
 
       unless "clutched"...
-    type:
-    - array
+    type: array
     default:
     - 1.15
     - 0.03
