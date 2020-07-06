@@ -285,7 +285,7 @@ For instance:
     >>> mdl = datamodel.upd_default_load_curve(mdl)                   ## need some WOT
 
 
-For information on the accepted model-data, check the :ref:`code:Schema`:
+For information on the accepted model-data, check the :ref:`code:Schemas`:
 
 .. doctest::
 
@@ -319,11 +319,11 @@ before running the experiment:
 
     >>> mdl = processor.model               ## Returns the validated model with filled-in defaults.
     >>> sorted(mdl)                         ## The "defaulted" model now includes the `params` branch.
-    ['driver_mass', 'f0', 'f1', 'f2', 'f_dsc_decimals', 'f_dsc_threshold', 'f_inertial',
-     'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 'gear_ratios', 'n_idle',
-     'n_min_drive1', 'n_min_drive2', 'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_down',
-     'n_min_drive_down_start', 'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated',
-     'p_rated', 't_cold_end', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', 'wltc_data', 'wot']
+    ['driver_mass', 'f0', 'f1', 'f2', 'f_dsc_decimals', 'f_dsc_threshold', 'f_inertial', 'f_n_clutch_gear2',
+     'f_n_min', 'f_n_min_gear2', 'f_safety_margin', 'gear_ratios', 'n_idle', 'n_min_drive1', 'n_min_drive2',
+     'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_down', 'n_min_drive_down_start', 'n_min_drive_set',
+     'n_min_drive_up', 'n_min_drive_up_start', 'n_rated', 'p_rated', 't_cold_end', 'test_mass', 'unladen_mass',
+     'v_cap', 'v_max', 'v_stopped_threshold', 'wltc_data', 'wot']
 
 Now you can run the experiment:
 
@@ -332,11 +332,11 @@ Now you can run the experiment:
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
     [`cycle`, 'driver_mass', 'f0', 'f1', 'f2', `f_dsc`, 'f_dsc_decimals', `f_dsc_orig`, 'f_dsc_threshold',
-     'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin', `g_vmax`,
-     'gear_ratios', `is_n_lim_vmax`, `n95_high`, `n95_low`, 'n_idle', `n_max`, `n_max1`, `n_max2`, `n_max3`,
-     'n_min_drive1', 'n_min_drive2', 'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_down',
-     'n_min_drive_down_start', 'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated', `n_vmax`,
-     'p_rated', `pmr`, 't_cold_end', 'test_mass', 'unladen_mass', 'v_max', 'v_stopped_threshold', `wltc_class`,
+     'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin', `g_vmax`, 'gear_ratios',
+     `is_n_lim_vmax`, `n95_high`, `n95_low`, 'n_idle', `n_max`, `n_max1`, `n_max2`, `n_max3`, 'n_min_drive1',
+     'n_min_drive2', 'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_down', 'n_min_drive_down_start',
+     'n_min_drive_set', 'n_min_drive_up', 'n_min_drive_up_start', 'n_rated', `n_vmax`, 'p_rated', `pmr`,
+     't_cold_end', 'test_mass', 'unladen_mass', 'v_cap', 'v_max', 'v_stopped_threshold', `wltc_class`,
      'wltc_data', 'wot', `wots_vmax`]
 
 To access the time-based cycle-results it is better to use a :class:`pandas.DataFrame`:
@@ -842,7 +842,7 @@ See also :ref:`architecture:Architecture`.
         with it.  JSON Schema is intended to define validation, documentation, hyperlink navigation, and
         interaction control of JSON data.
 
-        The schema of this project has its own section: :ref:`code:Schema`
+        The schema of this project has its own section: :ref:`code:Schemas`
 
         You can learn more about it from this `excellent guide <http://spacetelescope.github.io/understanding-json-schema/>`_,
         and experiment with this `on-line validator <http://www.jsonschema.net/>`_.

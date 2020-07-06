@@ -273,8 +273,14 @@ properties:
     description: |2
       a flag to suppress shifting to gear-0(idle) during downshifts
     type: boolean
-  wltc_data:
-    $ref: /wltc
+  v_cap:
+    description:
+      If given and > 0, clips all `v_dsc` samples below this limit.
+    type:
+    - "null"
+    - integer
+    minimum: 0
+    default: null
   cycle:
     description: |2
       An inp/out dataframe matrix with 2-level columns(item, gear),
@@ -303,6 +309,8 @@ properties:
         labels:
         - input
         - output
+  wltc_data:
+    $ref: /wltc
 
 definitions:
   positiveInteger:
