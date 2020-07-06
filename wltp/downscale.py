@@ -198,3 +198,10 @@ def downscale_by_scaling(V: pd.Series, f_dsc, phases) -> pd.Series:
     )
 
     return V_DSC
+
+
+def calc_V_capped_raw(V_dsc_raw, v_cap):
+    V_dsc = V_dsc_raw.copy()
+    V_dsc[V_dsc > v_cap] = v_cap
+
+    return V_dsc

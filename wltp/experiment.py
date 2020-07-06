@@ -90,6 +90,7 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         downscale.calc_f_dsc,
         downscale.decide_wltc_class,
         downscale.calc_V_dsc_raw,
+        downscale.calc_V_capped_raw,
     )
     funcs = hv.collected
     aug = Autograph(
@@ -103,9 +104,19 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         ]
     )
     ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
-    calc_V_dsc = operation(vround, name="calc_V_dsc", needs="V_dsc_raw", provides="V_dsc")
+    calc_V_dsc = operation(
+        vround, name="calc_V_dsc", needs="V_dsc_raw", provides="V_dsc"
+    )
+    calc_V_capped = operation(
+        vround, name="calc_V_capped", needs="V_capped_raw", provides="V_capped"
+    )
+    calc_v_dsc_max = operation(
+        pd.Series.max, name="calc_max_v_dsc", needs="V_dsc", provides="v_dsc_max"
+    )
 
-    return compose("scale_trace", *ops, calc_V_dsc, **pipeline_kw)
+    return compose(
+        "scale_trace", *ops, calc_V_dsc, calc_v_dsc_max, calc_V_capped, **pipeline_kw
+    )
 
 
 # TODO: create *lazily* pipeline module-attribute.
