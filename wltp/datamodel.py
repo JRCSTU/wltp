@@ -10,9 +10,8 @@ Defines schema, defaults and validations for data consumed/produced by :class:`~
 
 The datamodel-instance is managed by :class:`pandel.Pandel`.
 
-.. testsetup::
-
-  from wltp.datamodel import *
+>>> from wltp.datamodel import *
+>>> __name__ = "wltp.datamodel"
 """
 
 import copy
@@ -23,8 +22,9 @@ import logging
 import operator as ops
 from collections import abc as cabc
 from textwrap import dedent
+from typing import Mapping
 from typing import Sequence as Seq
-from typing import Union, Mapping
+from typing import Union
 
 import jsonschema
 import numpy as np
@@ -173,7 +173,7 @@ def _get_model_schema(additional_properties=False) -> dict:
       when False, 4rd-step(validation) will scream on any non-schema property found.
       The json-schema(dict) for input/output of the WLTC experiment.
 
-    .. Note::
+    .. Warning::
       Do not modify, or they will affect all future operations
     """
     yaml_text = pkg_resources.read_text(__package__, "data-schema.yaml")
@@ -187,7 +187,7 @@ def _get_wltc_schema() -> dict:
     """
     The json-schema for the WLTC-data required to run a WLTC experiment.
 
-    .. Note::
+    .. Warning::
       Do not modify, or they will affect all future operations
     """
     yaml_text = pkg_resources.read_text(__package__, "wltc-schema.yaml")
@@ -343,6 +343,7 @@ def get_class_v_cycle(wltc_class: Union[str, int]) -> pd.Series:
     assert isinstance(V, pd.Series)
 
     return V
+
 
 def merge(a, b, path=[]):
     """'merges b into a"""
