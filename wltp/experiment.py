@@ -138,6 +138,27 @@ The main pipeline:
 """
 
 
+def create_cycle(forced_cycle: pd.DataFrame = None) -> pd.DataFrame:
+    """Gets a forced-cycle from model or creates an empty dataframe."""
+    c = wio.pstep_factory.get().cycle
+
+    if forced_cycle is None:
+        cycle = pd.DataFrame()
+    else:
+        log.info(
+            "Found forced `cycle-run` table(%ix%i).", cycle.shape[0], cycle.shape[1]
+        )
+        if not isinstance(cycle, pd.DataFrame):
+            cycle = pd.DataFrame(forced_cycle)
+
+    ## Ensure Time-steps start from 0 (not 1!).
+    #
+    cycle.reset_index()
+    cycle.index.name = c.t
+
+    return cycle
+
+
 class Experiment(object):
     """Runs the vehicle and cycle data describing a WLTC experiment.
 
