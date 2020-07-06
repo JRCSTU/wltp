@@ -16,7 +16,7 @@ from collections import ChainMap
 from inspect import Parameter
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Iterable, List, Mapping, Set, Tuple, Union
+from typing import Any, Callable, Iterable, List, Mapping, Pattern, Set, Tuple, Union
 
 from boltons.iterutils import first
 
@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 
 _my_project_dir = Path(__file__).parent
 
-_FnKey = Union[str, Iterable[str]]
+_FnKey = Union[Union[str, Pattern], Iterable[Union[str, Pattern]]]
 
 
 def camel_2_snake_case(word):
