@@ -823,6 +823,7 @@ def merge(a, b, path=[]):
 # merge({1:{"a":"A"},2:{"b":"B"}}, {1:{"a":"A"},2:{"b":"C"}})
 
 
+@fnt.lru_cache()
 def model_validator(
     additional_properties=False, validate_wltc_data=False, validate_schema=False
 ) -> PandelVisitor:
