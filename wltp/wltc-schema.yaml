@@ -1,6 +1,7 @@
 $schema: http://json-schema.org/draft-07/schema#
 $id: /wltc
-title: WLTC data
+title: WLTC constants & configuration data
+$$target: /wltc  # for `sphinx-jsonschema` extension
 type: object
 additionalProperties: false
 required:

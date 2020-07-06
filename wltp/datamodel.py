@@ -405,6 +405,8 @@ def model_validator(
                     "items": {"type": "string"},
                     "uniqueItems": True,
                 },
+                # For extension https://sphinx-jsonschema.readthedocs.io/en/latest/schemakeywords.html
+                "$$target": {"type": ["string", "array"]},
             },
         }
         strictValidator = jsonschema.validators.validator_for(stricter_metaschema)

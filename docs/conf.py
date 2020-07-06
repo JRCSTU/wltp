@@ -119,10 +119,14 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.autosectionlabel",
     "matplotlib.sphinxext.plot_directive",
+    "sphinx-jsonschema",
     "graphtik.sphinxext",
 ]
 
 
+suppress_warnings = [
+    "ref.ref",  # Raised by `sphinx-jsonschema` on all $ref.
+]
 ## Ensure literal python code included in doctests,
 # for Sphinx-graphtik to work.
 doctest_test_doctest_blocks = "default"

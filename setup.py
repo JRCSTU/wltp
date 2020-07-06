@@ -129,7 +129,12 @@ download_url = "https://github.com/ankostis/%s/tarball/v%s" % (proj_name, proj_v
 
 plot_reqs = ["matplotlib"]
 excel_reqs = ["xlwings; sys_platform == 'win32'"]
-doc_reqs = ["sphinx>=1.2", "matplotlib", "graphtik[sphinx] >=5.7.0"]  # for comparisons
+doc_reqs = [
+    "sphinx>=1.2",
+    "matplotlib",
+    "graphtik[sphinx] >=5.7.0",
+    "sphinx-jsonschema",
+]
 notebook_reqs = [
     "papermill",
     "jupytext",

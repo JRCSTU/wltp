@@ -2,4 +2,5 @@ boltons
 networkx
 pydot
 sphinx >=2
+sphinx-jsonschema
 jinja2

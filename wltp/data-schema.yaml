@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 $id: /data
-title: Json-schema describing the input for a WLTC simulator.
+title: Inputs& outputs of the WLTP gear-shit generator.
 type: object
 additionalProperties: True
 description:
@@ -69,7 +69,8 @@ properties:
       Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
       or an array with the exact `n_min` for each gear (array must have length equal to gears).
 
-      If unspecified, the minimum `n` for gears > 2 is determined by the following equation:
+      If unspecified, the minimum `n` for gears > 2 is determined by
+      the following equation::
 
           n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
 
@@ -120,7 +121,7 @@ properties:
   n_min_drive_set:
     description: |
       [1/min], Annex 2-2.k,
-      calculated minimum engine speed for gears > 2:
+      calculated minimum engine speed for gears > 2::
 
         n_min_drive = n_idle + 0.125 (n_rated - n_idle)
 
@@ -163,37 +164,37 @@ properties:
       An array/dict/dataframe holding the full load power curves for (at least) 2 columns ('n', 'p')
       or the normalized values ('n_norm', 'p_norm').
 
-      Example:
+      * The 1st column or `n` is the engine revolutions in min^-1.
+      * The 2nd column or `p` is the full-power load in kW.
+      * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 1.20]::
+
+            n_norm = (n - n_idle) / (n_rated  - n_idle)
+
+      * The 2nd column or `p_norm` is the normalized values of the full-power load
+        against the p_rated, within [0, 1]::
+
+            p_norm = p / p_rated
+
+      Example::
 
           np.array([
               [ 600, 1000, ... 7000 ],
               [ 4, 10, ... 30 ]
           ]).T
 
-      * The 1st column or `n` is the engine revolutions in min^-1:
-      * The 2nd column or `p` is the full-power load in kW:
-
-      Normalized N/P Example:
+      Normalized N/P Example::
 
           np.array([
               [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120 ],
               [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
           ]).T
-
-      * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 1.20]:
-
-                  n_norm = (n - n_idle) / (n_rated  - n_idle)
-
-      * The 2nd column or `p_norm` is the normalized values of the full-power load against the p_rated,
-        within [0, 1]:
-
-                  p_norm = p / p_rated
     type:
     - object
     - array
   grid_wots:
     description: |2
-      A dataframe with 2-level columns (item, gear)
+      A dataframe with 2-level columns (item, gear):
+
       - `p_avail_stable`: reduced by safety-margin, but not by ASM
       - `p_avail`: reduced by both SM & ASM
       - `p_resist`: road loads power
@@ -240,7 +241,7 @@ properties:
   driver_mass:
     title: Driver's mass (kg)
     description: |2
-      The mass (kg) of the vehicle's driver (Annex 1-3.2.6, p9), where:
+      The mass (kg) of the vehicle's driver (Annex 1-3.2.6, p9), where::
 
           Unladen_mass = Test_mass - driver_mass
     type:
@@ -266,20 +267,22 @@ properties:
     default: 0.1
   f_n_min:
     description:
-      For each gear > 2, N :> n_min = n_idle + f_n_min * n_range (unless
-      `n_min` overridden by manufacturer)
+      For each gear > 2, ``N :> n_min = n_idle + f_n_min * n_range``
+      (unless `n_min` overridden by manufacturer)
     type:
     - number
     default: 0.125
   f_n_min_gear2:
-    description: Gear-2 is invalid when N :< f_n_min_gear2 * n_idle.
+    description: Gear-2 is invalid when ``N :< f_n_min_gear2 * n_idle``.
     type:
     - number
     default: 0.9
   f_n_clutch_gear2:
     description: |2
-      A 2-value number-array(f1, f2) controlling when to clutch gear-2:
+      A 2-value number-array(f1, f2) controlling when to clutch gear-2::
+
           N < n_clutch_gear2 := max(f1 * n_idle, f2 * n_range + n_idle),
+
       unless "clutched"...
     type:
     - array
@@ -302,6 +305,7 @@ properties:
     description: |2
       An inp/out dataframe matrix with 2-level columns(item, gear),
       and items, in addition to those of `grid_wots`:
+
       - `V_cycle`: reduced by safety-margin, but not by ASM
       - `V_dsc`: (optional)
       - `v_target`: road loads power
@@ -320,7 +324,7 @@ properties:
           Downscaled velocity profile by `f_dsc` (not capped or compensated yet).
 
           If not given, the `scale_trace` pipeline produces it from
-          :func:`.downscale.calc_V_dsc_raw()`
+          :func:`.downscale.calc_V_dsc_raw()`.
         $ref: '#/definitions/positiveNumbers'
         labels:
         - input
