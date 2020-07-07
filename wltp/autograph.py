@@ -19,6 +19,7 @@ from types import ModuleType
 from typing import Any, Callable, Iterable, List, Mapping, Pattern, Set, Tuple, Union
 
 from boltons.iterutils import first
+from boltons.setutils import IndexedSet as iset
 
 from graphtik import optional, sfx, sfxed
 from graphtik.base import func_name
@@ -182,7 +183,7 @@ class FnHarvester(Prefkey):
             self.include_methods = bool(include_methods)
         self._seen: Set[int] = set()
         self.excludes = set(excludes or ())
-        self.base_modules = set(
+        self.base_modules = iset(
             sys.modules[m] if isinstance(m, str) else m for m in (base_modules or ())
         )
         self.predicate = predicate
