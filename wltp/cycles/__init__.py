@@ -7,6 +7,7 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """data for all cycles and utilities to identify them"""
 import functools as fnt
+import importlib.resources as pkg_resources
 import itertools as itt
 from typing import Iterable, Mapping, Optional, Tuple, Union
 
@@ -15,6 +16,13 @@ import pandas as pd
 from toolz import itertoolz as itz
 
 from ..autograph import autographed
+
+
+
+@fnt.lru_cache()
+def read_V_file(fname) -> tuple:
+    """Parse textual files with cycle velocities."""
+    return tuple(float(n) for n in pkg_resources.read_text(__package__, fname).split())
 
 
 def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
