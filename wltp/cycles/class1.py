@@ -26,7 +26,7 @@ def class_data():
 
     data = {
         "pmr_limits": [0, 22],  ## PMR (low, high]
-        "parts": [589, 1022],
+        "parts": (589, 1022),
         "downscale": {
             "phases": [651, 848, 907],
             "p_max_values": {

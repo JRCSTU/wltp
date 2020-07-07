@@ -27,7 +27,7 @@ def class_data_a():
     data = {
         "pmr_limits": [34, float("inf")],  ## PMR (low, high]
         "velocity_limits": [0, 120],  ## Km/h [low, high)
-        "parts": [589, 1022, 1477],
+        "parts": (589, 1022, 1477),
         "downscale": {
             "phases": [1533, 1724, 1763],
             "p_max_values": {

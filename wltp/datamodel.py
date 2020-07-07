@@ -304,8 +304,7 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False):
     cls = get_class(wltc_class)
     part_limits = cls["parts"]
     if edges:
-        part_limits.insert(0, 0)
-        part_limits.append(len(cls["V_cycle"]))
+        part_limits = [0, *part_limits, len(cls["V_cycle"])]
 
     return part_limits
 
