@@ -219,7 +219,7 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
 
 
 @autographed(needs=["wltc_class_data/parts", "wltc_class_data/V_cycle"])
-def get_class_part_boundaries(part_limits: tuple, V_cycle)-> tuple:
+def get_class_part_boundaries(part_limits: tuple, V_cycle) -> tuple:
     """
     Serve low/high inclusive boundaries from class-data
 
@@ -238,8 +238,17 @@ def get_class_part_boundaries(part_limits: tuple, V_cycle)-> tuple:
         >>> wcd = datamodel.get_wltc_data()
         >>> cd = cycles.get_wltc_class_data(wcd, "class3b")
         >>> cycles.get_class_part_boundaries(cd['parts'], cd['V_cycle'])
-        ((0, 589), (590, 1022), (1023, 1477), (1478, 1800))
+        ((0, 589), (590, 1022), (1023, 1477), (1478, 1801))
 
     """
-    part_boundaries = itt.chain(*zip(part_limits, [i+1 for i in part_limits]))
-    return tuple(itz.partition(2, (0,  *part_boundaries, V_cycle.index[-1])))
+    part_boundaries = itt.chain(*zip(part_limits, [i + 1 for i in part_limits]))
+    return tuple(itz.partition(2, (0, *part_boundaries, V_cycle.index[-1]+1)))
+
+
+@autographed(needs=["wltc_class_data/V_cycle", ...])
+def calc_class_part_distances(V, class_part_boundaries):
+    t_intervals = pd.IntervalIndex.from_tuples(class_part_boundaries, closed="left")
+    grouper = pd.cut(V.index, t_intervals)
+    sums = V.groupby(grouper).sum()
+
+    return sums

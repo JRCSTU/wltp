@@ -11,10 +11,13 @@ import itertools as itt
 
 import pandas as pd
 
+from graphtik import compose
 from wltp import cycles, datamodel
+from wltp import io as wio
 from wltp.experiment import Experiment
 
 from .goodvehicle import goodVehicle
+from .vehdb import oneliner
 
 
 def testGoodVehicle():
@@ -69,12 +72,36 @@ def test_get_class_pmr_limits_with_edges():
     assert pmr_limits[-1] == float("inf"), "PMR-limit: Right-edge not INF!"
 
 
-def test_cycles_pipeline_funcs():
+def test_get_class_part_boundaries():
     wcd = datamodel.get_wltc_data()
     cd = cycles.get_wltc_class_data(wcd, 3)
     pmr_boundaries = cycles.get_class_part_boundaries(cd["parts"], cd["V_cycle"])
     assert len(pmr_boundaries) == 4
     assert pmr_boundaries[0][0] == 0
-    assert pmr_boundaries[-1][-1] == 1800
+    assert pmr_boundaries[-1][-1] == 1801
     nums = tuple(itt.chain(*pmr_boundaries))
     assert tuple(sorted(nums)) == nums
+
+
+def test_calc_class_part_distances():
+    aug = wio.make_autograph()
+    funcs = [
+        cycles.get_wltc_class_data,
+        cycles.get_class_part_boundaries,
+        cycles.calc_class_part_distances,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose("dist", *ops)
+    inp = {"wltc_data": datamodel.get_wltc_data(), "wltc_class": "class3b"}
+    sol = pipe.compute(inp)
+    got = sol["class_part_distances"]
+    print(got)
+    assert oneliner(got) == oneliner(
+        """
+        [0, 589)        11140.3
+        [590, 1022)     17121.2
+        [1023, 1477)    25782.2
+        [1478, 1801)    29714.9
+        Name: V_cycle, dtype: float64
+    """
+    )
