@@ -99,16 +99,7 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         downscale.calc_compensated_distance,
         cycles.get_class_part_boundaries,
     )
-    aug = Autograph(
-        [
-            "get_",
-            "calc_",
-            "upd_",
-            "create_",
-            "decide_",
-            re.compile(r"\battach_(\w+)_in_(\w+)$"),
-        ]
-    )
+    aug = wio.make_autograph()
     ops = [
         fn if isinstance(fn, Operation) else aug.wrap_fn(fn, name) for name, fn in funcs
     ]

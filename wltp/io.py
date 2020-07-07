@@ -304,3 +304,18 @@ class GearMultiIndexer:
         It equals :attr:`top_gear` if :attr:`gnames` are from 1-->top_gear.
         """
         return len(self.gnames)
+
+def make_autograph(*args, **kw):
+    """Configures a new :class:`.Autograph` with func-name patterns for this project. """
+    from .autograph import Autograph
+
+    return Autograph(
+        [
+            "get_",
+            "calc_",
+            "upd_",
+            "create_",
+            "decide_",
+            re.compile(r"\battach_(\w+)_in_(\w+)$"),
+        ], *args, **kw
+    )
