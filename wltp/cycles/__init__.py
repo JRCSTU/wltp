@@ -8,7 +8,6 @@
 """data for all cycles and utilities to identify them"""
 import functools as fnt
 import importlib.resources as pkg_resources
-import itertools as itt
 from typing import Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
@@ -226,8 +225,8 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
     return classes[class_name]
 
 
-@autographed(needs=["wltc_class_data/parts", "wltc_class_data/V_cycle"])
-def get_class_part_boundaries(part_limits: tuple, V_cycle) -> tuple:
+@autographed(needs=["wltc_class_data/lengths", "wltc_class_data/V_cycle"])
+def get_class_part_boundaries(part_lengths: tuple, V_cycle) -> tuple:
     """
     Serve low/high inclusive boundaries from class-data
 
@@ -245,12 +244,12 @@ def get_class_part_boundaries(part_limits: tuple, V_cycle) -> tuple:
         >>> from wltp import datamodel, cycles
         >>> wcd = datamodel.get_wltc_data()
         >>> cd = cycles.get_wltc_class_data(wcd, "class3b")
-        >>> cycles.get_class_part_boundaries(cd['parts'], cd['V_cycle'])
-        ((0, 589), (590, 1022), (1023, 1477), (1478, 1801))
+        >>> cycles.get_class_part_boundaries(cd["lengths"], cd["V_cycle"])
+        ((0, 590), (590, 1023), (1023, 1478), (1478, 1801))
 
     """
-    part_boundaries = itt.chain(*zip(part_limits, [i + 1 for i in part_limits]))
-    return tuple(itz.partition(2, (0, *part_boundaries, V_cycle.index[-1]+1)))
+    part_breaks = np.cumsum(part_lengths)+1
+    return tuple(itz.sliding_window(2, (0, *part_breaks)))
 
 
 @autographed(needs=["wltc_class_data/V_cycle", ...])

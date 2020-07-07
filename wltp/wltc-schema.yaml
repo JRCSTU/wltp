@@ -49,7 +49,9 @@ definitions:
           type: number
         minItems: 2
         maxItems: 2
-      parts:
+      lengths:
+        title: class part lengths
+        description: class part duration, in [sec]
         type: array
         items:
           type: integer
@@ -105,6 +107,6 @@ definitions:
         minItems: 906
     required:
     - pmr_limits
-    - parts
+    - lengths
     - downscale
     - V_cycle

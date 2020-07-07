@@ -45,7 +45,7 @@ def test_get_class_parts_limits_sorted():
         cls: datamodel.get_class_parts_limits(cls, edges=True) for cls in classes.keys()
     }
     for (cls, l) in class_limits.items():
-        assert l == sorted(l), f"Class({cls}): Unsorted!"
+        assert l == tuple(sorted(l)), f"Class({cls}): Unsorted!"
 
 
 def test_get_class_parts_limits_with_edges():
@@ -75,7 +75,7 @@ def test_get_class_pmr_limits_with_edges():
 def test_get_class_part_boundaries():
     wcd = datamodel.get_wltc_data()
     cd = cycles.get_wltc_class_data(wcd, 3)
-    pmr_boundaries = cycles.get_class_part_boundaries(cd["parts"], cd["V_cycle"])
+    pmr_boundaries = cycles.get_class_part_boundaries(cd["lengths"], cd["V_cycle"])
     assert len(pmr_boundaries) == 4
     assert pmr_boundaries[0][0] == 0
     assert pmr_boundaries[-1][-1] == 1801
@@ -98,9 +98,9 @@ def test_calc_class_part_distances():
     print(got)
     assert oneliner(got) == oneliner(
         """
-        [0, 589)        11140.3
-        [590, 1022)     17121.2
-        [1023, 1477)    25782.2
+        [0, 590)        11140.3
+        [590, 1023)     17121.2
+        [1023, 1478)    25782.2
         [1478, 1801)    29714.9
         Name: V_cycle, dtype: float64
     """

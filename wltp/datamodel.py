@@ -236,7 +236,7 @@ def get_class_part_names(cls_name=None):
     if cls_name:
         wltc_data = get_wltc_data()
         cls = wltc_data["classes"][cls_name]
-        part_names = part_names[: len(cls["parts"]) + 1]
+        part_names = part_names[: len(cls["lengths"]) + 1]
 
     return part_names
 
@@ -296,7 +296,7 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False) -> tuple:
     (589, 1022, 1477)
     >>> part_limits = datamodel.get_class_parts_limits(cls, edges=True)
     >>> part_limits
-    [0,  589, 1022, 1477, 1801]
+    (0,  589, 1022, 1477, 1801)
 
     And these are the limits for acceleration-dependent items:
 
@@ -311,11 +311,13 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False) -> tuple:
 
     """
     cls = get_class(wltc_class)
-    part_limits = cls["parts"]
+    part_limits = np.cumsum(cls["lengths"])
     if edges:
-        part_limits = [0, *part_limits, len(cls["V_cycle"])]
+        part_limits = [0, *part_limits[:-1], part_limits[-1] + 1]
+    else:
+        part_limits = part_limits[:-1]
 
-    return part_limits
+    return tuple(part_limits)
 
 
 def get_class_pmr_limits(edges=False) -> list:
