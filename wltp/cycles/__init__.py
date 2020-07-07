@@ -228,7 +228,7 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
 @autographed(needs=["wltc_class_data/lengths", "wltc_class_data/V_cycle"])
 def get_class_part_boundaries(part_lengths: tuple, V_cycle) -> tuple:
     """
-    Serve low/high inclusive boundaries from class-data
+    Serve ``[low, high)`` boundaries from class-data, as `Dijkstra demands it`__.
 
     :return:
         a tuple of tuple-pairs of *time indices* (low/hight) part-boundaries
@@ -238,6 +238,7 @@ def get_class_part_boundaries(part_lengths: tuple, V_cycle) -> tuple:
     Like :func:`.datamodel.get_class_parts_limits` with ``edges=true``,
     suited for pipelines.
 
+    __  https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html
 
     **Example:**
 
