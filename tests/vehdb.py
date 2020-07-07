@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import platform
+import re
 import shutil
 import subprocess as sbp
 import sys
@@ -40,6 +41,11 @@ from wltp import utils
 
 log = logging.getLogger(__name__)
 EPS = sys.float_info.epsilon
+
+
+def oneliner(s) -> str:
+    """Collapse any whitespace in stringified `s` into a single space. """
+    return re.sub(r"[\n ]+", " ", str(s).strip())
 
 
 def _human_time(unixtime: int = None) -> str:
