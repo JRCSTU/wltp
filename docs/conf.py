@@ -141,7 +141,7 @@ def _make_py_item_url(fn):
     if not inspect.isbuiltin(fn):
         fn_name = func_name(fn, None, mod=1, fqdn=1, human=0)
         if fn_name:
-            return f"../reference.html#{fn_name}"
+            return f"../code.html#{fn_name}"
 
 plotter = plot.get_active_plotter()
 plot.set_active_plotter(
