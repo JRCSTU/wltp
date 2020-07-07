@@ -366,8 +366,12 @@ def merge(a, b, path=[]):
         if key in a:
             av = a[key]
             if isinstance(av, cabc.Mapping) != isinstance(bv, cabc.Mapping):
-                #                 log.debug("Dict-values conflict at '%s'! a(%s) != b(%s)",
-                #                                 '/'.join(path + [str(key)]), type(av), type(bv))
+                log.debug(
+                    "Dict-values conflict at '%s'! a(%s) != b(%s)",
+                    "/".join(path + [str(key)]),
+                    type(av),
+                    type(bv),
+                )
                 pass
             elif av is bv:
                 continue  # same leaf value
