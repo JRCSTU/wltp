@@ -14,8 +14,9 @@ import numpy as np
 import pandas as pd
 from toolz import itertoolz as itz
 
-from ..autograph import autographed
+from graphtik import operation
 
+from ..autograph import autographed
 
 
 @fnt.lru_cache()
@@ -246,17 +247,44 @@ def get_class_part_boundaries(part_lengths: tuple, V_cycle) -> tuple:
         >>> wcd = datamodel.get_wltc_data()
         >>> cd = cycles.get_wltc_class_data(wcd, "class3b")
         >>> cycles.get_class_part_boundaries(cd["lengths"], cd["V_cycle"])
-        ((0, 590), (590, 1023), (1023, 1478), (1478, 1801))
+        ((0, 589), (589, 1022), (1022, 1477), (1477, 1800))
+
 
     """
-    part_breaks = np.cumsum(part_lengths)+1
+    part_breaks = np.cumsum(part_lengths)
     return tuple(itz.sliding_window(2, (0, *part_breaks)))
 
 
-@autographed(needs=["wltc_class_data/V_cycle", ...])
-def calc_class_part_distances(V, class_part_boundaries):
-    t_intervals = pd.IntervalIndex.from_tuples(class_part_boundaries, closed="left")
+@operation(
+    needs=["wltc_class_data/V_cycle", "class_part_boundaries"],
+    provides="wltc_distances",
+)
+def calc_wltc_distances(V: pd.Series, boundaries: Iterable[tuple]) -> pd.DataFrame:
+    """
+    Return a *(part x (sum, cumsum))* matrix for the wltc-part `boundaries` of `V`.
+
+    :param V:
+        a velocity profile with the standard WLTC length
+    :param boundaries:
+        a list of ``[low, high)`` boundary pairs
+        (from :func:`get_class_part_boundaries()`)
+    """
+    t_intervals = pd.IntervalIndex.from_tuples(boundaries, closed="left")
     grouper = pd.cut(V.index, t_intervals)
     sums = V.groupby(grouper).sum()
+    sums = pd.concat([sums, sums.cumsum()], axis=1, keys=["sums", "cumsums"])
+    sums.name = f"{V.name}_sums"
 
     return sums
+
+
+calc_dsc_distances = calc_wltc_distances.withset(
+    name="calc_dsc_distances",
+    needs=["V_dsc", "class_part_boundaries"],
+    provides="dsc_distances",
+)
+calc_capped_distances = calc_wltc_distances.withset(
+    name="calc_cap_distances",
+    needs=["V_cap", "class_part_boundaries"],
+    provides="cap_distances",
+)

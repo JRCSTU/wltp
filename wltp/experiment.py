@@ -94,16 +94,16 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         downscale.calc_V_capped,
         downscale.calc_V_compensated,
         downscale.calc_V_dsc,
-        downscale.calc_dsc_distance,
-        downscale.calc_capped_distance,
-        downscale.calc_compensated_distance,
         cycles.get_class_part_boundaries,
+        cycles.calc_wltc_distances,
+        cycles.calc_dsc_distances,
+        cycles.calc_capped_distances,
     )
     aug = wio.make_autograph()
     ops = [
         fn if isinstance(fn, Operation) else aug.wrap_fn(fn, name) for name, fn in funcs
     ]
-    calc_v_dsc_max = operation(
+    calc_v_dsc_max = operation(  # DROP: Needed?
         pd.Series.max, name="calc_max_v_dsc", needs="V_dsc", provides="v_dsc_max"
     )
 

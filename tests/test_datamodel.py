@@ -11,7 +11,7 @@ import itertools as itt
 
 import pandas as pd
 
-from graphtik import compose
+from graphtik import compose, operation
 from wltp import cycles, datamodel
 from wltp import io as wio
 from wltp.experiment import Experiment
@@ -78,30 +78,56 @@ def test_get_class_part_boundaries():
     pmr_boundaries = cycles.get_class_part_boundaries(cd["lengths"], cd["V_cycle"])
     assert len(pmr_boundaries) == 4
     assert pmr_boundaries[0][0] == 0
-    assert pmr_boundaries[-1][-1] == 1801
+    assert pmr_boundaries[-1][-1] == 1800
     nums = tuple(itt.chain(*pmr_boundaries))
     assert tuple(sorted(nums)) == nums
 
 
-def test_calc_class_part_distances():
+def test_calc_class_part_distances(wltc_class):
     aug = wio.make_autograph()
     funcs = [
         cycles.get_wltc_class_data,
         cycles.get_class_part_boundaries,
-        cycles.calc_class_part_distances,
+        cycles.calc_wltc_distances,
+        cycles.calc_dsc_distances,
+        cycles.calc_capped_distances,
+        # fake dsc & cap
+        operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
+        operation(None, "FAKE.V_cap", "wltc_class_data/V_cycle", "V_capped"),
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
     pipe = compose("dist", *ops)
-    inp = {"wltc_data": datamodel.get_wltc_data(), "wltc_class": "class3b"}
+    inp = {"wltc_data": datamodel.get_wltc_data(), "wltc_class": wltc_class}
     sol = pipe.compute(inp)
-    got = sol["class_part_distances"]
+    got = sol["wltc_distances"]
     print(got)
-    assert oneliner(got) == oneliner(
-        """
-        [0, 590)        11140.3
-        [590, 1023)     17121.2
-        [1023, 1478)    25782.2
-        [1478, 1801)    29714.9
-        Name: V_cycle, dtype: float64
-    """
-    )
+    exp_sums = {
+        0: """
+                         sums  cumsums
+        [0, 589)      11988.4  11988.4
+        [589, 1022)   17162.8  29151.2
+        [1022, 1611)  11988.4  41139.6
+        """,
+        1: """
+                        sums  cumsums
+        [0, 589)      11162.2  11162.2
+        [589, 1022)   17054.3  28216.5
+        [1022, 1477)  24450.6  52667.1
+        [1477, 1800)  28869.8  81536.9
+        """,
+        2: """
+                        sums  cumsums
+        [0, 589)      11140.3  11140.3
+        [589, 1022)   16995.7  28136.0
+        [1022, 1477)  25646.0  53782.0
+        [1477, 1800)  29714.9  83496.9
+        """,
+        3: """
+                         sums  cumsums
+        [0, 589)      11140.3  11140.3
+        [589, 1022)   17121.2  28261.5
+        [1022, 1477)  25782.2  54043.7
+        [1477, 1800)  29714.9  83758.6
+        """,
+    }
+    assert oneliner(got) == oneliner(exp_sums[wltc_class])
