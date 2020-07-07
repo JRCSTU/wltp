@@ -17,7 +17,7 @@ The datamodel-instance is managed by :class:`pandel.Pandel`.
 import copy
 import functools as fnt
 import importlib.resources as pkg_resources
-import itertools as it
+import itertools as itt
 import logging
 import operator as ops
 from collections import abc as cabc
@@ -334,7 +334,7 @@ def get_class_pmr_limits(edges=False) -> list:
     wltc_data = get_wltc_data()
 
     pmr_limits_pairs = [cls["pmr_limits"] for cls in wltc_data["classes"].values()]
-    pmr_limits = sorted(set(it.chain(*pmr_limits_pairs)))
+    pmr_limits = sorted(set(itt.chain(*pmr_limits_pairs)))
     if not edges:
         pmr_limits = pmr_limits[1:-1]  ## Exclude 0 and inf
 
@@ -479,7 +479,7 @@ def validate_model(
         yield_load_curve_errors(mdl),
         yield_forced_cycle_errors(mdl, additional_properties),
     ]
-    errors = it.chain(*[v for v in validators if not v is None])
+    errors = itt.chain(*[v for v in validators if not v is None])
 
     if iter_errors:
         return errors
