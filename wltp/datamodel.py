@@ -252,6 +252,9 @@ def get_class(wltc_class: Union[str, int], mdl=None) -> dict:
 
     :param wltc_class:
         one of 'class1', ..., 'class3b' or its index 0,1, ... 3
+
+    .. note::
+        For pipeline use :func:`.cycles.get_wltc_class_data()`.
     """
     if mdl:
         wltc_data = mdl["wltc_data"]
@@ -267,14 +270,20 @@ def get_class(wltc_class: Union[str, int], mdl=None) -> dict:
     return classes[class_name]
 
 
-def get_class_parts_limits(wltc_class: Union[str, int], edges=False):
+def get_class_parts_limits(wltc_class: Union[str, int], edges=False) -> tuple:
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
 
     :param wltc_class:
         one of 'class1', ..., 'class3b' or its index 0,1, ... 3
-    :param edges: when `True`, internal limits are wrapped within [0, ..., len]
-    :return: a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
+    :param edges:
+        when `True`, internal limits are wrapped within [0, ..., len]
+
+    :return:
+        a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
+
+    .. note::
+        For pipeline use :func:`.cycles.get_class_part_boundaries()`.
 
     Example:
 
@@ -309,12 +318,18 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False):
     return part_limits
 
 
-def get_class_pmr_limits(edges=False):
+def get_class_pmr_limits(edges=False) -> list:
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
 
-    :param edges: when `True`, embeds internal limits into (0, len)
-    :return: a list with the pmr-limits (2 numbers)
+    :param edges:
+        when `True`, embeds internal limits into (0, len)
+
+    :return:
+        a list with the pmr-limits (2 numbers)
+
+    .. note::
+        For pipeline use :term:`jsonp` dependencies into ``wltc_class_data``.
     """
     wltc_data = get_wltc_data()
 
