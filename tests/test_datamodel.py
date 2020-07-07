@@ -6,9 +6,12 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 
+import functools as fnt
+import itertools as itt
+
 import pandas as pd
 
-from wltp import datamodel
+from wltp import cycles, datamodel
 from wltp.experiment import Experiment
 
 from .goodvehicle import goodVehicle
@@ -64,3 +67,14 @@ def test_get_class_pmr_limits_with_edges():
     pmr_limits = datamodel.get_class_pmr_limits(edges=True)
     assert pmr_limits[0] == 0, "Left-edge not 0!"
     assert pmr_limits[-1] == float("inf"), "PMR-limit: Right-edge not INF!"
+
+
+def test_cycles_pipeline_funcs():
+    wcd = datamodel.get_wltc_data()
+    cd = cycles.get_wltc_class_data(wcd, 3)
+    pmr_boundaries = cycles.get_class_part_boundaries(cd["parts"], cd["V_cycle"])
+    assert len(pmr_boundaries) == 4
+    assert pmr_boundaries[0][0] == 0
+    assert pmr_boundaries[-1][-1] == 1800
+    nums = tuple(itt.chain(*pmr_boundaries))
+    assert tuple(sorted(nums)) == nums

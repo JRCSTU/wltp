@@ -7,10 +7,12 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """data for all cycles and utilities to identify them"""
 import functools as fnt
-from typing import Iterable, Mapping, Union, Tuple, Optional
+import itertools as itt
+from typing import Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from toolz import itertoolz as itz
 
 from ..autograph import autographed
 
@@ -200,10 +202,12 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
     """
     Fetch the wltc-data for a specific class.
 
+    :param wltc_data:
+        same-named item in :term:`datamodel`
     :param wltc_class:
         one of 'class1', ..., 'class3b' or its index 0,1, ... 3
 
-    Like :func:`get_class` suited for pipelines.
+    Like :func:`.datamodel.get_class` suited for pipelines.
     """
     classes = wltc_data["classes"]
     if isinstance(wltc_class, int):
@@ -212,3 +216,30 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
         class_name = wltc_class
 
     return classes[class_name]
+
+
+@autographed(needs=["wltc_class_data/parts", "wltc_class_data/V_cycle"])
+def get_class_part_boundaries(part_limits: tuple, V_cycle)-> tuple:
+    """
+    Serve low/high inclusive boundaries from class-data
+
+    :return:
+        a tuple of tuple-pairs of *time indices* (low/hight) part-boundaries
+        (ie for class-3a these are 5 pairs of numbers, see example below),
+        that may be used as ``Series.loc[slice(*pair)]``.
+
+    Like :func:`.datamodel.get_class_parts_limits` with ``edges=true``,
+    suited for pipelines.
+
+
+    **Example:**
+
+        >>> from wltp import datamodel, cycles
+        >>> wcd = datamodel.get_wltc_data()
+        >>> cd = cycles.get_wltc_class_data(wcd, "class3b")
+        >>> cycles.get_class_part_boundaries(cd['parts'], cd['V_cycle'])
+        ((0, 589), (590, 1022), (1023, 1477), (1478, 1800))
+
+    """
+    part_boundaries = itt.chain(*zip(part_limits, [i+1 for i in part_limits]))
+    return tuple(itz.partition(2, (0,  *part_boundaries, V_cycle.index[-1])))
