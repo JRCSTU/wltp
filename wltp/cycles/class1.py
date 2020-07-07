@@ -25,7 +25,7 @@ def class_data():
     c = wio.pstep_factory.get().cycle
 
     data = {
-        "pmr_limits": [0, 22],  ## PMR (low, high]
+        "pmr_limits": (0, 22),  ## PMR (low, high]
         "parts": (589, 1022),
         "downscale": {
             "phases": [651, 848, 907],
