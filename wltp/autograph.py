@@ -7,6 +7,9 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """
 Harvest functions & annotate their :term:`dependencies <dependency>` to build :term:`pipeline`\\s.
+
+>>> from wltp.autograph import *
+>>> __name__ = "wltp.autograph"
 """
 import inspect
 import logging
@@ -134,6 +137,7 @@ class FnHarvester(Prefkey):
     **Example:**
 
         >>> from wltp import cycler, downscale, engine, vehicle, vmax
+        >>> from wltp.autograph import _is_in_my_project
 
         >>> modules = (cycler, downscale, engine, vehicle, vmax)
         >>> funcs = FnHarvester(
