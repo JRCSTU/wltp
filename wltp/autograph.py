@@ -21,6 +21,7 @@ from typing import Any, Callable, Iterable, List, Mapping, Pattern, Set, Tuple, 
 from boltons.iterutils import first
 
 from graphtik import optional, sfx, sfxed
+from graphtik.base import func_name
 from graphtik.modifier import is_sfx
 from graphtik.fnop import FnOp, reparse_operation_data
 
@@ -101,7 +102,7 @@ class Prefkey:
 
 class FnHarvester(Prefkey):
     """
-    Collect public routines, classes & their methods into ``collected`` attribute.
+    Collect public routines, classes & their methods, partials into :attr:`collected`.
 
     :param collected:
         a list of 2-tuples::
@@ -243,7 +244,8 @@ class FnHarvester(Prefkey):
     def harvest(self, *items: Any, base_modules=...) -> List[Tuple[str, Callable]]:
         """
         :param items:
-            items with ``__name__``, like module, class, functions.
+            items with ``__name__``, like module, class, functions,
+            or partials (without ``__name__``)
             If nothing is given, `attr:`baseModules` is used instead.
 
             .. Note::
@@ -263,7 +265,7 @@ class FnHarvester(Prefkey):
                 items = self.base_modules  # type: ignore
 
             for bi in items:
-                self._harvest((bi.__name__,), (bi,))
+                self._harvest(func_name(bi,mod=0, fqdn=0, human=0, partials=1).split('.'), (bi,))
 
             return self.collected
         finally:
