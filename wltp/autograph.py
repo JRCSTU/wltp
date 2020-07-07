@@ -22,7 +22,7 @@ from boltons.iterutils import first
 from boltons.setutils import IndexedSet as iset
 
 from graphtik import optional, sfx, sfxed
-from graphtik.base import func_name
+from graphtik.base import Operation, func_name
 from graphtik.modifier import is_sfx
 from graphtik.fnop import FnOp, reparse_operation_data
 
@@ -103,7 +103,7 @@ class Prefkey:
 
 class FnHarvester(Prefkey):
     """
-    Collect public routines, classes & their methods, partials into :attr:`collected`.
+    Collect public ops, routines, classes & their methods, partials into :attr:`collected`.
 
     :param collected:
         a list of 2-tuples::
@@ -118,6 +118,8 @@ class FnHarvester(Prefkey):
             [module, [class, ...] callable
 
         E.g. the path of a class constructor is ``(module_name, class_name)``.
+
+        For :term:`operation`\\s, the name-part is ``None``.
     :param excludes:
         names to exclude;  they can/be/prefixed or not
     :param base_modules:
@@ -131,39 +133,50 @@ class FnHarvester(Prefkey):
 
     **Example:**
 
-    >>> from wltp import cycler, downscale, engine, vehicle, vmax
+        >>> from wltp import cycler, downscale, engine, vehicle, vmax
 
-    >>> modules = (cycler, downscale, engine, vehicle, vmax)
-    >>> funcs = FnHarvester(
-    ...     include_methods=False,
-    ...     predicate=_is_in_my_project
-    ... ).harvest(*modules)
-    >>> len(funcs) > 60
-    True
-    >>> sorted(list(zip(*funcs))[0])
-    [('wltp.cycler', 'CycleBuilder'),
-     ('wltp.cycler', 'NMinDrives'),
-     ('wltp.cycler', 'PhaseMarker'),
-    ...
+        >>> modules = (cycler, downscale, engine, vehicle, vmax)
+        >>> funcs = FnHarvester(
+        ...     include_methods=False,
+        ...     predicate=_is_in_my_project
+        ... ).harvest(*modules)
+        >>> len(funcs) > 60
+        True
+        >>> sorted(list(zip(*funcs))[0])
+        [('wltp.cycler', 'CycleBuilder'),
+        ('wltp.cycler', 'NMinDrives'),
+        ('wltp.cycler', 'PhaseMarker'),
+        ...
 
-    >>> excludes = "utils io invariant cycles datamodel idgears plots".split()
-    >>> excludes = (
-    ...     "utils wio inv cycles datamodel idgears plots "
-    ...     "GearMultiIndexer VMaxRec "
-    ...     "timelens "
-    ... ).split()
-    >>> funcs = FnHarvester(
-    ...     include_methods=True,
-    ...     excludes=(excludes),
-    ...     base_modules=modules
-    ... ).harvest()
-    >>> len(funcs) > 30
-    True
-    >>> sorted(list(zip(*funcs))[0])
-    [('wltp.cycler', 'CycleBuilder'),
-     ('wltp.cycler', 'CycleBuilder', 'add_columns'),
-    ...
-     ('wltp.vmax', 'calc_v_max')]
+        >>> excludes = "utils io invariant cycles datamodel idgears plots".split()
+        >>> excludes = (
+        ...     "utils wio inv cycles datamodel idgears plots "
+        ...     "GearMultiIndexer VMaxRec "
+        ...     "timelens "
+        ... ).split()
+        >>> funcs = FnHarvester(
+        ...     include_methods=True,
+        ...     excludes=(excludes),
+        ...     base_modules=modules
+        ... ).harvest()
+        >>> len(funcs) > 30
+        True
+        >>> sorted(list(zip(*funcs))[0])
+        [('wltp.cycler', 'CycleBuilder'),
+        ('wltp.cycler', 'CycleBuilder', 'add_columns'),
+        ...
+        ('wltp.vmax', 'calc_v_max')]
+
+    Use this pattern whe iterating, to account for any :term:`operation` instances:
+
+        >>> funs = [
+        ...         (name, fn if isinstance(fn, Operation) else fn)
+        ...         for name, fn
+        ...         in funcs
+        ...        ]
+        >>> funs
+        [(('wltp.cycler', 'CycleBuilder'),
+        ...
 
     """
 
@@ -225,6 +238,9 @@ class FnHarvester(Prefkey):
         if not self.is_harvestable(name_path, item):
             pass
 
+        elif isinstance(item, Operation):
+            self._collect(None, item_path)
+
         elif inspect.ismodule(item):
             for mb_name, member in inspect.getmembers(item):
                 # Reset path on modules
@@ -266,7 +282,10 @@ class FnHarvester(Prefkey):
                 items = self.base_modules  # type: ignore
 
             for bi in items:
-                self._harvest(func_name(bi,mod=0, fqdn=0, human=0, partials=1).split('.'), (bi,))
+                name_path = tuple(
+                    func_name(bi, mod=0, fqdn=0, human=0, partials=1).split(".")
+                )
+                self._harvest(name_path, (bi,))
 
             return self.collected
         finally:
@@ -477,6 +496,8 @@ class Autograph(Prefkey):
 
                 [module[, class, ...]] callable
 
+            If none, `fn_path` must be an :term:`operation`.
+
         :param name_path:
             either a single string, or a tuple-of-strings, corresponding to
             the given `fn_path`
@@ -487,6 +508,9 @@ class Autograph(Prefkey):
 
         fn_path = astuple(fn_path, None)
         fn = fn_path[-1]
+        if  isinstance(fn, Operation):
+            return fn
+
         decors = get_autograph_decors(fn, {})
 
         ## Derive `name_path` from: my-args, decorator, fn_name
@@ -495,7 +519,8 @@ class Autograph(Prefkey):
         if name_path is _unset:
             name_path = decors.get("name", _unset)
             if name_path is _unset:
-                name_path = (fn.__name__,)
+                name_path = func_name(fn).split(".")
+
         name_path = astuple(name_path, None)
         fn_name = str(name_path[-1])
 
