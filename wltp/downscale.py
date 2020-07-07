@@ -11,6 +11,9 @@ from typing import Mapping
 
 import pandas as pd
 
+import functools as fnt
+from graphtik import operation
+
 from . import invariants as inv
 from . import io as wio
 from .autograph import autographed
@@ -200,8 +203,40 @@ def downscale_by_scaling(V: pd.Series, f_dsc, phases) -> pd.Series:
     return V_DSC
 
 
-def calc_V_capped_raw(V_dsc_raw, v_cap):
-    V_dsc = V_dsc_raw.copy()
+def calc_V_capped(V_dsc, v_cap):
+    V_dsc = V_dsc.copy()
     V_dsc[V_dsc > v_cap] = v_cap
 
     return V_dsc
+
+
+def calc_V_compensated(
+    V_capped, dsc_distances, capped_distances, class_part_boundaries, b_compensate_distance
+):
+    """Equalize capped-cycle distance to downscaled one."""
+    if not b_compensate_distance:
+        if b_compensate_distance is None:
+            if dsc_distances == capped_distances:
+                return V_capped
+        else:
+            return V_capped
+
+    # TODO: compensate distance
+    for zero, end in class_part_boundaries:
+        pass
+
+    return V_capped
+
+
+calc_V_dsc = operation(
+    inv.vround, name="calc_V_dsc", needs="V_dsc_raw", provides="V_dsc"
+)
+calc_dsc_distance, calc_capped_distance, calc_compensated_distance = [
+    operation(
+        pd.Series.sum,
+        name=f"calc_{v}_distance",
+        needs=f"V_{v}",
+        provides=f"{v}_distance",
+    )
+    for v in "dsc capped compensated".split()
+]

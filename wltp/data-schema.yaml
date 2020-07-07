@@ -275,29 +275,54 @@ properties:
     type: boolean
   v_cap:
     description:
-      If given and > 0, clips all `v_dsc` samples below this limit.
+      A maximum velocity limit that when given and > 0,
+      all `v_dsc` samples below this are clipped (Annex 1-8.4).
     type:
-    - "null"
     - integer
+    - "null"
     minimum: 0
     default: null
+    tags:
+    - input
+  b_compensate_distance:
+    description: |
+      A tri-state flag controlling whether cycle distance compensation
+      should be applied after downscaling & capping (Annex 1-9).
+
+      - (default) null: compensate only when capping has applied;
+      - true: always compensate (even for just downscaled traces);
+      - false: never compensate.
+    type:
+    - boolean
+    - "null"
+    default: null
+    tags:
+    - input
+  dsc_distances:
+    title: Downscaled cycle distance
+    $ref: '#/definitions/positiveNumber'
+    tags:
+    - output
+  capped_distances:
+    title: Capped cycle distance
+    $ref: '#/definitions/positiveNumber'
+    tags:
+    - output
+  compensated_distance:
+    title: Compensated cycle distance
+    $ref: '#/definitions/positiveNumber'
+    tags:
+    - output
   cycle:
     description: |2
       An inp/out dataframe matrix with 2-level columns(item, gear),
-      and items, in addition to those of `grid_wots`:
-
-      - `V_cycle`: reduced by safety-margin, but not by ASM
-      - `V_dsc`: (optional)
-      - `v_target`: road loads power
-      - `(ok_..., gN)`: rflags denoting the validity of certain conditions for gear-N
-      - `g_max0`: does not include corrections for the `g1-->g2 n_min` rule,
-        nor points with insufficient power.
+      and items, in addition to those of `grid_wots`.
+    additionalProperties: True
     properties:
       V_dsc_raw:
         title: Downscaled velocity raw
         description: like `V_dsc` but not yet rounded.
-        tags:
-        - output
+        tags: [input, output]
       V_dsc:
         title: Downscaled velocity
         description: |2
@@ -306,9 +331,15 @@ properties:
           If not given, the `scale_trace` pipeline produces it from
           :func:`.downscale.calc_V_dsc_raw()`.
         $ref: '#/definitions/positiveNumbers'
-        tags:
-        - input
-        - output
+        tags: [input, output, gtr]
+      V_capped:
+        description: The `V_dsc` limited to `v_cap` maximum.
+        $ref: '#/definitions/positiveNumbers'
+        tags: [input, output, gtr]
+      V_compensated:
+        description: The `V_capped` extended to retain the same distance (Annex 1-9).
+        $ref: '#/definitions/positiveNumbers'
+        tags: [input, output, gtr]
   wltc_data:
     $ref: /wltc
 

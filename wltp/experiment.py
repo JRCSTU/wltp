@@ -61,6 +61,7 @@ import numpy as np
 import pandas as pd
 
 from graphtik import compose, operation
+from graphtik.base import Operation
 from graphtik.pipeline import Pipeline
 
 from . import cycler, cycles, datamodel, downscale, engine, invariants
@@ -77,7 +78,7 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         # base_modules=["wltp.experiment", engine, vehicle, nmindrive, downscale],
         excludes=["calc_default_resistance_coeffs",],
     )
-    hv.harvest(
+    funcs = hv.harvest(
         cycles.get_wltc_class_data,
         vehicle.calc_unladen_mass,
         vehicle.calc_mro,
@@ -90,9 +91,14 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         downscale.calc_f_dsc,
         downscale.decide_wltc_class,
         downscale.calc_V_dsc_raw,
-        downscale.calc_V_capped_raw,
+        downscale.calc_V_capped,
+        downscale.calc_V_compensated,
+        downscale.calc_V_dsc,
+        downscale.calc_dsc_distance,
+        downscale.calc_capped_distance,
+        downscale.calc_compensated_distance,
+        cycles.get_class_part_boundaries,
     )
-    funcs = hv.collected
     aug = Autograph(
         [
             "get_",
@@ -103,19 +109,18 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
             re.compile(r"\battach_(\w+)_in_(\w+)$"),
         ]
     )
-    ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
-    calc_V_dsc = operation(
-        vround, name="calc_V_dsc", needs="V_dsc_raw", provides="V_dsc"
-    )
-    calc_V_capped = operation(
-        vround, name="calc_V_capped", needs="V_capped_raw", provides="V_capped"
-    )
+    ops = [
+        fn if isinstance(fn, Operation) else aug.wrap_fn(fn, name) for name, fn in funcs
+    ]
     calc_v_dsc_max = operation(
         pd.Series.max, name="calc_max_v_dsc", needs="V_dsc", provides="v_dsc_max"
     )
 
     return compose(
-        "scale_trace", *ops, calc_V_dsc, calc_v_dsc_max, calc_V_capped, **pipeline_kw
+        "scale_trace",
+        *ops,
+        calc_v_dsc_max,
+        **pipeline_kw,
     )
 
 
