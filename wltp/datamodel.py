@@ -284,7 +284,7 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False):
     >>> cls = 'class2'
     >>> part_limits = datamodel.get_class_parts_limits(cls)
     >>> part_limits
-    [589, 1022, 1477]
+    (589, 1022, 1477)
     >>> part_limits = datamodel.get_class_parts_limits(cls, edges=True)
     >>> part_limits
     [0,  589, 1022, 1477, 1801]
