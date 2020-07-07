@@ -144,3 +144,6 @@ def cleanup(request):
 @pytest.fixture(scope="session")
 def is_travis():
     return "TRAVIS" in os.environ
+@pytest.fixture(scope="session", params=range(4))
+def wltc_class(request):
+    return request.param
