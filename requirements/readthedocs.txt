@@ -1,6 +1,6 @@
-boltons
-networkx
+-e .[doc]
+
+## Somehow these do not apply from setup.py :-(
+sphinx >= 2
+graphtik[sphinx]
 pydot
-sphinx >=2
-sphinx-jsonschema
-jinja2
