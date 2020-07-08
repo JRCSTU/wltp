@@ -32,6 +32,7 @@ mydir = os.path.dirname(__file__)
 
 log = logging.getLogger(__name__)
 
+
 def _read_project_version() -> str:
     fglobals = {}  # type:ignore
     with io.open(os.path.join(mydir, "..", projname, "_version.py")) as fd:
@@ -143,6 +144,7 @@ def _make_py_item_url(fn):
         if fn_name:
             return f"../code.html#{fn_name}"
 
+
 plotter = plot.get_active_plotter()
 plot.set_active_plotter(
     plotter.with_styles(
@@ -164,6 +166,7 @@ try:
     github_uri = f"https://github.com/{github_slug}/blob/{git_commit}/%s.py"
 except Exception:
     github_uri = f"https://github.com/{github_slug}/blob/master/%s.py"
+
 
 def linkcode_resolve(domain, info):
     """Produce URLs to GitHub sources, for ``sphinx.ext.linkcode``"""
@@ -368,7 +371,7 @@ latex_elements = {
     #'pointsize': '10pt',
     # Additional stuff for the LaTeX preamble.
     #'preamble': '',
-    "preamble": u"""
+    "preamble": """
     \\usepackage{amsmath}
 """,
 }
