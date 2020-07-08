@@ -7,7 +7,6 @@
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """data for all cycles and utilities to identify them"""
 import functools as fnt
-import importlib.resources as pkg_resources
 from typing import Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
@@ -17,6 +16,12 @@ from toolz import itertoolz as itz
 from graphtik import operation
 
 from ..autograph import autographed
+
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources  # type: ignore
 
 
 @fnt.lru_cache()

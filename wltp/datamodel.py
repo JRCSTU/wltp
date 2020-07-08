@@ -16,7 +16,6 @@ The datamodel-instance is managed by :class:`pandel.Pandel`.
 
 import copy
 import functools as fnt
-import importlib.resources as pkg_resources
 import itertools as itt
 import logging
 import operator as ops
@@ -40,6 +39,11 @@ from . import io as wio
 from . import nmindrive, utils
 from .cycles import class1, class2, class3
 
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources  # type: ignore
 try:
     from pandas.core.common import PandasError
 except ImportError:
