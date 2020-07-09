@@ -508,7 +508,7 @@ class Autograph(Prefkey):
 
         fn_path = astuple(fn_path, None)
         fn = fn_path[-1]
-        if  isinstance(fn, Operation):
+        if isinstance(fn, Operation):
             return fn
 
         decors = get_autograph_decors(fn, {})
