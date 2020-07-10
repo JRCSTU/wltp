@@ -650,12 +650,86 @@ an intermediate manual step involving a spreadsheet to copy the table into ands 
 
 Phases
 ------
-The velocity trace for all classes & phases begin and end with consecutive zeros.
-That makes it hard to discover off-by-one errors (or shifts in time) on
-arbitrary files containing calculated & measured traces - SUMs & CUMSUMs produce
-no difference at all.
-The following tables and accompanying CRC functions come as an aid to this problem.
+The problem
+^^^^^^^^^^^
+- The GTR's velocity traces have split-time values belonging to 2 phases,
+  e.g. for *class1* these are the sample-values @ times 589 & 1022:
 
+  ============  ========  ===========  ============
+  class1        part-1     part-2       part-3
+  ============  ========  ===========  ============
+  Boundaries    [0, 589]  [589, 1022]  [1022, 1611]
+  Phase length  589       433sec       589sec
+  # of samples  590       434          590
+  ============  ========  ===========  ============
+
+  Most programs do not handle a split-time values like that,
+  and assign them instead to the earlier/later phases, distorting thus
+  phase lengths & number of time sample each phase contains!
+
+  For example, Access-DB assigns the split-times on the lower parts,
+  so *class1* becomes like that (in parenthesis, the deviations from GTR):
+
+  ============  ========  ===========  ============
+  class1        part-1     part-2       part-3
+  ============  ========  ===========  ============
+  Boundaries    [0, 589]  [590, 1022]  [1023, 1611]
+  Phase length  589sec    432sec (-1)  588sec (-1)
+  # of samples  590       433    (-1)  589    (-1)
+  ============  ========  ===========  ============
+
+  The inverse distortion is to assign the split-times on the higher parts:
+
+  ============  ===========  ===========  ============
+  class1        part-1       part-2       part-3
+  ============  ===========  ===========  ============
+  Boundaries    [0, 588]     [589, 1021]  [1022, 1611]
+  Phase length  588sec (-1)  432sec (-1)  589sec
+  # of samples  589    (-1)  433    (-1)  590
+  ============  ===========  ===========  ============
+
+- On the same side, GTR's formula for Acceleration (Annex 1 3.1) produces
+  **one less value** than the number of velocity samples
+  (like the majority of the distorted phases above),
+  but then it (optionally) prescribes the the insertion of a final 0 V sample,
+  to equalize Acceleration lengths with Velocities.
+
+  Since most calculated and measured quantities (like cycle Power) are tied
+  to the acceleration, we could **refrain from adding the dubious 0**, and leave
+  all phases with -1 samples, without any overlapping split-times,
+  and all things would then add up!
+
+  Actually it would be the 2nd case above, with the last part also reduced
+  by -1 @ 1610.  But in that case, the whole cycle would have (disturbingly)
+  -1 samples.
+  This can be resolved by assuming each sample to signify a *time-duration*.
+  That way, the duration of the final sample @ 1610 reaches up to 1611sec,
+  and we get the *VA0* phasing (see next section) which is symmetrical (by `Dijkstra
+  <https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html>`_)
+  and correct (for any sampling frequency, not just 1Hz):
+
+  ============  ========  ===========  ============
+  class1        part-1     part-2       part-3
+  ============  ========  ===========  ============
+  Boundaries    [0, 589)  [589, 1022)  [1022, 1611)
+  Phase length  589sec    433sec       589sec
+  # of samples  589 (-1)  433    (-1)  589     (-1)
+  ============  ========  ===========  ============
+
+  Understandably (and unfortunately), working with -1 samples is not the route
+  most programs take.
+
+- Finally, the velocity trace for all classes & phases begin and end with consecutive zeros.
+  That makes it hard to discover off-by-one errors (or shifts in time) on
+  arbitrary files containing calculated & measured traces - SUMs & CUMSUMs produce
+  no difference at all.
+
+
+The following tables and accompanying CRC functions come as an aid
+to the problems above.
+
+Phasings
+^^^^^^^^
 As reported by :func:`wltp.cycles.cycle_phases()`, and neglecting the advice
 to *optionally* add a final 0 when calculating the cycle Acceleration (Annex 1 2-3.1),
 the following 3 *phasing* are identified from velocity traces of 1Hz:
@@ -716,6 +790,10 @@ class3b  **part1**  48E5   910C   477E   48E5  910C   477E    11140.3   11140.3
 \        **part3**  15F6   A779   015B   43BC  B997   BA25    25782.2   54043.7
 \        **part4**  F962   1A0A   5177   639B  0B7A   D3DF    29714.9   83758.6
 =======  =========  =====  =====  =====  ====  =====  =====   ========  ===========
+
+Notice that *V* CRCs cannot evaluate CUMSUM consecutively, based on the previous
+phase's CRC, due to the repeating the values on the split-times - *VA0* & *VA1* phasings
+have not such a problem.
 
 
 .. _begin-contribute:
