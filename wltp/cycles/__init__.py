@@ -51,8 +51,9 @@ def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
        (eg 0xC0FE --> (0xFE, 0xC0);
     4. the int16 bytes are then concatanated together, and
     5. fed into ZIP's CRC32;
-    6. the highest 2 bytes of the CRC32 are (usually) kept, formated in hex
-       (x4 leftmost hex-digits).
+    6. formated as 0-padded, 8-digit, HEXes;
+    7. keeping (usually) the highest 2 bytes of the CRC32
+       (4 leftmost hex-digits).
 
     """
     from binascii import crc32  # it's the same as `zlib.crc32`
@@ -65,9 +66,13 @@ def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
 
     V_ints = vround(V) * 10 ** v_decimals
     vbytes = V_ints.astype(np.int16).values.tobytes()
-    crc = hex(crc32(vbytes, crc)).upper()
+    # crc = hex(crc32(vbytes, crc)).upper()
+    crc = crc32(vbytes, crc)
+    crc = f"{crc:08X}"
 
-    crc = crc[2:] if full else crc[2:6]
+    if not full:
+        crc = crc[:4]
+
     return crc
 
 
@@ -85,27 +90,27 @@ def cycle_checksums(full=False) -> pd.DataFrame:
     from pandas import IndexSlice as idx
 
     ## As printed by :func:`tests.test_instances.test_wltc_checksums()``
-    table_csv = dedent(
+    table_csv = dedent(  # NOTE: literal [Tab] character in the string below.
         """
         checksum		CRC32	CRC32	CRC32	CRC32	CRC32	CRC32	SUM	SUM
         accumulation		by_phase	by_phase	by_phase	cumulative	cumulative	cumulative	by_phase	cumulative
         phasing		V	VA0	VA1	V	VA0	VA1	V	V
         class	part
         class1	part-1	9840D3E9	4438BBA3	97DBE17C	9840D3E9	4438BBA3	97DBE17C	11988.4	11988.4
-        class1	part-2	8C342DB0	8C8D3B61	D9E87FE5	DCF2D584	90BEA9C	4295031D	17162.8	29151.2
+        class1	part-2	8C342DB0	8C8D3B61	D9E87FE5	DCF2D584	090BEA9C	4295031D	17162.8	29151.2
         class1	part-3	9840D3E9	4438BBA3	97DBE17C	6D1D7DF5	4691DA10	F523E31C	11988.4	41139.6
         class2	part-1	85914C5F	CDD16179	8A0A7ECA	85914C5F	CDD16179	8A0A7ECA	11162.2	11162.2
         class2	part-2	312DBBFF	391AA607	64F1E9AA	A0103D21	606EFF7B	3E77EBB8	17054.3	28216.5
         class2	part-3	81CD4DA6	E29E35E8	9560F88E	28FBF6C3	926135F3	D162E0F1	24450.6	52667.1
-        class2	part-4	8994F1E9	D258481	2181BF4D	474B3569	262AE3F3	F70F32D3	28869.8	81536.9
+        class2	part-4	8994F1E9	0D258481	2181BF4D	474B3569	262AE3F3	F70F32D3	28869.8	81536.9
         class3a	part-1	48E5AA11	910CE01B	477E9884	48E5AA11	910CE01B	477E9884	11140.3	11140.3
         class3a	part-2	14945FDD	D93BFCA7	41480D88	403DF278	24879CA6	DE5A24E1	16995.7	28136.0
         class3a	part-3	8B3B20BE	9887E03D	9F969596	D7708FF4	3F6732E0	2EE999C6	25646.0	53782.0
         class3a	part-4	F9621B4F	1A0A2845	517755EB	9BCE354C	9853FD01	2B8A32F6	29714.9	83496.9
         class3b	part-1	48E5AA11	910CE01B	477E9884	48E5AA11	910CE01B	477E9884	11140.3	11140.3
         class3b	part-2	AF1D2C10	E50188F1	FAC17E45	FBB481B5	18BDE8F0	65D3572C	17121.2	28261.5
-        class3b	part-3	15F6364D	A779B4D1	15B8365	43BC555F	B997EE4D	BA25436D	25782.2	54043.7
-        class3b	part-4	F9621B4F	1A0A2845	517755EB	639BD037	B7AD0EA	D3DFD78D	29714.9	83758.6
+        class3b	part-3	15F6364D	A779B4D1	015B8365	43BC555F	B997EE4D	BA25436D	25782.2	54043.7
+        class3b	part-4	F9621B4F	1A0A2845	517755EB	639BD037	0B7AD0EA	D3DFD78D	29714.9	83758.6
         """
     )
     df = pd.read_csv(
@@ -134,7 +139,7 @@ def cycle_phases() -> pd.DataFrame:
     from pandas import IndexSlice as idx
 
     ## As printed by :func:`tests.test_instances.def test_cycle_phases_df()``
-    table_csv = dedent(
+    table_csv = dedent(# NOTE: literal [Tab] character in the string below.
         """
         class	phasing	part-1	part-2	part-3	part-4
         class1	V	[0, 589]	[589, 1022]	[1022, 1611]

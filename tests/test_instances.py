@@ -187,7 +187,7 @@ def test_full_cycles_in_wltc_checksums(wltc_class, exp):
         (idx[:589], ("class1", "part-1", "V")),
         (idx[589:1022], ("class1", "part-2", "V")),
         (idx[:1022], ("class1", "PART-2", "V")),
-        (idx[:1021], ("class1", "PART-2", "VA0")),
+        (idx[:1021], (None, None, None)),
         (idx[:588], ("class1", "part-1", "VA0")),
         (idx[1:589], ("class1", "part-1", "VA1")),  # 1st & 3rd parts are identical
         (idx[1:590], (None, None, None)),
