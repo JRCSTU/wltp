@@ -42,7 +42,7 @@ def _calc_wltc_checksums(start_offset, end_offset, calc_sum=True):
             start_offset == 0
             and end_offset == 0
             # ... and there is cumulative from previous part
-            # means, itis not 1st part...
+            # means, it is not 1st part...
             and prev[0] != 0
         ):
             # ... skip overlapping sample.
@@ -113,7 +113,7 @@ def test_wltc_checksums():
 
     ## UNCOMMENT this to printout CRCs.
     #
-    # print(_as_csv_txt(dfs))
+    print(_as_csv_txt(dfs))
     # print(_as_csv_txt(exp))
 
     crc_idx = [1, 3, 4, 5, 6, 7]
@@ -149,7 +149,7 @@ def test_cycle_phases_df():
     exp = cycles.cycle_phases()
 
     print(_as_csv_txt(df))
-    print(_as_csv_txt(exp))
+    # print(_as_csv_txt(exp))
 
     assert df.equals(exp)
 
@@ -324,7 +324,7 @@ class InstancesTest(unittest.TestCase):
                 assert prev_start < start
 
                 prev_start = start
-            assert prev_start == len(cycle)
+            assert prev_start == len(cycle) - 1
 
     def test_wltc_validate_checksums(self):
         for cl in datamodel.get_class_names():

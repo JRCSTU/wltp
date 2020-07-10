@@ -56,8 +56,8 @@ def test_get_class_parts_limits_with_edges():
     for (cls, l) in class_limits.items():
         assert l[0] == 0, f"Class({cls}): Left-edge not 0!"
     for (cls, l) in class_limits.items():
-        assert l[-1] == len(
-            classes[cls]["V_cycle"]
+        assert (
+            l[-1] == len(classes[cls]["V_cycle"]) - 1
         ), f"Class({cls}): Section Right-edge not len(cycle)!"
 
 

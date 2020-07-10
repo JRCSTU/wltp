@@ -300,7 +300,7 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False) -> tuple:
     (589, 1022, 1477)
     >>> part_limits = datamodel.get_class_parts_limits(cls, edges=True)
     >>> part_limits
-    (0,  589, 1022, 1477, 1801)
+    (0,  589, 1022, 1477, 1800)
 
     And these are the limits for acceleration-dependent items:
 
@@ -311,13 +311,13 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False) -> tuple:
     (0, 589]      11162.2
     (589, 1022]   17054.3
     (1022, 1477]  24450.6
-    (1477, 1801]  28869.8
+    (1477, 1800]  28869.8
 
     """
     cls = get_class(wltc_class)
     part_limits = np.cumsum(cls["lengths"])
     if edges:
-        part_limits = [0, *part_limits[:-1], part_limits[-1] + 1]
+        part_limits = [0, *part_limits[:-1], part_limits[-1]]
     else:
         part_limits = part_limits[:-1]
 
