@@ -650,15 +650,26 @@ an intermediate manual step involving a spreadsheet to copy the table into ands 
 
 Phases
 ------
-As reported by :func:`wltp.cycles.cycle_phases()`, where *phasing* refers to:
+The velocity trace for all classes & phases begin and end with consecutive zeros.
+That makes it hard to discover off-by-one errors (or shifts in time) on
+arbitrary files containing calculated & measured traces - SUMs & CUMSUMs produce
+no difference at all.
+The following tables and accompanying CRC functions come as an aid to this problem.
 
-- **V:** phases for quantities dependent on **Velocity** samples
-- **VA0:** phases for **Acceleration**\-dependent quantities starting on *t=0*.
-- **VA1:** phases for **Acceleration**\-dependent quantities starting on *t=1*
+As reported by :func:`wltp.cycles.cycle_phases()`, and neglecting the advice
+to *optionally* add a final 0 when calculating the cycle Acceleration (Annex 1 2-3.1),
+the following 3 *phasing* are identified from velocity traces of 1Hz:
+
+- **V:** phases for quantities dependent on **Velocity** samples, overlapping
+  split-times.
+- **VA0:** phases for **Acceleration**\-dependent quantities, -1 length,
+  NOT overlapping on split-times, starting on *t=0*.
+- **VA1:** phases for **Acceleration**\-dependent quantities, -1 length,
+  NOT overlapping on split-times, starting on *t=1*.
   (e.g. Energy in Annex 7).
 
 =======  ========   ========    ===========     ============    ============
-class    phasing    part-1      part-2          part-3          part-4
+class    phasing     part-1       part-2          part-3          part-4
 =======  ========   ========    ===========     ============    ============
 class1   **V**      [0, 589]    [589, 1022]     [1022, 1611]
 \        **VA0**    [0, 588]    [589, 1021]     [1022, 1610]
