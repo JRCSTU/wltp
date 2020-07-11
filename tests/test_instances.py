@@ -67,7 +67,7 @@ def _calc_wltc_checksums(start_offset, end_offset, calc_sum=True):
             end += end_offset
             sums = calc_v_sums(V.loc[start:end])
             cums = calc_v_sums(V.loc[start:end], prev)
-            results.append((cl, f"part-{partno}", *sums, *cums))
+            results.append((cl, f"phase-{partno}", *sums, *cums))
             prev = cums
 
         return results
@@ -75,10 +75,10 @@ def _calc_wltc_checksums(start_offset, end_offset, calc_sum=True):
     for cl in datamodel.get_class_names():
         calc_class_sums(cl)
 
-    columns = ["class", "part", 2, 3]
+    columns = ["class", "phase", 2, 3]
     if calc_sum:
         columns.extend([4, 5])
-    df = pd.DataFrame(results, columns=columns).set_index(["class", "part"])
+    df = pd.DataFrame(results, columns=columns).set_index(["class", "phase"])
     if calc_sum:
         df.columns = (
             ("by_phase", "SUM"),
@@ -138,7 +138,7 @@ def test_cycle_phases_df():
         rows.append((wltc_class, "VA0", *class_boundaries(wltc_class, 0, -1)))
         rows.append((wltc_class, "VA1", *class_boundaries(wltc_class, 1, 0)))
 
-    columns = "class phasing part-1 part-2 part-3 part-4".split()
+    columns = "class phasing phase-1 phase-2 phase-3 phase-4".split()
     df = (
         pd.DataFrame(rows, columns=columns)
         .set_index(columns[:2])
@@ -184,15 +184,15 @@ def test_full_cycles_in_wltc_checksums(wltc_class, exp):
 @pytest.mark.parametrize(
     "indexer, exp",
     [
-        (idx[:589], ("class1", "part-1", "V")),
-        (idx[589:1022], ("class1", "part-2", "V")),
-        (idx[:1022], ("class1", "PART-2", "V")),
+        (idx[:589], ("class1", "phase-1", "V")),
+        (idx[589:1022], ("class1", "phase-2", "V")),
+        (idx[:1022], ("class1", "PHASE-2", "V")),
         (idx[:1021], (None, None, None)),
-        (idx[:588], ("class1", "part-1", "VA0")),
-        (idx[1:589], ("class1", "part-1", "VA1")),  # 1st & 3rd parts are identical
+        (idx[:588], ("class1", "phase-1", "VA0")),
+        (idx[1:589], ("class1", "phase-1", "VA1")),  # 1st & 3rd parts are identical
         (idx[1:590], (None, None, None)),
-        (idx[1023:], ("class1", "part-1", "VA1")),  # 1st & 3rd parts are identical
-        (idx[1022:1610], ("class1", "part-1", "VA0")),  # 1st & 3rd parts are identical
+        (idx[1023:], ("class1", "phase-1", "VA1")),  # 1st & 3rd parts are identical
+        (idx[1022:1610], ("class1", "phase-1", "VA0")),  # 1st & 3rd parts are identical
         (idx[1:], ("class1", None, "VA1")),
     ],
 )
