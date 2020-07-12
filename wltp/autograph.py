@@ -459,8 +459,9 @@ class Autograph(Prefkey):
 
     def _deduce_provides_from_fn_name(self, fn_name):
         ## Trim prefix from function-name to derive a singular "provides".
-        matches = [self._match_fn_name_pattern(fn_name, p) for p in self.out_patterns]
-        provides = first(m for m in matches if m)
+        provides = first(
+            self._match_fn_name_pattern(fn_name, p) for p in self.out_patterns
+        )
         return provides
 
     def _apply_renames(
