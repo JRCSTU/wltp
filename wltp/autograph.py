@@ -424,6 +424,7 @@ class Autograph(Prefkey):
         overrides: Mapping[_FnKey, Mapping] = None,
         renames: Mapping = None,
         full_path_names: bool = False,
+        domain=None,
         sep=None,
     ):
         super().__init__(sep)
@@ -431,11 +432,14 @@ class Autograph(Prefkey):
         self.overrides = overrides and asdict(overrides, "overrides")
         self.renames = renames and asdict(renames, "renames")
         self.full_path_names = full_path_names
+        self.domain = domain
 
     def _from_overrides(self, key):
         return self.overrides and self._prefkey(self.overrides, key) or {}
 
-    def _match_fn_name_pattern(self, fn_name, pattern) -> Union[str, Tuple[str, str]]:
+    def _match_fn_name_pattern(
+        self, fn_name, pattern
+    ) -> Union[str, Tuple[str, str], None]:
         """return matched group or groups, callable results or after matched prefix string"""
         if isinstance(pattern, RegexPattern):
             m = pattern.search(fn_name)
@@ -491,9 +495,12 @@ class Autograph(Prefkey):
         renames=_unset,
         inp_sideffects=_unset,
         out_sideffects=_unset,
+        domain=None,
     ) -> FnOp:
         """
-        Overriddes order: my-args, self.overrides, autograph-decorator, inspection
+        Convert a (possibly **@autographed**) function into an graphtik **FnOperation**,
+
+        respecting any configured overrides
 
         :param fn_path:
             either a callable, or the path to a callable, like::
@@ -501,10 +508,11 @@ class Autograph(Prefkey):
                 [module[, class, ...]] callable
 
             If none, `fn_path` must be an :term:`operation`.
-
         :param name_path:
             either a single string, or a tuple-of-strings, corresponding to
             the given `fn_path`
+
+        Overriddes order: my-args, self.overrides, autograph-decorator, inspection
         """
         args = {k: v for k, v in locals().items() if v is not _unset}
         del args["self"], args["fn_path"]
@@ -515,7 +523,7 @@ class Autograph(Prefkey):
         if isinstance(fn, Operation):
             return fn
 
-        decors = get_autograph_decors(fn, {})
+        decors = get_autograph_decors(fn, {}, domain or self.domain)
 
         ## Derive `name_path` from: my-args, decorator, fn_name
         #  and then use it to pick overrides.
