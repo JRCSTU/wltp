@@ -5,7 +5,12 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""data for all cycles and utilities to identify them"""
+"""
+data for all cycles and utilities to identify them
+
+>>> from wltp.cycles import *
+>>> __name__ = "wltp.cycles"
+"""
 import functools as fnt
 from typing import Iterable, Mapping, Optional, Tuple, Union
 

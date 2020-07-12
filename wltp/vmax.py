@@ -16,6 +16,8 @@ The `v_max` is found by the maximum gear where `p_avail_stable` intersects `p_re
     scan 3 gear from top, and stop on first having `v_max` less-or-equal than previous,
     and accept `v_max` from that previous gear.
 
+>>> from wltp.vmax import *
+>>> __name__ = "wltp.vmax"
 """
 import logging
 from collections import namedtuple

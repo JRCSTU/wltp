@@ -5,7 +5,12 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""formulae downscaling cycles based on pmr/test_mass ratio """
+"""
+formulae downscaling cycles based on pmr/test_mass ratio
+
+>>> from wltp.downscale import *
+>>> __name__ = "wltp.downscale"
+"""
 import logging
 from typing import Mapping
 
