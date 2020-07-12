@@ -309,13 +309,10 @@ def make_autograph(*args, **kw):
     """Configures a new :class:`.Autograph` with func-name patterns for this project. """
     from .autograph import Autograph
 
+    prefixes = "get_ calc_ upd_ make_ create_ decide_ round_".split()
     return Autograph(
         [
-            "get_",
-            "calc_",
-            "upd_",
-            "create_",
-            "decide_",
+            *prefixes,
             re.compile(r"\battach_(\w+)_in_(\w+)$"),
         ], *args, **kw
     )
