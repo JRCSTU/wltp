@@ -72,10 +72,10 @@ def test_get_class_pmr_limits_with_edges():
     assert pmr_limits[-1] == float("inf"), "PMR-limit: Right-edge not INF!"
 
 
-def test_get_class_part_boundaries():
+def test_get_class_phase_boundaries():
     wcd = datamodel.get_wltc_data()
     cd = cycles.get_wltc_class_data(wcd, 3)
-    pmr_boundaries = cycles.get_class_part_boundaries(cd["lengths"], cd["V_cycle"])
+    pmr_boundaries = cycles.get_class_phase_boundaries(cd["lengths"], cd["V_cycle"])
     assert len(pmr_boundaries) == 4
     assert pmr_boundaries[0][0] == 0
     assert pmr_boundaries[-1][-1] == 1800
@@ -83,14 +83,11 @@ def test_get_class_part_boundaries():
     assert tuple(sorted(nums)) == nums
 
 
-def test_calc_class_part_distances(wltc_class):
+def test_v_distances_pipeline(wltc_class):
     aug = wio.make_autograph()
     funcs = [
         cycles.get_wltc_class_data,
-        cycles.get_class_part_boundaries,
-        cycles.calc_wltc_distances,
-        cycles.calc_dsc_distances,
-        cycles.calc_capped_distances,
+        *cycles.v_distances_pipeline().ops,
         # fake dsc & cap
         operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
         operation(None, "FAKE.V_cap", "wltc_class_data/V_cycle", "V_capped"),
@@ -103,27 +100,27 @@ def test_calc_class_part_distances(wltc_class):
     print(got)
     exp_sums = {
         0: """
-                         sums  cumsums
+                         sum   cumsum
         [0, 589)      11988.4  11988.4
         [589, 1022)   17162.8  29151.2
         [1022, 1611)  11988.4  41139.6
         """,
         1: """
-                        sums  cumsums
+                        sum    cumsum
         [0, 589)      11162.2  11162.2
         [589, 1022)   17054.3  28216.5
         [1022, 1477)  24450.6  52667.1
         [1477, 1800)  28869.8  81536.9
         """,
         2: """
-                        sums  cumsums
+                        sum    cumsum
         [0, 589)      11140.3  11140.3
         [589, 1022)   16995.7  28136.0
         [1022, 1477)  25646.0  53782.0
         [1477, 1800)  29714.9  83496.9
         """,
         3: """
-                         sums  cumsums
+                         sum    cumsum
         [0, 589)      11140.3  11140.3
         [589, 1022)   17121.2  28261.5
         [1022, 1477)  25782.2  54043.7

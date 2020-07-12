@@ -26,6 +26,8 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 
+from graphtik import compose
+from graphtik.pipeline import Pipeline
 from pandalone import mappings, pandata
 
 from . import engine
@@ -197,3 +199,26 @@ def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
 
     gear_wots_df = _package_wots_df(all_recs)
     return ok_rec._replace(wot=gear_wots_df)
+
+
+def vmax_pipeline(**pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide vehicle's `v_max` (Annex 2, 2.i).
+
+    .. graphtik::
+
+        >>> pipe = vmax_pipeline()
+    """
+    from . import cycles, vehicle, engine
+
+    aug = wio.make_autograph()
+    funcs = [
+        engine.interpolate_wot_on_v_grid,
+        engine.attach_p_avail_in_gwots,
+        vehicle.attach_p_resist_in_gwots,
+        calc_v_max,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose("vmax_pipeline", *ops, **pipeline_kw)
+
+    return pipe

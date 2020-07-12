@@ -12,13 +12,14 @@ data for all cycles and utilities to identify them
 >>> __name__ = "wltp.cycles"
 """
 import functools as fnt
-from typing import Iterable, Mapping, Optional, Tuple, Union
+from typing import Iterable, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from toolz import itertoolz as itz
 
-from graphtik import operation
+from graphtik import compose, operation
+from graphtik.pipeline import Pipeline
 
 from ..autograph import autographed
 
@@ -144,7 +145,7 @@ def cycle_phases() -> pd.DataFrame:
     from pandas import IndexSlice as idx
 
     ## As printed by :func:`tests.test_instances.def test_cycle_phases_df()``
-    table_csv = dedent(# NOTE: literal [Tab] character in the string below.
+    table_csv = dedent(  # NOTE: literal [Tab] character in the string below.
         """
         class	phasing	phase-1	phase-2	phase-3	phase-4
         class1	V	[0, 589]	[589, 1022]	[1022, 1611]
@@ -242,7 +243,7 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
 
 
 @autographed(needs=["wltc_class_data/lengths", "wltc_class_data/V_cycle"])
-def get_class_part_boundaries(part_lengths: tuple, V_cycle) -> tuple:
+def get_class_phase_boundaries(part_lengths: tuple, V_cycle) -> tuple:
     """
     Serve ``[low, high)`` boundaries from class-data, as `Dijkstra demands it`__.
 
@@ -261,7 +262,7 @@ def get_class_part_boundaries(part_lengths: tuple, V_cycle) -> tuple:
         >>> from wltp import datamodel, cycles
         >>> wcd = datamodel.get_wltc_data()
         >>> cd = cycles.get_wltc_class_data(wcd, "class3b")
-        >>> cycles.get_class_part_boundaries(cd["lengths"], cd["V_cycle"])
+        >>> cycles.get_class_phase_boundaries(cd["lengths"], cd["V_cycle"])
         ((0, 589), (589, 1022), (1022, 1477), (1477, 1800))
 
 
@@ -270,24 +271,39 @@ def get_class_part_boundaries(part_lengths: tuple, V_cycle) -> tuple:
     return tuple(itz.sliding_window(2, (0, *part_breaks)))
 
 
+def make_class_phases_grouper(
+    class_phase_boundaries: Sequence[tuple],
+) -> pd.Categorical:
+    """
+    Return a pandas group-BY for the given `boundaries` as `VA1` phasing.
+
+    :param boundaries:
+        a list of ``[low, high)`` boundary pairs
+        (from :func:`get_class_phase_boundaries()`)
+
+    Onbviously, it cannot produce overlapping split-times belonging to 2 phases.
+    """
+    part_intervals = pd.IntervalIndex.from_tuples(class_phase_boundaries, closed="left")
+    t_max = class_phase_boundaries[-1][-1]
+    return pd.cut(range(t_max + 1), part_intervals)
+
+
 @operation(
-    needs=["wltc_class_data/V_cycle", "class_part_boundaries"],
+    needs=["wltc_class_data/V_cycle", "class_phases_grouper"],
     provides="wltc_distances",
 )
-def calc_wltc_distances(V: pd.Series, boundaries: Iterable[tuple]) -> pd.DataFrame:
+def calc_wltc_distances(V: pd.Series, grouper) -> pd.DataFrame:
     """
-    Return a *(part x (sum, cumsum))* matrix for the wltc-part `boundaries` of `V`.
+    Return a *(phase x (sum, cumsum))* matrix for the wltc-phase `boundaries` of `V`.
 
     :param V:
         a velocity profile with the standard WLTC length
-    :param boundaries:
-        a list of ``[low, high)`` boundary pairs
-        (from :func:`get_class_part_boundaries()`)
+    :param grouper:
+        an object to break up a velocity in parts
+        (from :func:`make_grouper()`)
     """
-    t_intervals = pd.IntervalIndex.from_tuples(boundaries, closed="left")
-    grouper = pd.cut(V.index, t_intervals)
     sums = V.groupby(grouper).sum()
-    sums = pd.concat([sums, sums.cumsum()], axis=1, keys=["sums", "cumsums"])
+    sums = pd.concat([sums, sums.cumsum()], axis=1, keys=["sum", "cumsum"])
     sums.name = f"{V.name}_sums"
 
     return sums
@@ -295,11 +311,39 @@ def calc_wltc_distances(V: pd.Series, boundaries: Iterable[tuple]) -> pd.DataFra
 
 calc_dsc_distances = calc_wltc_distances.withset(
     name="calc_dsc_distances",
-    needs=["V_dsc", "class_part_boundaries"],
+    needs=["V_dsc", "class_phases_grouper"],
     provides="dsc_distances",
 )
 calc_capped_distances = calc_wltc_distances.withset(
-    name="calc_cap_distances",
-    needs=["V_cap", "class_part_boundaries"],
-    provides="cap_distances",
+    name="calc_capped_distances",
+    needs=["V_capped", "class_phases_grouper"],
+    provides="capped_distances",
 )
+
+
+def v_distances_pipeline(**pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide per-phase & total distances for `V_cycle`, `V_dsc`, `V_capped` & `V_compensated`.
+
+    .. graphtik::
+
+        >>> pipe = v_distances_pipeline()
+    """
+    from .. import downscale, io as wio
+
+    aug = wio.make_autograph()
+    funcs = [
+        get_class_phase_boundaries,
+        make_class_phases_grouper,
+        calc_wltc_distances,
+        calc_dsc_distances,
+        calc_capped_distances,
+        downscale.make_compensated_phase_boundaries,
+        downscale.make_compensated_phases_grouper,
+        downscale.calc_compensated_distances,
+    ]
+
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose("v_distances_pipeline", *ops, **pipeline_kw)
+
+    return pipe

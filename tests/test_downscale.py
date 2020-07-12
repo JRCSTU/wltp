@@ -14,16 +14,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from wltp import datamodel
-from wltp.downscale import (
-    calc_f_dsc,
-    calc_f_dsc_orig,
-    calc_V_dsc_raw,
-    decide_wltc_class,
-    downscale_by_recursing,
-    downscale_by_scaling,
-)
+from graphtik import compose, operation
+from wltp import cycles, datamodel, downscale
+from wltp import invariants as inv
+from wltp import io as wio
 from wltp.invariants import round1
+
+from .vehdb import oneliner
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +36,9 @@ def test_smoke1():
     ## Decide WLTC-class.
     #
     wltc = datamodel.get_wltc_data()
-    wltc_class = decide_wltc_class(wltc["classes"], p_rated / test_mass, v_max)
+    wltc_class = downscale.decide_wltc_class(
+        wltc["classes"], p_rated / test_mass, v_max
+    )
     class_data = wltc["classes"][wltc_class]
     V = pd.Series(class_data["V_cycle"])
 
@@ -49,12 +48,12 @@ def test_smoke1():
     phases = dsc_data["phases"]
     p_max_values = dsc_data["p_max_values"]
     downsc_coeffs = dsc_data["factor_coeffs"]
-    f_dsc_orig = calc_f_dsc_orig(
+    f_dsc_raw = downscale.calc_f_dsc_raw(
         p_max_values, downsc_coeffs, p_rated, test_mass, f0, f1, f2, f_inertial,
     )
-    f_dsc = calc_f_dsc(f_dsc_orig, f_dsc_threshold, f_dsc_decimals,)
+    f_dsc = downscale.calc_f_dsc(f_dsc_raw, f_dsc_threshold, f_dsc_decimals,)
     if f_dsc > 0:
-        V = calc_V_dsc_raw(V, f_dsc, phases)
+        V = downscale.calc_V_dsc_raw(V, f_dsc, phases)
         # print(
         #     "Class(%s), f_dnscl(%s), DIFFs:\n%s" % (wclass, f_dsc, diffs[bad_ix])
         # )
@@ -76,7 +75,7 @@ def test_smoke2():
     ]
 
     for (V, phases, f_dsc) in test_data:
-        calc_V_dsc_raw(V, f_dsc, phases)
+        downscale.calc_V_dsc_raw(V, f_dsc, phases)
 
 
 _wltc = datamodel.get_wltc_data()
@@ -110,8 +109,8 @@ def test_recurse_vs_scaling(wclass):
 
     bad_accuracies, bad_rounds = {}, {}
     for f_dsc in np.arange(0, 4, 0.1):
-        V1 = downscale_by_recursing(V, f_dsc, phases)
-        V2 = downscale_by_scaling(V, f_dsc, phases)
+        V1 = downscale.downscale_by_recursing(V, f_dsc, phases)
+        V2 = downscale.downscale_by_scaling(V, f_dsc, phases)
 
         bad_ix = ~np.isclose(V1, V2)
         if bad_ix.any():
@@ -142,3 +141,64 @@ def test_recurse_vs_scaling(wclass):
 
         with pd.option_context(*pd_opts):
             pytest.fail(f"{wclass}: ROUNDING errors!\n{errs}\n{errs.describe()}")
+
+
+def test_dsc_pipelines(wltc_class):
+    aug = wio.make_autograph()
+    funcs = [
+        cycles.get_wltc_class_data,
+        *downscale.downscale_pipeline().ops,
+        *downscale.compensate_capped_pipeline().ops,
+        *cycles.v_distances_pipeline().ops,
+        # fake dsc & cap
+        operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose("dist", *ops)
+    inp = {
+        "wltc_data": datamodel.get_wltc_data(),
+        "wltc_class": wltc_class,
+        "v_cap": 60,  # class1 max(V) is 60.4
+    }
+    sol = pipe.compute(inp)
+    assert len(sol["compensate_phases_t_extra"]) == len(sol["class_phase_boundaries"])
+
+    exp_t_missing = ([0, 1, 0], [0, 10, 43, 192], [0, 8, 81, 203], [0, 8, 81, 203])
+    assert sol["compensate_phases_t_extra"].tolist() == exp_t_missing[wltc_class]
+
+    exp_compensated_phases = [
+        [(0, 589), (590, 1023), (1023, 1612)],
+        [(0, 589), (599, 1032), (1075, 1530), (1722, 2045)],
+        [(0, 589), (597, 1030), (1111, 1566), (1769, 2092)],
+        [(0, 589), (597, 1030), (1111, 1566), (1769, 2092)],
+    ]
+    compensated_phases = sol["compensated_phase_boundaries"]
+    assert compensated_phases == exp_compensated_phases[wltc_class]
+
+    V_compensated = sol["V_compensated"]
+    assert compensated_phases[-1][-1] == V_compensated.index[-1]
+    assert (sol["V_dsc"].sum() - V_compensated.sum()) < inp["v_cap"]
+
+    exp_compensated_distances = [
+        [11988.4, 29146.9, 41135.3],
+        [11162.2, 28209.7, 51666.1, 70103.2],
+        [11140.3, 28110.5, 50564.1, 69069.5],
+        [11140.3, 28241.0, 50779.8, 69285.2]
+    ]
+    compensated_distances = sol["compensated_distances"]
+    assert (inv.vround(compensated_distances['cumsum']) == exp_compensated_distances[wltc_class]).all()
+
+    ## No CAPPING
+
+    inp = {
+        "wltc_data": datamodel.get_wltc_data(),
+        "wltc_class": wltc_class,
+        "v_cap": 0,
+    }
+    sol = pipe.compute(inp)
+    assert len(sol["compensate_phases_t_extra"]) == len(sol["class_phase_boundaries"])
+
+    regular_phases = sol["class_phase_boundaries"]
+    V_compensated = sol["V_compensated"]
+    assert regular_phases[-1][-1] == V_compensated.index[-1]
+    assert (sol["V_dsc"].sum() == sol["V_compensated"].sum())

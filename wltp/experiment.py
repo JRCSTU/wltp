@@ -83,21 +83,10 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         vehicle.calc_unladen_mass,
         vehicle.calc_mro,
         vehicle.calc_p_m_ratio,
-        engine.interpolate_wot_on_v_grid,
-        engine.attach_p_avail_in_gwots,
-        vehicle.attach_p_resist_in_gwots,
-        vmax.calc_v_max,
-        downscale.calc_f_dsc_orig,
-        downscale.calc_f_dsc,
-        downscale.decide_wltc_class,
-        downscale.calc_V_dsc_raw,
-        downscale.calc_V_capped,
-        downscale.calc_V_compensated,
-        downscale.calc_V_dsc,
-        cycles.get_class_part_boundaries,
-        cycles.calc_wltc_distances,
-        cycles.calc_dsc_distances,
-        cycles.calc_capped_distances,
+        *vmax.vmax_pipeline().ops,
+        *downscale.downscale_pipeline().ops,
+        *downscale.compensate_capped_pipeline().ops,
+        *cycles.v_distances_pipeline().ops,
     )
     aug = wio.make_autograph()
     ops = [
@@ -292,7 +281,7 @@ class Experiment(object):
                 phases = dsc_data["phases"]
                 p_max_values = dsc_data["p_max_values"]
                 downsc_coeffs = dsc_data["factor_coeffs"]
-                f_dsc_orig = downscale.calc_f_dsc_orig(
+                f_dsc_raw = downscale.calc_f_dsc_raw(
                     p_max_values,
                     downsc_coeffs,
                     p_rated,
@@ -303,10 +292,10 @@ class Experiment(object):
                     f_inertial,
                 )
                 f_dsc = downscale.calc_f_dsc(
-                    f_dsc_orig, f_dsc_threshold, f_dsc_decimals,
+                    f_dsc_raw, f_dsc_threshold, f_dsc_decimals,
                 )
                 mdl[m.f_dsc] = f_dsc
-                mdl[m.f_dsc_orig] = f_dsc_orig
+                mdl[m.f_dsc_raw] = f_dsc_raw
 
             if f_dsc > 0:
                 V_dsc_raw = downscale.calc_V_dsc_raw(V, f_dsc, phases)

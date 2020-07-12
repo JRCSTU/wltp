@@ -287,7 +287,7 @@ def get_class_parts_limits(wltc_class: Union[str, int], edges=False) -> tuple:
         a list of ints with the part-limits, ie for class-3a these are 3 numbers (or 5 if `edge`)
 
     .. note::
-        For pipeline use :func:`.cycles.get_class_part_boundaries()`.
+        For pipeline use :func:`.cycles.get_class_phase_boundaries()`.
 
     Example:
 

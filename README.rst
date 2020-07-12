@@ -331,7 +331,7 @@ Now you can run the experiment:
 
     >>> mdl = processor.run()               ## Runs experiment and augments the model with results.
     >>> sorted(mdl)                         ## Print the top-branches of the "augmented" model.
-    ['b_compensate_distance', `cycle`, 'driver_mass', 'f0', 'f1', 'f2', `f_dsc`, 'f_dsc_decimals', `f_dsc_orig`,
+    ['b_compensate_distance', `cycle`, 'driver_mass', 'f0', 'f1', 'f2', `f_dsc`, 'f_dsc_decimals', `f_dsc_raw`,
      'f_dsc_threshold', 'f_inertial', 'f_n_clutch_gear2', 'f_n_min', 'f_n_min_gear2', 'f_safety_margin', `g_vmax`,
      'gear_ratios', `is_n_lim_vmax`, `n95_high`, `n95_low`, 'n_idle', `n_max`, `n_max1`, `n_max2`, `n_max3`,
      'n_min_drive1', 'n_min_drive2', 'n_min_drive2_stopdecel', 'n_min_drive2_up', 'n_min_drive_down',

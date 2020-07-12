@@ -141,7 +141,7 @@ oprops = {
     "n_max3": mdl["n_max3"],
     "n_max": mdl["n_max"],
     "wltc_class": mdl["wltc_class"],
-    "f_dsc_orig": mdl["f_dsc_orig"],
+    "f_dsc_raw": mdl["f_dsc_raw"],
     "f_dsc": mdl["f_dsc"],
 }
 
@@ -179,7 +179,7 @@ oprops = {
     "n_max3": mdl["n_max3"],
     "n_max": mdl["n_max"],
     "wltc_class": mdl["wltc_class"],
-    "f_dsc_orig": mdl["f_dsc_orig"],
+    "f_dsc_raw": mdl["f_dsc_raw"],
     "f_dsc": mdl["f_dsc"],
 }
 

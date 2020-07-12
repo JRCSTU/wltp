@@ -169,7 +169,7 @@ class FnHarvester(Prefkey):
         [('wltp.cycler', 'CycleBuilder'),
         ('wltp.cycler', 'CycleBuilder', 'add_columns'),
         ...
-        ('wltp.vmax', 'calc_v_max')]
+        ('wltp.vmax', 'calc_v_max'), ('wltp.vmax', 'vmax_pipeline')]
 
     Use this pattern whe iterating, to account for any :term:`operation` instances:
 

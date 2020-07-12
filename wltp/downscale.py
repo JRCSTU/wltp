@@ -11,14 +11,18 @@ formulae downscaling cycles based on pmr/test_mass ratio
 >>> from wltp.downscale import *
 >>> __name__ = "wltp.downscale"
 """
+import functools as fnt
 import logging
-from typing import Mapping
+from typing import List, Mapping, Tuple
 
+import boltons.iterutils as itb
+import numpy as np
 import pandas as pd
 
-import functools as fnt
-from graphtik import operation
+from graphtik import compose, operation
+from graphtik.pipeline import Pipeline
 
+from . import cycles
 from . import invariants as inv
 from . import io as wio
 from .autograph import autographed
@@ -63,7 +67,7 @@ def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
         ...,
     ]
 )
-def calc_f_dsc_orig(
+def calc_f_dsc_raw(
     wltc_dsc_p_max_values, wltc_dsc_coeffs, p_rated, test_mass, f0, f1, f2, f_inertial,
 ):
     """
@@ -94,13 +98,13 @@ def calc_f_dsc_orig(
     return f_dsc
 
 
-def calc_f_dsc(f_dsc_orig: float, f_dsc_threshold: float, f_dsc_decimals,) -> float:
+def calc_f_dsc(f_dsc_raw: float, f_dsc_threshold: float, f_dsc_decimals,) -> float:
     """
     ATTENTION: by the spec, f_dsc MUST be > 0.01 to apply, but
     in :file:`F_new_vehicle.form.txt:(3537, 3563, 3589)` a +0.5 is ADDED!
     (see CHANGES.rst)
     """
-    f_dsc = inv.round1(f_dsc_orig, f_dsc_decimals)
+    f_dsc = inv.round1(f_dsc_raw, f_dsc_decimals)
     return 0 if f_dsc <= f_dsc_threshold else f_dsc
 
 
@@ -208,40 +212,216 @@ def downscale_by_scaling(V: pd.Series, f_dsc, phases) -> pd.Series:
     return V_DSC
 
 
-def calc_V_capped(V_dsc, v_cap):
-    V_dsc = V_dsc.copy()
-    V_dsc[V_dsc > v_cap] = v_cap
+round_calc_V_dsc = operation(
+    inv.vround, name="round_calc_V_dsc", needs="V_dsc_raw", provides="V_dsc"
+)
 
-    return V_dsc
+
+def calc_V_capped(V_dsc, v_cap):
+    """Clip all values of `V_dsc` above `v_cap`."""
+    return V_dsc.mask(V_dsc > v_cap, other=v_cap) if v_cap and v_cap > 0 else V_dsc
+
+
+def calc_compensate_phases_t_extra_raw(
+    v_cap,
+    dsc_distances,
+    capped_distances,
+    class_phase_boundaries,
+    b_compensate_distance=None,
+) -> pd.Series:
+    """
+    Extra time each phase needs to run at `v_cap` to equalize `V_capped` distance with `V_dsc`.
+
+    :param v_cap:
+        Compensation applies only if `v_cap` > 0 and `b_compensate_distance` flag
+        is not false.
+    :return:
+        a series with the # of extra secs for each phase (which may be full of 0s)
+
+    This is where `b_compensate_distance` or zero/null `v_cap` condition is checked.
+    """
+    lengths = [
+        len(i) for i in (class_phase_boundaries, dsc_distances, capped_distances)
+    ]
+    assert itb.same(
+        lengths
+    ), f"# of phases missmatched phase-distances: {lengths}\n  {locals()}"
+
+    # What to return when decided not to compensate V-trace.
+    no_compensation = pd.Series(0, index=capped_distances.index)
+
+    if (
+        not v_cap
+        or v_cap < 0
+        or (not b_compensate_distance and b_compensate_distance is not None)
+    ):
+        log.info(
+            "Skipped distance-compensation due to v_cap(%s) or b_compensate_distance(%s)",
+            v_cap,
+            b_compensate_distance,
+        )
+        return no_compensation
+
+    # Annex 1-9.2.1 simplified:
+    #
+    # - The 3.6 divisor cancels out with the t_diff formula below.
+    #
+    # - It also runs a 2-rolling-average window on the values,
+    #   which in effect affects only the 1st and last elements
+    #   which for phase-boundaries are both 0.
+    phase_delta_s = dsc_distances["sum"] - capped_distances["sum"]
+
+    if not phase_delta_s.any():
+        log.info("Distance-compensation is not needed.")
+        return no_compensation
+    assert (phase_delta_s >= 0).all(), f"Capped less than downscaled!?? {locals()}"
+
+    # Annex 1-9.2.2 simplified: 3.6 factor canceled out, above.
+    delta_t = phase_delta_s / v_cap
+
+    return delta_t
+
+
+def round_compensate_phases_t_extra(
+    compensate_phases_t_extra_raw: pd.Series,
+) -> pd.Series:
+    return inv.asint(inv.round1(compensate_phases_t_extra_raw))
 
 
 def calc_V_compensated(
-    V_capped, dsc_distances, capped_distances, class_part_boundaries, b_compensate_distance
-):
-    """Equalize capped-cycle distance to downscaled one."""
-    if not b_compensate_distance:
-        if b_compensate_distance is None:
-            if dsc_distances == capped_distances:
-                return V_capped
-        else:
-            return V_capped
+    v_cap,
+    V_dsc: pd.Series,
+    V_capped: pd.Series,
+    compensate_phases_t_extra,
+    class_phases_grouper,
+) -> pd.Series:
+    """
+    Equalize capped-cycle distance to downscaled one.
 
-    # TODO: compensate distance
-    for zero, end in class_part_boundaries:
-        pass
+    :param V_dsc:
+        compared against `V_capped` to discover capped amples
+    :param V_capped:
+        compensated with extra `v_cap` samples as defined by `compensate_phases_t_extra`.
+    :param v_cap:
+        needed just for verification,
 
-    return V_capped
+    :return:
+        the compensated `V_capped`, same name & index
+
+        .. Note::
+            Cutting corners by grouping phases like `VA0`, so an extra 0 needed
+            at the end when constructing the compensated trace.
+    """
+    diffs = V_dsc != V_capped
+    if not diffs.any():
+        return V_capped
+
+    def compensate_phase(V, diffs, extra_steps):
+        if not diffs.any():
+            return (V,)
+
+        t = diffs.idxmax()  # capping start time to split_and_extend
+        assert V[t] == v_cap, (
+            f"`V_capped` missmatch `v_cap`@t={t}: " f"{V[t]} != {v_cap}!\n  {locals()}"
+        )
+
+        # Need to slice 1st piece with open-right, but only `iloc` does that
+        # (https://stackoverflow.com/a/45523811/548792)
+        ti = V.index.get_loc(t)
+        head = V.iloc[:ti]
+        tail = V.loc[t:]
+        wedge = [v_cap] * extra_steps
+        return head, wedge, tail
+
+    df = pd.concat((V_capped, diffs), axis=1)
+    parts = []
+    for extra_steps, (_, phase) in zip(
+        compensate_phases_t_extra, df.groupby(class_phases_grouper)
+    ):
+        V, diffs = phase.iloc[:, 0], phase.iloc[:, 1]
+        parts += compensate_phase(V, diffs, extra_steps)
+    parts.append([0])  # convert A0 -1 length => full length
+
+    # Assuming 1Hz, t0=0.
+    V_compensated = pd.Series(np.hstack(parts))
+
+    return V_compensated
 
 
-calc_V_dsc = operation(
-    inv.vround, name="calc_V_dsc", needs="V_dsc_raw", provides="V_dsc"
+def make_compensated_phase_boundaries(
+    class_phase_boundaries, compensate_phases_t_extra
+) -> List[Tuple[int, int]]:
+    extra_t = compensate_phases_t_extra.cumsum()
+    return [
+        (a + extra_a, b + extra_b)
+        for (a, b), extra_a, extra_b in zip(
+            class_phase_boundaries, extra_t.shift(0, fill_value=0), extra_t
+        )
+    ]
+
+
+make_compensated_phases_grouper = operation(
+    cycles.make_class_phases_grouper,
+    name="make_compensated_phases_grouper",
+    needs="compensated_phase_boundaries",
+    provides="compensated_phases_grouper",
 )
-calc_dsc_distance, calc_capped_distance, calc_compensated_distance = [
-    operation(
-        pd.Series.sum,
-        name=f"calc_{v}_distance",
-        needs=f"V_{v}",
-        provides=f"{v}_distance",
-    )
-    for v in "dsc capped compensated".split()
-]
+
+calc_compensated_distances = cycles.calc_wltc_distances.withset(
+    name="calc_compensated_distances",
+    needs=["V_compensated", "compensated_phases_grouper"],
+    provides="compensated_distances",
+)
+
+
+def downscale_pipeline(**pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `V_dsc` & `V_capped` traces (Annex 1, 8.2 & 8.3).
+
+    .. graphtik::
+
+        >>> pipe = downscale_pipeline()
+    """
+    aug = wio.make_autograph()
+    funcs = [
+        decide_wltc_class,
+        cycles.get_wltc_class_data,
+        calc_f_dsc_raw,
+        calc_f_dsc,
+        calc_V_dsc_raw,
+        round_calc_V_dsc,
+        calc_V_capped,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose("downscale_pipeline", *ops, **pipeline_kw)
+
+    return pipe
+
+
+def compensate_capped_pipeline(**pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `V_compensated` from `V_capped` trace (Annex 1, 9).
+
+    .. graphtik::
+        :hide:
+        :name: compensate_capped_pipeline
+
+        >>> pipe = compensate_capped_pipeline()
+    """
+    aug = wio.make_autograph()
+    funcs = [
+        decide_wltc_class,
+        cycles.get_wltc_class_data,
+        cycles.calc_dsc_distances,
+        cycles.calc_capped_distances,
+        cycles.get_class_phase_boundaries,
+        cycles.make_class_phases_grouper,
+        calc_V_capped,
+        calc_compensate_phases_t_extra_raw,
+        round_compensate_phases_t_extra,
+        calc_V_compensated,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose("compensate_pipeline", *ops, **pipeline_kw)
+
+    return pipe
