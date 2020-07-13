@@ -70,36 +70,13 @@ if os.name != "nt":
 
 ## Make autodoc always includes constructors.
 #    From http://stackoverflow.com/a/5599712/548792
-#    and http://stackoverflow.com/questions/3757500/how-do-i-connect-sphinxs-autodoc-skip-member-to-my-function
 #
 autodoc_default_options = {
     "private-members": True,
-    "special-members": "__init__",
-    #'undoc-members': True,
+    'undoc-members': True,
     "show-inheritance": True,
 }
-# autoclass_content = 'both' ## Join class+ __init__() docstrings
-def autodoc_skip_member(app, what, name, obj, skip, options):
-    exclusions = (
-        "__weakref__",  # special-members
-        "__doc__",
-        "__module__",
-        "__dict__",  # undoc-members
-        #'__init__', __new__
-    )
-    exclude = name in exclusions
-    return skip or exclude
-
-
-# #     if what == 'method' and \
-# #             (name == "__init__" or re.match(r'^_[A-Za-z]', name)):
-#     if (name == "__init__" or re.match(r'^_[A-Za-z]', name)):
-#         return False
-#     return skip
-
-
-def setup(app):
-    app.connect("autodoc-skip-member", autodoc_skip_member)
+autoclass_content = "both"  # Join class + __init__ docstrings
 
 
 # -- General configuration ------------------------------------------------
