@@ -326,6 +326,8 @@ def v_distances_pipeline(**pipeline_kw) -> Pipeline:
     Pipeline to provide per-phase & total distances for `V_cycle`, `V_dsc`, `V_capped` & `V_compensated`.
 
     .. graphtik::
+        :hide:
+        :name: v_distances_pipeline
 
         >>> pipe = v_distances_pipeline()
     """

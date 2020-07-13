@@ -379,6 +379,8 @@ def downscale_pipeline(**pipeline_kw) -> Pipeline:
     Pipeline to provide `V_dsc` & `V_capped` traces (Annex 1, 8.2 & 8.3).
 
     .. graphtik::
+        :hide:
+        :name: downscale_pipeline
 
         >>> pipe = downscale_pipeline()
     """

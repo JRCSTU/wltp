@@ -206,6 +206,8 @@ def vmax_pipeline(**pipeline_kw) -> Pipeline:
     Pipeline to provide vehicle's `v_max` (Annex 2, 2.i).
 
     .. graphtik::
+        :hide:
+        :name: vmax_pipeline
 
         >>> pipe = vmax_pipeline()
     """
