@@ -58,6 +58,9 @@ function [ ...
 , MinDriveEngineSpeedGreater2ndDecelStartPhase ...
 , TimeEndOfStartPhase ...
 , DoNotMergeClutchIntoGearsOutput ...
+, LimitVehicleSpeedByAvailablePower ...
+, ReturnAdjustedEngSpeedsAndAvlPowers ...
+, AllowSlippingClutchFor1stAnd2ndGear ...
 )
 
 % calculateShiftpointsNdvFullPC Determines shift-points over trace-time
@@ -321,6 +324,29 @@ function [ ...
 %       an when starting from standstill clutch will be indicated 1 sec before use of 1st gear.
 %       [boolean]
 %
+%   33. LimitVehicleSpeedByAvailablePower
+%       If true and there is not enough power available to follow the trace for some seconds
+%       then the acceleration will be reduced for this seconds
+%       and so also the vehicle speed for the following seconds.
+%       Note that this speed correction will be done after the gear calculations
+%       and so has no influence on the sequence of selected gears and clutch states.
+%       [boolean]
+%
+%   34. ReturnAdjustedEngSpeedsAndAvlPowers
+%       If true then the adjusted values for will be returned by
+%       - RequiredEngineSpeedsOutput
+%       - AvailablePowersOutput
+%       else the unchanged initial values will be returnd (legacy behaviour)
+%       [boolean]
+%
+%   35. AllowSlippingClutchFor1stAnd2ndGear
+%       If true then allow the following gear usage:
+%       If either the 1st or the 2nd gear is the highest possible gear by engine speed
+%       but the available power is smaller than the required power
+%       then increase the engine speed until available power becomes sufficient
+%       and use this gear with slipping clutch
+%       [boolean]
+
 % Calculated results include:
 %
 %   1.  CalculatedGearsOutput
@@ -495,7 +521,7 @@ function [ ...
 %% Preprocess inputs
 
 % Check number of inputs and outputs
-narginchk(32, 32);
+narginchk(35, 35);
 nargoutchk(26, 26);
 
 validateattributes(RatedEnginePower, ...
@@ -759,6 +785,21 @@ validateattributes(DoNotMergeClutchIntoGearsOutput, ...
 	{'logical'}, ...
 	{'scalar'}, ...
 	mfilename, 'DoNotMergeClutchIntoGearsOutput', 32);
+
+validateattributes(LimitVehicleSpeedByAvailablePower, ...
+	{'logical'}, ...
+	{'scalar'}, ...
+	mfilename, 'LimitVehicleSpeedByAvailablePower', 33);
+
+validateattributes(ReturnAdjustedEngSpeedsAndAvlPowers, ...
+	{'logical'}, ...
+	{'scalar'}, ...
+	mfilename, 'ReturnAdjustedEngSpeedsAndAvlPowers', 34);
+
+validateattributes(AllowSlippingClutchFor1stAnd2ndGear, ...
+	{'logical'}, ...
+	{'scalar'}, ...
+	mfilename, 'AllowSlippingClutchFor1stAnd2ndGear', 35);
 
 %% Re-sample the trace in 1Hz
 % If the trace was provided with higher sample rate, this may lead to data
@@ -1189,8 +1230,11 @@ ClutchUndefinedByGear (InAnyAccelOrConstSpeedWithLowEngineSpeed) = 1;
 % "Undefined" covers any status of the clutch between "disengaged" and "engaged",
 % depending on the individual engine and transmission design.
 % In such a case, the real engine speed may deviate from the calculated engine speed.
+RequiredEngineSpeedsBefore = RequiredEngineSpeeds;
 RequiredEngineSpeeds(InAnyAccelOrConstSpeedWithLowEngineSpeed) = ...
   max( 1.15 * IdlingEngineSpeed, RequiredEngineSpeeds(InAnyAccelOrConstSpeedWithLowEngineSpeed) );
+InAnyAccelOrConstSpeedWithLowEngineSpeedModified = ...
+  RequiredEngineSpeeds ~= RequiredEngineSpeedsBefore;
 
 % HST 2019-10-08 sets clutch to "undefined" for gear 1
 % if the used engine speed is greater than ndv_1 * v
@@ -1199,7 +1243,8 @@ Gear1WithIncrEngineSpeed = ...
   ( InitialRequiredEngineSpeeds( :, 1 ) < RequiredEngineSpeeds( : , 1 ) ) & ...
   not( InStandStill ) & not( InDecelerationToStandstill );
 ClutchDisengagedByGear( Gear1WithIncrEngineSpeed ) = 1;
-ClutchUndefinedByGear( Gear1WithIncrEngineSpeed ) = 1;
+% but set clutch to "disengaged" (not to "undefined") if acceleration < 0
+ClutchUndefinedByGear( Gear1WithIncrEngineSpeed & not( InAnyDeceleration ) ) = 1;
 
 %% Calculate available powers (3.4)
 
@@ -1248,36 +1293,41 @@ else
 
 end
 
-% Explicitly allow slipping clutch for the first gear.
-InAcceleration1stLowAvailablePower = InAcceleration & PossibleGearsByEngineSpeed(:, 1) == 1 & PossibleGearsByEngineSpeed(:, 2) ~= 1 & AvailablePowers(:, 1) < RequiredPowers;
-while any(InAcceleration1stLowAvailablePower)
-	RequiredEngineSpeeds(InAcceleration1stLowAvailablePower, 1) = RequiredEngineSpeeds(InAcceleration1stLowAvailablePower, 1) + 1;
-	% additional safety margins defined together with the power curve
-	% take precedence over the legacy additional safety margins
-	% exponentially decaying from start to end engine speed
-	if DefinedPowerCurveAdditionalSafetyMargins
-		AvailablePowers(InAcceleration1stLowAvailablePower, 1) = interp1(PowerCurveEngineSpeeds, PowerCurvePowers .* (1 - (SafetyMargin + PowerCurveAdditionalSafetyMargins)/100), RequiredEngineSpeeds(InAcceleration1stLowAvailablePower, 1));
-	else
-		AvailablePowers(InAcceleration1stLowAvailablePower, 1) = interp1(PowerCurveEngineSpeeds, PowerCurvePowers, RequiredEngineSpeeds(InAcceleration1stLowAvailablePower, 1)) .* (1 - (SafetyMargin + AdditionalSafetyMargin(InAcceleration1stLowAvailablePower, 1))/100);
-	end
+if AllowSlippingClutchFor1stAnd2ndGear
+
+	% Explicitly allow slipping clutch for the first gear.
 	InAcceleration1stLowAvailablePower = InAcceleration & PossibleGearsByEngineSpeed(:, 1) == 1 & PossibleGearsByEngineSpeed(:, 2) ~= 1 & AvailablePowers(:, 1) < RequiredPowers;
-end
-
-% Explicitly allow slipping clutch for the second gear.
-InAcceleration2ndLowAvailablePower = InAcceleration & PossibleGearsByEngineSpeed(:, 2) == 1 & PossibleGearsByEngineSpeed(:, 3) ~= 1 & AvailablePowers(:, 2) < RequiredPowers;
-while any(InAcceleration2ndLowAvailablePower)
-	RequiredEngineSpeeds(InAcceleration2ndLowAvailablePower, 2) = RequiredEngineSpeeds(InAcceleration2ndLowAvailablePower, 2) + 1;
-	% additional safety margins defined together with the power curve
-	% take precedence over the legacy additional safety margins
-	% exponentially decaying from start to end engine speed
-	if DefinedPowerCurveAdditionalSafetyMargins
-		AvailablePowers(InAcceleration2ndLowAvailablePower, 2) = interp1(PowerCurveEngineSpeeds, PowerCurvePowers .* (1 - (SafetyMargin + PowerCurveAdditionalSafetyMargins)/100), RequiredEngineSpeeds(InAcceleration2ndLowAvailablePower, 2));
-	else
-		AvailablePowers(InAcceleration2ndLowAvailablePower, 2) = interp1(PowerCurveEngineSpeeds, PowerCurvePowers, RequiredEngineSpeeds(InAcceleration2ndLowAvailablePower, 2)) .* (1 - (SafetyMargin + AdditionalSafetyMargin(InAcceleration2ndLowAvailablePower, 2))/100);
+	InitialInAcceleration1stLowAvailablePower = InAcceleration1stLowAvailablePower;
+	while any(InAcceleration1stLowAvailablePower)
+		RequiredEngineSpeeds(InAcceleration1stLowAvailablePower, 1) = RequiredEngineSpeeds(InAcceleration1stLowAvailablePower, 1) + 1;
+		% additional safety margins defined together with the power curve
+		% take precedence over the legacy additional safety margins
+		% exponentially decaying from start to end engine speed
+		if DefinedPowerCurveAdditionalSafetyMargins
+			AvailablePowers(InAcceleration1stLowAvailablePower, 1) = interp1(PowerCurveEngineSpeeds, PowerCurvePowers .* (1 - (SafetyMargin + PowerCurveAdditionalSafetyMargins)/100), RequiredEngineSpeeds(InAcceleration1stLowAvailablePower, 1));
+		else
+			AvailablePowers(InAcceleration1stLowAvailablePower, 1) = interp1(PowerCurveEngineSpeeds, PowerCurvePowers, RequiredEngineSpeeds(InAcceleration1stLowAvailablePower, 1)) .* (1 - (SafetyMargin + AdditionalSafetyMargin(InAcceleration1stLowAvailablePower, 1))/100);
+		end
+		InAcceleration1stLowAvailablePower = InAcceleration & PossibleGearsByEngineSpeed(:, 1) == 1 & PossibleGearsByEngineSpeed(:, 2) ~= 1 & AvailablePowers(:, 1) < RequiredPowers;
 	end
-	InAcceleration2ndLowAvailablePower = InAcceleration & PossibleGearsByEngineSpeed(:, 2) == 1 & PossibleGearsByEngineSpeed(:, 3) ~= 1 & AvailablePowers(:, 2) < RequiredPowers;
-end
 
+	% Explicitly allow slipping clutch for the second gear.
+	InAcceleration2ndLowAvailablePower = InAcceleration & PossibleGearsByEngineSpeed(:, 2) == 1 & PossibleGearsByEngineSpeed(:, 3) ~= 1 & AvailablePowers(:, 2) < RequiredPowers;
+	InitialInAcceleration2ndLowAvailablePower = InAcceleration2ndLowAvailablePower;
+	while any(InAcceleration2ndLowAvailablePower)
+		RequiredEngineSpeeds(InAcceleration2ndLowAvailablePower, 2) = RequiredEngineSpeeds(InAcceleration2ndLowAvailablePower, 2) + 1;
+		% additional safety margins defined together with the power curve
+		% take precedence over the legacy additional safety margins
+		% exponentially decaying from start to end engine speed
+		if DefinedPowerCurveAdditionalSafetyMargins
+			AvailablePowers(InAcceleration2ndLowAvailablePower, 2) = interp1(PowerCurveEngineSpeeds, PowerCurvePowers .* (1 - (SafetyMargin + PowerCurveAdditionalSafetyMargins)/100), RequiredEngineSpeeds(InAcceleration2ndLowAvailablePower, 2));
+		else
+			AvailablePowers(InAcceleration2ndLowAvailablePower, 2) = interp1(PowerCurveEngineSpeeds, PowerCurvePowers, RequiredEngineSpeeds(InAcceleration2ndLowAvailablePower, 2)) .* (1 - (SafetyMargin + AdditionalSafetyMargin(InAcceleration2ndLowAvailablePower, 2))/100);
+        end
+		InAcceleration2ndLowAvailablePower = InAcceleration & PossibleGearsByEngineSpeed(:, 2) == 1 & PossibleGearsByEngineSpeed(:, 3) ~= 1 & AvailablePowers(:, 2) < RequiredPowers;
+	end
+
+end
 
 %% Determine possible gears based on available powers (3.5)
 
@@ -1588,6 +1638,193 @@ for i = 1:length(ClutchDisengaged)
     end
 end
 
+%% reduce vehicle speed if not enough power is available
+
+if LimitVehicleSpeedByAvailablePower
+
+  % if the clutch is "undefined" then assume that
+  % the available power is determined from the engine speed
+  % also used for transitions from first to second gear
+  %
+  %   Annex 2
+  %
+  %     2.(k)
+  %       (2) For n_gear = 2,
+  %         (i) for transitions from first to second gear:
+  %           n_min_drive = 1.15 � n_idle,
+  %
+  %     3.3. Selection of possible gears with respect to engine speed
+  %       If   a_j >= 0
+  %       and  n_i,j <  max( 1.15 � n_idle, min. engine speed of the P_wot(n) curve )
+  %       then n_i,j := max( 1.15 � n_idle, min. engine speed of the P_wot(n) curve )
+  %       and the clutch shall be set to "undefined".
+  %
+  % if the clutch is "disengaged" then assume that
+  % the available power is determined from the idling engine speed n_idle
+  % but if n_idle < min. engine speed of the P_wot(n) curve
+  % then no check for the available power will be done
+  %
+  %   Annex 2
+  %
+  %     3.3. Selection of possible gears with respect to engine speed
+  %       If   a_j < 0
+  %       and  n_i,j <= n_idle
+  %       then n_i,j := n_idle
+  %       and the clutch shall be set to "disengaged".
+  %
+  % note that the available power defined by the P_wot(n) curve
+  % must be reduced by the safety margin and additional safety margin
+
+  % determine available powers for clutch "disengaged" and "undefined"
+  if DefinedPowerCurveAdditionalSafetyMargins
+    AvailablePowerClutchDisengaged = ...
+      interp1( ...
+        PowerCurveEngineSpeeds ...
+      , PowerCurvePowers .* ( 1 - ( SafetyMargin + PowerCurveAdditionalSafetyMargins ) / 100 ) ...
+      , max( IdlingEngineSpeed, PowerCurveEngineSpeeds( 1 ) ) ...
+      ) ...
+    ;
+    AvailablePowerClutchUndefined = ...
+      interp1( ...
+        PowerCurveEngineSpeeds ...
+      , PowerCurvePowers .* ( 1 - ( SafetyMargin + PowerCurveAdditionalSafetyMargins ) / 100 ) ...
+      , max( 1.15 * IdlingEngineSpeed, PowerCurveEngineSpeeds( 1 ) ) ...
+      ) ...
+    ;
+  else
+    AdditionalSafetyMarginClutchDisengaged = 0;
+    if AdditionalSafetyMargin0 ~= 0
+      AdditionalSafetyMarginClutchDisengaged = ...
+        AdditionalSafetyMargin0 ...
+      * exp( ...
+          log( 0.5 / AdditionalSafetyMargin0 ) ...
+        * ( StartEngineSpeed - IdlingEngineSpeed ) ...
+        / ( StartEngineSpeed - EndEngineSpeed ) ...
+        ) ...
+      ;
+    end
+    if IdlingEngineSpeed < StartEngineSpeed
+      AdditionalSafetyMarginClutchDisengaged = AdditionalSafetyMargin0;
+    end
+    AvailablePowerClutchDisengaged = ...
+      interp1( ...
+        PowerCurveEngineSpeeds ...
+      , PowerCurvePowers ...
+      , IdlingEngineSpeed ...
+      ) ...
+    .* ( 1 - ( SafetyMargin + AdditionalSafetyMarginClutchDisengaged ) / 100 ) ...
+    ;
+    AdditionalSafetyMarginClutchUndefined = 0;
+    if AdditionalSafetyMargin0 ~= 0
+      AdditionalSafetyMarginClutchUndefined = ...
+        AdditionalSafetyMargin0 ...
+      * exp( ...
+          log( 0.5 / AdditionalSafetyMargin0 ) ...
+        * ( StartEngineSpeed - 1.15 * IdlingEngineSpeed ) ...
+        / ( StartEngineSpeed - EndEngineSpeed ) ...
+        ) ...
+      ;
+    end
+    if 1.15 * IdlingEngineSpeed < StartEngineSpeed
+      AdditionalSafetyMarginClutchUndefined = AdditionalSafetyMargin0;
+    end
+    AvailablePowerClutchUndefined = ...
+      interp1( ...
+        PowerCurveEngineSpeeds ...
+      , PowerCurvePowers ...
+      , 1.15 * IdlingEngineSpeed ...
+      ) ...
+    .* ( 1 - ( SafetyMargin + AdditionalSafetyMarginClutchUndefined ) / 100 ) ...
+    ;
+  end
+  CheckAvailablePowerClutchDisengaged = ( IdlingEngineSpeed >= PowerCurveEngineSpeeds( 1 ) );
+
+  for i = 1:size( RequiredEngineSpeeds, 1 ) - 1
+    PowerForRestistance = ( ...
+      f0 * RequiredVehicleSpeeds( i ) ...
+    + f1 * RequiredVehicleSpeeds( i ) ^2 ...
+    + f2 * RequiredVehicleSpeeds( i ) ^3 ...
+    ) / 3600;
+    Acceleration = ( RequiredVehicleSpeeds( i+1 ) - RequiredVehicleSpeeds( i ) ) / 3.6;
+    PowerForAcceleration = Acceleration * 1.03 * RequiredVehicleSpeeds( i ) * VehicleTestMass / 3600;
+    RequiredPowers( i ) = PowerForRestistance + PowerForAcceleration;  % increased if previous was reduced
+    g = InitialGears( i );
+    if ClutchDisengaged( i ) ...
+    || g >= 1 && g <= NoOfGears
+      if ClutchDisengaged( i )  % true if clutch "disengaged" OR "undefined"
+        if ClutchUndefined( i )
+          CheckAvailablePower = true;
+          AvailablePower = AvailablePowerClutchUndefined;
+        else
+          CheckAvailablePower = CheckAvailablePowerClutchDisengaged;
+          AvailablePower = AvailablePowerClutchDisengaged;
+        end
+      else
+        CheckAvailablePower = true;
+        AvailablePower = AvailablePowers( i, g );
+      end
+      if CheckAvailablePower ...
+      && RequiredPowers( i ) > AvailablePower ...
+      && RequiredVehicleSpeeds( i ) >= 1 ...
+      && (  ClutchDisengaged( i ) ...
+         || RequiredEngineSpeeds( i, g ) > PowerCurveEngineSpeeds( 1 ) ...
+         )
+        RequiredPowers( i ) = AvailablePower;  % reduced
+        PowerForAcceleration = AvailablePower - PowerForRestistance;  % reduced
+        Acceleration = PowerForAcceleration / ( 1.03 * RequiredVehicleSpeeds( i ) * VehicleTestMass ) * 3600;  % reduced
+        NextVehicleSpeed = RequiredVehicleSpeeds( i ) + Acceleration * 3.6;  % reduced
+        if RequiredVehicleSpeeds( i+1 ) > NextVehicleSpeed
+          RequiredVehicleSpeeds( i+1 ) = NextVehicleSpeed;  % reduced
+          RequiredEngineSpeeds( i+1, : ) = NextVehicleSpeed * NdvRatios';  % reduced
+        end
+        % determine available powers for next trace second with reduced vehicle speed
+        if DefinedPowerCurveAdditionalSafetyMargins
+          AvailablePowers( i+1, 1:2 ) = ...
+            interp1( ...
+              PowerCurveEngineSpeeds ...
+            , PowerCurvePowers .* ( 1 - ( SafetyMargin + PowerCurveAdditionalSafetyMargins ) / 100 ) ...
+            , max( RequiredEngineSpeeds( i+1, 1:2 ), PowerCurveEngineSpeeds( 1 ) ) ...
+            ) ...
+          ;
+          AvailablePowers( i+1, 3:size(RequiredEngineSpeeds,2) ) = ...
+            interp1( ...
+              PowerCurveEngineSpeeds ...
+            , PowerCurvePowers .* ( 1 - ( SafetyMargin + PowerCurveAdditionalSafetyMargins ) / 100 ) ...
+            , RequiredEngineSpeeds( i+1, 3:end ) ...
+            , 'linear' ...
+            , 'extrap' ...
+            ) ...
+          ;
+        else
+          AdditionalSafetyMargin = 0;
+          if AdditionalSafetyMargin0 ~= 0
+            AdditionalSafetyMargin = ...
+              AdditionalSafetyMargin0 ...
+            * exp( ...
+                log( 0.5 / AdditionalSafetyMargin0 ) ...
+              * ( StartEngineSpeed - RequiredEngineSpeeds( i+1 ) ) ...
+              / ( StartEngineSpeed - EndEngineSpeed ) ...
+              ) ...
+            ;
+          end
+          if RequiredVehicleSpeeds( i+1 ) < StartEngineSpeed
+            AdditionalSafetyMargin = AdditionalSafetyMargin0;
+          end
+          AvailablePowers( i+1 ) = ...
+            interp1( ...
+              PowerCurveEngineSpeeds ...
+            , PowerCurvePowers ...
+            , RequiredEngineSpeeds( i+1 ) ...
+            ) ...
+          .* ( 1 - ( SafetyMargin + AdditionalSafetyMargin ) / 100 ) ...
+          ;
+        end  % if DefinedPowerCurveAdditionalSafetyMargins
+      end  % if CheckAvailablePower
+    end  % if ClutchDisengaged or valid gear
+  end  % for i
+
+end  % if LimitVehicleSpeedByAvailablePower
+
 %% Assign outputs
 
 CalculatedGearsOutput = {TraceTimes(GearSequenceStarts), GearNames};
@@ -1596,8 +1833,20 @@ AdjustedMax95EngineSpeed = Max95EngineSpeed;
 TraceTimesOutput = TraceTimes;
 RequiredVehicleSpeedsOutput = RequiredVehicleSpeeds;
 RequiredPowersOutput = RequiredPowers;
-RequiredEngineSpeedsOutput = num2cell(InitialRequiredEngineSpeeds, 1);
-AvailablePowersOutput = num2cell(InitialAvailablePowers, 1);
+if ReturnAdjustedEngSpeedsAndAvlPowers
+  % consistent behaviour - return adjusted values as done for vehicle speed and required power
+  % RequiredEngineSpeeds were incremented to minimum required speeds
+  % but this inremented engine speeds and related availables powers
+  % shall be suppressed for output
+  RequiredEngineSpeeds( ~( PossibleGearsByEngineSpeed == 1 ) ) = NaN;
+  AvailablePowers     ( ~( PossibleGearsByEngineSpeed == 1 ) ) = NaN;
+  RequiredEngineSpeedsOutput = num2cell(RequiredEngineSpeeds, 1);
+  AvailablePowersOutput = num2cell(AvailablePowers, 1);
+else
+  % legacy behaviour
+  RequiredEngineSpeedsOutput = num2cell(InitialRequiredEngineSpeeds, 1);
+  AvailablePowersOutput = num2cell(InitialAvailablePowers, 1);
+end
 PowerCurveOutput = FullPowerCurve;
 MaxEngineSpeedCycleOutput = EngineSpeedAtGearAtMaxRequiredSpeed;
 MaxEngineSpeedReachableOutput = EngineSpeedAtGearAtMaxVehicleSpeed;
@@ -2891,17 +3140,11 @@ ChecksumVxGearOutput = round(ChecksumVxGear*10000)/10000;
         % then futher gear corrections may have lead to an immediately
         % following gear 0 with engaged clutch.
         % In this cases the clutch shall already be engaged for the inserted gear 0.
-        % But this shall not be done for the additional correction above for eg :
-        % - HST vehicle_no: 109 time: 1446
-        % - HST vehicle_no: 111 time: 1446
-        % ie it shall not be done at the begin of deceleration to standstill.
-        InDecelerationToStandstillPrev = [ false; InDecelerationToStandstill( 1:end-1 ) ];
         InDecelerationToStandstillNext = [ InDecelerationToStandstill( 2:end ); false ];
         gearNext = [ gear( 2:end ); 0 ];
         ClutchDisengagedNext = [ ClutchDisengaged( 2:end ); false ];
         ClutchDisengaged( ...
-           InDecelerationToStandstillPrev ...
-        &  InDecelerationToStandstill ...
+           InDecelerationToStandstill ...
         &  InDecelerationToStandstillNext ...
         &  gear     == 0 ...
         &  gearNext == 0 ...

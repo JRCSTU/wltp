@@ -389,7 +389,7 @@ function calc_all_cases
     cc = row_case{ col_case_class };
     cv = row_vehicle{ col_vehicle_class };
     rows_phase   = get_tab_row( tab_phase  , col_phase_class, cc );
-    row_scale    = get_tab_row( tab_scale  , col_scale_class, cv );
+    row_scale    = get_tab_row( tab_scale  , col_scale_class, cc );
     rows_trace   = get_tab_row( tab_trace  , col_trace_class, cc );
 
     ApplyDownscaling = logical( ...
@@ -615,6 +615,15 @@ function calc_all_cases
     DoNotMergeClutchIntoGearsOutput = logical( ...
       1 ...  % test parameter
     );
+    LimitVehicleSpeedByAvailablePower = logical( ...
+      1 ...  % test parameter
+    );
+    ReturnAdjustedEngSpeedsAndAvlPowers = logical( ...
+      1 ...  % test parameter
+    );
+    AllowSlippingClutchFor1stAnd2ndGear = logical( ...
+      0 ...  % test parameter
+    );
 
     %---------------------------------------------------------------------------
     fprintf( '- calculate gear shifts\n' );
@@ -678,6 +687,9 @@ function calc_all_cases
     , MinDriveEngineSpeedGreater2ndDecelStartPhase ...
     , TimeEndOfStartPhase ...
     , DoNotMergeClutchIntoGearsOutput ...
+    , LimitVehicleSpeedByAvailablePower ...
+    , ReturnAdjustedEngSpeedsAndAvlPowers ...
+    , AllowSlippingClutchFor1stAnd2ndGear ...
     );
 
     s = size( tab_case_result, 1 );
@@ -1010,17 +1022,6 @@ function calc_all_cases
       tab( i, : ) = strtrim( strsplit( arr_str{ i }, ',' ) );
     end
     for i = 1 : size( tab, 1 )
-
-      %% Progres indicator
-      %
-      tnow = cputime() * 10;
-      if (tnow - tprev) > progress_delay
-        elapsed = (tnow - tstart);
-        fprintf( 2, '  ...reading %i out of %i in %.1f sec\n', i, size( tab, 1 ), elapsed )
-        fflush(stderr);
-        tprev = tnow;
-      end
-
       for k = 1 : size( tab, 2 )
         tab{ i, k } = str_to_num_or_str( tab{ i, k } );
       end
