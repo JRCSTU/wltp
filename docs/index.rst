@@ -12,6 +12,7 @@
     metrics
     annex-2
     code
+    schema
     contribute
     CHANGES
     faq
