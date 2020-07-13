@@ -321,6 +321,7 @@ calc_capped_distances = calc_wltc_distances.withset(
 )
 
 
+@fnt.lru_cache()
 def v_distances_pipeline(**pipeline_kw) -> Pipeline:
     """
     Pipeline to provide per-phase & total distances for `V_cycle`, `V_dsc`, `V_capped` & `V_compensated`.

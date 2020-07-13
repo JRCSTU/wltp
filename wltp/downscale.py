@@ -374,6 +374,7 @@ calc_compensated_distances = cycles.calc_wltc_distances.withset(
 )
 
 
+@fnt.lru_cache()
 def downscale_pipeline(**pipeline_kw) -> Pipeline:
     """
     Pipeline to provide `V_dsc` & `V_capped` traces (Annex 1, 8.2 & 8.3).
@@ -400,6 +401,7 @@ def downscale_pipeline(**pipeline_kw) -> Pipeline:
     return pipe
 
 
+@fnt.lru_cache()
 def compensate_capped_pipeline(**pipeline_kw) -> Pipeline:
     """
     Pipeline to provide `V_compensated` from `V_capped` trace (Annex 1, 9).

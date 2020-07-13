@@ -19,6 +19,7 @@ The `v_max` is found by the maximum gear where `p_avail_stable` intersects `p_re
 >>> from wltp.vmax import *
 >>> __name__ = "wltp.vmax"
 """
+import functools as fnt
 import logging
 from collections import namedtuple
 from typing import List, Union
@@ -201,6 +202,7 @@ def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
     return ok_rec._replace(wot=gear_wots_df)
 
 
+@fnt.lru_cache()
 def vmax_pipeline(**pipeline_kw) -> Pipeline:
     """
     Pipeline to provide vehicle's `v_max` (Annex 2, 2.i).
