@@ -52,6 +52,7 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
 >>> __name__ = "wltp.experiment"
 """
 
+import functools as fnt
 import logging
 import re
 import sys
@@ -73,12 +74,23 @@ from .invariants import v_decimals, vround
 log = logging.getLogger(__name__)
 
 
-def _compose_scale_trace(**pipeline_kw) -> Pipeline:
-    hv = FnHarvester(
-        # base_modules=["wltp.experiment", engine, vehicle, nmindrive, downscale],
-        excludes=["calc_default_resistance_coeffs",],
-    )
-    funcs = hv.harvest(
+@fnt.lru_cache()
+def scale_trace_pipeline(**pipeline_kw) -> Pipeline:
+    """
+    The main pipeline:
+
+    .. graphtik::
+        :height: 600
+        :hide:
+        :name: scale_trace_pipeline
+
+        >>> netop = scale_trace_pipeline()
+
+    **Example:**
+
+        >>> mdl = {"n_idle": 500, "n_rated": 3000, "p_rated": 80, "t_cold_end": 470}
+    """
+    funcs = [
         cycles.get_wltc_class_data,
         vehicle.calc_unladen_mass,
         vehicle.calc_mro,
@@ -87,40 +99,14 @@ def _compose_scale_trace(**pipeline_kw) -> Pipeline:
         *downscale.downscale_pipeline().ops,
         *downscale.compensate_capped_pipeline().ops,
         *cycles.v_distances_pipeline().ops,
-    )
-    aug = wio.make_autograph()
-    ops = [
-        fn if isinstance(fn, Operation) else aug.wrap_fn(fn, name) for name, fn in funcs
     ]
+    aug = wio.make_autograph()
+    ops = [aug.wrap_fn(fn) for fn in funcs]
     calc_v_dsc_max = operation(  # DROP: Needed?
         pd.Series.max, name="calc_max_v_dsc", needs="V_dsc", provides="v_dsc_max"
     )
 
-    return compose(
-        "scale_trace",
-        *ops,
-        calc_v_dsc_max,
-        **pipeline_kw,
-    )
-
-
-# TODO: create *lazily* pipeline module-attribute.
-scale_trace = _compose_scale_trace()
-"""
-The main pipeline:
-
-.. graphtik::
-    :height: 600
-    :hide:
-    :name: scale_trace
-
-    >>> netop = scale_trace
-
-**Example:**
-
-
->>> mdl = {"n_idle": 500, "n_rated": 3000, "p_rated": 80, "t_cold_end": 470}
-"""
+    return compose("scale_trace", *ops, calc_v_dsc_max, **pipeline_kw,)
 
 
 def create_cycle(forced_cycle: pd.DataFrame = None) -> pd.DataFrame:
@@ -309,7 +295,7 @@ class Experiment(object):
                 from graphtik.config import evictions_skipped
 
                 with evictions_skipped(True):
-                    V_dsc2 = scale_trace.compute(mdl, "V_dsc")["V_dsc"]
+                    V_dsc2 = scale_trace_pipeline().compute(mdl, "V_dsc")["V_dsc"]
                 assert (V_dsc == V_dsc2).all()
 
                 # TODO: separate column due to cap/extend.
