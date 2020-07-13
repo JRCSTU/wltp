@@ -284,20 +284,6 @@ properties:
     default: null
     tags:
     - input
-  b_compensate_distance:
-    description: |
-      A tri-state flag controlling whether cycle distance compensation
-      should be applied after downscaling & capping (Annex 1-9).
-
-      - true: do compensate if capping-distance < downscaled;
-      - false: never compensate;
-      - (default) null: like `true` above.
-    type:
-    - boolean
-    - "null"
-    default: null
-    tags:
-    - input
   dsc_distances:
     title: Downscaled cycle distance
     $ref: '#/definitions/positiveNumber'

@@ -13,7 +13,7 @@ formulae downscaling cycles based on pmr/test_mass ratio
 """
 import functools as fnt
 import logging
-from typing import List, Mapping, Tuple
+from typing import List, Mapping, Optional, Tuple
 
 import boltons.iterutils as itb
 import numpy as np
@@ -223,22 +223,17 @@ def calc_V_capped(V_dsc, v_cap):
 
 
 def calc_compensate_phases_t_extra_raw(
-    v_cap,
-    dsc_distances,
-    capped_distances,
-    class_phase_boundaries,
-    b_compensate_distance=None,
+    v_cap: Optional[float], dsc_distances, capped_distances, class_phase_boundaries,
 ) -> pd.Series:
     """
     Extra time each phase needs to run at `v_cap` to equalize `V_capped` distance with `V_dsc`.
 
     :param v_cap:
-        Compensation applies only if `v_cap` > 0 and `b_compensate_distance` flag
-        is not false.
+        Compensation applies only if `v_cap` > 0.
     :return:
         a series with the # of extra secs for each phase (which may be full of 0s)
 
-    This is where `b_compensate_distance` or zero/null `v_cap` condition is checked.
+    This functions checks zero/null `v_cap` condition.
     """
     lengths = [
         len(i) for i in (class_phase_boundaries, dsc_distances, capped_distances)
@@ -250,16 +245,8 @@ def calc_compensate_phases_t_extra_raw(
     # What to return when decided not to compensate V-trace.
     no_compensation = pd.Series(0, index=capped_distances.index)
 
-    if (
-        not v_cap
-        or v_cap < 0
-        or (not b_compensate_distance and b_compensate_distance is not None)
-    ):
-        log.info(
-            "Skipped distance-compensation due to v_cap(%s) or b_compensate_distance(%s)",
-            v_cap,
-            b_compensate_distance,
-        )
+    if not v_cap or v_cap < 0:
+        log.info("Skipped distance-compensation due to v_cap(%s)", v_cap)
         return no_compensation
 
     # Annex 1-9.2.1 simplified:
