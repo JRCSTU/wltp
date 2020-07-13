@@ -110,28 +110,24 @@ Validation tests & HDF5 DB
 Among the various tests, those running on 'sample' databases for comparing differences
 with existing tool are the following:
 
-.. currentmodule:: tests
+Module: :mod:`tests.vehdb`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. automodule:: tests.vehdb
+    :members:
+
+(abandoned)
+~~~~~~~~~~~
 .. autosummary::
 
-    test_samples_db
-    test_wltp_db
+    tests.test_samples_db
+    tests.test_wltp_db
 
 The following scripts in the sources maybe used to preprocess various wltc data:
 
 * :file:`devtools/printwltcclass.py`
 * :file:`devtools/csvcolumns8to2.py`
 
-Module: :mod:`tests.test_samples_db`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-(abandoned)
-
 .. automodule:: tests.test_samples_db
     :members:
-
-Module: :mod:`tests.test_wltp_db`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-(abandoned)
-
 .. automodule:: tests.test_wltp_db
     :members:
-
