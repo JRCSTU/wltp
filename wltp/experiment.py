@@ -47,9 +47,12 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
     One row per gear having ``True`` wherever gear is possible for each step.
 
 .. Seealso:: :mod:`~,datamodel` for in/out schemas
+.. Workaround sphinx-doc/sphinx#6590
+.. doctest::
+    :hide:
 
->>> from wltp.experiment import *
->>> __name__ = "wltp.experiment"
+    >>> from wltp.experiment import *
+    >>> __name__ = "wltp.experiment"
 """
 
 import functools as fnt

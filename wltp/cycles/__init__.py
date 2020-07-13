@@ -8,8 +8,12 @@
 """
 data for all cycles and utilities to identify them
 
->>> from wltp.cycles import *
->>> __name__ = "wltp.cycles"
+.. Workaround sphinx-doc/sphinx#6590
+.. doctest::
+    :hide:
+
+    >>> from wltp.cycles import *
+    >>> __name__ = "wltp.cycles"
 """
 import functools as fnt
 from typing import Iterable, Mapping, Optional, Sequence, Tuple, Union

@@ -8,8 +8,12 @@
 """
 formulae downscaling cycles based on pmr/test_mass ratio
 
->>> from wltp.downscale import *
->>> __name__ = "wltp.downscale"
+.. Workaround sphinx-doc/sphinx#6590
+.. doctest::
+    :hide:
+
+    >>> from wltp.downscale import *
+    >>> __name__ = "wltp.downscale"
 """
 import functools as fnt
 import logging
