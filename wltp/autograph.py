@@ -578,7 +578,7 @@ class Autograph(Prefkey):
                     log.debug("Object-method %s.%s", class_name, fn_name)
                     needs.insert(0, camel_2_snake_case(class_name))
 
-        needs = aslist(needs, "needs", allowed_types=(list, tuple))
+        needs = aslist(needs, "needs")
         if ... in needs:
             if sig is None:
                 sig = inspect.signature(fn)
