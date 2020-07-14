@@ -129,7 +129,7 @@ def _find_p_remain_root(
     return rec
 
 
-@autographed(inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")])
+@autographed(needs=(), inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")])
 def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
     """
     Finds maximum velocity by scanning gears from the top.

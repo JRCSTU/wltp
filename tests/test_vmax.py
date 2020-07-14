@@ -16,8 +16,11 @@ import pandas as pd
 import pytest
 from pandas import IndexSlice as _ix
 
-from wltp import engine, vehicle, downscale, vmax
-from wltp.io import gear_names, veh_names
+from graphtik import compose, operation
+
+from wltp import downscale, engine
+from wltp import io as wio
+from wltp import vehicle, vmax
 
 from . import vehdb
 
@@ -25,7 +28,26 @@ logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
 
-def test_v_max(h5_accdb, vehnums_to_run):
+def _calc_v_max_manual(props, wot, n2vs):
+    gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
+    gwots = engine.attach_p_avail_in_gwots(gwots, SM=0.1)
+    gwots["p_resist"] = vehicle.calc_p_resist(gwots.index, props.f0, props.f1, props.f2)
+    return vmax.calc_v_max(gwots)
+
+
+def _calc_v_max_pipelined(props, wot, n2vs):
+    pipe = vmax.vmax_pipeline()
+    return pipe(
+        wot=wot, n2v_ratios=n2vs, SM=0.1, f0=props.f0, f1=props.f1, f2=props.f2
+    )["v_max"]
+
+
+@pytest.fixture(params=[_calc_v_max_manual, _calc_v_max_pipelined])
+def v_max_calculator(request):
+    return request.param
+
+
+def test_v_max(h5_accdb, vehnums_to_run, v_max_calculator):
     from . import conftest
 
     # DEBUG: to reduce clutter in the console.
@@ -38,14 +60,10 @@ def test_v_max(h5_accdb, vehnums_to_run):
 
     def make_v_maxes(vehnum):
         props, wot, n2vs = vehdb.load_vehicle_accdb(h5_accdb, vehnum)
+
         wot = wot.rename({"Pwot": "p"}, axis=1)
         wot["n"] = wot.index
-        gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
-        gwots = engine.attach_p_avail_in_gwots(gwots, SM=0.1)
-        gwots["p_resist"] = vehicle.calc_p_resist(
-            gwots.index, props.f0, props.f1, props.f2
-        )
-        rec = vmax.calc_v_max(gwots)
+        rec = v_max_calculator(props, wot, n2vs)
 
         return (props["v_max"], rec.v_max, props["gear_v_max"], rec.g_vmax, rec.wot)
 
@@ -63,7 +81,7 @@ def test_v_max(h5_accdb, vehnums_to_run):
             gear_wot_dfs.values(),
             axis=1,
             # join="inner",
-            keys=gear_names(gear_wot_dfs.keys()),
+            keys=wio.gear_names(gear_wot_dfs.keys()),
             names=["item", "gear"],
             verify_integrity=True,
         )
@@ -74,11 +92,11 @@ def test_v_max(h5_accdb, vehnums_to_run):
     vehres = pd.DataFrame(
         recs,
         columns="vmax_accdb  vmax_python  gmax_accdb  gmax_python  wot".split(),
-        index=veh_names(vehnums_to_run),
+        index=wio.veh_names(vehnums_to_run),
     ).astype({"gmax_accdb": "Int64", "gmax_python": "Int64"})
 
     wots_df = pd.concat(
-        vehres["wot"].values, keys=veh_names(vehnums_to_run), names=["vehicle"]
+        vehres["wot"].values, keys=wio.veh_names(vehnums_to_run), names=["vehicle"]
     )
     vehres = vehres.drop("wot", axis=1)
 
