@@ -24,10 +24,10 @@ from typing import Any, Callable, Iterable, List, Mapping, Pattern, Set, Tuple, 
 from boltons.iterutils import first
 from boltons.setutils import IndexedSet as iset
 
-from graphtik import optional, sfx, sfxed
+from graphtik import keyword, optional, sfx, sfxed
 from graphtik.base import Operation, func_name
-from graphtik.modifier import is_sfx
 from graphtik.fnop import FnOp, reparse_operation_data
+from graphtik.modifier import is_sfx
 
 from .utils import Literal, Token, asdict, aslist, astuple
 
@@ -550,14 +550,21 @@ class Autograph(Prefkey):
             op_data.get(a, _unset) for a in op_props
         )
 
-        def is_optional_arg(sig_param):
-            return sig_param.default is not inspect._empty
+        def param_to_modifier(name: str, param: inspect.Parameter) -> str:
+            return (
+                optional(name)
+                # is optional?
+                if param.default is not inspect._empty  # type: ignore
+                else keyword(name)
+                if param.kind == Parameter.KEYWORD_ONLY
+                else name
+            )
 
         sig = None
         if needs is _unset:
             sig = inspect.signature(fn)
             needs = [
-                optional(name) if is_optional_arg(param) else name
+                param_to_modifier(name, param)
                 for name, param in sig.parameters.items()
                 if name != "self" and param.kind is not Parameter.VAR_KEYWORD
             ]
