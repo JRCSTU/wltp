@@ -264,10 +264,13 @@ class FnHarvester(Prefkey):
 
     def harvest(self, *items: Any, base_modules=...) -> List[Tuple[str, Callable]]:
         """
+        Collect any callable `items` and children, respecting `base_modules`, `excludes` etc.
+
         :param items:
-            items with ``__name__``, like module, class, functions,
-            or partials (without ``__name__``)
-            If nothing is given, `attr:`baseModules` is used instead.
+            module fqdn (if already imported), items with ``__name__``, like
+            modules, classes, functions, or partials (without ``__name__``).
+
+            If nothing is given, `attr:`baseModules` is used in its place.
 
             .. Note::
                 This parameter works differently from :attr:`base_modules`, that is,
@@ -286,9 +289,12 @@ class FnHarvester(Prefkey):
                 items = self.base_modules  # type: ignore
 
             for bi in items:
-                name_path = tuple(
-                    func_name(bi, mod=0, fqdn=0, human=0, partials=1).split(".")
-                )
+                if isinstance(bi, str):
+                    bi, name_path = sys.modules[bi], bi
+                else:
+                    name_path = tuple(
+                        func_name(bi, mod=0, fqdn=0, human=0, partials=1).split(".")
+                    )
                 self._harvest(name_path, (bi,))
 
             return self.collected
