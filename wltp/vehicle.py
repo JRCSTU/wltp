@@ -5,12 +5,21 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""formulae for cycle/vehicle dynamics"""
+"""
+formulae for cycle/vehicle dynamics
+
+>>> from wltp.vehicle import *
+>>> __name__ = "wltp.vehicle"
+"""
+import functools as fnt
 import logging
 from typing import Union
 
 import numpy as np
 import pandas as pd
+
+from graphtik import compose, operation, sfxed
+from graphtik.pipeline import Pipeline
 
 from . import io as wio
 from .autograph import autographed
@@ -48,6 +57,7 @@ def attach_p_resist_in_gwots(gwots: pd.DataFrame, f0, f1, f2):
     return gwots
 
 
+@autographed(provides="p_inert")
 def calc_inertial_power(V, A, test_mass, f_inertial):
     """
     @see: Annex 2-3.1
@@ -55,7 +65,8 @@ def calc_inertial_power(V, A, test_mass, f_inertial):
     return (A * V * test_mass * f_inertial) / 3600.0
 
 
-def calc_required_power(p_resist: Column, p_inert: Column):
+@autographed(provides="p_req")
+def calc_required_power(p_resist: Column, p_inert: Column) -> Column:
     """
     Equals :math:`road_loads + inertial_power`
 
@@ -77,3 +88,50 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
     f2 = a[2][0] * test_mass + a[2][1]
 
     return (f0, f1, f2)
+
+
+@fnt.lru_cache()
+def pmr_pipeline(**pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `p_m_ratio` (Annex 1, 2).
+
+    .. graphtik::
+        :height: 600
+        :hide:
+        :name: pmr_pipeline
+
+        >>> pipe = pmr_pipeline()
+    """
+    aug = wio.make_autograph()
+    funcs = [
+        calc_unladen_mass,
+        calc_mro,
+        calc_p_m_ratio,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+@fnt.lru_cache()
+def p_req_pipeline(**pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `V_compensated` traces (Annex 1, 9).
+
+    .. graphtik::
+        :height: 600
+        :hide:
+        :name: p_req_pipeline
+
+        >>> pipe = p_req_pipeline()
+    """
+    aug = wio.make_autograph()
+    funcs = [
+        calc_p_resist,
+        calc_inertial_power,
+        calc_required_power,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
