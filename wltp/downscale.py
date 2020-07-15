@@ -26,15 +26,15 @@ import pandas as pd
 from graphtik import compose, operation
 from graphtik.pipeline import Pipeline
 
+from . import autograph as autog
 from . import cycles
 from . import invariants as inv
 from . import io as wio
-from .autograph import autographed
 
 log = logging.getLogger(__name__)
 
 
-@autographed(needs=["wltc_data/classes", ..., ...])
+@autog.autographed(needs=["wltc_data/classes", ..., ...])
 def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
     """Vehicle classification according to Annex 1-2. """
     c = wio.pstep_factory.get().cycle_data
@@ -59,7 +59,7 @@ def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
     return wltc_class
 
 
-@autographed(
+@autog.autographed(
     needs=[
         "wltc_class_data/downscale/p_max_values",
         "wltc_class_data/downscale/factor_coeffs",
@@ -112,7 +112,7 @@ def calc_f_dsc(f_dsc_raw: float, f_dsc_threshold: float, f_dsc_decimals,) -> flo
     return 0 if f_dsc <= f_dsc_threshold else f_dsc
 
 
-@autographed(
+@autog.autographed(
     needs=["wltc_class_data/V_cycle", ..., "wltc_class_data/downscale/phases",]
 )
 def calc_V_dsc_raw(v_class: pd.Series, f_dsc, dsc_phases) -> pd.Series:

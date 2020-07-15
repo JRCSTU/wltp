@@ -22,7 +22,7 @@ from graphtik import compose, operation, sfxed
 from graphtik.pipeline import Pipeline
 
 from . import io as wio
-from .autograph import autographed
+from . import autograph as autog
 from .invariants import Column
 
 log = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ def attach_p_resist_in_gwots(gwots: pd.DataFrame, f0, f1, f2):
     return gwots
 
 
-@autographed(provides="p_inert")
+@autog.autographed(provides="p_inert")
 def calc_inertial_power(V, A, test_mass, f_inertial):
     """
     @see: Annex 2-3.1
@@ -65,7 +65,7 @@ def calc_inertial_power(V, A, test_mass, f_inertial):
     return (A * V * test_mass * f_inertial) / 3600.0
 
 
-@autographed(provides="p_req")
+@autog.autographed(provides="p_req")
 def calc_required_power(p_resist: Column, p_inert: Column) -> Column:
     """
     Equals :math:`road_loads + inertial_power`

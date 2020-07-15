@@ -71,7 +71,6 @@ from graphtik.pipeline import Pipeline
 from . import cycler, cycles, datamodel, downscale, engine, invariants
 from . import io as wio
 from . import nmindrive, vehicle, vmax
-from .autograph import Autograph, FnHarvester, autographed
 from .invariants import v_decimals, vround
 
 log = logging.getLogger(__name__)
