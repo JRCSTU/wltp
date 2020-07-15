@@ -35,7 +35,7 @@ except ImportError:
 
 
 @fnt.lru_cache()
-def read_V_file(fname) -> tuple:
+def read_V_file(fname) -> Tuple[float, ...]:
     """Parse textual files with cycle velocities."""
     return tuple(float(n) for n in pkg_resources.read_text(__package__, fname).split())
 
@@ -247,7 +247,9 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
 
 
 @autographed(needs=["wltc_class_data/lengths", "wltc_class_data/V_cycle"])
-def get_class_phase_boundaries(part_lengths: tuple, V_cycle) -> tuple:
+def get_class_phase_boundaries(
+    part_lengths: tuple, V_cycle
+) -> Tuple[Tuple[int, int], ...]:
     """
     Serve ``[low, high)`` boundaries from class-data, as `Dijkstra demands it`__.
 

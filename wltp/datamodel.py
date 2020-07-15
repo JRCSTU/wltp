@@ -23,7 +23,7 @@ from collections import abc as cabc
 from textwrap import dedent
 from typing import Mapping
 from typing import Sequence as Seq
-from typing import Union
+from typing import Tuple, Union
 
 import jsonschema
 import numpy as np
@@ -274,7 +274,9 @@ def get_class(wltc_class: Union[str, int], mdl=None) -> dict:
     return classes[class_name]
 
 
-def get_class_parts_limits(wltc_class: Union[str, int], edges=False) -> tuple:
+def get_class_parts_limits(
+    wltc_class: Union[str, int], edges=False
+) -> Tuple[Tuple[int, int], ...]:
     """
     Parses the supplied in wltc_data and extracts the part-limits for the specified class-name.
 
