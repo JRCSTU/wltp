@@ -227,6 +227,6 @@ def vmax_pipeline(**pipeline_kw) -> Pipeline:
         calc_v_max,
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose("vmax_pipeline", *ops, **pipeline_kw)
+    pipe = compose(..., *ops, **pipeline_kw)
 
     return pipe

@@ -93,7 +93,7 @@ def test_v_distances_pipeline(wltc_class):
         operation(None, "FAKE.V_cap", "wltc_class_data/V_cycle", "V_capped"),
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose("dist", *ops)
+    pipe = compose(..., *ops)
     inp = {"wltc_data": datamodel.get_wltc_data(), "wltc_class": wltc_class}
     sol = pipe.compute(inp)
     got = sol["wltc_distances"]

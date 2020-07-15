@@ -154,7 +154,7 @@ def test_dsc_pipelines(wltc_class):
         operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose("dist", *ops)
+    pipe = compose(..., *ops)
     inp = {
         "wltc_data": datamodel.get_wltc_data(),
         "wltc_class": wltc_class,

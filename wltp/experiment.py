@@ -109,7 +109,7 @@ def scale_trace_pipeline(**pipeline_kw) -> Pipeline:
         pd.Series.max, name="calc_max_v_dsc", needs="V_dsc", provides="v_dsc_max"
     )
 
-    return compose("scale_trace", *ops, calc_v_dsc_max, **pipeline_kw,)
+    return compose(..., *ops, calc_v_dsc_max, **pipeline_kw,)
 
 
 def create_cycle(forced_cycle: pd.DataFrame = None) -> pd.DataFrame:

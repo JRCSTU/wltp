@@ -387,7 +387,7 @@ def downscale_pipeline(**pipeline_kw) -> Pipeline:
         calc_V_capped,
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose("downscale_pipeline", *ops, **pipeline_kw)
+    pipe = compose(..., *ops, **pipeline_kw)
 
     return pipe
 
@@ -417,6 +417,6 @@ def compensate_capped_pipeline(**pipeline_kw) -> Pipeline:
         calc_V_compensated,
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose("compensate_pipeline", *ops, **pipeline_kw)
+    pipe = compose(..., *ops, **pipeline_kw)
 
     return pipe

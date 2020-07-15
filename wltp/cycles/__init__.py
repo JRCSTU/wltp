@@ -353,6 +353,6 @@ def v_distances_pipeline(**pipeline_kw) -> Pipeline:
     ]
 
     ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose("v_distances_pipeline", *ops, **pipeline_kw)
+    pipe = compose(..., *ops, **pipeline_kw)
 
     return pipe
