@@ -188,14 +188,18 @@ properties:
     type: number
   wltc_class:
     description:
-      The name of the WLTC-class (found within WLTC-data/classes) as
-      selected by the experiment.
-    type: string
+      The name (or index0) of the WLTC-class (found within WLTC-data/classes)
+      as selected by the experiment.
+    type: [integer, string]
     enum:
     - class1
     - class2
     - class3a
     - class3b
+    - 0
+    - 1
+    - 2
+    - 3
   resistance_coeffs_regression_curves:
     description:
       Regression curve factors for calculating vehicle's `resistance_coeffs`
