@@ -19,7 +19,18 @@ from collections import ChainMap
 from inspect import Parameter
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable, Iterable, List, Mapping, Pattern, Set, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Collection,
+    Iterable,
+    List,
+    Mapping,
+    Pattern,
+    Set,
+    Tuple,
+    Union,
+)
 
 from boltons.iterutils import first
 from boltons.setutils import IndexedSet as iset
@@ -305,7 +316,8 @@ def autographed(
 
     :param domain:
         if set, overrides are not applied for the "default" domain;
-        it allows to reuse the same function to build different operation.
+        it allows to reuse the same function to build different operation,
+        when later wrapped into an operation by :class:`.Autograph`.
     :param renames:
         mappings to rename both any matching the final `needs` & `provides`
     :param inp_sideffects:
@@ -327,7 +339,11 @@ def autographed(
     )
 
     def decorator(fn):
-        fn._autograph = {domain: kws}
+        if hasattr(fn, "_autograph"):
+            fn._autograph[domain] = kws
+        else:
+            fn._autograph = {domain: kws}
+
         return fn
 
     if fn is _unset:
@@ -335,10 +351,19 @@ def autographed(
     return decorator(fn)
 
 
-def get_autograph_decors(fn, default=None, domain=None) -> dict:
-    """Return the dict with :func:`autographed` keywords as keys. """
-    if hasattr(fn, "_autograph"):
-        return fn._autograph[domain]
+def get_autograph_decors(fn, default=None, domains=None) -> dict:
+    """
+    Get the 1st match in `domains` of the `fn` :func:`autographed` special attribute.
+
+    :param default:
+        return this if `fn` non-autographed, or domains don't match
+    :param domains:
+        list-ified if a single str
+    """
+    for dmn in astuple(domains, "domains"):
+        if hasattr(fn, "_autograph"):
+            if dmn in fn._autograph:
+                return fn._autograph[dmn]
     return default
 
 
@@ -384,6 +409,10 @@ class Autograph(Prefkey):
     :param full_path_names:
         whether operation-nodes would be named after the fully qualified name
         (separated with `/` by default)
+    :param domains:
+        the :func:`.autographed` domains to search when wrapping functions,
+        in order;  list-ified if a single str;
+        see :attr:`domains`
 
     **Example:**
 
@@ -405,7 +434,7 @@ class Autograph(Prefkey):
         overrides: Mapping[_FnKey, Mapping] = None,
         renames: Mapping = None,
         full_path_names: bool = False,
-        domain=None,
+        domains: Collection = None,
         sep=None,
     ):
         super().__init__(sep)
@@ -413,7 +442,10 @@ class Autograph(Prefkey):
         self.overrides = overrides and asdict(overrides, "overrides")
         self.renames = renames and asdict(renames, "renames")
         self.full_path_names = full_path_names
-        self.domain = domain
+        #: the :func:`.autographed` domains to search when wrapping functions, in-order;
+        #: if undefined, only the default domain (``None``) is included,
+        #: otherwise, ``None`` must be appended explicitely (usually at the end).
+        self.domains: Collection = (None,) if domains is None else domains
 
     def _from_overrides(self, key):
         return self.overrides and self._prefkey(self.overrides, key) or {}
@@ -477,7 +509,7 @@ class Autograph(Prefkey):
         renames=_unset,
         inp_sideffects=_unset,
         out_sideffects=_unset,
-        domain=None,
+        domains: Collection = None,
     ) -> FnOp:
         """
         Convert a (possibly **@autographed**) function into an graphtik **FnOperation**,
@@ -493,6 +525,9 @@ class Autograph(Prefkey):
         :param name_path:
             either a single string, or a tuple-of-strings, corresponding to
             the given `fn_path`
+        :param domains:
+            if given, overrides :attr:`domains` for :func:`.autographed` decorators
+            to search;  list-ified if a single str.
 
         Overriddes order: my-args, self.overrides, autograph-decorator, inspection
         """
@@ -505,7 +540,7 @@ class Autograph(Prefkey):
         if isinstance(fn, Operation):
             return fn
 
-        decors = get_autograph_decors(fn, {}, domain or self.domain)
+        decors = get_autograph_decors(fn, {}, domains or self.domains)
 
         ## Derive `name_path` from: my-args, decorator, fn_name
         #  and then use it to pick overrides.
