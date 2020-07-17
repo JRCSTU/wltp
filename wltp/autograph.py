@@ -11,6 +11,7 @@ Harvest functions & annotate their :term:`dependencies <dependency>` to build :t
 >>> from wltp.autograph import *
 >>> __name__ = "wltp.autograph"
 """
+import functools as fnt
 import inspect
 import logging
 import re
@@ -342,7 +343,16 @@ def autographed(
         if hasattr(fn, "_autograph"):
             fn._autograph[domain] = kws
         else:
-            fn._autograph = {domain: kws}
+            decors = {domain: kws}
+            try:
+                fn._autograph = decors
+            except TypeError as ex:
+                # Built-in?
+                log.debug(
+                    "Wrapped as partial %s to attach `autographed` attribute.", fn
+                )
+                fn = fnt.wraps(fn)(fnt.partial(fn))
+                fn._autograph = decors
 
         return fn
 
