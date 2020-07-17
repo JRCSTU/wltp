@@ -91,7 +91,7 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
 
 
 @fnt.lru_cache()
-def pmr_pipeline(**pipeline_kw) -> Pipeline:
+def pmr_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
     Pipeline to provide `p_m_ratio` (Annex 1, 2).
 
@@ -102,7 +102,7 @@ def pmr_pipeline(**pipeline_kw) -> Pipeline:
 
         >>> pipe = pmr_pipeline()
     """
-    aug = wio.make_autograph()
+    aug = aug or wio.make_autograph()
     funcs = [
         calc_unladen_mass,
         calc_mro,
@@ -113,8 +113,9 @@ def pmr_pipeline(**pipeline_kw) -> Pipeline:
 
     return pipe
 
-@fnt.lru_cache()
-def p_req_pipeline(**pipeline_kw) -> Pipeline:
+
+# @fnt.lru_cache()
+def p_req_pipeline(aug: autog.Autograph = None, domains=None, **pipeline_kw) -> Pipeline:
     """
     Pipeline to provide `V_compensated` traces (Annex 1, 9).
 
@@ -125,7 +126,7 @@ def p_req_pipeline(**pipeline_kw) -> Pipeline:
 
         >>> pipe = p_req_pipeline()
     """
-    aug = wio.make_autograph()
+    aug = aug or wio.make_autograph()
     funcs = [
         calc_p_resist,
         calc_inertial_power,

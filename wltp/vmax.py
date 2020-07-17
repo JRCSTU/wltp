@@ -36,7 +36,7 @@ from graphtik.pipeline import Pipeline
 from pandalone import mappings, pandata
 
 from . import io as wio
-from .autograph import autographed
+from . import autograph as autog
 from .invariants import v_decimals, v_step, vround
 
 log = logging.getLogger(__name__)
@@ -127,7 +127,7 @@ def _find_p_remain_root(
     return rec
 
 
-@autographed(needs=(), inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")])
+@autog.autographed(needs=(), inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")])
 def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
     """
     Finds maximum velocity by scanning gears from the top.
@@ -205,7 +205,7 @@ def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
 
 
 @fnt.lru_cache()
-def vmax_pipeline(**pipeline_kw) -> Pipeline:
+def vmax_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
     Pipeline to provide vehicle's `v_max` (Annex 2, 2.i).
 
@@ -217,7 +217,7 @@ def vmax_pipeline(**pipeline_kw) -> Pipeline:
     """
     from . import cycles, vehicle, engine
 
-    aug = wio.make_autograph()
+    aug = aug or wio.make_autograph()
     funcs = [
         engine.interpolate_wot_on_v_grid,
         engine.attach_p_avail_in_gwots,

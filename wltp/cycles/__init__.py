@@ -25,7 +25,7 @@ from toolz import itertoolz as itz
 from graphtik import compose, operation
 from graphtik.pipeline import Pipeline
 
-from ..autograph import autographed
+from .. import autograph as autog
 
 try:
     import importlib.resources as pkg_resources
@@ -246,7 +246,7 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
     return classes[class_name]
 
 
-@autographed(needs=["wltc_class_data/lengths", "wltc_class_data/V_cycle"])
+@autog.autographed(needs=["wltc_class_data/lengths", "wltc_class_data/V_cycle"])
 def get_class_phase_boundaries(
     part_lengths: tuple, V_cycle
 ) -> Tuple[Tuple[int, int], ...]:
@@ -283,9 +283,9 @@ def make_class_phases_grouper(
     """
     Return a pandas group-BY for the given `boundaries` as `VA1` phasing.
 
-    :param boundaries:
-        a list of ``[low, high)`` boundary pairs
-        (from :func:`get_class_phase_boundaries()`)
+    :param class_phase_boundaries:
+        a list of ``[low, high]`` boundary pairs
+        (from :func:`.get_class_phase_boundaries()`)
 
     Onbviously, it cannot produce overlapping split-times belonging to 2 phases.
     """
@@ -300,7 +300,7 @@ def make_class_phases_grouper(
 )
 def calc_wltc_distances(V: pd.Series, grouper) -> pd.DataFrame:
     """
-    Return a *(phase x (sum, cumsum))* matrix for the wltc-phase `boundaries` of `V`.
+    Return a *(phase x (sum, cumsum))* matrix for the v-phasing `boundaries` of `V`.
 
     :param V:
         a velocity profile with the standard WLTC length
@@ -328,7 +328,7 @@ calc_capped_distances = calc_wltc_distances.withset(
 
 
 @fnt.lru_cache()
-def v_distances_pipeline(**pipeline_kw) -> Pipeline:
+def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
     Pipeline to provide per-phase & total distances for `V_cycle`, `V_dsc`, `V_capped` & `V_compensated`.
 
@@ -340,7 +340,7 @@ def v_distances_pipeline(**pipeline_kw) -> Pipeline:
     """
     from .. import downscale, io as wio
 
-    aug = wio.make_autograph()
+    aug = aug or wio.make_autograph()
     funcs = [
         get_class_phase_boundaries,
         make_class_phases_grouper,

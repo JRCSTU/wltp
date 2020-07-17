@@ -68,6 +68,7 @@ from graphtik import compose, operation
 from graphtik.base import Operation
 from graphtik.pipeline import Pipeline
 
+from . import autograph as autog
 from . import cycler, cycles, datamodel, downscale, engine, invariants
 from . import io as wio
 from . import nmindrive, vehicle, vmax
@@ -77,7 +78,7 @@ log = logging.getLogger(__name__)
 
 
 @fnt.lru_cache()
-def scale_trace_pipeline(**pipeline_kw) -> Pipeline:
+def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
     The main pipeline:
 
@@ -102,7 +103,7 @@ def scale_trace_pipeline(**pipeline_kw) -> Pipeline:
         *downscale.compensate_capped_pipeline().ops,
         *cycles.v_distances_pipeline().ops,
     ]
-    aug = wio.make_autograph()
+    aug = aug or wio.make_autograph()
     ops = [aug.wrap_fn(fn) for fn in funcs]
     calc_v_dsc_max = operation(  # DROP: Needed?
         pd.Series.max, name="calc_max_v_dsc", needs="V_dsc", provides="v_dsc_max"

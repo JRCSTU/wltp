@@ -366,7 +366,7 @@ calc_compensated_distances = cycles.calc_wltc_distances.withset(
 
 
 @fnt.lru_cache()
-def downscale_pipeline(**pipeline_kw) -> Pipeline:
+def downscale_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
     Pipeline to provide `V_dsc` & `V_capped` traces (Annex 1, 8.2 & 8.3).
 
@@ -376,7 +376,7 @@ def downscale_pipeline(**pipeline_kw) -> Pipeline:
 
         >>> pipe = downscale_pipeline()
     """
-    aug = wio.make_autograph()
+    aug = aug or wio.make_autograph()
     funcs = [
         decide_wltc_class,
         cycles.get_wltc_class_data,
@@ -393,7 +393,7 @@ def downscale_pipeline(**pipeline_kw) -> Pipeline:
 
 
 @fnt.lru_cache()
-def compensate_capped_pipeline(**pipeline_kw) -> Pipeline:
+def compensate_capped_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
     Pipeline to provide `V_compensated` from `V_capped` trace (Annex 1, 9).
 
@@ -403,7 +403,7 @@ def compensate_capped_pipeline(**pipeline_kw) -> Pipeline:
 
         >>> pipe = compensate_capped_pipeline()
     """
-    aug = wio.make_autograph()
+    aug = aug or wio.make_autograph()
     funcs = [
         decide_wltc_class,
         cycles.get_wltc_class_data,
