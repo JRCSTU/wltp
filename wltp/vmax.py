@@ -35,9 +35,7 @@ from graphtik import compose
 from graphtik.pipeline import Pipeline
 from pandalone import mappings, pandata
 
-from . import engine
 from . import io as wio
-from . import utils, vehicle
 from .autograph import autographed
 from .invariants import v_decimals, v_step, vround
 
