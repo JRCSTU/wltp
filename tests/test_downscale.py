@@ -147,7 +147,6 @@ def test_recurse_vs_scaling(wclass):
 def test_dsc_pipelines(wltc_class):
     aug = wio.make_autograph()
     funcs = [
-        cycles.get_wltc_class_data,
         *downscale.downscale_pipeline().ops,
         *downscale.compensate_capped_pipeline().ops,
         *cycles.v_distances_pipeline().ops,

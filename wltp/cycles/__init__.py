@@ -342,6 +342,7 @@ def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
 
     aug = aug or wio.make_autograph()
     funcs = [
+        get_wltc_class_data,
         get_class_phase_boundaries,
         make_class_phases_grouper,
         calc_wltc_distances,
