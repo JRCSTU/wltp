@@ -652,100 +652,124 @@ Phases
 ------
 The problem
 ^^^^^^^^^^^
-- The GTR's velocity traces have split-time values belonging to 2 phases,
-  e.g. for *class1* these are the sample-values @ times 589 & 1022:
+1. The GTR's velocity traces have split-time values belonging to 2 phases,
+   e.g. for *class1* these are the sample-values @ times 589 & 1022:
 
-  ============  ========  ===========  ============  =========
-    *class1*     phase-1     phase-2      phase-3     *cycle*
-  ============  ========  ===========  ============  =========
-  Boundaries    [0, 589]  [589, 1022]  [1022, 1611]  [0, 1611]
-  Duration      589       433          589           1611
-  1 Hz samples  590       434          590           1612
-  ============  ========  ===========  ============  =========
+   ============  ========  ===========  ============  =========
+     *class1*     phase-1     phase-2      phase-3     *cycle*
+   ============  ========  ===========  ============  =========
+   Boundaries    [0, 589]  [589, 1022]  [1022, 1611]  [0, 1611]
+   Duration      589       433          589           1611
+   1 Hz samples  590       434          590           1612
+   ============  ========  ===========  ============  =========
 
-  Some programs and spreadsheets do not handle split-time values like that,
-  and assign them either to the earlier or the later phase, distorting thus
-  the duration & number of time samples some phases contain!
+   Some programs and spreadsheets do not handle split-time values like that,
+   and assign them either to the earlier or the later phase, distorting thus
+   the duration & number of time samples some phases contain!
 
-  For instance, Access-DB tables assign split-times on the lower parts,
-  distorting the start-times & durations for all phases except the 1st one
-  (deviations from GTR **in bold**):
+   For instance, Access-DB tables assign split-times on the lower parts,
+   distorting the start-times & durations for all phases except the 1st one
+   (deviations from GTR **in bold**):
 
-  ============  ========  ===============  ================      =========
-    *class1*    phase-1       phase-2          phase-3            *cycle*
-  ============  ========  ===============  ================      =========
-  Boundaries    [0, 589]  [**590**, 1022]  [**1023**, 1611]      [0, 1611]
-  Duration      589       **432**          **588**               1611
-  1 Hz samples  590       **433**          **589**               1612
-  ============  ========  ===============  ================      =========
+   ============  ========  ===============  ================      =========
+     *class1*    phase-1       phase-2          phase-3            *cycle*
+   ============  ========  ===============  ================      =========
+   Boundaries    [0, 589]  [**590**, 1022]  [**1023**, 1611]      [0, 1611]
+   Duration      589       **432**          **588**               1611
+   1 Hz samples  590       **433**          **589**               1612
+   ============  ========  ===============  ================      =========
 
-  .. Note::
+   .. Note::
 
-      The algorithms contained in Access DB are carefully crafted to do the right thing.
+       The algorithms contained in Access DB are carefully crafted to do the right thing.
 
-  The inverse distortion (assigning split-times on the higher parts) would preserve
-  phase starting times (hint: downscaling algorithm depends on those absolute timings
-  being precisely correct):
+   The inverse distortion (assigning split-times on the higher parts) would preserve
+   phase starting times (hint: downscaling algorithm depends on those absolute timings
+   being precisely correct):
 
-  =============  ===============  ===============  ================  =========
-    *class1*         phase-1          phase-2           phase-3       *cycle*
-  =============  ===============  ===============  ================  =========
-  Boundaries     [0, **588**]     [589, **1021**]  [1022, 1611]      [0, 1611]
-  Duration       **588**          **432**          589               1611
-  1 Hz samples   **589**          **433**          590               1612
-  =============  ===============  ===============  ================  =========
+   =============  ===============  ===============  ================  =========
+     *class1*         phase-1          phase-2           phase-3       *cycle*
+   =============  ===============  ===============  ================  =========
+   Boundaries     [0, **588**]     [589, **1021**]  [1022, 1611]      [0, 1611]
+   Duration       **588**          **432**          589               1611
+   1 Hz samples   **589**          **433**          590               1612
+   =============  ===============  ===============  ================  =========
 
-- On a related issue, GTR's formula for Acceleration (Annex 1 3.1) produces
-  **one less value** than the number of velocity samples
-  (like the majority of the distorted phases above).
-  GTR prescribes to (optionally) append and extra *A=0* sample at the end,
-  to equalize Acceleration & Velocities lengths, but that is not totally ok
-  (hint: mean Acceleration values do not add up like mean-Velocities do).
+2. On a related issue, GTR's formula for Acceleration (Annex 1 3.1) produces
+   **one less value** than the number of velocity samples
+   (like the majority of the distorted phases above).
+   GTR prescribes to (optionally) append and extra *A=0* sample at the end,
+   to equalize Acceleration & Velocities lengths, but that is not totally ok
+   (hint: mean Acceleration values do not add up like mean-Velocities do,
+   see next point 3).
 
-  Since most calculated and measured quantities (like cycle Power) are tied
-  to the acceleration, we could **refrain from adding the extra 0**, and leave
-  all phases with -1 samples, without any overlapping split-times.
+   Since most calculated and measured quantities (like cycle Power) are tied
+   to the acceleration, we could **refrain from adding the extra 0**, and leave
+   all phases with -1 samples, without any overlapping split-times.
 
-  Actually this would constitute the 2nd phasing scheme, above, with the last part equally distorted
-  by -1 @ 1610 (see *VA0* phasing in section below).
-  But in that case, the whole cycle would now have (disturbingly) -1 # of samples & duration:
+   Actually this would constitute the 2nd phasing scheme, above, with the last part equally distorted
+   by -1 @ 1610 (see *VA0* phasing in section below).
+   But in that case, the whole cycle would now have (disturbingly) -1 # of samples & duration:
 
-  =============  ===============  ===============  ================  =============
-    *class1*         phase-1          phase-2          phase-3          *cycle*
-  =============  ===============  ===============  ================  =============
-  Boundaries     [0, **588**]     [589, **1021**]  [1022, **1610**]  [0, **1610**]
-  Duration       **588**          **432**          **588**           **1610**
-  1 Hz samples   **589**          **433**          **589**           **1611**
-  =============  ===============  ===============  ================  =============
+   =============  ===============  ===============  ================  =============
+     *class1*         phase-1          phase-2          phase-3          *cycle*
+   =============  ===============  ===============  ================  =============
+   Boundaries     [0, **588**]     [589, **1021**]  [1022, **1610**]  [0, **1610**]
+   Duration       **588**          **432**          **588**           **1610**
+   1 Hz samples   **589**          **433**          **589**           **1611**
+   =============  ===============  ===============  ================  =============
 
-  A conceptual improvement is to assume that **each Acceleration-dependent sample
-  signifies a time-duration:**
+   A conceptual improvement is to assume that **each Acceleration-dependent sample
+   signifies a time-duration:**
 
-  =============  ===============  ================  =================  ==============
-    *class1*         phase-1          phase-2           phase-3           *cycle*
-  =============  ===============  ================  =================  ==============
-  Boundaries     [0, 589 **)**    [589, 1022 **)**  [1022, 1611 **)**  [0, 1611 **)**
-  Duration       589              433               589                1611
-  1 Hz samples   **589**          **433**           **589**            **1611**
-  =============  ===============  ================  =================  ==============
+   =============  ===============  ================  =================  ==============
+     *class1*         phase-1          phase-2           phase-3           *cycle*
+   =============  ===============  ================  =================  ==============
+   Boundaries     [0, 589 **)**    [589, 1022 **)**  [1022, 1611 **)**  [0, 1611 **)**
+   Duration       589              433               589                1611
+   1 Hz samples   **589**          **433**           **589**            **1611**
+   =============  ===============  ================  =================  ==============
 
-  - the duration of the final sample @ 1610 reaches up to 1611sec,
-  - all phases are symmetrically distorted,
-  - the phases are **valid for any sampling frequency (not just 1Hz)**, while
-  - doing \proper `Dijkstra counting
-    <https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html>`_
-    (notice the parenthesis signifying *open right* intervals),
-  - but still pure Velocities cannot utilize this phasing scheme, have to stick
-    to the original.
+   - the duration of the final sample @ 1610 reaches up to 1611sec,
+   - all phases are symmetrically distorted,
+   - the phases are **valid for any sampling frequency (not just 1Hz)**, while
+   - doing \proper `Dijkstra counting
+     <https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html>`_
+     (notice the parenthesis signifying *open right* intervals),
+   - but still pure Velocities cannot utilize this phasing scheme, have to stick
+     to the original.
 
-- Finally, since all phases start and end with consecutive zeros(0),
-  the deliberations above do not cause serious problems;  but at the same time,
-  discovering off-by-one errors (or shifts in time) on
-  arbitrary files containing calculated and/or measured traces is really hard:
-  SUMs & CUMSUMs do not produce any difference at all.
+3. Calculating mean values for Accelerations do not work with overlapping split-times.
 
-  The following tables and accompanying CRC functions come as an aid
-  to the problems above.
+   It's easier to demonstrate the issues with a hypothetical 4-sec cycle, 
+   composed of 2 symmetrical ramp-up/ramp-down 2-sec phases:
+
+   =====    ========    ========    =====   =========   ========    =========
+   t        V-phase1    V-phase2    V       Distance    VA-phase    A
+   [sec]                            [kmh]   [m x 3.6]               [m/sec^2]
+   =====    ========    ========    =====   =========   ========    =========
+   0        X                       0       0           1           5
+   1        X                       5       2.5         1           5
+   2        X           X           10      10          2           -5
+   3                    X           5       17.5        2           -5
+   4                    X           0       20
+   =====    ========    ========    =====   =========   ========    =========
+
+    .. Note::
+        The final *A* value has been kept blank, so that mean values per-phase
+        add up, so phases no longer overlap.
+
+    .. raw:: html
+        :file:  docs/_static/2ramps.svg
+
+4. Finally, since all phases start and end with consecutive zeros(0),
+   the deliberations above do not cause serious problems;  but at the same time,
+   discovering off-by-one errors (or shifts in time) on
+   arbitrary files containing calculated and/or measured traces is really hard:
+   SUMs & CUMSUMs do not produce any difference at all.
+
+   The following tables and accompanying CRC functions come as an aid
+   to the problems above.
 
 Phasings
 ^^^^^^^^
