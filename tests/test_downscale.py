@@ -18,6 +18,7 @@ from graphtik import compose, operation
 from wltp import cycles, datamodel, downscale
 from wltp import invariants as inv
 from wltp import io as wio
+from wltp import vehicle
 from wltp.invariants import round1
 
 from .vehdb import oneliner
@@ -36,7 +37,7 @@ def test_smoke1():
     ## Decide WLTC-class.
     #
     wltc = datamodel.get_wltc_data()
-    wltc_class = downscale.decide_wltc_class(
+    wltc_class = vehicle.decide_wltc_class(
         wltc["classes"], p_rated / test_mass, v_max
     )
     class_data = wltc["classes"][wltc_class]

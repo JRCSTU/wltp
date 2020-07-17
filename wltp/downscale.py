@@ -34,35 +34,11 @@ from . import io as wio
 log = logging.getLogger(__name__)
 
 
-@autog.autographed(needs=["wltc_data/classes", ..., ...])
-def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
-    """Vehicle classification according to Annex 1-2. """
-    c = wio.pstep_factory.get().cycle_data
-
-    class_limits = {
-        cl: (cd[c.pmr_limits], cd.get(c.velocity_limits))
-        for (cl, cd) in wltc_classes_data.items()
-    }
-
-    for (cls, ((pmr_low, pmr_high), v_limits)) in class_limits.items():
-        if pmr_low < p_m_ratio <= pmr_high and (
-            not v_limits or v_limits[0] <= v_max < v_limits[1]
-        ):
-            wltc_class = cls
-            break
-    else:
-        raise ValueError(
-            "Cannot determine wltp-class for PMR(%s)!\n  Class-limits(%s)"
-            % (p_m_ratio, class_limits)
-        )
-
-    return wltc_class
-
-
 @autog.autographed(
     needs=[
         "wltc_class_data/downscale/p_max_values",
         "wltc_class_data/downscale/factor_coeffs",
+        # TODO: autog accepts ... for all the rest needs.
         ...,
         ...,
         ...,
@@ -378,7 +354,6 @@ def downscale_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
     aug = aug or wio.make_autograph()
     funcs = [
-        decide_wltc_class,
         cycles.get_wltc_class_data,
         calc_f_dsc_raw,
         calc_f_dsc,
@@ -405,7 +380,6 @@ def compensate_capped_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pi
     """
     aug = aug or wio.make_autograph()
     funcs = [
-        decide_wltc_class,
         cycles.get_wltc_class_data,
         cycles.calc_dsc_distances,
         cycles.calc_capped_distances,

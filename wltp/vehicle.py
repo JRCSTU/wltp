@@ -13,7 +13,7 @@ formulae for cycle/vehicle dynamics
 """
 import functools as fnt
 import logging
-from typing import Union
+from typing import Mapping, Union
 
 import numpy as np
 import pandas as pd
@@ -38,6 +38,31 @@ def calc_mro(unladen_mass, driver_mass):
 
 def calc_p_m_ratio(p_rated, unladen_mass):
     return 1000 * p_rated / unladen_mass
+
+
+@autog.autographed(needs=["wltc_data/classes", ..., ...])
+def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
+    """Vehicle classification according to Annex 1-2. """
+    c = wio.pstep_factory.get().cycle_data
+
+    class_limits = {
+        cl: (cd[c.pmr_limits], cd.get(c.velocity_limits))
+        for (cl, cd) in wltc_classes_data.items()
+    }
+
+    for (cls, ((pmr_low, pmr_high), v_limits)) in class_limits.items():
+        if pmr_low < p_m_ratio <= pmr_high and (
+            not v_limits or v_limits[0] <= v_max < v_limits[1]
+        ):
+            wltc_class = cls
+            break
+    else:
+        raise ValueError(
+            "Cannot determine wltp-class for PMR(%s)!\n  Class-limits(%s)"
+            % (p_m_ratio, class_limits)
+        )
+
+    return wltc_class
 
 
 def calc_p_resist(V: Column, f0, f1, f2):
@@ -107,6 +132,7 @@ def pmr_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
         calc_unladen_mass,
         calc_mro,
         calc_p_m_ratio,
+        decide_wltc_class,
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
     pipe = compose(..., *ops, **pipeline_kw)
