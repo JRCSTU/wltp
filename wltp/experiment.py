@@ -83,7 +83,7 @@ def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
     The main pipeline:
 
     .. graphtik::
-        :height: 600
+        :height: 800
         :hide:
         :name: scale_trace_pipeline
 
@@ -94,10 +94,7 @@ def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
         >>> mdl = {"n_idle": 500, "n_rated": 3000, "p_rated": 80, "t_cold_end": 470}
     """
     funcs = [
-        cycles.get_wltc_class_data,
-        vehicle.calc_unladen_mass,
-        vehicle.calc_mro,
-        vehicle.calc_p_m_ratio,
+        *vehicle.wltc_class_pipeline().ops,
         *vmax.vmax_pipeline().ops,
         *downscale.downscale_pipeline().ops,
         *downscale.compensate_capped_pipeline().ops,
@@ -110,27 +107,6 @@ def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
     )
 
     return compose(..., *ops, calc_v_dsc_max, **pipeline_kw,)
-
-
-def create_cycle(forced_cycle: pd.DataFrame = None) -> pd.DataFrame:
-    """Gets a forced-cycle from model or creates an empty dataframe."""
-    c = wio.pstep_factory.get().cycle
-
-    if forced_cycle is None:
-        cycle = pd.DataFrame()
-    else:
-        log.info(
-            "Found forced `cycle-run` table(%ix%i).", cycle.shape[0], cycle.shape[1]
-        )
-        if not isinstance(cycle, pd.DataFrame):
-            cycle = pd.DataFrame(forced_cycle)
-
-    ## Ensure Time-steps start from 0 (not 1!).
-    #
-    cycle.reset_index()
-    cycle.index.name = c.t
-
-    return cycle
 
 
 class Experiment(object):
@@ -294,11 +270,7 @@ class Experiment(object):
                 V_dsc.name = c.V_dsc
 
                 ## VALIDATE AGAINST PIPELINE.
-                #
-                from graphtik.config import evictions_skipped
-
-                with evictions_skipped(True):
-                    V_dsc2 = scale_trace_pipeline().compute(mdl, "V_dsc")["V_dsc"]
+                V_dsc2 = scale_trace_pipeline().compute(mdl)["V_dsc"]
                 assert (V_dsc == V_dsc2).all()
 
                 # TODO: separate column due to cap/extend.
@@ -331,6 +303,14 @@ class Experiment(object):
         cb.cycle[c.p_req] = vehicle.calc_required_power(
             cb.cycle[c.p_resist], cb.cycle[c.p_inert]
         )
+
+        ## VALIDATE AGAINST PIPELINE.
+        #
+        p_req = cb.cycle[c.p_req]
+        sol = cycler.cycler_pipeline().compute({**mdl, "V_compensated": V})
+        P_req = sol["cycle"]["P_req"]
+        idx=~p_req.isnull()
+        assert (p_req[idx] == P_req[idx]).all()
 
         ## Remaining n_max values
         #

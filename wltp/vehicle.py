@@ -18,7 +18,7 @@ from typing import Mapping, Union
 import numpy as np
 import pandas as pd
 
-from graphtik import compose, operation, sfxed
+from graphtik import compose, operation
 from graphtik.pipeline import Pipeline
 
 from . import io as wio
@@ -65,11 +65,16 @@ def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
     return wltc_class
 
 
+@autog.autographed(
+    domain="cycle",
+    needs=["cycle/V", ..., ..., ...],
+    provides="cycle/P_resist",
+)
 def calc_p_resist(V: Column, f0, f1, f2):
     """
     The `p_resist` required to overcome vehicle-resistances for various velocities,
 
-    as defined in Annex 2-2.i (calculate `V_max_vehicle`).
+    as defined in Annex m-2.i (calculate `V_max_vehicle`).
     """
     VV = V * V
     VVV = VV * V
@@ -83,6 +88,9 @@ def attach_p_resist_in_gwots(gwots: pd.DataFrame, f0, f1, f2):
 
 
 @autog.autographed(provides="p_inert")
+@autog.autographed(
+    domain="cycle", needs=["cycle/V", "cycle/A", ..., ...], provides="cycle/P_inert"
+)
 def calc_inertial_power(V, A, test_mass, f_inertial):
     """
     @see: Annex 2-3.1
@@ -91,6 +99,9 @@ def calc_inertial_power(V, A, test_mass, f_inertial):
 
 
 @autog.autographed(provides="p_req")
+@autog.autographed(
+    domain="cycle", needs=["cycle/P_resist", "cycle/P_inert"], provides="cycle/P_req"
+)
 def calc_required_power(p_resist: Column, p_inert: Column) -> Column:
     """
     Equals :math:`road_loads + inertial_power`
@@ -116,16 +127,16 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
 
 
 @fnt.lru_cache()
-def pmr_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+def wltc_class_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
     Pipeline to provide `p_m_ratio` (Annex 1, 2).
 
     .. graphtik::
         :height: 600
         :hide:
-        :name: pmr_pipeline
+        :name: wltc_class_pipeline
 
-        >>> pipe = pmr_pipeline()
+        >>> pipe = wltc_class_pipeline()
     """
     aug = aug or wio.make_autograph()
     funcs = [
@@ -140,8 +151,10 @@ def pmr_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     return pipe
 
 
-# @fnt.lru_cache()
-def p_req_pipeline(aug: autog.Autograph = None, domains=None, **pipeline_kw) -> Pipeline:
+@fnt.lru_cache()
+def p_req_pipeline(
+    aug: autog.Autograph = None, domains=None, **pipeline_kw
+) -> Pipeline:
     """
     Pipeline to provide `V_compensated` traces (Annex 1, 9).
 

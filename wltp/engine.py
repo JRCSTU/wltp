@@ -19,7 +19,6 @@ from scipy import interpolate
 from .import autograph as autog
 from . import invariants as inv
 from . import io as wio
-from .nmindrive import NMinDrives
 from .invariants import Column
 
 log = logging.getLogger(__name__)

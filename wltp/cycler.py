@@ -5,21 +5,32 @@
 # Licensed under the EUPL (the 'Licence');
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
-"""code for generating the cycle"""
+"""
+code for generating the cycle
+
+.. Workaround sphinx-doc/sphinx#6590
+.. doctest::
+    :hide:
+
+    >>> from wltp.cycler import *
+    >>> __name__ = "wltp.cycler"
+"""
 import dataclasses
 import functools as fnt
 import itertools as itt
 import logging
-from typing import Iterable, List
-from typing import Sequence as Seq
-from typing import Union
+from typing import Iterable, List, Optional, Sequence, Union
 
 import numpy as np
 import pandas as pd
 from jsonschema import ValidationError
 from toolz import itertoolz as itz
 
-from . import engine
+from graphtik import compose, keyword, modify, operation, optional, sfxed, vararg
+from graphtik.fnop import Operation
+from graphtik.pipeline import Pipeline
+
+from . import autograph as autog
 from . import invariants as inv
 from . import io as wio
 from .invariants import Column
@@ -38,6 +49,9 @@ def timelens(cond, shift=1):
     return cond
 
 
+@autog.autographed(
+    needs="cycle/V", provides="cycle/A",
+)
 def calc_acceleration(V: Column) -> np.ndarray:
     """
     According to formula in Annex 2-3.1
@@ -50,7 +64,12 @@ def calc_acceleration(V: Column) -> np.ndarray:
 
     """
     A = np.diff(V) / 3.6
-    A = np.append(A, np.NAN)  # Restore element lost by diff().
+    try:
+        if len(A) < len(V):  # type: ignore
+            A = np.append(A, np.NAN)  # Restore element lost by diff().
+    except:
+        # `V` was a scalar
+        pass
     # Panda code same with the above: ``(-V.diff(-1))```
 
     return A
@@ -336,7 +355,7 @@ class CycleBuilder:
 
         self.cycle = cycle
 
-    def validate_nims_t_cold_end(self, t_cold_end: int, wltc_parts: Seq[int]):
+    def validate_nims_t_cold_end(self, t_cold_end: int, wltc_parts: Sequence[int]):
         """
         Check `t_cold_end` falls in a gap-stop within the 1st phase.
 
@@ -744,3 +763,144 @@ def fill_insufficient_power(cycle):
     ok_n = cycle.loc[:, c.ok_n]
     p_remain = cycle.loc[:, c.p_remain]
     cycle.loc[idx_miss_gear]
+
+
+#################
+## Graphtik code
+## ...
+#################
+
+
+@autog.autographed(needs=optional("cycle"))
+def get_forced_cycle(cycle: pd.DataFrame = None) -> Optional[pd.DataFrame]:
+    """Extract any forced `cycle` from model. """
+
+    c = wio.pstep_factory.get().cycle
+
+    if cycle is None or getattr(cycle, "size", 0) == 0:
+        cycle = None
+    else:
+        if not isinstance(cycle, pd.DataFrame):
+            cycle = pd.DataFrame(cycle)
+        log.info(
+            "Found forced `cycle-run` table(%ix%i).", cycle.shape[0], cycle.shape[1]
+        )
+
+        cycle.index.name = c.t
+        cycle.reset_index()  ## Ensure Time-steps start from 0 (not 1!).
+
+    return cycle
+
+
+@autog.autographed(
+    needs=[
+        vararg("wltc_class_data/V_cycle"),
+        vararg("V_dsc"),
+        vararg("V_capped"),
+        vararg("V_compensated"),
+        optional("forced_cycle"),
+    ],
+    provides=[sfxed("cycle", "init"), modify("cycle/V", implicit=1)],
+)
+def init_cycle_velocity(*velocities: pd.Series, forced_cycle=None) -> pd.DataFrame:
+    """
+    Concatenate velocities(series)/cycle(dataframe), cloning the last column as `V`.
+
+    :param forced_cycle:
+        any previous cycle data in the model
+    :param velocities:
+        one or more velocity series (properly named),
+        with the last one becoming the `V`
+
+    :return:
+        the concatenated cycle
+    """
+    if not velocities:
+        raise ValueError("Cycle needs at least one velocity to begin with!")
+
+    cycle = pd.concat(velocities, axis=1)
+    cycle["V"] = cycle.iloc[:, -1]
+
+    if forced_cycle is not None:
+        cycle = pd.concat((forced_cycle, cycle), axis=1)
+
+    return cycle
+
+
+@autog.autographed(
+    needs=[
+        sfxed("cycle", "init"),
+        "class_phase_boundaries",
+        modify("cycle/V", implicit=True),
+    ],
+    provides=sfxed("cycle", "v_phases"),
+)
+def attach_class_v_phase_markers(
+    cycle: pd.DataFrame, class_phase_boundaries: Sequence[tuple]
+) -> pd.DataFrame:
+    """
+    Append class-phase indexes as separate boolean columns, named as "phase_1", ...
+
+    :param cycle:
+        must be indexed by time
+    :param class_phase_boundaries:
+        a list of ``[low, high]`` boundary pairs
+        (from :func:`.get_class_phase_boundaries()`)
+    """
+    for n, (start, end) in enumerate(class_phase_boundaries, 1):
+        idx = (start <= cycle.index) & (cycle.index <= end)
+        cycle[f"v_phase{n}"] = idx
+
+    return cycle
+
+
+@autog.autographed(
+    needs=["cycle/V", "class_phase_boundaries"], provides="cycle/va_phases",
+)
+def calc_class_va_phase_markers(
+    time: pd.DataFrame, class_phase_boundaries: Sequence[tuple]
+) -> pd.DataFrame:
+    """
+    Append class-phase indexes as separate boolean columns, named as "phase_1", ...
+
+    :param cycle:
+        must be indexed by time
+    :param class_phase_boundaries:
+        a list of ``[low, high]`` boundary pairs
+        (from :func:`.get_class_phase_boundaries()`)
+    """
+    for n, (start, end) in enumerate(class_phase_boundaries, 1):
+        idx = (start <= time) & (time <= end)
+
+    return idx
+
+
+# @fnt.lru_cache()
+def cycler_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Main pipeline to "run" the cycle.
+
+    .. graphtik::
+        :height: 600
+        :hide:
+        :name: cycler_pipeline
+
+        >>> pipe = cycler_pipeline()
+    """
+    from . import cycles, vehicle
+
+    aug = aug or wio.make_autograph(domains=("cycle", None))
+    funcs = [
+        cycles.get_wltc_class_data,
+        get_forced_cycle,
+        init_cycle_velocity,
+        calc_acceleration,
+        cycles.get_class_phase_boundaries,
+        attach_class_v_phase_markers,
+        calc_class_va_phase_markers,
+        *vehicle.p_req_pipeline(aug).ops,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe

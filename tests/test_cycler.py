@@ -11,8 +11,10 @@ import pandas as pd
 import pytest
 from jsonschema import ValidationError
 from tests import vehdb
+from tests import goodvehicle
 
-from wltp import cycler, datamodel, engine
+from graphtik import compose, operation, sfxed
+from wltp import cycler, cycles, datamodel, engine
 from wltp import io as wio
 from wltp import vehicle
 from wltp.cycler import CycleBuilder, PhaseMarker
@@ -136,3 +138,46 @@ def test_full_build_smoketest(h5_accdb):
         diffs[c1.name] = (c1 - c2).abs()
 
     acc_cycle["P_tot"], "p_required"
+
+
+def test_cycler_pipeline():  # wltc_class):
+    wltc_class = 0
+    aug = wio.make_autograph()
+    funcs = [
+        *cycler.cycler_pipeline().ops,
+        # fake Vs
+        operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops)
+    inp = {
+        **goodvehicle.goodVehicle(),
+        "wltc_data": datamodel.get_wltc_data(),
+        "wltc_class": wltc_class,
+    }
+    datamodel.validate_model(inp)
+
+    sol = pipe.compute(inp)
+
+    exp = set(
+        "V_cycle V_cycle V A v_phase1 v_phase2 v_phase3 va_phases"
+        " P_resist P_inert P_req".split()
+    )
+    assert set(sol["cycle"].columns) == exp
+
+    steps = [getattr(n, "name", n) for n in sol.plan.steps]
+    print(steps)
+    exp = [
+        "get_wltc_class_data",
+        "get_forced_cycle",
+        "get_class_phase_boundaries",
+        "FAKE.V_dsc",
+        "init_cycle_velocity",
+        "calc_acceleration",
+        "attach_class_v_phase_markers",
+        "calc_class_va_phase_markers",
+        "calc_p_resist",
+        "calc_inertial_power",
+        "calc_required_power",
+    ]
+    assert steps == exp
