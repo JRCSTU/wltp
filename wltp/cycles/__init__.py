@@ -226,7 +226,8 @@ def identify_cycle_v(V: Iterable):
     return identify_cycle_v_crc(crc)
 
 
-def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict:
+@autog.autographed(needs=["wltc_data/classes", ...])
+def get_wltc_class_data(wltc_classes: Mapping, wltc_class: Union[str, int]) -> dict:
     """
     Fetch the wltc-data for a specific class.
 
@@ -237,13 +238,12 @@ def get_wltc_class_data(wltc_data: Mapping, wltc_class: Union[str, int]) -> dict
 
     Like :func:`.datamodel.get_class` suited for pipelines.
     """
-    classes = wltc_data["classes"]
     if isinstance(wltc_class, int):
-        class_name = list(classes.keys())[wltc_class]
+        class_name = list(wltc_classes.keys())[wltc_class]
     else:
         class_name = wltc_class
 
-    return classes[class_name]
+    return wltc_classes[class_name]
 
 
 @autog.autographed(needs=["wltc_class_data/lengths", "wltc_class_data/V_cycle"])
@@ -267,7 +267,7 @@ def get_class_phase_boundaries(
 
         >>> from wltp import datamodel, cycles
         >>> wcd = datamodel.get_wltc_data()
-        >>> cd = cycles.get_wltc_class_data(wcd, "class3b")
+        >>> cd = cycles.get_wltc_class_data(wcd["classes"], "class3b")
         >>> cycles.get_class_phase_boundaries(cd["lengths"], cd["V_cycle"])
         ((0, 589), (589, 1022), (1022, 1477), (1477, 1800))
 

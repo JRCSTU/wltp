@@ -74,7 +74,7 @@ def test_get_class_pmr_limits_with_edges():
 
 def test_get_class_phase_boundaries():
     wcd = datamodel.get_wltc_data()
-    cd = cycles.get_wltc_class_data(wcd, 3)
+    cd = cycles.get_wltc_class_data(wcd["classes"], 3)
     pmr_boundaries = cycles.get_class_phase_boundaries(cd["lengths"], cd["V_cycle"])
     assert len(pmr_boundaries) == 4
     assert pmr_boundaries[0][0] == 0
