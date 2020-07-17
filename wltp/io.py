@@ -14,6 +14,7 @@ utilities for starting-up, parsing, naming, indexing and spitting out data
 """
 import contextvars
 import dataclasses
+import functools as fnt
 import itertools as itt
 import re
 from typing import Callable, Iterable, List, Optional, Union
@@ -305,14 +306,13 @@ class GearMultiIndexer:
         """
         return len(self.gnames)
 
-def make_autograph(*args, **kw):
+
+@fnt.lru_cache()
+def make_autograph(out_patterns=None, *args, **kw):
     """Configures a new :class:`.Autograph` with func-name patterns for this project. """
     from .autograph import Autograph
 
-    prefixes = "get_ calc_ upd_ make_ create_ decide_ round_".split()
-    return Autograph(
-        [
-            *prefixes,
-            re.compile(r"\battach_(\w+)_in_(\w+)$"),
-        ], *args, **kw
-    )
+    if out_patterns is None:
+        out_patterns = "get_ calc_ upd_ make_ create_ decide_ round_ init_".split()
+        out_patterns.append(re.compile(r"\battach_(\w+)_in_(\w+)$"))
+    return Autograph(out_patterns, *args, **kw)
