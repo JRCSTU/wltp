@@ -44,7 +44,21 @@ def pytest_addoption(parser):
             "To run all vehicles, do not give any vehicle-number."
         ),
     )
+    ## Add a command line option to disable logger.
+    #  From https://stackoverflow.com/a/57002853/548792
+    parser.addoption(
+        "--logger-disabled",
+        action="append",
+        default=[],
+        help="disable specific loggers",
+    )
 
+
+def pytest_configure(config):
+    """Disable the loggers from CLI and silence sphinx markers warns."""
+    for name in config.getoption("--logger-disabled", default=[]):
+        logger = logging.getLogger(name)
+        logger.propagate = False
 
 @pytest.fixture
 def h5_write(request) -> bool:
