@@ -137,50 +137,25 @@ class FnHarvester(Prefkey):
     **Example:**
 
         >>> from wltp import cycler, downscale, engine, vehicle, vmax
-        >>> from wltp.autograph import _is_in_my_project
 
-        >>> modules = (cycler, downscale, engine, vehicle, vmax)
+        >>> modules = ('sys', 'os')
         >>> funcs = FnHarvester(
+        ...     base_modules=modules,
         ...     include_methods=False,
-        ...     predicate=_is_in_my_project
-        ... ).harvest(*modules)
-        >>> len(funcs) > 60
-        True
-        >>> sorted(list(zip(*funcs))[0])
-        [('wltp.cycler', 'CycleBuilder'),
-        ('wltp.cycler', 'NMinDrives'),
-        ('wltp.cycler', 'PhaseMarker'),
-        ...
-
-        >>> excludes = "utils io invariant cycles datamodel idgears plots".split()
-        >>> excludes = (
-        ...     "utils wio inv cycles datamodel idgears plots "
-        ...     "GearMultiIndexer VMaxRec "
-        ...     "timelens "
-        ... ).split()
-        >>> funcs = FnHarvester(
-        ...     include_methods=True,
-        ...     excludes=(excludes),
-        ...     base_modules=modules
         ... ).harvest()
-        >>> len(funcs) > 30
+        >>> len(funcs) > 50
         True
-        >>> sorted(list(zip(*funcs))[0])
-        [('wltp.cycler', 'CycleBuilder'),
-        ('wltp.cycler', 'CycleBuilder', 'add_columns'),
+        >>> funcs
+        [(('sys', 'addaudithook'), (<module 'sys' (built-in)>,
         ...
-        ('wltp.vmax', 'calc_v_max'), ('wltp.vmax', 'vmax_pipeline')]
 
-    Use this pattern whe iterating, to account for any :term:`operation` instances:
+    Use this pattern when iterating, to account for any :term:`operation` instances:
 
-        >>> funs = [
+        >>> funcs = [
         ...         (name, fn if isinstance(fn, Operation) else fn)
         ...         for name, fn
         ...         in funcs
         ...        ]
-        >>> funs
-        [(('wltp.cycler', 'CycleBuilder'),
-        ...
 
     """
 
