@@ -83,6 +83,7 @@ def yield_rst_only_markup(lines):
         (r"\.\. doctest",           r"code-block"),
         (r"\.\. module",            r"code-block"),
         (r"\.\. currentmodule::",   r"currentmodule:"),
+        (r"\.\. raw::",            r".. raw:"),
         (r"\.\. plot::",            r".. plot:"),
         (r"\.\. seealso",           r"info"),
         (r"\.\. glossary",          r"rubric"),
