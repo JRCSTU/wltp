@@ -150,7 +150,7 @@ class FnHarvester(Prefkey):
 
         >>> from wltp import cycler, downscale, engine, vehicle, vmax
 
-        >>> modules = ('sys', 'os')
+        >>> modules = ('os', 'sys')
         >>> funcs = FnHarvester(
         ...     base_modules=modules,
         ...     include_methods=False,
@@ -158,7 +158,7 @@ class FnHarvester(Prefkey):
         >>> len(funcs) > 50
         True
         >>> funcs
-        [(('sys', 'addaudithook'), (<module 'sys' (built-in)>,
+        [(('os', 'PathLike'),
         ...
 
     Use this pattern when iterating, to account for any :term:`operation` instances:
