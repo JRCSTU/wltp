@@ -22,7 +22,7 @@ class MidPointNorm(Normalize):
     """
     A "diverging" or "bipolar" Normalize for Colormaps on a central-point, with values going up or down.
 
-    Example:
+    Example::
 
         norm = MidPointNorm(midpoint=3)
         imshow(X, norm=norm)
