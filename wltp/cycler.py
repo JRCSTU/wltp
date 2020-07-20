@@ -800,7 +800,11 @@ def get_forced_cycle(cycle: pd.DataFrame = None) -> Optional[pd.DataFrame]:
         vararg("V_compensated"),
         optional("forced_cycle"),
     ],
-    provides=[sfxed("cycle", "init"), modify("cycle/V", implicit=1)],
+    provides=[
+        sfxed("cycle", "init"),
+        modify("cycle/V", implicit=1),
+        modify("cycle/index", implicit=1),
+    ],
 )
 def init_cycle_velocity(*velocities: pd.Series, forced_cycle=None) -> pd.DataFrame:
     """
@@ -855,7 +859,8 @@ def attach_class_v_phase_markers(
 
 
 @autog.autographed(
-    needs=["cycle/V", "class_phase_boundaries"], provides="cycle/va_phases",
+    needs=["cycle/index", "class_phase_boundaries", sfxed("cycle", "init", implicit=1)],
+    provides="cycle/va_phases",
 )
 def calc_class_va_phase_markers(
     time: pd.DataFrame, class_phase_boundaries: Sequence[tuple]
