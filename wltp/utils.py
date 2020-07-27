@@ -255,6 +255,7 @@ def pwd_changed(path: os.PathLike):
     finally:
         os.chdir(prev_cwd)
 
+
 @contextlib.contextmanager
 def matlab_pwd_changed(path: os.PathLike, oc: "oct2py.octave"):  # type: ignore
     """

@@ -309,7 +309,7 @@ class Experiment(object):
         p_req = cb.cycle[c.p_req]
         sol = pipelines.cycler_pipeline().compute({**mdl, "V_compensated": V})
         P_req = sol["cycle"]["P_req"]
-        idx=~p_req.isnull()
+        idx = ~p_req.isnull()
         assert (p_req[idx] == P_req[idx]).all()
 
         ## Remaining n_max values

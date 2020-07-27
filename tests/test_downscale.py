@@ -37,9 +37,7 @@ def test_smoke1():
     ## Decide WLTC-class.
     #
     wltc = datamodel.get_wltc_data()
-    wltc_class = vehicle.decide_wltc_class(
-        wltc["classes"], p_rated / test_mass, v_max
-    )
+    wltc_class = vehicle.decide_wltc_class(wltc["classes"], p_rated / test_mass, v_max)
     class_data = wltc["classes"][wltc_class]
     V = pd.Series(class_data["V_cycle"])
 
@@ -183,10 +181,13 @@ def test_dsc_pipelines(wltc_class):
         [11988.4, 29146.9, 41135.3],
         [11162.2, 28209.7, 51666.1, 70103.2],
         [11140.3, 28110.5, 50564.1, 69069.5],
-        [11140.3, 28241.0, 50779.8, 69285.2]
+        [11140.3, 28241.0, 50779.8, 69285.2],
     ]
     compensated_distances = sol["compensated_distances"]
-    assert (inv.vround(compensated_distances['cumsum']) == exp_compensated_distances[wltc_class]).all()
+    assert (
+        inv.vround(compensated_distances["cumsum"])
+        == exp_compensated_distances[wltc_class]
+    ).all()
 
     ## No CAPPING
 
@@ -201,4 +202,4 @@ def test_dsc_pipelines(wltc_class):
     regular_phases = sol["class_phase_boundaries"]
     V_compensated = sol["V_compensated"]
     assert regular_phases[-1][-1] == V_compensated.index[-1]
-    assert (sol["V_dsc"].sum() == sol["V_compensated"].sum())
+    assert sol["V_dsc"].sum() == sol["V_compensated"].sum()

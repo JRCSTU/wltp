@@ -879,7 +879,8 @@ def calc_class_va_phase_markers(
 
 
 @autog.autographed(
-    needs=[sfxed("cycle", "v_phases"), "cycle/V", ...], provides=[sfxed("cycle", "gwots")]
+    needs=[sfxed("cycle", "v_phases"), "cycle/V", ...],
+    provides=[sfxed("cycle", "gwots")],
 )
 def attach_wots(
     cycle: pd.DataFrame, V: pd.Series, gwots: pd.DataFrame, gidx: wio.GearMultiIndexer
