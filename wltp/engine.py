@@ -6,6 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """formulae for engine power & revolutions and gear-box"""
+import functools as fnt
 import logging
 from collections import namedtuple
 from collections.abc import Mapping
@@ -16,7 +17,10 @@ import pandas as pd
 from jsonschema import ValidationError
 from scipy import interpolate
 
-from .import autograph as autog
+from graphtik import compose
+from graphtik.pipeline import Pipeline
+
+from . import autograph as autog
 from . import invariants as inv
 from . import io as wio
 from .invariants import Column
@@ -436,3 +440,28 @@ def calc_n_max(n_max1, n_max2, n_max3):
     assert np.isfinite(n_max), ("All `n_max` are NANs?", n_max1, n_max2, n_max3, n_max)
 
     return n_max
+
+
+@fnt.lru_cache()
+def gwots_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `P_avail` for each gear (Annex 2, 3.4).
+
+    .. graphtik::
+        :hide:
+        :name: gwots_pipeline
+
+        >>> pipe = gwots_pipeline()
+    """
+    from . import vehicle
+
+    aug = aug or wio.make_autograph()
+    funcs = [
+        interpolate_wot_on_v_grid,
+        attach_p_avail_in_gwots,
+        vehicle.attach_p_resist_in_gwots,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe

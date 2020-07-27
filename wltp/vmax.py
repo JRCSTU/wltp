@@ -215,13 +215,11 @@ def vmax_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
 
         >>> pipe = vmax_pipeline()
     """
-    from . import cycles, vehicle, engine
+    from . import cycles, engine
 
     aug = aug or wio.make_autograph()
     funcs = [
-        engine.interpolate_wot_on_v_grid,
-        engine.attach_p_avail_in_gwots,
-        vehicle.attach_p_resist_in_gwots,
+        *engine.gwots_pipeline().ops,
         calc_v_max,
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
