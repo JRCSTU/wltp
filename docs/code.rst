@@ -101,7 +101,9 @@ Module: :mod:`wltp.cli`
 
 Module: :mod:`wltp.plots`
 -------------------------
-.. automodule:: wltp.plots
+(docs disabled, breaks travis)
+
+.. .. automodule:: wltp.plots
     :members:
 
 Module: :mod:`wltp.idgears`
