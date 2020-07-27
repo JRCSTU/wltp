@@ -323,17 +323,3 @@ def make_compensated_phase_boundaries(
             class_phase_boundaries, extra_t.shift(0, fill_value=0), extra_t
         )
     ]
-
-
-make_compensated_phases_grouper = operation(
-    cycles.make_class_phases_grouper,
-    name="make_compensated_phases_grouper",
-    needs="compensated_phase_boundaries",
-    provides="compensated_phases_grouper",
-)
-
-calc_compensated_distances = cycles.calc_wltc_distances.withset(
-    name="calc_compensated_distances",
-    needs=["V_compensated", "compensated_phases_grouper"],
-    provides="compensated_distances",
-)

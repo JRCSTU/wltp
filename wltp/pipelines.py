@@ -26,6 +26,37 @@ from . import io as wio
 from . import vehicle, vmax
 
 
+calc_wltc_distances = operation(
+    cycles.calc_wltc_distances,
+    needs=["wltc_class_data/V_cycle", "class_phases_grouper"],
+    provides="wltc_distances",
+)
+calc_dsc_distances = calc_wltc_distances.withset(
+    name="calc_dsc_distances",
+    needs=["V_dsc", "class_phases_grouper"],
+    provides="dsc_distances",
+)
+calc_capped_distances = calc_wltc_distances.withset(
+    name="calc_capped_distances",
+    needs=["V_capped", "class_phases_grouper"],
+    provides="capped_distances",
+)
+
+calc_compensated_distances = calc_wltc_distances.withset(
+    name="calc_compensated_distances",
+    needs=["V_compensated", "compensated_phases_grouper"],
+    provides="compensated_distances",
+)
+
+
+make_compensated_phases_grouper = operation(
+    cycles.make_class_phases_grouper,
+    name="make_compensated_phases_grouper",
+    needs="compensated_phase_boundaries",
+    provides="compensated_phases_grouper",
+)
+
+
 @fnt.lru_cache()
 def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
@@ -42,12 +73,12 @@ def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
         cycles.get_wltc_class_data,
         cycles.get_class_phase_boundaries,
         cycles.make_class_phases_grouper,
-        cycles.calc_wltc_distances,
-        cycles.calc_dsc_distances,
-        cycles.calc_capped_distances,
+        calc_wltc_distances,
+        calc_dsc_distances,
+        calc_capped_distances,
         downscale.make_compensated_phase_boundaries,
-        downscale.make_compensated_phases_grouper,
-        downscale.calc_compensated_distances,
+        make_compensated_phases_grouper,
+        calc_compensated_distances,
     ]
 
     ops = [aug.wrap_fn(fn) for fn in funcs]
@@ -192,8 +223,8 @@ def compensate_capped_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pi
     aug = aug or wio.make_autograph()
     funcs = [
         cycles.get_wltc_class_data,
-        cycles.calc_dsc_distances,
-        cycles.calc_capped_distances,
+        calc_dsc_distances,
+        calc_capped_distances,
         cycles.get_class_phase_boundaries,
         cycles.make_class_phases_grouper,
         downscale.calc_V_capped,

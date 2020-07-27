@@ -1,9 +1,9 @@
-from wltp import autograph, cycles
+from wltp import autograph, cycles, pipelines
 
 
 def test_preserve_ops():
     aug = autograph.Autograph()
-    op = cycles.calc_wltc_distances
+    op = pipelines.calc_wltc_distances
     got = aug.wrap_fn(op)
     assert got == op
     assert got.needs == op.needs

@@ -294,10 +294,6 @@ def make_class_phases_grouper(
     return pd.cut(range(t_max + 1), part_intervals)
 
 
-@operation(
-    needs=["wltc_class_data/V_cycle", "class_phases_grouper"],
-    provides="wltc_distances",
-)
 def calc_wltc_distances(V: pd.Series, grouper) -> pd.DataFrame:
     """
     Return a *(phase x (sum, cumsum))* matrix for the v-phasing `boundaries` of `V`.
@@ -313,15 +309,3 @@ def calc_wltc_distances(V: pd.Series, grouper) -> pd.DataFrame:
     sums.name = f"{V.name}_sums"
 
     return sums
-
-
-calc_dsc_distances = calc_wltc_distances.withset(
-    name="calc_dsc_distances",
-    needs=["V_dsc", "class_phases_grouper"],
-    provides="dsc_distances",
-)
-calc_capped_distances = calc_wltc_distances.withset(
-    name="calc_capped_distances",
-    needs=["V_capped", "class_phases_grouper"],
-    provides="capped_distances",
-)
