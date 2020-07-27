@@ -14,6 +14,7 @@ import pandas as pd
 from graphtik import compose, operation
 from wltp import cycles, datamodel
 from wltp import io as wio
+from wltp import pipelines
 from wltp.experiment import Experiment
 
 from .goodvehicle import goodVehicle
@@ -86,7 +87,7 @@ def test_get_class_phase_boundaries():
 def test_v_distances_pipeline(wltc_class):
     aug = wio.make_autograph()
     funcs = [
-        *cycles.v_distances_pipeline().ops,
+        *pipelines.v_distances_pipeline().ops,
         # fake dsc & cap
         operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
         operation(None, "FAKE.V_cap", "wltc_class_data/V_cycle", "V_capped"),

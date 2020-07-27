@@ -20,7 +20,7 @@ from graphtik import compose, operation
 
 from wltp import downscale, engine
 from wltp import io as wio
-from wltp import vehicle, vmax
+from wltp import pipelines, vehicle, vmax
 
 from . import vehdb
 
@@ -36,7 +36,7 @@ def _calc_v_max_manual(props, wot, n2vs):
 
 
 def _calc_v_max_pipelined(props, wot, n2vs):
-    pipe = vmax.vmax_pipeline()
+    pipe = pipelines.vmax_pipeline()
     return pipe(
         wot=wot, n2v_ratios=n2vs, SM=0.1, f0=props.f0, f1=props.f1, f2=props.f2
     )["v_max"]

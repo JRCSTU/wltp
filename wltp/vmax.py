@@ -23,21 +23,16 @@ The `v_max` is found by the maximum gear where `p_avail_stable` intersects `p_re
     >>> from wltp.vmax import *
     >>> __name__ = "wltp.vmax"
 """
-import functools as fnt
 import logging
 from collections import namedtuple
-from typing import List, Union
+from typing import Union
 
 import numpy as np
 import pandas as pd
 
-from graphtik import compose
-from graphtik.pipeline import Pipeline
-from pandalone import mappings, pandata
-
-from . import io as wio
 from . import autograph as autog
-from .invariants import v_decimals, v_step, vround
+from . import io as wio
+from .invariants import v_step, vround
 
 log = logging.getLogger(__name__)
 
@@ -127,7 +122,9 @@ def _find_p_remain_root(
     return rec
 
 
-@autog.autographed(needs=(), inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")])
+@autog.autographed(
+    needs=(), inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")]
+)
 def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
     """
     Finds maximum velocity by scanning gears from the top.
@@ -202,27 +199,3 @@ def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
 
     gear_wots_df = _package_wots_df(all_recs)
     return ok_rec._replace(wot=gear_wots_df)
-
-
-@fnt.lru_cache()
-def vmax_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
-    """
-    Pipeline to provide vehicle's `v_max` (Annex 2, 2.i).
-
-    .. graphtik::
-        :hide:
-        :name: vmax_pipeline
-
-        >>> pipe = vmax_pipeline()
-    """
-    from . import cycles, engine
-
-    aug = aug or wio.make_autograph()
-    funcs = [
-        *engine.gwots_pipeline().ops,
-        calc_v_max,
-    ]
-    ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose(..., *ops, **pipeline_kw)
-
-    return pipe

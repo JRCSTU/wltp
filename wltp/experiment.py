@@ -55,58 +55,18 @@ _GEARS_YES:  boolean (#gears X #cycle_steps)
     >>> __name__ = "wltp.experiment"
 """
 
-import functools as fnt
 import logging
 import re
-import sys
-from typing import Union
 
 import numpy as np
 import pandas as pd
 
-from graphtik import compose, operation
-from graphtik.base import Operation
-from graphtik.pipeline import Pipeline
-
-from . import autograph as autog
-from . import cycler, cycles, datamodel, downscale, engine, invariants, pipelines
+from . import cycler, cycles, datamodel, downscale, engine, invariants
 from . import io as wio
-from . import nmindrive, vehicle, vmax
+from . import nmindrive, pipelines, vehicle, vmax
 from .invariants import v_decimals, vround
 
 log = logging.getLogger(__name__)
-
-
-@fnt.lru_cache()
-def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
-    """
-    The main pipeline:
-
-    .. graphtik::
-        :height: 800
-        :hide:
-        :name: scale_trace_pipeline
-
-        >>> netop = scale_trace_pipeline()
-
-    **Example:**
-
-        >>> mdl = {"n_idle": 500, "n_rated": 3000, "p_rated": 80, "t_cold_end": 470}
-    """
-    funcs = [
-        *vehicle.wltc_class_pipeline().ops,
-        *vmax.vmax_pipeline().ops,
-        *downscale.downscale_pipeline().ops,
-        *downscale.compensate_capped_pipeline().ops,
-        *cycles.v_distances_pipeline().ops,
-    ]
-    aug = aug or wio.make_autograph()
-    ops = [aug.wrap_fn(fn) for fn in funcs]
-    calc_v_dsc_max = operation(  # DROP: Needed?
-        pd.Series.max, name="calc_max_v_dsc", needs="V_dsc", provides="v_dsc_max"
-    )
-
-    return compose(..., *ops, calc_v_dsc_max, **pipeline_kw,)
 
 
 class Experiment(object):
@@ -270,7 +230,7 @@ class Experiment(object):
                 V_dsc.name = c.V_dsc
 
                 ## VALIDATE AGAINST PIPELINE.
-                V_dsc2 = scale_trace_pipeline().compute(mdl)["V_dsc"]
+                V_dsc2 = pipelines.scale_trace_pipeline().compute(mdl)["V_dsc"]
                 assert (V_dsc == V_dsc2).all()
 
                 # TODO: separate column due to cap/extend.

@@ -325,35 +325,3 @@ calc_capped_distances = calc_wltc_distances.withset(
     needs=["V_capped", "class_phases_grouper"],
     provides="capped_distances",
 )
-
-
-@fnt.lru_cache()
-def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
-    """
-    Pipeline to provide per-phase & total distances for `V_cycle`, `V_dsc`, `V_capped` & `V_compensated`.
-
-    .. graphtik::
-        :hide:
-        :name: v_distances_pipeline
-
-        >>> pipe = v_distances_pipeline()
-    """
-    from .. import downscale, io as wio
-
-    aug = aug or wio.make_autograph()
-    funcs = [
-        get_wltc_class_data,
-        get_class_phase_boundaries,
-        make_class_phases_grouper,
-        calc_wltc_distances,
-        calc_dsc_distances,
-        calc_capped_distances,
-        downscale.make_compensated_phase_boundaries,
-        downscale.make_compensated_phases_grouper,
-        downscale.calc_compensated_distances,
-    ]
-
-    ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose(..., *ops, **pipeline_kw)
-
-    return pipe

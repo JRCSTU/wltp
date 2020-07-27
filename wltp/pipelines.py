@@ -6,21 +6,235 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 """
-code for generating the cycle
+All :term:`pipeline` definitions for running the WLTP gear-shifting algorithm
 
 .. Workaround sphinx-doc/sphinx#6590
 .. doctest::
     :hide:
 
-    >>> from wltp.cycler import *
-    >>> __name__ = "wltp.cycler"
+    >>> from wltp.pipelines import *
+    >>> __name__ = "wltp.pipelines"
 """
 import functools as fnt
+
 from graphtik import compose, keyword, modify, operation, optional, sfxed, vararg
 from graphtik.pipeline import Pipeline
 
 from . import autograph as autog
+from . import cycler, cycles, downscale, engine
 from . import io as wio
+from . import vehicle, vmax
+
+
+@fnt.lru_cache()
+def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide per-phase & total distances for `V_cycle`, `V_dsc`, `V_capped` & `V_compensated`.
+
+    .. graphtik::
+        :hide:
+        :name: v_distances_pipeline
+
+        >>> pipe = v_distances_pipeline()
+    """
+    aug = aug or wio.make_autograph()
+    funcs = [
+        cycles.get_wltc_class_data,
+        cycles.get_class_phase_boundaries,
+        cycles.make_class_phases_grouper,
+        cycles.calc_wltc_distances,
+        cycles.calc_dsc_distances,
+        cycles.calc_capped_distances,
+        downscale.make_compensated_phase_boundaries,
+        downscale.make_compensated_phases_grouper,
+        downscale.calc_compensated_distances,
+    ]
+
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+
+@fnt.lru_cache()
+def wltc_class_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `p_m_ratio` (Annex 1, 2).
+
+    .. graphtik::
+        :height: 600
+        :hide:
+        :name: wltc_class_pipeline
+
+        >>> pipe = wltc_class_pipeline()
+    """
+    aug = aug or wio.make_autograph()
+    funcs = [
+        vehicle.calc_unladen_mass,
+        vehicle.calc_mro,
+        vehicle.calc_p_m_ratio,
+        vehicle.decide_wltc_class,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+
+@fnt.lru_cache()
+def p_req_pipeline(
+    aug: autog.Autograph = None, domains=None, **pipeline_kw
+) -> Pipeline:
+    """
+    Pipeline to provide `V_compensated` traces (Annex 1, 9).
+
+    .. graphtik::
+        :height: 600
+        :hide:
+        :name: p_req_pipeline
+
+        >>> pipe = p_req_pipeline()
+    """
+    aug = aug or wio.make_autograph()
+    funcs = [
+        vehicle.calc_p_resist,
+        vehicle.calc_inertial_power,
+        vehicle.calc_required_power,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+
+@fnt.lru_cache()
+def gwots_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `P_avail` for each gear (Annex 2, 3.4).
+
+    .. graphtik::
+        :hide:
+        :name: gwots_pipeline
+
+        >>> pipe = gwots_pipeline()
+    """
+    aug = aug or wio.make_autograph()
+    funcs = [
+        engine.interpolate_wot_on_v_grid,
+        engine.attach_p_avail_in_gwots,
+        vehicle.attach_p_resist_in_gwots,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+
+@fnt.lru_cache()
+def vmax_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide vehicle's `v_max` (Annex 2, 2.i).
+
+    .. graphtik::
+        :hide:
+        :name: vmax_pipeline
+
+        >>> pipe = vmax_pipeline()
+    """
+    aug = aug or wio.make_autograph()
+    funcs = [
+        *gwots_pipeline().ops,
+        vmax.calc_v_max,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+
+@fnt.lru_cache()
+def downscale_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `V_dsc` & `V_capped` traces (Annex 1, 8.2 & 8.3).
+
+    .. graphtik::
+        :hide:
+        :name: downscale_pipeline
+
+        >>> pipe = downscale_pipeline()
+    """
+    aug = aug or wio.make_autograph()
+    funcs = [
+        cycles.get_wltc_class_data,
+        downscale.calc_f_dsc_raw,
+        downscale.calc_f_dsc,
+        downscale.calc_V_dsc_raw,
+        downscale.round_calc_V_dsc,
+        downscale.calc_V_capped,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+
+@fnt.lru_cache()
+def compensate_capped_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `V_compensated` from `V_capped` trace (Annex 1, 9).
+
+    .. graphtik::
+        :hide:
+        :name: compensate_capped_pipeline
+
+        >>> pipe = compensate_capped_pipeline()
+    """
+    aug = aug or wio.make_autograph()
+    funcs = [
+        cycles.get_wltc_class_data,
+        cycles.calc_dsc_distances,
+        cycles.calc_capped_distances,
+        cycles.get_class_phase_boundaries,
+        cycles.make_class_phases_grouper,
+        downscale.calc_V_capped,
+        downscale.calc_compensate_phases_t_extra_raw,
+        downscale.round_compensate_phases_t_extra,
+        downscale.calc_V_compensated,
+    ]
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+
+@fnt.lru_cache()
+def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Main pipeline to scale the Velocity trace:
+
+    .. graphtik::
+        :height: 800
+        :hide:
+        :name: scale_trace_pipeline
+
+        >>> netop = scale_trace_pipeline()
+
+    **Example:**
+
+        >>> mdl = {"n_idle": 500, "n_rated": 3000, "p_rated": 80, "t_cold_end": 470}
+    """
+    funcs = [
+        *wltc_class_pipeline().ops,
+        *vmax_pipeline().ops,
+        *downscale_pipeline().ops,
+        *compensate_capped_pipeline().ops,
+        *v_distances_pipeline().ops,
+    ]
+    aug = aug or wio.make_autograph()
+    ops = [aug.wrap_fn(fn) for fn in funcs]
+    pipe = compose(..., *ops, **pipeline_kw,)
+
+    return pipe
 
 
 @fnt.lru_cache()
@@ -35,8 +249,6 @@ def cycler_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
 
         >>> pipe = cycler_pipeline()
     """
-    from . import cycler, cycles, vehicle
-
     aug = aug or wio.make_autograph(domains=("cycle", None))
     funcs = [
         cycles.get_wltc_class_data,
@@ -46,7 +258,9 @@ def cycler_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
         cycles.get_class_phase_boundaries,
         cycler.attach_class_v_phase_markers,
         cycler.calc_class_va_phase_markers,
-        *vehicle.p_req_pipeline(aug).ops,
+        *p_req_pipeline(aug).ops,
+        # wio.GearMultiIndexer.from_df,
+        # attach_wots,
     ]
     ops = [aug.wrap_fn(fn) for fn in funcs]
     pipe = compose(..., *ops, **pipeline_kw)

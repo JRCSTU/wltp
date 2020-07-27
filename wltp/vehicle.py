@@ -11,18 +11,13 @@ formulae for cycle/vehicle dynamics
 >>> from wltp.vehicle import *
 >>> __name__ = "wltp.vehicle"
 """
-import functools as fnt
 import logging
-from typing import Mapping, Union
+from typing import Mapping
 
-import numpy as np
 import pandas as pd
 
-from graphtik import compose, operation
-from graphtik.pipeline import Pipeline
-
-from . import io as wio
 from . import autograph as autog
+from . import io as wio
 from .invariants import Column
 
 log = logging.getLogger(__name__)
@@ -66,9 +61,7 @@ def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
 
 
 @autog.autographed(
-    domain="cycle",
-    needs=["cycle/V", ..., ..., ...],
-    provides="cycle/P_resist",
+    domain="cycle", needs=["cycle/V", ..., ..., ...], provides="cycle/P_resist",
 )
 def calc_p_resist(V: Column, f0, f1, f2):
     """
@@ -124,54 +117,3 @@ def calc_default_resistance_coeffs(test_mass, regression_curves):
     f2 = a[2][0] * test_mass + a[2][1]
 
     return (f0, f1, f2)
-
-
-@fnt.lru_cache()
-def wltc_class_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
-    """
-    Pipeline to provide `p_m_ratio` (Annex 1, 2).
-
-    .. graphtik::
-        :height: 600
-        :hide:
-        :name: wltc_class_pipeline
-
-        >>> pipe = wltc_class_pipeline()
-    """
-    aug = aug or wio.make_autograph()
-    funcs = [
-        calc_unladen_mass,
-        calc_mro,
-        calc_p_m_ratio,
-        decide_wltc_class,
-    ]
-    ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose(..., *ops, **pipeline_kw)
-
-    return pipe
-
-
-@fnt.lru_cache()
-def p_req_pipeline(
-    aug: autog.Autograph = None, domains=None, **pipeline_kw
-) -> Pipeline:
-    """
-    Pipeline to provide `V_compensated` traces (Annex 1, 9).
-
-    .. graphtik::
-        :height: 600
-        :hide:
-        :name: p_req_pipeline
-
-        >>> pipe = p_req_pipeline()
-    """
-    aug = aug or wio.make_autograph()
-    funcs = [
-        calc_p_resist,
-        calc_inertial_power,
-        calc_required_power,
-    ]
-    ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose(..., *ops, **pipeline_kw)
-
-    return pipe

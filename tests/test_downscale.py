@@ -15,10 +15,10 @@ import pandas as pd
 import pytest
 
 from graphtik import compose, operation
-from wltp import cycles, datamodel, downscale
+from wltp import datamodel, downscale
 from wltp import invariants as inv
 from wltp import io as wio
-from wltp import vehicle
+from wltp import pipelines, vehicle
 from wltp.invariants import round1
 
 from .vehdb import oneliner
@@ -145,9 +145,9 @@ def test_recurse_vs_scaling(wclass):
 def test_dsc_pipelines(wltc_class):
     aug = wio.make_autograph()
     funcs = [
-        *downscale.downscale_pipeline().ops,
-        *downscale.compensate_capped_pipeline().ops,
-        *cycles.v_distances_pipeline().ops,
+        *pipelines.downscale_pipeline().ops,
+        *pipelines.compensate_capped_pipeline().ops,
+        *pipelines.v_distances_pipeline().ops,
         # fake dsc & cap
         operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
     ]

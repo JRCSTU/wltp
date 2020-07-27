@@ -15,16 +15,14 @@ formulae downscaling cycles based on pmr/test_mass ratio
     >>> from wltp.downscale import *
     >>> __name__ = "wltp.downscale"
 """
-import functools as fnt
 import logging
-from typing import List, Mapping, Optional, Tuple
+from typing import List, Optional, Tuple
 
 import boltons.iterutils as itb
 import numpy as np
 import pandas as pd
 
-from graphtik import compose, operation
-from graphtik.pipeline import Pipeline
+from graphtik import operation
 
 from . import autograph as autog
 from . import cycles
@@ -339,58 +337,3 @@ calc_compensated_distances = cycles.calc_wltc_distances.withset(
     needs=["V_compensated", "compensated_phases_grouper"],
     provides="compensated_distances",
 )
-
-
-@fnt.lru_cache()
-def downscale_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
-    """
-    Pipeline to provide `V_dsc` & `V_capped` traces (Annex 1, 8.2 & 8.3).
-
-    .. graphtik::
-        :hide:
-        :name: downscale_pipeline
-
-        >>> pipe = downscale_pipeline()
-    """
-    aug = aug or wio.make_autograph()
-    funcs = [
-        cycles.get_wltc_class_data,
-        calc_f_dsc_raw,
-        calc_f_dsc,
-        calc_V_dsc_raw,
-        round_calc_V_dsc,
-        calc_V_capped,
-    ]
-    ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose(..., *ops, **pipeline_kw)
-
-    return pipe
-
-
-@fnt.lru_cache()
-def compensate_capped_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
-    """
-    Pipeline to provide `V_compensated` from `V_capped` trace (Annex 1, 9).
-
-    .. graphtik::
-        :hide:
-        :name: compensate_capped_pipeline
-
-        >>> pipe = compensate_capped_pipeline()
-    """
-    aug = aug or wio.make_autograph()
-    funcs = [
-        cycles.get_wltc_class_data,
-        cycles.calc_dsc_distances,
-        cycles.calc_capped_distances,
-        cycles.get_class_phase_boundaries,
-        cycles.make_class_phases_grouper,
-        calc_V_capped,
-        calc_compensate_phases_t_extra_raw,
-        round_compensate_phases_t_extra,
-        calc_V_compensated,
-    ]
-    ops = [aug.wrap_fn(fn) for fn in funcs]
-    pipe = compose(..., *ops, **pipeline_kw)
-
-    return pipe
