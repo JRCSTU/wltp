@@ -10,13 +10,12 @@ import itertools as itt
 import pandas as pd
 import pytest
 from jsonschema import ValidationError
-from tests import vehdb
-from tests import goodvehicle
+from tests import goodvehicle, vehdb
 
 from graphtik import compose, operation, sfxed
 from wltp import cycler, cycles, datamodel, engine
 from wltp import io as wio
-from wltp import vehicle
+from wltp import pipelines, vehicle
 from wltp.cycler import CycleBuilder, PhaseMarker
 
 
@@ -144,7 +143,7 @@ def test_cycler_pipeline():  # wltc_class):
     wltc_class = 0
     aug = wio.make_autograph()
     funcs = [
-        *cycler.cycler_pipeline().ops,
+        *pipelines.cycler_pipeline().ops,
         # fake Vs
         operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
     ]

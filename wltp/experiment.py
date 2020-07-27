@@ -69,7 +69,7 @@ from graphtik.base import Operation
 from graphtik.pipeline import Pipeline
 
 from . import autograph as autog
-from . import cycler, cycles, datamodel, downscale, engine, invariants
+from . import cycler, cycles, datamodel, downscale, engine, invariants, pipelines
 from . import io as wio
 from . import nmindrive, vehicle, vmax
 from .invariants import v_decimals, vround
@@ -307,7 +307,7 @@ class Experiment(object):
         ## VALIDATE AGAINST PIPELINE.
         #
         p_req = cb.cycle[c.p_req]
-        sol = cycler.cycler_pipeline().compute({**mdl, "V_compensated": V})
+        sol = pipelines.cycler_pipeline().compute({**mdl, "V_compensated": V})
         P_req = sol["cycle"]["P_req"]
         idx=~p_req.isnull()
         assert (p_req[idx] == P_req[idx]).all()

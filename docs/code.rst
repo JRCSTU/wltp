@@ -38,6 +38,11 @@ Module: :mod:`wltp.experiment`
 .. automodule:: wltp.experiment
     :members:
 
+Module: :mod:`wltp.pipelines`
+-----------------------------
+.. automodule:: wltp.pipelines
+    :members:
+
 Module: :mod:`wltp.cycler`
 --------------------------
 .. automodule:: wltp.cycler
