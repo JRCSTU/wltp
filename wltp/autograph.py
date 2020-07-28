@@ -91,7 +91,7 @@ def _is_in_my_project(item) -> bool:
 class Prefkey:
     """Index into dicts with a key or a joined(prefix+key), where prefix: tuple"""
 
-    sep = "/"
+    sep = "."
 
     def __init__(self, sep=None):
         if sep is not None:
@@ -136,7 +136,7 @@ class FnHarvester(Prefkey):
 
         For :term:`operation`\\s, the name-part is ``None``.
     :param excludes:
-        names to exclude;  they can/be/prefixed or not
+        names to exclude;  they can.be.prefixed or not
     :param base_modules:
         skip function/classes not in these modules; if not given, include all items.
         If string, they are searched in :data:`sys.modules`.
@@ -307,7 +307,7 @@ def autographed(
     aliases=_unset,
     inp_sideffects=_unset,
     out_sideffects=_unset,
-    domain=None,
+    domain: Union[str, int, Collection] = None,
     **kws,
 ):
     """
@@ -316,7 +316,8 @@ def autographed(
     The rest arguments coming from :class:`graphtik.operation`.
 
     :param domain:
-        if set, overrides are not applied for the "default" domain;
+        one or more list-ified domains to assign decors into
+        (instead of the "default" domain);
         it allows to reuse the same function to build different operation,
         when later wrapped into an operation by :class:`.Autograph`.
     :param renames:
@@ -361,7 +362,9 @@ def autographed(
     return decorator(fn)
 
 
-def get_autograph_decors(fn, default=None, domains=None) -> dict:
+def get_autograph_decors(
+    fn, default=None, domains: Union[str, int, Collection] = None
+) -> dict:
     """
     Get the 1st match in `domains` of the `fn` :func:`autographed` special attribute.
 
@@ -369,6 +372,14 @@ def get_autograph_decors(fn, default=None, domains=None) -> dict:
         return this if `fn` non-autographed, or domains don't match
     :param domains:
         list-ified if a single str
+    :return:
+        the decors that will override :class:`Autograph` attributes, as found
+        from the given `fn`, and for the 1st matching domain in `domains`::
+
+            <fn>():
+              _autograph        (function-attribute)
+                <domain>        (key)
+                  <decors>      (dict)
     """
     for dmn in astuple(domains, "domains"):
         if hasattr(fn, "_autograph"):
@@ -388,41 +399,6 @@ class Autograph(Prefkey):
     2. dict from overrides keyed by `name`
     3. decorated with :func:`autographed`
     4. inspected from the callable
-
-    :param out_patterns:
-        Autodeduce `provides` by parsing function-names against a collection
-        of these items, and decide `provides` by the the 1st one matching
-        (unless `provides` are specified in the `overrides`):
-
-        - regex: may contain 1 or 2 groups:
-
-          - 1 group: the name of a single `provides`
-          - 2 groups: 2nd is the name of a single :term:`sideffected` dependency,
-            the 1st is the sideffect acting upon the former;
-
-        - str: matched as a prefix of the function-name, which is trimmed
-          by the first one matching to derrive a single `provides`;
-
-        Note that any `out_sideffects` in overrides, alone, do not block the rule above.
-    :param overrides:
-        a mapping of ``fn-keys --> dicts`` with keys::
-
-            name, needs, provides, renames, inp_sideffects, out_sideffects
-
-        An `fn-key` may be a string-tuple of names like::
-
-            [module, [class, ...] callable
-    :param renames:
-        global ``from --> to`` renamings applied both onto `needs` & `provides`.
-        They are applied after merging has been completed, so they can rename
-        even "inspected" names.
-    :param full_path_names:
-        whether operation-nodes would be named after the fully qualified name
-        (separated with `/` by default)
-    :param domains:
-        the :func:`.autographed` domains to search when wrapping functions,
-        in order;  list-ified if a single str;
-        see :attr:`domains`
 
     **Example:**
 
@@ -444,17 +420,45 @@ class Autograph(Prefkey):
         overrides: Mapping[_FnKey, Mapping] = None,
         renames: Mapping = None,
         full_path_names: bool = False,
-        domains: Collection = None,
+        domains: Union[str, int, Collection] = None,
         sep=None,
     ):
         super().__init__(sep)
+        #: Autodeduce `provides` by parsing function-names against a collection
+        #: of these items, and decide `provides` by the the 1st one matching
+        #: (unless `provides` are specified in the `overrides`):
+        #:
+        #: - regex: may contain 1 or 2 groups:
+        #:
+        #:   - 1 group: the name of a single `provides`
+        #:   - 2 groups: 2nd is the name of a single :term:`sideffected` dependency,
+        #:     the 1st is the sideffect acting upon the former;
+        #:
+        #: - str: matched as a prefix of the function-name, which is trimmed
+        #:   by the first one matching to derrive a single `provides`;
+        #:
+        #: Note that any `out_sideffects` in overrides, alone, do not block the rule above.
         self.out_patterns = out_patterns and aslist(out_patterns, "out_patterns")
+        #: a mapping of ``fn-keys --> dicts`` with keys::
+        #:
+        #:     name, needs, provides, renames, inp_sideffects, out_sideffects
+        #:
+        #: An `fn-key` may be a string-tuple of names like::
+        #:
+        #:     [module, [class, ...] callable
         self.overrides = overrides and asdict(overrides, "overrides")
+        #: global ``from --> to`` renamings applied both onto `needs` & `provides`.
+        #: They are applied after merging has been completed, so they can rename
+        #: even "inspected" names.
         self.renames = renames and asdict(renames, "renames")
+        #: Whether operation-nodes would be named after the fully qualified name
+        #: (separated with `.` by default)
         self.full_path_names = full_path_names
         #: the :func:`.autographed` domains to search when wrapping functions, in-order;
         #: if undefined, only the default domain (``None``) is included,
-        #: otherwise, ``None`` must be appended explicitely (usually at the end).
+        #: otherwise, the default, ``None``, must be appended explicitely
+        #: (usually at the end).
+        #: list-ified if a single str;
         self.domains: Collection = (None,) if domains is None else domains
 
     def _from_overrides(self, key):
@@ -519,7 +523,7 @@ class Autograph(Prefkey):
         renames=_unset,
         inp_sideffects=_unset,
         out_sideffects=_unset,
-        domains: Collection = None,
+        domains: Union[str, int, Collection] = None,
     ) -> FnOp:
         """
         Convert a (possibly **@autographed**) function into an graphtik **FnOperation**,
