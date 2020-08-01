@@ -299,7 +299,7 @@ _unset = Token("unset")  # TODO: replace `_unset` with ...
 def autographed(
     fn=_unset,
     *,
-    name=_unset,
+    name=None,
     needs=_unset,
     provides=_unset,
     renames=_unset,
@@ -313,8 +313,13 @@ def autographed(
     """
     Decorator adding ``_autograph`` func-attribute with overrides for :class:`Autograph`.
 
-    The rest arguments coming from :class:`graphtik.operation`.
+    :param name:
+        the name of the operation.
 
+        - If the same `name` has already been defined for the same `domain`,
+          it is overwritten;  otherwise, a new decoration is appended, so that
+          :meth:`.Autograph.yield_wrapped_ops()` will produce more than one operations.
+        - if not given, it will be derrived from the `fn` on wrap-time.
     :param domain:
         one or more list-ified domains to assign decors into
         (instead of the "default" domain);
@@ -331,20 +336,25 @@ def autographed(
 
             endured, parallel, marshalled, node_props
 
+    The rest arguments (e.g. `needs`, etc) are coming from :class:`graphtik.operation`.
     """
     kws.update(
         {
             k: v
             for k, v in locals().items()
-            if v is not _unset and k not in "kws fn domain".split()
+            if v is not _unset and k not in "kws fn name domain".split()
         }
     )
 
     def decorator(fn):
         if hasattr(fn, "_autograph"):
-            fn._autograph[domain] = kws
+            autographs = fn._autograph
+            if domain in autographs:
+                autographs[domain][name] = kws
+            else:
+                autographs[domain] = {name: kws}
         else:
-            decors = {domain: kws}
+            decors = {domain: {name: kws}}
             try:
                 fn._autograph = decors
             except TypeError as ex:
@@ -378,8 +388,9 @@ def get_autograph_decors(
 
             <fn>():
               _autograph        (function-attribute)
-                <domain>        (key)
-                  <decors>      (dict)
+                <domain>        (dict)
+                  <name>        (dict)
+                    <decors>    (dict)
     """
     for dmn in astuple(domains, "domains"):
         if hasattr(fn, "_autograph"):
@@ -395,10 +406,9 @@ class Autograph(Prefkey):
     The params below (except `full_path_names`) are merged in this order
     (1st takes precendance):
 
-    1. args in :meth:`wrap_fn`
-    2. dict from overrides keyed by `name`
-    3. decorated with :func:`autographed`
-    4. inspected from the callable
+    1. dict from overrides keyed by `name`
+    2. decorated with :func:`autographed`
+    3. inspected from the callable
 
     **Example:**
 
@@ -458,7 +468,8 @@ class Autograph(Prefkey):
         #: if undefined, only the default domain (``None``) is included,
         #: otherwise, the default, ``None``, must be appended explicitely
         #: (usually at the end).
-        #: list-ified if a single str;
+        #: List-ified if a single str, :func:`autographed` decors for the 1st one
+        #: matching are used;
         self.domains: Collection = (None,) if domains is None else domains
 
     def _from_overrides(self, key):
@@ -514,19 +525,14 @@ class Autograph(Prefkey):
         )
         return {k: v for k, v in decors.items() if k in rest_op_args}
 
-    def wrap_fn(
+    def yield_wrapped_ops(
         self,
         fn_path,
-        name_path=_unset,
-        needs=_unset,
-        provides=_unset,
-        renames=_unset,
-        inp_sideffects=_unset,
-        out_sideffects=_unset,
+        name_path: Union[str, Tuple[str, ...]] = None,
         domains: Union[str, int, Collection] = None,
-    ) -> FnOp:
+    ) -> Iterable[FnOp]:
         """
-        Convert a (possibly **@autographed**) function into an graphtik **FnOperation**,
+        Convert a (possibly **@autographed**) function into an graphtik **FnOperations**,
 
         respecting any configured overrides
 
@@ -537,48 +543,33 @@ class Autograph(Prefkey):
 
             If none, `fn_path` must be an :term:`operation`.
         :param name_path:
-            either a single string, or a tuple-of-strings, corresponding to
-            the given `fn_path`
+            either a single string, or a tuple-of-strings corresponding to
+            the given `fn_path`.
+
+            The operation-name is derrived from it, if given, with its last elements
+            overridden by names in decorations;  if the decor-name is the "default"
+            (`None`), this path is used as is for op-name.
+
+            It's not used when matching overrides.
         :param domains:
             if given, overrides :attr:`domains` for :func:`.autographed` decorators
-            to search;  list-ified if a single str.
+            to search.
+            List-ified if a single str, :func:`autographed` decors for the 1st one
+            matching are used.
+
+        :return:
+            one or more :class:`FnOp` instances (if more than one name is defined
+            when the given function was :func:`autographed`).
 
         Overriddes order: my-args, self.overrides, autograph-decorator, inspection
-        """
-        args = {k: v for k, v in locals().items() if v is not _unset}
-        del args["self"], args["fn_path"]
-        args.pop("name_path", None)
 
+        See also: David Brubeck Quartet, "40 days"
+        """
         fn_path = astuple(fn_path, None)
         fn = fn_path[-1]
         if isinstance(fn, Operation):
-            return fn
-
-        decors = get_autograph_decors(fn, {}, domains or self.domains)
-
-        ## Derive `name_path` from: my-args, decorator, fn_name
-        #  and then use it to pick overrides.
-        #
-        if name_path is _unset:
-            name_path = decors.get("name", _unset)
-            if name_path is _unset:
-                name_path = func_name(fn).split(".")
-
-        name_path = astuple(name_path, None)
-        fn_name = str(name_path[-1])
-
-        overrides = self._from_overrides(name_path)
-
-        op_data = ChainMap(args, overrides)
-        if decors:
-            op_data.maps.append(decors)
-        if op_data:
-            log.debug("Autograph overrides for %r: %s", name_path, op_data)
-
-        op_props = "needs provides renames, inp_sideffects out_sideffects".split()
-        needs, provides, override_renames, inp_sideffects, out_sideffects = (
-            op_data.get(a, _unset) for a in op_props
-        )
+            yield fn
+            return
 
         def param_to_modifier(name: str, param: inspect.Parameter) -> str:
             return (
@@ -590,68 +581,120 @@ class Autograph(Prefkey):
                 else name
             )
 
-        sig = None
-        if needs is _unset:
-            sig = inspect.signature(fn)
-            needs = [
-                param_to_modifier(name, param)
-                for name, param in sig.parameters.items()
-                if name != "self" and param.kind is not Parameter.VAR_KEYWORD
-            ]
-            ## Insert object as 1st need for object-methods.
-            #
-            if len(fn_path) > 1:
-                clazz = fn_path[-2]
-                # TODO: respect autograph decorator for object-names.
-                class_name = name_path[-2] if len(name_path) > 1 else clazz.__name__
-                if is_regular_class(class_name, clazz):
-                    log.debug("Object-method %s.%s", class_name, fn_name)
-                    needs.insert(0, camel_2_snake_case(class_name))
+        given_name_path = astuple(name_path, None)
 
-        needs = aslist(needs, "needs")
-        if ... in needs:
-            if sig is None:
+        decors_by_name = get_autograph_decors(fn, {}, domains or self.domains)
+
+        for decor_name, decors in decors_by_name.items() or ((None, {}),):
+            if given_name_path and not decor_name:
+                name_path = decor_path = given_name_path
+            else:  # Name in decors was "default"(None).
+                name_path = decor_path = astuple(
+                    (decor_name if decor_name else func_name(fn, fqdn=1)).split("."),
+                    None,
+                )
+                assert decor_path, locals()
+
+                if given_name_path:
+                    # Overlay `decor_path` over `named_path`, right-aligned.
+                    name_path = tuple(*name_path[: -len(decor_path)], *decor_path)
+
+            fn_name = str(name_path[-1])
+            overrides = self._from_overrides(decor_path)
+
+            op_data = (
+                ChainMap(overrides, decors)
+                if (overrides and decors)
+                else overrides
+                if overrides
+                else decors
+            )
+            if op_data:
+                log.debug("Autograph overrides for %r: %s", name_path, op_data)
+
+            op_props = "needs provides renames, inp_sideffects out_sideffects".split()
+            needs, provides, override_renames, inp_sideffects, out_sideffects = (
+                op_data.get(a, _unset) for a in op_props
+            )
+
+            sig = None
+            if needs is _unset:
                 sig = inspect.signature(fn)
-            needs = [
-                arg_name if n is ... else n
-                for n, arg_name in zip(needs, sig.parameters)
-            ]
+                needs = [
+                    param_to_modifier(name, param)
+                    for name, param in sig.parameters.items()
+                    if name != "self" and param.kind is not Parameter.VAR_KEYWORD
+                ]
+                ## Insert object as 1st need for object-methods.
+                #
+                if len(fn_path) > 1:
+                    clazz = fn_path[-2]
+                    # TODO: respect autograph decorator for object-names.
+                    class_name = name_path[-2] if len(name_path) > 1 else clazz.__name__
+                    if is_regular_class(class_name, clazz):
+                        log.debug("Object-method %s.%s", class_name, fn_name)
+                        needs.insert(0, camel_2_snake_case(class_name))
 
-        if provides is _unset:
-            if is_regular_class(fn_name, fn):
-                ## Convert class-name into object variable.
-                provides = camel_2_snake_case(fn_name)
-            elif self.out_patterns:
-                provides = self._deduce_provides_from_fn_name(fn_name) or _unset
+            needs = aslist(needs, "needs")
+            if ... in needs:
+                if sig is None:
+                    sig = inspect.signature(fn)
+                needs = [
+                    arg_name if n is ... else n
+                    for n, arg_name in zip(needs, sig.parameters)
+                ]
+
             if provides is _unset:
-                provides = ()
-        provides = aslist(provides, "provides")
+                if is_regular_class(fn_name, fn):
+                    ## Convert class-name into object variable.
+                    provides = camel_2_snake_case(fn_name)
+                elif self.out_patterns:
+                    provides = self._deduce_provides_from_fn_name(fn_name) or _unset
+                if provides is _unset:
+                    provides = ()
+            provides = aslist(provides, "provides")
 
-        needs, provides = self._apply_renames(
-            (renames, override_renames, self.renames), (needs, provides)
-        )
-
-        if inp_sideffects is not _unset:
-            needs.extend(
-                (i if is_sfx(i) else sfxed(*i) if isinstance(i, tuple) else sfx(i))
-                for i in aslist(inp_sideffects, "inp_sideffects")
+            needs, provides = self._apply_renames(
+                (override_renames, self.renames), (needs, provides)
             )
 
-        if out_sideffects is not _unset:
-            provides.extend(
-                (i if is_sfx(i) else sfxed(*i) if isinstance(i, tuple) else sfx(i))
-                for i in aslist(out_sideffects, "out_sideffects")
-            )
+            if inp_sideffects is not _unset:
+                needs.extend(
+                    (i if is_sfx(i) else sfxed(*i) if isinstance(i, tuple) else sfx(i))
+                    for i in aslist(inp_sideffects, "inp_sideffects")
+                )
 
-        if self.full_path_names:
-            fn_name = self._join_path_names(*name_path)
+            if out_sideffects is not _unset:
+                provides.extend(
+                    (i if is_sfx(i) else sfxed(*i) if isinstance(i, tuple) else sfx(i))
+                    for i in aslist(out_sideffects, "out_sideffects")
+                )
 
-        op_kws = self._collect_rest_op_args(decors)
+            if self.full_path_names:
+                fn_name = self._join_path_names(*name_path)
 
-        return FnOp(fn=fn, name=fn_name, needs=needs, provides=provides, **op_kws)
+            op_kws = self._collect_rest_op_args(decors)
+
+            if not fn_name:
+                breakpoint()
+            yield FnOp(fn=fn, name=fn_name, needs=needs, provides=provides, **op_kws)
+
+    def wrap_fn(
+        self, fn_path, name_path=None, domains: Union[str, int, Collection] = None,
+    ) -> FnOp:
+        """
+        Convert a (possibly **@autographed**) function into the 1st graphtik **FnOperation**.
+
+        .. seealso:::meth:`yield_wrapped_ops()`
+        """
+        return first(self.yield_wrapped_ops(fn_path, name_path, domains))
+
+        """Wrap lists-of-funcs (or (name-path, func 2-tuples) into Operations. """
 
 
 """
+Example code hidden from Sphinx:
+
     >>> from graphtik import compose
 
     >>> aug = Autograph(['calc_', 'upd_'], {
@@ -661,5 +704,4 @@ class Autograph(Prefkey):
     ...      })
     >>> ops = [aug.wrap_fn(fn, name[-1]) for name, fn in funcs]
     >>> netop = compose('wltp', *(op for op in ops if op.provides))
-
 """
