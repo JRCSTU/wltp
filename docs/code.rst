@@ -8,6 +8,7 @@ The core of the simulator is composed from the following modules:
     cycles
     datamodel
     experiment
+    pipelines
     cycler
     engine
     vehicle
