@@ -576,7 +576,7 @@ def mdl_from_accdb(props, wot, n2vs: List[float]) -> dict:
     wot["n"] = wot.index
     mdl["wot"] = wot
 
-    mdl["gear_ratios"] = n2vs
+    mdl["n2v_ratios"] = n2vs
 
     return mdl
 

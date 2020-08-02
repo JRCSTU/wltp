@@ -15,7 +15,7 @@ def goodVehicle():
         "n_rated": 5450,
         "n_idle": 950,
         # "n_min":   None,    # Can be overridden by manufacturer.
-        "gear_ratios": [120.5, 75, 50, 43, 37, 32],
+        "n2v_ratios": [120.5, 75, 50, 43, 37, 32],
     }
     mdl = datamodel.upd_default_load_curve(mdl)
     mdl = datamodel.upd_resistance_coeffs_regression_curves(mdl)

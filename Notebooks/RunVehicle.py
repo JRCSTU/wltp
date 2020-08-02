@@ -95,7 +95,7 @@ mdl["v_max"] = 119.8
 # mdl["n_min_drive_up_start"] = ...
 # mdl["n_min_drive_down_start"] = ...
 # mdl["t_cold_end"] = ...
-mdl["gear_ratios"] = [122.88, 75.12, 50.06, 38.26, 33.63]
+mdl["n2v_ratios"] = [122.88, 75.12, 50.06, 38.26, 33.63]
 
 mdl["wot"] = pd.read_csv(
     io.StringIO(
@@ -209,7 +209,7 @@ inp_mdl.update(
         "p_rated": 95.3,  # in kW
         "n_rated": 3000,  # in RPM
         "n_idle": 600,
-        "gear_ratios": [122.88, 75.12, 50.06, 38.26, 33.63],
+        "n2v_ratios": [122.88, 75.12, 50.06, 38.26, 33.63],
         ## For giving absolute P numbers,
         #  rename `p_norm` column to `p`.
         #

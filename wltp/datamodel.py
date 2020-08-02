@@ -71,7 +71,7 @@ def get_model_base() -> dict:
         "n_rated": None,
         "n_idle": None,
         "n_min": None,
-        "gear_ratios": [],
+        "n2v_ratios": [],
         "wltc_data": get_wltc_data(),
     }
 
@@ -470,7 +470,7 @@ def validate_model(
     ...     "n_rated": 5450,
     ...     "n_idle":  950,
     ...     "n_min":   500,
-    ...     "gear_ratios":[120.5, 75, 50, 43, 33, 28],
+    ...     "n2v_ratios":[120.5, 75, 50, 43, 33, 28],
     ...     "f0": 100,
     ...     "f1": 0.5,
     ...     "f2": 0.04,

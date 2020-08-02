@@ -71,14 +71,14 @@ properties:
           n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
 
       Higher values may be used if requested by the manufacturer, by setting this one.
-  gear_ratios:
-    title: gear ratios
+  n2v_ratios:
+    title: N-to-V ratios
     $ref: '#/definitions/positiveNumbers'
     maxItems: 24
     minItems: 3
     description:
       An array with the gear-ratios obtained by dividing engine-revolutions
-      (1/min) by vehicle-velocity (km/h).
+      (1/min) by the respective vehicle-velocity (km/h).
   f0:
     title: driving resistance coefficient f0
     type: number
@@ -358,7 +358,7 @@ required:
 - p_rated
 - n_rated
 - n_idle
-- gear_ratios
+- n2v_ratios
 - wot
 - driver_mass
 - v_stopped_threshold

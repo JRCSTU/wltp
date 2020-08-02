@@ -265,7 +265,7 @@ class InstancesTest(unittest.TestCase):
             "n_rated": 5450,
             "n_idle":  950,
             "n_min":   500,
-            "gear_ratios":[120.5, 75, 50, 43, 33, 28],
+            "n2v_ratios":[120.5, 75, 50, 43, 33, 28],
             "f0": 100,
             "f1": 0.5,
             "f2": 0.04

@@ -46,8 +46,8 @@
 /f_inertial
 /f_safety_margin
 /g_vmax
-/gear_ratios
 /is_n_lim_vmax
+/n2v_ratios
 /n95_high
 /n95_low
 /n_idle

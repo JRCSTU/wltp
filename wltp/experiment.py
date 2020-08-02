@@ -132,7 +132,7 @@ class Experiment(object):
         p_rated = mdl[m.p_rated]
         n_rated = mdl[m.n_rated]
         n_idle = mdl[m.n_idle]
-        gear_ratios = mdl[m.gear_ratios]
+        n2v_ratios = mdl[m.n2v_ratios]
         f0 = mdl.get(m.f0)
         f1 = mdl.get(m.f1)
         f2 = mdl.get(m.f2)
@@ -154,7 +154,7 @@ class Experiment(object):
 
         f_safety_margin = mdl[m.f_safety_margin]
 
-        gwots = engine.interpolate_wot_on_v_grid(wot, gear_ratios)
+        gwots = engine.interpolate_wot_on_v_grid(wot, n2v_ratios)
         gwots = engine.attach_p_avail_in_gwots(gwots, SM=f_safety_margin)
         gwots[w.p_resist] = vehicle.calc_p_resist(gwots.index, f0, f1, f2)
 
@@ -274,7 +274,7 @@ class Experiment(object):
 
         ## Remaining n_max values
         #
-        g_max_n2v = gear_ratios[mdl[m.g_vmax] - 1]
+        g_max_n2v = n2v_ratios[mdl[m.g_vmax] - 1]
         #  NOTE: `n95_high` is not rounded based on v, like the rest n_mins.
         mdl[m.n_max1] = mdl[m.n95_high]
         #  NOTE: In Annex 2-2.g, it is confusing g_top with g_vmax;
@@ -644,7 +644,7 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
 
 
 def run_cycle(
-    V, A, P_REQ, gear_ratios, n_idle, n_min_drive, n_rated, p_rated, load_curve, mdl
+    V, A, P_REQ, n2v_ratios, n_idle, n_min_drive, n_rated, p_rated, load_curve, mdl
 ):
     """Calculates gears, clutch and actual-velocity for the cycle (V).
     Initial calculations happen on engine_revs for all gears, for all time-steps of the cycle (_N_GEARS array).
@@ -685,14 +685,14 @@ def run_cycle(
     v_stopped_threshold = mdl["v_stopped_threshold"]
 
     (_N_GEARS, _GEARS, _GEAR_RATIOS) = calcEngineRevs_required(
-        V, gear_ratios, n_idle, v_stopped_threshold
+        V, n2v_ratios, n_idle, v_stopped_threshold
     )
 
     (_G_BY_N, CLUTCH) = possibleGears_byEngineRevs(
         V,
         A,
         _N_GEARS,
-        len(gear_ratios),
+        len(n2v_ratios),
         n_idle,
         n_min_drive,
         n_min_gear2,
@@ -724,7 +724,7 @@ def run_cycle(
         GEARS, CLUTCH.shape, driveability_issues
     )
     assert "i" == GEARS.dtype.kind, GEARS.dtype
-    assert ((GEARS >= -1) & (GEARS <= len(gear_ratios))).all(), (min(GEARS), max(GEARS))
+    assert ((GEARS >= -1) & (GEARS <= len(n2v_ratios))).all(), (min(GEARS), max(GEARS))
 
     return (
         GEARS,
