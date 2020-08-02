@@ -533,6 +533,7 @@ class Autograph(Prefkey):
             Callable,
             Tuple[Union[str, Collection[str]], Union[Callable, Collection[Callable]]],
         ],
+        exclude=(),
         domain: Union[str, int, Collection] = None,
     ) -> Iterable[FnOp]:
         """
@@ -555,6 +556,9 @@ class Autograph(Prefkey):
               the op-name.
             - The `name-path` is not used when matching overrides.
 
+        :param exclude:
+            a list of decor-names to exclude, as stored in decors.
+            Ignored if `fn` already an operation.
         :param domain:
             if given, overrides :attr:`domain` for :func:`.autographed` decorators
             to search.
@@ -611,6 +615,8 @@ class Autograph(Prefkey):
                     name_path = tuple(*name_path[: -len(decor_path)], *decor_path)
 
             fn_name = str(name_path[-1])
+            if fn_name in exclude:
+                continue
             overrides = self._from_overrides(decor_path)
 
             op_data = (
@@ -698,6 +704,7 @@ class Autograph(Prefkey):
                 ],
             ]
         ],
+        exclude=(),
         domain: Union[str, int, Collection] = None,
     ) -> List[FnOp]:
         """
@@ -705,12 +712,16 @@ class Autograph(Prefkey):
 
         :param fn:
             a list of funcs (or 2-tuples (name-path, fn-path)
-            (see :meth:`yield_wrapped_ops()`)
+
+        .. seealso:: :meth:`yield_wrapped_ops()` for the rest arguments.
+
         """
         return [
             op
             for fn_or_paths in funcs
-            for op in self.yield_wrapped_ops(fn_or_paths, domain=domain)
+            for op in self.yield_wrapped_ops(
+                fn_or_paths, exclude=exclude, domain=domain
+            )
         ]
 
 
