@@ -31,6 +31,7 @@ from typing import (
     Set,
     Tuple,
     Union,
+    cast,
 )
 
 from boltons.iterutils import first
@@ -573,12 +574,12 @@ class Autograph(Prefkey):
         else:
             name_path, fn_path = (), fn
 
-        fn_path = astuple(fn_path, None)
-        fn = fn_path[-1]
+        fun_path = cast(Tuple[Callable, ...], astuple(fn_path, None))
+        fun = fun_path[-1]
 
-        if isinstance(fn, Operation):
+        if isinstance(fun, Operation):
             ## pass-through operations
-            yield fn
+            yield fun
             return
 
         def param_to_modifier(name: str, param: inspect.Parameter) -> str:
@@ -593,14 +594,14 @@ class Autograph(Prefkey):
 
         given_name_path = astuple(name_path, None)
 
-        decors_by_name = get_autograph_decors(fn, {}, domain or self.domain)
+        decors_by_name = get_autograph_decors(fun, {}, domain or self.domain)
 
         for decor_name, decors in decors_by_name.items() or ((None, {}),):
             if given_name_path and not decor_name:
                 name_path = decor_path = given_name_path
             else:  # Name in decors was "default"(None).
                 name_path = decor_path = astuple(
-                    (decor_name if decor_name else func_name(fn, fqdn=1)).split("."),
+                    (decor_name if decor_name else func_name(fun, fqdn=1)).split("."),
                     None,
                 )
                 assert decor_path, locals()
@@ -629,7 +630,7 @@ class Autograph(Prefkey):
 
             sig = None
             if needs is _unset:
-                sig = inspect.signature(fn)
+                sig = inspect.signature(fun)
                 needs = [
                     param_to_modifier(name, param)
                     for name, param in sig.parameters.items()
@@ -637,8 +638,8 @@ class Autograph(Prefkey):
                 ]
                 ## Insert object as 1st need for object-methods.
                 #
-                if len(fn_path) > 1:
-                    clazz = fn_path[-2]
+                if len(fun_path) > 1:
+                    clazz = fun_path[-2]
                     # TODO: respect autograph decorator for object-names.
                     class_name = name_path[-2] if len(name_path) > 1 else clazz.__name__
                     if is_regular_class(class_name, clazz):
@@ -648,14 +649,14 @@ class Autograph(Prefkey):
             needs = aslist(needs, "needs")
             if ... in needs:
                 if sig is None:
-                    sig = inspect.signature(fn)
+                    sig = inspect.signature(fun)
                 needs = [
                     arg_name if n is ... else n
                     for n, arg_name in zip(needs, sig.parameters)
                 ]
 
             if provides is _unset:
-                if is_regular_class(fn_name, fn):
+                if is_regular_class(fn_name, fun):
                     ## Convert class-name into object variable.
                     provides = camel_2_snake_case(fn_name)
                 elif self.out_patterns:
@@ -685,7 +686,7 @@ class Autograph(Prefkey):
 
             op_kws = self._collect_rest_op_args(decors)
 
-            yield FnOp(fn=fn, name=fn_name, needs=needs, provides=provides, **op_kws)
+            yield FnOp(fn=fun, name=fn_name, needs=needs, provides=provides, **op_kws)
 
     def wrap_funcs(
         self,
