@@ -155,8 +155,9 @@ test_reqs = (
         "matplotlib",
         "coveralls",
         "openpyxl",  # for pandas to write excel-files
-        "pytest",
-        "pytest-sphinx",
+        "pytest==5.3.5",  # Pinned due to sugar
+        "pytest-sugar",
+        "pytest-sphinx==0.2.1",  # Pinned due to API break 0.2.2
         "pytest-cov",
         "sphinx",
         "tables",  # pandas-IO for h5
