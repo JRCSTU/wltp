@@ -21,7 +21,12 @@ from typing import Callable, Iterable, List, Optional, Union
 
 import numpy as np
 import pandas as pd
+
+from graphtik import optional
 from pandalone import mappings
+
+from . import autograph as autog
+
 
 #: Contains all path/column names used, after code has run code.
 #: Don't use it directly, but either
@@ -308,11 +313,9 @@ class GearMultiIndexer:
 
 
 @fnt.lru_cache()
-def make_autograph(out_patterns=None, *args, **kw):
+def make_autograph(out_patterns=None, *args, **kw) -> autog.Autograph:
     """Configures a new :class:`.Autograph` with func-name patterns for this project. """
-    from .autograph import Autograph
-
     if out_patterns is None:
         out_patterns = "get_ calc_ upd_ make_ create_ decide_ round_ init_".split()
         out_patterns.append(re.compile(r"\battach_(\w+)_in_(\w+)$"))
-    return Autograph(out_patterns, *args, **kw)
+    return autog.Autograph(out_patterns, *args, **kw)
