@@ -86,13 +86,14 @@ def test_get_class_phase_boundaries():
 
 def test_v_distances_pipeline(wltc_class):
     aug = wio.make_autograph()
-    funcs = [
-        *pipelines.v_distances_pipeline().ops,
-        # fake dsc & cap
-        operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
-        operation(None, "FAKE.V_cap", "wltc_class_data/V_cycle", "V_capped"),
-    ]
-    ops = [aug.wrap_fn(fn) for fn in funcs]
+    ops = aug.wrap_funcs(
+        [
+            *pipelines.v_distances_pipeline().ops,
+            # fake dsc & cap
+            operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
+            operation(None, "FAKE.V_cap", "wltc_class_data/V_cycle", "V_capped"),
+        ]
+    )
     pipe = compose(..., *ops)
     inp = {"wltc_data": datamodel.get_wltc_data(), "wltc_class": wltc_class}
     sol = pipe.compute(inp)

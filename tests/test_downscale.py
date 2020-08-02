@@ -144,14 +144,15 @@ def test_recurse_vs_scaling(wclass):
 
 def test_dsc_pipelines(wltc_class):
     aug = wio.make_autograph()
-    funcs = [
-        *pipelines.downscale_pipeline().ops,
-        *pipelines.compensate_capped_pipeline().ops,
-        *pipelines.v_distances_pipeline().ops,
-        # fake dsc & cap
-        operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
-    ]
-    ops = [aug.wrap_fn(fn) for fn in funcs]
+    ops = aug.wrap_funcs(
+        [
+            *pipelines.downscale_pipeline().ops,
+            *pipelines.compensate_capped_pipeline().ops,
+            *pipelines.v_distances_pipeline().ops,
+            # fake dsc & cap
+            operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
+        ]
+    )
     pipe = compose(..., *ops)
     inp = {
         "wltc_data": datamodel.get_wltc_data(),

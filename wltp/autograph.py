@@ -171,6 +171,7 @@ class FnHarvester(Prefkey):
 
     """
 
+    collected: List[Tuple[Tuple[str, ...], Tuple[Callable, ...]]]
     include_methods: bool = True
 
     def __init__(
@@ -191,7 +192,7 @@ class FnHarvester(Prefkey):
             sys.modules[m] if isinstance(m, str) else m for m in (base_modules or ())
         )
         self.predicate = predicate
-        self.collected: List[Tuple[str, Callable]] = []
+        self.collected = []
 
     def is_harvestable(self, name_path, item):
         """Exclude already-seen, private, user-excluded objects(by name or path). """
@@ -373,18 +374,18 @@ def autographed(
 
 
 def get_autograph_decors(
-    fn, default=None, domains: Union[str, int, Collection] = None
+    fn, default=None, domain: Union[str, int, Collection] = None
 ) -> dict:
     """
-    Get the 1st match in `domains` of the `fn` :func:`autographed` special attribute.
+    Get the 1st match in `domain` of the `fn` :func:`autographed` special attribute.
 
     :param default:
-        return this if `fn` non-autographed, or domains don't match
-    :param domains:
+        return this if `fn` non-autographed, or domain don't match
+    :param domain:
         list-ified if a single str
     :return:
         the decors that will override :class:`Autograph` attributes, as found
-        from the given `fn`, and for the 1st matching domain in `domains`::
+        from the given `fn`, and for the 1st matching domain in `domain`::
 
             <fn>():
               _autograph        (function-attribute)
@@ -392,7 +393,7 @@ def get_autograph_decors(
                   <name>        (dict)
                     <decors>    (dict)
     """
-    for dmn in astuple(domains, "domains"):
+    for dmn in astuple(domain, "domain"):
         if hasattr(fn, "_autograph"):
             if dmn in fn._autograph:
                 return fn._autograph[dmn]
@@ -416,11 +417,11 @@ class Autograph(Prefkey):
     ...     return a + b
 
     >>> aug = Autograph(out_patterns=['calc_', 'upd_'], renames={"a": "A"})
-    >>> aug.wrap_fn(calc_sum_ab)
-    FnOp(name='calc_sum_ab',
+    >>> aug.wrap_funcs([calc_sum_ab])
+    [FnOp(name='calc_sum_ab',
                         needs=['A', 'b'(?)],
                         provides=['sum_ab'],
-                        fn='calc_sum_ab')
+                        fn='calc_sum_ab')]
 
     """
 
@@ -430,7 +431,7 @@ class Autograph(Prefkey):
         overrides: Mapping[_FnKey, Mapping] = None,
         renames: Mapping = None,
         full_path_names: bool = False,
-        domains: Union[str, int, Collection] = None,
+        domain: Union[str, int, Collection] = None,
         sep=None,
     ):
         super().__init__(sep)
@@ -470,7 +471,7 @@ class Autograph(Prefkey):
         #: (usually at the end).
         #: List-ified if a single str, :func:`autographed` decors for the 1st one
         #: matching are used;
-        self.domains: Collection = (None,) if domains is None else domains
+        self.domain: Collection = (None,) if domain is None else domain
 
     def _from_overrides(self, key):
         return self.overrides and self._prefkey(self.overrides, key) or {}
@@ -527,32 +528,34 @@ class Autograph(Prefkey):
 
     def yield_wrapped_ops(
         self,
-        fn_path,
-        name_path: Union[str, Tuple[str, ...]] = None,
-        domains: Union[str, int, Collection] = None,
+        fn: Union[
+            Callable,
+            Tuple[Union[str, Collection[str]], Union[Callable, Collection[Callable]]],
+        ],
+        domain: Union[str, int, Collection] = None,
     ) -> Iterable[FnOp]:
         """
         Convert a (possibly **@autographed**) function into an graphtik **FnOperations**,
 
         respecting any configured overrides
 
-        :param fn_path:
-            either a callable, or the path to a callable, like::
+        :param fn:
+            either a callable, or a 2-tuple(`name-path`, `fn-path`) for::
 
                 [module[, class, ...]] callable
 
-            If none, `fn_path` must be an :term:`operation`.
-        :param name_path:
-            either a single string, or a tuple-of-strings corresponding to
-            the given `fn_path`.
+            - If `fn` is an operation, yielded as is (found also in 2-tuple).
+            - Both tuple elements may be singulars, and are auto-tuple-zed.
+            - The `name-path` may (or may not) correspond to the given `fn-path`,
+              and is used to derrive the operation-name;  If not given, the function
+              name is inspected.
+            - The last elements of the `name-path` are overridden by names in decorations;
+              if the decor-name is the "default" (`None`), the `name-path` becomes
+              the op-name.
+            - The `name-path` is not used when matching overrides.
 
-            The operation-name is derrived from it, if given, with its last elements
-            overridden by names in decorations;  if the decor-name is the "default"
-            (`None`), this path is used as is for op-name.
-
-            It's not used when matching overrides.
-        :param domains:
-            if given, overrides :attr:`domains` for :func:`.autographed` decorators
+        :param domain:
+            if given, overrides :attr:`domain` for :func:`.autographed` decorators
             to search.
             List-ified if a single str, :func:`autographed` decors for the 1st one
             matching are used.
@@ -565,9 +568,16 @@ class Autograph(Prefkey):
 
         See also: David Brubeck Quartet, "40 days"
         """
+        if isinstance(fn, tuple):
+            name_path, fn_path = fn
+        else:
+            name_path, fn_path = (), fn
+
         fn_path = astuple(fn_path, None)
         fn = fn_path[-1]
+
         if isinstance(fn, Operation):
+            ## pass-through operations
             yield fn
             return
 
@@ -583,7 +593,7 @@ class Autograph(Prefkey):
 
         given_name_path = astuple(name_path, None)
 
-        decors_by_name = get_autograph_decors(fn, {}, domains or self.domains)
+        decors_by_name = get_autograph_decors(fn, {}, domain or self.domain)
 
         for decor_name, decors in decors_by_name.items() or ((None, {}),):
             if given_name_path and not decor_name:
@@ -675,21 +685,32 @@ class Autograph(Prefkey):
 
             op_kws = self._collect_rest_op_args(decors)
 
-            if not fn_name:
-                breakpoint()
             yield FnOp(fn=fn, name=fn_name, needs=needs, provides=provides, **op_kws)
 
-    def wrap_fn(
-        self, fn_path, name_path=None, domains: Union[str, int, Collection] = None,
-    ) -> FnOp:
+    def wrap_funcs(
+        self,
+        funcs: Collection[
+            Union[
+                Callable,
+                Tuple[
+                    Union[str, Collection[str]], Union[Callable, Collection[Callable]]
+                ],
+            ]
+        ],
+        domain: Union[str, int, Collection] = None,
+    ) -> List[FnOp]:
         """
-        Convert a (possibly **@autographed**) function into the 1st graphtik **FnOperation**.
+        Convert a (possibly **@autographed**) function into one (or more) :term:`operation`\\s.
 
-        .. seealso:::meth:`yield_wrapped_ops()`
+        :param fn:
+            a list of funcs (or 2-tuples (name-path, fn-path)
+            (see :meth:`yield_wrapped_ops()`)
         """
-        return first(self.yield_wrapped_ops(fn_path, name_path, domains))
-
-        """Wrap lists-of-funcs (or (name-path, func 2-tuples) into Operations. """
+        return [
+            op
+            for fn_or_paths in funcs
+            for op in self.yield_wrapped_ops(fn_or_paths, domain=domain)
+        ]
 
 
 """
@@ -702,6 +723,6 @@ Example code hidden from Sphinx:
     ...     'calc_p_resist': {'provides': 'p_resist'},
     ...     'calc_inertial_power': {'provides': 'p_inert'},
     ...      })
-    >>> ops = [aug.wrap_fn(fn, name[-1]) for name, fn in funcs]
+    >>> ops = [aug.wrap_funcs(funcs.items()]
     >>> netop = compose('wltp', *(op for op in ops if op.provides))
 """

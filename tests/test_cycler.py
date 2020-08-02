@@ -142,12 +142,13 @@ def test_full_build_smoketest(h5_accdb):
 def test_cycler_pipeline():  # wltc_class):
     wltc_class = 0
     aug = wio.make_autograph()
-    funcs = [
-        *pipelines.cycler_pipeline().ops,
-        # fake Vs
-        operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
-    ]
-    ops = [aug.wrap_fn(fn) for fn in funcs]
+    ops = aug.wrap_funcs(
+        [
+            *pipelines.cycler_pipeline().ops,
+            # fake Vs
+            operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
+        ]
+    )
     pipe = compose(..., *ops)
     inp = {
         **goodvehicle.goodVehicle(),

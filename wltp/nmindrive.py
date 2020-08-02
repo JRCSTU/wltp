@@ -19,6 +19,7 @@ from jsonschema import ValidationError
 
 from graphtik import keyword, compose, sfx
 
+from . import autograph as autog
 from . import io as wio
 from .autograph import Autograph, FnHarvester, autographed
 from .invariants import nround1, nround10
@@ -220,10 +221,10 @@ NMinDrives = autographed(
 )
 
 
-def _compose_mdl_2_n_min_drives(**pipeline_kw) -> "Pipeline":  # type: ignore
-    funcs = FnHarvester(base_modules=[__name__]).harvest()
+def _compose_mdl_2_n_min_drives(aug: autog.Autograph = None, **pipeline_kw) -> "Pipeline":  # type: ignore
     aug = Autograph(["calc_", "upd_"])
-    ops = [aug.wrap_fn(fn, name) for name, fn in funcs]
+    funcs = FnHarvester(base_modules=[__name__]).harvest()
+    ops = aug.wrap_funcs(funcs)
     return compose("mdl_2_n_min_drives", *ops, **pipeline_kw)
 
 
