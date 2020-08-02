@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 
 def _calc_v_max_manual(props, wot, n2vs):
     gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
-    gwots = engine.attach_p_avail_in_gwots(gwots, SM=0.1)
+    gwots = engine.attach_p_avail_in_gwots(gwots, f_safety_margin=0.1)
     gwots["p_resist"] = vehicle.calc_p_resist(gwots.index, props.f0, props.f1, props.f2)
     return vmax.calc_v_max(gwots)
 
@@ -38,7 +38,7 @@ def _calc_v_max_manual(props, wot, n2vs):
 def _calc_v_max_pipelined(props, wot, n2vs):
     pipe = pipelines.vmax_pipeline()
     return pipe(
-        wot=wot, n2v_ratios=n2vs, SM=0.1, f0=props.f0, f1=props.f1, f2=props.f2
+        wot=wot, n2v_ratios=n2vs, f_safety_margin=0.1, f0=props.f0, f1=props.f1, f2=props.f2
     )["v_max"]
 
 

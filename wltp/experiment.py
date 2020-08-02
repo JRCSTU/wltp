@@ -155,7 +155,7 @@ class Experiment(object):
         f_safety_margin = mdl[m.f_safety_margin]
 
         gwots = engine.interpolate_wot_on_v_grid(wot, n2v_ratios)
-        gwots = engine.attach_p_avail_in_gwots(gwots, SM=f_safety_margin)
+        gwots = engine.attach_p_avail_in_gwots(gwots, f_safety_margin=f_safety_margin)
         gwots[w.p_resist] = vehicle.calc_p_resist(gwots.index, f0, f1, f2)
 
         v_max_rec = vmax.calc_v_max(gwots)

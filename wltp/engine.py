@@ -340,7 +340,7 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     return wot_grid
 
 
-def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, SM) -> pd.DataFrame:
+def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, f_safety_margin) -> pd.DataFrame:
     """
     .. attention:
         Must not interpolate along with wot on grid, or great INNACCURACIES.
@@ -359,8 +359,8 @@ def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, SM) -> pd.DataFrame:
         ASM = gwots[(gear, w.ASM)] if (gear, w.ASM) in gwots else 0
         P = gwots.loc[:, (w.p, gear)]
 
-        gwots.loc[:, (w.p_avail_stable, gear)] = calc_p_available(P, SM, 0)
-        gwots.loc[:, (w.p_avail, gear)] = calc_p_available(P, SM, ASM)
+        gwots.loc[:, (w.p_avail_stable, gear)] = calc_p_available(P, f_safety_margin, 0)
+        gwots.loc[:, (w.p_avail, gear)] = calc_p_available(P, f_safety_margin, ASM)
     gwots = gwots.sort_index(axis=1)
 
     return gwots
