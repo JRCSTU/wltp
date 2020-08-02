@@ -257,11 +257,10 @@ def cycler_pipeline(
             cycles.get_class_phase_boundaries,
             cycler.attach_class_v_phase_markers,
             cycler.calc_class_va_phase_markers,
-            # *gwots_pipeline(aug).ops,
+            *gwots_pipeline(aug).ops,
             *p_req_pipeline(aug).ops,
             wio.GearMultiIndexer.from_df,
-            # cycler.attach_wots,
-            # engine.attach_p_avail_in_gwots
+            cycler.attach_wots,
         ]
     )
     pipe = compose(..., *ops, **pipeline_kw)

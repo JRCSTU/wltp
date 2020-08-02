@@ -879,7 +879,7 @@ def calc_class_va_phase_markers(
 
 
 @autog.autographed(
-    needs=[sfxed("cycle", "v_phases"), "cycle/V", ...],
+    needs=[sfxed("cycle", "v_phases"), "cycle/V", ..., ...],
     provides=[sfxed("cycle", "gwots")],
 )
 def attach_wots(
@@ -902,6 +902,7 @@ def attach_wots(
     ), locals()
 
     gwots = gwots.reindex(V).sort_index(axis=1)
+    cycle[c.t] = cycle.index
     cycle = pd.concat((cycle.set_index(V), gwots), axis=1, sort=False)
     cycle = cycle.set_index(c.t, drop=False)
 

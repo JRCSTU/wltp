@@ -12,7 +12,7 @@ import pytest
 from jsonschema import ValidationError
 from tests import goodvehicle, vehdb
 
-from graphtik import compose, operation, sfxed
+from graphtik import compose, config, operation, sfxed
 from wltp import cycler, cycles, datamodel, engine
 from wltp import io as wio
 from wltp import pipelines, vehicle
@@ -157,27 +157,72 @@ def test_cycler_pipeline():  # wltc_class):
     }
     datamodel.validate_model(inp)
 
-    sol = pipe.compute(inp)
+    with config.evictions_skipped(True):
+        sol = pipe.compute(inp)
 
-    exp = set(
-        "V_cycle V_cycle V A v_phase1 v_phase2 v_phase3 va_phases"
-        " P_resist P_inert P_req".split()
-    )
+    exp = {
+        "V_cycle",
+        "V_cycle",
+        "V",
+        "A",
+        "v_phase1",
+        "v_phase2",
+        "v_phase3",
+        "va_phases",
+        "P_resist",
+        "P_inert",
+        "P_req",
+        "t",
+        ("n", "g1"),
+        ("n", "g2"),
+        ("n", "g3"),
+        ("n", "g4"),
+        ("n", "g5"),
+        ("n", "g6"),
+        ("n_norm", "g1"),
+        ("n_norm", "g2"),
+        ("n_norm", "g3"),
+        ("n_norm", "g4"),
+        ("n_norm", "g5"),
+        ("n_norm", "g6"),
+        ("p", "g1"),
+        ("p", "g2"),
+        ("p", "g3"),
+        ("p", "g4"),
+        ("p", "g5"),
+        ("p", "g6"),
+        ("p_avail", "g1"),
+        ("p_avail", "g2"),
+        ("p_avail", "g3"),
+        ("p_avail", "g4"),
+        ("p_avail", "g5"),
+        ("p_avail", "g6"),
+        ("p_avail_stable", "g1"),
+        ("p_avail_stable", "g2"),
+        ("p_avail_stable", "g3"),
+        ("p_avail_stable", "g4"),
+        ("p_avail_stable", "g5"),
+        ("p_avail_stable", "g6"),
+        ("p_norm", "g1"),
+        ("p_norm", "g2"),
+        ("p_norm", "g3"),
+        ("p_norm", "g4"),
+        ("p_norm", "g5"),
+        ("p_norm", "g6"),
+        ("p_resist", ""),
+    }
     assert set(sol["cycle"].columns) == exp
+    sol.plot("t.svg")
 
     steps = [getattr(n, "name", n) for n in sol.plan.steps]
     print(steps)
-    exp = [
-        "get_wltc_class_data",
-        "get_forced_cycle",
-        "get_class_phase_boundaries",
-        "FAKE.V_dsc",
-        "init_cycle_velocity",
-        "calc_acceleration",
-        "attach_class_v_phase_markers",
-        "calc_class_va_phase_markers",
-        "calc_p_resist",
-        "calc_inertial_power",
-        "calc_required_power",
-    ]
-    assert steps == exp
+    exp = set(
+        """
+        get_wltc_class_data  get_forced_cycle  get_class_phase_boundaries
+        interpolate_wot_on_v_grid  attach_p_avail_in_gwots  attach_p_resist_in_gwots
+        make_gwots_multi_indexer  FAKE.V_dsc  init_cycle_velocity  calc_acceleration
+        attach_class_v_phase_markers  calc_class_va_phase_markers  calc_p_resist
+        calc_inertial_power  calc_required_power  attach_wots
+        """.split()
+    )
+    assert set(steps) == exp

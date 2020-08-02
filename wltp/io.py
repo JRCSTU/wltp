@@ -237,6 +237,11 @@ class GearMultiIndexer:
         return GearMultiIndexer(items, gnames, gids[-1], generator)
 
     @classmethod
+    @autog.autographed(
+        name="make_gwots_multi_indexer",
+        needs=["gwots", optional("gear_namer", "generator")],
+        provides="gidx",
+    )
     def from_df(
         cls, df, items: Iterable[str] = None, generator: GearGenerator = gear_name
     ):
