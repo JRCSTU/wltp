@@ -277,6 +277,10 @@ def get_class_phase_boundaries(
     return tuple(itz.sliding_window(2, (0, *part_breaks)))
 
 
+@autog.autographed()
+@autog.autographed(
+    name="make_compensated_phases_grouper", needs="compensated_phase_boundaries",
+)
 def make_class_phases_grouper(
     class_phase_boundaries: Sequence[tuple],
 ) -> pd.Categorical:
@@ -294,17 +298,24 @@ def make_class_phases_grouper(
     return pd.cut(range(t_max + 1), part_intervals)
 
 
-def calc_wltc_distances(V: pd.Series, grouper) -> pd.DataFrame:
+@autog.autographed(needs=["wltc_class_data/V_cycle", ...])
+@autog.autographed(name="calc_dsc_distances", needs=["V_dsc", ...])
+@autog.autographed(name="calc_capped_distances", needs=["V_capped", ...])
+@autog.autographed(
+    name="calc_compensated_distances",
+    needs=["V_compensated", "compensated_phases_grouper"],
+)
+def calc_wltc_distances(V: pd.Series, class_phases_grouper) -> pd.DataFrame:
     """
     Return a *(phase x (sum, cumsum))* matrix for the v-phasing `boundaries` of `V`.
 
     :param V:
         a velocity profile with the standard WLTC length
-    :param grouper:
+    :param class_phases_grouper:
         an object to break up a velocity in parts
         (from :func:`make_grouper()`)
     """
-    sums = V.groupby(grouper).sum()
+    sums = V.groupby(class_phases_grouper).sum()
     sums = pd.concat([sums, sums.cumsum()], axis=1, keys=["sum", "cumsum"])
     sums.name = f"{V.name}_sums"
 

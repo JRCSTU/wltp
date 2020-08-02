@@ -26,37 +26,6 @@ from . import io as wio
 from . import vehicle, vmax
 
 
-calc_wltc_distances = operation(
-    cycles.calc_wltc_distances,
-    needs=["wltc_class_data/V_cycle", "class_phases_grouper"],
-    provides="wltc_distances",
-)
-calc_dsc_distances = calc_wltc_distances.withset(
-    name="calc_dsc_distances",
-    needs=["V_dsc", "class_phases_grouper"],
-    provides="dsc_distances",
-)
-calc_capped_distances = calc_wltc_distances.withset(
-    name="calc_capped_distances",
-    needs=["V_capped", "class_phases_grouper"],
-    provides="capped_distances",
-)
-
-calc_compensated_distances = calc_wltc_distances.withset(
-    name="calc_compensated_distances",
-    needs=["V_compensated", "compensated_phases_grouper"],
-    provides="compensated_distances",
-)
-
-
-make_compensated_phases_grouper = operation(
-    cycles.make_class_phases_grouper,
-    name="make_compensated_phases_grouper",
-    needs="compensated_phase_boundaries",
-    provides="compensated_phases_grouper",
-)
-
-
 @fnt.lru_cache()
 def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
@@ -74,12 +43,8 @@ def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
             cycles.get_wltc_class_data,
             cycles.get_class_phase_boundaries,
             cycles.make_class_phases_grouper,
-            calc_wltc_distances,
-            calc_dsc_distances,
-            calc_capped_distances,
+            cycles.calc_wltc_distances,
             downscale.make_compensated_phase_boundaries,
-            make_compensated_phases_grouper,
-            calc_compensated_distances,
         ]
     )
 
@@ -223,15 +188,14 @@ def compensate_capped_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pi
     ops = aug.wrap_funcs(
         [
             cycles.get_wltc_class_data,
-            calc_dsc_distances,
-            calc_capped_distances,
             cycles.get_class_phase_boundaries,
             cycles.make_class_phases_grouper,
             downscale.calc_V_capped,
             downscale.calc_compensate_phases_t_extra_raw,
             downscale.round_compensate_phases_t_extra,
             downscale.calc_V_compensated,
-        ]
+        ],
+        exclude=["calc_compensated_distances", "make_compensated_phases_grouper"],
     )
     pipe = compose(..., *ops, **pipeline_kw)
 
