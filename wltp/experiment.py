@@ -107,6 +107,7 @@ class Experiment(object):
         w = wio.pstep_factory.get().wot
 
         mdl = self._model
+        orig_mdl = self._model.copy()
 
         ## Prepare results
         #
@@ -230,8 +231,14 @@ class Experiment(object):
                 V_dsc.name = c.V_dsc
 
                 ## VALIDATE AGAINST PIPELINE.
-                V_dsc2 = pipelines.scale_trace_pipeline().compute(mdl)["V_dsc"]
-                assert (V_dsc == V_dsc2).all()
+                #
+                orig_mdl.pop('v_max', None)  # vehdb contains v_max!
+                sol = pipelines.scale_trace_pipeline().compute(orig_mdl)
+                assert (V_dsc == sol["V_dsc"]).all()
+                assert mdl['pmr'] == sol['p_m_ratio']
+                # for i in "v_max g_vmax n_vmax wltc_class n95_high n95_low".split():
+                for i in "v_max g_vmax n_vmax wltc_class".split():
+                    assert mdl[i] == sol[i]
 
                 # TODO: separate column due to cap/extend.
                 V_target = V_dsc.copy()

@@ -36,10 +36,38 @@ def _calc_v_max_manual(props, wot, n2vs):
 
 
 def _calc_v_max_pipelined(props, wot, n2vs):
+    #     @autog.autographed(
+    #     needs=(),
+    #     provides=VMaxRec._fields[:-2],  # exclude `i_n_lim` & `wot` (cycle!)
+    #     inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")],
+    #     returns_dict=True,
+    # )
+    #     my_calc_v_max = operation(vmax.calc_v_max
+
     pipe = pipelines.vmax_pipeline()
-    return pipe(
-        wot=wot, n2v_ratios=n2vs, f_safety_margin=0.1, f0=props.f0, f1=props.f1, f2=props.f2
-    )["v_max"]
+    # Restore renamed (due to cycle) VMaxRec `wot` field.
+    calc_v_max_op = pipe.find_op_by_name("calc_v_max")
+    pipe = compose(
+        ...,
+        calc_v_max_op.withset(
+            provides=[*calc_v_max_op.provides[:-2], "is_n_lim", "wot"]
+        ),
+        *pipe.ops,
+    )
+    res = pipe.compute(
+        {
+            "wot": wot,
+            "n2v_ratios": n2vs,
+            "f_safety_margin": 0.1,
+            "f0": props.f0,
+            "f1": props.f1,
+            "f2": props.f2,
+        },
+        outputs=vmax.VMaxRec._fields,
+    )
+    rec = vmax.VMaxRec(**res)
+
+    return rec
 
 
 @pytest.fixture(params=[_calc_v_max_manual, _calc_v_max_pipelined])

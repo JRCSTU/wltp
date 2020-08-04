@@ -8,7 +8,8 @@
 """
 formulae estimating `v_max` from wot
 
-The `v_max` is found by the maximum gear where `p_avail_stable` intersects `p_resist`.
+The `v_max` is found by the maximum gear where `p_avail_stable` intersects `p_resist`
+(Annex 2-fig A2).
 
 .. Note::
     On Aug 2019 Mr Heinz confirmed a shortcut of the vmax discovery procedure,
@@ -30,6 +31,8 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
+from graphtik import keyword
+
 from . import autograph as autog
 from . import io as wio
 from .invariants import v_step, vround
@@ -42,7 +45,7 @@ log = logging.getLogger(__name__)
 #: - ``n_vmax``: the engine speed producing v_max; np.NAN if not found
 #: - ``g_vmax``: the number of the gear producing v_max
 #: - ``is_n_lim``: true if max-WOT(n) reached for VMax (ie. `p_avail_stable` always > `p_resist`)
-#: - ``wot``: intermediate curves on grid-V used to solve the equation
+#: - ``wot``: df with intermediate curves on grid-V used to solve the equation
 VMaxRec = namedtuple("VMaxRec", "v_max  n_vmax  g_vmax  is_n_lim  wot")
 
 
@@ -123,7 +126,14 @@ def _find_p_remain_root(
 
 
 @autog.autographed(
-    needs=(), inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")]
+    needs=(),
+    provides=[
+        *VMaxRec._fields[:-2],
+        keyword("is_n_lim_vmax", "is_n_lim"),
+        keyword("vmax_wots", "wot"),  # `wot` causes cycle!
+    ],
+    inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")],
+    returns_dict=True,
 )
 def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
     """

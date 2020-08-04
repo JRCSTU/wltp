@@ -233,6 +233,7 @@ def calc_p_available(P: Column, f_safety_margin, ASM: Optional[Column] = 0) -> C
     return P * total_reduction
 
 
+# TODO: Expose _make_v_grid() in graphtik
 def _make_v_grid(v_wot_min: float, v_wot_max: float) -> np.ndarray:
     assert v_wot_min < v_wot_max, f"Unsorted wot? {v_wot_min}, {v_wot_max}"
 

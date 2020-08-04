@@ -38,6 +38,8 @@ def calc_p_m_ratio(p_rated, unladen_mass):
 @autog.autographed(needs=["wltc_data/classes", ..., ...])
 def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
     """Vehicle classification according to Annex 1-2. """
+    assert isinstance(p_m_ratio, (int, float)) and isinstance(v_max, (int, float)), locals()
+
     c = wio.pstep_factory.get().cycle_data
 
     class_limits = {
