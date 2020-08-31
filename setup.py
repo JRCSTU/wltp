@@ -255,7 +255,7 @@ setup(
         # 5.4 Sphinx, 5.6 check_if_incomplete(), 5.7 FIX sphinx, 6.1.0 new plot
         # 7+ sfxed, 8+ re-moduled, 8.3: mapped-->keyword, 8.4: subclass-Sol
         # 9.0.0 JSNOP,fnop,modifier, 10.0.0 implicit, auto-name pipes, jsonp=>modify
-        "graphtik ~=10.0",
+        "graphtik >=10.1",
         "jsonschema",
         "numpy",
         "pandas",
