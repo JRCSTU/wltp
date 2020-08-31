@@ -5,20 +5,23 @@ requires = ["setuptools>=30.3.0", "wheel"]
 exclude = '''
     (
         /(
-            \.eggs
-            |\.git
-            |\.hg
-            |\.mypy_cache
-            |\.nox
-            |\.tox
-            |.?venv.*
-            |_build
-            |buck-out
-            |build
-            |dist
-        )/
-        |/(
-            Notebooks/.*\.py                    # py:percent jupytext-paired files
+            \.eggs/
+            |\.git/
+            |\.hg/
+            |\.mypy_cache/
+            |\.nox/
+            |\.tox/
+            |.?venv.*/
+            |_build/
+            |buck-out/
+            |build/
+            |dist/
+            |Notebooks/.*\.py                    # py:percent jupytext-paired files
+            |dist/
+        )|/wltp/(
+            idgears.py
+            |plots.py
+            |excel/xlsutils.py
         )
     )
 '''
