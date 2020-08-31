@@ -33,6 +33,7 @@
 /cycle/up
 /cycle/v
 /cycle/v_target
+/cycle_data
 /cycle_data/pmr_limits
 /cycle_data/velocity_limits
 /driver_mass

@@ -63,8 +63,79 @@ TODOs
 Changelog
 =========
 
-v1.0.0.dev12  (20-Aug-2019): PY3.5 only & real work!
+v1.1.0-dev0 (4-Aug-2020): Autographed!
+---------------------------------------
+Reenacted development after Matlab & C# version were delivered,
+changes too many to list here concisely.
+
+- FEAT: Autograph with Graphtik all but (old) cycler.
+- FEAT: V_cap & compensate cycle distance!
+- FEAT(dtree): generate dtree after TCs have run
+- FIX(DEPS): upd for Pandas-1.0.0 API
+
+Other sources
+^^^^^^^^^^^^^
+- UPD(ACCDB): NEW SOURCES 15092019, 20092019
+- UPD(MATLAB): SOURCES 21_11_2019, 2020_5_27.
+- FEAT(mat.ipynb): +notebook for all_cases() with octave;
+  notebook executing Octave with Pandas IO
+
+Tests & Notebooks
+^^^^^^^^^^^^^^^^^
+- REFACT(NBs): JupyText-pair Rmd-->py-percent
+- FIX(PYTEST): PIN Deps due to pytest-sphinx API changes;
+- FEAT(TRAVIS): tested on PY3.8, allow fail PY3.6 (e.g. annotations).
+- FIX(TRAVIS+pytest) ver-conflict in PY<=3.7
+- ENH(TCs,NBs): PermaTest 24% of Vehs (without --vehnums)
+- REFACT(TCs): DocTest with pytest-sphinx plugin.
+
+Model
+^^^^^
+- FEAT(MDL): AutoDEFAULTs on schema validation; support LABELS in schema items.
+- REFACT(mdl) read WLTC-Schemas from static files.
+- FIX(CYCLES) last-part offset was +1 MORE now respecting lengths
+  in all parts -- CHECKSUMS Changed: last-parts of A0.
+  Improve all phasings problem with class1 samples, and explain specific
+  limits & notation choice.
+- REFACT: ``v_dsc => V_dsc``;  ``v_cycle => V_cycle``; ``SM => f_safety_margin``;
+  ``gear_ratios => n2v_ratios``.
+- REFACT(WLTC) store Lengths (not Breaks) in classes (like Matlab does).
+
+Docs & site
+^^^^^^^^^^^
+- FIX(site): Sphinx terms are now case-sensitive.
+- ENH(doc, build, site): Versions, RelDates & Badges; use ``git describe``;
+  install with ``-e.[doc]`` in rtd-requrements.txt.
+- FEAT(DOC+SITE+mdl) +sphinx-jsonschema to render IOs.
+- fix(site): RTD build.
+- DOC: COPYRIGHT * --> 2020
+- FIX(BINDER): use conda-env for graphviz & Octave native.
+
+various
+^^^^^^^
+- FEAT(AUDIO) piece-wise V-trace audio x2 cycles
+- feat(build): DeepSource.toml
+
+
+v1.0.0.dev12  (30-Aug-2019): PY3.5 only & real work!
 ----------------------------------------------------
+- dev dates:
+
+  - 30-Aug-2019: dev12
+  - 29-Aug-2019: dev11
+  - 16-Aug-2019: dev10
+  - 8-Aug-2019: dev9
+  - 7-Aug-2019: dev8
+  - 5-Aug-2019: dev7
+  - 3-Aug-2019: dev6
+  - 31-Jul-2019: dev5
+  - 27-Jun-2019: dev4
+  - 26-Jun-2019: dev3
+  - 24-Jun-2019: dev2
+  - 22-Jun-2019: dev1
+  - 14-Jun-2019: dev0
+  - 5-Jun-2019: 0.1.2a0
+
 - Drop support for Python 2.7 & <3.6, due to `f"string:`, among others...
   The supported Pythons `covers 84% of 2018 Python-3 installations (71% of Pythons in total)
   <https://www.jetbrains.com/research/python-developers-survey-2018/#python-3-adoption>`_
@@ -439,7 +510,7 @@ Driveability rules:
                 'v': [0,0,3,3,5,8,8,8,6,4,5,6,6,5,0,0]
             'accel': [0,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0]
            'cruise': [0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0]
-            'decel': [0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,0]  
+            'decel': [0,0,0,0,0,0,0,1,1,1,0,0,1,1,1,0]
                'up': [0,0,1,1,1,1,1,1,0,1,1,1,1,0,0,0]
         'initaccel': [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
         'stopdecel': [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0]

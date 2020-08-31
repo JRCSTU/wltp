@@ -102,7 +102,7 @@ Download the sources,
       git clone https://github.com/JRCSTU/wltp/ --depth=1
 
 - or download and extract the project-archive from the release page:
-  https://github.com/JRCSTU/wltp/archive/v1.0.0.dev12.zip
+  https://github.com/JRCSTU/wltp/archive/v1.1.0.dev0.zip
 
 
 Install:
@@ -237,7 +237,7 @@ try to import the project to check its version:
     >>> import wltp
 
     >>> wltp.__version__            ## Check version once more.
-    '1.0.0.dev12'
+    '1.1.0.dev0'
 
     >>> wltp.__file__               ## To check where it was installed.         # doctest: +SKIP
     /usr/local/lib/site-package/wltp-...
@@ -1058,11 +1058,11 @@ See also :ref:`architecture:Architecture`.
     :target: https://anaconda.org/ankostis/wltp
     :alt: Latest version in Anaconda cloud
 
-.. |proj-version| image::  https://img.shields.io/badge/project--version-1.0.0.dev12-orange.svg
+.. |proj-version| image::  https://img.shields.io/badge/project--version-1.1.0.dev0-orange.svg
     :target: https://github.com/JRCSTU/wltp/releases
     :alt: Version grafted in project's package coordinates
 
-.. |rel-date|  image::  https://img.shields.io/badge/rel--date-2019--08--30_14:55:39-orange.svg
+.. |rel-date|  image::  https://img.shields.io/badge/rel--date-2020--08--04_00:00:00-orange.svg
     :target: https://github.com/JRCSTU/wltp/releases
     :alt: Release date grafted in project's package coordinates
 
