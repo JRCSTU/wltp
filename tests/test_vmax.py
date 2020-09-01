@@ -22,7 +22,7 @@ from wltp import downscale, engine
 from wltp import io as wio
 from wltp import pipelines, vehicle, vmax
 
-from . import vehdb
+from . import goodvehicle, vehdb
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
@@ -31,7 +31,9 @@ log = logging.getLogger(__name__)
 def _calc_v_max_manual(props, wot, n2vs):
     gwots = engine.interpolate_wot_on_v_grid(wot, n2vs)
     gwots = engine.attach_p_avail_in_gwots(gwots, f_safety_margin=0.1)
-    gwots["p_resist"] = vehicle.calc_p_resist(gwots.index, props.f0, props.f1, props.f2)
+    gwots["p_resist"] = vehicle.calc_p_resist(
+        gwots.index, props["f0"], props["f1"], props["f2"]
+    )
     return vmax.calc_v_max(gwots)
 
 
@@ -59,9 +61,9 @@ def _calc_v_max_pipelined(props, wot, n2vs):
             "wot": wot,
             "n2v_ratios": n2vs,
             "f_safety_margin": 0.1,
-            "f0": props.f0,
-            "f1": props.f1,
-            "f2": props.f2,
+            "f0": props["f0"],
+            "f1": props["f1"],
+            "f2": props["f2"],
         },
         outputs=vmax.VMaxRec._fields,
     )
@@ -75,7 +77,15 @@ def v_max_calculator(request):
     return request.param
 
 
-def test_v_max(h5_accdb, vehnums_to_run, v_max_calculator):
+def test_v_max_goodvehicle(v_max_calculator):
+    props = goodvehicle.goodVehicle()
+    wot = props["wot"]
+    wot = engine.preproc_wot(props, wot)
+    vmax_rec = v_max_calculator(props, wot, props["n2v_ratios"])
+    vmax_rec[:4] == (190.3, 6089.6, 6, False)
+
+
+def test_v_max_vehdb(h5_accdb, vehnums_to_run, v_max_calculator):
     from . import conftest
 
     # DEBUG: to reduce clutter in the console.
