@@ -234,6 +234,32 @@ def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
 
 
 @fnt.lru_cache()
+def n_max_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
+    """
+    Pipeline to provide `n_max`\s (Annex 2, 2.g).
+
+    .. graphtik::
+        :hide:
+        :name: n_max_pipeline
+
+        >>> pipe = n_max_pipeline()
+    """
+    aug = aug or wio.make_autograph()
+    ops = aug.wrap_funcs(
+        [
+            engine.calc_n2v_g_vmax,
+            engine.calc_n95,
+            engine.calc_n_max2,
+            engine.calc_n_max3,
+            engine.calc_n_max,
+        ]
+    )
+    pipe = compose(..., *ops, **pipeline_kw)
+
+    return pipe
+
+
+@fnt.lru_cache()
 def cycler_pipeline(
     aug: autog.Autograph = None, domain=("cycle", None), **pipeline_kw
 ) -> Pipeline:
@@ -259,6 +285,7 @@ def cycler_pipeline(
             cycler.calc_class_va_phase_markers,
             *gwots_pipeline(aug).ops,
             *p_req_pipeline(aug).ops,
+            *n_max_pipeline(aug).ops,
             wio.GearMultiIndexer.from_df,
             cycler.attach_wots,
         ]

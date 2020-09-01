@@ -13,10 +13,12 @@ import pandas as pd
 import pytest
 from jsonschema import ValidationError
 from numpy import testing as npt
-from tests import vehdb
+from tests import goodvehicle, vehdb
+import toolz.dicttoolz as dtz
 
 from wltp import engine, invariants
 from wltp import io as wio
+from wltp import pipelines
 
 _N = [500, 2000, 5000]
 _P = [10, 78, 60]
@@ -244,3 +246,28 @@ def test_interpolate_wot_on_v_grid(h5_accdb, vehnums_to_run):
 def test_attach_p_avail_in_gwots_smoketest(h5_accdb):
     gwots = pd.DataFrame({("p", "g1"): [], ("ASM", "g1"): []})
     engine.attach_p_avail_in_gwots(gwots, f_safety_margin=0.1)
+
+
+def test_n_max_pipeline():
+    pipe = pipelines.n_max_pipeline()
+    props = goodvehicle.goodVehicle()
+    wot = engine.preproc_wot(props, props["wot"])
+    sol = pipe.compute(
+        {
+            **dtz.keyfilter(lambda k: k in ("n_rated", "p_rated", "n2v_ratios"), props),
+            "wot": wot,
+            "cycle": {"V": pd.Series([120])},
+            "v_max": 190.3,
+            "g_vmax": 6,
+        }
+    )
+    assert (
+        list(sol)
+        == "p_rated n_rated n2v_ratios wot cycle v_max g_vmax n2v_g_vmax n95_low n_max1 n_max2 n_max3 n_max".split()
+    )
+
+    steps = [getattr(n, "name", n) for n in sol.plan.steps]
+    steps_executed = [getattr(n, "name", n) for n in sol.executed]
+    print(steps, steps_executed)
+    exp_steps = "calc_n2v_g_vmax calc_n95 calc_n_max2 calc_n_max3 calc_n_max".split()
+    assert steps == steps_executed == exp_steps

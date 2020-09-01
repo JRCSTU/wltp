@@ -367,7 +367,7 @@ def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, f_safety_margin) -> pd.DataF
     return gwots
 
 
-@autog.autographed(provides=["n95_low", "n95_high"])
+@autog.autographed(provides=["n95_low", "n_max1"])
 def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, float]:
     """
     Find wot's n95_low/high (Annex 2-2.g).
@@ -429,6 +429,18 @@ def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, fl
     n95_high = interp_n95("high", wot_high[w.p_norm], wot_high[w.n])
 
     return n95_low, n95_high
+
+
+def calc_n2v_g_vmax(g_vmax, n2v_ratios):
+    return n2v_ratios[g_vmax - 1]
+
+@autog.autographed(needs=[..., "cycle/V"])
+def calc_n_max2(n2v_g_vmax, V: pd.Series):
+    return n2v_g_vmax * V.max()
+
+
+def calc_n_max3(n2v_g_vmax, v_max):
+    return n2v_g_vmax * v_max
 
 
 def calc_n_max(n_max1, n_max2, n_max3):
