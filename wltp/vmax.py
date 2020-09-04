@@ -139,6 +139,8 @@ def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
     """
     Finds maximum velocity by scanning gears from the top.
 
+    TODO: accept `n_lim`
+    
     :param gwots:
         a dataframe indexed by a grid of rounded velocities,
         containing (at least) `p_resist` and `p_avail_stable` columns for all gears,

@@ -372,6 +372,8 @@ def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, fl
     """
     Find wot's n95_low/high (Annex 2-2.g).
 
+    TODO: accept `n_lim`
+
     Split `P_norm` in 2 sections around `n_rated`, and interpolate separately
     each section.
 
