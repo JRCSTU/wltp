@@ -150,7 +150,7 @@ class Experiment(object):
             raise ValueError("Missing resistance_coeffs!")
 
         wot = mdl[m.wot]
-        n95_low, n95_high = engine.calc_n95(wot, n_rated, p_rated)
+        n95_low, n95_high = engine.calc_n_95(wot, n_rated, p_rated)
         mdl[m.n95_low], mdl[m.n95_high] = n95_low, n95_high
 
         f_safety_margin = mdl[m.f_safety_margin]
@@ -290,7 +290,7 @@ class Experiment(object):
         mdl[m.n_max3] = g_max_n2v * mdl[m.v_max]
         mdl[m.n_max] = engine.calc_n_max(mdl[m.n_max1], mdl[m.n_max2], mdl[m.n_max3])
 
-        # TODO: incorporate `t_cold_end` check in validateion  framework.
+        # TODO: incorporate `t_cold_end` check in validation framework.
         if wltc_class:
             for err in cb.validate_nims_t_cold_end(mdl[m.t_cold_end], wltc_parts):
                 raise err

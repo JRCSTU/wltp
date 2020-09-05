@@ -214,8 +214,17 @@ def test_cycler_pipeline():  # wltc_class):
         ("p_resist", ""),
     }
     assert set(sol["cycle"].columns) == exp
-    assert not {"class_phase_boundaries", "n2v_g_vmax", "n_max1", "n95_low", 'n_max2', 'n_max3', 'n_max'} - set(
-        sol
+    assert not (
+        {
+            "class_phase_boundaries",
+            "n2v_g_vmax",
+            "n_95_low",
+            "n_95_high",
+            "n_max_cycle",
+            "n_max_vehicle",
+            "n_max",
+        }
+        - sol.keys()
     )
 
     steps = [getattr(n, "name", n) for n in sol.plan.steps]
@@ -224,9 +233,9 @@ def test_cycler_pipeline():  # wltc_class):
     exp_steps = """
         get_wltc_class_data get_forced_cycle get_class_phase_boundaries
         interpolate_wot_on_v_grid attach_p_avail_in_gwots attach_p_resist_in_gwots
-        calc_n2v_g_vmax calc_n95 calc_n_max3 make_gwots_multi_indexer FAKE.V_dsc
+        calc_n2v_g_vmax calc_n_95 calc_n_max_vehicle make_gwots_multi_indexer FAKE.V_dsc
         init_cycle_velocity calc_acceleration attach_class_v_phase_markers
         calc_class_va_phase_markers calc_p_resist calc_inertial_power calc_required_power
-        calc_n_max2 calc_n_max attach_wots
+        calc_n_max_cycle calc_n_max attach_wots
         """.split()
     assert steps == steps_executed == exp_steps

@@ -45,6 +45,8 @@ properties:
     $ref: '#/definitions/positiveNumber'
     description:
       The maximum rated engine power (kW) as declared by the manufacturer.
+    tags:
+    - input
   n_rated:
     title: rated engine revolutions
     $ref: '#/definitions/positiveNumber'
@@ -52,10 +54,14 @@ properties:
       The rated engine revolutions at which an engine develops its maximum power.
       If the maximum power is developed over an engine revolutions range,
       it is determined by the mean of this range.
+    tags:
+    - input
   n_idle:
     title: idling revolutions
     $ref: '#/definitions/positiveNumber'
     description: The idling engine revolutions (Annex 1).
+    tags:
+    - input
   n_min:
     title: minimum engine revolutions
     type:
@@ -71,6 +77,31 @@ properties:
           n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
 
       Higher values may be used if requested by the manufacturer, by setting this one.
+    tags: [input, output]
+  n_lim:
+    title: (optional) maximum engine speed limit
+    $ref: '#/definitions/positiveNumber'
+    tags:
+    - input
+  n_95_high:
+    description:
+      The `n_max1` of Annex 2-2.g calculated from wot's high `n` (sec^-1)
+      where 95% of power is produced.
+    $ref: '#/definitions/positiveNumber'
+    tags:
+    - input, output
+  n_max_cycle:
+    description:
+      The `n_max2` of Annex 2-2.g based on max(V) of "base cycle" (Annex 1-9.1).
+    $ref: '#/definitions/positiveNumber'
+    tags:
+    - input, output
+  n_max_vehicle:
+    description:
+      The `n_max3` of Annex 2-2.g from  `v_max` (Annex 2-2.i).
+    $ref: '#/definitions/positiveNumber'
+    tags:
+    - input, output
   n2v_ratios:
     title: N-to-V ratios
     $ref: '#/definitions/positiveNumbers'
@@ -79,34 +110,50 @@ properties:
     description:
       An array with the gear-ratios obtained by dividing engine-revolutions
       (1/min) by the respective vehicle-velocity (km/h).
+    tags:
+    - input
   f0:
     title: driving resistance coefficient f0
     type: number
     description: The driving resistance coefficient f0, in N (Annex 4).
+    tags:
+    - input
   f1:
     title: driving resistance coefficient f1
     type: number
     description: The driving resistance coefficient f1, in N/(km/h) (Annex 4).
+    tags:
+    - input
   f2:
     title: driving resistance coefficient f2
     type: number
     description: The driving resistance coefficient f2, in N/(km/h)² (Annex 4).
+    tags:
+    - input
   n_min_drive1:
     description: "[1/min], see Annex 2-2.k, n_min for gear 1"
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   n_min_drive2_up:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   n_min_drive2_stopdecel:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   n_min_drive2:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   n_min_drive_set:
     description: |
       [1/min], Annex 2-2.k,
@@ -120,27 +167,39 @@ properties:
       Matlab call this `CalculatedMinDriveEngineSpeedGreater2nd`.
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   n_min_drive_up:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   n_min_drive_up_start:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   n_min_drive_down:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   n_min_drive_down_start:
     description: '[1/min], Annex 2-2.k'
     type: number
     exclusiveMinimum: 0
+    tags:
+    - input
   t_cold_end:
     description: see Annex 2-2.k about n_mins
     type: number
     minimum: 0
     default: 0
+    tags:
+    - input
   wot:
     title: wide open throttle curves
     description: |2
@@ -321,15 +380,15 @@ properties:
           If not given, the `scale_trace` pipeline produces it from
           :func:`.downscale.calc_V_dsc_raw()`.
         $ref: '#/definitions/positiveNumbers'
-        tags: [input, output, gtr]
+        tags: [input, output]
       V_capped:
         description: The `V_dsc` limited to `v_cap` maximum.
         $ref: '#/definitions/positiveNumbers'
-        tags: [input, output, gtr]
+        tags: [input, output]
       V_compensated:
         description: The `V_capped` extended to retain the same distance (Annex 1-9).
         $ref: '#/definitions/positiveNumbers'
-        tags: [input, output, gtr]
+        tags: [input, output]
   wltc_data:
     $ref: /wltc
 

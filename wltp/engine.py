@@ -367,10 +367,10 @@ def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, f_safety_margin) -> pd.DataF
     return gwots
 
 
-@autog.autographed(provides=["n95_low", "n_max1"])
-def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, float]:
+@autog.autographed(provides=["n_95_low", "n_95_high"])
+def calc_n_95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, float]:
     """
-    Find wot's n95_low/high (Annex 2-2.g).
+    Find wot's high (& low) `n` where 95% of power is produced (`n_max1` of Annex 2-2.g).
 
     TODO: accept `n_lim`
 
@@ -436,17 +436,26 @@ def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, fl
 def calc_n2v_g_vmax(g_vmax, n2v_ratios):
     return n2v_ratios[g_vmax - 1]
 
+
 @autog.autographed(needs=[..., "cycle/V"])
-def calc_n_max2(n2v_g_vmax, V: pd.Series):
+def calc_n_max_cycle(n2v_g_vmax, V: pd.Series):
+    """Calc `n_max2` of Annex 2-2.g based on max(V) of "base cycle" (Annex 1-9.1). """
     return n2v_g_vmax * V.max()
 
 
-def calc_n_max3(n2v_g_vmax, v_max):
+def calc_n_max_vehicle(n2v_g_vmax, v_max):
+    """Calc `n_max3` of Annex 2-2.g from `v_max` (Annex 2-2.i). """
     return n2v_g_vmax * v_max
 
 
-def calc_n_max(n_max1, n_max2, n_max3):
-    n_max = max(n_max1, n_max2, n_max3)
-    assert np.isfinite(n_max), ("All `n_max` are NANs?", n_max1, n_max2, n_max3, n_max)
+def calc_n_max(n_95_high, n_max_cycle, n_max_vehicle):
+    n_max = max(n_95_high, n_max_cycle, n_max_vehicle)
+    assert np.isfinite(n_max), (
+        "All `n_max` are NANs?",
+        n_95_high,
+        n_max_cycle,
+        n_max_vehicle,
+        n_max,
+    )
 
     return n_max
