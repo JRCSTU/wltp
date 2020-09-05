@@ -367,8 +367,8 @@ def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, f_safety_margin) -> pd.DataF
     return gwots
 
 
-@autog.autographed(provides=["n_95_low", "n_95_high"])
-def calc_n_95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, float]:
+@autog.autographed(provides=["n95_low", "n95_high"])
+def calc_n95(wot: pd.DataFrame, n_rated: int, p_rated: float) -> Tuple[float, float]:
     """
     Find wot's high (& low) `n` where 95% of power is produced (`n_max1` of Annex 2-2.g).
 
@@ -448,11 +448,11 @@ def calc_n_max_vehicle(n2v_g_vmax, v_max):
     return n2v_g_vmax * v_max
 
 
-def calc_n_max(n_95_high, n_max_cycle, n_max_vehicle):
-    n_max = max(n_95_high, n_max_cycle, n_max_vehicle)
+def calc_n_max(n95_high, n_max_cycle, n_max_vehicle):
+    n_max = max(n95_high, n_max_cycle, n_max_vehicle)
     assert np.isfinite(n_max), (
         "All `n_max` are NANs?",
-        n_95_high,
+        n95_high,
         n_max_cycle,
         n_max_vehicle,
         n_max,

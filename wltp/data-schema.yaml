@@ -83,7 +83,14 @@ properties:
     $ref: '#/definitions/positiveNumber'
     tags:
     - input
-  n_95_high:
+  n95_low:
+    description:
+      Just an artifact of the calculation of `n_max1`(`n95_high`) of Annex 2-2.g,
+      not used by the GTR (sec^-1).
+    $ref: '#/definitions/positiveNumber'
+    tags:
+    - output
+  n95_high:
     description:
       The `n_max1` of Annex 2-2.g calculated from wot's high `n` (sec^-1)
       where 95% of power is produced.
