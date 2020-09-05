@@ -165,7 +165,7 @@ def test_calc_p_available(h5_accdb, vehnums_to_run):
         check_p_avail(case)
 
 
-def test_calc_n_95(h5_accdb):
+def test_calc_n95(h5_accdb):
     results = []
     visited_wots = set()
     for case in vehdb.all_vehnums(h5_accdb):
@@ -187,7 +187,7 @@ def test_calc_n_95(h5_accdb):
         wot = engine.preproc_wot(
             props.rename({"idling_speed": "n_idle", "rated_speed": "n_rated"}), wot
         )
-        n95 = engine.calc_n_95(wot, props["n_rated"], props["p_rated"])
+        n95 = engine.calc_n95(wot, props["n_rated"], props["p_rated"])
         results.append(n95)
 
     df = pd.DataFrame(results, columns=["n95_low", "n95_high"], dtype="float64")
@@ -265,12 +265,12 @@ def test_n_max_pipeline():
         list(sol)
         == """
         p_rated n_rated n2v_ratios wot cycle v_max g_vmax n2v_g_vmax
-        n_95_low n_95_high n_max_cycle n_max_vehicle n_max
+        n95_low n95_high n_max_cycle n_max_vehicle n_max
         """.split()
     )
 
     steps = [getattr(n, "name", n) for n in sol.plan.steps]
     steps_executed = [getattr(n, "name", n) for n in sol.executed]
     print(steps, steps_executed)
-    exp_steps = "calc_n2v_g_vmax calc_n_95 calc_n_max_cycle calc_n_max_vehicle calc_n_max".split()
+    exp_steps = "calc_n2v_g_vmax calc_n95 calc_n_max_cycle calc_n_max_vehicle calc_n_max".split()
     assert steps == steps_executed == exp_steps

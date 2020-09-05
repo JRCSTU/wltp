@@ -125,7 +125,7 @@ print(list(acc_cycle.columns))
 c = wio.pstep_factory.get().cycle
 
 ng = 6
-n95_high = engine.calc_n_95(wot, mdl["n_rated"], mdl["p_rated"])[0]
+n95_high = engine.calc_n95(wot, mdl["n_rated"], mdl["p_rated"])[0]
 v_max_cycle = cb.V.max()
 vmax_rec = vmax.calc_v_max(gwots)
 g_vmax = vmax_rec.g_vmax

@@ -248,7 +248,7 @@ def n_max_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     ops = aug.wrap_funcs(
         [
             engine.calc_n2v_g_vmax,
-            engine.calc_n_95,
+            engine.calc_n95,
             engine.calc_n_max_cycle,
             engine.calc_n_max_vehicle,
             engine.calc_n_max,

@@ -150,7 +150,7 @@ class Experiment(object):
             raise ValueError("Missing resistance_coeffs!")
 
         wot = mdl[m.wot]
-        n95_low, n95_high = engine.calc_n_95(wot, n_rated, p_rated)
+        n95_low, n95_high = engine.calc_n95(wot, n_rated, p_rated)
         mdl[m.n95_low], mdl[m.n95_high] = n95_low, n95_high
 
         f_safety_margin = mdl[m.f_safety_margin]
