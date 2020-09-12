@@ -82,7 +82,7 @@ def wltc_class_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
 @fnt.lru_cache()
 def p_req_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
-    Pipeline to provide `V_compensated` traces (Annex 1, 9).
+    Pipeline to provide `P_req` traces (Annex 2, 9).
 
     .. graphtik::
         :height: 600
@@ -140,7 +140,7 @@ def vmax_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
         >>> pipe = vmax_pipeline()
     """
     aug = aug or wio.make_autograph()
-    ops = aug.wrap_funcs([*gwots_pipeline().ops, vmax.calc_v_max,])
+    ops = aug.wrap_funcs([*gwots_pipeline(aug).ops, vmax.calc_v_max,])
     pipe = compose(..., *ops, **pipeline_kw)
 
     return pipe
@@ -221,11 +221,11 @@ def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
     aug = aug or wio.make_autograph()
     ops = aug.wrap_funcs(
         [
-            *wltc_class_pipeline().ops,
-            *vmax_pipeline().ops,
-            *downscale_pipeline().ops,
-            *compensate_capped_pipeline().ops,
-            *v_distances_pipeline().ops,
+            *wltc_class_pipeline(aug).ops,
+            *vmax_pipeline(aug).ops,
+            *downscale_pipeline(aug).ops,
+            *compensate_capped_pipeline(aug).ops,
+            *v_distances_pipeline(aug).ops,
         ]
     )
     pipe = compose(..., *ops, **pipeline_kw,)
