@@ -6,4 +6,10 @@ rendered below, are contained in the `wltp/data-schema.yaml
 YAML document.
 
 .. jsonschema:: ../wltp/data-schema.yaml
+    :lift_definitions:
+    :auto_reference:
+    :auto_target:
 .. jsonschema:: ../wltp/wltc-schema.yaml
+    :lift_definitions:
+    :auto_reference:
+    :auto_target:
