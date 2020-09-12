@@ -426,9 +426,14 @@ def model_validator(
             "properties": {
                 **validator.META_SCHEMA["properties"],
                 "tags": {
+                    "description": "Data item extra label e.g. input/output or use/purpose.",
                     "type": "array",
                     "items": {"type": "string"},
                     "uniqueItems": True,
+                },
+                "units": {
+                    "description": "Default units of the quantity, by `pint` library.",
+                    "type": "string",
                 },
                 # For extension https://sphinx-jsonschema.readthedocs.io/en/latest/schemakeywords.html
                 "$$target": {"type": ["string", "array"]},
