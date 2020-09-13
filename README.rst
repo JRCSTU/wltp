@@ -595,6 +595,7 @@ The computation code is roughly divided in these python modules:
         - :mod:`~wltp.experiment` (TO BE DROPPED, :mod:`~wltp.datamodel` will assume all functionality)
 
     scheduler
+    graphtik
         The internal software component :mod:`graphtik` which decides which
         `formulae` to execute based on given inputs and requested outputs.
 
@@ -878,6 +879,7 @@ The typical development procedure is like this:
 5. If there are no problems, commit your changes with a descriptive message.
 
 6. Repeat this cycle for other bugs/enhancements.
+
 7. When you are finished, push the changes upstream to *github* and make a *merge_request*.
    You can check whether your merge-request indeed passed the tests by checking
    its build-status |travis-status| on the integration-server's site (TravisCI).
@@ -885,6 +887,15 @@ The typical development procedure is like this:
    .. Hint:: Skim through the small IPython developer's documentation on the matter:
         `The perfect pull request <https://github.com/ipython/ipython/wiki/Dev:-The-perfect-pull-request>`_
 
+8. Generate the Sphinx documents in :file:`./wltp.git/docs/_build/html/`
+   with this command::
+
+        python setup.py build_sphinx
+
+   Access the generated documents through a a web-server, for :term:`graphtik` graphs
+   to work correctly, with this bash-command (remove the final ``&`` on *Windows*)::
+
+       python -m http.server 8080 --directory ./wltp.git/docs/_build/html/ &
 
 .. _dev-team:
 
