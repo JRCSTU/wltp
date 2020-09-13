@@ -12,6 +12,7 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 import pandas as pd
+import pytest
 from tests.goodvehicle import goodVehicle
 
 from wltp.experiment import Experiment, datamodel
@@ -24,6 +25,7 @@ except ImportError:
     PandasError = ValueError
 
 
+@pytest.mark.xfail(reason="Force-cycle will change on next commit.")
 class TestForcedCycle(unittest.TestCase):
     def test_badCycle(self):
         mdl = goodVehicle()

@@ -6,6 +6,7 @@
 # You may not use this work except in compliance with the Licence.
 # You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
 import itertools as itt
+import textwrap
 
 import pandas as pd
 import pytest
@@ -146,7 +147,12 @@ def test_cycler_pipeline():  # wltc_class):
         [
             *pipelines.cycler_pipeline().ops,
             # fake Vs
-            operation(None, "FAKE.V_dsc", "wltc_class_data/V_cycle", "V_dsc"),
+            operation(
+                lambda v: v.rename("V_dsc"),
+                "FAKE.V_dsc",
+                "wltc_class_data/V_cycle",
+                "V_dsc",
+            ),
         ]
     )
     pipe = compose(..., *ops)
@@ -161,20 +167,20 @@ def test_cycler_pipeline():  # wltc_class):
 
     with config.evictions_skipped(True):
         sol = pipe.compute(inp)
-
-    exp = {
-        "V_cycle",
-        "V_cycle",
-        "V",
-        "A",
-        "v_phase1",
-        "v_phase2",
-        "v_phase3",
-        "va_phases",
-        "P_resist",
-        "P_inert",
-        "P_req",
-        "t",
+    sol.plot("t.pdf")
+    exp = [
+        ("V_cycle", ""),
+        ("V_dsc", ""),
+        ("V", ""),
+        ("A", ""),
+        ("v_phase1", ""),
+        ("v_phase2", ""),
+        ("v_phase3", ""),
+        ("va_phases", ""),
+        ("P_resist", ""),
+        ("P_inert", ""),
+        ("P_req", ""),
+        ("t", ""),
         ("n", "g1"),
         ("n", "g2"),
         ("n", "g3"),
@@ -211,9 +217,10 @@ def test_cycler_pipeline():  # wltc_class):
         ("p_norm", "g4"),
         ("p_norm", "g5"),
         ("p_norm", "g6"),
-        ("p_resist", ""),
-    }
-    assert set(sol["cycle"].columns) == exp
+    ]
+
+    print(list(sol["cycle"].columns))
+    assert list(sol["cycle"].columns) == exp
     assert not (
         {
             "class_phase_boundaries",
@@ -229,13 +236,13 @@ def test_cycler_pipeline():  # wltc_class):
 
     steps = [getattr(n, "name", n) for n in sol.plan.steps]
     steps_executed = [getattr(n, "name", n) for n in sol.executed]
-    print(steps, steps_executed)
+    print("\n".join(textwrap.wrap(" ".join(steps), 90)))
+    print("\n".join(textwrap.wrap(" ".join(steps_executed), 90)))
     exp_steps = """
-        get_wltc_class_data get_forced_cycle get_class_phase_boundaries
-        interpolate_wot_on_v_grid attach_p_avail_in_gwots attach_p_resist_in_gwots
-        calc_n2v_g_vmax calc_n95 calc_n_max_vehicle make_gwots_multi_indexer FAKE.V_dsc
-        init_cycle_velocity calc_acceleration attach_class_v_phase_markers
-        calc_class_va_phase_markers calc_p_resist calc_inertial_power calc_required_power
-        calc_n_max_cycle calc_n_max attach_wots
+        get_wltc_class_data get_forced_cycle get_class_phase_boundaries interpolate_wot_on_v_grid
+        attach_p_avail_in_gwots calc_n2v_g_vmax calc_n95 calc_n_max_vehicle
+        make_gwots_multi_indexer FAKE.V_dsc init_cycle_velocity calc_acceleration
+        attach_class_v_phase_markers calc_class_va_phase_markers calc_p_resist calc_inertial_power
+        calc_required_power calc_n_max_cycle calc_n_max attach_wots
         """.split()
     assert steps == steps_executed == exp_steps

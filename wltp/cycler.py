@@ -314,7 +314,7 @@ class CycleBuilder:
         self.V = V
         self.A = cycle[c.a]
 
-    def flat_cycle(self, df) -> pd.DataFrame:
+    def flat_cycle(self) -> pd.DataFrame:
         """return a copy of :attr:`cycle` passed through :func:`flatten_columns()`"""
         cycle = self.cycle.copy()
         cycle.columns = wio.flatten_columns(cycle.columns)
@@ -396,6 +396,7 @@ class CycleBuilder:
         G_min = make_G_min(G_scala)
         G_max0 = make_G_max0(G_scala)
         return G_min, G_max0, G_scala
+
 
 
 def calc_p_remain(cycle, gidx):
@@ -498,7 +499,7 @@ def init_cycle_velocity(*velocities: pd.Series, forced_cycle=None) -> pd.DataFra
         with the last one becoming the `V`
 
     :return:
-        the concatenated cycle
+        the concatenated cycle with 2-level columns (item, gear)
     """
     if not velocities:
         raise ValueError("Cycle needs at least one velocity to begin with!")
@@ -508,6 +509,11 @@ def init_cycle_velocity(*velocities: pd.Series, forced_cycle=None) -> pd.DataFra
 
     if forced_cycle is not None:
         cycle = pd.concat((forced_cycle, cycle), axis=1)
+
+    # Establish 2-level columns.
+    cycle.columns = pd.MultiIndex.from_product(
+        (cycle.columns, ("",)), names=("item", "gear")
+    )
 
     return cycle
 
@@ -919,6 +925,7 @@ def make_incrementing_gflags(gidx2: wio.GearMultiIndexer, ok_gears: pd.DataFrame
     ret.columns = gidx2.with_item(c.G_scala)[:]
 
     return ret
+
 
 
 def make_G_min(incrementing_gflags):

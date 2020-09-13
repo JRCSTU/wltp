@@ -31,7 +31,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from graphtik import keyword
+from graphtik import keyword, modify, sfxed
 
 from . import autograph as autog
 from . import io as wio
@@ -126,13 +126,16 @@ def _find_p_remain_root(
 
 
 @autog.autographed(
-    needs=(),
+    needs=[
+        sfxed("gwots", "p_avail"),
+        modify("gwots/p_resist", implicit=1),
+    ],
     provides=[
         *VMaxRec._fields[:-2],
         keyword("is_n_lim_vmax", "is_n_lim"),
         keyword("vmax_gwot", "wot"),  # `wot` causes cycle!
     ],
-    inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")],
+    inp_sideffects=[("gwots", "p_avail")],
     returns_dict=True,
 )
 def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:

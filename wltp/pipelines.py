@@ -120,7 +120,7 @@ def gwots_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
         [
             engine.interpolate_wot_on_v_grid,
             engine.attach_p_avail_in_gwots,
-            vehicle.attach_p_resist_in_gwots,
+            *p_req_pipeline(aug).ops,
         ]
     )
     pipe = compose(..., *ops, **pipeline_kw)
@@ -140,7 +140,14 @@ def vmax_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
         >>> pipe = vmax_pipeline()
     """
     aug = aug or wio.make_autograph()
-    ops = aug.wrap_funcs([*gwots_pipeline(aug).ops, vmax.calc_v_max,])
+    ops = aug.wrap_funcs(
+        [
+            engine.interpolate_wot_on_v_grid,
+            vehicle.calc_p_resist,
+            engine.attach_p_avail_in_gwots,
+            vmax.calc_v_max,
+        ]
+    )
     pipe = compose(..., *ops, **pipeline_kw)
 
     return pipe
@@ -228,7 +235,7 @@ def scale_trace_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline
             *v_distances_pipeline(aug).ops,
         ]
     )
-    pipe = compose(..., *ops, **pipeline_kw,)
+    pipe = compose(..., *ops, **pipeline_kw)
 
     return pipe
 
