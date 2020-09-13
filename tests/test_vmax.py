@@ -15,9 +15,9 @@ import numpy.testing as npt
 import pandas as pd
 import pytest
 from pandas import IndexSlice as _ix
+from toolz import dicttoolz as dtz
 
 from graphtik import compose, operation
-
 from wltp import downscale, engine
 from wltp import io as wio
 from wltp import pipelines, vehicle, vmax
@@ -38,24 +38,8 @@ def _calc_v_max_manual(props, wot, n2vs):
 
 
 def _calc_v_max_pipelined(props, wot, n2vs):
-    #     @autog.autographed(
-    #     needs=(),
-    #     provides=VMaxRec._fields[:-2],  # exclude `i_n_lim` & `wot` (cycle!)
-    #     inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")],
-    #     returns_dict=True,
-    # )
-    #     my_calc_v_max = operation(vmax.calc_v_max
-
     pipe = pipelines.vmax_pipeline()
-    # Restore renamed (due to cycle) VMaxRec `wot` field.
     calc_v_max_op = pipe.find_op_by_name("calc_v_max")
-    pipe = compose(
-        ...,
-        calc_v_max_op.withset(
-            provides=[*calc_v_max_op.provides[:-2], "is_n_lim", "wot"]
-        ),
-        *pipe.ops,
-    )
     res = pipe.compute(
         {
             "wot": wot,
@@ -65,8 +49,22 @@ def _calc_v_max_pipelined(props, wot, n2vs):
             "f1": props["f1"],
             "f2": props["f2"],
         },
-        outputs=vmax.VMaxRec._fields,
+        outputs=calc_v_max_op.provides,
     )
+    assert list(res) == ["v_max", "n_vmax", "g_vmax", "is_n_lim_vmax", "vmax_gwot"]
+    assert [op.name for op in res.executed] == [
+        "interpolate_wot_on_v_grid",
+        "attach_p_avail_in_gwots",
+        "attach_p_resist_in_gwots",
+        "calc_v_max",
+    ]
+    ## Restore renamed graphtik-renamed deps.
+    #
+    renames = {
+        "is_n_lim_vmax": "is_n_lim",
+        "vmax_gwot": "wot",
+    }
+    res = dtz.keymap(lambda k: renames.get(k, k), res)
     rec = vmax.VMaxRec(**res)
 
     return rec
