@@ -38,7 +38,9 @@ def calc_p_m_ratio(p_rated, unladen_mass):
 @autog.autographed(needs=["wltc_data/classes", ..., ...])
 def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
     """Vehicle classification according to Annex 1-2. """
-    assert isinstance(p_m_ratio, (int, float)) and isinstance(v_max, (int, float)), locals()
+    assert isinstance(p_m_ratio, (int, float)) and isinstance(
+        v_max, (int, float)
+    ), locals()
 
     c = wio.pstep_factory.get().cycle_data
 
@@ -63,7 +65,10 @@ def decide_wltc_class(wltc_classes_data: Mapping[str, dict], p_m_ratio, v_max):
 
 
 @autog.autographed(
-    domain="cycle", needs=["cycle/V", ..., ..., ...], provides="cycle/P_resist",
+    needs=["gwots/index", ..., ..., ...], provides="gwots/p_resist"
+)
+@autog.autographed(
+    domain="cycle", needs=["cycle/V", ..., ..., ...], provides="cycle/P_resist"
 )
 def calc_p_resist(V: Column, f0, f1, f2):
     """
@@ -76,24 +81,20 @@ def calc_p_resist(V: Column, f0, f1, f2):
     return (f0 * V + f1 * VV + f2 * VVV) / 3600.0
 
 
-def attach_p_resist_in_gwots(gwots: pd.DataFrame, f0, f1, f2):
-    w = wio.pstep_factory.get().wot
-    gwots[w.p_resist] = calc_p_resist(gwots.index, f0, f1, f2)
-    return gwots
-
-
-@autog.autographed(provides="p_inert")
+@autog.autographed(
+    domain="gwots", needs=["gwots/index", "gwots/A", ..., ...], provides="gwots/p_inert"
+)
 @autog.autographed(
     domain="cycle", needs=["cycle/V", "cycle/A", ..., ...], provides="cycle/P_inert"
 )
 def calc_inertial_power(V, A, test_mass, f_inertial):
     """
-    @see: Annex 2-3.1
+    Power demands of the cycle accelerations, Annex 2-3.1.
     """
     return (A * V * test_mass * f_inertial) / 3600.0
 
 
-@autog.autographed(provides="p_req")
+@autog.autographed(needs=["gwots/p_resist", "gwots/p_inert"], provides="gwots/p_req")
 @autog.autographed(
     domain="cycle", needs=["cycle/P_resist", "cycle/P_inert"], provides="cycle/P_req"
 )

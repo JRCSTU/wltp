@@ -343,15 +343,15 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
 
 def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, f_safety_margin) -> pd.DataFrame:
     """
+    Attaches both `p_avail` and `p_avail_stable` for all gears.
+
     .. attention:
-        Must not interpolate along with wot on grid, or great INNACCURACIES.
+        Must NOT interpolate along with wot on grid, or great INNACCURACIES.
 
     :param gwots:
         a  df with 2-level multiindex columns, having at least (`g1`, 'p'), and
         optionally ('g1', 'ASM')) for each gears
         (as returned by :func:`interpolate_wot_on_v_grid()`).
-
-    .. TODO:: Encapsulate GridWots in a class, like Cycler.
     """
     w = wio.pstep_factory.get().wot
 

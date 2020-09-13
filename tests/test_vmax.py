@@ -54,8 +54,8 @@ def _calc_v_max_pipelined(props, wot, n2vs):
     assert list(res) == ["v_max", "n_vmax", "g_vmax", "is_n_lim_vmax", "vmax_gwot"]
     assert [op.name for op in res.executed] == [
         "interpolate_wot_on_v_grid",
+        "calc_p_resist",
         "attach_p_avail_in_gwots",
-        "attach_p_resist_in_gwots",
         "calc_v_max",
     ]
     ## Restore renamed graphtik-renamed deps.
