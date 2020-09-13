@@ -130,7 +130,7 @@ def _find_p_remain_root(
     provides=[
         *VMaxRec._fields[:-2],
         keyword("is_n_lim_vmax", "is_n_lim"),
-        keyword("vmax_wots", "wot"),  # `wot` causes cycle!
+        keyword("vmax_gwot", "wot"),  # `wot` causes cycle!
     ],
     inp_sideffects=[("gwots", "p_resist"), ("gwots", "p_avail")],
     returns_dict=True,
@@ -140,7 +140,7 @@ def calc_v_max(gwots: Union[pd.Series, pd.DataFrame]) -> VMaxRec:
     Finds maximum velocity by scanning gears from the top.
 
     TODO: accept `n_lim`
-    
+
     :param gwots:
         a dataframe indexed by a grid of rounded velocities,
         containing (at least) `p_resist` and `p_avail_stable` columns for all gears,
