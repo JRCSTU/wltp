@@ -819,8 +819,9 @@ Practical deliberations
 
 BUT since all phases in WLTC begin and finish with consecutive zeros(0),
 the deliberations above do not manifest as problems;  but at the same time,
-discovering off-by-one errors (or shifts in time) on
-arbitrary files containing calculated and/or measured traces is really hard:
+discovering off-by-one errors & shifts in time (wherever this matters),
+on arbitrary files containing calculated and/or measured traces is really hard
+(and important):
 SUMs & CUMSUMs do not produce any difference at all.
 
 The tables in the next section, along with accompanying CRC functions developed in Python,
