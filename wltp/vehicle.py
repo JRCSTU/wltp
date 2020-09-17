@@ -81,15 +81,18 @@ def calc_p_resist(V: Column, f0, f1, f2):
     return (f0 * V + f1 * VV + f2 * VVV) / 3600.0
 
 
-@autog.autographed(
-    domain="gwots", needs=["gwots/index", "gwots/A", ..., ...], provides="gwots/p_inert"
-)
+@autog.autographed(needs=["gwots/index", "gwots/A", ..., ...], provides="gwots/p_inert")
 @autog.autographed(
     domain="cycle", needs=["cycle/V", "cycle/A", ..., ...], provides="cycle/P_inert"
 )
 def calc_inertial_power(V, A, test_mass, f_inertial):
     """
     Power demands of the cycle accelerations, Annex 2-3.1.
+
+    :param test_mass:
+        .. jsonschema:: data-schema.yaml#/properties/test_mass
+    :param f_inertial:
+        .. jsonschema:: data-schema.yaml#/properties/f_inertial
     """
     return (A * V * test_mass * f_inertial) / 3600.0
 

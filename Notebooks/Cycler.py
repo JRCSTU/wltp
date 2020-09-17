@@ -107,7 +107,7 @@ wltc_parts = datamodel.get_class_parts_limits(3, edges=True)
 cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
 
 # %%
-cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
+cb.cycle = pm.add_transition_markers(cb.cycle, cb.V, cb.A)
 cb.cycle.select_dtypes(bool).sum()
 
 # %%
@@ -144,7 +144,7 @@ cb.cycle["p_inert"] = vehicle.calc_inertial_power(cb.V, cb.A, prop.test_mass, kr
 cb.cycle["p_req"] = vehicle.calc_required_power(
     cb.cycle["p_inert"], cb.cycle["p_resist"]
 )
-p_remain = cycler.calc_p_remain(cb.cycle, cb.gidx)
+p_remain = cycler.calc_p_remain(cb.cycle["p_req"], cb.cycle["p_avail"])
 
 
 # %%
@@ -169,13 +169,13 @@ flag_aggregates(ok_flags)
 # %%
 ok_n = cb.combine_ok_n_gear_flags(ok_flags)
 ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)
-ok_gears = cb.combine_ok_n_p_gear_flags(ok_flags1)
+ok_gears = cb.derrive_ok_gears(ok_flags1)
 ok_gears.sum()
 
 # %%
 ok_n = cb.combine_ok_n_gear_flags(ok_flags)
 ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)
-ok_gears = cb.combine_ok_n_p_gear_flags(ok_flags1)
+ok_gears = cb.derrive_ok_gears(ok_flags1)
 ok_gears.sum()
 
 # %%

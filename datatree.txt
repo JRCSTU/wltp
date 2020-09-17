@@ -1,5 +1,6 @@
 
 /cycle/G_scala
+/cycle/V
 /cycle/V_cycle
 /cycle/V_dsc
 /cycle/V_dsc_raw
@@ -34,7 +35,7 @@
 /cycle/up
 /cycle/v
 /cycle/v_target
-/cycle_data
+/cycle/va_phase
 /cycle_data/pmr_limits
 /cycle_data/velocity_limits
 /driver_mass

@@ -26,27 +26,25 @@ except ImportError:
 
 
 @pytest.mark.xfail(reason="Force-cycle will change on next commit.")
-class TestForcedCycle(unittest.TestCase):
-    def test_badCycle(self):
-        mdl = goodVehicle()
-        mdl["cycle"] = 1
+def test_badCycle():
+    mdl = goodVehicle()
+    mdl["forced_cycle"] = 1
 
-        with self.assertRaisesRegex(
-            PandasError, "DataFrame constructor not properly called"
-        ):
-            experiment = Experiment(mdl)
-            mdl = experiment.run()
-
-    def test_two_ramps_smoke_test(self):
-        mdl = goodVehicle()
-        mdl = datamodel.upd_resistance_coeffs_regression_curves(mdl)
-
-        V = np.hstack((np.r_[0:100:2], np.r_[98:0:-2]))
-        mdl["cycle"] = {"v_target": V}
-
+    with pytest.raises(PandasError, match="DataFrame constructor not properly called"):
         experiment = Experiment(mdl)
         mdl = experiment.run()
 
+
+@pytest.mark.xfail(reason="Force-cycle will change on next commit.")
+def test_two_ramps_smoke_test():
+    mdl = goodVehicle()
+    mdl = datamodel.upd_resistance_coeffs_regression_curves(mdl)
+
+    V = np.hstack((np.r_[0:100:2], np.r_[98:0:-2]))
+    mdl["forced_cycle"] = {"v_target": V}
+
+    experiment = Experiment(mdl)
+    mdl = experiment.run()
 
 if __name__ == "__main__":
     import sys

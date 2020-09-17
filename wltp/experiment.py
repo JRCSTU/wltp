@@ -261,7 +261,7 @@ class Experiment(object):
             wltc_parts = datamodel.get_class_parts_limits(wltc_class, edges=True)
             cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
 
-        cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
+        cb.cycle = pm.add_transition_markers(cb.cycle, cb.V, cb.A)
 
         cb.cycle[c.p_inert] = vehicle.calc_inertial_power(
             cb.V, cb.A, test_mass, f_inertial
@@ -271,8 +271,8 @@ class Experiment(object):
             cb.cycle[c.p_resist], cb.cycle[c.p_inert]
         )
 
-        ## VALIDATE AGAINST PIPELINE.
-        #
+        # VALIDATE AGAINST PIPELINE.
+
         p_req = cb.cycle[c.p_req]
         sol = pipelines.cycler_pipeline().compute({**mdl, "V_compensated": V})
         P_req = sol["cycle"]["P_req"]
@@ -295,20 +295,20 @@ class Experiment(object):
             for err in cb.validate_nims_t_cold_end(mdl[m.t_cold_end], wltc_parts):
                 raise err
 
-        ok_flags = cb.calc_initial_gear_flags(
+        initial_gear_flags = cb.calc_initial_gear_flags(
             g_vmax=mdl[m.g_vmax],
             n95_high=n95_high,
             n_max_cycle=n_max_cycle,
             # TODO: expand nmins
             nmins=nmindrive.mdl_2_n_min_drives(**mdl)["n_min_drives"],
         )
-        ok_n = cb.combine_ok_n_gear_flags(ok_flags)
-        ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)
-        ok_gears = cb.combine_ok_n_p_gear_flags(ok_flags1)
+        ok_n_flags = cb.combine_ok_n_gear_flags(initial_gear_flags)
+        ok_flags = pd.concat((initial_gear_flags, ok_n_flags), axis=1)
+        ok_gears = cb.derrive_ok_gears(ok_flags)
 
         g_min, g_max0, G_scala = cb.make_gmax0(ok_gears)
 
-        cb.add_columns(ok_flags1, ok_gears, G_scala, g_min, g_max0)
+        cb.add_columns(ok_flags, ok_gears, G_scala, g_min, g_max0)
 
         mdl[m.cycle] = cb.cycle
 

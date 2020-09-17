@@ -339,6 +339,25 @@ properties:
 
       Set it to 0 to disable downscaling, (or to any other value to force it).
     type: number
+  f_running_threshold:
+    description:
+      Τhe velocity threshold above which the vehicle is considered as "running",
+      from drivability rules of Annex 2-4.
+    type: number
+    default: 1
+    units: km/h
+    tags:
+      - input
+      - constant
+  f_up_threshold:
+    description: The acceleration/constant threshold defined in Annex 2-2.k
+      for the determination of the initial gear, according to Annex 2-3.5.
+    type: number
+    default: -0.1389
+    units: m/s²
+    tags:
+      - input
+      - constant
   b_no_g0_downshift:
     description: |2
       a flag to suppress shifting to gear-0(idle) during downshifts
