@@ -284,18 +284,30 @@ def cycler_pipeline(
     ops = aug.wrap_funcs(
         [
             cycles.get_wltc_class_data,
-            cycler.get_forced_cycle,
             cycler.init_cycle_velocity,
             cycler.calc_acceleration,
             cycles.get_class_phase_boundaries,
-            cycler.attach_class_v_phase_markers,
-            cycler.calc_class_va_phase_markers,
+            cycler.attach_class_phase_markers,
+            cycler.calc_phase_accel_raw,
+            cycler.calc_phase_run_stop,
+            cycler.PhaseMarker,
+            cycler.PhaseMarker.calc_phase_decel,
+            cycler.PhaseMarker.calc_phase_initaccel,
+            cycler.PhaseMarker.calc_phase_stopdecel,
+            cycler.PhaseMarker.calc_phase_up,
             *gwots_pipeline(aug).ops,
             *p_req_pipeline(aug).ops,
             *n_max_pipeline(aug).ops,
             wio.GearMultiIndexer.from_df,
             cycler.attach_wots,
-        ]
+            cycler.derrive_initial_gear_flags,
+            cycler.derrive_ok_n_flags,
+            cycler.concat_frame_columns,
+            cycler.derrive_ok_gears,
+            cycler.make_incrementing_gflags,
+            cycler.make_G_min,
+            cycler.make_G_max0,
+        ],
     )
     pipe = compose(..., *ops, **pipeline_kw)
 

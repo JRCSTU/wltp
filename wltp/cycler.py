@@ -19,7 +19,7 @@ import dataclasses
 import functools as fnt
 import itertools as itt
 import logging
-from typing import Iterable, List, Optional, Sequence, Union
+from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -74,7 +74,35 @@ def calc_acceleration(V: Column) -> np.ndarray:
     return A
 
 
+@autog.autographed(needs="cycle/A", provides="cycle/accel_raw")
+def calc_phase_accel_raw(A: pd.Series) -> pd.Series:
+    """
+    Init phase (start from standstill, Annex 2-3.2) starts
+    for any v > 0 (not v > 0.1 kmh),
+    so must not use the pre-calculated accel/stop phases below.
+    """
+    return A > 0
+
+
+@autog.autographed(needs=["cycle/V", ...], provides=["cycle/run", "cycle/stop"])
+def calc_phase_run_stop(
+    V: pd.Series, f_running_threshold: float
+) -> Tuple[pd.Series, pd.Series]:
+    """
+    Return the `run` and `stop` phase flags:
+
+    .. jsonschema:: data-schema.yaml#/properties/cycle/properties/run
+    .. jsonschema:: data-schema.yaml#/properties/cycle/properties/stop
+
+    :param f_running_threshold:
+        .. jsonschema:: data-schema.yaml#/properties/f_running_threshold
+    """
+    run = V >= f_running_threshold
+    return run, ~run
+
+
 @dataclasses.dataclass
+@autog.autographed(provides="phase_marker")
 class PhaseMarker:
     """Identifies consecutive truths in series"""
 
@@ -93,7 +121,7 @@ class PhaseMarker:
     up_threshold: float = -0.1389
 
     def _identify_consecutive_truths(
-        self, col: pd.Series, right_edge: bool
+        self, col: pd.Series, right_edge=True
     ) -> pd.Series:
         """
         Detect phases with a number of consecutive trues above some threshold.
@@ -139,7 +167,12 @@ class PhaseMarker:
             col |= col.shift()
         return col
 
-    def _accel_after_init(self, V, accel):
+    @autog.autographed(
+        needs=["phase_marker", "cycle/V", "cycle/accel_raw"], provides="cycle/initaccel"
+    )
+    def calc_phase_initaccel(self, V, accel):
+        """.. jsonschema:: data-schema.yaml#/properties/cycle/properties/initaccel"""
+
         def count_good_rows(group):
             # print(group.index.min(),group.index.max(), (group[c_accel] & group[c_init]).any(None), '\n', group)
             return (
@@ -156,23 +189,72 @@ class PhaseMarker:
 
         return initaccel
 
-    def _decel_before_stop(self, decels, stops):
+    @autog.autographed(
+        needs=["phase_marker", "cycle/decel", "cycle/stop"],
+        provides="cycle/stopdecel",
+    )
+    def calc_phase_stopdecel(self, decel, stop):
+        """.. jsonschema:: data-schema.yaml#/properties/cycle/properties/stopdecel"""
+
         def count_good_rows(group):
             return group.count() if (group & last_decel_sample_before_stop).any() else 0
 
-        last_decel_sample_before_stop = decels & stops
-        repeats_grouper = (decels.to_numpy() != decels.shift().to_numpy()).cumsum()
-        stopdecel = decels.groupby(repeats_grouper).transform(count_good_rows) > 0
+        last_decel_sample_before_stop = decel & stop
+        repeats_grouper = (decel.to_numpy() != decel.shift().to_numpy()).cumsum()
+        stopdecel = decel.groupby(repeats_grouper).transform(count_good_rows) > 0
 
         return stopdecel
 
-    def add_phase_markers(
+    @autog.autographed(
+        needs=["phase_marker", "cycle/run", "cycle/accel_raw"], provides="cycle/accel"
+    )
+    def calc_phase_accel(self, run: pd.Series, accel_raw: pd.Series) -> pd.Series:
+        """
+        Driveability rule for acceleration/constant phase in Annex 2-2.k
+        for the determination of the initial gear, according to Annex 2-3.5.
+
+        :param f_up_threshold:
+            .. jsonschema:: data-schema.yaml#/properties/f_up_threshold
+
+        """
+        return self._identify_consecutive_truths(run & accel_raw)
+
+    @autog.autographed(
+        needs=["phase_marker", "cycle/run", "cycle/accel_raw"], provides="cycle/decel"
+    )
+    def calc_phase_decel(self, run: pd.Series, accel_raw: pd.Series) -> pd.Series:
+        """
+        Driveability rule for acceleration/constant phase in Annex 2-2.k
+        for the determination of the initial gear, according to Annex 2-3.5.
+
+        :param f_up_threshold:
+            .. jsonschema:: data-schema.yaml#/properties/f_up_threshold
+
+        """
+        return self._identify_consecutive_truths(run & ~accel_raw)
+
+    @autog.autographed(
+        needs=["phase_marker", "cycle/run", "cycle/A", ...], provides="cycle/up"
+    )
+    def calc_phase_up(self, run: pd.Series, A: pd.Series, f_up_threshold) -> pd.Series:
+        """
+        .. jsonschema:: data-schema.yaml#/properties/cycle/properties/up
+
+        :param f_up_threshold:
+            .. jsonschema:: data-schema.yaml#/properties/f_up_threshold
+
+        """
+        return self._identify_consecutive_truths(run & (A >= f_up_threshold))
+
+    def add_transition_markers(
         self, cycle: pd.DataFrame, V: pd.Series, A: pd.Series
     ) -> pd.DataFrame:
         """
         Adds accel/cruise/decel/up phase markers into the given cycle,
 
         based `V` & `A` columns of a cycle generated by :func:`emerge_cycle()`.
+
+        TODO: DEL after graphtiked
         """
         c = wio.pstep_factory.get().cycle
 
@@ -204,8 +286,8 @@ class PhaseMarker:
         cycle[c.cruise] = phase(RUN & (A == 0))
         cycle[c.decel] = phase(RUN & ~cycle[c.accel_raw])
 
-        cycle[c.initaccel] = self._accel_after_init(V, cycle[c.accel_raw])
-        cycle[c.stopdecel] = self._decel_before_stop(cycle[c.decel], cycle[c.stop])
+        cycle[c.initaccel] = self.calc_phase_initaccel(V, cycle[c.accel_raw])
+        cycle[c.stopdecel] = self.calc_phase_stopdecel(cycle[c.decel], cycle[c.stop])
 
         ## Annex 2-2.k (n_min_drive).
         cycle[c.up] = phase(RUN & (A >= self.up_threshold))
@@ -227,6 +309,8 @@ class PhaseMarker:
             assumes indexed by time
         :param wltc_parts:
             must include edges (see :func:`~.datamodel.get_class_parts_limits()`)
+
+        TODO: DEL after graphtiked
         """
         assert all(i is not None for i in (cycle, wltc_parts)), (
             "Null in inputs:",
@@ -379,15 +463,30 @@ class CycleBuilder:
     def calc_initial_gear_flags(
         self, *, g_vmax: int, n95_high: float, n_max_cycle: float, nmins: NMinDrives
     ) -> pd.DataFrame:
-        return calc_initial_gear_flags(
-            self.cycle, self.gidx, g_vmax, n95_high, n_max_cycle, nmins
+        c = wio.pstep_factory.get().cycle
+
+        cycle = self.cycle
+        return derrive_initial_gear_flags(
+            cycle,
+            cycle[c.t],
+            cycle[c.run],
+            cycle[c.stop],
+            cycle[c.initaccel],
+            cycle[c.stopdecel],
+            cycle[c.up],
+            cycle[c.p_req],
+            self.gidx,
+            g_vmax,
+            n95_high,
+            n_max_cycle,
+            **nmins._asdict(),
         )
 
     def combine_ok_n_gear_flags(self, flags: pd.DataFrame):
-        return combine_ok_n_gear_flags(flags)
+        return derrive_ok_n_flags(flags)
 
-    def combine_ok_n_p_gear_flags(self, flags: pd.DataFrame):
-        return combine_ok_n_p_gear_flags(flags)
+    def derrive_ok_gears(self, flags: pd.DataFrame):
+        return derrive_ok_gears(flags)
 
     def make_gmax0(self, ok_gears: pd.DataFrame):
         ## FIXME: needed sideffect due to g0 flags (not originally in gwots)
@@ -399,41 +498,34 @@ class CycleBuilder:
 
 
 
-def calc_p_remain(cycle, gidx):
+def calc_p_remain(P_avail: pd.DataFrame, P_req: pd.Series):
     """
     Return `p_avail - p_req` for all gears > g2 in `gwot`
 
     TODO: Separate :func:`calc_p_remain` not used yet
     """
-    w = wio.pstep_factory.get().wot
+    c = wio.pstep_factory.get().cycle
 
-    gears_g3plus = gidx[3:]
-    pidx_g3plus = gidx.colidx_pairs(w.p_avail, gears_g3plus)
-
-    p_req = cycle.loc[:, w.p_req]
-    p_avail = cycle.loc[:, pidx_g3plus]
-
+    gidx = wio.GearMultiIndexer.from_df(P_avail, P_avail.name)
     ## Drop pandas axis or else substraction would fail with:
     #       ValueError: cannot join with no overlapping index names
-    p_remain = p_avail - p_req.to_numpy().reshape(-1, 1)
-    p_remain.columns = gidx.colidx_pairs(w.p_remain, gears_g3plus)
+    p_remain = P_avail - P_req.to_numpy().reshape(-1, 1)
+    p_remain.columns = wio.GearMultiIndexer.from_df(P_avail, c.p_remain)[3:]
 
     return p_remain
 
 
-def calc_ok_p_rule(cycle, gidx):
+def calc_ok_p_rule(P_remain: pd.DataFrame):
     """
     Sufficient power rule for gears > g2, in Annex 2-3.5.
 
-    TODO: Separate :func:`calc_p_remain` not used yet
+    TODO: Separate :func:`calc_ok_p_rule` not used yet
     """
     c = wio.pstep_factory.get().cycle
 
-    gears_g3plus = gidx[3:]
-    pidx_g3plus = gidx.colidx_pairs(c.p_avail, gears_g3plus)
-
-    ok_p = cycle.loc[:, pidx_g3plus] >= 0
-    ok_p.columns = gidx.colidx_pairs(c.ok_p, gears_g3plus)
+    ok_p = P_remain >= 0
+    gidx = wio.GearMultiIndexer.from_df(P_remain, c.ok_p)
+    ok_p.columns = gidx.with_item(c.ok_p)[3:]
 
     return ok_p.astype("int8")
 
@@ -453,67 +545,51 @@ def fill_insufficient_power(cycle):
 #################
 
 
-@autog.autographed(needs=optional("cycle"))
-def get_forced_cycle(cycle: pd.DataFrame = None) -> Optional[pd.DataFrame]:
-    """Extract any forced `cycle` from model. """
-
-    c = wio.pstep_factory.get().cycle
-
-    if cycle is None or getattr(cycle, "size", 0) == 0:
-        cycle = None
-    else:
-        if not isinstance(cycle, pd.DataFrame):
-            cycle = pd.DataFrame(cycle)
-        log.info(
-            "Found forced `cycle-run` table(%ix%i).", cycle.shape[0], cycle.shape[1]
-        )
-
-        cycle.index.name = c.t
-        cycle.reset_index()  ## Ensure Time-steps start from 0 (not 1!).
-
-    return cycle
-
-
 @autog.autographed(
     needs=[
         vararg("wltc_class_data/V_cycle"),
         vararg("V_dsc"),
         vararg("V_capped"),
         vararg("V_compensated"),
-        optional("forced_cycle"),
+        vararg("forced_cycle"),
     ],
     provides=[
         sfxed("cycle", "init"),
+        modify("cycle/t", implicit=1),
         modify("cycle/V", implicit=1),
-        modify("cycle/index", implicit=1),
     ],
 )
-def init_cycle_velocity(*velocities: pd.Series, forced_cycle=None) -> pd.DataFrame:
+def init_cycle_velocity(*velocities: Union[pd.Series, pd.DataFrame]) -> pd.DataFrame:
     """
     Concatenate velocities(series)/cycle(dataframe), cloning the last column as `V`.
 
-    :param forced_cycle:
-        any previous cycle data in the model
     :param velocities:
-        one or more velocity series (properly named),
-        with the last one becoming the `V`
+        one or more velocity (same) time-indexed series & datarames
+        (properly named), with the last one becoming the `V`,
+        unless it already exists
 
     :return:
         the concatenated cycle with 2-level columns (item, gear)
     """
+    c = wio.pstep_factory.get().cycle
+
     if not velocities:
         raise ValueError("Cycle needs at least one velocity to begin with!")
 
-    cycle = pd.concat(velocities, axis=1)
-    cycle["V"] = cycle.iloc[:, -1]
+    t = pd.Series(velocities[0].index)
+    t.name = c.t
+    cycle = pd.concat((t, *velocities), axis=1)
 
-    if forced_cycle is not None:
-        cycle = pd.concat((forced_cycle, cycle), axis=1)
+    if c.V not in cycle.columns:
+        cycle[c.V] = cycle.iloc[:, -1]
+        cycle[c.V].name = c.V
 
-    # Establish 2-level columns.
-    cycle.columns = pd.MultiIndex.from_product(
-        (cycle.columns, ("",)), names=("item", "gear")
-    )
+    ## If cycle has dupe columns, jsonp-indexing will fails later!
+    #
+    cols = cycle.columns
+    if len(cols.unique()) != len(cols):
+        dupes = list(cols[cols.duplicated()])
+        raise ValueError(f"Cycle had dupe columns: {dupes}\v  out of: {cols}")
 
     return cycle
 
@@ -522,12 +598,15 @@ def init_cycle_velocity(*velocities: pd.Series, forced_cycle=None) -> pd.DataFra
     needs=[
         sfxed("cycle", "init"),
         "class_phase_boundaries",
-        modify("cycle/V", implicit=True),
+        modify("cycle/t", implicit=True),
     ],
-    provides=sfxed("cycle", "v_phases"),
+    provides=[
+        sfxed("cycle", "v_phases"),
+        modify("cycle/va_phases", implicit=True),
+    ],
 )
-def attach_class_v_phase_markers(
-    cycle: pd.DataFrame, class_phase_boundaries: Sequence[tuple]
+def attach_class_phase_markers(
+    cycle, class_phase_boundaries: Sequence[tuple]
 ) -> pd.DataFrame:
     """
     Append class-phase indexes as separate boolean columns, named as "phase_1", ...
@@ -538,37 +617,22 @@ def attach_class_v_phase_markers(
         a list of ``[low, high]`` boundary pairs
         (from :func:`.get_class_phase_boundaries()`)
     """
+    c = wio.pstep_factory.get().cycle
+
+    cycle.loc[0, c.va_phase] = 1
     for n, (start, end) in enumerate(class_phase_boundaries, 1):
+        idx = (start < cycle.index) & (cycle.index <= end)
+        cycle.loc[idx, c.va_phase] = n
+
         idx = (start <= cycle.index) & (cycle.index <= end)
-        cycle[f"v_phase{n}"] = idx
+        cycle[wio.class_part_name(n)] = idx
+    cycle[c.va_phase] = cycle[c.va_phase].astype("int8")
 
     return cycle
 
 
 @autog.autographed(
-    needs=["cycle/index", "class_phase_boundaries", sfxed("cycle", "init", implicit=1)],
-    provides="cycle/va_phases",
-)
-def calc_class_va_phase_markers(
-    time: pd.DataFrame, class_phase_boundaries: Sequence[tuple]
-) -> pd.DataFrame:
-    """
-    Append class-phase indexes as separate boolean columns, named as "phase_1", ...
-
-    :param cycle:
-        must be indexed by time
-    :param class_phase_boundaries:
-        a list of ``[low, high]`` boundary pairs
-        (from :func:`.get_class_phase_boundaries()`)
-    """
-    for n, (start, end) in enumerate(class_phase_boundaries, 1):
-        idx = (start <= time) & (time <= end)
-
-    return idx
-
-
-@autog.autographed(
-    needs=[sfxed("cycle", "v_phases"), "cycle/V", ..., ...],
+    needs=[sfxed("cycle", "v_phases"), "cycle/V", sfxed("gwots", "p_avail"), ...],
     provides=[sfxed("cycle", "gwots")],
 )
 def attach_wots(
@@ -586,6 +650,14 @@ def attach_wots(
     c = wio.pstep_factory.get().cycle
     cycle = cycle
 
+    # Establish 2-level columns.
+    # NOTE: this would fail if applied twice!
+    #
+    if not isinstance(cycle.columns, pd.MultiIndex):
+        cycle.columns = pd.MultiIndex.from_product(
+            (cycle.columns, ("",)), names=("item", "gear")
+        )
+
     assert all((isinstance(i, pd.DataFrame) for i in (cycle, gwots))) and isinstance(
         gwots, pd.DataFrame
     ), locals()
@@ -598,13 +670,55 @@ def attach_wots(
     return cycle
 
 
-def calc_initial_gear_flags(
+@autog.autographed(
+    needs=[
+        sfxed("cycle", "v_phases", "gwots"),
+        "cycle/t",
+        "cycle/run",
+        "cycle/stop",
+        "cycle/initaccel",
+        "cycle/stopdecel",
+        "cycle/up",
+        "cycle/P_req",
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+        ...,
+    ]
+)
+def derrive_initial_gear_flags(
     cycle,
+    t: pd.Series,
+    run_phase: pd.Series,
+    stop_phase: pd.Series,
+    initaccel_phase: pd.Series,
+    stopdecel_phase: pd.Series,
+    up_phase: pd.Series,
+    P_req: pd.Series,
     gidx: wio.GearMultiIndexer,
     g_vmax: int,
     n95_high: float,
     n_max_cycle: float,
-    nmins: NMinDrives,
+    n_min_drive1: int,
+    n_min_drive2_up: int,
+    n_min_drive2_stopdecel: int,
+    n_min_drive2: int,
+    n_min_drive_set: int,
+    n_min_drive_up: int,
+    n_min_drive_up_start: int,
+    n_min_drive_down: int,
+    n_min_drive_down_start: int,
+    t_cold_end: int,
 ) -> pd.DataFrame:
     """
     Heavy lifting calculations for "initial gear" rules of Annex 2: 2.k, 3.2, 3.3 & 3.5.
@@ -614,7 +728,7 @@ def calc_initial_gear_flags(
         (for storage efficiency) and hierarchical columns,
         with :const:`NANFLAG`(1) wherever a gear is allowed,
         for a specific rule (different sets of rules per gear).
-        Push it to :meth:`combine_ok_n_gear_flags()` & :meth:`combine_ok_n_p_gear_flags()`.
+        Push it to :meth:`derrive_ok_n_flags()` & :meth:`derrive_ok_gears()`.
 
     Conditions consolidated & ordered like that::
 
@@ -647,7 +761,7 @@ def calc_initial_gear_flags(
     """
     c = wio.pstep_factory.get().cycle
 
-    assert all(i for i in (g_vmax, n95_high, n_max_cycle, nmins)), (
+    assert all((g_vmax, n95_high, n_max_cycle)), (
         "Null inputs:",
         g_vmax,
         n95_high,
@@ -672,14 +786,12 @@ def calc_initial_gear_flags(
     nidx_g2 = (c.n, g2)
     nidx_below_gvmax = gidx.colidx_pairs(c.n, gears_below_gvmax)
     nidx_from_gvmax = gidx.colidx_pairs(c.n, gears_from_gvmax)
-    initaccel = cycle[c.initaccel]
-    stopdecel = cycle[c.stopdecel]
 
     ## (ok-p) rule
     #
-    p_req = cycle[c.p_req].fillna(1).values.reshape(-1, 1)
+    P_req = P_req.fillna(1).values.reshape(-1, 1)
     pidx_g3plus = gidx.colidx_pairs(c.p_avail, gears_g3plus)
-    ok_p = cycle.loc[:, pidx_g3plus].fillna(0) >= p_req
+    ok_p = cycle.loc[:, pidx_g3plus].fillna(0) >= P_req
     ok_p.columns = gidx.colidx_pairs(c.ok_p, gears_g3plus)
 
     ## (MAXn-1) rule
@@ -706,17 +818,17 @@ def calc_initial_gear_flags(
     #  so as to be empty when that is 0.
     #  NOTE also that both `t_colds/t_hots` & `a_ups/a_dns` converted to numpy column-vectors,
     #  to align with many gear-columns (could not be series, axis-aligning would kick in).
-    t_colds = (cycle[c.t] < nmins.t_cold_end).to_numpy().reshape(-1, 1)
+    t_colds = (t < t_cold_end).to_numpy().reshape(-1, 1)
     t_hots = ~t_colds
-    a_ups = cycle[c.up].to_numpy().reshape(-1, 1)
+    a_ups = up_phase.to_numpy().reshape(-1, 1)
     a_dns = ~a_ups
     nidx_g3plus = gidx.colidx_pairs(c.n, gears_g3plus)
 
-    ok_ups = a_ups & (cycle.loc[:, nidx_g3plus] >= nmins.n_min_drive_up_start)
+    ok_ups = a_ups & (cycle.loc[:, nidx_g3plus] >= n_min_drive_up_start)
     ok_min_n_ups = (t_colds & ok_ups) | (t_hots & ok_ups)
     ok_min_n_ups.columns = gidx.colidx_pairs(c.ok_min_n_g3plus_ups, gears_g3plus)
 
-    ok_dns = a_dns & (cycle.loc[:, nidx_g3plus] >= nmins.n_min_drive_up_start)
+    ok_dns = a_dns & (cycle.loc[:, nidx_g3plus] >= n_min_drive_up_start)
     ok_min_n_dns = (t_colds & ok_dns) | (t_hots & ok_dns)
     ok_min_n_dns.columns = gidx.colidx_pairs(c.ok_min_n_g3plus_dns, gears_g3plus)
 
@@ -725,7 +837,7 @@ def calc_initial_gear_flags(
     # MINn-2ii           n_idle ≤ n, decel-stop  g = 2
     #
     ok_min_n_g2_stopdecel = (
-        cycle.loc[stopdecel, nidx_g2] >= nmins.n_min_drive2_stopdecel
+        cycle.loc[stopdecel_phase, nidx_g2] >= n_min_drive2_stopdecel
     )
     ok_min_n_g2_stopdecel.name = (
         c.ok_min_n_g2_stopdecel,
@@ -734,19 +846,19 @@ def calc_initial_gear_flags(
     #
     # min-2iii rule:     0.9 * n_idle ≤ n  g = 2
     #
-    ok_min_n_g2 = cycle.loc[~stopdecel, nidx_g2] >= nmins.n_min_drive2
+    ok_min_n_g2 = cycle.loc[~stopdecel_phase, nidx_g2] >= n_min_drive2
     ok_min_n_g2.name = (c.ok_min_n_g2, g2)  # it's a shorter series
 
     ## Gear-1 rules
     #
     # (c_initaccel) rule
     #
-    ok_min_n_g1_initaccel = initaccel
+    ok_min_n_g1_initaccel = initaccel_phase
     ok_min_n_g1_initaccel.name = (c.ok_min_n_g1_initaccel, g1)
     #
     # c_a rule:     1.0 ≤ v & !initaccel
     #
-    ok_min_n_g1 = ~initaccel & cycle[c.run]
+    ok_min_n_g1 = ~initaccel_phase & run_phase
     ok_min_n_g1.name = (c.ok_min_n_g1, g1)  # it's a series
 
     ## Gear-0 rule
@@ -755,8 +867,8 @@ def calc_initial_gear_flags(
     #
     g0 = wio.gear_name(0)  # note this is not a list!
     #
-    ok_g0 = (stopdecel & (cycle.loc[:, nidx_g2] < nmins.n_min_drive2_stopdecel)) | (
-        ~initaccel & cycle[c.stop]
+    ok_g0 = (stopdecel_phase & (cycle.loc[:, nidx_g2] < n_min_drive2_stopdecel)) | (
+        ~initaccel_phase & stop_phase
     )
     ok_g0.name = (c.ok_gear0, g0)
 
@@ -788,10 +900,10 @@ def calc_initial_gear_flags(
     return flags
 
 
-def _combine_ok_n_gear_flags(gflags) -> pd.Series:
+def _derrive_ok_n_flags(initial_gear_flags) -> pd.Series:
     """
 
-    :param gflags:
+    :param initial_gear_flags:
         the initial-gear rule flags grouped for each gear (except g0)
     :return:
         (must return) a boolean series, or else, groupby does nothing!!
@@ -799,6 +911,7 @@ def _combine_ok_n_gear_flags(gflags) -> pd.Series:
     """
     c = wio.pstep_factory.get().cycle
 
+    gflags = initial_gear_flags
     flagcols = gflags.columns
 
     flags_to_AND = []
@@ -837,7 +950,7 @@ def _combine_ok_n_gear_flags(gflags) -> pd.Series:
     return n_ok
 
 
-def combine_ok_n_gear_flags(flags: pd.DataFrame):
+def derrive_ok_n_flags(initial_gear_flags: pd.DataFrame):
     """
     Merge together all N-allowed flags using AND+OR boolean logic.
 
@@ -846,11 +959,16 @@ def combine_ok_n_gear_flags(flags: pd.DataFrame):
     """
     c = wio.pstep_factory.get().cycle
 
-    flags = flags.drop(c.ok_gear0, axis=1)
-    ok_n = flags.groupby(axis=1, level="gear").apply(_combine_ok_n_gear_flags)
+    flags = initial_gear_flags.drop(c.ok_gear0, axis=1)
+    ok_n = flags.groupby(axis=1, level="gear").apply(_derrive_ok_n_flags)
     ok_n.columns = pd.MultiIndex.from_product(((c.ok_n,), ok_n.columns))
 
     return ok_n
+
+
+@autog.autographed(needs=["initial_gear_flags", "ok_n_flags"], provides="ok_flags")
+def concat_frame_columns(*gflags: pd.DataFrame) -> pd.DataFrame:
+    return pd.concat(gflags, axis=1)
 
 
 def _combine_all_gear_flags(gflags) -> pd.Series:
@@ -895,7 +1013,7 @@ def _combine_all_gear_flags(gflags) -> pd.Series:
     return final_flags
 
 
-def combine_ok_n_p_gear_flags(flags: pd.DataFrame):
+def derrive_ok_gears(ok_flags: pd.DataFrame):
     """
     Merge together N+P allowed flags using AND+OR boolean logic.
 
@@ -904,7 +1022,7 @@ def combine_ok_n_p_gear_flags(flags: pd.DataFrame):
     """
     c = wio.pstep_factory.get().cycle
 
-    final_ok = flags.groupby(axis=1, level="gear").apply(_combine_all_gear_flags)
+    final_ok = ok_flags.groupby(axis=1, level="gear").apply(_combine_all_gear_flags)
     final_ok.columns = pd.MultiIndex.from_product(((c.ok_gear,), final_ok.columns))
 
     return final_ok

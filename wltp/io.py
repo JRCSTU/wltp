@@ -166,18 +166,10 @@ class GearMultiIndexer:
 
     - When `items` are given, you get a "product" MultiIndex:
 
-      >>> G.with_item("foo", "bar")[1:3]
+      >>> G.with_item("foo")[1:3]
       MultiIndex([('foo', 'g1'),
                   ('foo', 'g2'),
-                  ('foo', 'g3'),
-                  ('bar', 'g1'),
-                  ('bar', 'g2'),
-                  ('bar', 'g3')],
-                 )
-      >>> G.with_item("foo")[2]
-      MultiIndex([('foo', 'g2')],
-                 )
-
+                  ('foo', 'g3')], )
 
       Use no `items` to reset them:
 
@@ -198,7 +190,7 @@ class GearMultiIndexer:
 
     #: 1st level column(s)
     items: Optional[Iterable[str]]
-    #: 2-level columns; use a generator like :func:`gear_names()` (default)
+    #: 2-level columns; use a gear_namer like :func:`gear_names()` (default)
     #:
     #: to make a :class:`pd.Series` like::
     #:
@@ -208,21 +200,21 @@ class GearMultiIndexer:
     #: may not always work.
     top_gear: int
     #: a function returns the string representation of a gear, like ``1 --> 'g1'``
-    generator: GearGenerator
+    gear_namer: GearGenerator
 
     @classmethod
     def from_ngears(
         cls,
         ngears: int,
         items: Iterable[str] = None,
-        generator: GearGenerator = gear_name,
+        gear_namer: GearGenerator = gear_name,
         gear0=False,
     ):
         return GearMultiIndexer(
             items,
-            pd.Series({i: generator(i) for i in range(int(not gear0), ngears + 1)}),
+            pd.Series({i: gear_namer(i) for i in range(int(not gear0), ngears + 1)}),
             ngears,
-            generator,
+            gear_namer,
         )
 
     @classmethod
@@ -230,20 +222,25 @@ class GearMultiIndexer:
         cls,
         gids: Iterable[int],
         items: Iterable[str] = None,
-        generator: GearGenerator = gear_name,
+        gear_namer: GearGenerator = gear_name,
     ):
         gids = sorted(gids)
-        gids = pd.Series({i: generator(i) for i in gids})
-        return GearMultiIndexer(items, gnames, gids[-1], generator)
+        gnames = pd.Series({i: gear_namer(i) for i in gids})
+        return GearMultiIndexer(items, gnames, gids[-1], gear_namer)
 
     @classmethod
     @autog.autographed(
         name="make_gwots_multi_indexer",
-        needs=["gwots", optional("gear_namer", "generator")],
+        needs=["gwots", optional("gear_namer")],
         provides="gidx",
     )
+    @autog.autographed(
+        name="make_cycle_multi_indexer",
+        needs=["ok_flags", optional("gear_namer")],
+        provides="gidx2",
+    )
     def from_df(
-        cls, df, items: Iterable[str] = None, generator: GearGenerator = gear_name
+        cls, df, items: Iterable[str] = None, gear_namer: GearGenerator = gear_name
     ):
         """
         Derive gears from the 2nd-level columns, sorted, and the last one becomes `ngear`
@@ -258,10 +255,23 @@ class GearMultiIndexer:
         gears = [g for g in df.columns.levels[1] if g]
         gids = [int(i) for i in re.sub("[^0-9 ]", "", " ".join(gears)).split()]
         gnames = pd.Series(gears, index=gids).sort_index()
-        return cls(items, gnames, gids[-1], generator)
+        return cls(items, gnames, gids[-1], gear_namer)
 
     def with_item(self, *items: str):
-        return type(self)(items or None, self.gnames, self.top_gear, self.generator)  # type: ignore
+        """
+        Makes a gear-indexer producing tuple of (items x gears).
+
+        Example:
+
+        >>> GearMultiIndexer.from_ngears(2, gear0=True).with_item("foo", "bar")[:]
+        MultiIndex([('foo', 'g0'),
+                    ('foo', 'g1'),
+                    ('foo', 'g2'),
+                    ('bar', 'g0'),
+                    ('bar', 'g1'),
+                    ('bar', 'g2')], )
+        """
+        return type(self)(items or None, self.gnames, self.top_gear, self.gear_namer)  # type: ignore
 
     def __getitem__(self, key):
         """
@@ -321,6 +331,6 @@ class GearMultiIndexer:
 def make_autograph(out_patterns=None, *args, **kw) -> autog.Autograph:
     """Configures a new :class:`.Autograph` with func-name patterns for this project. """
     if out_patterns is None:
-        out_patterns = "get_ calc_ upd_ make_ create_ decide_ round_ init_".split()
+        out_patterns = "get_ calc_ upd_ make_ create_ decide_ round_ init_ combine_ derrive_".split()
         out_patterns.append(re.compile(r"\battach_(\w+)_in_(\w+)$"))
     return autog.Autograph(out_patterns, *args, **kw)

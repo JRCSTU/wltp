@@ -16,7 +16,7 @@ from tests import goodvehicle, vehdb
 from graphtik import compose, config, operation, sfxed
 from wltp import cycler, cycles, datamodel, engine
 from wltp import io as wio
-from wltp import pipelines, vehicle
+from wltp import nmindrive, pipelines, vehicle
 from wltp.cycler import CycleBuilder, PhaseMarker
 
 
@@ -43,7 +43,7 @@ def test_identify_consecutive_truths_repeat_threshold_1_is_identical():
 def test_cycle_initaccel(wltc_class, exp, gwots):
     V = datamodel.get_class_v_cycle(wltc_class)
     cb = CycleBuilder(V)
-    PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    PhaseMarker().add_transition_markers(cb.cycle, cb.V, cb.A)
     print(cb.cycle.initaccel.sum())
     assert cb.cycle.initaccel.sum() == exp
 
@@ -52,7 +52,7 @@ def test_cycle_initaccel(wltc_class, exp, gwots):
 def test_stopdecel(wltc_class):
     V = datamodel.get_class_v_cycle(wltc_class)
     cb = CycleBuilder(V)
-    cycle = cycler.PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    cycle = cycler.PhaseMarker().add_transition_markers(cb.cycle, cb.V, cb.A)
     n_stops = (cycle["stop"].astype(int).diff() < 0).sum(None)
     n_decels = (cycle["decel"].astype(int).diff() < 0).sum(None)
     n_stopdecels = (cycle["stopdecel"].astype(int).diff() < 0).sum(None)
@@ -80,7 +80,7 @@ def test_validate_t_start(wltc_class, t_cold_end, err):
     wltc_parts = datamodel.get_class_parts_limits(wltc_class)
 
     cb = CycleBuilder(V)
-    cb.cycle = cycler.PhaseMarker().add_phase_markers(cb.cycle, cb.V, cb.A)
+    cb.cycle = cycler.PhaseMarker().add_transition_markers(cb.cycle, cb.V, cb.A)
     with pytest.raises(type(err), match=str(err)):
         for err in cb.validate_nims_t_cold_end(t_cold_end, wltc_parts):
             raise err
@@ -112,7 +112,7 @@ def test_full_build_smoketest(h5_accdb):
 
     pm = cycler.PhaseMarker()
     cb = cycler.CycleBuilder(V)
-    cb.cycle = pm.add_phase_markers(cb.cycle, cb.V, cb.A)
+    cb.cycle = pm.add_transition_markers(cb.cycle, cb.V, cb.A)
     for err in cb.validate_nims_t_cold_end(t_cold_end, wltc_parts):
         raise err
     cb.cycle = pm.add_class_phase_markers(cb.cycle, wltc_parts)
@@ -156,31 +156,40 @@ def test_cycler_pipeline():  # wltc_class):
         ]
     )
     pipe = compose(..., *ops)
+    props = goodvehicle.goodVehicle()
     inp = {
-        **goodvehicle.goodVehicle(),
+        **props,
         "wltc_data": datamodel.get_wltc_data(),
         "wltc_class": wltc_class,
         "v_max": 190.3,
         "g_vmax": 6,
+        # "n_min_drives":  nmindrive.mdl_2_n_min_drives.compute(props)
     }
-    datamodel.validate_model(inp)
+    datamodel.validate_model(inp, additional_properties=True)
 
     with config.evictions_skipped(True):
         sol = pipe.compute(inp)
-    sol.plot("t.pdf")
+
     exp = [
+        ("t", ""),
         ("V_cycle", ""),
         ("V_dsc", ""),
         ("V", ""),
         ("A", ""),
-        ("v_phase1", ""),
-        ("v_phase2", ""),
-        ("v_phase3", ""),
-        ("va_phases", ""),
+        ("va_phase", ""),
+        ("phase_1", ""),
+        ("phase_2", ""),
+        ("phase_3", ""),
+        ("accel_raw", ""),
+        ("run", ""),
+        ("stop", ""),
+        ("decel", ""),
+        ("initaccel", ""),
+        ("stopdecel", ""),
+        ("up", ""),
         ("P_resist", ""),
         ("P_inert", ""),
         ("P_req", ""),
-        ("t", ""),
         ("n", "g1"),
         ("n", "g2"),
         ("n", "g3"),
@@ -237,12 +246,16 @@ def test_cycler_pipeline():  # wltc_class):
     steps = [getattr(n, "name", n) for n in sol.plan.steps]
     steps_executed = [getattr(n, "name", n) for n in sol.executed]
     print("\n".join(textwrap.wrap(" ".join(steps), 90)))
-    print("\n".join(textwrap.wrap(" ".join(steps_executed), 90)))
+    # print("\n".join(textwrap.wrap(" ".join(steps_executed), 90)))
     exp_steps = """
-        get_wltc_class_data get_forced_cycle get_class_phase_boundaries interpolate_wot_on_v_grid
+        get_wltc_class_data get_class_phase_boundaries PhaseMarker interpolate_wot_on_v_grid
         attach_p_avail_in_gwots calc_n2v_g_vmax calc_n95 calc_n_max_vehicle
         make_gwots_multi_indexer FAKE.V_dsc init_cycle_velocity calc_acceleration
-        attach_class_v_phase_markers calc_class_va_phase_markers calc_p_resist calc_inertial_power
-        calc_required_power calc_n_max_cycle calc_n_max attach_wots
+        attach_class_phase_markers calc_phase_accel_raw calc_phase_run_stop calc_phase_decel
+        calc_phase_initaccel calc_phase_stopdecel calc_phase_up calc_p_resist calc_inertial_power
+        calc_required_power calc_n_max_cycle calc_n_max attach_wots derrive_initial_gear_flags
+        derrive_ok_n_flags concat_frame_columns make_cycle_multi_indexer derrive_ok_gears
+        make_incrementing_gflags make_G_min make_G_max0
+
         """.split()
     assert steps == steps_executed == exp_steps
