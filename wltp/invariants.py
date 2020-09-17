@@ -22,7 +22,9 @@ from pandas.core.generic import NDFrame
 
 Column = Union[NDFrame, np.ndarray, int, float]
 
+#: The number of digits for *Velocity* traces used in WLTC.
 v_decimals = 1
+#: The number of *V-grid* steps required for covering *Velocity* traces.
 v_step = 10 ** -v_decimals
 
 

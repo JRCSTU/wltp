@@ -5,9 +5,9 @@
 
 .. include:: <xhtml1-special.txt>
 
-#######
-Annex 2
-#######
+##################
+Phasings & Annex 2
+##################
 
 .. include:: ../README.rst
     :start-after: _begin-annex
@@ -22,7 +22,7 @@ Gear selection and shift point determination for vehicles equipped with manual t
 
     It was an attempt to transcribe the :term:`GTR` in :term:`sphinx`,
     in order to track changes in *git*.
-    
+
 General approach
 ----------------
 
