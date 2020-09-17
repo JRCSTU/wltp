@@ -652,13 +652,10 @@ an intermediate manual step involving a spreadsheet to copy the table into ands 
 
 .. _phasings:
 
-Phases
-------
-The problem
-^^^^^^^^^^^
+Phases (the problem)
+--------------------
 GTR's "V" phasings
-~~~~~~~~~~~~~~~~~~
-
+^^^^^^^^^^^^^^^^^^
 The :term:`GTR`'s velocity traces have overlapping split-time values, i.e. belonging to 2 phases,
 and e.g. for *class1* these are the sample-values @ times 589 & 1022:
 
@@ -673,8 +670,7 @@ and e.g. for *class1* these are the sample-values @ times 589 & 1022:
     ============  ========  ===========  ============  =========
 
 "Semi-VA" phasings
-~~~~~~~~~~~~~~~~~~
-
+^^^^^^^^^^^^^^^^^^
 Some programs and most spreadsheets do not handle overlapping split-time values
 like that (i.e. keeping a separate column for each class-phase),
 and assign split-times either to the earlier or the later phase, distorting thus
@@ -714,15 +710,14 @@ being precisely correct):
     =============  ===============  ===============  ================  =========
 
 "VA" phasings
-~~~~~~~~~~~~~
-
+^^^^^^^^^^^^^
 On a related issue, GTR's formula for Acceleration (Annex 1 3.1) produces
 **one less value** than the number of velocity samples
 (like the majority of the distorted phases above).
 GTR prescribes to (optionally) append and extra *A=0* sample at the end,
 to equalize Acceleration & Velocities lengths, but that is not totally ok
 (hint: mean Acceleration values do not add up like mean-Velocities do,
-see next point 3).
+see next point about averaging).
 
 Since most calculated and measured quantities (like cycle Power) are tied
 to the acceleration, we could **refrain from adding the extra 0**, and leave
@@ -760,19 +755,19 @@ Summarizing the last **"VA0+"** phasing scheme:
 
     - each step signifies a "duration" of 1 sec,
     - the duration of the final sample @ 1610 reaches just before 1611sec,
-    - # of samples for all phases are symmetrically distorted -1,
+    - # of samples for all phases are symmetrically -1 compared to Velocity phases,
     - it is valid for Acceleration-dependent quantities only,
     - it is **valid for any sampling frequency (not just 1Hz)**,
     - respects the `Dijkstra counting
       <https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html>`_
       (notice the parenthesis signifying *open right* intervals, in the above table),
       BUT ...
-    - Velocity-related quantities cannot utilize this phasing scheme, must stick to the original.
+    - Velocity-related quantities cannot utilize this phasing scheme,
+      must stick to the original, with overlapping split-times.
 
 
-Averaging quantities over phases
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+Averaging over phases
+^^^^^^^^^^^^^^^^^^^^^
 Calculating mean values for Acceleration-related quantities produce correct results
 only with non-overlapping split-times.
 
@@ -796,6 +791,9 @@ composed of 2 symmetrical ramp-up/ramp-down 2-sec phases
 - The final *A* value has been kept blank, so that mean values per-phase
   add up, and phases no longer overlap.
 
+.. raw:: html
+    :file:  docs/_static/2ramps.svg
+
 .. table:: mean values for ramp-up/down cycle, above
 
         ===========   ========    =========   ========
@@ -806,22 +804,20 @@ composed of 2 symmetrical ramp-up/ramp-down 2-sec phases
         **phase2:**   5           10          -5
         ===========   ========    =========   ========
 
-- Applying the *V-phasings* on *mean(A)*  would have arrived to counterintuitive
-  values, :math:`\left(\frac{5 + 5 + (-5)}{3} =\right) 1.66m/sec^2` &  :math:`-1.66m/sec^2`
-  for each phase, respectively.
+- Applying the *V-phasings* and the extra 0 on *mean(A)* would have arrived
+  to counterintuitive values, that don't even sum up to 0:
 
-.. raw:: html
-    :file:  docs/_static/2ramps.svg
+  - up-ramp: :math:`\left(\frac{5 + 5 + (-5)}{3} =\right) 1.66m/sec^2`
+  - down-ramp: :math:`\left(\frac{(-5) + (-5) + 0}{3} =\right) -3.33m/sec^2`
 
 
 Practical deliberations
-~~~~~~~~~~~~~~~~~~~~~~~
-
-BUT since all phases in WLTC begin and finish with consecutive zeros(0),
-the deliberations above do not manifest as problems;  but at the same time,
-discovering off-by-one errors & shifts in time (wherever this matters),
-on arbitrary files containing calculated and/or measured traces is really hard
-(and important):
+^^^^^^^^^^^^^^^^^^^^^^^
+All phases in WLTC begin and finish with consecutive zeros(0),
+therefore the deliberations above do not manifest as problems;
+but at the same time, discovering off-by-one errors & shifts in time
+(wherever this really matters e.g. for syncing data), on arbitrary files containing
+calculated and/or measured traces is really hard:
 SUMs & CUMSUMs do not produce any difference at all.
 
 The tables in the next section, along with accompanying CRC functions developed in Python,
@@ -829,8 +825,8 @@ come as an aid to the problems above.
 
 .. _checksums:
 
-Phase boundaries & checksums by phasing scheme
-----------------------------------------------
+Phase boundaries
+^^^^^^^^^^^^^^^^
 As reported by :func:`wltp.cycles.cycle_phases()`, and neglecting the advice
 to *optionally* add a final 0 when calculating the cycle Acceleration (Annex 1 2-3.1),
 the following 3 *phasing* are identified from velocity traces of 1Hz:
@@ -860,6 +856,8 @@ class3b  **V**      [0, 589]    [589, 1022]     [1022, 1477]    [1477, 1800]
 \        **VA1**    [1, 589]    [590, 1022]     [1023, 1477]    [1478, 1800]
 =======  ========   ========    ===========     ============    ============
 
+Checksums
+^^^^^^^^^
 * The :func:`~wltp.cycles.crc_velocity()` function has been specially crafted to consume
   series of floats with 2-digits precision (:data:`~wltp.invariants.v_decimals`)
   denoting *Velocity-traces*, and spitting out a hexadecimal string, the *CRC*,
@@ -910,6 +908,9 @@ class3b  **V**      [0, 589]    [589, 1022]     [1022, 1477]    [1477, 1800]
 * **VA0 phasing**, it lacks -1 sample *from the end*;
 * **VA1 phasing**, it lacks -1 sample *from the start*.
 
+
+Practical example
+^^^^^^^^^^^^^^^^^
 For instance, let's identify the *V-trace* of *class1*'s full cycle:
 
 >>> from wltp.datamodel import get_class_v_cycle  as wltc
