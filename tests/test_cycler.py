@@ -8,6 +8,7 @@
 import itertools as itt
 import textwrap
 
+import numpy as np
 import pandas as pd
 import pytest
 from jsonschema import ValidationError
@@ -138,6 +139,25 @@ def test_full_build_smoketest(h5_accdb):
         diffs[c1.name] = (c1 - c2).abs()
 
     acc_cycle["P_tot"], "p_required"
+
+
+def test_forced_cycle_bad():
+    with pytest.raises(AttributeError, match="'int' object has no attribute 'index'"):
+        cycler.init_cycle_velocity(1)
+
+    V = pd.Series([1, 2, 3], name="VV")
+    with pytest.raises(ValueError, match=r"^Cycle had dupe columns: \['VV'\]"):
+        cycler.init_cycle_velocity(V, V)
+
+
+def test_forced_cycle_two_ramps():
+    V = datamodel.get_class_v_cycle("class1").rename("foo")
+    forced = pd.DataFrame({"V": np.hstack((np.r_[0:100:2], np.r_[98:0:-2]))})
+    forced["A"] = 0
+
+    cycle = cycler.init_cycle_velocity(V, forced)
+
+    assert (cycle["V"].dropna() == forced.V).all()
 
 
 def test_cycler_pipeline():  # wltc_class):
