@@ -42,7 +42,7 @@ def read_V_file(fname) -> Tuple[float, ...]:
 
 def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
     """
-    Compute the CRC32(V * 10) of a 1Hz velocity trace.
+    Compute the CRC32(V) of a 1Hz velocity trace, to be compared with :ref:`checksums`.
 
     :param V:
         velocity samples, to be rounded according to :data:`wltp.invariants.v_decimals`
@@ -65,6 +65,7 @@ def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
     7. keeping (usually) the highest 2 bytes of the CRC32
        (4 leftmost hex-digits).
 
+    See also :func:`.identify_cycle_v_crc()` & :func:`.cycle_checksums()`.
     """
     from binascii import crc32  # it's the same as `zlib.crc32`
     from ..invariants import v_decimals, vround
@@ -89,7 +90,7 @@ def crc_velocity(V: Iterable, crc: Union[int, str] = 0, full=False) -> str:
 @fnt.lru_cache()
 def cycle_checksums(full=False) -> pd.DataFrame:
     """
-    Return a big table with cumulative and simple SUM & CRC for all class phases.
+    Return a big table with by-phase/cumulative :ref:`CRC/SUM <phasings>` for all class phases.
 
     :param full:
         CRCs contain the full 32bit number (x8 hex digits)
@@ -143,7 +144,9 @@ def cycle_checksums(full=False) -> pd.DataFrame:
 
 @fnt.lru_cache()
 def cycle_phases() -> pd.DataFrame:
-    """Return a textual table with the boundaries of all phases and cycle *phasings*"""
+    """
+    Return a textual table with the boundaries of all cycle :ref:`phasings`.
+    """
     import io
     from textwrap import dedent
     from pandas import IndexSlice as idx
@@ -174,7 +177,7 @@ def cycle_phases() -> pd.DataFrame:
 def identify_cycle_v_crc(
     crc: Union[int, str]
 ) -> Tuple[Optional[str], Optional[str], Optional[str]]:
-    """see :func:`identify_cycle_v()`"""
+    """The opposite of :func:`identify_cycle_v()`"""
     if isinstance(crc, str):
         crc = int(crc, 16)
     crc = hex(crc).upper()
@@ -203,24 +206,24 @@ def identify_cycle_v_crc(
 
 def identify_cycle_v(V: Iterable):
     """
-    Finds the first left-top CRC matching the cycle/phase/kind of the given Velocity.
+    Finds the first left-top :ref:`CRC <checksums>` matching the given Velocity-trace.
 
     :param V:
         Any cycle or phases of it (one of Low/Medium/High/Extra High phases),
         or concatenated subset of the above phases, but in that order.
     :return:
-        a 3 tuple (class, phase, kind), like this:
+        a 3tuple (class, phase, kind), like this:
 
         - ``(None,     None,   None)``: if no match
         - ``(<class>,  None,  <phasing>)``: if it matches a full-cycle
         - ``(<class>, <phase>, <phasing>)``: if it matches a phase
-        - ``(<class>, <PART>, <phasing>)``: (CAPITAL phase) if it matches a phase cumulatively
+        - ``(<class>, <PHASE>, <phasing>)``: (CAPITAL phase) if it matches a phase, cumulatively
 
         where `<phasing>` is one of
 
         - ``V``
-        - ``A0`` (offset: 0, length: -1)
-        - ``A1`` (offset: 1, length: -1)
+        - ``A0`` (offset: 0, length: -1, lissing -last sample)
+        - ``A1`` (offset: 1, length: -1, missing first sample)
    """
     crc = crc_velocity(V)
     return identify_cycle_v_crc(crc)
