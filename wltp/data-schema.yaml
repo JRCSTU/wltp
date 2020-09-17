@@ -10,8 +10,8 @@ properties:
   id:
     title: Any identifier for the object
     type:
-    - integer
-    - string
+      - integer
+      - string
   unladen_mass:
     title: vehicle unladen mass
     type: number
@@ -19,22 +19,31 @@ properties:
     description:
       The mass (kg) of the vehicle without the driver, used to decide its class,
       as defined in Annex-4
+    units: kg
+    tags:
+      - input
   test_mass:
-    title: vehicle test mass
-    $ref: '#/definitions/positiveNumber'
-    description:
-      The test mass of the vehicle used in all calculations (kg),
+    $ref: "#/definitions/positiveNumber"
+    description: The test mass of the vehicle used in all calculations,
       as defined in Annex 4.2.1.3.1, pg 94.
+    units: kg
+    tags:
+      - input
   v_max:
     title: maximum vehicle velocity
     type: number
     exclusiveMinimum: 0
     description: (OUT) The calculated maximum velocity, as defined in Annex 2-2.i.
+    units: km/h
   n_vmax:
     title: engine speed for maximum vehicle velocity
     type: number
     exclusiveMinimum: 0
     description: (OUT) The engine speed for `v_max`.
+    units: min⁻¹
+    tags:
+      - input
+      - output
   g_vmax:
     title: gear for maximum vehicle velocity
     type: number
@@ -42,34 +51,33 @@ properties:
     description: (OUT) The gear for achieving `v_max`.
   p_rated:
     title: maximum rated power
-    $ref: '#/definitions/positiveNumber'
-    description:
-      The maximum rated engine power (kW) as declared by the manufacturer.
+    $ref: "#/definitions/positiveNumber"
+    description: The maximum rated engine power as declared by the manufacturer.
+    units: kW
     tags:
-    - input
+      - input
   n_rated:
     title: rated engine revolutions
-    $ref: '#/definitions/positiveNumber'
+    $ref: "#/definitions/positiveNumber"
     description: |2
       The rated engine revolutions at which an engine develops its maximum power.
       If the maximum power is developed over an engine revolutions range,
       it is determined by the mean of this range.
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_idle:
     title: idling revolutions
-    $ref: '#/definitions/positiveNumber'
+    $ref: "#/definitions/positiveNumber"
     description: The idling engine revolutions (Annex 1).
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min:
-    title: minimum engine revolutions
-    type:
-    - array
-    - number
     description: |2
-      Either a number with the minimum engine revolutions for gears > 2 when the vehicle is in motion,
-      or an array with the exact `n_min` for each gear (array must have length equal to gears).
+      Minimum engine revolutions: either a number with the minimum engine revolutions
+      for gears > 2 when the vehicle is in motion, or an array with
+      the exact `n_min` for each gear (array must have length equal to gears).
 
       If unspecified, the minimum `n` for gears > 2 is determined by
       the following equation::
@@ -77,90 +85,109 @@ properties:
           n_min = n_idle + f_n_min(=0.125) * (n_rated - n_idle)
 
       Higher values may be used if requested by the manufacturer, by setting this one.
-    tags: [input, output]
+    type:
+      - array
+      - number
+    units: min⁻¹
+    tags:
+      - input
+      - output
   n_lim:
     title: (optional) maximum engine speed limit
-    $ref: '#/definitions/positiveNumber'
+    $ref: "#/definitions/positiveNumber"
+    units: min⁻¹
     tags:
-    - input
+      - input
   n95_low:
     description:
       Just an artifact of the calculation of `n_max1`(`n95_high`) of Annex 2-2.g,
-      not used by the GTR (sec^-1).
-    $ref: '#/definitions/positiveNumber'
+      not used by the GTR (min⁻¹).
+    $ref: "#/definitions/positiveNumber"
+    units: min⁻¹
     tags:
-    - output
+      - output
   n95_high:
     description:
-      The `n_max1` of Annex 2-2.g calculated from wot's high `n` (sec^-1)
+      The `n_max1` of Annex 2-2.g calculated from wot's high `n` (min⁻¹)
       where 95% of power is produced.
-    $ref: '#/definitions/positiveNumber'
+    $ref: "#/definitions/positiveNumber"
+    units: min⁻¹
     tags:
-    - input, output
+      - input
+      - output
   n_max_cycle:
-    description:
-      The `n_max2` of Annex 2-2.g based on max(V) of "base cycle" (Annex 1-9.1).
-    $ref: '#/definitions/positiveNumber'
+    description: The `n_max2` of Annex 2-2.g based on max(V) of "base cycle" (Annex 1-9.1).
+    $ref: "#/definitions/positiveNumber"
+    units: min⁻¹
     tags:
-    - input, output
+      - input
+      - output
   n_max_vehicle:
-    description:
-      The `n_max3` of Annex 2-2.g from  `v_max` (Annex 2-2.i).
-    $ref: '#/definitions/positiveNumber'
+    description: The `n_max3` of Annex 2-2.g from  `v_max` (Annex 2-2.i).
+    $ref: "#/definitions/positiveNumber"
+    units: min⁻¹
     tags:
-    - input, output
+      - input
+      - output
   n2v_ratios:
     title: N-to-V ratios
-    $ref: '#/definitions/positiveNumbers'
+    $ref: "#/definitions/positiveNumbers"
     maxItems: 24
     minItems: 3
     description:
       An array with the gear-ratios obtained by dividing engine-revolutions
-      (1/min) by the respective vehicle-velocity (km/h).
+    units: min⁻¹/(km/h)
     tags:
-    - input
+      - input
   f0:
     title: driving resistance coefficient f0
     type: number
-    description: The driving resistance coefficient f0, in N (Annex 4).
+    description: The driving resistance coefficient f0 (Annex 4).
+    units: N
     tags:
-    - input
+      - input
   f1:
     title: driving resistance coefficient f1
     type: number
-    description: The driving resistance coefficient f1, in N/(km/h) (Annex 4).
+    description: The driving resistance coefficient f1 (Annex 4).
+    units: N/(km/h)
     tags:
-    - input
+      - input
   f2:
     title: driving resistance coefficient f2
     type: number
-    description: The driving resistance coefficient f2, in N/(km/h)² (Annex 4).
+    description: The driving resistance coefficient f2 (Annex 4).
+    units: N/(km/h)²
     tags:
-    - input
+      - input
   n_min_drive1:
     description: "[1/min], see Annex 2-2.k, n_min for gear 1"
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min_drive2_up:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min_drive2_stopdecel:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min_drive2:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min_drive_set:
     description: |
       [1/min], Annex 2-2.k,
@@ -174,46 +201,51 @@ properties:
       Matlab call this `CalculatedMinDriveEngineSpeedGreater2nd`.
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min_drive_up:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min_drive_up_start:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min_drive_down:
     description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   n_min_drive_down_start:
-    description: '[1/min], Annex 2-2.k'
+    description: "[1/min], Annex 2-2.k"
     type: number
     exclusiveMinimum: 0
+    units: min⁻¹
     tags:
-    - input
+      - input
   t_cold_end:
     description: see Annex 2-2.k about n_mins
     type: number
     minimum: 0
     default: 0
+    units: s
     tags:
-    - input
+      - input
   wot:
-    title: wide open throttle curves
     description: |2
-      An array/dict/dataframe holding the full load power curves for (at least) 2 columns ('n', 'p')
-      or the normalized values ('n_norm', 'p_norm').
+      Wide open throttle curves: an array/dict/dataframe holding the full load power curves
+      for (at least) 2 columns ('n', 'p') or the normalized values ('n_norm', 'p_norm').
 
-      * The 1st column or `n` is the engine revolutions in min^-1.
+      * The 1st column or `n` is the engine revolutions in min⁻¹.
       * The 2nd column or `p` is the full-power load in kW.
       * The 1st column or `n_norm` is the normalized engine revolutions, within [0.0, 1.20]::
 
@@ -238,34 +270,35 @@ properties:
               [ 6.11, 21.97, 37.43, 51.05, 62.61, 72.49, 81.13, 88.7, 94.92, 98.99, 100., 96.28, 87.66 ]
           ]).T
     type:
-    - object
-    - array
+      - object
+      - array
   grid_wots:
     description: |2
-      A dataframe with 2-level columns (item, gear):
+      A dataframe with 2-level columns for p-available (item, gear) and p-required:
 
       - `p_avail_stable`: reduced by safety-margin, but not by ASM
       - `p_avail`: reduced by both SM & ASM
       - `p_resist`: road loads power
+      - `p_inert`: cycle power required due to accelerations
       - `p_req`: road loads & cycle power
   pmr:
-    title: Power to Unladen-Mass
-    description: Power/unladen-Mass ratio (W/kg).
+    description: Power/unladen-Mass ratio.
     type: number
+    units: W/kg
   wltc_class:
     description:
       The name (or index0) of the WLTC-class (found within WLTC-data/classes)
       as selected by the experiment.
     type: [integer, string]
     enum:
-    - class1
-    - class2
-    - class3a
-    - class3b
-    - 0
-    - 1
-    - 2
-    - 3
+      - class1
+      - class2
+      - class3a
+      - class3b
+      - 0
+      - 1
+      - 2
+      - 3
   resistance_coeffs_regression_curves:
     description:
       Regression curve factors for calculating vehicle's `resistance_coeffs`
@@ -285,10 +318,16 @@ properties:
       The limit for the calculated `f_dsc` below which no downscaling happens.
     type: number
     default: 0.01
+    tags:
+      - input
+      - constant
   f_dsc_decimals:
     title: Downscale-factor rounding decimals
     type: number
     default: 3
+    tags:
+      - input
+      - constant
   driver_mass:
     title: Driver's mass (kg)
     description: |2
@@ -297,31 +336,50 @@ properties:
           Unladen_mass = Test_mass - driver_mass
     type: number
     default: 75
+    units: kg
+    tags:
+      - input
+      - constant
   v_stopped_threshold:
-    description: Velocity (km/h) under which (<=) to idle gear-shift (Annex 2-3.3, p71).
+    description: Velocity under which (<=) to idle gear-shift (Annex 2-3.3, p71).
     type: number
     default: 1
+    units: km/h
+    tags:
+      - input
+      - constant
   f_inertial:
-    description:
-      This is the `kr` inertial-factor used in the 2nd part of the
+    description: This is the `kr` inertial-factor used in the 2nd part of the
       formula for calculating required-power (Annex 2-3.1).
     type: number
     default: 1.03
+    tags:
+      - input
+      - constant
   f_safety_margin:
     description: |2
       Safety-margin(SM) factor for load-curve (Annex 2-3.4).
     type: number
     default: 0.1
+    tags:
+      - input
+      - constant
   f_n_min:
-    description:
-      For each gear > 2, ``N :> n_min = n_idle + f_n_min * n_range``
+    description: For each gear > 2, ``N :> n_min = n_idle + f_n_min * n_range``
       (unless `n_min` overridden by manufacturer)
     type: number
     default: 0.125
+    units: min⁻¹
+    tags:
+      - input
   f_n_min_gear2:
     description: Gear-2 is invalid when ``N :< f_n_min_gear2 * n_idle``.
     type: number
     default: 0.9
+    units: min⁻¹
+    tags:
+      - input
+      - constant
   f_n_clutch_gear2:
     description: |2
       A 2-value number-array(f1, f2) controlling when to clutch gear-2::
@@ -331,14 +389,21 @@ properties:
       unless "clutched"...
     type: array
     default:
-    - 1.15
-    - 0.03
+      - 1.15
+      - 0.03
+    units: min⁻¹
+    tags:
+      - input
+      - constant
   f_dsc:
     description: |2
       The downscaling-factor as calculated by the experiment (Annex 1-8.3).
 
       Set it to 0 to disable downscaling, (or to any other value to force it).
     type: number
+    tags:
+      - input
+      - output
   f_running_threshold:
     description:
       Τhe velocity threshold above which the vehicle is considered as "running",
@@ -360,34 +425,41 @@ properties:
       - constant
   b_no_g0_downshift:
     description: |2
-      a flag to suppress shifting to gear-0(idle) during downshifts
+      A flag to suppress shifting to gear-0(idle) during downshifts.
     type: boolean
+    tags:
+      - input
   v_cap:
-    description:
-      A maximum velocity limit that when given and > 0,
+    description: A maximum velocity limit that when given and > 0,
       all `v_dsc` samples below this are clipped (Annex 1-8.4).
     type:
-    - integer
-    - "null"
+      - integer
+      - "null"
     minimum: 0
     default: null
+    units: km/h
     tags:
-    - input
+      - input
   dsc_distances:
     title: Downscaled cycle distance
-    $ref: '#/definitions/positiveNumber'
+    $ref: "#/definitions/positiveNumber"
+    units: km
     tags:
-    - output
+      - output
   capped_distances:
     title: Capped cycle distance
-    $ref: '#/definitions/positiveNumber'
+    $ref: "#/definitions/positiveNumber"
+    units: km
     tags:
-    - output
-  compensated_distance:
-    title: Compensated cycle distance
-    $ref: '#/definitions/positiveNumber'
+      - input
+      - output
+  compensated_distances:
+    description: the cumulative distance of the compensated cycle
+    $ref: "#/definitions/positiveNumber"
+    units: km
     tags:
-    - output
+      - input
+      - output
   cycle:
     description: |2
       An inp/out dataframe matrix with 2-level columns(item, gear),
@@ -397,7 +469,10 @@ properties:
       V_dsc_raw:
         title: Downscaled velocity raw
         description: like `V_dsc` but not yet rounded.
-        tags: [input, output]
+        units: km/h
+        tags:
+          - input
+          - output
       V_dsc:
         title: Downscaled velocity
         description: |2
@@ -405,16 +480,68 @@ properties:
 
           If not given, the `scale_trace` pipeline produces it from
           :func:`.downscale.calc_V_dsc_raw()`.
-        $ref: '#/definitions/positiveNumbers'
-        tags: [input, output]
+        $ref: "#/definitions/positiveNumbers"
+        units: km/h
+        tags:
+          - input
+          - output
       V_capped:
         description: The `V_dsc` limited to `v_cap` maximum.
-        $ref: '#/definitions/positiveNumbers'
-        tags: [input, output]
+        $ref: "#/definitions/positiveNumbers"
+        tags:
+          - input
+          - output
       V_compensated:
         description: The `V_capped` extended to retain the same distance (Annex 1-9).
-        $ref: '#/definitions/positiveNumbers'
-        tags: [input, output]
+        $ref: "#/definitions/positiveNumbers"
+        units: km/h
+        tags:
+          - input
+          - output
+      A:
+        description: The Acceleration, Annex 2-3.1
+        type: number
+        units: m/s²
+        tags:
+          - input
+          - output
+      initaccel:
+        description: Driveability rule phase for the initial accelerating phase of a short trip.
+        $ref: "#/definitions/booleans"
+        tags:
+          - input
+          - output
+      stopdecel:
+        description: Driveability rule phase for the final decelerating phase of a short trip.
+        $ref: "#/definitions/booleans"
+        tags:
+          - input
+          - output
+      run:
+        description:
+          Driveability rule phase for where `V` is above(>=) `f_running_threshold`,
+          for Annex 2-4.
+        $ref: "#/definitions/booleans"
+        tags:
+          - input
+          - output
+      stop:
+        description:
+          Driveability rule phase for where `V` is strictly below(<) `f_running_threshold`,
+          for Annex 2-4.
+        $ref: "#/definitions/booleans"
+        tags:
+          - input
+          - output
+      up:
+        description:
+          Driveability rule for acceleration/constant phase in Annex 2-2.k
+          for the determination of the initial gear, according to Annex 2-3.5.
+          for Annex 2-4.
+        $ref: "#/definitions/booleans"
+        tags:
+          - input
+          - output
   wltc_data:
     $ref: /wltc
 
@@ -428,28 +555,32 @@ definitions:
   positiveIntegers:
     type: array
     items:
-      $ref: '#/definitions/positiveInteger'
+      $ref: "#/definitions/positiveInteger"
   positiveNumbers:
     type: array
     items:
-      $ref: '#/definitions/positiveNumber'
+      $ref: "#/definitions/positiveNumber"
+  booleans:
+    type: array
+    items:
+      type: boolean
 
 # Must follow `properties` due to `autoRemoveNull`.
 required:
-- f0
-- f1
-- f2
-- test_mass
-- p_rated
-- n_rated
-- n_idle
-- n2v_ratios
-- wot
-- driver_mass
-- v_stopped_threshold
-- f_inertial
-- f_safety_margin
-- f_n_min
-- f_n_min_gear2
-- f_n_clutch_gear2
-- wltc_data
+  - f0
+  - f1
+  - f2
+  - test_mass
+  - p_rated
+  - n_rated
+  - n_idle
+  - n2v_ratios
+  - wot
+  - driver_mass
+  - v_stopped_threshold
+  - f_inertial
+  - f_safety_margin
+  - f_n_min
+  - f_n_min_gear2
+  - f_n_clutch_gear2
+  - wltc_data
