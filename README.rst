@@ -765,59 +765,71 @@ Summarizing the last **"VA0+"** phasing scheme:
     - it is **valid for any sampling frequency (not just 1Hz)**,
     - respects the `Dijkstra counting
       <https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html>`_
-      (notice the parenthesis signifying *open right* intervals), BUT ...
+      (notice the parenthesis signifying *open right* intervals, in the above table),
+      BUT ...
     - Velocity-related quantities cannot utilize this phasing scheme, must stick to the original.
 
-3. Calculating mean values for Accelerations work only with non-overlapping split-times.
 
-   It's easier to demonstrate the issues with a hypothetical 4-sec cycle, 
-   composed of 2 symmetrical ramp-up/ramp-down 2-sec phases
-   (the "blue" line in the plot, below):
+Averaging quantities over phases
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   .. table:: ramp-up/down cycle
+Calculating mean values for Acceleration-related quantities produce correct results
+only with non-overlapping split-times.
 
-       =====   ========   ========   =====   =========   =========   =========
-       t       V-phase1   V-phase2   V       Distance    VA-phase    A
-       [sec]                         [kmh]   [m x 3.6]               [m/sec²]
-       =====   ========   ========   =====   =========   =========   =========
-       0       X                     0       0           1           5
-       1       X                     5       2.5         1           5
-       2       X          X          10      10          2           -5
-       3                  X          5       17.5        2           -5
-       4                  X          0       20          *<blank>*   *<blank>*
-       =====   ========   ========   =====   =========   =========   =========
+It's easier to demonstrate the issues with a hypothetical 4-sec cycle, 
+composed of 2 symmetrical ramp-up/ramp-down 2-sec phases
+(the "blue" line in the plot, below):
 
-   - The final *A* value has been kept blank, so that mean values per-phase
-     add up, and phases no longer overlap.
+.. table:: ramp-up/down cycle
 
-   .. table:: mean values for ramp-up/down cycle, above
+    =====   ========   ========   =====   =========   =========   =========
+    t       V-phase1   V-phase2   V       Distance    VA-phase    A
+    [sec]                         [kmh]   [m x 3.6]               [m/sec²]
+    =====   ========   ========   =====   =========   =========   =========
+    0       X                     0       0           1           5
+    1       X                     5       2.5         1           5
+    2       X          X          10      10          2           -5
+    3                  X          5       17.5        2           -5
+    4                  X          0       20          *<blank>*   *<blank>*
+    =====   ========   ========   =====   =========   =========   =========
 
-         ===========   ========    =========   ========
-         \              mean(V)    mean(S)     mean(A)
-         \              [kmh]      [m x 3.6]   [m/sec²]
-         ===========   ========    =========   ========
-         **phase1:**   5           10          5
-         **phase2:**   5           10          -5
-         ===========   ========    =========   ========
+- The final *A* value has been kept blank, so that mean values per-phase
+  add up, and phases no longer overlap.
 
-   - Applying the *V-phasings* on *mean(A)*  would have arrived to counterintuitive
-     values, :math:`\left(\frac{5 + 5 + (-5)}{3} =\right) 1.66m/sec^2` &  :math:`-1.66m/sec^2`
-     for each phase, respectively.
+.. table:: mean values for ramp-up/down cycle, above
 
-   .. raw:: html
-       :file:  docs/_static/2ramps.svg
+        ===========   ========    =========   ========
+        \              mean(V)    mean(S)     mean(A)
+        \              [kmh]      [m x 3.6]   [m/sec²]
+        ===========   ========    =========   ========
+        **phase1:**   5           10          5
+        **phase2:**   5           10          -5
+        ===========   ========    =========   ========
 
-4. BUT since all phases in WLTC begin and finish with consecutive zeros(0),
-   the deliberations above do not manifest as problems;  but at the same time,
-   discovering off-by-one errors (or shifts in time) on
-   arbitrary files containing calculated and/or measured traces is really hard:
-   SUMs & CUMSUMs do not produce any difference at all.
+- Applying the *V-phasings* on *mean(A)*  would have arrived to counterintuitive
+  values, :math:`\left(\frac{5 + 5 + (-5)}{3} =\right) 1.66m/sec^2` &  :math:`-1.66m/sec^2`
+  for each phase, respectively.
 
-   The tables in the next section, along with accompanying CRC functions developed in Python,
-   come as an aid to the problems above.
+.. raw:: html
+    :file:  docs/_static/2ramps.svg
 
-Phasings
-^^^^^^^^
+
+Practical deliberations
+~~~~~~~~~~~~~~~~~~~~~~~
+
+BUT since all phases in WLTC begin and finish with consecutive zeros(0),
+the deliberations above do not manifest as problems;  but at the same time,
+discovering off-by-one errors (or shifts in time) on
+arbitrary files containing calculated and/or measured traces is really hard:
+SUMs & CUMSUMs do not produce any difference at all.
+
+The tables in the next section, along with accompanying CRC functions developed in Python,
+come as an aid to the problems above.
+
+.. _checksums:
+
+Phase boundaries & checksums by phasing scheme
+----------------------------------------------
 As reported by :func:`wltp.cycles.cycle_phases()`, and neglecting the advice
 to *optionally* add a final 0 when calculating the cycle Acceleration (Annex 1 2-3.1),
 the following 3 *phasing* are identified from velocity traces of 1Hz:
@@ -846,12 +858,6 @@ class3b  **V**      [0, 589]    [589, 1022]     [1022, 1477]    [1477, 1800]
 \        **VA0**    [0, 588]    [589, 1021]     [1022, 1476]    [1477, 1799]
 \        **VA1**    [1, 589]    [590, 1022]     [1023, 1477]    [1478, 1800]
 =======  ========   ========    ===========     ============    ============
-
-
-.. _checksums:
-
-Checksums
----------
 
 * The :func:`~wltp.cycles.crc_velocity()` function has been specially crafted to consume
   series of floats with 2-digits precision (:data:`~wltp.invariants.v_decimals`)
