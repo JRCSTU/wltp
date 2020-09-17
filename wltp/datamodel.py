@@ -494,7 +494,6 @@ def validate_model(
         validator.iter_errors(mdl),
         yield_n_min_errors(mdl),
         yield_load_curve_errors(mdl),
-        yield_forced_cycle_errors(mdl, additional_properties),
     ]
     errors = itt.chain(*[v for v in validators if not v is None])
 
@@ -561,37 +560,6 @@ def yield_n_min_errors(mdl):
 
     for k, v in nmins._asdict().items():
         mdl[k] = v
-
-
-def yield_forced_cycle_errors(mdl, additional_properties):
-    forced_cycle = mdl.get("forced_cycle")
-    if not forced_cycle is None:
-        try:
-            if not isinstance(forced_cycle, pd.DataFrame):
-                forced_cycle = pd.DataFrame(forced_cycle)
-                if forced_cycle.shape[0] == forced_cycle.shape[1]:
-                    yield ValidationError(
-                        "The force_cycle is a square matrix(%s), cannot decide orientation!"
-                        % (forced_cycle.shape,)
-                    )
-            if forced_cycle.shape[0] < forced_cycle.shape[1]:
-                forced_cycle = forced_cycle.T
-            cols = forced_cycle.columns
-
-            # if not additional_properties and not set(cols) <= set(['v','slide']):
-            #     yield ValidationError('Unexpected columns!')
-
-            if forced_cycle.shape[1] == 1:
-                if cols[0] == 1:
-                    log.warning(
-                        "Assuming the unamed single-column to be the velocity_profile(%s).",
-                        cols[0],
-                    )
-                    forced_cycle.columns = ["v"]
-
-            mdl["forced_cycle"] = forced_cycle
-        except PandasError as ex:
-            yield ValidationError("Invalid forced_cycle, due to: %s" % ex, cause=ex)
 
 
 if __name__ == "__main__":
