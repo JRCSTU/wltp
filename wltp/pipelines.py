@@ -298,6 +298,7 @@ def cycler_pipeline(
             *gwots_pipeline(aug).ops,
             *p_req_pipeline(aug).ops,
             *n_max_pipeline(aug).ops,
+            engine.validate_n_max,
             wio.GearMultiIndexer.from_df,
             cycler.attach_wots,
             cycler.derrive_initial_gear_flags,

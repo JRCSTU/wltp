@@ -218,7 +218,9 @@ class Experiment(object):
                     f_inertial,
                 )
                 f_dsc = downscale.calc_f_dsc(
-                    f_dsc_raw, f_dsc_threshold, f_dsc_decimals,
+                    f_dsc_raw,
+                    f_dsc_threshold,
+                    f_dsc_decimals,
                 )
                 mdl[m.f_dsc] = f_dsc
                 mdl[m.f_dsc_raw] = f_dsc_raw
@@ -232,10 +234,10 @@ class Experiment(object):
 
                 ## VALIDATE AGAINST PIPELINE.
                 #
-                orig_mdl.pop('v_max', None)  # vehdb contains v_max!
+                orig_mdl.pop("v_max", None)  # vehdb contains v_max!
                 sol = pipelines.scale_trace_pipeline().compute(orig_mdl)
                 assert (V_dsc == sol["V_dsc"]).all()
-                assert mdl['pmr'] == sol['p_m_ratio']
+                assert mdl["pmr"] == sol["p_m_ratio"]
                 # for i in "v_max g_vmax n_vmax wltc_class n95_high n95_low".split():
                 for i in "v_max g_vmax n_vmax wltc_class".split():
                     assert mdl[i] == sol[i]
@@ -271,11 +273,13 @@ class Experiment(object):
             cb.cycle[c.p_resist], cb.cycle[c.p_inert]
         )
 
-        # VALIDATE AGAINST PIPELINE.
-
+        ## VALIDATE AGAINST PIPELINE No1
+        #
+        inp = {**mdl, "V_compensated": V}
+        sol = pipelines.cycler_pipeline().compute(inp.copy())
+        graph_cycle = sol["cycle"]
+        P_req = graph_cycle["P_req"]
         p_req = cb.cycle[c.p_req]
-        sol = pipelines.cycler_pipeline().compute({**mdl, "V_compensated": V})
-        P_req = sol["cycle"]["P_req"]
         idx = ~p_req.isnull()
         assert (p_req[idx] == P_req[idx]).all()
 
@@ -311,6 +315,11 @@ class Experiment(object):
         cb.add_columns(ok_flags, ok_gears, G_scala, g_min, g_max0)
 
         mdl[m.cycle] = cb.cycle
+
+        ## VALIDATE AGAINST PIPELINE No2
+        #
+        assert (g_min == graph_cycle["g_min"]).all()
+        assert (g_max0 == graph_cycle["g_max0"]).all()
 
         return mdl
 
