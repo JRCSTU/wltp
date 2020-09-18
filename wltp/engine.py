@@ -15,7 +15,7 @@ import pandas as pd
 from jsonschema import ValidationError
 from scipy import interpolate
 
-from graphtik import sfx
+from graphtik import modify, optional, sfx, sfxed
 
 from . import autograph as autog
 from . import invariants as inv
@@ -343,6 +343,9 @@ def interpolate_wot_on_v_grid(wot: pd.DataFrame, n2v_ratios) -> pd.DataFrame:
     return wot_grid
 
 
+@autog.autographed(
+    provides=[sfxed("gwots", "p_avail"), modify("cycle/p_avail", implicit=1)],
+)
 def attach_p_avail_in_gwots(gwots: pd.DataFrame, *, f_safety_margin) -> pd.DataFrame:
     """
     Attaches both `p_avail` and `p_avail_stable` for all gears.

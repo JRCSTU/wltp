@@ -189,7 +189,6 @@ def test_cycler_pipeline():  # wltc_class):
 
     with config.evictions_skipped(True):
         sol = pipe.compute(inp)
-
     exp = [
         ("t", ""),
         ("V_cycle", ""),
@@ -246,6 +245,18 @@ def test_cycler_pipeline():  # wltc_class):
         ("p_norm", "g4"),
         ("p_norm", "g5"),
         ("p_norm", "g6"),
+        ("P_remain", "g1"),
+        ("P_remain", "g2"),
+        ("P_remain", "g3"),
+        ("P_remain", "g4"),
+        ("P_remain", "g5"),
+        ("P_remain", "g6"),
+        ("ok_p", "g1"),
+        ("ok_p", "g2"),
+        ("ok_p", "g3"),
+        ("ok_p", "g4"),
+        ("ok_p", "g5"),
+        ("ok_p", "g6"),
         ("ok_gear0", "g0"),
         ("ok_max_n", "g1"),
         ("ok_max_n", "g2"),
