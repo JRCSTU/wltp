@@ -301,6 +301,8 @@ def cycler_pipeline(
             engine.validate_n_max,
             wio.GearMultiIndexer.from_df,
             cycler.attach_wots,
+            cycler.calc_p_remain,
+            cycler.calc_ok_p_rule,
             cycler.derrive_initial_gear_flags,
             cycler.derrive_ok_n_flags,
             cycler.concat_frame_columns,
