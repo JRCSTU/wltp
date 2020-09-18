@@ -26,7 +26,7 @@ import pandas as pd
 from jsonschema import ValidationError
 from toolz import itertoolz as itz
 
-from graphtik import modify, optional, sfxed, vararg
+from graphtik import modify, optional, sfxed, sfxed_vararg, vararg
 
 from . import autograph as autog
 from . import invariants as inv
@@ -602,7 +602,7 @@ def init_cycle_velocity(*velocities: Union[pd.Series, pd.DataFrame]) -> pd.DataF
     ],
     provides=[
         sfxed("cycle", "v_phases"),
-        modify("cycle/va_phases", implicit=True),
+        modify("cycle/va_phase", implicit=True),
     ],
 )
 def attach_class_phase_markers(
@@ -967,8 +967,19 @@ def derrive_ok_n_flags(initial_gear_flags: pd.DataFrame):
 
 
 @autog.autographed(needs=["initial_gear_flags", "ok_n_flags"], provides="ok_flags")
-def concat_frame_columns(*gflags: pd.DataFrame) -> pd.DataFrame:
-    return pd.concat(gflags, axis=1)
+@autog.autographed(
+    name="attach_gear_flags",
+    needs=[
+        sfxed("cycle", "gwots"),
+        "ok_flags",
+        "ok_gears",
+        "G_min",
+        "G_max0",
+    ],
+    provides=sfxed("cycle", "gear_flags"),
+)
+def concat_frame_columns(*frames: Union[pd.DataFrame, pd.Series]) -> pd.DataFrame:
+    return pd.concat(frames, axis=1)
 
 
 def _combine_all_gear_flags(gflags) -> pd.Series:

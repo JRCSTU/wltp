@@ -15,6 +15,8 @@ import pandas as pd
 from jsonschema import ValidationError
 from scipy import interpolate
 
+from graphtik import sfx
+
 from . import autograph as autog
 from . import invariants as inv
 from . import io as wio
@@ -459,3 +461,14 @@ def calc_n_max(n95_high, n_max_cycle, n_max_vehicle):
     )
 
     return n_max
+
+
+@autog.autographed(needs=["wot", ...], provides=sfx("valid_n_max"))
+def validate_n_max(wot: pd.DataFrame, n_max: int) -> None:
+    """Simply check the last N wot point is >= `n_max`. """
+    w = wio.pstep_factory.get().wot
+
+    if wot[w.n].iloc[-1] < n_max:
+        raise ValueError(
+            f"Last wot point ({wot[w.n].iloc[-1]}min⁻¹, {wot[w.n].iloc[-1]:.02f}kW) is below n_max({n_max})!"
+        )
