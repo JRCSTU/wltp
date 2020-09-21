@@ -17,7 +17,7 @@ import dataclasses
 import functools as fnt
 import itertools as itt
 import re
-from typing import Callable, Iterable, List, Optional, Union
+from typing import Callable, Iterable, List, Optional, Sequence, Union
 
 import numpy as np
 import pandas as pd
@@ -122,10 +122,12 @@ class GearMultiIndexer:
     """
     Multi-indexer for 2-level df columns like ``(item, gear)`` with 1-based & closed-bracket `gear`.
 
-    Example *grid_wots*::
+    Example 2-level *grid_wots* columns::
 
         p_avail  p_avail  ... n_foo  n_foo
-             g1       g2  ...    g1     g2
+           g1       g2    ...   g1      g2
+
+    df.columns = gidx[:]
 
     ... Warning::
         negative indices might not work as expected if :attr:`gnames` do not start from ``g1``
@@ -166,16 +168,26 @@ class GearMultiIndexer:
 
     - When `items` are given, you get a "product" MultiIndex:
 
-      >>> G.with_item("foo")[1:3]
+      >>> G = G.with_item("foo")
+      >>> G[1:3]
       MultiIndex([('foo', 'g1'),
                   ('foo', 'g2'),
                   ('foo', 'g3')], )
 
+      >>> len(G)
+      5
+      >>> G.shape
+      (5, 2)
+      >>> G.size
+      10
+
       Use no `items` to reset them:
 
-      >>> G.with_item('foo').with_item()[:]
+      >>> G = G.with_item()
+      >>> G[:]
       ['g1', 'g2', 'g3', 'g4', 'g5']
-
+      >>> G.shape
+      (5,)
 
     - Notice that **G0** changes "negative" indices:
 
@@ -186,6 +198,7 @@ class GearMultiIndexer:
       ['g0', 'g1', 'g2', 'g3', 'g4', 'g5']
       >>> G[[-5, -6, -7]]
       ['g1', 'g0', 'g5']
+
     """
 
     #: 1st level column(s)
@@ -206,7 +219,7 @@ class GearMultiIndexer:
     def from_ngears(
         cls,
         ngears: int,
-        items: Iterable[str] = None,
+        items: Sequence[str] = None,
         gear_namer: GearGenerator = gear_name,
         gear0=False,
     ):
@@ -317,14 +330,24 @@ class GearMultiIndexer:
             item = (item,)
         return pd.MultiIndex.from_tuples(itt.product(item, gnames))
 
-    @property
-    def ng(self):
+    def __len__(self):
         """
         The number of gears extracted from 2-level dataframe.
 
         It equals :attr:`top_gear` if :attr:`gnames` are from 1-->top_gear.
         """
         return len(self.gnames)
+
+    ng = property(__len__)
+
+    @property
+    def shape(self):
+        y = (1 + len(self.items),) if self.items else ()
+        return self.ng, *y
+
+    @property
+    def size(self):
+        return self.ng * ((len(self.items) + 1) if self.items else 1)
 
 
 @fnt.lru_cache()
