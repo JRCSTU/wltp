@@ -257,10 +257,10 @@ setup(
         # 9.0.0 JSNOP,fnop,modifier; 10.0.0 implicit; auto-name pipes, jsonp=>modify;
         # 10.1.0 keyword renames returns-dict; 10.2.0 compose(exclude);
         # 10.3.0 concat-dfs_pos_callback(+overwrites), drop implicit-sfxed
-        "graphtik <=10.2.1",
+        "graphtik >=10.3",
         "jsonschema",
         "numpy",
-        "pandas",
+        "pandas >=1.0",  # BooleanDType ternary extension type
         "pandalone >=0.4",  # Pandel auto-nulls
         "ruamel.yaml",
         "scipy",
