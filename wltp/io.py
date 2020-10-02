@@ -343,7 +343,7 @@ class GearMultiIndexer:
     @property
     def shape(self):
         y = (1 + len(self.items),) if self.items else ()
-        return self.ng, *y
+        return (self.ng, *y)
 
     @property
     def size(self):
