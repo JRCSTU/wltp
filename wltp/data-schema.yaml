@@ -415,8 +415,9 @@ properties:
       - input
       - constant
   f_up_threshold:
-    description: The acceleration/constant threshold defined in Annex 2-2.k
-      for the determination of the initial gear, according to Annex 2-3.5.
+    description: The acceleration/constant<-->deceleration threshold for n_mins_up/down
+      (Annex 2-2.k)
+      for the determination of the initial gear & n_mins, according to Annex 2-3.5.
     type: number
     default: -0.1389
     units: m/s²
