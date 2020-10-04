@@ -1,18 +1,13 @@
 :Organization: UNECE/GS-TF
 :Date: 8-Feb-2014
 :Version: phase-1b
-:URL: <not available>
+:URL: https://wiki.unece.org/pages/viewpage.action?pageId=2523179
 
 .. include:: <xhtml1-special.txt>
 
-##################
-Phasings & Annex 2
-##################
-
-.. include:: ../README.rst
-    :start-after: _begin-annex
-    :end-before: _begin-contribute
-
+#######
+Annex 2
+#######
 
 Gear selection and shift point determination for vehicles equipped with manual transmissions
 ============================================================================================
