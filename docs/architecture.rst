@@ -1,6 +1,6 @@
 .. include:: ../README.rst
     :start-after: _architecture:
-    :end-before: _begin-annex:
+    :end-before: _begin-cycles:
 
 .. include:: ../README.rst
     :start-after: _begin-glossary:

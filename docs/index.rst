@@ -10,6 +10,7 @@
     usage
     architecture
     metrics
+    cycles
     annex-2
     code
     schema
