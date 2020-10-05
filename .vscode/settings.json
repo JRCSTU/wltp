@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": ".venv/bin/python3",
+    "python.pythonPath": ".venv/bin/python",
     "python.linting.enabled": true,
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,

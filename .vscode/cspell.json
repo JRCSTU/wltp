@@ -73,6 +73,7 @@
         "denormalize",
         "deps",
         "devtools",
+        "dicttoolz",
         "DISQUS",
         "docx",
         "downscaled",
