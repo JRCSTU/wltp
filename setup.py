@@ -134,7 +134,7 @@ doc_reqs = [
     "sphinx>=2",
     "matplotlib",
     "graphtik[sphinx] >=5.7.0",
-    "sphinx-jsonschema >= 1.16",
+    "sphinx-jsonschema >1.16.4",
 ]
 notebook_reqs = [
     "papermill",

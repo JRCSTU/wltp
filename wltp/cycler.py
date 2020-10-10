@@ -19,14 +19,24 @@ import dataclasses
 import functools as fnt
 import itertools as itt
 import logging
-from typing import Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from jsonschema import ValidationError
+from pandas.arrays import BooleanArray
 from toolz import itertoolz as itz
 
-from graphtik import modify, optional, sfxed, sfxed_vararg, vararg
+from graphtik import (
+    hcat,
+    implicit,
+    keyword,
+    optional,
+    sfxed,
+    sfxed_vararg,
+    vararg,
+    vcat,
+)
 
 from . import autograph as autog
 from . import invariants as inv
@@ -466,25 +476,35 @@ class CycleBuilder:
         c = wio.pstep_factory.get().cycle
 
         cycle = self.cycle
-        cycle = calc_p_remain(cycle, cycle["p_avail"], cycle[c.p_req], self.gidx)
-        cycle = calc_ok_p_rule(cycle, cycle["P_remain"], self.gidx)
-        self.cycle = cycle
+        gidx = self.gidx
+        P_remain = calc_P_remain(cycle["p_avail"], cycle[c.p_req], gidx)
+        OK_p = calc_OK_p(P_remain, gidx)
+        self.cycle = cycle = pd.concat((cycle, P_remain, OK_p), axis=1)
 
-        return derrive_initial_gear_flags(
+        flag_columns = calc_OK_min_n(
             cycle,
+            gidx,
             cycle[c.t],
             cycle[c.run],
             cycle[c.stop],
             cycle[c.initaccel],
             cycle[c.stopdecel],
             cycle[c.up],
-            cycle[c.p_req],
-            self.gidx,
             g_vmax,
             n95_high,
             n_max_cycle,
             **nmins._asdict(),
         )
+        OK_g0 = calc_OK_g0(N, cycle["stopdecel"], nmins.n_min_drive2_stopdecel, gidx)
+        flag_columns.append(OK_g0)
+        flags = (
+            (pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0) * 1)
+            .fillna(NANFLAG)
+            .astype("int8")
+        )
+        flags.columns.names = ("item", "gear")
+
+        return flags
 
     def combine_ok_n_gear_flags(self, flags: pd.DataFrame):
         return derrive_ok_n_flags(flags)
@@ -502,73 +522,94 @@ class CycleBuilder:
 
 
 
+#################
+## Graphtik code
+## ...
+#################
+
+
 @autog.autographed(
     needs=[
-        sfxed("cycle", "gwots"),
         "cycle/p_avail",
         "cycle/P_req",
         ...,
     ],
-    provides=[
-        sfxed("cycle", "P_remain"),
-        modify("cycle/P_remain", implicit=1),
-    ],
+    provides=hcat("cycle/P_remain"),
 )
-def calc_p_remain(
-    cycle: pd.DataFrame,
+def calc_P_remain(
     P_avail: pd.DataFrame,
     P_req: pd.Series,
     gidx: wio.GearMultiIndexer,
 ):
-    """
-    Return `p_avail - p_req` for all gears > g2 in `gwot`
-
-    TODO: Separate :func:`calc_p_remain` not used yet
-    """
+    """Return `p_avail - p_req` for all gears > g2 in `gwot`. """
     c = wio.pstep_factory.get().cycle
 
     ## Drop pandas axis or else substraction would fail with:
     #       ValueError: cannot join with no overlapping index names
-    p_remain = P_avail.fillna(0) - P_req.fillna(1).to_numpy().reshape(-1, 1)
-    p_remain.columns = gidx.with_item(c.P_remain)[:]
+    P_remain = P_avail.fillna(0) - P_req.fillna(1).to_numpy().reshape(-1, 1)
+    P_remain.columns = gidx.with_item(c.P_remain)[:]
 
-    return pd.concat((cycle, p_remain), axis=1)
+    return P_remain
 
 
 @autog.autographed(
-    needs=[sfxed("cycle", "P_remain"), "cycle/P_remain", ...],
-    provides=[sfxed("cycle", "OK_p"), modify("cycle/OK_p", implicit=1)],
+    needs=["cycle/P_remain", ...],
+    provides=hcat("cycle/OK_p"),
 )
-def calc_ok_p_rule(
-    cycle: pd.DataFrame, P_remain: pd.DataFrame, gidx: wio.GearMultiIndexer
-):
+def calc_OK_p(P_remain: pd.DataFrame, gidx: wio.GearMultiIndexer):
     """
     Sufficient power rule for gears > g2, in Annex 2-3.5.
 
-    TODO: Separate :func:`calc_ok_p_rule` not used yet
+    TODO: Separate :func:`calc_ok_p` not used yet
     """
     c = wio.pstep_factory.get().cycle
 
     g3 = 3
-    ok_p = (P_remain[gidx[g3:]] >= 0).astype("int8")
-    ok_p.columns = gidx.with_item(c.ok_p)[g3:]
+    OK_p = (P_remain[gidx[g3:]] >= 0).astype("int8")
+    OK_p.columns = gidx.with_item(c.OK_p)[g3:]
 
-    return pd.concat((cycle, ok_p), axis=1)
+    return OK_p
+
+
+@autog.autographed(
+    needs=["cycle/n", ..., ..., ..., ...], provides=hcat("cycle/OK_max_n")
+)
+def calc_OK_max_n(N, n95_high, n_max_cycle, g_vmax, gidx: wio.GearMultiIndexer):
+    """ (MAXn-1) , (MAXn-a)  and (MAXn-b) rules. """
+    c = wio.pstep_factory.get().cycle
+
+    g1 = gidx[1]
+    gears_below_gvmax = gidx[2 : g_vmax - 1]
+    gears_from_gvmax = gidx[g_vmax:]
+
+    ## (MAXn-1) rule
+    #  Special handling of g1 to accept also NANs in N.
+    OK_max_n_g1 = N[g1].fillna(0) < n95_high
+
+    ## (MAXn-a) rule
+    OK_max_n_below_gvmax = N[gears_below_gvmax] < n95_high
+
+    ## (MAXn-b) rule
+    OK_max_n_from_gvmax = N[gears_from_gvmax] < n_max_cycle
+
+    ## Collect `OK_max` in one df for all gears.
+    #
+    OK_max_n = pd.concat(
+        (OK_max_n_g1, OK_max_n_below_gvmax, OK_max_n_from_gvmax), axis=1
+    )
+    OK_max_n.columns = gidx.with_item(c.OK_max_n)[1:]
+
+    return OK_max_n
 
 
 def fill_insufficient_power(cycle):
+    """TODOFIXME: fill_insufficient_power() not calced yet! """
     c = wio.pstep_factory.get().cycle
 
     idx_miss_gear = cycle[c.g_max0] < 0
     ok_n = cycle.loc[:, c.ok_n]
     p_remain = cycle.loc[:, c.p_remain]
     cycle.loc[idx_miss_gear]
-
-
-#################
-## Graphtik code
-## ...
-#################
 
 
 @autog.autographed(
@@ -581,8 +622,8 @@ def fill_insufficient_power(cycle):
     ],
     provides=[
         sfxed("cycle", "init"),
-        modify("cycle/t", implicit=1),
-        modify("cycle/V", implicit=1),
+        implicit("cycle/t"),
+        implicit("cycle/V"),
     ],
 )
 def init_cycle_velocity(*velocities: Union[pd.Series, pd.DataFrame]) -> pd.DataFrame:
@@ -624,11 +665,11 @@ def init_cycle_velocity(*velocities: Union[pd.Series, pd.DataFrame]) -> pd.DataF
     needs=[
         sfxed("cycle", "init"),
         "class_phase_boundaries",
-        modify("cycle/t", implicit=True),
+        implicit("cycle/t"),
     ],
     provides=[
         sfxed("cycle", "v_phases"),
-        modify("cycle/va_phase", implicit=True),
+        implicit("cycle/va_phase"),
     ],
 )
 def attach_class_phase_markers(
@@ -659,9 +700,9 @@ def attach_class_phase_markers(
 
 @autog.autographed(
     needs=[sfxed("cycle", "v_phases"), "cycle/V", sfxed("gwots", "p_avail"), ...],
-    provides=[sfxed("cycle", "gwots"), sfxed("cycle", "p_avail", implicit=1)],
+    provides=[sfxed("cycle", "gwots"), implicit("cycle/n"), implicit("cycle/p_avail")],
 )
-def attach_wots(
+def join_gwots_with_cycle(
     cycle: pd.DataFrame, V: pd.Series, gwots: pd.DataFrame, gidx: wio.GearMultiIndexer
 ):
     """
@@ -698,14 +739,49 @@ def attach_wots(
 
 @autog.autographed(
     needs=[
-        sfxed("cycle", "P_remain", "v_phases", "gwots", "OK_p"),
+        "cycle/n",
+        "cycle/stop",
+        "cycle/initaccel",
+        "cycle/stopdecel",
+        ...,
+        ...,
+    ],
+    provides=hcat("cycle/OK_g0"),
+)
+def calc_OK_g0(
+    N: pd.DataFrame,
+    stop_phase: pd.Series,
+    initaccel: pd.Series,
+    stopdecel: pd.Series,
+    n_min_drive2_stopdecel: pd.Series,
+    gidx: wio.GearMultiIndexer,
+):
+    """ Gear-0 rule. """
+    c = wio.pstep_factory.get().cycle
+
+    #  Only 1 "gear_ok" column, but need another name
+    #  to feed into `_combine_all_gear_flags()`.
+    #
+    g0 = wio.gear_name(0)  # note this is not a list!
+    #
+    ok_g0 = (stopdecel & (N[gidx[2]] < n_min_drive2_stopdecel)) | (
+        stop_phase & ~initaccel
+    )
+    ok_g0.name = (c.OK_g0, g0)
+
+    return ok_g0
+
+
+@autog.autographed(
+    needs=[
+        sfxed("cycle", "gwots", "v_phases"),
+        ...,
         "cycle/t",
         "cycle/run",
         "cycle/stop",
         "cycle/initaccel",
         "cycle/stopdecel",
         "cycle/up",
-        "cycle/P_req",
         ...,
         ...,
         ...,
@@ -720,18 +796,28 @@ def attach_wots(
         ...,
         ...,
         ...,
-    ]
+    ],
+    provides=[
+        # .. AND ...
+        hcat("cycle/ok_min_n_g3plus_ups"),
+        hcat("cycle/ok_min_n_g3plus_dns"),
+        # .. AND ...
+        hcat("cycle/ok_min_n_g2"),
+        hcat("cycle/ok_min_n_g2_stopdecel"),
+        # .. AND ...
+        hcat("cycle/ok_min_n_g1"),
+        hcat("cycle/ok_min_n_g1_initaccel"),
+    ],
 )
-def derrive_initial_gear_flags(
+def calc_OK_min_n(
     cycle,
+    gidx: wio.GearMultiIndexer,
     t: pd.Series,
     run_phase: pd.Series,
     stop_phase: pd.Series,
     initaccel_phase: pd.Series,
     stopdecel_phase: pd.Series,
     up_phase: pd.Series,
-    P_req: pd.Series,
-    gidx: wio.GearMultiIndexer,
     g_vmax: int,
     n95_high: float,
     n_max_cycle: float,
@@ -764,8 +850,9 @@ def derrive_initial_gear_flags(
 
                                     ... AND ...
 
-        MAXn-a                  n ≤ n95_high  g < g_vmax             # 3.3
+        MAXn-a                  n ≤ n95_high  g < g_vmax            # 3.3
         MAXn-b              n ≤ n_max_cycle  g_vmax ≤ g             # 3.3
+                                                                    see `calc_OK_max_n`()
 
                                     ... AND ...
 
@@ -777,7 +864,7 @@ def derrive_initial_gear_flags(
 
                                     ... AND ...
 
-        stop              !initaccel, v < 1  g = 0, n = n_idle      # 3.2
+        stop              !initaccel, v < 1  g = 0, n = n_idle      # 3.2 (`see calc_OK_g0()`)
 
                                         NOT HERE:
 
@@ -801,35 +888,7 @@ def derrive_initial_gear_flags(
     g1 = gidx[1]  # note this is not a list!
     g2 = gidx[2]  # note this is not a list!
     gears_g3plus = gidx[3:]
-    gears_below_gvmax = gidx[2 : g_vmax - 1]
-    gears_from_gvmax = gidx[g_vmax:]
-    assert not (set(gears_below_gvmax) & set(gears_from_gvmax)), (
-        "Bad g_vmax split:",
-        gears_below_gvmax,
-        gears_from_gvmax,
-    )
-    nidx_g1 = (c.n, g1)
     nidx_g2 = (c.n, g2)
-    nidx_below_gvmax = gidx.colidx_pairs(c.n, gears_below_gvmax)
-    nidx_from_gvmax = gidx.colidx_pairs(c.n, gears_from_gvmax)
-
-    ## (MAXn-1) rule
-    #  Special handling of g1 dues to `initaccel` containing n=NAN
-    #
-    ok_max_n_g1 = cycle.loc[:, nidx_g1].fillna(0) < n95_high
-    ok_max_n_g1.name = (c.ok_max_n, g1)
-
-    ## (MAXn-a) rule
-    #
-    ok_max_n_gears_below_gvmax = cycle.loc[:, nidx_below_gvmax] < n95_high
-    ok_max_n_gears_below_gvmax.columns = gidx.colidx_pairs(
-        c.ok_max_n, gears_below_gvmax
-    )
-
-    ## (MAXn-b) rule
-    #
-    ok_max_n_gears_from_gvmax = cycle.loc[:, nidx_from_gvmax] < n_max_cycle
-    ok_max_n_gears_from_gvmax.columns = gidx.colidx_pairs(c.ok_max_n, gears_from_gvmax)
 
     ## (MINn-ud/hc) rules
     #
@@ -880,22 +939,7 @@ def derrive_initial_gear_flags(
     ok_min_n_g1 = ~initaccel_phase & run_phase
     ok_min_n_g1.name = (c.ok_min_n_g1, g1)  # it's a series
 
-    ## Gear-0 rule
-    #  Only 1 "gear_ok" column, but need a another name
-    #  to fed into combine-gear-flags.
-    #
-    g0 = wio.gear_name(0)  # note this is not a list!
-    #
-    ok_g0 = (stopdecel_phase & (cycle.loc[:, nidx_g2] < n_min_drive2_stopdecel)) | (
-        ~initaccel_phase & stop_phase
-    )
-    ok_g0.name = (c.ok_gear0, g0)
-
     flag_columns = (
-        # .. AND ...
-        ok_max_n_g1,
-        ok_max_n_gears_below_gvmax,
-        ok_max_n_gears_from_gvmax,
         # .. AND ...
         ok_min_n_ups,
         ok_min_n_dns,
@@ -905,17 +949,8 @@ def derrive_initial_gear_flags(
         # .. AND ...
         ok_min_n_g1,
         ok_min_n_g1_initaccel,
-        # .. ALONE ...
-        ok_g0,
     )
-    flags = (
-        (pd.concat(flag_columns, axis=1).sort_index(axis=1, level=0) * 1)
-        .fillna(NANFLAG)
-        .astype("int8")
-    )
-    flags.columns.names = ("item", "gear")
-
-    return flags
+    return flag_columns
 
 
 def _derrive_ok_n_flags(initial_gear_flags) -> pd.Series:
@@ -934,7 +969,7 @@ def _derrive_ok_n_flags(initial_gear_flags) -> pd.Series:
 
     flags_to_AND = []
 
-    flags_to_AND.append(gflags[c.ok_max_n])
+    flags_to_AND.append(gflags[c.OK_max_n])
 
     if c.ok_min_n_g3plus_ups in flagcols:  # not g1, g2
         assert c.ok_min_n_g2 not in flagcols and c.ok_min_n_g1 not in flagcols, flagcols
@@ -968,7 +1003,23 @@ def _derrive_ok_n_flags(initial_gear_flags) -> pd.Series:
     return n_ok
 
 
-def derrive_ok_n_flags(initial_gear_flags: pd.DataFrame):
+@autog.autographed(
+    needs=[
+        # .. AND ...
+        keyword("cycle/ok_min_n_g3plus_ups"),
+        keyword("cycle/ok_min_n_g3plus_dns"),
+        # .. AND ...
+        keyword("cycle/ok_min_n_g2"),
+        keyword("cycle/ok_min_n_g2_stopdecel"),
+        # .. AND ...
+        keyword("cycle/ok_min_n_g1"),
+        keyword("cycle/ok_min_n_g1_initaccel"),
+        # .. ALONE ...
+        keyword("cycle/OK_max_n"),
+    ],
+    provides=hcat("cycle/OK_n"),
+)
+def derrive_ok_n_flags(**ok_n_flags: Mapping[str, pd.DataFrame]):
     """
     Merge together all N-allowed flags using AND+OR boolean logic.
 
@@ -977,18 +1028,19 @@ def derrive_ok_n_flags(initial_gear_flags: pd.DataFrame):
     """
     c = wio.pstep_factory.get().cycle
 
-    flags = initial_gear_flags.drop(c.ok_gear0, axis=1)
+    flags = pd.concat(
+        ok_n_flags.values(), axis=1, keys=ok_n_flags.keys(), names=["item", "gear"]
+    )
     ok_n = flags.groupby(axis=1, level="gear").apply(_derrive_ok_n_flags)
-    ok_n.columns = pd.MultiIndex.from_product(((c.ok_n,), ok_n.columns))
+    ok_n.columns = pd.MultiIndex.from_product(((c.OK_n,), ok_n.columns))
 
     return ok_n
 
 
-@autog.autographed(needs=["initial_gear_flags", "ok_n_flags"], provides="ok_flags")
+# @autog.autographed(needs=["initial_gear_flags", "cycle/OK_n"], provides="cycle/ok_flags")
 @autog.autographed(
     name="attach_gear_flags",
     needs=[
-        sfxed("cycle", "gwots"),
         "ok_flags",
         "ok_gears",
         "G_min",
@@ -1016,19 +1068,19 @@ def _combine_all_gear_flags(gflags) -> pd.Series:
     gflags = gflags.copy()
 
     g0 = wio.gear_name(0)
-    if (c.ok_gear0, g0) in flagcols:
+    if (c.OK_g0, g0) in flagcols:
         assert gflags.shape[1] == 1, ("More g0 gflags than once?", gflags)
-        final_flags = gflags.loc[:, (c.ok_gear0, g0)]
+        final_flags = gflags.loc[:, (c.OK_g0, g0)]
         final_flags.name = g0
 
         return final_flags
 
     flags_to_AND = []
 
-    if c.ok_p in flagcols:  # not g1, g2
-        flags_to_AND.append(gflags[c.ok_p])
+    if c.OK_p in flagcols:  # not g1, g2
+        flags_to_AND.append(gflags[c.OK_p])
 
-    flags_to_AND.append(gflags[c.ok_n])
+    flags_to_AND.append(gflags[c.OK_n])
 
     final_flags = inv.AND_columns_with_NANFLAGs(pd.concat(flags_to_AND, axis=1))
     assert isinstance(final_flags, pd.Series), (
@@ -1042,7 +1094,11 @@ def _combine_all_gear_flags(gflags) -> pd.Series:
     return final_flags
 
 
-def derrive_ok_gears(ok_flags: pd.DataFrame):
+@autog.autographed(
+    needs=[keyword("cycle/OK_g0"), keyword("cycle/OK_n"), keyword("cycle/OK_p")],
+    provides=hcat("cycle/OK_gear"),
+)
+def calc_ok_gears(**flags):
     """
     Merge together N+P allowed flags using AND+OR boolean logic.
 
@@ -1051,13 +1107,19 @@ def derrive_ok_gears(ok_flags: pd.DataFrame):
     """
     c = wio.pstep_factory.get().cycle
 
+    ok_flags = pd.concat(
+        flags.values(), axis=1, keys=flags.keys(), names=["item", "gear"]
+    )
     final_ok = ok_flags.groupby(axis=1, level="gear").apply(_combine_all_gear_flags)
-    final_ok.columns = pd.MultiIndex.from_product(((c.ok_gear,), final_ok.columns))
+    final_ok.columns = pd.MultiIndex.from_product(((c.OK_gear,), final_ok.columns))
 
     return final_ok
 
 
-def make_incrementing_gflags(gidx2: wio.GearMultiIndexer, ok_gears: pd.DataFrame):
+@autog.autographed(
+    needs=[..., "cycle/OK_gear"], provides=hcat("cycle/incrementing_gflags")
+)
+def make_incrementing_gflags(gidx2: wio.GearMultiIndexer, ok_gear: pd.DataFrame):
     """
     :param gidx2:
         needed due to g0 flags, not originally in gwots
@@ -1068,13 +1130,14 @@ def make_incrementing_gflags(gidx2: wio.GearMultiIndexer, ok_gears: pd.DataFrame
     gids = range(gidx2.ng)
     ## Convert False to NAN to identify samples without any gear
     #  (or else, it would be 0, which is used for g0).
-    ret = ok_gears.replace([False, NANFLAG], np.NAN) * gids
+    ret = ok_gear.replace([False, NANFLAG], np.NAN) * gids
     ret.columns = gidx2.with_item(c.G_scala)[:]
 
     return ret
 
 
 
+@autog.autographed(cwd="cycle")
 def make_G_min(incrementing_gflags):
     """
     The minimum gear satisfying power & N limits for every sample.
@@ -1087,6 +1150,7 @@ def make_G_min(incrementing_gflags):
     return g_min
 
 
+@autog.autographed(cwd="cycle")
 def make_G_max0(incrementing_gflags):
     """
     The first estimation of gear to use for every sample.

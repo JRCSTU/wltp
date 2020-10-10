@@ -336,9 +336,7 @@ def autographed(
     :param kws:
         the rest arguments of :class:`graphtik.operation`, such as::
 
-            endured, parallel, marshalled, node_props
-
-    The rest arguments (e.g. `needs`, etc) are coming from :class:`graphtik.operation`.
+            kwd, endured, parallel, marshalled, node_props
     """
     kws.update(
         {
@@ -523,7 +521,7 @@ class Autograph(Prefkey):
         """Collect the rest operation arguments from `autographed` decoration."""
         # NOTE: append more arguments as graphtik lib evolves.
         rest_op_args = (
-            "returns_dict aliases endured parallel marshalled node_props".split()
+            "cwd returns_dict aliases endured parallel marshalled node_props".split()
         )
         return {k: v for k, v in decors.items() if k in rest_op_args}
 
@@ -723,6 +721,9 @@ class Autograph(Prefkey):
                 fn_or_paths, exclude=exclude, domain=domain
             )
         ]
+
+    def wrap_func(self, func, domain: Union[str, int, Collection] = None)-> FnOp:
+        return next(iter(self.wrap_funcs([func], domain=domain)))
 
 
 """

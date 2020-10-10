@@ -1,10 +1,13 @@
 
 /cycle/G_scala
+/cycle/OK_g0
+/cycle/OK_gear
+/cycle/OK_max_n
+/cycle/OK_n
+/cycle/OK_p
 /cycle/P_remain
 /cycle/V
 /cycle/V_cycle
-/cycle/V_dsc
-/cycle/V_dsc_raw
 /cycle/a
 /cycle/accel
 /cycle/accel_raw
@@ -12,20 +15,15 @@
 /cycle/decel
 /cycle/g_max0
 /cycle/g_min
+/cycle/incrementing_gflags
 /cycle/initaccel
 /cycle/n
-/cycle/ok_gear
-/cycle/ok_gear0
-/cycle/ok_max_n
 /cycle/ok_min_n_g1
 /cycle/ok_min_n_g1_initaccel
 /cycle/ok_min_n_g2
 /cycle/ok_min_n_g2_stopdecel
 /cycle/ok_min_n_g3plus_dns
 /cycle/ok_min_n_g3plus_ups
-/cycle/ok_n
-/cycle/ok_p
-/cycle/p_avail
 /cycle/p_inert
 /cycle/p_req
 /cycle/p_resist
@@ -39,7 +37,6 @@
 /cycle/va_phase
 /cycle_data/pmr_limits
 /cycle_data/velocity_limits
-/driver_mass
 /f0
 /f1
 /f2

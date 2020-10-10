@@ -188,7 +188,21 @@ def test_cycler_pipeline():  # wltc_class):
     datamodel.validate_model(inp, additional_properties=True)
 
     with config.evictions_skipped(True):
-        sol = pipe.compute(inp)
+        sol = pipe.compute(inp, callbacks=(pipelines.check_dupe_cols))
+    cycle = sol["cycle"]
+
+    assert len(cycle) == 1612
+    # assert len(cycle.columns) == 105
+
+    renames = {
+        "OK_max_n": "ok_max_n",
+        "OK_g0": "ok_gear0",
+        "OK_p": "ok_p",
+        "OK_n": "ok_n",
+        "OK_gear": "ok_gear",
+        "G_min": "g_min",
+        "G_max0": "g_max0",
+    }
     exp = [
         ("t", ""),
         ("V_cycle", ""),
@@ -255,13 +269,13 @@ def test_cycler_pipeline():  # wltc_class):
         ("ok_p", "g4"),
         ("ok_p", "g5"),
         ("ok_p", "g6"),
-        ("ok_gear0", "g0"),
         ("ok_max_n", "g1"),
         ("ok_max_n", "g2"),
         ("ok_max_n", "g3"),
         ("ok_max_n", "g4"),
         ("ok_max_n", "g5"),
         ("ok_max_n", "g6"),
+        ("ok_gear0", "g0"),
         ("ok_min_n_g1", "g1"),
         ("ok_min_n_g1_initaccel", "g1"),
         ("ok_min_n_g2", "g2"),
@@ -280,6 +294,13 @@ def test_cycler_pipeline():  # wltc_class):
         ("ok_n", "g4"),
         ("ok_n", "g5"),
         ("ok_n", "g6"),
+        ("incrementing_gflags", "g0"),
+        ("incrementing_gflags", "g1"),
+        ("incrementing_gflags", "g2"),
+        ("incrementing_gflags", "g3"),
+        ("incrementing_gflags", "g4"),
+        ("incrementing_gflags", "g5"),
+        ("incrementing_gflags", "g6"),
         ("ok_gear", "g0"),
         ("ok_gear", "g1"),
         ("ok_gear", "g2"),
@@ -291,8 +312,9 @@ def test_cycler_pipeline():  # wltc_class):
         ("g_max0", ""),
     ]
 
-    print(sol["cycle"].columns)
-    assert list(sol["cycle"].columns) == exp
+    print(cycle.columns)
+    # assert set(cycle.columns) == set(exp)
+    assert set(cycle.rename(columns=renames, level=0)) == set(exp)
     assert not (
         {
             "class_phase_boundaries",
@@ -316,9 +338,8 @@ def test_cycler_pipeline():  # wltc_class):
     make_gwots_multi_indexer FAKE.V_dsc init_cycle_velocity calc_acceleration
     attach_class_phase_markers calc_phase_accel_raw calc_phase_run_stop calc_phase_decel
     calc_phase_initaccel calc_phase_stopdecel calc_phase_up calc_p_resist calc_inertial_power
-    calc_required_power calc_n_max_cycle calc_n_max validate_n_max attach_wots calc_p_remain
-    calc_ok_p_rule derrive_initial_gear_flags derrive_ok_n_flags concat_frame_columns
-    make_cycle_multi_indexer derrive_ok_gears make_incrementing_gflags make_G_min make_G_max0
-    attach_gear_flags
+    calc_required_power calc_n_max_cycle calc_n_max validate_n_max join_gwots_with_cycle
+    calc_P_remain calc_OK_p calc_OK_max_n calc_OK_g0 calc_OK_min_n derrive_ok_n_flags
+    calc_ok_gears make_cycle_multi_indexer make_incrementing_gflags make_G_min make_G_max0
     """.split()
     assert steps == steps_executed == exp_steps

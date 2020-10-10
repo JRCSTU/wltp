@@ -447,10 +447,10 @@ def rule_checkSingletons(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
 def rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros):
     """Rule (a): Clutch & set to 1st-gear before accelerating from standstill.
 
-     Implemented with a regex, outside rules-loop:
-     Also ensures gear-0 always followed by gear-1.
+    Implemented with a regex, outside rules-loop:
+    Also ensures gear-0 always followed by gear-1.
 
-     NOTE: Rule(A) not inside x2 loop, and last to run.
+    NOTE: Rule(A) not inside x2 loop, and last to run.
     """
 
     for m in re_zeros.finditer(bV):
@@ -524,10 +524,10 @@ def step_rule_c1(t, pg, g, V, A, GEARS, driveability_issues):
 def rule_c2(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros):
     """Rule (c2): Skip 1st-gear while decelerating to standstill.
 
-     Implemented with a regex, outside rules-loop:
-     Search for zeros in _reversed_ V & GEAR profiles,
-     for as long Accel is negative.
-     NOTE: Rule(c2) is the last rule to run.
+    Implemented with a regex, outside rules-loop:
+    Search for zeros in _reversed_ V & GEAR profiles,
+    for as long Accel is negative.
+    NOTE: Rule(c2) is the last rule to run.
     """
 
     nV = len(bV)
@@ -657,101 +657,3 @@ def applyDriveabilityRules(V, A, GEARS, CLUTCH, driveability_issues):
         rule_c2(bV, A, GEARS, CLUTCH, driveability_issues, re_zeros)
 
     rule_a(bV, GEARS, CLUTCH, driveability_issues, re_zeros)
-
-
-def run_cycle(
-    V, A, P_REQ, n2v_ratios, n_idle, n_min_drive, n_rated, p_rated, load_curve, mdl
-):
-    """Calculates gears, clutch and actual-velocity for the cycle (V).
-    Initial calculations happen on engine_revs for all gears, for all time-steps of the cycle (_N_GEARS array).
-    Driveability-rules are applied afterwards on the selected gear-sequence, for all steps.
-
-    :param V: the cycle, the velocity profile
-    :param A: acceleration of the cycle (diff over V) in m/sec^2
-    :return: CLUTCH:    a (1 X #velocity) bool-array, eg. [3, 150] --> gear(3), time(150)
-
-    :rtype: array
-    """
-
-    ## A multimap to collect problems.
-    #
-    driveability_issues = np.empty_like(V, dtype="object")
-    driveability_issues[:] = ""
-
-    ## Read and calc model parameters.
-    #
-    n_range = n_rated - n_idle
-
-    f_n_max = mdl["f_n_max"]
-    n_max = n_idle + f_n_max * n_range
-
-    if n_min_drive is None:
-        f_n_min = mdl["f_n_min"]
-        n_min_drive = n_idle + f_n_min * n_range
-
-    f_n_min_gear2 = mdl["f_n_min_gear2"]
-    n_min_gear2 = f_n_min_gear2 * n_idle
-
-    f_n_clutch_gear2 = mdl["f_n_clutch_gear2"]
-    n_clutch_gear2 = max(
-        f_n_clutch_gear2[0] * n_idle, f_n_clutch_gear2[1] * n_range + n_idle
-    )
-
-    p_safety_margin = mdl["f_safety_margin"]
-    v_stopped_threshold = mdl["v_stopped_threshold"]
-
-    (_N_GEARS, _GEARS, _GEAR_RATIOS) = calcEngineRevs_required(
-        V, n2v_ratios, n_idle, v_stopped_threshold
-    )
-
-    (_G_BY_N, CLUTCH) = possibleGears_byEngineRevs(
-        V,
-        A,
-        _N_GEARS,
-        len(n2v_ratios),
-        n_idle,
-        n_min_drive,
-        n_min_gear2,
-        n_max,
-        v_stopped_threshold,
-        driveability_issues,
-    )
-
-    (_G_BY_P, _P_AVAILS, _N_NORMS) = possibleGears_byPower(
-        _N_GEARS,
-        P_REQ,
-        n_idle,
-        n_rated,
-        p_rated,
-        load_curve,
-        p_safety_margin,
-        driveability_issues,
-    )
-
-    assert (
-        _GEAR_RATIOS.shape == _N_GEARS.shape == _P_AVAILS.shape == _N_NORMS.shape
-    ), _shapes(_GEAR_RATIOS, _N_GEARS, _P_AVAILS, _N_NORMS)
-
-    GEARS = selectGears(_GEARS, _G_BY_N, _G_BY_P, driveability_issues)
-    CLUTCH[(GEARS == 2) & (_N_GEARS[1, :] < n_clutch_gear2)] = True
-
-    assert V.shape == GEARS.shape, _shapes(V, GEARS)
-    assert GEARS.shape == CLUTCH.shape == driveability_issues.shape, _shapes(
-        GEARS, CLUTCH.shape, driveability_issues
-    )
-    assert "i" == GEARS.dtype.kind, GEARS.dtype
-    assert ((GEARS >= -1) & (GEARS <= len(n2v_ratios))).all(), (min(GEARS), max(GEARS))
-
-    return (
-        GEARS,
-        CLUTCH,
-        _GEAR_RATIOS,
-        _N_GEARS,
-        _P_AVAILS,
-        _N_NORMS,
-        driveability_issues,
-    )
-
-
-if __name__ == "__main__":
-    pass
