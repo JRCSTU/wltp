@@ -31,7 +31,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 
-from graphtik import keyword, modify, sfxed
+from graphtik import implicit, keyword, sfxed
 
 from . import autograph as autog
 from . import io as wio
@@ -128,7 +128,7 @@ def _find_p_remain_root(
 @autog.autographed(
     needs=[
         sfxed("gwots", "p_avail"),
-        modify("gwots/p_resist", implicit=1),
+        implicit("gwots/p_resist"),
     ],
     provides=[
         *VMaxRec._fields[:-2],

@@ -73,7 +73,7 @@ if os.name != "nt":
 #
 autodoc_default_options = {
     "private-members": True,
-    'undoc-members': True,
+    "undoc-members": True,
     "show-inheritance": True,
 }
 autoclass_content = "both"  # Join class + __init__ docstrings
@@ -197,6 +197,17 @@ def linkcode_resolve(domain, info):
                 ex,
             )
 
+
+#########
+## `sphinx-jsonschema` extension
+##
+jsonschema_options = {
+    "lift_title": True,
+    "lift_description": True,
+    "lift_definitions": True,
+    "auto_reference": False,
+    "auto_target": False,
+}
 
 ## PATCH `sphinx-jsonschema`
 #  to render the extra `units`` and ``tags`` schema properties

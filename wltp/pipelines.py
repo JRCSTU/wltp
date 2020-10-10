@@ -26,6 +26,16 @@ from . import io as wio
 from . import vehicle, vmax
 
 
+def check_dupe_cols(op_cb):
+    """ Utility to validate solution from :term:`graphtik:callbacks`. """
+    for item_name in ("cycle", "gwots"):
+        item = op_cb.sol.get(item_name)
+        if item is not None:
+            dupes = item.columns.duplicated()
+            assert not dupes.any(), f"Dupes {item_name}-columns: {item.columns[dupes]}!"
+
+
+
 @fnt.lru_cache()
 def v_distances_pipeline(aug: autog.Autograph = None, **pipeline_kw) -> Pipeline:
     """
@@ -300,13 +310,15 @@ def cycler_pipeline(
             *n_max_pipeline(aug).ops,
             engine.validate_n_max,
             wio.GearMultiIndexer.from_df,
-            cycler.attach_wots,
-            cycler.calc_p_remain,
-            cycler.calc_ok_p_rule,
-            cycler.derrive_initial_gear_flags,
+            cycler.join_gwots_with_cycle,
+            cycler.calc_P_remain,
+            cycler.calc_OK_p,
+            cycler.calc_OK_max_n,
+            cycler.calc_OK_g0,
+            cycler.calc_OK_min_n,
             cycler.derrive_ok_n_flags,
-            cycler.concat_frame_columns,
-            cycler.derrive_ok_gears,
+            # cycler.concat_frame_columns,
+            cycler.calc_ok_gears,
             cycler.make_incrementing_gflags,
             cycler.make_G_min,
             cycler.make_G_max0,

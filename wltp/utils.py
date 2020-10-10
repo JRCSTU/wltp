@@ -88,13 +88,14 @@ def aslist(i, argname: Union[str, None], allowed_types=list):
     return i
 
 
-def astuple(i, argname: Union[str, None]):
+def astuple(i, argname: Union[str, None]) -> tuple:
     """
     Converts iterables (except strings) into a tuple.
 
     :param argname:
         If string, it's used in the exception raised when `i` not an iterable.
-        If `None`, wraps non-iterables in a single-item tuple.
+        If `None`, wraps non-iterables in a single-item tuple, and no exception
+        is ever raised.
     """
     if not i:
         return ()

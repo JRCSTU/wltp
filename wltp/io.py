@@ -172,7 +172,8 @@ class GearMultiIndexer:
       >>> G[1:3]
       MultiIndex([('foo', 'g1'),
                   ('foo', 'g2'),
-                  ('foo', 'g3')], )
+                  ('foo', 'g3')],
+                  names=['item', 'gear'])
 
       >>> len(G)
       5
@@ -202,7 +203,7 @@ class GearMultiIndexer:
     """
 
     #: 1st level column(s)
-    items: Optional[Iterable[str]]
+    items: Optional[Sequence[str]]
     #: 2-level columns; use a gear_namer like :func:`gear_names()` (default)
     #:
     #: to make a :class:`pd.Series` like::
@@ -214,6 +215,7 @@ class GearMultiIndexer:
     top_gear: int
     #: a function returns the string representation of a gear, like ``1 --> 'g1'``
     gear_namer: GearGenerator
+    level_names: Sequence[str] = dataclasses.field(default=("item", "gear"))
 
     @classmethod
     def from_ngears(
@@ -234,7 +236,7 @@ class GearMultiIndexer:
     def from_gids(
         cls,
         gids: Iterable[int],
-        items: Iterable[str] = None,
+        items: Sequence[str] = None,
         gear_namer: GearGenerator = gear_name,
     ):
         gids = sorted(gids)
@@ -249,23 +251,26 @@ class GearMultiIndexer:
     )
     @autog.autographed(
         name="make_cycle_multi_indexer",
-        needs=["ok_flags", optional("gear_namer")],
+        needs=["cycle/OK_gear", optional("gear_namer")],
         provides="gidx2",
     )
     def from_df(
-        cls, df, items: Iterable[str] = None, gear_namer: GearGenerator = gear_name
+        cls, df, items: Sequence[str] = None, gear_namer: GearGenerator = gear_name
     ):
         """
-        Derive gears from the 2nd-level columns, sorted, and the last one becomes `ngear`
+        Derive gears from the deepest level columns, sorted, and the last one becomes `ngear`
 
         :param df:
-            the 2-level df, not stored, just to get gear-names.
+            the regular or multilevel-level df, not stored, just to get gear-names.
 
         ... Warning::
             Negative indices might not work as expected if :attr:`gnames`
             does not start from ``g1``.
         """
-        gears = [g for g in df.columns.levels[1] if g]
+        gears = df.columns
+        if hasattr(gears, "levels"):
+            gears = gears.levels[-1]
+        gears = [g for g in gears if g]
         gids = [int(i) for i in re.sub("[^0-9 ]", "", " ".join(gears)).split()]
         gnames = pd.Series(gears, index=gids).sort_index()
         return cls(items, gnames, gids[-1], gear_namer)
@@ -285,6 +290,14 @@ class GearMultiIndexer:
                     ('bar', 'g2')], )
         """
         return type(self)(items or None, self.gnames, self.top_gear, self.gear_namer)  # type: ignore
+
+    def _level_names(self, items=None) -> Optional[Sequence[str]]:
+        if items is None:
+            items = self.items
+        n_levels = 1 if not items else 1 + len(items)
+        return (
+            self.level_names[:n_levels] if n_levels <= len(self.level_names) else None
+        )
 
     def __getitem__(self, key):
         """
@@ -317,7 +330,9 @@ class GearMultiIndexer:
         #
         if not isinstance(gnames, pd.Series):
             gnames = (gnames,)
-        return pd.MultiIndex.from_tuples(itt.product(self.items, gnames))
+        return pd.MultiIndex.from_tuples(
+            itt.product(self.items, gnames), names=self._level_names()
+        )
 
     def colidx_pairs(
         self, item: Union[str, Iterable[str]], gnames: Iterable[str] = None
@@ -328,7 +343,9 @@ class GearMultiIndexer:
 
         if isinstance(item, str):
             item = (item,)
-        return pd.MultiIndex.from_tuples(itt.product(item, gnames))
+        return pd.MultiIndex.from_tuples(
+            itt.product(item, gnames), names=self._level_names(item)
+        )
 
     def __len__(self):
         """
