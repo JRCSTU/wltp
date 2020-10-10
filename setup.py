@@ -251,11 +251,13 @@ setup(
         "contextvars; python_version < '3.7'",
         "dataclasses; python_version < '3.7'",
         "boltons",
-        # 5.1.0 namedtuples results, 5.2.0 map inputs-->args, # 5.2.2 BugFixes,
-        # 5.4 Sphinx, 5.6 check_if_incomplete(), 5.7 FIX sphinx, 6.1.0 new plot
-        # 7+ sfxed, 8+ re-moduled, 8.3: mapped-->keyword, 8.4: subclass-Sol
-        # 9.0.0 JSNOP,fnop,modifier, 10.0.0 implicit, auto-name pipes, jsonp=>modify
-        "graphtik >=10.1",
+        # 5.1.0 namedtuples results, 5.2.0 map inputs-->args, # 5.2.2 BugFixes;
+        # 5.4 Sphinx; 5.6 check_if_incomplete(); 5.7 FIX sphinx, 6.1.0 new plot;
+        # 7+ sfxed, 8+ re-moduled; 8.3: mapped-->keyword; 8.4: subclass-Sol;
+        # 9.0.0 JSNOP,fnop,modifier; 10.0.0 implicit; auto-name pipes, jsonp=>modify;
+        # 10.1.0 keyword renames returns-dict; 10.2.0 compose(exclude);
+        # 10.3.0 concat-dfs_pos_callback(+overwrites), drop implicit-sfxed
+        "graphtik <=10.2.1",
         "jsonschema",
         "numpy",
         "pandas",
