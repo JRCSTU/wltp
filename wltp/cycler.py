@@ -565,7 +565,7 @@ def calc_OK_p(P_remain: pd.DataFrame, gidx: wio.GearMultiIndexer):
     c = wio.pstep_factory.get().cycle
 
     g3 = 3
-    OK_p = (P_remain[gidx[g3:]] >= 0).astype("int8")
+    OK_p = (P_remain >= 0).astype("int8")
     OK_p.columns = gidx.with_item(c.OK_p)[g3:]
 
     return OK_p
