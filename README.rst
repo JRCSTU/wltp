@@ -346,7 +346,7 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
     >>> import pandas as pd, wltp.cycler as cycler, wltp.io as wio
     >>> df = pd.DataFrame(mdl['cycle']); df.index.name = 't'
     >>> df.shape                            ## ROWS(time-steps) X COLUMNS.
-    (1801, 94)
+    (1801, 101)
     >>> wio.flatten_columns(df.columns)
     ['t', 'V_cycle', 'v_target', 'a', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'accel_raw', 'run',
      'stop', 'accel', 'cruise', 'decel', 'initaccel', 'stopdecel', 'up', 'p_inert', 'n/g1', 'n/g2',
@@ -361,7 +361,8 @@ To access the time-based cycle-results it is better to use a :class:`pandas.Data
      'ok_min_n_g3plus_dns/g6', 'ok_min_n_g3plus_ups/g3', 'ok_min_n_g3plus_ups/g4',
      'ok_min_n_g3plus_ups/g5', 'ok_min_n_g3plus_ups/g6', 'ok_p/g3', 'ok_p/g4', 'ok_p/g5', 'ok_p/g6',
      'ok_n/g1', 'ok_n/g2', 'ok_n/g3', 'ok_n/g4', 'ok_n/g5', 'ok_n/g6', 'ok_gear/g0', 'ok_gear/g1',
-     'ok_gear/g2', 'ok_gear/g3', 'ok_gear/g4', 'ok_gear/g5', 'ok_gear/g6', 'g_min', 'g_max0']
+     'ok_gear/g2', 'ok_gear/g3', 'ok_gear/g4', 'ok_gear/g5', 'ok_gear/g6', 'G_scala/g0', 'G_scala/g1',
+     'G_scala/g2', 'G_scala/g3', 'G_scala/g4', 'G_scala/g5', 'G_scala/g6', 'g_min', 'g_max0']
     >>> 'Mean engine_speed: %s' % df.n.mean()                                       # doctest: +SKIP
     'Mean engine_speed: 1908.9266796224322'
     >>> df.describe()                                                               # doctest: +SKIP

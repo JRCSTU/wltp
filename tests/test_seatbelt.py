@@ -78,7 +78,8 @@ def test_taskforce_vehs(
                     ) == len(stored.columns)
                 else:
                     calced.columns = stored.columns # compare by order
-                assert_frame_equal(calced, stored, obj=name)
+                # Ignore column order.
+                assert_frame_equal(calced, stored, obj=name, check_like=True)
 
     def store_vehicle(h5db, vehnum, oprops, cycle, wots_vmax):
         log.info("STORING veh(v%0.3i)...", vehnum)
