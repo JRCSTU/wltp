@@ -346,7 +346,7 @@ def store_results_per_car(
 
 
 ##skip_h5_write = True
-with vehdb.openh5(h5fname) as h5db:
+with vehdb.openh5(h5fname, mode="w") as h5db:
     store_results_per_car(h5db, specs, overrides, pwots, results_df)
     # store_results_per_car(h5db, None, overrides, None, None)
 

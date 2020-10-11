@@ -176,7 +176,7 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
 ## HDF5
 
 
-def openh5(h5: Union[str, HDFStore]):
+def openh5(h5: Union[str, HDFStore], mode="r"):
     """Open h5-fpath or reuse existing h5db instance."""
 
     h5db = None
@@ -190,6 +190,7 @@ def openh5(h5: Union[str, HDFStore]):
     if h5db is None:
         h5db = HDFStore(
             h5,
+            mode=mode,
             encoding="utf-8",
             # Not the strongest one, *repack* it before git-commit.
             complevel=6,
@@ -204,7 +205,7 @@ def do_h5(h5: Union[str, HDFStore], func: callable, *args, **kw):
     if isinstance(h5, HDFStore) and h5.is_open:
         out = func(h5, *args, **kw)
     else:
-        with openh5(h5) as h5db:
+        with openh5(h5, mode=kw.get("mode", "r")) as h5db:
             out = func(h5db, *args, **kw)
 
     return out
@@ -239,9 +240,7 @@ def provenir_h5node(
 
 
 def provenance_h5node(h5: Union[str, HDFStore], node):
-    """Get provenance-infos from some existing H5 node.
-
-    """
+    """Get provenance-infos from some existing H5 node."""
 
     def func(h5db):
         h5file = h5db._handle

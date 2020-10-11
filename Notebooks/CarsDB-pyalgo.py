@@ -157,7 +157,7 @@ def store_or_compare_python_results(
         vehdb.do_h5(outh5, store_or_compare_vehicle, vehnum, *pyalgo_outs)
 
 
-with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname) as outh5:
+with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname, mode="a") as outh5:
     % time store_or_compare_python_results(
         inph5, outh5, force_write=force_h5_write, vehicle_nums=vehnums_to_run  #[41]
     )

@@ -98,7 +98,7 @@ def test_taskforce_vehs(
     if del_h5_on_start:
         Path(h5_pyalgo).unlink()
 
-    with vehdb.openh5(h5_accdb) as inph5, vehdb.openh5(h5_pyalgo) as outh5:
+    with vehdb.openh5(h5_accdb) as inph5, vehdb.openh5(h5_pyalgo, mode='a') as outh5:
         vehnums = vehdb.all_vehnums(inph5) if vehnums_to_run is None else vehnums_to_run
         for vehnum, pyalgo_outs in vehdb.do_h5(
             inph5, run_vehicles_with_pythons, vehnums
