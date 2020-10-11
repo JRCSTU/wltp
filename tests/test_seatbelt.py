@@ -55,7 +55,11 @@ def test_taskforce_vehs(
         db_cycle = h5db.get(vehdb.vehnode(vehnum, cycle_group_suffix))
         db_wots_vmax = h5db.get(vehdb.vehnode(vehnum, wots_vmax_group_suffix))
 
-        to_compare = [('OProps', oprops, db_oprops), ('Cycle', cycle, db_cycle), ('Wots_max', wots_vmax, db_wots_vmax)]
+        to_compare = [
+            ("OProps", oprops, db_oprops),
+            ("Cycle", cycle, db_cycle),
+            ("Wots_max", wots_vmax, db_wots_vmax),
+        ]
 
         for name, calced, stored in to_compare:
             # ignore index to allow rename columns (but not re-orders)
@@ -63,7 +67,17 @@ def test_taskforce_vehs(
                 calced.index = stored.index
                 assert_series_equal(calced, stored, obj=name)
             else:
-                calced.columns = stored.columns
+                if name == "Cycle":
+                    a, b = set(calced.columns), set(stored.columns)
+                    if a - b:
+                        calced = calced.drop(a - b, axis=1)
+                    if b - a:
+                        stored = stored.drop(b - a, axis=1)
+                    assert (name != "Cycle" or len(calced.columns) >= 70) and len(
+                        calced.columns
+                    ) == len(stored.columns)
+                else:
+                    calced.columns = stored.columns # compare by order
                 assert_frame_equal(calced, stored, obj=name)
 
     def store_vehicle(h5db, vehnum, oprops, cycle, wots_vmax):
@@ -98,7 +112,7 @@ def test_taskforce_vehs(
     if del_h5_on_start:
         Path(h5_pyalgo).unlink()
 
-    with vehdb.openh5(h5_accdb) as inph5, vehdb.openh5(h5_pyalgo, mode='a') as outh5:
+    with vehdb.openh5(h5_accdb) as inph5, vehdb.openh5(h5_pyalgo, mode="a") as outh5:
         vehnums = vehdb.all_vehnums(inph5) if vehnums_to_run is None else vehnums_to_run
         for vehnum, pyalgo_outs in vehdb.do_h5(
             inph5, run_vehicles_with_pythons, vehnums
