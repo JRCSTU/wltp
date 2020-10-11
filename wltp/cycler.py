@@ -466,6 +466,10 @@ class CycleBuilder:
         c = wio.pstep_factory.get().cycle
 
         cycle = self.cycle
+        cycle = calc_p_remain(cycle, cycle["p_avail"], cycle[c.p_req], self.gidx)
+        cycle = calc_ok_p_rule(cycle, cycle["P_remain"], self.gidx)
+        self.cycle = cycle
+
         return derrive_initial_gear_flags(
             cycle,
             cycle[c.t],
@@ -525,7 +529,7 @@ def calc_p_remain(
 
     ## Drop pandas axis or else substraction would fail with:
     #       ValueError: cannot join with no overlapping index names
-    p_remain = P_avail - P_req.to_numpy().reshape(-1, 1)
+    p_remain = P_avail.fillna(0) - P_req.fillna(1).to_numpy().reshape(-1, 1)
     p_remain.columns = gidx.with_item(c.P_remain)[:]
 
     return pd.concat((cycle, p_remain), axis=1)
@@ -545,8 +549,9 @@ def calc_ok_p_rule(
     """
     c = wio.pstep_factory.get().cycle
 
-    ok_p = (P_remain >= 0).astype("int8")
-    ok_p.columns = gidx.with_item(c.ok_p)[:]
+    g3 = 3
+    ok_p = (P_remain[gidx[g3:]] >= 0).astype("int8")
+    ok_p.columns = gidx.with_item(c.ok_p)[g3:]
 
     return pd.concat((cycle, ok_p), axis=1)
 
@@ -701,7 +706,6 @@ def attach_wots(
         "cycle/stopdecel",
         "cycle/up",
         "cycle/P_req",
-        #  "cycle/OK_p",
         ...,
         ...,
         ...,
@@ -809,13 +813,6 @@ def derrive_initial_gear_flags(
     nidx_below_gvmax = gidx.colidx_pairs(c.n, gears_below_gvmax)
     nidx_from_gvmax = gidx.colidx_pairs(c.n, gears_from_gvmax)
 
-    ## (ok-p) rule
-    #
-    P_req = P_req.fillna(1).values.reshape(-1, 1)
-    pidx_g3plus = gidx.colidx_pairs(c.p_avail, gears_g3plus)
-    ok_p = cycle.loc[:, pidx_g3plus].fillna(0) >= P_req
-    ok_p.columns = gidx.colidx_pairs(c.ok_p, gears_g3plus)
-
     ## (MAXn-1) rule
     #  Special handling of g1 dues to `initaccel` containing n=NAN
     #
@@ -895,7 +892,6 @@ def derrive_initial_gear_flags(
     ok_g0.name = (c.ok_gear0, g0)
 
     flag_columns = (
-        ok_p,
         # .. AND ...
         ok_max_n_g1,
         ok_max_n_gears_below_gvmax,
