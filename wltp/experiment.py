@@ -306,9 +306,9 @@ class Experiment(object):
         ok_flags1 = pd.concat((ok_flags, ok_n), axis=1)
         ok_gears = cb.combine_ok_n_p_gear_flags(ok_flags1)
 
-        g_min, g_max0 = cb.make_gmax0(ok_gears)
+        g_min, g_max0, G_scala = cb.make_gmax0(ok_gears)
 
-        cb.add_columns(ok_flags1, ok_gears, g_min, g_max0)
+        cb.add_columns(ok_flags1, ok_gears, G_scala, g_min, g_max0)
 
         mdl[m.cycle] = cb.cycle
 

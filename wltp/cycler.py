@@ -698,13 +698,14 @@ class CycleBuilder:
         c = wio.pstep_factory.get().cycle
 
         ## FIXME: needed sideffect due to g0 flags (not originally in gwots)
-        self.gidx = wio.GearMultiIndexer.from_df(self.cycle)
+        self.gidx = wio.GearMultiIndexer.from_df(ok_gears)
 
         ## +1 for g0 (0-->6 = 7 gears)
-        gids = range(self.gidx.ng + 1)
+        gids = range(self.gidx.ng)
         ## Convert False to NAN to identify samples without any gear
         #  (or else, it would be 0, which is used for g0).
         incrementing_gflags = ok_gears.replace([False, NANFLAG], np.NAN) * gids
+        incrementing_gflags.columns = self.gidx.with_item(c.G_scala)[:]
 
         g_min = incrementing_gflags.min(axis=1).fillna(NANFLAG).astype("int8")
         g_min.name = (c.g_min, "")
@@ -712,7 +713,7 @@ class CycleBuilder:
         g_max0 = incrementing_gflags.max(axis=1).fillna(NANFLAG).astype("int8")
         g_max0.name = (c.g_max0, "")
 
-        return g_min, g_max0
+        return g_min, g_max0, incrementing_gflags
 
 
 def calc_p_remain(cycle, gidx):
