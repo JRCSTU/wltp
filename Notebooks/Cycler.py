@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.4
+#       jupytext_version: 1.6.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -132,7 +132,7 @@ g_vmax = vmax_rec.g_vmax
 n2v_vmax = n2vs[g_vmax - 1]
 n_max_cycle = v_max_cycle * n2v_vmax
 n_max_cycle = v_max_cycle * n2v_vmax
-nmins = nmindrive.mdl_2_n_min_drives(*mdl)
+nmins = nmindrive.mdl_2_n_min_drives(**mdl)
 
 # %%
 cb.add_wots(gwots)

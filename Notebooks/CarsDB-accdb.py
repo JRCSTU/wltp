@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.4
+#       jupytext_version: 1.6.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -90,7 +90,7 @@ c_case_id = c_case
 # %%
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
 if not skip_h5_write and del_h5_on_start:
-#     !rm -f {h5fname}
+    # !rm -f {h5fname}
 
 # %%
 vehdb.print_nodes(h5fname)
@@ -359,8 +359,8 @@ vehdb.print_nodes(h5fname)
 #
 # !ls -lh {h5fname}
 if not skip_h5_write:
-#     !ptrepack  {h5fname}  --complevel=9 --complib=blosc:lz4hc -o {h5fname}.tmp
-#     !mv  {h5fname}.tmp {h5fname}
+    # !ptrepack  {h5fname}  --complevel=9 --complib=blosc:lz4hc -o {h5fname}.tmp
+    # !mv  {h5fname}.tmp {h5fname}
 # !ls -lh {h5fname}
 
 # %%

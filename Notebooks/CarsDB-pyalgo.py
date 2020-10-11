@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.3.4
+#       jupytext_version: 1.6.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -72,7 +72,7 @@ c_n, c_p, c_n_norm, c_p_norm = "n", "Pwot", "n_norm", "p_norm"
 # %%
 ## UNCOMMENT next command & run to DELETE the db-file, and rebuild it.
 if del_h5_on_start:
-#     !rm -f {out_h5fname}
+    # !rm -f {out_h5fname}
 
 # %%
 vehdb.print_nodes(out_h5fname)
@@ -158,7 +158,7 @@ def store_or_compare_python_results(
 
 
 with vehdb.openh5(inp_h5fname) as inph5, vehdb.openh5(out_h5fname, mode="a") as outh5:
-    % time store_or_compare_python_results(
+    %time store_or_compare_python_results(
         inph5, outh5, force_write=force_h5_write, vehicle_nums=vehnums_to_run  #[41]
     )
 
@@ -170,7 +170,7 @@ vehdb.print_nodes(out_h5fname)
 if not skip_h5_write:
     ## COMPRESS x2.3 HDF5: 269Mb-->119Mb in ~20s.
     #
-#     !ls -lh {out_h5fname}
-#     !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:lz4hc -o {out_h5fname}.tmp
-#     !mv  {out_h5fname}.tmp {out_h5fname}
-#     !ls -lh {out_h5fname}
+    # !ls -lh {out_h5fname}
+    # !ptrepack  {out_h5fname}  --complevel=9 --complib=blosc:lz4hc -o {out_h5fname}.tmp
+    # !mv  {out_h5fname}.tmp {out_h5fname}
+    # !ls -lh {out_h5fname}
