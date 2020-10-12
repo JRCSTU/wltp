@@ -9,6 +9,9 @@
 Utils for manipulating h5db with accdb & pyalgo cases.
 
 used by many tests & notebooks.
+
+* load_vehicle_accdb(vehnum=1): load inps & outs for AccDB
+* load_vehicle_pyalgo(vehnum=1): load outs for AccDB
 """
 import io
 import json
@@ -41,6 +44,13 @@ from wltp import utils
 
 log = logging.getLogger(__name__)
 EPS = sys.float_info.epsilon
+
+
+H5DB = Union[str, Path, HDFStore]
+
+notebooks_dir = Path(__file__).parent / ".." / "Notebooks"
+AccDbPath = notebooks_dir / "VehData" / "WltpGS-msaccess.h5"
+PyAlgoPath = notebooks_dir / "VehData" / "WltpGS-pyalgo.h5"
 
 
 def oneliner(s) -> str:
@@ -176,7 +186,7 @@ def provenance_info(*, files=(), repos=(), base=None) -> Dict[str, str]:
 ## HDF5
 
 
-def openh5(h5: Union[str, HDFStore], mode="r"):
+def openh5(h5: H5DB, mode="r"):
     """Open h5-fpath or reuse existing h5db instance."""
 
     h5db = None
@@ -200,7 +210,7 @@ def openh5(h5: Union[str, HDFStore], mode="r"):
     return h5db
 
 
-def do_h5(h5: Union[str, HDFStore], func: callable, *args, **kw):
+def do_h5(h5: H5DB, func: callable, *args, **kw):
     """Open & close if `h5` is fname (string), do nothing if an opened db"""
     if isinstance(h5, HDFStore) and h5.is_open:
         out = func(h5, *args, **kw)
@@ -211,7 +221,7 @@ def do_h5(h5: Union[str, HDFStore], func: callable, *args, **kw):
     return out
 
 
-def print_nodes(h5: Union[str, HDFStore], displaywidth=160):
+def print_nodes(h5: H5DB, displaywidth=160):
     from columnize import columnize
 
     nodes = do_h5(h5, lambda h5db: sorted(h5db.keys()))
@@ -219,9 +229,7 @@ def print_nodes(h5: Union[str, HDFStore], displaywidth=160):
     print(columnize(nodes, displaywidth=displaywidth))
 
 
-def provenir_h5node(
-    h5: Union[str, HDFStore], node, *, title=None, files=(), repos=(), base=None
-):
+def provenir_h5node(h5: H5DB, node, *, title=None, files=(), repos=(), base=None):
     """Add provenance-infos to some existing H5 node.
 
     For its API, see :func:`provenance_info`.
@@ -239,7 +247,7 @@ def provenir_h5node(
     return do_h5(h5, func)
 
 
-def provenance_h5node(h5: Union[str, HDFStore], node):
+def provenance_h5node(h5: H5DB, node):
     """Get provenance-infos from some existing H5 node."""
 
     def func(h5db):
@@ -252,9 +260,7 @@ def provenance_h5node(h5: Union[str, HDFStore], node):
     return do_h5(h5, func)
 
 
-def collect_nodes(
-    h5: Union[str, HDFStore], predicate: Callable[[str], Any], start_in="/"
-) -> List[str]:
+def collect_nodes(h5: H5DB, predicate: Callable[[str], Any], start_in="/") -> List[str]:
     """
     feed all groups into predicate and collect its truthy output
     """
@@ -465,8 +471,9 @@ def vehnode(vehnum=None, *suffix):
 # assert vehnode(None, 'props') ==  '/vehicles/props'
 # assert vehnode() ==  '/vehicles'
 
-
-def load_vehicle_nodes(h5: Union[str, HDFStore], vehnum, *subnodes) -> list:
+# TODO: rename load_vehicle_nodes --> load_h5_nodes()
+# TODO: rename load_vehicle_XXX move make `vehnum` 1st compulsory argument.
+def load_vehicle_nodes(h5: H5DB, vehnum, *subnodes) -> list:
     "return vehicle's groups listed in `subnodes`"
 
     def func(h5db):
@@ -488,8 +495,8 @@ class CaseData(NamedTuple):
     items: list
 
 
-def load_vehicle_accdb(h5, vehnum) -> CaseData:
-    """return the typical input & output data for a vehicle in accdc: props, wot, n2vs"""
+def load_vehicle_accdb(h5: H5DB = AccDbPath, vehnum=None) -> CaseData:
+    """return the typical inputs data  (not outs) for a vehicle in accdc: props, wot, n2vs"""
 
     def func(h5db):
         props = load_vehicle_nodes(h5db, vehnum, "prop")
@@ -502,13 +509,13 @@ def load_vehicle_accdb(h5, vehnum) -> CaseData:
     return res
 
 
-def load_vehicle_pyalgo(h5, vehnum) -> CaseData:
-    """return the typical output data for a vehicle in pyalgo: oprops, cycle, wots_vmax"""
+def load_vehicle_pyalgo(
+    h5: H5DB = PyAlgoPath, vehnum=None, nodes=("oprop", "cycle", "wots_vmax")
+) -> CaseData:
+    """return the typical output data for a vehicle in pyalgo (see `node` defaults). """
 
     def func(h5db):
-        return CaseData(
-            *load_vehicle_nodes(h5db, vehnum, "oprop", "cycle", "wots_vmax")
-        )
+        return CaseData(*load_vehicle_nodes(h5db, vehnum, *nodes))
 
     res = do_h5(h5, func)
     return res
@@ -637,7 +644,7 @@ def run_pyalgo_on_accdb_vehicle(
 
 
 def merge_db_vehicle_subgroups(
-    h5: Union[str, HDFStore], *vehicle_subgroups: str, veh_nums=None
+    h5: H5DB, *vehicle_subgroups: str, veh_nums=None
 ) -> Union[NDFrame, List[NDFrame]]:
     """
     Merge HDF-subgroup(s) from all vehicles into an Indexed-DataFrame(s)
@@ -676,3 +683,22 @@ def merge_db_vehicle_subgroups(
     ]
 
     return index_dfs[0] if len(index_dfs) == 1 else index_dfs
+
+
+def read_matlab_csv(fpath, **csv_kw):
+    """Matlab data-files have spaces columns and are humanly indented. """
+
+    df = pd.read_csv(fpath, sep=" *, *", engine="python", **csv_kw).convert_dtypes()
+    return df
+
+def setup_octave():
+    """Setup `oct2py` library to execute wltp's MATLAB sources. """
+    from oct2py import octave as oc
+
+    # See https://nbviewer.jupyter.org/github/blink1073/oct2py/blob/master/example/octavemagic_extension.ipynb?create=1
+    # %load_ext oct2py.ipython
+
+    wltp_mat_sources_path = str(Path("src").absolute())
+    mat_path = set(oc.path().split(osp.pathsep))
+    if wltp_mat_sources_path not in mat_path:
+        oc.addpath(wltp_mat_sources_path)
