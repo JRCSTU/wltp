@@ -145,6 +145,7 @@ notebook_reqs = [
     "jupyter",  # papermill not fetching PY-kernel with jupyter-1.0.0
     "columnize",
     "oct2py",
+    "missingno",
 ]
 test_reqs = (
     notebook_reqs
