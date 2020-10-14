@@ -104,7 +104,7 @@ l.propagate = False
 nsamples = 12
 
 # %% [markdown]
-# ## Read all input CSV tables (`mat_db`)
+# ## Read all input/output CSV tables (`mat_db`)
 
 # %% [markdown]
 # ### `mat_db` *input* files
@@ -122,8 +122,9 @@ nsamples = 12
 # !ls src/*.txt
 
 # %%
-matfile_dtypes = {
+matfile_specs = {
     "case": {
+        "path_fmt": "src/%s.txt",
         "case": int,
         "class": str,
         **dict.fromkeys(
@@ -138,6 +139,7 @@ matfile_dtypes = {
         ),
     },
     "vehicle": {
+        "path_fmt": "src/%s.txt",
         "veh": np.int32,
         "#g": np.int32,
         **dict.fromkeys(
@@ -146,6 +148,7 @@ matfile_dtypes = {
         ),
     },
     "engine": {
+        "path_fmt": "src/%s.txt",
         "veh": int,
         **dict.fromkeys(
             "n p ASM".split(),
@@ -153,21 +156,25 @@ matfile_dtypes = {
         ),
     },
     "gearbox": {
+        "path_fmt": "src/%s.txt",
         "veh": int,
         "g": "string",
         "ndv": np.float64,
     },  # "g": Matlab need char-array
     "phase": {
+        "path_fmt": "src/%s.txt",
         "class": str,
         "phase": np.float64,
         "length": np.float64,
     },
     "trace": {
+        "path_fmt": "src/%s.txt",
         "class": str,
         "t": np.float64,
         "v": np.float64,
     },
     "scale": {
+        "path_fmt": "src/%s.txt",
         "class": str,
         "algo": str,
         **dict.fromkeys(
@@ -179,25 +186,41 @@ matfile_dtypes = {
             np.float64,
         ),
     },
+    ## RESULTS
+    "shift": {
+        "path_fmt": "outs/%s.txt",
+    },
+    "case_result": {
+        "path_fmt": "outs/%s.txt",
+    },
+    "shift_power": {
+        "path_fmt": "outs/%s.txt",
+    },
+    "shift_power": {
+        "path_fmt": "outs/%s.txt",
+    },
+    "shift_condensed": {
+        "path_fmt": "outs/%s.txt",
+    },
 }
 
 
 def read_mat_csv(fpath: str, **read_csv_kw) -> pd.DataFrame:
     """Matlab data-files have spaces columns and are humanly indented. """
-    if fpath in matfile_dtypes:
+    if fpath in matfile_specs:
         basename = fpath
-        fpath = f"src/{basename}.txt"
-        if "dtype" not in read_csv_kw and basename in dtypes:
-            dtype = matfile_dtypes[basename]
+        fpath = matfile_specs[basename]["path_fmt"] % basename
+        if "dtype" not in read_csv_kw and basename in matfile_specs:
+            read_csv_kw["dtype"] = matfile_specs[basename]
     df = pd.read_csv(fpath, sep=" *, *", engine="python", **read_csv_kw)
+    # NO convert_dtypes(), certain columns full of integers must be floats.
     df = df.set_index(df.columns[0])
 
     return df
 
 
-def read_all_inputs(dtypes=matfile_dtypes) -> Dict[str, pd.DataFrame]:
-    files = "case vehicle engine gearbox phase trace scale".split()
-    return {name: read_mat_csv(name, dtype=dtypes[name]) for name in files}
+def read_all_inputs() -> Dict[str, pd.DataFrame]:
+    return {name: read_mat_csv(name) for name in matfile_specs}
 
 
 mat_db = read_all_inputs()
@@ -205,8 +228,65 @@ mat_db = read_all_inputs()
 globals().update((f"df_{name}", df) for name, df in mat_db.items())
 
 # %%
+list(mat_db)
+
+# %%
+## Combine (pivoted on gears) `outs/shift_power.txt` with main cycle in `outs/shift.txt`.
+#
+column_levels = ["item", "gear"]
+
+
+def pivot_shift_power_file(df):
+    res = df.rename({"n": "n_at_g"}, axis=1).reset_index()
+    res = res.pivot(index=["case", "t"], columns="g", values=["n_at_g", "p_avail"])
+    return res.rename_axis(column_levels, axis=1)
+
+
+# display(pivot_shift_power_file(mat_db["shift_power"]))  # TC
+
+
+def prepare_concat_with_multi_columns(df):
+    df = df.set_index("t", append=True)
+    df = df.set_axis(
+        pd.MultiIndex.from_product([df.columns, [""]], names=column_levels),
+        axis=1,
+    )
+    return df
+
+
+def concat_result_cycles(df_cycle, df_power, df_condensed):
+    # Convert main cycle's columns into dummy MultyIndex, needed for concat.
+    df_cycle = prepare_concat_with_multi_columns(df_cycle)
+    df_condensed = prepare_concat_with_multi_columns(df_condensed)
+
+    df_power = pivot_shift_power_file(mat_db["shift_power"])
+    #     display(df_cycle, df_power, df_condensed)
+    res = pd.concat((df_cycle, df_condensed, df_power), axis=1, names=column_levels)
+    return res
+
+
+df = concat_result_cycles(
+    mat_db["shift"], mat_db["shift_power"], mat_db["shift_condensed"]
+)
+display(df.head())
+
+## WARNING:
+#      Actions below are NOT idempotent,
+#      must reload data `mat_db` to rerun, from cell above!
+#
+df_shift = mat_db["shift"] = df
+del mat_db["shift_power"], mat_db["shift_condensed"]
+
+# %% [markdown]
+# ### Inspect Inputs
+
+# %%
+list(mat_db)
+
+# %%
 display(
-    msno.matrix(df_vehicle.replace(0, np.NAN)), msno.matrix(df_case.replace(0, np.NAN))
+    msno.matrix(df_vehicle.replace(0, np.NAN)),
+    msno.matrix(df_case.replace(0, np.NAN)),
 )
 
 # %%
@@ -450,7 +530,7 @@ def merge_scalar_results(results, scalar_fields):
 
 
 # Pick the case_no=1 results to research.
-df_scaled_scalars = mat_db["scaled_scalars"] = merge_scalar_results(
+df_scaled_scalars = merge_scalar_results(
     scale_results, scale_fields.query("is_scalar").index
 )
 
@@ -688,13 +768,13 @@ display(
 )  # *previews)
 
 # %%
-df_shift_scalars = mat_db["shift_scalars"] = merge_scalar_results(
+df_shift_scalars = merge_scalar_results(
     shift_results, shift_fields.query("is_scalar").index
 )
 
 display(
     #     df_shift_scalars.sample(nsamples).sort_index(),
-    df_shift_scalars,
+    df_shift_scalars.head(),
     df_shift_scalars.describe(),
     msno.matrix(df_shift_scalars.replace(0, np.NAN)),
     list(mat_db),
@@ -741,6 +821,7 @@ def merge_shift_cycle(
 
 
 def concat_cycles(results):
+    """Concat case-cycles from SHIFTs only. """
     dfs = {r.case: merge_shift_cycle(r, shift_fields) for r in results}
     cycles = pd.concat(dfs.values(), keys=dfs.keys(), axis=0, names=["case", "t"])
 
@@ -767,7 +848,7 @@ def conv_CalculatedGearsOutput(cell):
     res = pd.DataFrame(
         pd.Series(cell[0][1]).str.strip(),
         index=pd.Index(cell[0][0].ravel(), name="t", dtype=int),
-        columns=["shift"],
+        columns=["gear_or_clutch"],
     )
 
     return res
@@ -813,10 +894,62 @@ shift_dfs = convert_by_specs(shift_results, conv_specs)
 for name, df in shift_dfs.items():
     display(name, df.loc[pd.IndexSlice[:, 10:22], :])
 
+# %% [markdown]
+# ## Combine SCALE & SHIFT results
+# Roughly make x2 (hierarchical by case) frames: scalars, cycles
 
 # %%
-## make a single (hierarchical by vehicle & time) CYCLES frame with all items.
+renames = [
+    ("RequiredToRatedPowerRatio", "r_max2"),  # SCALE
+    ("CalculatedDownscalingPercentage", "f_dsc2"),  # SCALE
+    ("RequiredToRatedPowerRatios", "r_max"),  # SCALE (unused dupe?)
+    ("CalculatedDownscalingPercentages", "f_dsc"),  # SCALE (unused dupe?)
+    ("TotalChecksum", "v_sum"),  # SCALE
+    ("MaxVehicleSpeed", "v_max"),  # SCALE
+    ("TotalDistance", "d_cycle"),  # SCALE
+    ("AverageGearOutput", "g_avg"),  # SHIFT
+    ("ChecksumVxGearOutput", "v_x_g_sum"),  # SHIFT
+    ("AdjustedMax95EngineSpeed", "n_max1"),  # SHIFT
+    ("MaxEngineSpeedCycleOutput", "n_max2"),  # SHIFT
+    ("MaxEngineSpeedReachableOutput", "n_max3"),  # SHIFT
+    ("MaxEngineSpeedOutput", "n_max"),  # SHIFT
+    ("MaxVehicleSpeedCycleOutput", "v_max_c"),  # SHIFT
+    ("MaxVehicleSpeedReachableOutput", "v_max_v"),  # SHIFT
+    ("GearMaxVehicleSpeedReachableOutput", "g_v_max"),  # SHIFT
+    ("MinDriveEngineSpeed1stOutput", "n_min1"),  # SHIFT
+    ("MinDriveEngineSpeed1stTo2ndOutput", "n_min12"),  # SHIFT
+    ("MinDriveEngineSpeed2ndDecelOutput", "n_min2d"),  # SHIFT
+    ("MinDriveEngineSpeed2ndOutput", "n_min2"),  # SHIFT
+    ("MinDriveEngineSpeedGreater2ndOutput", "n_min3"),  # SHIFT
+]
+rlen = len(renames)
+renames = dict(renames)
+assert len(renames) == rlen, (len(renames), rlen)
+
+df_result_scalars = pd.concat((df_scaled_scalars, df_shift_scalars), axis=1)
+df_result_scalars = mat_db["result_scalars"] = df_result_scalars.rename(renames, axis=1)
+
+# %%
+## make a single (hierarchical by case & time) CYCLES frame with all items.
 #
+renames = [
+    ("AvailablePowersOutput", "p_avail"),
+    ("ClutchDisengagedOutput", "clutch"),
+    ("ClutchHSTOutput", "clutch_HST"),
+    ("ClutchUndefinedOutput", "undef"),
+    ("GearCorrectionsOutput", "g_corrections"),
+    ("GearsOutput", "g"),
+    ("RequiredEngineSpeedsOutput", "n_at_g"),
+    ("RequiredPowersOutput", "p_req"),
+    ("RequiredVehicleSpeedsOutput", "v"),
+    ("TraceTimesOutput", "t"),
+    # ("gear_or_clutch", ""),
+]
+rlen = len(renames)
+renames = dict(renames)
+assert len(renames) == rlen, (len(renames), rlen)
+
+
 def concat_cycle(shift_cycles, shift_dfs):
     cycles = shift_cycles.set_axis(
         pd.MultiIndex.from_product([shift_cycles.columns, [""]]), axis=1
@@ -827,7 +960,7 @@ def concat_cycle(shift_cycles, shift_dfs):
         pd.MultiIndex.from_product([shifts_condensed.columns, [""]]), axis=1
     )
 
-    return pd.concat(
+    res = pd.concat(
         (
             cycles,
             shifts_condensed,
@@ -843,11 +976,54 @@ def concat_cycle(shift_cycles, shift_dfs):
             ),
         ),
         axis=1,
-    ).rename_axis(["item", "gear"], axis=1)
+    )
+
+    return res.rename(renames, axis=1).rename_axis(["item", "gear"], axis=1)
 
 
 df_shift_cycles = mat_db["shift_cycles"] = concat_cycle(shift_cycles, shift_dfs)
-df_shift_cycles.sample(nsamples).sort_index()
+df_shift_cycles.iloc[10:20]
 
 # %%
 list(mat_db)
+
+# %% [markdown]
+# ## Compare with pure-Matlab result files `run_all_cases.m`
+# - `case_result` as read from out-file 
+# - `result_scalars` as concatanated  from calling SCALE & SHIFT
+#
+# and
+#
+# - `shift` as concated from out-files 
+# - `shift_cycles` as concated from calling SCALE & SHIFT
+
+# %%
+def check_frames(a, b):
+    ac, bc = set(a.columns), set(b.columns)
+    drop = ac - bc
+    if drop:
+        log.info("To compare, A must drop x%i columns: %s", len(drop), drop)
+        a = a.drop(drop, axis=1)
+    drop = bc - ac
+    if drop:
+        log.info("To compare, B must drop x%i columns: %s", len(drop), drop)
+        b = b.drop(drop, axis=1)
+    a, b = (
+        a.rename_axis([None] * a.columns.nlevels, axis=1).sort_index(axis=1),
+        b.rename_axis([None] * b.columns.nlevels, axis=1).sort_index(axis=1),
+    )
+    bad_items = (a != b).all()
+    display("DIFFS:", a.columns[bad_items].tolist())
+    return a.loc[:, bad_items] - b.loc[:, bad_items]
+    # pd.testing.assert_frame_equal(a, b, check_like=True, check_less_precise=True)
+
+
+diff = check_frames(mat_db["case_result"], mat_db["result_scalars"])
+display(diff)
+
+# %%
+diff = check_frames(mat_db["shift"], mat_db["shift_cycles"])
+diff.dropna()
+
+# %%
+# TODO: COMPARE CHEKCSUMS
